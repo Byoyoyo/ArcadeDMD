@@ -170,10 +170,12 @@ def set_output_enabled(root, name, flag):
 
 
 def load_config_file(root):
-    path = os.path.join(root, "config.json")
-    if os.path.exists(path):
-        with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
+    """config.json (tes réglages), sinon les valeurs de départ de config.defaut.json."""
+    for name in ("config.json", "config.defaut.json"):
+        path = os.path.join(root, name)
+        if os.path.exists(path):
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
     return {}
 
 

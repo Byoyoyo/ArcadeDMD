@@ -17,8 +17,9 @@ from .canvas import Canvas, Font, parse_color
 from .scene import Scene, Ctx, GameState
 from .outputs import ZeDMDOutput, PreviewOutput, GifRecorder, NullOutput
 from .pixelcade import PixelcadeOutput, guess_pixelcade_dir, list_ports
+from .retroarch import RetroArchSource
 
-VERSION = "1.2.2"
+VERSION = "1.3.0"
 
 DEFAULT_CONFIG = {
     "fps": 50,
@@ -36,6 +37,7 @@ DEFAULT_CONFIG = {
                       "pixelweb_exe": "", "art_dir": ""},
     },
     "doflinx_bridge": {"enabled": False, "host": "127.0.0.1", "port": 8081},
+    "retroarch": {"enabled": True, "host": "127.0.0.1", "port": 55355, "poll_ms": 100},
 }
 
 
@@ -262,9 +264,19 @@ class Simulator:
         self.next = {}
         for n in self.names:
             ln = n.lower()
-            if any(k in ln for k in ("score", "point", "ring", "anneau", "credit", "live", "vie", "record", "hi")):
-                state.update(n, self.values[n], 0.0, quiet=True)
-                self.next[n] = 1.0 if ("score" in ln or "ring" in ln or "anneau" in ln) else 9.0
+            state.update(n, self.values[n], 0.0, quiet=True)
+            if "score" in ln or "point" in ln or "ring" in ln or "anneau" in ln or "record" in ln:
+                self.next[n] = 1.0
+            elif "credit" in ln or "live" in ln or "vie" in ln:
+                self.next[n] = 9.0
+            elif "bomb" in ln:
+                self.next[n] = 4.0
+            elif "weapon" in ln or "arme" in ln:
+                self.next[n] = 5.0
+            elif "ammo" in ln or "munition" in ln:
+                self.next[n] = 0.4
+            elif "time" in ln or "chrono" in ln:
+                self.next[n] = 1.0
             else:
                 self.next[n] = float("inf")
 
@@ -304,6 +316,25 @@ class Simulator:
                 score = max([self.values[k] for k in self.names if "score" in k.lower()] or [0])
                 v = max(v, score)
                 self.next[n] = t + 1.0
+            elif "bomb" in ln:
+                v = 10 if v <= 0 else v - 1
+                self.next[n] = t + self.rng.uniform(2.5, 6.0)
+            elif "weapon" in ln or "arme" in ln:
+                order = [4, 3, 2, 1, 0]
+                v = order[(order.index(v) + 1) % len(order)] if v in order else 4
+                for k in self.names:
+                    if "ammo" in k.lower() or "munition" in k.lower():
+                        self.values[k] = {4: 200, 3: 30, 2: 30, 1: 30}.get(v, 0)
+                        self.state.update(k, self.values[k], t)
+                self.next[n] = t + 7.0
+            elif "ammo" in ln or "munition" in ln:
+                self.next[n] = t + self.rng.uniform(0.15, 0.6)
+                if v <= 0:
+                    continue
+                v = max(0, v - self.rng.choice([1, 1, 2, 3]))
+            elif "time" in ln or "chrono" in ln:
+                v = 60 if v <= 0 else v - 1
+                self.next[n] = t + 1.0
             else:
                 self.next[n] = t + 5.0
                 continue
@@ -334,8 +365,12 @@ class Engine:
         self.q = queue.Queue()
         self.bridge = None
         self.sim = None
+        self.demo_until = None
         self.source = None
         self.last_start = None
+        self.retroarch = None
+        self.demo_request = os.path.join(root, "runtime", "demo_request.json")
+        self.next_request_check = 0.0
         self.pixelcade_dir = guess_pixelcade_dir(root, config.get("outputs", {}).get("pixelcade", {}))
         ev = os.path.join(root, config.get("events_file", "runtime/events.jsonl"))
         self.tail = EventTail(ev, log) if not demo_game else None
@@ -345,6 +380,12 @@ class Engine:
                 self.bridge = Dof2DmdBridge(br.get("host", "127.0.0.1"), int(br.get("port", 8080)), self.q, log)
             except OSError as e:
                 log(f"passerelle DOFLinx impossible sur le port {br.get('port')} : {e}")
+        ra = config.get("retroarch", {})
+        if ra.get("enabled", True) and not demo_game:
+            try:
+                self.retroarch = RetroArchSource(self.library, self.q, ra, log)
+            except OSError as e:
+                log(f"RetroArch : surveillance impossible ({e})")
         self.go_idle()
         if demo_game:
             self.start_demo(demo_game)
@@ -375,6 +416,8 @@ class Engine:
     def go_idle(self):
         self.mode = "idle"
         self.source = None
+        self.sim = None
+        self.demo_until = None
         idle = self.cfg.get("idle", {})
         self.state.reset({"title": idle.get("text", "INSERT COIN"), "idle_text": idle.get("text", "INSERT COIN")})
         self.set_scene("_idle")
@@ -393,10 +436,13 @@ class Engine:
         self.state.reset(meta)
         self.mode = "game"
         self.source = source
+        if source != "demo":
+            self.sim = None
+            self.demo_until = None
         self.set_scene(key if key else "_generic")
         self.log(f"jeu : {meta.get('system')} « {title} » -> scène {self.scene_key}")
 
-    def start_demo(self, key):
+    def start_demo(self, key, seconds=None):
         g = self.library.get(key)
         if g is None and key not in ("_idle", "_generic"):
             self.log(f"jeu inconnu : {key} (fichiers disponibles : {', '.join(sorted(self.library.games))})")
@@ -404,25 +450,53 @@ class Engine:
             return
         self.start_game({"game": key, "system": key, "description": (g or {}).get("title", key)}, "demo")
         self.sim = Simulator(key, g, self.state)
+        self.demo_until = time.monotonic() + seconds if seconds else None
+
+    def check_demo_request(self):
+        """demo_sonic.bat lancé pendant que le moteur tourne : il dépose une demande ici."""
+        now = time.monotonic()
+        if now < self.next_request_check:
+            return
+        self.next_request_check = now + 0.5
+        if not os.path.exists(self.demo_request):
+            return
+        try:
+            with open(self.demo_request, "r", encoding="utf-8") as f:
+                req = json.load(f)
+        except (OSError, ValueError):
+            req = {}
+        try:
+            os.remove(self.demo_request)
+        except OSError:
+            pass
+        key = str(req.get("game") or "")
+        if not key:
+            return
+        if self.mode == "game" and self.source in ("plugin", "retroarch"):
+            self.log(f"démo {key} ignorée : une partie est en cours")
+            return
+        self.log(f"démo demandée : {key}")
+        self.start_demo(key, float(req.get("seconds", 20)))
 
     def message(self, text, seconds=2.0, color="#ffffff"):
         self.overlay = (text, time.monotonic() + seconds, parse_color(color))
 
     # -- événements
-    def handle_event(self, ev, now):
+    def handle_event(self, ev, now, source="plugin"):
         t = ev.get("t")
         self.last_event = time.monotonic()
         if t == "start":
             self.last_start = dict(ev)
-            self.start_game(ev, "plugin")
+            self.start_game(ev, source)
         elif t in ("v", "hb"):
-            if self.mode != "game":
+            if self.mode != "game" or self.source != source:
                 # reprise après un silence (menu MAME ouvert longtemps, moteur relancé en cours de partie)
-                self.start_game(self.last_start or {"system": "?", "description": ""}, "plugin")
+                self.start_game(self.last_start or {"system": "?", "description": ""}, source)
             for k, v in (ev.get("v") or {}).items():
                 self.state.update(k, v, now, quiet=(t == "hb"))
         elif t == "stop":
-            self.go_idle()
+            if self.source == source or self.mode != "game":
+                self.go_idle()
         elif t == "pause":
             self.state.paused = True
         elif t == "resume":
@@ -513,11 +587,19 @@ class Engine:
                 break
             if item[0] == "http":
                 self.handle_http(item[1], item[2], now)
+            elif item[0] == "ev":
+                self.handle_event(item[1], now, "retroarch")
+        if self.tail is not None:
+            self.check_demo_request()
         if self.sim:
             self.sim.step(now)
-        if (self.mode == "game" and self.source == "plugin"
+            if self.demo_until is not None and time.monotonic() > self.demo_until:
+                self.log("fin de la démo")
+                self.go_idle()
+        if (self.mode == "game" and self.source in ("plugin", "retroarch")
                 and time.monotonic() - self.last_event > float(self.cfg.get("heartbeat_timeout", 8))):
-            self.log("plus de nouvelles de MAME : retour à l'écran d'attente")
+            self.log("plus de nouvelles de " + ("MAME" if self.source == "plugin" else "RetroArch")
+                     + " : retour à l'écran d'attente")
             self.go_idle()
         return self.render(now)
 
@@ -555,6 +637,8 @@ class Engine:
                     self.log(f"fermeture sortie : {e}")
             if self.bridge:
                 self.bridge.close()
+            if self.retroarch:
+                self.retroarch.close()
 
 
 def scale(c, k):
@@ -566,14 +650,17 @@ def scale(c, k):
 # --------------------------------------------------------------------------
 
 def load_config(root, log):
-    path = os.path.join(root, "config.json")
+    """Valeurs internes, puis config.defaut.json (livré), puis config.json (tes réglages, jamais écrasé)."""
     cfg = DEFAULT_CONFIG
-    if os.path.exists(path):
+    for name in ("config.defaut.json", "config.json"):
+        path = os.path.join(root, name)
+        if not os.path.exists(path):
+            continue
         try:
             with open(path, "r", encoding="utf-8") as f:
-                cfg = deep_merge(DEFAULT_CONFIG, json.load(f))
+                cfg = deep_merge(cfg, json.load(f))
         except (OSError, ValueError) as e:
-            log(f"config.json illisible ({e}), valeurs par défaut utilisées")
+            log(f"{name} illisible ({e}), fichier ignoré")
     return cfg
 
 

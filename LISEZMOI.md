@@ -4,7 +4,7 @@ Score, vies et crédits des jeux MAME en direct sur une dalle LED 128x32 posée 
 
 Comment ça marche, en une phrase. Un plugin MAME lit les valeurs dans la RAM du jeu, un petit programme Python dessine la scène et l'envoie à la dalle, une **Pixelcade LED** ou un **ZeDMD**, en USB. Le même programme peut aussi afficher la scène en « LED virtuelles » sur ton écran marquee 1920×470.
 
-Tu as déjà une Pixelcade LED. Elle suffit, pas besoin d'acheter de dalle. Va directement aux sections 2 et 4.
+Tu as déjà une Pixelcade LED. Elle suffit, pas besoin d'acheter de dalle. Va directement aux sections 2 et 4. Pour les jeux lancés dans RetroArch (Metal Slug, Sonic...), lis aussi la section 7.
 
 Contenu du dossier
 
@@ -17,7 +17,7 @@ Contenu du dossier
 | `test_pixelcade.bat` | mire de test sur la Pixelcade LED |
 | `ports.bat` | liste les ports COM, pour trouver celui de la Pixelcade |
 | `test_dalle.bat` | mire de test sur une dalle ZeDMD |
-| `config.json` | réglages (dalle, fenêtre LED virtuelles, passerelle DOFLinx) |
+| `config.json` | tes réglages (Pixelcade, RetroArch, fenêtre LED virtuelles...), créé par l'installeur à partir de `config.defaut.json`. Une nouvelle version d'ArcadeDMD ne l'écrase jamais |
 | `games\*.json` | un fichier par jeu, avec les adresses RAM et la scène |
 | `mame-plugin\arcadedmd` | le plugin à copier dans `MAME\plugins` (l'installeur le fait) |
 | `sprites\` | petits sprites (avion, anneau). Tu peux ajouter les tiens |
@@ -79,10 +79,10 @@ Sans shield, le câblage fil à fil est donné dans le README de ZeDMD (tableau 
 
 ### Installation
 
-1. Installe Python 3.12 ou plus récent depuis https://www.python.org/downloads/ en cochant « Add python.exe to PATH ». Il faut aussi MAME 0.227 ou plus récent, l'installeur affiche ta version.
+1. Il faut Python 3.12 ou plus récent. S'il manque, `installer.bat` propose de l'installer (Python 3.13, depuis python.org). Sinon installe-le depuis https://www.python.org/downloads/ en cochant « Add python.exe to PATH ». Il faut aussi MAME 0.227 ou plus récent, l'installeur affiche ta version.
 2. Avant d'extraire le zip, fais un clic droit dessus, Propriétés, coche « Débloquer » puis OK. Windows ne posera plus de question à chaque fichier .bat.
 3. Extrais le dossier `ArcadeDMD` dans un chemin sans accent, idéalement `C:\ArcadeDMD`. MAME ne sait pas ouvrir les dossiers avec accents.
-4. Lance `installer.bat`. Il installe Pillow, pyserial et pygame-ce, copie le plugin dans MAME, règle la Pixelcade et propose le lancement automatique au démarrage de Windows. Il ne télécharge libzedmd (le pilote des dalles ZeDMD) que si tu dis avoir une dalle ZeDMD.
+4. Lance `installer.bat`. Il installe Pillow, pyserial et pygame-ce, copie le plugin dans MAME, règle la Pixelcade et propose le lancement automatique au démarrage de Windows. Il ne télécharge libzedmd (le pilote des dalles ZeDMD) que si tu dis avoir une dalle ZeDMD. Si tu n'utilises que RetroArch, appuie sur Entrée à la question sur MAME.
 
 ### Ce que l'installation modifie
 
@@ -198,13 +198,13 @@ Relance le jeu, le score et les crédits s'affichent sur la dalle et dans le men
 
 Avec une seule zone trouvée, c'est la bonne. Avec plusieurs, une capture de plus suffit à trancher. Si rien n'est trouvé, supprime la ligne `learn_ranges` dans `games\aburner2.json`, efface le dossier `runtime\learn\aburner2` et refais les captures. L'outil fouille alors toute la RAM visible du processeur principal.
 
-Autre voie si tu utilises déjà DOFLinx avec DOF2DMD (voir la section 8). DOFLinx sait déjà lire le score et les crédits d'After Burner II et de plus de 2 000 jeux.
+Autre voie si tu utilises déjà DOFLinx avec DOF2DMD (voir la section 9). DOFLinx sait déjà lire le score et les crédits d'After Burner II et de plus de 2 000 jeux.
 
 ---
 
 ## 6. Sonic 1 et Sonic 2
 
-Les adresses viennent des désassemblages communautaires de Sonic 1 et de Sonic 2 (score, anneaux, vies, zone). Elles sont les mêmes dans les deux jeux. La scène se déclenche dans MAME avec la Mega Drive (pilotes `genesis` ou `megadriv`, cartouche « Sonic The Hedgehog » ou « Sonic The Hedgehog 2 » par la liste logicielle ou un fichier ROM portant ce nom) et normalement avec les versions arcade Mega Play et Mega-Tech (`mp_sonic`, `mt_sonic`, `mp_soni2`, `mt_soni2`). Elle ne marche pas si tu lances Sonic avec RetroArch.
+Les adresses viennent des désassemblages communautaires de Sonic 1 et de Sonic 2 (score, anneaux, vies, zone). Elles sont les mêmes dans les deux jeux. La scène se déclenche dans MAME avec la Mega Drive (pilotes `genesis` ou `megadriv`, cartouche « Sonic The Hedgehog » ou « Sonic The Hedgehog 2 » par la liste logicielle ou un fichier ROM portant ce nom) et normalement avec les versions arcade Mega Play et Mega-Tech (`mp_sonic`, `mt_sonic`, `mp_soni2`, `mt_soni2`). Avec RetroArch et le cœur Genesis Plus GX, elle marche aussi (voir la section 7).
 
 Le fichier `games\sonic.json` sert pour Sonic 1 et `games\sonic2.json` pour Sonic 2. Les deux scènes sont pareilles, seul le titre change.
 
@@ -212,7 +212,48 @@ Le petit personnage qui court sur l'herbe est un anneau générique. Pour mettre
 
 ---
 
-## 7. Ajouter un jeu ou modifier une scène
+## 7. RetroArch (Metal Slug, Sonic...)
+
+ArcadeDMD lit aussi les jeux lancés dans RetroArch, sans plugin. RetroArch donne la mémoire du jeu par ses « commandes réseau », qui restent sur le PC lui-même. C'est la méthode du zip de Vera.
+
+### À régler une fois dans RetroArch
+
+1. Il faut RetroArch 1.19 ou plus récent. La version s'affiche dans Informations, puis Informations système.
+2. Dans Réglages, puis Réseau, active « Commandes réseau ». Laisse le port 55355.
+3. Laisse activé « Mettre en pause quand la fenêtre n'est plus active » (Réglages, Interface utilisateur). C'est le réglage par défaut, il sert pour l'apprentissage.
+
+Rien d'autre à installer. Dès que le moteur tourne (`lancer.bat` ou le lancement automatique), il surveille RetroArch tout seul. Le journal indique « RetroArch détecté » quand les commandes réseau répondent.
+
+### Jeux prévus
+
+| Jeu | Cœur RetroArch | Affiché tout de suite | À apprendre |
+|---|---|---|---|
+| Metal Slug (`mslug`) | FBNeo | vies, bombes, arme, munitions | score, crédits |
+| Metal Slug 3 (`mslug3`) | FBNeo | vies, bombes, munitions | score J1 et J2, crédits |
+| Sonic 1 et Sonic 2 | Genesis Plus GX | score, anneaux, vies | rien |
+
+Les adresses des vies, bombes et munitions viennent de la base de codes de triche de MAME 2003-Plus. Celles de Sonic sont les mêmes que dans MAME.
+
+### Apprendre le score et les crédits
+
+1. Lance le jeu dans RetroArch et commence une partie.
+2. Lance `apprendre.bat`. Il voit que RetroArch tourne et passe en mode direct.
+3. Retourne dans le jeu (Alt+Tab). Quand le score est bien visible, reviens dans la fenêtre d'`apprendre.bat`. Le jeu se met en pause tout seul.
+4. Tape ce que tu vois, par exemple `score=12300 credits=2`, puis Entrée. Retourne jouer.
+5. Recommence trois ou quatre fois avec des valeurs différentes. Pour les crédits, mets une pièce entre deux captures. Entrée vide pour finir.
+6. L'outil trouve les adresses et les écrit dans `games\mslug.json` (ou `mslug3.json`). Le moteur les prend tout seul.
+
+Noms reconnus `score`, `score_p2`, `credits`, `vies`, `bombes`, `munitions`. Pour un autre jeu, l'outil crée un fichier dans `games\` avec la scène générique.
+
+### Bon à savoir
+
+- Un jeu RetroArch sans fichier dans `games\` ne change rien sur la Pixelcade (sauf avec `"takeover": "all"`).
+- Dans `config.json`, rubrique `retroarch`, `"enabled": false` coupe la surveillance.
+- Si le journal dit « lecture de la mémoire refusée », RetroArch est trop ancien.
+
+---
+
+## 8. Ajouter un jeu ou modifier une scène
 
 1. Copie `games\aburner2.json` sous le nom court du jeu, par exemple `games\outrun.json`.
 2. Change `"match"` (`"system": ["outrun"]`), le titre et les valeurs.
@@ -248,7 +289,7 @@ Polices disponibles `4x6`, `5x8`, `6x10`, `6x13`, `7x14`, `7x14B`, `8x13B`, `9x1
 
 ---
 
-## 8. Passerelle DOFLinx (facultatif)
+## 9. Passerelle DOFLinx (facultatif)
 
 ArcadeDMD sait se faire passer pour DOF2DMD. DOFLinx lui envoie alors le score et les crédits de tous les jeux qu'il connaît, sans aucune adresse à chercher.
 
@@ -261,8 +302,10 @@ Les deux sources se complètent. Pour After Burner II, le record vient du plugin
 
 ---
 
-## 9. Dépannage
+## 10. Dépannage
 
+- **RetroArch, rien ne change sur la Pixelcade.** Vérifie que les « Commandes réseau » sont actives dans RetroArch et que le journal dit « RetroArch détecté ». Le jeu doit avoir son fichier dans `games\`.
+- **« Python est introuvable ».** Le raccourci `python` du Microsoft Store ne compte pas, il ne lance rien. Relance `installer.bat`, il propose d'installer Python 3.13. Les fichiers .bat trouvent aussi un Python installé sans être dans le PATH.
 - **ArcadeDMD n'apparaît pas dans le menu Tab de MAME.** MAME est peut-être trop ancien (il faut 0.227 ou plus récent, `installer.bat` affiche la version). Sinon le plugin est désactivé, voir « Vérifier le plugin dans MAME ».
 - **Rien ne s'affiche pendant un jeu.** Regarde `runtime\arcadedmd.log` et vérifie que `runtime\events.jsonl` grossit pendant la partie. Sinon, le chemin `root` du fichier `MAME\plugins\arcadedmd\settings.json` ne pointe pas vers le dossier ArcadeDMD.
 - **« ZeDMD : dalle non trouvée ».** Vérifie le câble (data), le port USB natif de l'ESP32-S3, et qu'aucun autre logiciel n'utilise la dalle (DOF2DMD, VPX, dmdext, ou le moteur ArcadeDMD déjà lancé en arrière-plan). La recherche automatique s'arrête après trois essais. Une fois la dalle trouvée, son port est mémorisé et seul ce port est réessayé.

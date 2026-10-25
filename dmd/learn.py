@@ -129,11 +129,14 @@ def rank(results, field):
     """Trie les candidats : un score est en général large (3-4 octets), un compteur court."""
     wide = any(k in field.lower() for k in WIDE_FIELDS)
     pref = {"bcd": 0, "be": 1, "u8": 1, "digits": 2, "digits_ascii": 3, "le": 4, "bcd_le": 5}
+    # un petit compteur (vies, bombes...) est plutôt un octet simple, les crédits souvent en BCD
+    small = {"u8": 0, "bcd": 1} if "credit" not in field.lower() else {"bcd": 0, "u8": 1}
 
     def key(r):
         aligned = 0 if (r["bytes"] == 1 or r["addr"] % 2 == 0) else 1
         width = -r["bytes"] if wide else r["bytes"]
-        return (pref.get(r["type"], 9), aligned, width, 0 if (r["mult"] == 10) == wide else 1, r["addr"])
+        p = small.get(r["type"], pref.get(r["type"], 9)) if (not wide and r["bytes"] == 1) else pref.get(r["type"], 9)
+        return (p, aligned, width, 0 if (r["mult"] == 10) == wide else 1, r["addr"])
 
     return sorted(results, key=key)
 
@@ -182,6 +185,15 @@ def ask(prompt):
         return ""
 
 
+# noms français tapés par l'utilisateur -> noms utilisés dans games/*.json
+ALIASES = {
+    "vie": "lives", "vies": "lives", "bombe": "bombs", "bombes": "bombs", "grenades": "bombs",
+    "munition": "ammo", "munitions": "ammo", "balles": "ammo", "arme": "weapon",
+    "credit": "credits", "crédit": "credits", "crédits": "credits", "temps": "time", "chrono": "time",
+    "anneau": "rings", "anneaux": "rings", "points": "score", "pts": "score",
+}
+
+
 def parse_values(line):
     out = {}
     for part in line.replace(",", " ").split():
@@ -189,7 +201,8 @@ def parse_values(line):
             k, v = part.split("=", 1)
             v = v.replace(".", "").replace(" ", "")
             if v.isdigit():
-                out[k.strip()] = int(v)
+                k = k.strip().lower()
+                out[ALIASES.get(k, k)] = int(v)
     return out
 
 
@@ -203,8 +216,9 @@ def open_image(path):
         pass
 
 
-def run(root, game=None, answers=None, write=None, show=True):
-    """answers : dict {numéro de capture: {champ: valeur}} pour l'usage non interactif."""
+def run(root, game=None, answers=None, write=None, show=True, pick_interactive=False, new_cfg=None):
+    """answers : dict {numéro de capture: {champ: valeur}} (valeurs déjà connues).
+    pick_interactive : demander quand même le choix des candidats (mode RetroArch)."""
     base = os.path.join(root, "runtime", "learn")
     if not os.path.isdir(base):
         print("Aucune capture trouvée. Lance un jeu dans MAME et appuie sur Ctrl droit + D (voir le guide).")
@@ -239,8 +253,9 @@ def run(root, game=None, answers=None, write=None, show=True):
             cfg = json.load(f)
 
     print(f"\n{len(snaps)} capture(s) pour {game}.")
-    print("Pour chaque capture, tape les valeurs lues sur l'image, par exemple :  score=16060 credits=3")
-    print("(Entrée vide = capture ignorée)\n")
+    if answers is None:
+        print("Pour chaque capture, tape les valeurs lues sur l'image, par exemple :  score=16060 credits=3")
+        print("(Entrée vide = capture ignorée)\n")
     observations = {}
     for s in snaps:
         n = s.meta.get("n")
@@ -294,7 +309,7 @@ def run(root, game=None, answers=None, write=None, show=True):
         else:
             print("  Trop de candidats : fais une ou deux captures de plus avec une valeur différente.")
         pick = res[0] if len(res) <= 3 else None
-        if answers is None:
+        if answers is None or pick_interactive:
             c = ask(f"  Numéro à enregistrer pour « {field} » (Entrée = {'1' if pick else 'aucun'}) : ").strip()
             if c.isdigit() and 0 < int(c) <= len(res):
                 pick = res[int(c) - 1]
@@ -308,6 +323,9 @@ def run(root, game=None, answers=None, write=None, show=True):
     print("\nÀ enregistrer :")
     for k, v in chosen.items():
         print(f"  {k}: {json.dumps(v)}")
+    if cfg is None and new_cfg is not None:
+        cfg = new_cfg
+        print(f"(nouveau fichier games/{game}.json, la scène générique sera utilisée)")
     if cfg is None:
         cfg = {"title": snaps[-1].meta.get("description", game),
                "match": [{"system": [snaps[-1].meta.get("system", game)]}],
@@ -326,5 +344,104 @@ def run(root, game=None, answers=None, write=None, show=True):
         with open(cfg_path, "w", encoding="utf-8") as f:
             json.dump(cfg, f, indent=2, ensure_ascii=False)
             f.write("\n")
-        print("Enregistré. Relance le jeu, les valeurs s'affichent aussi dans Tab > Options des plugins > ArcadeDMD.")
+        if snaps[-1].meta.get("source") == "retroarch":
+            print("Enregistré. ArcadeDMD prend les nouvelles adresses tout seul (relance le jeu si rien ne change).")
+        else:
+            print("Enregistré. Relance le jeu, les valeurs s'affichent aussi dans Tab > Options des plugins > ArcadeDMD.")
     return 0
+
+
+# --------------------------------------------------------------------------
+# apprentissage en direct pendant une partie RetroArch
+# --------------------------------------------------------------------------
+
+def load_games(root):
+    games = {}
+    for p in glob.glob(os.path.join(root, "games", "*.json")):
+        try:
+            with open(p, "r", encoding="utf-8") as f:
+                games[os.path.basename(p)[:-5]] = json.load(f)
+        except (OSError, ValueError):
+            pass
+    return games
+
+
+def safe_key(text):
+    out = "".join(c if c.isalnum() else "_" for c in (text or "").lower()).strip("_")
+    return out[:40] or "jeu"
+
+
+def run_live_retroarch(root, client, st, game=None, inputs=None):
+    """Captures prises au moment où l'on tape les valeurs vues à l'écran."""
+    from .retroarch import layout_for, match_game
+    games = load_games(root)
+    key, spec = match_game(games, st["content"], st["system"])
+    if game and game in games:
+        key, spec = game, games[game]
+    if not key:
+        key = safe_key(st["content"])
+    layout = layout_for(spec, st["system"])
+    base = os.path.join(root, "runtime", "learn", key)
+    os.makedirs(base, exist_ok=True)
+    old = sorted(glob.glob(os.path.join(base, "snap_*")))
+    if old:
+        arch = os.path.join(base, "anciennes")
+        os.makedirs(arch, exist_ok=True)
+        for p in old:
+            try:
+                os.replace(p, os.path.join(arch, os.path.basename(p)))
+            except OSError:
+                pass
+    title = (spec or {}).get("title") or st["content"]
+    from .retroarch import too_old
+    version = client.version()
+    if too_old(version):
+        print(f"RetroArch {version} est trop ancien pour lire la mémoire des jeux. Il faut la version 1.19 ou plus récente.")
+        return 1
+    print(f"Jeu RetroArch : {st['content']} (cœur {st['system']}), fichier games/{key}.json")
+    print("Joue, puis reviens dans cette fenêtre (Alt+Tab) quand une valeur est bien visible.")
+    print("RetroArch se met en pause tout seul quand sa fenêtre n'est plus active.")
+    print("Tape alors ce que tu vois, par exemple   score=1200 vies=2")
+    print("Retourne jouer, et recommence trois ou quatre fois avec des valeurs différentes.")
+    print("Entrée vide pour terminer.\n")
+    answers = {}
+    n = 0
+    feed = iter(inputs) if inputs is not None else None
+    while True:
+        line = (next(feed, "") if feed is not None else ask("Valeurs à l'écran : ")).strip()
+        if not line:
+            break
+        vals = parse_values(line)
+        if not vals:
+            print("  Exemple de saisie :  score=1200 vies=2")
+            continue
+        now = client.status()
+        if not now or now.get("content") != st["content"]:
+            print("  RetroArch ne répond plus, ou le jeu a changé. Arrêt des captures.")
+            break
+        if now.get("state") != "PAUSED":
+            print("  (le jeu n'était pas en pause, la capture peut être un peu décalée)")
+        data = layout.capture(client)
+        if not data:
+            print("  Lecture de la mémoire impossible. Il faut RetroArch 1.19 ou plus récent.")
+            break
+        n += 1
+        stem = os.path.join(base, f"snap_{n:03d}")
+        with open(stem + ".bin", "wb") as f:
+            f.write(data)
+        meta = {"n": n, "system": st["content"], "description": title, "source": "retroarch",
+                "core": st["system"], "values": vals,
+                "ranges": [{"start": layout.base, "end": layout.base + len(data) - 1, "offset": 0, "length": len(data)}]}
+        with open(stem + ".json", "w", encoding="utf-8") as f:
+            json.dump(meta, f, indent=1, ensure_ascii=False)
+        answers[n] = vals
+        print(f"  Capture {n} enregistrée ({', '.join(f'{k}={v}' for k, v in vals.items())}).")
+    if not answers:
+        print("Aucune capture.")
+        return 1
+    new_cfg = {"title": title, "match": [],
+               "retroarch": {"content": [st["content"]], "ram_base": f"0x{layout.base:06X}",
+                             "ram_size": f"0x{layout.size:X}", "swap16": layout.swap},
+               "memory": {"values": {}}}
+    return run(root, key, answers=answers, show=False, pick_interactive=inputs is None, new_cfg=new_cfg,
+               write=None if inputs is None else True)

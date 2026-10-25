@@ -1,0 +1,471 @@
+{
+  "title": "Metal Slug 3",
+  "match": [
+    {
+      "system": [
+        "mslug3",
+        "mslug3h",
+        "mslug3a",
+        "mslug3n"
+      ]
+    }
+  ],
+  "retroarch": {
+    "content": [
+      "mslug3",
+      "mslug3h",
+      "mslug3a",
+      "mslug3n"
+    ],
+    "ram_base": "0x100000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "cœur FBNeo : RAM 68000 de la Neo Geo vue à partir de 0x100000, octets inversés par mots de 16 bits"
+  },
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "score": {
+        "addr": "",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "joueur 1, à trouver avec apprendre.bat"
+      },
+      "score_p2": {
+        "addr": "",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "joueur 2, à trouver avec apprendre.bat"
+      },
+      "credits": {
+        "addr": "0xD00034",
+        "type": "bcd",
+        "bytes": 1,
+        "note": "crédits MVS, MAME seulement. Dans RetroArch, à trouver avec apprendre.bat"
+      },
+      "lives": {
+        "addr": "0x1002BB",
+        "type": "u8",
+        "note": "vies joueur 1 (base de triche MAME 2003-Plus)"
+      },
+      "lives_p2": {
+        "addr": "0x10036B",
+        "type": "u8",
+        "note": "vies joueur 2"
+      },
+      "bombs": {
+        "addr": "0x10EAF5",
+        "type": "u8",
+        "note": "bombes joueur 1"
+      },
+      "bombs_p2": {
+        "addr": "0x10EB03",
+        "type": "u8",
+        "note": "bombes joueur 2"
+      },
+      "ammo": {
+        "addr": "0x10EAFA",
+        "type": "be",
+        "bytes": 2,
+        "note": "munitions joueur 1"
+      },
+      "ammo_p2": {
+        "addr": "0x10EB08",
+        "type": "be",
+        "bytes": 2,
+        "note": "munitions joueur 2"
+      },
+      "weapon": {
+        "addr": "0x10EAF3",
+        "type": "u8",
+        "note": "arme joueur 1, 0 = pistolet"
+      },
+      "prisoners": {
+        "addr": "0x10ED05",
+        "type": "u8",
+        "note": "prisonniers libérés joueur 1"
+      },
+      "time": {
+        "addr": "0x10ED78",
+        "type": "bcd",
+        "bytes": 1,
+        "note": "chrono"
+      }
+    }
+  },
+  "demo": {
+    "lives": 2,
+    "bombs": 10,
+    "ammo": 0,
+    "weapon": 0,
+    "credits": 1,
+    "time": 60,
+    "prisoners": 0
+  },
+  "scene": {
+    "layers": [
+      {
+        "type": "waves",
+        "layers": [
+          {
+            "y": 29,
+            "amp": 2,
+            "freq": 0.11,
+            "speed": 0.5,
+            "color": "#06260d",
+            "edge": "#1fbf4a"
+          },
+          {
+            "y": 31,
+            "amp": 1,
+            "freq": 0.21,
+            "speed": 0.9,
+            "color": "#0b3d16",
+            "edge": "#ff9a2a"
+          }
+        ]
+      },
+      {
+        "type": "particles",
+        "rate": 0.4,
+        "color": "#ffb020",
+        "trail": 2,
+        "speed": [
+          70,
+          120
+        ],
+        "y": [
+          10,
+          20
+        ],
+        "dir": "both",
+        "burst": {
+          "on": [
+            "score",
+            "score_p2"
+          ],
+          "count": 8,
+          "color": "#ff6020"
+        }
+      },
+      {
+        "type": "marquee",
+        "text": "METAL SLUG 3",
+        "font": "6x10",
+        "y": 0,
+        "speed": 20,
+        "gap": 40,
+        "color": "#e6e6e6"
+      },
+      {
+        "type": "text",
+        "text": "P1",
+        "font": "7x14",
+        "x": 1,
+        "y": 10,
+        "color": "#30ff60",
+        "when": {
+          "has": "score"
+        }
+      },
+      {
+        "type": "text",
+        "text": "{score}",
+        "font": "7x14",
+        "x": 20,
+        "y": 10,
+        "color": "#30ff60",
+        "when": {
+          "has": "score"
+        },
+        "flash": {
+          "on": "score",
+          "color": "#c8ffd8",
+          "ms": 120
+        }
+      },
+      {
+        "type": "text",
+        "segments": [
+          {
+            "text": "P2",
+            "color": "#30d8ff"
+          },
+          {
+            "text": " {score_p2}",
+            "color": "#ffd030"
+          }
+        ],
+        "font": "7x14",
+        "x": 127,
+        "y": 10,
+        "align": "right",
+        "when": {
+          "has": "score_p2"
+        },
+        "flash": {
+          "on": "score_p2",
+          "color": "#fff4c8",
+          "ms": 120
+        }
+      },
+      {
+        "type": "cycle",
+        "period": 3,
+        "when": {
+          "not": {
+            "has": "score"
+          }
+        },
+        "pages": [
+          {
+            "when": {
+              "has": "lives"
+            },
+            "layers": [
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "VIES ",
+                    "color": "#33d6ff"
+                  },
+                  {
+                    "text": "{lives}",
+                    "color": "#ffffff"
+                  }
+                ],
+                "font": "9x15B",
+                "x": 64,
+                "y": 9,
+                "align": "center",
+                "flash": {
+                  "on": "lives",
+                  "color": "#ff4040",
+                  "ms": 600
+                }
+              }
+            ]
+          },
+          {
+            "when": {
+              "has": "bombs"
+            },
+            "layers": [
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "BOMBES ",
+                    "color": "#ff5a28"
+                  },
+                  {
+                    "text": "{bombs}",
+                    "color": "#ffffff"
+                  }
+                ],
+                "font": "9x15B",
+                "x": 64,
+                "y": 9,
+                "align": "center",
+                "flash": {
+                  "on": "bombs",
+                  "color": "#ffd23c",
+                  "ms": 300
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "cycle",
+        "period": 3.5,
+        "when": {
+          "not": {
+            "has": "score"
+          }
+        },
+        "pages": [
+          {
+            "when": {
+              "has": "weapon"
+            },
+            "layers": [
+              {
+                "type": "text",
+                "text": "ARME PISTOLET",
+                "font": "6x10",
+                "x": 64,
+                "y": 21,
+                "align": "center",
+                "color": "#c8c8c8",
+                "when": {
+                  "var": "weapon",
+                  "eq": 0
+                }
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "MUNITIONS ",
+                    "color": "#ff8a1e"
+                  },
+                  {
+                    "text": "{ammo}",
+                    "color": "#ffffff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 21,
+                "align": "center",
+                "when": {
+                  "var": "weapon",
+                  "ne": 0
+                },
+                "flash": {
+                  "on": "weapon",
+                  "color": "#ffffff",
+                  "ms": 300
+                }
+              }
+            ]
+          },
+          {
+            "when": {
+              "has": "credits"
+            },
+            "layers": [
+              {
+                "type": "text",
+                "text": "CRÉDITS {credits}",
+                "font": "6x10",
+                "x": 64,
+                "y": 21,
+                "align": "center",
+                "color": "#30d8ff",
+                "flash": {
+                  "on": "credits",
+                  "color": "#ffffff",
+                  "ms": 400
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "cycle",
+        "period": 3.5,
+        "when": {
+          "has": "score"
+        },
+        "pages": [
+          {
+            "when": {
+              "has": "credits"
+            },
+            "layers": [
+              {
+                "type": "text",
+                "text": "CRÉDITS {credits}",
+                "font": "6x10",
+                "x": 64,
+                "y": 21,
+                "align": "center",
+                "color": "#30d8ff",
+                "flash": {
+                  "on": "credits",
+                  "color": "#ffffff",
+                  "ms": 400
+                }
+              }
+            ]
+          },
+          {
+            "layers": [
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "VIES ",
+                    "color": "#33d6ff"
+                  },
+                  {
+                    "text": "{lives}",
+                    "color": "#ffffff"
+                  },
+                  {
+                    "text": "  BOMBES ",
+                    "color": "#ff5a28"
+                  },
+                  {
+                    "text": "{bombs}",
+                    "color": "#ffffff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 21,
+                "align": "center",
+                "flash": {
+                  "on": "lives",
+                  "color": "#ff4040",
+                  "ms": 600
+                }
+              }
+            ]
+          },
+          {
+            "when": {
+              "has": "weapon"
+            },
+            "layers": [
+              {
+                "type": "text",
+                "text": "ARME PISTOLET",
+                "font": "6x10",
+                "x": 64,
+                "y": 21,
+                "align": "center",
+                "color": "#c8c8c8",
+                "when": {
+                  "var": "weapon",
+                  "eq": 0
+                }
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "MUNITIONS ",
+                    "color": "#ff8a1e"
+                  },
+                  {
+                    "text": "{ammo}",
+                    "color": "#ffffff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 21,
+                "align": "center",
+                "when": {
+                  "var": "weapon",
+                  "ne": 0
+                },
+                "flash": {
+                  "on": "weapon",
+                  "color": "#ffffff",
+                  "ms": 300
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

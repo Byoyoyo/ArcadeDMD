@@ -14,6 +14,7 @@ Usage :
   python arcadedmd.py enable-zedmd     active la sortie ZeDMD (désactivée par défaut)
 """
 
+import json
 import os
 import sys
 import time
@@ -144,7 +145,15 @@ def main(argv):
     cfg = app.load_config(ROOT, log)
 
     if cmd == "learn":
-        return learn.run(ROOT, argv[2] if len(argv) > 2 else None)
+        hint = argv[2] if len(argv) > 2 else None
+        ra = cfg.get("retroarch", {})
+        if ra.get("enabled", True):
+            from dmd.retroarch import RetroArchClient
+            client = RetroArchClient(ra.get("host", "127.0.0.1"), ra.get("port", 55355))
+            st = client.status()
+            if st and st.get("state") in ("PLAYING", "PAUSED"):
+                return learn.run_live_retroarch(ROOT, client, st, hint)
+        return learn.run(ROOT, hint)
 
     if cmd == "check-zedmd":
         dll = cfg.get("outputs", {}).get("zedmd", {}).get("dll") or "libzedmd/zedmd64.dll"
@@ -190,8 +199,13 @@ def main(argv):
     if cmd == "demo":
         demo = argv[2] if len(argv) > 2 else "aburner2"
         if app.engine_running():
-            log("Le moteur tourne déjà en arrière-plan : la démo s'affiche seulement dans la fenêtre, pas sur les dalles.")
-            use_zedmd = False
+            # le moteur tourne déjà et tient la dalle : on lui demande de jouer la démo
+            req = os.path.join(ROOT, "runtime", "demo_request.json")
+            with open(req, "w", encoding="utf-8") as f:
+                json.dump({"game": demo, "seconds": 20}, f)
+            print("ArcadeDMD tourne déjà. La démo passe sur la Pixelcade pendant 20 secondes.")
+            time.sleep(5)
+            return 0
     elif cmd != "run":
         print(__doc__)
         return 2

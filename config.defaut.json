@@ -38,5 +38,11 @@
     "enabled": false,
     "host": "127.0.0.1",
     "port": 8081
+  },
+  "retroarch": {
+    "enabled": true,
+    "host": "127.0.0.1",
+    "port": 55355,
+    "poll_ms": 100
   }
 }

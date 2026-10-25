@@ -2,6 +2,7 @@
 setlocal EnableExtensions EnableDelayedExpansion
 cd /d "%~dp0"
 set "ROOT=%~dp0"
+if not exist config.json copy /y config.defaut.json config.json >nul
 if "%ROOT:~-1%"=="\" set "ROOT=%ROOT:~0,-1%"
 echo ==============================================
 echo   Installation ArcadeDMD
@@ -9,17 +10,26 @@ echo ==============================================
 echo.
 
 rem ---------- 1. Python et bibliotheques ----------
-set "PY="
-where py >nul 2>nul && set "PY=py -3"
-if not defined PY where python >nul 2>nul && set "PY=python"
-if not defined PY (
-  echo Python est introuvable.
-  echo Installe Python 3.12 ou plus recent depuis https://www.python.org/downloads/
-  echo en cochant "Add python.exe to PATH", puis relance installer.bat.
-  pause
-  exit /b 1
-)
+call "%~dp0dmd\trouver_python.bat"
+if defined PY goto python_ok
+echo Python n'est pas installe sur ce PC.
+echo Le raccourci "python" du Microsoft Store ne compte pas, il ne lance rien.
+where winget >nul 2>nul
+if errorlevel 1 goto python_manual
+set "ANS="
+set /p "ANS=  Installer Python 3.13 maintenant depuis python.org ? (O/n) : "
+if /i "!ANS!"=="n" goto python_manual
+winget install -e --id Python.Python.3.13 --scope user --accept-package-agreements --accept-source-agreements
+call "%~dp0dmd\trouver_python.bat"
+if defined PY goto python_ok
+:python_manual
+echo Installe Python 3.13 depuis https://www.python.org/downloads/ en cochant "Add python.exe to PATH",
+echo puis relance installer.bat.
+pause
+exit /b 1
+:python_ok
 echo [1/5] Bibliotheques Python
+echo   Python utilise !PY!
 %PY% -m pip install --upgrade pillow pyserial
 if errorlevel 1 (
   echo Echec de l'installation de Pillow ou pyserial. Verifie la connexion internet puis relance.
@@ -77,17 +87,14 @@ for %%D in ("%USERPROFILE%\LaunchBox\Emulators\MAME" "C:\LaunchBox\Emulators\MAM
 set /a TRIES=0
 :ask_mame
 set /a TRIES+=1
-if !TRIES! GTR 5 (
-  echo   Trop d'essais. Relance installer.bat quand tu connais le dossier de MAME.
-  pause
-  exit /b 1
-)
+if !TRIES! GTR 5 goto skip_mame
 set "ANS="
 if defined MAMEDIR echo   MAME trouve dans !MAMEDIR!. Appuie sur Entree pour le garder.
+if not defined MAMEDIR echo   Si tu n'utilises pas MAME ^(seulement RetroArch^), appuie simplement sur Entree.
 set /p "ANS=  Dossier de MAME, celui qui contient mame.exe : "
 if defined ANS set "ANS=!ANS:"=!"
 if defined ANS set "MAMEDIR=!ANS!"
-if not defined MAMEDIR goto ask_mame
+if not defined MAMEDIR goto skip_mame
 %PY% arcadedmd.py install-plugin "!MAMEDIR!"
 if errorlevel 2 (
   pause
@@ -95,9 +102,13 @@ if errorlevel 2 (
 )
 if errorlevel 1 (
   set "MAMEDIR="
-  echo   Indique le bon dossier, ou ferme cette fenetre pour abandonner.
+  echo   Indique le bon dossier, ou appuie sur Entree pour passer.
   goto ask_mame
 )
+goto mame_done
+:skip_mame
+echo   Plugin MAME non installe. Relance installer.bat le jour ou tu veux l'utiliser avec MAME.
+:mame_done
 
 rem ---------- 4. Pixelcade ----------
 echo.
@@ -112,8 +123,6 @@ echo [5/5] Lancement automatique a l'ouverture de session Windows
 set "ANS="
 set /p "ANS=  Activer ? (O/n) : "
 if /i "!ANS!"=="n" goto done
-set "PYW=pythonw"
-where pyw >nul 2>nul && set "PYW=pyw -3"
 set "STARTUP=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup"
 > "!STARTUP!\ArcadeDMD.bat" echo @echo off
 >> "!STARTUP!\ArcadeDMD.bat" echo cd /d "!ROOT!"

@@ -2,7 +2,7 @@
   "plugin": {
 	"name": "arcadedmd",
 	"description": "ArcadeDMD (score, vies, credits vers la dalle LED)",
-	"version": "1.2.2",
+	"version": "1.3.0",
 	"author": "ArcadeDMD",
 	"type": "plugin",
 	"start": "true"
