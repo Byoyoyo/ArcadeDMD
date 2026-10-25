@@ -250,16 +250,26 @@ class MarqueeEl(Element):
         self.accents = [parse_color(c) for c in spec.get("accent_initials", [])]
         self.upper = spec.get("upper", False)
         self.static_if_fits = spec.get("static_if_fits", False)
+        # "segments" : morceaux de couleurs différentes, par exemple SNK en bleu puis le titre en blanc
+        self.segments = [(g.get("text", ""), parse_color(g.get("color"), self.color))
+                         for g in spec.get("segments", []) if isinstance(g, dict)]
 
     def render(self, ctx):
-        s = render_template(self.text, ctx.state.mapping(), "")
+        mapping = ctx.state.mapping()
+        seg_colors = None
+        if self.segments:
+            parts = [(render_template(t, mapping, ""), c) for t, c in self.segments]
+            s = "".join(p for p, _ in parts)
+            seg_colors = [c for p, c in parts for _ in p]
+        else:
+            s = render_template(self.text, mapping, "")
         if self.upper:
             s = s.upper()
         if not s:
             return
         cv = ctx.canvas
         fl = _flash_color(self.spec, ctx, None)
-        colors = [fl] * len(s) if fl else _accent_colors(s, self.accents, self.color)
+        colors = [fl] * len(s) if fl else (seg_colors or _accent_colors(s, self.accents, self.color))
         tw = self.font.width(s, self.spacing)
         cv.set_clip(self.x, 0, self.x + self.w, cv.h)
         try:

@@ -254,9 +254,9 @@ Pour savoir quel cœur tourne, appuie sur F1 pendant le jeu, puis Informations, 
 
 Les adresses des vies, bombes et munitions viennent de la base de codes de triche de MAME 2003-Plus. Celles de Sonic sont les mêmes que dans MAME. Les vies de Metal Slug suivent le « 1UP » de l'écran (le jeu compte aussi la vie en cours). Les crédits des Neo Geo ne se lisent qu'avec MAME, RetroArch ne voit pas cette mémoire.
 
-Les scènes de Metal Slug et de Metal Slug 3 reprennent la vidéo de Vera. Le titre défile en haut. Au milieu, « P1 » en vert et le score en blanc à gauche, les vies à droite (le score du joueur 2 dans Metal Slug 3, une fois appris). En bas, des montagnes vertes avec un petit char qui avance en fond, moins lumineux, et tire quand le score monte. Le texte du bas alterne les bombes, l'arme avec ses munitions (pistolet, mitraillette, fusil à pompe, lance-flammes, lance-roquettes) et les crédits avec MAME.
+Les scènes de Metal Slug et de Metal Slug 3 s'inspirent de la vidéo de Vera, adaptées à une dalle 128x32 pour que rien ne passe sous le décor. En haut, « SNK » en bleu puis « - METAL SLUG » en blanc défilent lentement. Dessous, « P1 » en vert et le score en blanc à gauche, les vies à droite (le score du joueur 2 dans Metal Slug 3, une fois appris). La ligne suivante alterne les bombes, l'arme avec ses munitions (pistolet, mitraillette, fusil à pompe, lance-flammes, lance-roquettes) et les crédits avec MAME. Tout en bas, des petites collines et un petit char moins lumineux qui avance et tire quand le score monte.
 
-Le score de Metal Slug est déjà dans le fichier, trouvé avec `apprendre.bat` sous RetroArch et FinalBurn Neo. Pour remplacer le char par ton propre dessin, dépose `mslug_tank.gif` (ou `mslug_tank.png` en bande de 3 images) dans `sprites\`.
+Le score de Metal Slug est déjà dans le fichier, trouvé avec `apprendre.bat` sous RetroArch et FinalBurn Neo. Pour remplacer le char par ton propre dessin, dépose `mslug_tank.gif` (ou `mslug_tank.png` en bande de 3 images) dans `sprites\`. Il doit tenir sur 5 pixels de haut, canon vers la droite.
 
 ### Apprendre le score
 
@@ -303,7 +303,7 @@ Options communes, `mult` (score stocké divisé par 10, très fréquent), `add`,
 
 | `type` | Rôle | Réglages principaux |
 |---|---|---|
-| `marquee` | texte qui défile | `text`, `font`, `y`, `speed`, `gap`, `color`, `accent_initials` |
+| `marquee` | texte qui défile | `text` ou `segments` (morceaux de couleurs différentes), `font`, `y`, `speed`, `gap`, `color`, `accent_initials` |
 | `text` | texte fixe ou valeur | `text` avec `{score}`, `x`, `y`, `align`, `segments`, `flash` |
 | `cycle` | alterne plusieurs pages | `period`, `pages` |
 | `bars` | herbe ou égaliseur | `x`, `w`, `min`, `max`, `color`, `tip`, `flowers` |

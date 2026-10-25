@@ -75,30 +75,39 @@
         "type": "mountains",
         "peaks": [
           [
-            10,
-            12
+            8,
+            3
           ],
           [
-            34,
-            10
+            26,
+            5
           ],
           [
-            60,
-            17
+            44,
+            2
           ],
           [
-            88,
-            11
+            64,
+            4
           ],
           [
-            114,
-            14
+            84,
+            5
+          ],
+          [
+            104,
+            3
+          ],
+          [
+            122,
+            4
           ]
         ],
-        "floor": 9,
+        "floor": 1,
         "bottom": 31,
-        "color": "#0c6e30",
-        "ground": "#e8902c"
+        "color": "#063a18",
+        "edge": "#159a42",
+        "ground": "#a8641a"
       },
       {
         "type": "sprite",
@@ -112,15 +121,15 @@
         "mode": "pass",
         "dir": "right",
         "face": "right",
-        "speed": 7,
-        "every": 4,
-        "y": 23,
-        "dim": 0.75,
+        "speed": 8,
+        "every": 3,
+        "y": 26,
+        "dim": 0.85,
         "shoot": {
           "on": [
             "score"
           ],
-          "dx": 19,
+          "dx": 13,
           "dy": 1,
           "speed": 90,
           "color": "#ff5a30",
@@ -129,19 +138,27 @@
       },
       {
         "type": "marquee",
-        "text": "METAL SLUG",
+        "segments": [
+          {
+            "text": "SNK",
+            "color": "#1d5bff"
+          },
+          {
+            "text": " - METAL SLUG",
+            "color": "#e6e6e6"
+          }
+        ],
         "font": "6x10",
         "y": 0,
-        "speed": 20,
-        "gap": 44,
-        "color": "#e6e6e6"
+        "speed": 12,
+        "gap": 40
       },
       {
         "type": "text",
         "text": "P1",
         "font": "7x14",
         "x": 1,
-        "y": 10,
+        "y": 8,
         "color": "#30ff60",
         "when": {
           "has": "score"
@@ -152,7 +169,7 @@
         "text": "{score}",
         "font": "7x14",
         "x": 20,
-        "y": 10,
+        "y": 8,
         "color": "#ececec",
         "when": {
           "has": "score"
@@ -177,7 +194,7 @@
         ],
         "font": "7x14",
         "x": 127,
-        "y": 10,
+        "y": 8,
         "align": "right",
         "when": {
           "has": "lives"
@@ -202,7 +219,7 @@
                 "text": "BOMBES {bombs}",
                 "font": "6x10",
                 "x": 64,
-                "y": 21,
+                "y": 19,
                 "align": "center",
                 "color": "#30d8ff",
                 "flash": {
@@ -223,7 +240,7 @@
                 "text": "ARME PISTOLET",
                 "font": "6x10",
                 "x": 64,
-                "y": 21,
+                "y": 19,
                 "align": "center",
                 "color": "#30d8ff",
                 "when": {
@@ -241,7 +258,7 @@
                 "text": "FUSIL À POMPE {ammo}",
                 "font": "6x10",
                 "x": 64,
-                "y": 21,
+                "y": 19,
                 "align": "center",
                 "color": "#30d8ff",
                 "when": {
@@ -259,7 +276,7 @@
                 "text": "LANCE-FLAMMES {ammo}",
                 "font": "6x10",
                 "x": 64,
-                "y": 21,
+                "y": 19,
                 "align": "center",
                 "color": "#30d8ff",
                 "when": {
@@ -277,7 +294,7 @@
                 "text": "LANCE-ROQUETTES {ammo}",
                 "font": "6x10",
                 "x": 64,
-                "y": 21,
+                "y": 19,
                 "align": "center",
                 "color": "#30d8ff",
                 "when": {
@@ -295,7 +312,7 @@
                 "text": "MITRAILLETTE {ammo}",
                 "font": "6x10",
                 "x": 64,
-                "y": 21,
+                "y": 19,
                 "align": "center",
                 "color": "#30d8ff",
                 "when": {
@@ -313,7 +330,7 @@
                 "text": "MUNITIONS {ammo}",
                 "font": "6x10",
                 "x": 64,
-                "y": 21,
+                "y": 19,
                 "align": "center",
                 "color": "#30d8ff",
                 "when": {
@@ -338,7 +355,7 @@
                 "text": "CRÉDITS {credits}",
                 "font": "6x10",
                 "x": 64,
-                "y": 21,
+                "y": 19,
                 "align": "center",
                 "color": "#30d8ff",
                 "flash": {
