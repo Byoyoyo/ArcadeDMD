@@ -79,9 +79,10 @@ Sans shield, le câblage fil à fil est donné dans le README de ZeDMD (tableau 
 
 ### Installation
 
-1. Installe Python 3.12 ou plus récent depuis https://www.python.org/downloads/ en cochant « Add python.exe to PATH ».
-2. Copie le dossier `ArcadeDMD` dans un chemin sans accent, idéalement `C:\ArcadeDMD`. MAME ne sait pas ouvrir les dossiers avec accents.
-3. Lance `installer.bat`. Il installe Pillow, pyserial et pygame-ce, télécharge libzedmd (le pilote des dalles ZeDMD) et vérifie qu'elle se charge, copie le plugin dans MAME et propose le lancement automatique au démarrage de Windows. Avec une Pixelcade seule, l'échec de libzedmd n'a aucune importance.
+1. Installe Python 3.12 ou plus récent depuis https://www.python.org/downloads/ en cochant « Add python.exe to PATH ». Il faut aussi MAME 0.227 ou plus récent, l'installeur affiche ta version.
+2. Avant d'extraire le zip, fais un clic droit dessus, Propriétés, coche « Débloquer » puis OK. Windows ne posera plus de question à chaque fichier .bat.
+3. Extrais le dossier `ArcadeDMD` dans un chemin sans accent, idéalement `C:\ArcadeDMD`. MAME ne sait pas ouvrir les dossiers avec accents.
+4. Lance `installer.bat`. Il installe Pillow, pyserial et pygame-ce, télécharge libzedmd (le pilote des dalles ZeDMD), copie le plugin dans MAME, règle la Pixelcade et propose le lancement automatique au démarrage de Windows. Avec une Pixelcade seule, l'échec de libzedmd n'a aucune importance.
 
 Si le téléchargement de libzedmd échoue, prends l'archive `win-mingw-x64-Release` sur https://github.com/PPUC/libzedmd/releases et copie toutes ses DLL dans `ArcadeDMD\libzedmd\`. Prends bien la version mingw, l'autre archive n'embarque pas les DLL dont zedmd64.dll a besoin.
 
@@ -89,7 +90,7 @@ Si le téléchargement de libzedmd échoue, prends l'archive `win-mingw-x64-Rele
 
 Lance un jeu, appuie sur Tab, puis « Options des plugins » (Plugin Options). Tu dois voir **ArcadeDMD** avec le jeu détecté et les valeurs lues en direct. S'il n'apparaît pas, vérifie dans le menu Plugins de MAME qu'il est bien activé, ou ajoute la ligne `arcadedmd 1` dans `plugin.ini` (dossier de MAME ou `ini\`).
 
-Le plugin n'a besoin d'aucun réglage dans LaunchBox, il est chargé par MAME à chaque lancement.
+Le plugin n'a besoin d'aucun réglage dans ton frontend (HyperSpin, LaunchBox...), il est chargé par MAME à chaque lancement.
 
 ### Premier essai sans MAME
 
@@ -97,7 +98,7 @@ Le plugin n'a besoin d'aucun réglage dans LaunchBox, il est chargé par MAME à
 
 ### En vrai
 
-Lance `lancer.bat` (ou laisse le démarrage automatique faire), puis lance un jeu depuis LaunchBox. Sans jeu, la dalle affiche l'heure et « INSERT COIN ». Un jeu sans fichier dédié affiche son titre qui défile.
+Lance `lancer.bat` (ou laisse le démarrage automatique faire), puis lance un jeu depuis ton frontend ou directement dans MAME. La Pixelcade passe à ArcadeDMD pendant les jeux qui ont leur fichier dans `games\` et reste à pixelweb le reste du temps. Une dalle ZeDMD, elle, affiche l'heure et « INSERT COIN » hors jeu, et le titre qui défile pour un jeu sans fichier dédié.
 
 ---
 
@@ -127,10 +128,10 @@ Le logiciel Pixelcade (pixelweb) ne peut pas partager la dalle. ArcadeDMD fait d
 
 ### Réglage
 
-`installer.bat` pose la question à l'étape 4 et règle le port tout seul. Pour le faire à la main :
+`installer.bat` pose la question à l'étape 4 et règle le port tout seul. Il coupe aussi la sortie ZeDMD, inutile avec une Pixelcade, pour qu'ArcadeDMD ne sonde aucun autre port série (pistolets par exemple). Pour le faire à la main :
 
 1. Lance `ports.bat` et repère le port de la Pixelcade (dans le doute, débranche-la et regarde quel port disparaît).
-2. Dans `config.json`, section `pixelcade`, mets `"enabled": true` et ce port.
+2. Dans `config.json`, section `pixelcade`, mets `"enabled": true` et ce port. Si tu n'as pas de ZeDMD, mets aussi `"enabled": false` dans la section `zedmd`.
 
 ```json
 "pixelcade": {
@@ -143,7 +144,7 @@ Le logiciel Pixelcade (pixelweb) ne peut pas partager la dalle. ArcadeDMD fait d
 }
 ```
 
-3. Lance `test_pixelcade.bat`. La mire doit afficher ROUGE en rouge, VERT en vert et BLEU en bleu. Si le vert et le bleu sont inversés, mets `"color_order": "rbg"` (ou `"rgb"` si c'était déjà `rbg`).
+3. Lance `test_pixelcade.bat`. La mire affiche ROUGE, VERT et BLEU. À la fin elle reste affichée et le test te demande si chaque mot est de sa couleur. Si tu réponds n, il inverse le vert et le bleu dans `config.json` (`"color_order"`). Relance le test pour vérifier.
 4. Lance `demo_afterburner.bat`, la scène passe sur la Pixelcade, puis pixelweb revient à la fermeture.
 
 ### Options
@@ -243,9 +244,10 @@ pixelweb écoute aussi sur le port 8080. Si tu gardes pixelweb, choisis un autre
 
 ## 9. Dépannage
 
+- **ArcadeDMD n'apparaît pas dans le menu Tab de MAME.** MAME est peut-être trop ancien (il faut 0.227 ou plus récent, `installer.bat` affiche la version). Sinon le plugin est désactivé, voir « Vérifier le plugin dans MAME ».
 - **Rien ne s'affiche pendant un jeu.** Regarde `runtime\arcadedmd.log` et vérifie que `runtime\events.jsonl` grossit pendant la partie. Sinon, le chemin `root` du fichier `MAME\plugins\arcadedmd\settings.json` ne pointe pas vers le dossier ArcadeDMD.
 - **« ZeDMD : dalle non trouvée ».** Vérifie le câble (data), le port USB natif de l'ESP32-S3, et qu'aucun autre logiciel n'utilise la dalle (DOF2DMD, VPX, dmdext, ou le moteur ArcadeDMD déjà lancé en arrière-plan). La recherche automatique s'arrête après trois essais. Une fois la dalle trouvée, son port est mémorisé et seul ce port est réessayé.
-- **Pistolets RetroShooter ou autres appareils série.** La recherche de la dalle interroge les ports COM. Pour ne jamais toucher aux pistolets, indique le port de la dalle dans `config.json` (`"device": "COM5"`) ou exclus ceux des pistolets (`"ignore_devices": ["COM3", "COM4"]`).
+- **Pistolets RetroShooter ou autres appareils série.** La recherche d'une dalle ZeDMD interroge les ports COM (jamais celui de la Pixelcade, et pas du tout si la sortie ZeDMD est coupée). Pour ne jamais toucher aux pistolets, indique le port de la dalle dans `config.json` (`"device": "COM5"`) ou exclus ceux des pistolets (`"ignore_devices": ["COM3", "COM4"]`).
 - **Dalle noire après une mise en veille ou un débranchement.** Relance ArcadeDMD, libzedmd ne se reconnecte pas toute seule.
 - **Couleurs inversées, lignes fantômes.** Ordre RGB et « panel driver » dans le menu ZeDMD (ou avec ZeDMD_Updater2).
 - **Animation saccadée sur la dalle.** Monte « USB packet size » et « min refresh » dans le menu ZeDMD.

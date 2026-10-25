@@ -16,9 +16,9 @@ from urllib.parse import urlparse, parse_qs
 from .canvas import Canvas, Font, parse_color
 from .scene import Scene, Ctx, GameState
 from .outputs import ZeDMDOutput, PreviewOutput, GifRecorder, NullOutput
-from .pixelcade import PixelcadeOutput, guess_pixelcade_dir
+from .pixelcade import PixelcadeOutput, guess_pixelcade_dir, list_ports
 
-VERSION = "1.2.0"
+VERSION = "1.2.1"
 
 DEFAULT_CONFIG = {
     "fps": 50,
@@ -626,11 +626,28 @@ def engine_running():
         s.close()
 
 
+def pixelcade_ports(pc_cfg):
+    """Port(s) de la Pixelcade : celui de config.json, sinon ceux qui y ressemblent."""
+    dev = (pc_cfg.get("device") or "").strip()
+    if dev:
+        return [dev]
+    return [p for p, _, likely in list_ports() if likely]
+
+
 def build_outputs(root, cfg, log, preview=True, zedmd=True, gif=None, gif_seconds=None):
     outs = []
     o = cfg.get("outputs", {})
     if zedmd and o.get("zedmd", {}).get("enabled"):
-        outs.append(ZeDMDOutput(o["zedmd"], root, log))
+        zcfg = dict(o["zedmd"])
+        pc_cfg = o.get("pixelcade", {})
+        if pc_cfg.get("enabled") and not (zcfg.get("device") or zcfg.get("wifi_ip")):
+            # la recherche du ZeDMD ne doit jamais toucher au port de la Pixelcade
+            ignore = list(zcfg.get("ignore_devices") or [])
+            for p in pixelcade_ports(pc_cfg):
+                if p not in ignore:
+                    ignore.append(p)
+            zcfg["ignore_devices"] = ignore
+        outs.append(ZeDMDOutput(zcfg, root, log))
     if preview and o.get("preview", {}).get("enabled"):
         try:
             outs.append(PreviewOutput(o["preview"], log))

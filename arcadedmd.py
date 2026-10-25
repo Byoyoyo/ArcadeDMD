@@ -112,8 +112,27 @@ def test_pixelcade(cfg, log):
         draw_pattern(cv, f, k)
         out.send(cv.to_bytes())
         time.sleep(0.04)
+    rbg = bool(getattr(out.dev, "rbg", False))
+    ok = ask_colors_ok()          # la dernière image reste affichée pendant la question
     out.close()
+    if ok is False:
+        order = "rgb" if rbg else "rbg"
+        setup_tools.set_pixelcade_option(ROOT, "color_order", order)
+        log(f"Vert et bleu inversés dans config.json (couleurs {order.upper()}). Relance test_pixelcade.bat pour vérifier.")
+    elif ok:
+        log("Couleurs OK.")
     return 0
+
+
+def ask_colors_ok():
+    """True ou False selon la réponse, None sans console (lancement automatique)."""
+    if not (sys.stdin and sys.stdin.isatty()):
+        return None
+    try:
+        ans = input("ROUGE, VERT et BLEU sont-ils chacun de leur couleur sur la Pixelcade ? (O/n) : ")
+    except EOFError:
+        return None
+    return not ans.strip().lower().startswith("n")
 
 
 def main(argv):
@@ -180,8 +199,8 @@ def main(argv):
         pv.update({"enabled": True, "x": 80, "y": 80, "width": 1024, "height": 256, "borderless": False, "topmost": False})
         cfg["outputs"]["preview"] = pv
     outs = app.build_outputs(ROOT, cfg, log, zedmd=use_zedmd)
-    if not demo and not any(o.__class__.__name__ in ("ZeDMDOutput", "PreviewOutput") for o in outs):
-        log("Aucune sortie active : active la dalle ou la fenêtre LED virtuelles dans config.json")
+    if not demo and not any(o.__class__.__name__ in ("ZeDMDOutput", "PreviewOutput", "PixelcadeOutput") for o in outs):
+        log("Aucune sortie active. Active la Pixelcade, la dalle ZeDMD ou la fenêtre LED virtuelles dans config.json")
     eng = app.Engine(ROOT, cfg, outs, log, demo_game=demo)
     eng.run()
     return 0

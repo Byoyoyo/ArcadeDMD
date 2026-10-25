@@ -3,7 +3,9 @@
 import ctypes
 import json
 import os
+import re
 import shutil
+import subprocess
 import sys
 
 
@@ -39,13 +41,39 @@ def check_zedmd(root, dll_rel="libzedmd/zedmd64.dll"):
     return True, "OK"
 
 
+MIN_MAME = 227     # API Lua « manager.machine » ; avant 0.254 le plugin passe par emu.register_*
+
+
+def mame_version(exe):
+    """Numéro mineur de MAME (264 pour 0.264), ou None si inconnu."""
+    try:
+        kw = {}
+        if sys.platform == "win32":
+            kw["creationflags"] = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+        r = subprocess.run([exe, "-version"], capture_output=True, text=True, timeout=20,
+                           cwd=os.path.dirname(exe) or None, **kw)
+        m = re.search(r"\b0\.(\d{2,3})\b", (r.stdout or "") + " " + (r.stderr or ""))
+        return int(m.group(1)) if m else None
+    except (OSError, subprocess.SubprocessError, ValueError):
+        return None
+
+
 def install_plugin(root, mame_dir):
     """Copie le plugin dans MAME\\plugins\\arcadedmd et écrit settings.json."""
     mame_dir = mame_dir.strip().strip('"')
-    exe = os.path.join(mame_dir, "mame.exe")
-    if sys.platform == "win32" and not os.path.exists(exe):
+    if mame_dir.lower().endswith(".exe") and os.path.isfile(mame_dir):
+        mame_dir = os.path.dirname(mame_dir)      # chemin de mame.exe tapé à la place du dossier
+    exe = next((os.path.join(mame_dir, n) for n in ("mame.exe", "mame64.exe")
+                if os.path.exists(os.path.join(mame_dir, n))), "")
+    if sys.platform == "win32" and not exe:
         print(f"  mame.exe introuvable dans {mame_dir}")
         return 1
+    ver = mame_version(exe) if exe else None
+    if ver is not None:
+        print(f"  MAME 0.{ver}")
+        if ver < MIN_MAME:
+            print(f"  Cette version de MAME est trop ancienne pour le plugin. Il faut MAME 0.{MIN_MAME} ou plus récent.")
+            print("  Le plugin est installé quand même, mais il ne lira rien tant que MAME n'est pas mis à jour.")
     # MAME passe le chemin tel quel à Lua : il doit être en ASCII
     safe_root = root if root.isascii() else short_path(root)
     if not safe_root.isascii():
@@ -53,7 +81,7 @@ def install_plugin(root, mame_dir):
         print(f"  {root}")
         print("  MAME ne saura pas l'ouvrir. Déplace ArcadeDMD dans un dossier simple, par exemple C:\\ArcadeDMD,")
         print("  puis relance installer.bat.")
-        return 1
+        return 2      # installer.bat s'arrête au lieu de redemander le dossier de MAME
     src = os.path.join(root, "mame-plugin", "arcadedmd")
     dst = os.path.join(mame_dir, "plugins", "arcadedmd")
     old = {}
@@ -103,19 +131,44 @@ def configure_pixelcade(root):
     if not dev:
         print("  Aucun port choisi, Pixelcade non activée.")
         return 1
-    path = os.path.join(root, "config.json")
-    cfg = {}
-    if os.path.exists(path):
-        with open(path, "r", encoding="utf-8") as f:
-            cfg = json.load(f)
+    cfg = load_config_file(root)
     outs = cfg.setdefault("outputs", {})
     pc = outs.setdefault("pixelcade", {})
     pc.update({"enabled": True, "device": dev})
     for k, v in (("color_order", "auto"), ("mode", "games"), ("takeover", "known"), ("max_fps", 30),
                  ("pixelweb_url", "http://127.0.0.1:8080"), ("pixelweb_exe", ""), ("art_dir", "")):
         pc.setdefault(k, v)
-    with open(path, "w", encoding="utf-8") as f:
+    # Avec une Pixelcade, la recherche d'un ZeDMD sur les ports série ne sert à rien
+    # et pourrait déranger la Pixelcade ou les pistolets de la borne.
+    z = outs.setdefault("zedmd", {})
+    zedmd_was_on = bool(z.get("enabled"))
+    z["enabled"] = False
+    save_config_file(root, cfg)
+    print(f"  Pixelcade activée sur {dev}. Lance test_pixelcade.bat pour vérifier les couleurs.")
+    if zedmd_was_on:
+        print("  Sortie ZeDMD désactivée, inutile avec la Pixelcade.")
+        print("  Si tu as aussi un ZeDMD, remets \"enabled\": true dans la rubrique zedmd de config.json.")
+    return 0
+
+
+def load_config_file(root):
+    path = os.path.join(root, "config.json")
+    if os.path.exists(path):
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return {}
+
+
+def save_config_file(root, cfg):
+    path = os.path.join(root, "config.json")
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
         json.dump(cfg, f, indent=2, ensure_ascii=False)
         f.write("\n")
-    print(f"  Pixelcade activée sur {dev}. Lance test_pixelcade.bat pour vérifier les couleurs.")
-    return 0
+    os.replace(tmp, path)
+
+
+def set_pixelcade_option(root, key, value):
+    cfg = load_config_file(root)
+    cfg.setdefault("outputs", {}).setdefault("pixelcade", {})[key] = value
+    save_config_file(root, cfg)

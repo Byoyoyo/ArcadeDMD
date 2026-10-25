@@ -36,7 +36,7 @@ if errorlevel 1 (
 
 rem ---------- 2. libzedmd ----------
 echo.
-echo [2/5] Bibliotheque libzedmd ^(pilote USB de la dalle ZeDMD^)
+echo [2/5] Bibliotheque libzedmd ^(seulement pour une dalle ZeDMD, inutile avec une Pixelcade^)
 %PY% arcadedmd.py check-zedmd >nul 2>nul
 if errorlevel 1 (
   set "ZVER=0.11.0"
@@ -54,29 +54,40 @@ if errorlevel 1 (
 if errorlevel 1 (
   echo   Recupere a la main l'archive "win-mingw-x64-Release" sur https://github.com/PPUC/libzedmd/releases
   echo   et copie toutes ses DLL dans le dossier libzedmd d'ArcadeDMD.
+  echo   Pas grave si tu n'as qu'une Pixelcade.
 )
 
 rem ---------- 3. Plugin MAME ----------
 echo.
 echo [3/5] Plugin MAME
 set "MAMEDIR="
-for %%D in ("%USERPROFILE%\LaunchBox\Emulators\MAME" "C:\LaunchBox\Emulators\MAME" "D:\LaunchBox\Emulators\MAME" "E:\LaunchBox\Emulators\MAME" "C:\MAME" "D:\MAME") do (
+for %%D in ("%USERPROFILE%\LaunchBox\Emulators\MAME" "C:\LaunchBox\Emulators\MAME" "D:\LaunchBox\Emulators\MAME" "E:\LaunchBox\Emulators\MAME" "C:\HyperSpin\Emulators\MAME" "D:\HyperSpin\Emulators\MAME" "E:\HyperSpin\Emulators\MAME" "C:\Emulateurs\MAME" "D:\Emulateurs\MAME" "C:\Emulators\MAME" "D:\Emulators\MAME" "C:\MAME" "D:\MAME" "E:\MAME") do (
   if not defined MAMEDIR if exist "%%~D\mame.exe" set "MAMEDIR=%%~D"
+  if not defined MAMEDIR if exist "%%~D\mame64.exe" set "MAMEDIR=%%~D"
 )
-if defined MAMEDIR echo   MAME trouve dans !MAMEDIR!
+set /a TRIES=0
+:ask_mame
+set /a TRIES+=1
+if !TRIES! GTR 5 (
+  echo   Trop d'essais. Relance installer.bat quand tu connais le dossier de MAME.
+  pause
+  exit /b 1
+)
 set "ANS="
-set /p "ANS=  Dossier de MAME (Entree pour garder la proposition) : "
+if defined MAMEDIR echo   MAME trouve dans !MAMEDIR!. Appuie sur Entree pour le garder.
+set /p "ANS=  Dossier de MAME, celui qui contient mame.exe : "
 if defined ANS set "ANS=!ANS:"=!"
 if defined ANS set "MAMEDIR=!ANS!"
-if not defined MAMEDIR (
-  echo   Aucun dossier MAME indique. Relance installer.bat.
+if not defined MAMEDIR goto ask_mame
+%PY% arcadedmd.py install-plugin "!MAMEDIR!"
+if errorlevel 2 (
   pause
   exit /b 1
 )
-%PY% arcadedmd.py install-plugin "!MAMEDIR!"
 if errorlevel 1 (
-  pause
-  exit /b 1
+  set "MAMEDIR="
+  echo   Indique le bon dossier, ou ferme cette fenetre pour abandonner.
+  goto ask_mame
 )
 
 rem ---------- 4. Pixelcade ----------
@@ -95,16 +106,15 @@ if /i "!ANS!"=="n" goto done
 set "PYW=pythonw"
 where pyw >nul 2>nul && set "PYW=pyw -3"
 set "STARTUP=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup"
-> "!STARTUP!\ArcadeDMD.bat" (
-  echo @echo off
-  echo cd /d "!ROOT!"
-  echo start "" !PYW! "!ROOT!\arcadedmd.py"
-)
+> "!STARTUP!\ArcadeDMD.bat" echo @echo off
+>> "!STARTUP!\ArcadeDMD.bat" echo cd /d "!ROOT!"
+>> "!STARTUP!\ArcadeDMD.bat" echo start "" !PYW! "!ROOT!\arcadedmd.py"
 echo   Raccourci cree dans le dossier Demarrage.
 
 :done
 echo.
 echo Installation terminee.
+echo  - test_pixelcade.bat verifie la Pixelcade et ses couleurs
 echo  - demo_afterburner.bat et demo_sonic.bat montrent les scenes sans MAME
 echo  - lancer.bat demarre le moteur avec la console visible
 echo  - apprendre.bat trouve les adresses RAM manquantes ^(After Burner II^)

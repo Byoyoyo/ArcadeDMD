@@ -6,7 +6,7 @@
 
 local exports = {
 	name = "arcadedmd",
-	version = "1.2.0",
+	version = "1.2.1",
 	description = "ArcadeDMD",
 	license = "MIT",
 	author = { name = "ArcadeDMD" } }
@@ -161,6 +161,18 @@ end
 -- machine identification
 ----------------------------------------------------------------------------
 
+-- propriete (MAME recents) ou methode (versions plus anciennes)
+local function prop(obj, name)
+	local ok, v = pcall(function() return obj[name] end)
+	if not ok then return nil end
+	if type(v) == "function" then
+		local ok2, r = pcall(v, obj)
+		if ok2 then return r end
+		return nil
+	end
+	return v
+end
+
 local function machine_info()
 	local m = manager.machine
 	local sys = m.system
@@ -173,16 +185,16 @@ local function machine_info()
 		media = {},
 	}
 	for tag, img in pairs(m.images) do
-		if img.exists then
-			local fname = img.filename or ""
+		if prop(img, "exists") then
+			local fname = tostring(prop(img, "filename") or "")
 			local base = fname:match("([^/\\]+)$") or fname
 			base = base:gsub("%.[^%.]+$", "")
 			info.media[#info.media + 1] = {
 				tag = tag,
 				file = base,
-				longname = img.software_longname,
-				list = img.software_list_name,
-				parent = img.software_parent,
+				longname = prop(img, "software_longname"),
+				list = prop(img, "software_list_name"),
+				parent = prop(img, "software_parent"),
 			}
 		end
 	end
@@ -665,15 +677,36 @@ end
 -- plugin entry point
 ----------------------------------------------------------------------------
 
+-- MAME 0.254 et plus : emu.add_machine_*_notifier
+-- MAME 0.227 a 0.253 : anciennes fonctions emu.register_*
+local LEGACY = { reset = "register_start", frame = "register_frame_done", stop = "register_stop",
+                 pause = "register_pause", resume = "register_resume" }
+
+local function subscribe(kind, fn)
+	local add = emu["add_machine_" .. kind .. "_notifier"]
+	if add and not settings.legacy_callbacks then
+		subs[kind] = add(fn)
+		return true
+	end
+	local old = emu[LEGACY[kind]]
+	if old then
+		old(fn)
+		subs[kind] = true
+		return true
+	end
+	log_error("version de MAME trop ancienne (ni add_machine_" .. kind .. "_notifier ni " .. LEGACY[kind] .. ")")
+	return false
+end
+
 function arcadedmd.startplugin()
 	load_settings()
 
-	subs.reset = emu.add_machine_reset_notifier(function()
+	subscribe("reset", function()
 		local ok, err = pcall(start_session)
 		if not ok then log_error("demarrage : " .. tostring(err)) end
 	end)
 
-	subs.frame = emu.add_machine_frame_notifier(function()
+	subscribe("frame", function()
 		local ok, err = pcall(on_frame)
 		if not ok then
 			log_error("frame : " .. tostring(err))
@@ -681,21 +714,23 @@ function arcadedmd.startplugin()
 		end
 	end)
 
-	subs.stop = emu.add_machine_stop_notifier(function()
+	subscribe("stop", function()
 		emit({ t = "stop" })
 		close_events()
 		session = nil
 	end)
 
-	subs.pause = emu.add_machine_pause_notifier(function()
+	subscribe("pause", function()
 		if session then emit({ t = "pause" }) end
 	end)
 
-	subs.resume = emu.add_machine_resume_notifier(function()
+	subscribe("resume", function()
 		if session then emit({ t = "resume" }) end
 	end)
 
-	emu.register_menu(menu_callback, menu_populate, "ArcadeDMD")
+	if emu.register_menu then
+		emu.register_menu(menu_callback, menu_populate, "ArcadeDMD")
+	end
 end
 
 return exports
