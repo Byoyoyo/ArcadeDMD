@@ -19,7 +19,7 @@ from .outputs import ZeDMDOutput, PreviewOutput, GifRecorder, NullOutput
 from .pixelcade import PixelcadeOutput, guess_pixelcade_dir, list_ports
 from .retroarch import RetroArchSource
 
-VERSION = "1.3.3"
+VERSION = "1.4.0"
 
 DEFAULT_CONFIG = {
     "fps": 50,
@@ -149,13 +149,15 @@ class GameLibrary:
                 return False
             return "system" in r or "software" in r
 
-        for key, g in self.games.items():
-            if key.startswith("_"):
-                continue
-            m = g.get("match")
-            rules = m if isinstance(m, list) else [m]
-            if any(rule_ok(r) for r in rules):
-                return key
+        # d'abord les fichiers propres à un jeu, puis les modèles ("fallback", par exemple neogeo.json)
+        for fallback in (False, True):
+            for key, g in self.games.items():
+                if key.startswith("_") or bool(g.get("fallback")) != fallback:
+                    continue
+                m = g.get("match")
+                rules = m if isinstance(m, list) else [m]
+                if any(rule_ok(r) for r in rules):
+                    return key
         return None
 
 
@@ -393,6 +395,8 @@ class Engine:
     # -- scènes
     def _scene_spec(self, key):
         g = self.library.get(key) or {}
+        if g.get("scene") is None and g.get("scene_from"):
+            return (self.library.get(g["scene_from"]) or {}).get("scene")     # jeu appris : scène de son modèle
         return g.get("scene")
 
     def set_scene(self, key):
@@ -427,7 +431,9 @@ class Engine:
         if not key or key not in self.library.games:
             key = self.library.match(meta) or ""
         g = self.library.get(key) or {}
-        title = g.get("title") or clean_title(meta.get("description")) or meta.get("system", "")
+        titles = g.get("titles") if isinstance(g.get("titles"), dict) else {}
+        title = (titles.get(meta.get("system") or "") or titles.get(meta.get("parent") or "") or g.get("title")
+                 or clean_title(meta.get("description")) or meta.get("system", ""))
         meta = dict(meta)
         meta["title"] = title
         meta["game"] = key

@@ -260,20 +260,27 @@ def match_game(games, content, system=""):
     c = (content or "").lower()
     if not c:
         return None, None
-    for key, g in games.items():
-        if key.startswith("_"):
-            continue
-        r = ra_rules(g)
-        if not r:
-            continue
-        if any(x.lower() in c for x in r.get("content_not", [])):
-            continue
-        systems = [x.lower() for x in r.get("systems", [])]
-        if systems and not any(x in (system or "").lower() for x in systems):
-            continue
-        if c in [x.lower() for x in r.get("content", [])] or any(x.lower() in c for x in r.get("content_contains", [])):
-            return key, g
+    for fallback in (False, True):          # les modèles (neogeo.json) passent après les fichiers propres à un jeu
+        for key, g in games.items():
+            if key.startswith("_") or bool(g.get("fallback")) != fallback:
+                continue
+            r = ra_rules(g)
+            if not r:
+                continue
+            if any(x.lower() in c for x in r.get("content_not", [])):
+                continue
+            systems = [x.lower() for x in r.get("systems", [])]
+            if systems and not any(x in (system or "").lower() for x in systems):
+                continue
+            if c in [x.lower() for x in r.get("content", [])] or any(x.lower() in c for x in r.get("content_contains", [])):
+                return key, g
     return None, None
+
+
+def game_title(game, content):
+    g = game or {}
+    titles = g.get("titles") if isinstance(g.get("titles"), dict) else {}
+    return titles.get(content) or g.get("title") or content
 
 
 def layout_for(game, system=""):
@@ -408,14 +415,14 @@ class RetroArchSource:
                 continue
             if layout.contains(a, a + value_size(d) - 1):
                 defs[name] = d
-            else:
+            elif not d.get("mame_only"):
                 self.log(f"RetroArch : {name} ({d.get('addr')}) hors de la mémoire visible par RetroArch, ignoré")
         core = find_core(st["content"])
         self.session = {"ident": (st["system"], st["content"]), "key": key or "", "layout": layout,
                         "defs": defs, "clusters": make_clusters(defs) if defs else [], "last": {},
                         "last_hb": 0.0, "paused": False, "fails": 0, "warned": False, "retry_at": 0.0,
                         "core": core, "mt": getattr(self.library, "mtimes", {}).get(key) if key else None}
-        title = (game or {}).get("title") or st["content"]
+        title = game_title(game, st["content"])
         self._emit({"t": "start", "game": key or "", "system": st["content"], "description": title,
                     "media": [], "values": sorted(defs), "source": "retroarch", "core": st["system"]})
         where = st["system"] + (f", cœur {core['file']}" if core else "")
@@ -423,11 +430,12 @@ class RetroArchSource:
                  + (f"games/{key}.json, {len(defs)} valeur(s)" if key else "pas de fichier dans games"))
 
     def _game_file_changed(self):
+        """Fichier du jeu modifié, ou nouveau fichier propre au jeu (appris pendant la partie)."""
         s = self.session
-        if s["key"]:
-            return getattr(self.library, "mtimes", {}).get(s["key"]) != s["mt"]
         key, _ = match_game(self.library.games, s["ident"][1], s["ident"][0])
-        return bool(key)                  # le jeu vient d'avoir son fichier dans games
+        if (key or "") != s["key"]:
+            return True
+        return bool(key) and getattr(self.library, "mtimes", {}).get(key) != s["mt"]
 
     def _end(self, why):
         self.session = None

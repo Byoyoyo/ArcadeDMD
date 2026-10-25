@@ -327,12 +327,21 @@ def run(root, game=None, answers=None, write=None, show=True, pick_interactive=F
     if cfg is None and new_cfg is not None:
         cfg = new_cfg
         created = True
-        print(f"(nouveau fichier games/{game}.json, la scène générique sera utilisée)")
+        if cfg.get("scene_from"):
+            print(f"(nouveau fichier games/{game}.json, avec la scène de {cfg['scene_from']}.json)")
+        else:
+            print(f"(nouveau fichier games/{game}.json, la scène générique sera utilisée)")
     if cfg is None:
-        cfg = {"title": snaps[-1].meta.get("description", game),
-               "match": [{"system": [snaps[-1].meta.get("system", game)]}],
-               "memory": {"cpu": snaps[-1].meta.get("cpu", ":maincpu"), "values": {}}}
-        print(f"(nouveau fichier games/{game}.json, la scène générique sera utilisée)")
+        meta = snaps[-1].meta
+        cfg = {"title": meta.get("description", game),
+               "match": [{"system": [meta.get("system", game)]}],
+               "memory": {"cpu": meta.get("cpu", ":maincpu"), "values": {}}}
+        tkey = meta.get("template")
+        if tkey and tkey in (all_games := load_games(root)):
+            apply_template(cfg, all_games, tkey, meta.get("system", game))
+            print(f"(nouveau fichier games/{game}.json, avec la scène de {tkey}.json)")
+        else:
+            print(f"(nouveau fichier games/{game}.json, la scène générique sera utilisée)")
     do_write = write if write is not None else ask(f"Écrire dans games/{game}.json ? (O/n) ").strip().lower() in ("", "o", "oui", "y")
     if do_write:
         mem = cfg.setdefault("memory", {})
@@ -373,6 +382,25 @@ def load_games(root):
     return games
 
 
+def apply_template(cfg, games, tkey, system):
+    """Nouveau fichier d'un jeu couvert par un modèle (neogeo.json) : titre, scène, adresses communes."""
+    tmpl = games.get(tkey) or {}
+    titles = tmpl.get("titles") if isinstance(tmpl.get("titles"), dict) else {}
+    cfg["title"] = titles.get(system) or cfg.get("title") or system
+    cfg["match"] = [{"system": [system]}]
+    cfg["scene_from"] = tkey
+    ra = tmpl.get("retroarch") if isinstance(tmpl.get("retroarch"), dict) else {}
+    cfg["retroarch"] = dict({k: v for k, v in ra.items() if k in ("ram_base", "ram_size", "swap16", "big_endian")},
+                            content=[system])
+    mem = cfg.setdefault("memory", {})
+    base = ((tmpl.get("memory") or {}).get("values")) or {}
+    vals = dict(base)
+    vals.update(mem.get("values") or {})
+    mem["values"] = vals
+    mem.setdefault("cpu", (tmpl.get("memory") or {}).get("cpu", ":maincpu"))
+    return cfg
+
+
 def safe_key(text):
     out = "".join(c if c.isalnum() else "_" for c in (text or "").lower()).strip("_")
     return out[:40] or "jeu"
@@ -380,14 +408,17 @@ def safe_key(text):
 
 def run_live_retroarch(root, client, st, game=None, inputs=None):
     """Captures prises au moment où l'on tape les valeurs vues à l'écran."""
-    from .retroarch import layout_for, match_game
+    from .retroarch import game_title, layout_for, match_game
     games = load_games(root)
     key, spec = match_game(games, st["content"], st["system"])
     if game and game in games:
         key, spec = game, games[game]
+    tkey = None
+    if spec is not None and spec.get("fallback"):      # jeu couvert par neogeo.json : fichier à lui
+        tkey, key, spec = key, None, None
     if not key:
         key = safe_key(st["content"])
-    layout = layout_for(spec, st["system"])
+    layout = layout_for(spec or games.get(tkey), st["system"])
     base = os.path.join(root, "runtime", "learn", key)
     os.makedirs(base, exist_ok=True)
     old = sorted(glob.glob(os.path.join(base, "snap_*")))
@@ -399,7 +430,7 @@ def run_live_retroarch(root, client, st, game=None, inputs=None):
                 os.replace(p, os.path.join(arch, os.path.basename(p)))
             except OSError:
                 pass
-    title = (spec or {}).get("title") or st["content"]
+    title = game_title(spec or games.get(tkey), st["content"])
     from .retroarch import explain_failure, find_core, too_old
     version = client.version()
     if too_old(version):
@@ -457,5 +488,7 @@ def run_live_retroarch(root, client, st, game=None, inputs=None):
                "retroarch": {"content": [st["content"]], "ram_base": f"0x{layout.base:06X}",
                              "ram_size": f"0x{layout.size:X}", "swap16": layout.swap},
                "memory": {"values": {}}}
+    if tkey:
+        apply_template(new_cfg, games, tkey, st["content"])
     return run(root, key, answers=answers, show=False, pick_interactive=inputs is None, new_cfg=new_cfg,
                write=None if inputs is None else True)

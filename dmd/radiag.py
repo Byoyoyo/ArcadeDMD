@@ -109,7 +109,11 @@ def report(root, client, st, port, say):
         say("Je n'arrive pas à voir quel cœur est chargé.")
     games = load_games(root)
     key, game = match_game(games, st["content"], st["system"])
-    say(f"Fichier ArcadeDMD games/{key}.json." if key else "Aucun fichier dans games pour ce jeu.")
+    template = bool(game and game.get("fallback"))
+    if template:
+        say(f"Pas de fichier propre à ce jeu, scène commune games/{key}.json.")
+    else:
+        say(f"Fichier ArcadeDMD games/{key}.json." if key else "Aucun fichier dans games pour ce jeu.")
     say("")
     data = client.read(0, 16)
     raw = client.last_reply
@@ -144,7 +148,9 @@ def report(root, client, st, port, say):
             say("À apprendre avec apprendre.bat  " + ", ".join(sorted(label(k) for k in todo)))
     say("")
     say("Résultat")
-    if game:
+    if template:
+        say("La mémoire se lit. La scène commune s'affiche déjà. Apprends le score avec apprendre.bat pour l'ajouter.")
+    elif game:
         say("Tout est bon. Les valeurs de ce jeu peuvent s'afficher sur la dalle.")
     else:
         say("La mémoire se lit. Pour ce jeu, il faut d'abord apprendre ses adresses avec apprendre.bat.")

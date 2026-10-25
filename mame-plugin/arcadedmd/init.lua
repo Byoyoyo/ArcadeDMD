@@ -6,7 +6,7 @@
 
 local exports = {
 	name = "arcadedmd",
-	version = "1.3.3",
+	version = "1.4.0",
 	description = "ArcadeDMD",
 	license = "MIT",
 	author = { name = "ArcadeDMD" } }
@@ -399,8 +399,14 @@ local function start_session()
 	local info = machine_info()
 	local games = load_games()
 	local game = nil
+	-- d'abord les fichiers propres a un jeu, puis les modeles ("fallback", par exemple neogeo.json)
 	for _, g in ipairs(games) do
-		if matches(g, info) then game = g break end
+		if not g.fallback and matches(g, info) then game = g break end
+	end
+	if not game then
+		for _, g in ipairs(games) do
+			if g.fallback and matches(g, info) then game = g break end
+		end
 	end
 	local mem = (game and game.memory) or {}
 	local cpu_tag = mem.cpu or default_cpu_tag()
@@ -532,7 +538,9 @@ local function capture()
 		manager.machine:popmessage("ArcadeDMD : capture impossible (CPU introuvable)")
 		return
 	end
-	local key = sanitize(session.key or session.info.system)
+	-- un modele (neogeo.json) ne recoit jamais les captures : elles vont au nom du jeu
+	local own = session.game and not session.game.fallback and session.key
+	local key = sanitize(own or session.info.system)
 	local base = settings.root .. "/runtime/learn"
 	ensure_dir(settings.root .. "/runtime")
 	ensure_dir(base)
@@ -577,7 +585,8 @@ local function capture()
 	f:close()
 	local meta = {
 		n = n,
-		game = session.key or "",
+		game = own or "",
+		template = (session.game and session.game.fallback) and session.key or nil,
 		system = session.info.system,
 		description = session.info.description,
 		cpu = session.cpu_tag,

@@ -19,7 +19,7 @@ Contenu du dossier
 | `ports.bat` | liste les ports COM, pour trouver celui de la Pixelcade |
 | `test_dalle.bat` | mire de test sur une dalle ZeDMD |
 | `config.json` | tes réglages (Pixelcade, RetroArch, fenêtre LED virtuelles...), créé par l'installeur à partir de `config.defaut.json`. Une nouvelle version d'ArcadeDMD ne l'écrase jamais |
-| `games\*.json` | un fichier par jeu, avec les adresses RAM et la scène |
+| `games\*.json` | un fichier par jeu, avec les adresses RAM et la scène. `neogeo.json` sert de scène commune à tous les jeux Neo Geo |
 | `appris\` | copie des adresses trouvées par `apprendre.bat`. Remises en place toutes seules après une mise à jour |
 | `mame-plugin\arcadedmd` | le plugin à copier dans `MAME\plugins` (l'installeur le fait) |
 | `sprites\` | petits sprites (avion, anneau). Tu peux ajouter les tiens |
@@ -138,6 +138,8 @@ Ton marquee a presque le format 4:1 d'un DMD, la scène y tient pile (128 × 15 
 }
 ```
 
+Ça marche pareil sur n'importe quel écran utilisé comme DMD, par exemple le LCD d'une autre borne, avec RetroArch comme avec MAME. Mets la taille de cet écran dans `width` et `height`, les LED s'adaptent.
+
 `x` et `y` sont la position du coin haut gauche de l'écran marquee dans le bureau Windows (Paramètres, Affichage). L'exemple vaut pour un marquee placé sous un écran 1080p. Mets `"enabled": false` si tu ne veux que la vraie dalle. `"topmost": true` garde la fenêtre au-dessus du marquee de BigBox pendant les parties.
 
 ---
@@ -249,14 +251,26 @@ Pour savoir quel cœur tourne, appuie sur F1 pendant le jeu, puis Informations, 
 | Jeu | Cœur RetroArch | Affiché tout de suite | À apprendre |
 |---|---|---|---|
 | Metal Slug (`mslug`) | FinalBurn Neo | score, vies, bombes, arme et munitions | rien |
-| Metal Slug 3 (`mslug3`) | FinalBurn Neo | vies, bombes, munitions | score J1 et J2 |
+| Metal Slug 2 (`mslug2`), Metal Slug X (`mslugx`) | FinalBurn Neo | vies, bombes, arme et munitions | score |
+| Metal Slug 3 (`mslug3`) | FinalBurn Neo | vies, bombes, arme et munitions | score J1 et J2 |
+| Metal Slug 4 (`mslug4`), Metal Slug 5 (`mslug5`) | FinalBurn Neo | vies, bombes, arme et munitions | score |
+| Tous les autres jeux Neo Geo | FinalBurn Neo | titre du jeu (et crédits avec MAME) | score, vies |
 | Sonic 1 et Sonic 2 | Genesis Plus GX | score, anneaux, vies | rien |
 
-Les adresses des vies, bombes et munitions viennent de la base de codes de triche de MAME 2003-Plus. Celles de Sonic sont les mêmes que dans MAME. Les vies de Metal Slug suivent le « 1UP » de l'écran (le jeu compte aussi la vie en cours). Les crédits des Neo Geo ne se lisent qu'avec MAME, RetroArch ne voit pas cette mémoire.
+Les adresses des vies, bombes et munitions viennent de la base de codes de triche de MAME 2003-Plus. Celles de Sonic sont les mêmes que dans MAME. Les vies des Metal Slug suivent le « 1UP » de l'écran (le jeu compte aussi la vie en cours). Ça a été vérifié sur le premier. Si un autre Metal Slug affiche une vie de moins que l'écran, enlève les lignes `"add"` et `"min"` de ses vies dans son fichier `games\mslugX.json`. Les crédits des Neo Geo ne se lisent qu'avec MAME, RetroArch ne voit pas cette mémoire.
 
-Les scènes de Metal Slug et de Metal Slug 3 s'inspirent de la vidéo de Vera, adaptées à une dalle 128x32 pour que rien ne passe sous le décor. En haut, « SNK » en bleu puis « - METAL SLUG » en blanc défilent lentement. Dessous, « P1 » en vert et le score en blanc à gauche, les vies à droite (le score du joueur 2 dans Metal Slug 3, une fois appris). La ligne suivante alterne les bombes, l'arme avec ses munitions (pistolet, mitraillette, fusil à pompe, lance-flammes, lance-roquettes) et les crédits avec MAME. Tout en bas, des petites collines et un petit char moins lumineux qui avance et tire quand le score monte.
+Les scènes des Metal Slug s'inspirent de la vidéo de Vera, adaptées à une dalle 128x32 pour que rien ne passe sous le décor. En haut, « SNK » en bleu puis « - METAL SLUG » (avec le numéro du jeu) en blanc défilent lentement. Dessous, « P1 » en vert et le score en blanc à gauche, les vies à droite (le score du joueur 2 dans Metal Slug 3, une fois appris). La ligne suivante alterne les bombes, l'arme avec ses munitions (pistolet, mitraillette, fusil à pompe, lance-flammes, lance-roquettes, laser, tête chercheuse... un « + » indique la version améliorée) et les crédits avec MAME. Tout en bas, des petites collines et un petit char moins lumineux qui avance et tire quand le score monte.
 
 Le score de Metal Slug est déjà dans le fichier, trouvé avec `apprendre.bat` sous RetroArch et FinalBurn Neo. Pour remplacer le char par ton propre dessin, dépose `mslug_tank.gif` (ou `mslug_tank.png` en bande de 3 images) dans `sprites\`. Il doit tenir sur 5 pixels de haut, canon vers la droite.
+
+### Tous les jeux Neo Geo
+
+Les 291 jeux Neo Geo connus de MAME (clones compris) ont une scène commune, sans rien faire. Le fichier `games\neogeo.json` contient leur liste et leur vrai titre. En haut, « SNK - » puis le titre du jeu défilent, avec des collines bleues en bas.
+
+- Avec RetroArch, la scène affiche « NEO GEO » au milieu tant que rien n'est appris pour ce jeu.
+- Avec MAME, les crédits s'affichent en plus, pour tous les jeux.
+- Apprends le score d'un jeu avec `apprendre.bat` (même méthode que juste en dessous). L'outil crée alors `games\<jeu>.json`, par exemple `games\kof98.json`, qui garde la scène commune et ajoute le score. Le modèle `neogeo.json` n'est jamais modifié.
+- Un jeu qui a son propre fichier (les Metal Slug par exemple) passe toujours avant la scène commune.
 
 ### Apprendre le score
 
@@ -265,7 +279,7 @@ Le score de Metal Slug est déjà dans le fichier, trouvé avec `apprendre.bat` 
 3. Tape le score affiché à l'écran, par exemple `score=20600`, puis Entrée. Le jeu est en pause tant que tu es dans cette fenêtre.
 4. Retourne dans le jeu (Alt+Tab), marque d'autres points, reviens dans la fenêtre d'`apprendre.bat` et tape le nouveau score.
 5. Recommence trois ou quatre fois, avec un score différent à chaque fois. Entrée vide pour finir.
-6. L'outil trouve l'adresse et l'écrit dans `games\mslug3.json` (ou le fichier du jeu). Le score apparaît sur la dalle quelques secondes après, sans relancer le jeu.
+6. L'outil trouve l'adresse et l'écrit dans le fichier du jeu (`games\mslug3.json` par exemple, ou un nouveau fichier pour un jeu Neo Geo qui n'en a pas). Le score apparaît sur la dalle quelques secondes après, sans relancer le jeu.
 
 Tape seulement les valeurs qui manquent. Les vies sont déjà connues, et les apprendre à partir du « 1UP » de l'écran donnerait une mauvaise adresse.
 
