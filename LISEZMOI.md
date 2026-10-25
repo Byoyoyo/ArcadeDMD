@@ -2,7 +2,7 @@
 
 Score, vies et crédits des jeux MAME en direct sur une dalle LED 128x32 posée sur la borne, avec une scène animée propre à chaque jeu. Même principe que les vidéos After Burner II et Sonic.
 
-Comment ça marche, en une phrase. Un plugin MAME lit les valeurs dans la RAM du jeu, un petit programme Python dessine la scène et l'envoie à la dalle, une **Pixelcade LED** ou un **ZeDMD**, en USB. Le même programme peut aussi afficher la scène en « LED virtuelles » sur ton écran marquee 1920×470.
+Comment ça marche, en une phrase. Un plugin MAME lit les valeurs dans la RAM du jeu, un petit programme Python dessine la scène et l'envoie à la dalle, une **Pixelcade LED** ou un **ZeDMD**, en USB. Le même programme peut aussi afficher la scène en « LED virtuelles » sur un écran LCD qui sert de DMD (section 3).
 
 Tu as déjà une Pixelcade LED. Elle suffit, pas besoin d'acheter de dalle. Va directement aux sections 2 et 4. Pour les jeux lancés dans RetroArch (Metal Slug, Sonic...), lis aussi la section 7.
 
@@ -15,6 +15,7 @@ Contenu du dossier
 | `lancer.bat` | démarre le moteur avec la console visible |
 | `apprendre.bat` | outil qui trouve une adresse RAM manquante (score, crédits...) |
 | `test_pixelcade.bat` | mire de test sur la Pixelcade LED |
+| `ecran_dmd.bat` | place la scène sur un écran LCD qui sert de DMD (section 3) |
 | `test_retroarch.bat` | vérifie RetroArch, le cœur chargé et la lecture de la mémoire (section 7) |
 | `ports.bat` | liste les ports COM, pour trouver celui de la Pixelcade |
 | `test_dalle.bat` | mire de test sur une dalle ZeDMD |
@@ -124,23 +125,32 @@ Lance `lancer.bat` (ou laisse le démarrage automatique faire), puis lance un je
 
 ---
 
-## 3. Ton écran marquee 1920×470 en « LED virtuelles »
+## 3. Écran LCD ou marquee en « LED virtuelles »
 
-Ton marquee a presque le format 4:1 d'un DMD, la scène y tient pile (128 × 15 = 1920 pixels de large). Dans `config.json`, section `preview`
+ArcadeDMD dessine la scène sur n'importe quel écran branché en plus, par exemple le LCD d'une borne qui sert de DMD, ou un marquee 1920×470. Ça marche avec RetroArch comme avec MAME.
+
+Le plus simple, lance `ecran_dmd.bat` (l'installeur le propose aussi). Il liste les écrans, devine celui qui sert de DMD (le plus allongé) et règle tout dans `config.json`. Lance ensuite `lancer.bat` ou `demo_afterburner.bat` pour voir le résultat.
+
+Sur un grand écran, la scène s'affiche deux fois plus fine qu'une vraie dalle. 256 × 64 LED au lieu de 128 × 32, avec les lettres et les pentes lissées. Sur un LCD de 1920 × 460, chaque LED fait 7 pixels.
+
+Le réglage à la main, dans `config.json`, section `preview`
 
 ```json
 "preview": {
   "enabled": true,
-  "x": 0, "y": 1080,
-  "width": 1920, "height": 470,
+  "x": 1920, "y": 0,
+  "width": 1920, "height": 460,
   "borderless": true,
-  "topmost": true
+  "topmost": true,
+  "hd": "auto",
+  "style": "led"
 }
 ```
 
-Ça marche pareil sur n'importe quel écran utilisé comme DMD, par exemple le LCD d'une autre borne, avec RetroArch comme avec MAME. Mets la taille de cet écran dans `width` et `height`, les LED s'adaptent.
-
-`x` et `y` sont la position du coin haut gauche de l'écran marquee dans le bureau Windows (Paramètres, Affichage). L'exemple vaut pour un marquee placé sous un écran 1080p. Mets `"enabled": false` si tu ne veux que la vraie dalle. `"topmost": true` garde la fenêtre au-dessus du marquee de BigBox pendant les parties.
+- `x` et `y` sont la position du coin haut gauche de l'écran dans le bureau Windows (Paramètres, Affichage). Ici un LCD placé à droite d'un écran 1080p. S'il est placé dessous, ce sera `"x": 0, "y": 1080`.
+- `"hd"` vaut `"auto"` (plus fin dès que l'écran est assez grand), `1` (LED de la taille d'une vraie dalle 128 × 32), `2` ou `4` (encore plus fin, pour un très grand écran).
+- `"style"` vaut `"led"` (LED rondes, comme une vraie dalle) ou `"pixel"` (pixels carrés, plus net sur un LCD).
+- `"topmost": true` garde la fenêtre au-dessus du marquee de HyperSpin ou de BigBox pendant les parties. Mets `"enabled": false` si tu ne veux que la vraie dalle.
 
 ---
 

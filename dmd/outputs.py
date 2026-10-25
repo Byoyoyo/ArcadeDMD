@@ -207,28 +207,79 @@ def make_dot_mask(dx, dy=None, gap_ratio=0.18):
     return m.resize((dx, dy), Image.LANCZOS)
 
 
+def make_square_mask(dx, dy=None):
+    """Masque d'un pixel carré avec un fin espace autour (style « pixel » pour écran LCD)."""
+    from PIL import Image, ImageDraw
+    dy = dy or dx
+    m = Image.new("L", (dx, dy), 0)
+    gap = 1 if min(dx, dy) >= 4 else 0
+    ImageDraw.Draw(m).rectangle((0, 0, dx - 1 - gap, dy - 1 - gap), fill=255)
+    return m
+
+
+def scale2x(frame, w, h):
+    """Agrandit une image RGB par 2 en lissant les diagonales (algorithme Scale2x / EPX).
+    Les lettres et les pentes gardent leur forme mais deviennent plus fines et plus rondes."""
+    px = [frame[i:i + 3] for i in range(0, w * h * 3, 3)]
+    out = bytearray(w * h * 12)
+    w2 = w * 6
+    for y in range(h):
+        row = y * w
+        up = row - w if y > 0 else row
+        down = row + w if y < h - 1 else row
+        for x in range(w):
+            p = px[row + x]
+            a = px[up + x]
+            d = px[down + x]
+            c = px[row + x - 1] if x > 0 else p
+            b = px[row + x + 1] if x < w - 1 else p
+            o = y * 2 * w2 + x * 6
+            if c != b and a != d:
+                out[o:o + 3] = a if c == a else p
+                out[o + 3:o + 6] = b if a == b else p
+                out[o + w2:o + w2 + 3] = c if d == c else p
+                out[o + w2 + 3:o + w2 + 6] = d if b == d else p
+            else:
+                out[o:o + 6] = p + p
+                out[o + w2:o + w2 + 6] = p + p
+    return bytes(out)
+
+
 class LedRenderer:
     """Rendu « dalle LED » : le masque de toute la dalle est calculé une seule fois."""
 
-    def __init__(self, dot, unlit=(14, 14, 14), dot_y=None):
+    def __init__(self, dot, unlit=(14, 14, 14), dot_y=None, w=WIDTH, h=HEIGHT, style="led"):
         from PIL import Image
         self.dx = dot
         self.dy = dot_y or dot
-        mask = make_dot_mask(self.dx, self.dy)
-        tile = Image.new("L", (WIDTH * self.dx, HEIGHT * self.dy))
-        for y in range(HEIGHT):
-            for x in range(WIDTH):
+        self.w, self.h = w, h
+        mask = make_square_mask(self.dx, self.dy) if style == "pixel" else make_dot_mask(self.dx, self.dy)
+        tile = Image.new("L", (w * self.dx, h * self.dy))
+        for y in range(h):
+            for x in range(w):
                 tile.paste(mask, (x * self.dx, y * self.dy))
         self.mask_rgb = Image.merge("RGB", (tile, tile, tile))
-        self.unlit_img = Image.new("RGB", (WIDTH, HEIGHT), tuple(unlit)) if unlit else None
+        self.unlit_img = Image.new("RGB", (w, h), tuple(unlit)) if unlit else None
 
     def render(self, frame):
         from PIL import Image, ImageChops
-        img = Image.frombytes("RGB", (WIDTH, HEIGHT), frame)
+        img = Image.frombytes("RGB", (self.w, self.h), frame)
         if self.unlit_img is not None:
             img = ImageChops.lighter(img, self.unlit_img)
-        big = img.resize((WIDTH * self.dx, HEIGHT * self.dy), Image.NEAREST)
+        big = img.resize((self.w * self.dx, self.h * self.dy), Image.NEAREST)
         return ImageChops.multiply(big, self.mask_rgb)
+
+
+def hd_factor(cfg, width, height):
+    """1, 2 ou 4 : finesse de l'affichage sur un écran (« hd » dans config.json, "auto" par défaut).
+    En auto, on double tant que chaque LED garde au moins 6 pixels."""
+    v = cfg.get("hd", "auto")
+    if isinstance(v, (int, float)) and int(v) in (1, 2, 4):
+        return int(v)
+    for f in (4, 2):
+        if min(width // (WIDTH * f), height // (HEIGHT * f)) >= 6:
+            return f
+    return 1
 
 
 # --------------------------------------------------------------------------
@@ -243,12 +294,17 @@ class PreviewOutput:
         self.closed = False
         self.width = int(cfg.get("width", 1024))
         self.height = int(cfg.get("height", 256))
-        dx = max(2, self.width // WIDTH)
-        dy = max(2, self.height // HEIGHT)
+        self.hd = hd_factor(cfg, self.width, self.height)      # écran assez grand : image deux fois plus fine
+        gw, gh = WIDTH * self.hd, HEIGHT * self.hd
+        dx = max(2, self.width // gw)
+        dy = max(2, self.height // gh)
         if max(dx, dy) > 1.25 * min(dx, dy):     # garde des LED à peu près rondes
             dx = dy = min(dx, dy)
-        self.renderer = LedRenderer(dx, tuple(cfg.get("unlit", [14, 14, 14])), dot_y=dy)
+        style = "pixel" if str(cfg.get("style", "led")).lower() in ("pixel", "pixels", "lcd") else "led"
+        self.renderer = LedRenderer(dx, tuple(cfg.get("unlit", [14, 14, 14])), dot_y=dy, w=gw, h=gh, style=style)
         self.brightness = float(cfg.get("brightness", 1.0))
+        self._last_in = None
+        self._last_out = None
         try:
             self._init_pygame()
         except Exception as e:
@@ -307,6 +363,15 @@ class PreviewOutput:
         if self.closed or self.backend is None:
             return
         frame = _apply_brightness(frame, self.brightness)
+        if self.hd > 1:
+            if frame == self._last_in:
+                frame = self._last_out           # image inchangée : pas de nouveau calcul
+            else:
+                self._last_in = frame
+                big = scale2x(frame, WIDTH, HEIGHT)
+                if self.hd == 4:
+                    big = scale2x(big, WIDTH * 2, HEIGHT * 2)
+                self._last_out = frame = big
         img = self.renderer.render(frame)
         if self.backend == "pygame":
             pg = self.pg

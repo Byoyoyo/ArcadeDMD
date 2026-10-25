@@ -192,3 +192,47 @@ def set_pixelcade_option(root, key, value):
     cfg = load_config_file(root)
     cfg.setdefault("outputs", {}).setdefault("pixelcade", {})[key] = value
     save_config_file(root, cfg)
+
+
+def configure_screen(root, answer=None):
+    """Place la fenêtre « LED virtuelles » sur l'écran choisi (LCD qui sert de DMD) dans config.json."""
+    from .screens import guess_dmd, list_screens
+    screens = list_screens()
+    if not screens:
+        print("  Aucun écran trouvé (cette commande ne marche que sous Windows).")
+        return 1
+    print("  Écrans branchés :")
+    for i, sc in enumerate(screens, 1):
+        tag = "   écran principal" if sc["primary"] else ""
+        print(f"   {i}. {sc['width']} x {sc['height']}, position {sc['x']}, {sc['y']}{tag}")
+    g = guess_dmd(screens)
+    hint = f", Entrée = {g + 1}" if g is not None else ""
+    if answer is None:
+        try:
+            answer = input(f"  Numéro de l'écran qui sert de DMD (0 pour n'en mettre aucun{hint}) : ").strip()
+        except EOFError:
+            answer = ""
+    if answer == "" and g is not None:
+        idx = g
+    elif answer.isdigit() and 0 < int(answer) <= len(screens):
+        idx = int(answer) - 1
+    else:
+        cfg = load_config_file(root)
+        cfg.setdefault("outputs", {}).setdefault("preview", {})["enabled"] = False
+        save_config_file(root, cfg)
+        print("  Pas d'écran DMD, fenêtre LED virtuelles coupée.")
+        return 0
+    sc = screens[idx]
+    cfg = load_config_file(root)
+    pv = cfg.setdefault("outputs", {}).setdefault("preview", {})
+    pv.update({"enabled": True, "x": sc["x"], "y": sc["y"], "width": sc["width"], "height": sc["height"],
+               "borderless": True, "topmost": True})
+    pv.setdefault("hd", "auto")
+    pv.setdefault("style", "led")
+    save_config_file(root, cfg)
+    from .outputs import hd_factor
+    f = hd_factor(pv, sc["width"], sc["height"])
+    finesse = f"{128 * f} x {32 * f} LED" + (", deux fois plus fin qu'une vraie dalle" if f == 2 else "")
+    print(f"  Fenêtre LED virtuelles sur l'écran {idx + 1} ({sc['width']} x {sc['height']}), {finesse}.")
+    print("  Lance lancer.bat ou demo_afterburner.bat pour voir le résultat.")
+    return 0

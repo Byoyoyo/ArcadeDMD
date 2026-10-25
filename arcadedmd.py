@@ -13,6 +13,7 @@ Usage :
   python arcadedmd.py setup-pixelcade  choisit le port de la Pixelcade et l'active
   python arcadedmd.py enable-zedmd     active la sortie ZeDMD (désactivée par défaut)
   python arcadedmd.py test-retroarch   vérifie RetroArch, le cœur chargé et la lecture de la mémoire
+  python arcadedmd.py setup-ecran      place la fenêtre LED virtuelles sur un écran LCD qui sert de DMD
 """
 
 import json
@@ -194,6 +195,9 @@ def main(argv):
 
     if cmd == "test-pixelcade":
         return test_pixelcade(cfg, log)
+
+    if cmd == "setup-ecran":
+        return setup_tools.configure_screen(ROOT, argv[2] if len(argv) > 2 else None)
 
     if cmd == "test-retroarch":
         from dmd import radiag

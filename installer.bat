@@ -28,7 +28,7 @@ echo puis relance installer.bat.
 pause
 exit /b 1
 :python_ok
-echo [1/5] Bibliotheques Python
+echo [1/6] Bibliotheques Python
 echo   Python utilise !PY!
 %PY% -m pip install --upgrade pillow pyserial
 if errorlevel 1 (
@@ -46,7 +46,7 @@ if errorlevel 1 (
 
 rem ---------- 2. ZeDMD (facultatif) ----------
 echo.
-echo [2/5] Dalle ZeDMD
+echo [2/6] Dalle ZeDMD
 echo   Seulement si tu as une dalle ZeDMD en plus. Avec une Pixelcade seule, appuie sur Entree.
 set "ANS="
 set /p "ANS=  As-tu une dalle ZeDMD ? (o/N) : "
@@ -77,7 +77,7 @@ if errorlevel 1 (
 
 rem ---------- 3. Plugin MAME ----------
 echo.
-echo [3/5] Plugin MAME
+echo [3/6] Plugin MAME
 set "MAMEDIR="
 for %%D in ("%USERPROFILE%\LaunchBox\Emulators\MAME" "C:\LaunchBox\Emulators\MAME" "D:\LaunchBox\Emulators\MAME" "E:\LaunchBox\Emulators\MAME" "C:\HyperSpin\Emulators\MAME" "D:\HyperSpin\Emulators\MAME" "E:\HyperSpin\Emulators\MAME" "C:\Emulateurs\MAME" "D:\Emulateurs\MAME" "C:\Emulators\MAME" "D:\Emulators\MAME" "C:\MAME" "D:\MAME" "E:\MAME") do (
   if not defined MAMEDIR if exist "%%~D\mame.exe" set "MAMEDIR=%%~D"
@@ -112,14 +112,21 @@ echo   Plugin MAME non installe. Relance installer.bat le jour ou tu veux l'util
 
 rem ---------- 4. Pixelcade ----------
 echo.
-echo [4/5] Pixelcade LED
+echo [4/6] Pixelcade LED
 set "ANS="
 set /p "ANS=  As-tu une Pixelcade LED a piloter ? (o/N) : "
 if /i "!ANS!"=="o" %PY% arcadedmd.py setup-pixelcade
 
-rem ---------- 5. Demarrage automatique ----------
+rem ---------- 5. Ecran LCD utilise comme DMD ----------
 echo.
-echo [5/5] Lancement automatique a l'ouverture de session Windows
+echo [5/6] Ecran LCD qui sert de DMD
+set "ANS="
+set /p "ANS=  As-tu un ecran LCD branche en plus qui sert de DMD ? (o/N) : "
+if /i "!ANS!"=="o" %PY% arcadedmd.py setup-ecran
+
+rem ---------- 6. Demarrage automatique ----------
+echo.
+echo [6/6] Lancement automatique a l'ouverture de session Windows
 set "ANS="
 set /p "ANS=  Activer ? (O/n) : "
 if /i "!ANS!"=="n" goto done
@@ -133,6 +140,7 @@ echo   Raccourci cree dans le dossier Demarrage.
 echo.
 echo Installation terminee.
 echo  - test_pixelcade.bat verifie la Pixelcade et ses couleurs
+echo  - ecran_dmd.bat place la scene sur un ecran LCD qui sert de DMD
 echo  - demo_afterburner.bat et demo_sonic.bat montrent les scenes sans MAME
 echo  - lancer.bat demarre le moteur avec la console visible
 echo  - apprendre.bat trouve les adresses RAM manquantes ^(After Burner II^)
