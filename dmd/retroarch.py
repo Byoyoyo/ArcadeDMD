@@ -2,8 +2,13 @@
 
 RetroArch (1.19 ou plus récent) répond en UDP sur le port 55355 quand le réglage
 « Commandes réseau » est activé :
-  GET_STATUS             -> GET_STATUS PLAYING fb_neo,mslug,crc32=1234abcd
+  GET_STATUS             -> GET_STATUS PLAYING fb_alpha,mslug,crc32=1234abcd
   READ_CORE_RAM 377 2    -> READ_CORE_RAM 377 03 00   (ou « -1 » si illisible)
+
+« -1 » veut dire que le cœur ne donne pas sa mémoire à RetroArch : FinalBurn Neo et
+Genesis Plus GX la donnent, FB Alpha 2012 et les cœurs MAME jamais. GET_STATUS ne dit
+pas quel cœur tourne (« fb_alpha » vaut pour FinalBurn Neo comme pour FB Alpha 2012),
+wincore.py le retrouve d'après les DLL chargées par retroarch.exe.
 
 Les adresses de READ_CORE_RAM sont celles de RetroAchievements : 0 = début de la RAM
 du jeu exposée par le cœur. ArcadeDMD les ramène aux adresses du processeur, pour que
@@ -16,6 +21,7 @@ import socket
 import threading
 import time
 
+from . import wincore
 from .memvalues import decode, parse_addr, value_size
 
 DEFAULT_PORT = 55355
@@ -52,6 +58,7 @@ class RetroArchClient:
         self.addr = (host, int(port))
         self.timeout = float(timeout)
         self.sock = None
+        self.last_reply = None      # réponse brute de la dernière lecture (pour expliquer un échec)
 
     def close(self):
         if self.sock is not None:
@@ -113,6 +120,7 @@ class RetroArchClient:
         """n octets à l'adresse RetroAchievements addr, ou None."""
         prefix = "READ_CORE_RAM %x" % addr
         r = self.cmd("READ_CORE_RAM %x %d" % (addr, n), prefix)
+        self.last_reply = r
         if r is None:
             return None
         rest = r[len(prefix):].split()
@@ -123,6 +131,62 @@ class RetroArchClient:
         except ValueError:
             return None
         return data if len(data) == n else None
+
+
+def failure_kind(reply):
+    """« muet » sans réponse, « refus » pour -1 (le cœur ne donne pas sa mémoire), « bizarre » sinon."""
+    if reply is None:
+        return "muet"
+    return "refus" if reply.split()[-1:] == ["-1"] else "bizarre"
+
+
+def core_label(core):
+    if not core:
+        return ""
+    return f"{core['name']} ({core['file']}" + (f", {core['date']})" if core.get("date") else ")")
+
+
+def explain_failure(reply, version="", core=None):
+    """Phrases (journal, apprentissage, test_retroarch) qui disent pourquoi la mémoire ne se lit pas."""
+    kind = failure_kind(reply)
+    if kind == "muet":
+        lines = ["RetroArch ne répond pas aux lectures de la mémoire (commande READ_CORE_RAM)."]
+        if too_old(version):
+            lines.append(f"RetroArch {version} est trop ancien. Il faut la version 1.19 ou plus récente.")
+        else:
+            lines.append("Il faut la version officielle de RetroArch, 1.19 ou plus récente (voir LISEZMOI, section RetroArch).")
+        return lines
+    if kind == "bizarre":
+        return [f"RetroArch donne une réponse inattendue à la lecture de la mémoire « {reply[:80]} »."]
+    lines = [f"RetroArch refuse de lire la mémoire du jeu (réponse « {reply[:60]} »)."]
+    if too_old(version):
+        lines.append(f"RetroArch {version} est trop ancien. Il faut la version 1.19 ou plus récente.")
+        return lines
+    if not core:
+        lines.append("Le cœur chargé ne donne pas sa mémoire à RetroArch. Pour voir lequel c'est, "
+                     "appuie sur F1 puis Informations, Informations sur le cœur.")
+        lines.append("Pour l'arcade il faut FinalBurn Neo. FB Alpha 2012 et les cœurs MAME ne donnent pas "
+                     "leur mémoire (voir LISEZMOI, section RetroArch).")
+        return lines
+    lines.append(f"Le cœur chargé est {core_label(core)}.")
+    if core.get("memory") is False:
+        lines.append("Ce cœur ne donne jamais sa mémoire à RetroArch. ArcadeDMD ne peut rien lire avec lui.")
+        lines.append("Lance ce jeu avec le cœur FinalBurn Neo (voir LISEZMOI, section RetroArch).")
+    elif core.get("memory") is True:
+        lines.append("Ce cœur est sûrement trop ancien pour donner sa mémoire. "
+                     "Mets-le à jour (voir LISEZMOI, section RetroArch).")
+    else:
+        lines.append("Ce cœur ne donne pas sa mémoire à RetroArch. Il faut un cœur compatible avec les succès "
+                     "RetroAchievements, par exemple FinalBurn Neo pour l'arcade (voir LISEZMOI, section RetroArch).")
+    return lines
+
+
+def find_core(content=""):
+    """Cœur chargé par RetroArch (Windows), ou None. Ne lève jamais d'exception."""
+    try:
+        return wincore.find_core(content)
+    except Exception:
+        return None
 
 
 class Layout:
@@ -235,6 +299,29 @@ def make_clusters(defs, gap=64, maxspan=512):
     return [tuple(x) for x in out]
 
 
+def read_values(client, layout, defs, clusters=None):
+    """{nom: valeur} lues dans RetroArch, ou None si la lecture échoue."""
+    bufs = []
+    for start, end in (clusters if clusters is not None else make_clusters(defs) if defs else []):
+        r = layout.read_cpu(client, start, end)
+        if r is None:
+            return None
+        bufs.append(r)
+
+    def getb(a):
+        for base, data in bufs:
+            if base <= a < base + len(data):
+                return data[a - base]
+        return None
+
+    vals = {}
+    for name, d in defs.items():
+        v = decode(d, getb, layout.big_endian)
+        if v is not None:
+            vals[name] = v
+    return vals
+
+
 class RetroArchSource:
     """Surveille RetroArch et envoie au moteur les mêmes événements que le plugin MAME."""
 
@@ -247,6 +334,7 @@ class RetroArchSource:
         self.stop_ev = threading.Event()
         self.session = None
         self.seen = False
+        self.version = ""
         self.thread = threading.Thread(target=self._run, daemon=True)
         self.thread.start()
 
@@ -279,6 +367,7 @@ class RetroArchSource:
                         if not self.seen:
                             self.seen = True
                             v = self.client.version()
+                            self.version = v or ""
                             self.log(f"RetroArch {v or ''} détecté (commandes réseau actives)".replace("  ", " "))
                             if too_old(v):
                                 self.log("RetroArch est trop ancien pour lire la mémoire des jeux, il faut la version 1.19 ou plus récente.")
@@ -292,6 +381,8 @@ class RetroArchSource:
                             if self.session:
                                 self._end("changement de jeu")
                             self._begin(st)
+                        elif self._game_file_changed():
+                            self._begin(st)              # adresses apprises : on les lit tout de suite
                         paused = st["state"] == "PAUSED"
                         if paused != self.session["paused"]:
                             self.session["paused"] = paused
@@ -319,14 +410,24 @@ class RetroArchSource:
                 defs[name] = d
             else:
                 self.log(f"RetroArch : {name} ({d.get('addr')}) hors de la mémoire visible par RetroArch, ignoré")
+        core = find_core(st["content"])
         self.session = {"ident": (st["system"], st["content"]), "key": key or "", "layout": layout,
                         "defs": defs, "clusters": make_clusters(defs) if defs else [], "last": {},
-                        "last_hb": 0.0, "paused": False, "fails": 0, "warned": False}
+                        "last_hb": 0.0, "paused": False, "fails": 0, "warned": False, "retry_at": 0.0,
+                        "core": core, "mt": getattr(self.library, "mtimes", {}).get(key) if key else None}
         title = (game or {}).get("title") or st["content"]
         self._emit({"t": "start", "game": key or "", "system": st["content"], "description": title,
                     "media": [], "values": sorted(defs), "source": "retroarch", "core": st["system"]})
-        self.log(f"RetroArch : {st['content']} ({st['system']}) -> "
+        where = st["system"] + (f", cœur {core['file']}" if core else "")
+        self.log(f"RetroArch : {st['content']} ({where}) -> "
                  + (f"games/{key}.json, {len(defs)} valeur(s)" if key else "pas de fichier dans games"))
+
+    def _game_file_changed(self):
+        s = self.session
+        if s["key"]:
+            return getattr(self.library, "mtimes", {}).get(s["key"]) != s["mt"]
+        key, _ = match_game(self.library.games, s["ident"][1], s["ident"][0])
+        return bool(key)                  # le jeu vient d'avoir son fichier dans games
 
     def _end(self, why):
         self.session = None
@@ -335,37 +436,30 @@ class RetroArchSource:
 
     def _poll_values(self):
         s = self.session
-        bufs = []
-        for start, end in s["clusters"]:
-            r = s["layout"].read_cpu(self.client, start, end)
-            if r is None:
-                s["fails"] += 1
-                if s["fails"] == 10 and not s["warned"]:
-                    s["warned"] = True
-                    self.log("RetroArch : lecture de la mémoire refusée. Il faut RetroArch 1.19 ou plus récent "
-                             "(voir LISEZMOI, section RetroArch).")
-                bufs = None
-                break
-            bufs.append(r)
-        if bufs is not None:
-            s["fails"] = 0
-
-            def getb(a):
-                for base, data in bufs:
-                    if base <= a < base + len(data):
-                        return data[a - base]
-                return None
-
-            vals = {}
-            for name, d in s["defs"].items():
-                v = decode(d, getb, s["layout"].big_endian)
-                if v is not None:
-                    vals[name] = v
-            changed = {k: v for k, v in vals.items() if s["last"].get(k) != v}
-            if changed:
-                s["last"].update(changed)
-                self._emit({"t": "v", "v": changed})
         now = time.monotonic()
+        if s["clusters"] and now >= s["retry_at"]:
+            vals = read_values(self.client, s["layout"], s["defs"], s["clusters"])
+            if vals is None:
+                s["fails"] += 1
+                if s["warned"]:
+                    s["retry_at"] = now + 3.0        # déjà expliqué : on réessaie sans insister
+                elif s["fails"] >= 10:
+                    s["warned"] = True
+                    s["retry_at"] = now + 3.0
+                    reply = self.client.last_reply
+                    core = s["core"] or find_core(s["ident"][1])
+                    for line in explain_failure(reply, self.version, core):
+                        self.log(line)
+            else:
+                if s["warned"]:
+                    self.log("RetroArch : la lecture de la mémoire marche à nouveau.")
+                s["fails"] = 0
+                s["warned"] = False
+                s["retry_at"] = 0.0
+                changed = {k: v for k, v in vals.items() if s["last"].get(k) != v}
+                if changed:
+                    s["last"].update(changed)
+                    self._emit({"t": "v", "v": changed})
         if now - s["last_hb"] >= 2.0:
             s["last_hb"] = now
             self._emit({"t": "hb", "v": dict(s["last"])})

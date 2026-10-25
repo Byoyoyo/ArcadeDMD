@@ -83,6 +83,11 @@ def decode(d, getb, big_endian=True):
     mult = d.get("mult", 1)
     add = d.get("add", 0)
     v = v * mult + add
+    lo, hi = d.get("min"), d.get("max")
+    if isinstance(lo, (int, float)) and v < lo:
+        v = lo
+    if isinstance(hi, (int, float)) and v > hi:
+        v = hi
     if isinstance(v, float) and v.is_integer():
         v = int(v)
     return v

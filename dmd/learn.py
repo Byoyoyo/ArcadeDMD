@@ -323,8 +323,10 @@ def run(root, game=None, answers=None, write=None, show=True, pick_interactive=F
     print("\nÀ enregistrer :")
     for k, v in chosen.items():
         print(f"  {k}: {json.dumps(v)}")
+    created = False
     if cfg is None and new_cfg is not None:
         cfg = new_cfg
+        created = True
         print(f"(nouveau fichier games/{game}.json, la scène générique sera utilisée)")
     if cfg is None:
         cfg = {"title": snaps[-1].meta.get("description", game),
@@ -344,8 +346,13 @@ def run(root, game=None, answers=None, write=None, show=True, pick_interactive=F
         with open(cfg_path, "w", encoding="utf-8") as f:
             json.dump(cfg, f, indent=2, ensure_ascii=False)
             f.write("\n")
+        try:          # copie de secours, remise en place après une mise à jour d'ArcadeDMD
+            from . import learned
+            learned.save(root, game, chosen, cfg.get("retroarch") if created else None)
+        except OSError:
+            pass
         if snaps[-1].meta.get("source") == "retroarch":
-            print("Enregistré. ArcadeDMD prend les nouvelles adresses tout seul (relance le jeu si rien ne change).")
+            print("Enregistré. ArcadeDMD prend les nouvelles adresses tout seul, la dalle les affiche dans quelques secondes.")
         else:
             print("Enregistré. Relance le jeu, les valeurs s'affichent aussi dans Tab > Options des plugins > ArcadeDMD.")
     return 0
@@ -393,12 +400,18 @@ def run_live_retroarch(root, client, st, game=None, inputs=None):
             except OSError:
                 pass
     title = (spec or {}).get("title") or st["content"]
-    from .retroarch import too_old
+    from .retroarch import explain_failure, find_core, too_old
     version = client.version()
     if too_old(version):
         print(f"RetroArch {version} est trop ancien pour lire la mémoire des jeux. Il faut la version 1.19 ou plus récente.")
         return 1
-    print(f"Jeu RetroArch : {st['content']} (cœur {st['system']}), fichier games/{key}.json")
+    core = find_core(st["content"])
+    if client.read(0, 1) is None:          # inutile de jouer si la mémoire ne se lit pas
+        for line in explain_failure(client.last_reply, version, core):
+            print(line)
+        return 1
+    what = f"cœur {core['name']}" if core else f"système {st['system']}"
+    print(f"Jeu RetroArch : {st['content']} ({what}), fichier games/{key}.json")
     print("Joue, puis reviens dans cette fenêtre (Alt+Tab) quand une valeur est bien visible.")
     print("RetroArch se met en pause tout seul quand sa fenêtre n'est plus active.")
     print("Tape alors ce que tu vois, par exemple   score=1200 vies=2")
@@ -423,7 +436,8 @@ def run_live_retroarch(root, client, st, game=None, inputs=None):
             print("  (le jeu n'était pas en pause, la capture peut être un peu décalée)")
         data = layout.capture(client)
         if not data:
-            print("  Lecture de la mémoire impossible. Il faut RetroArch 1.19 ou plus récent.")
+            for line in explain_failure(client.last_reply, version, core):
+                print("  " + line)
             break
         n += 1
         stem = os.path.join(base, f"snap_{n:03d}")

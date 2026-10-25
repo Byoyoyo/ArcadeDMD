@@ -6,7 +6,7 @@
 
 local exports = {
 	name = "arcadedmd",
-	version = "1.3.0",
+	version = "1.3.1",
 	description = "ArcadeDMD",
 	license = "MIT",
 	author = { name = "ArcadeDMD" } }
@@ -285,6 +285,8 @@ local function make_reader(space, def)
 	local nbytes = math.tointeger(def.bytes) or ((t:find("32") and 4) or (t:find("16") and 2) or 1)
 	local mult = def.mult or 1
 	local add = def.add or 0
+	local vmin = tonumber(def.min)
+	local vmax = tonumber(def.max)
 	local mask = parse_addr(def.mask)
 	local shift = math.tointeger(def.shift)
 	local doff = parse_addr(def.digit_offset) or 0
@@ -339,6 +341,8 @@ local function make_reader(space, def)
 		if mask then v = v & mask end
 		if shift then v = v >> shift end
 		v = v * mult + add
+		if vmin and v < vmin then v = vmin end
+		if vmax and v > vmax then v = vmax end
 		if math.type(v) == "float" and v == math.floor(v) then v = math.tointeger(v) or v end
 		return v
 	end

@@ -15,10 +15,12 @@ Contenu du dossier
 | `lancer.bat` | démarre le moteur avec la console visible |
 | `apprendre.bat` | outil qui trouve une adresse RAM manquante (score, crédits...) |
 | `test_pixelcade.bat` | mire de test sur la Pixelcade LED |
+| `test_retroarch.bat` | vérifie RetroArch, le cœur chargé et la lecture de la mémoire (section 7) |
 | `ports.bat` | liste les ports COM, pour trouver celui de la Pixelcade |
 | `test_dalle.bat` | mire de test sur une dalle ZeDMD |
 | `config.json` | tes réglages (Pixelcade, RetroArch, fenêtre LED virtuelles...), créé par l'installeur à partir de `config.defaut.json`. Une nouvelle version d'ArcadeDMD ne l'écrase jamais |
 | `games\*.json` | un fichier par jeu, avec les adresses RAM et la scène |
+| `appris\` | copie des adresses trouvées par `apprendre.bat`. Remises en place toutes seules après une mise à jour |
 | `mame-plugin\arcadedmd` | le plugin à copier dans `MAME\plugins` (l'installeur le fait) |
 | `sprites\` | petits sprites (avion, anneau). Tu peux ajouter les tiens |
 
@@ -221,35 +223,59 @@ ArcadeDMD lit aussi les jeux lancés dans RetroArch, sans plugin. RetroArch donn
 1. Il faut RetroArch 1.19 ou plus récent. La version s'affiche dans Informations, puis Informations système.
 2. Dans Réglages, puis Réseau, active « Commandes réseau ». Laisse le port 55355.
 3. Laisse activé « Mettre en pause quand la fenêtre n'est plus active » (Réglages, Interface utilisateur). C'est le réglage par défaut, il sert pour l'apprentissage.
+4. Lance le jeu avec un cœur qui donne sa mémoire (voir juste en dessous).
 
-Rien d'autre à installer. Dès que le moteur tourne (`lancer.bat` ou le lancement automatique), il surveille RetroArch tout seul. Le journal indique « RetroArch détecté » quand les commandes réseau répondent.
+Rien d'autre à installer. Dès que le moteur tourne (`lancer.bat` ou le lancement automatique), il surveille RetroArch tout seul. Le journal indique « RetroArch détecté » quand les commandes réseau répondent, puis le cœur chargé à chaque jeu.
+
+### Le bon cœur
+
+Tous les cœurs ne donnent pas la mémoire du jeu à RetroArch. Avec un mauvais cœur, la scène s'affiche mais sans aucune valeur.
+
+| Système | Cœur qui marche | Cœurs qui ne marchent pas |
+|---|---|---|
+| Arcade, Neo Geo (Metal Slug...) | Arcade (FinalBurn Neo), à jour | FB Alpha 2012 sous toutes ses formes (Neo Geo, CPS-1...), MAME 2003, MAME 2003-Plus, MAME 2010, MAME |
+| Mega Drive (Sonic) | Genesis Plus GX, ou PicoDrive | |
+
+Installer FinalBurn Neo
+1. Dans RetroArch, va dans Menu principal, Mise à jour en ligne, Télécharger un cœur, puis choisis « Arcade (FinalBurn Neo) ». Si Mise à jour en ligne n'apparaît pas, active-la dans Réglages, Interface utilisateur, Visibilité des éléments du menu, Menu principal.
+2. Pour essayer, va dans Menu principal, Charger un cœur, Arcade (FinalBurn Neo), puis Charger un contenu et choisis le jeu (par exemple `mslug.zip`).
+3. Si le jeu refuse de démarrer, il manque sûrement un fichier du BIOS. Mets un `neogeo.zip` récent à côté du jeu.
+4. Si tu lances tes jeux depuis HyperSpin ou RocketLauncher, change aussi le cœur choisi pour ce système dans ton lanceur.
+
+Pour savoir quel cœur tourne, appuie sur F1 pendant le jeu, puis Informations, Informations sur le cœur. Ou lance `test_retroarch.bat` pendant une partie. Il affiche la version de RetroArch, le cœur chargé, ce que donne la lecture de la mémoire et les valeurs lues, puis dit quoi faire si quelque chose cloche. Le résultat va aussi dans `runtime\test_retroarch.txt`.
 
 ### Jeux prévus
 
 | Jeu | Cœur RetroArch | Affiché tout de suite | À apprendre |
 |---|---|---|---|
-| Metal Slug (`mslug`) | FBNeo | vies, bombes, arme, munitions | score, crédits |
-| Metal Slug 3 (`mslug3`) | FBNeo | vies, bombes, munitions | score J1 et J2, crédits |
+| Metal Slug (`mslug`) | FinalBurn Neo | vies, bombes, arme et munitions | score |
+| Metal Slug 3 (`mslug3`) | FinalBurn Neo | vies, bombes, munitions | score J1 et J2 |
 | Sonic 1 et Sonic 2 | Genesis Plus GX | score, anneaux, vies | rien |
 
-Les adresses des vies, bombes et munitions viennent de la base de codes de triche de MAME 2003-Plus. Celles de Sonic sont les mêmes que dans MAME.
+Les adresses des vies, bombes et munitions viennent de la base de codes de triche de MAME 2003-Plus. Celles de Sonic sont les mêmes que dans MAME. Les vies de Metal Slug suivent le « 1UP » de l'écran (le jeu compte aussi la vie en cours). Les crédits des Neo Geo ne se lisent qu'avec MAME, RetroArch ne voit pas cette mémoire.
 
-### Apprendre le score et les crédits
+La scène de Metal Slug reprend celle de la vidéo de Metal Slug 3. Le titre défile en haut, les collines bougent en bas. Tant que le score n'est pas appris, les vies et les bombes s'affichent en grand, avec l'arme en dessous (pistolet, mitraillette, fusil à pompe, lance-flammes ou lance-roquettes, avec les munitions). Une fois le score appris, il s'affiche en vert à gauche avec « P1 », les vies à droite, et le bas alterne les bombes, l'arme et les crédits.
 
-1. Lance le jeu dans RetroArch et commence une partie.
+### Apprendre le score
+
+1. Lance le jeu dans RetroArch et commence une partie. Joue jusqu'à avoir quelques points.
 2. Lance `apprendre.bat`. Il voit que RetroArch tourne et passe en mode direct.
-3. Retourne dans le jeu (Alt+Tab). Quand le score est bien visible, reviens dans la fenêtre d'`apprendre.bat`. Le jeu se met en pause tout seul.
-4. Tape ce que tu vois, par exemple `score=12300 credits=2`, puis Entrée. Retourne jouer.
-5. Recommence trois ou quatre fois avec des valeurs différentes. Pour les crédits, mets une pièce entre deux captures. Entrée vide pour finir.
-6. L'outil trouve les adresses et les écrit dans `games\mslug.json` (ou `mslug3.json`). Le moteur les prend tout seul.
+3. Tape le score affiché à l'écran, par exemple `score=20600`, puis Entrée. Le jeu est en pause tant que tu es dans cette fenêtre.
+4. Retourne dans le jeu (Alt+Tab), marque d'autres points, reviens dans la fenêtre d'`apprendre.bat` et tape le nouveau score.
+5. Recommence trois ou quatre fois, avec un score différent à chaque fois. Entrée vide pour finir.
+6. L'outil trouve l'adresse et l'écrit dans `games\mslug.json` (ou `mslug3.json`). Le score apparaît sur la dalle quelques secondes après, sans relancer le jeu.
+
+Tape seulement les valeurs qui manquent. Les vies sont déjà connues, et les apprendre à partir du « 1UP » de l'écran donnerait une mauvaise adresse.
 
 Noms reconnus `score`, `score_p2`, `credits`, `vies`, `bombes`, `munitions`. Pour un autre jeu, l'outil crée un fichier dans `games\` avec la scène générique.
+
+Ce que l'outil trouve est aussi copié dans `appris\`. Une nouvelle version d'ArcadeDMD remplace les fichiers de `games\`, mais le moteur remet tout seul les adresses apprises au démarrage. Pour oublier ce qui a été appris pour un jeu, supprime son fichier dans `appris\`.
 
 ### Bon à savoir
 
 - Un jeu RetroArch sans fichier dans `games\` ne change rien sur la Pixelcade (sauf avec `"takeover": "all"`).
 - Dans `config.json`, rubrique `retroarch`, `"enabled": false` coupe la surveillance.
-- Si le journal dit « lecture de la mémoire refusée », RetroArch est trop ancien.
+- Si le journal dit « RetroArch refuse de lire la mémoire du jeu », c'est le cœur qui ne la donne pas. Le journal dit lequel est chargé et quoi faire.
 
 ---
 
@@ -269,7 +295,7 @@ Formats de valeurs reconnus
 | `bcd` / `bcd_le` | BCD sur `bytes` octets (deux chiffres par octet) |
 | `digits` | un chiffre par octet (`digit_offset` 0x30 pour de l'ASCII) |
 
-Options communes, `mult` (score stocké divisé par 10, très fréquent), `add`, `mask`, `shift`. `learn_ranges` limite la zone capturée par l'outil d'apprentissage.
+Options communes, `mult` (score stocké divisé par 10, très fréquent), `add`, `min`, `max`, `mask`, `shift`. `learn_ranges` limite la zone capturée par l'outil d'apprentissage.
 
 Éléments de scène
 
@@ -305,6 +331,7 @@ Les deux sources se complètent. Pour After Burner II, le record vient du plugin
 ## 10. Dépannage
 
 - **RetroArch, rien ne change sur la Pixelcade.** Vérifie que les « Commandes réseau » sont actives dans RetroArch et que le journal dit « RetroArch détecté ». Le jeu doit avoir son fichier dans `games\`.
+- **RetroArch, la scène s'affiche mais sans valeurs.** Le cœur ne donne sûrement pas sa mémoire (FB Alpha 2012 par exemple). Lance `test_retroarch.bat` pendant la partie, il dit quel cœur tourne et lequel prendre (voir « Le bon cœur », section 7).
 - **« Python est introuvable ».** Le raccourci `python` du Microsoft Store ne compte pas, il ne lance rien. Relance `installer.bat`, il propose d'installer Python 3.13. Les fichiers .bat trouvent aussi un Python installé sans être dans le PATH.
 - **ArcadeDMD n'apparaît pas dans le menu Tab de MAME.** MAME est peut-être trop ancien (il faut 0.227 ou plus récent, `installer.bat` affiche la version). Sinon le plugin est désactivé, voir « Vérifier le plugin dans MAME ».
 - **Rien ne s'affiche pendant un jeu.** Regarde `runtime\arcadedmd.log` et vérifie que `runtime\events.jsonl` grossit pendant la partie. Sinon, le chemin `root` du fichier `MAME\plugins\arcadedmd\settings.json` ne pointe pas vers le dossier ArcadeDMD.
