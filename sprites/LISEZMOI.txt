@@ -1,0 +1,8 @@
+Sprites utilises par les scenes (PNG en bande horizontale ou GIF anime).
+
+jet.png   avion generique (2 images) pour After Burner II
+ring.png  anneau generique (6 images) pour Sonic 1 et Sonic 2
+
+Pour remplacer l anneau par ton propre personnage, depose sonic.gif
+(ou sonic.png en bande de 6 images) dans ce dossier.
+Pour Sonic 2, sonic2.gif (ou sonic2.png) passe en priorite s il existe.

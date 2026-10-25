@@ -1,0 +1,264 @@
+# ArcadeDMD
+
+Score, vies et crédits des jeux MAME en direct sur une dalle LED 128x32 posée sur la borne, avec une scène animée propre à chaque jeu. Même principe que les vidéos After Burner II et Sonic.
+
+Comment ça marche, en une phrase. Un plugin MAME lit les valeurs dans la RAM du jeu, un petit programme Python dessine la scène et l'envoie à la dalle, une **Pixelcade LED** ou un **ZeDMD**, en USB. Le même programme peut aussi afficher la scène en « LED virtuelles » sur ton écran marquee 1920×470.
+
+Tu as déjà une Pixelcade LED. Elle suffit, pas besoin d'acheter de dalle. Va directement aux sections 2 et 4.
+
+Contenu du dossier
+
+| Fichier | Rôle |
+|---|---|
+| `installer.bat` | installe tout (Python requis, voir plus bas) |
+| `demo_afterburner.bat`, `demo_sonic.bat` | montrent les scènes avec des valeurs simulées, sans MAME |
+| `lancer.bat` | démarre le moteur avec la console visible |
+| `apprendre.bat` | outil qui trouve une adresse RAM manquante (score, crédits...) |
+| `test_pixelcade.bat` | mire de test sur la Pixelcade LED |
+| `ports.bat` | liste les ports COM, pour trouver celui de la Pixelcade |
+| `test_dalle.bat` | mire de test sur une dalle ZeDMD |
+| `config.json` | réglages (dalle, fenêtre LED virtuelles, passerelle DOFLinx) |
+| `games\*.json` | un fichier par jeu, avec les adresses RAM et la scène |
+| `mame-plugin\arcadedmd` | le plugin à copier dans `MAME\plugins` (l'installeur le fait) |
+| `sprites\` | petits sprites (avion, anneau). Tu peux ajouter les tiens |
+
+---
+
+## 1. Le matériel (seulement si tu n'as pas de Pixelcade)
+
+La dalle de la vidéo est un DMD RGB 128x32, c'est-à-dire deux modules LED HUB75 de 64x32 côte à côte. C'est exactement le format ZeDMD, le DMD libre bien connu du monde du flipper virtuel. On s'appuie dessus pour la partie dalle.
+
+### Option A, le plus simple (pack prêt à brancher)
+
+Des boutiques françaises vendent des ZeDMD montés ou des cartes prêtes à l'emploi.
+- SmallCab, « Pack ZeDMD S3 – P2.5 » https://www.smallcab.net/pack-zedmd-p-3182.html
+- Benfactory, « ZeDMD » https://benfactory.fr/produit/zedmd/
+
+En P2.5 (2,5 mm entre deux LED) la dalle fait environ 32 × 8 cm. C'est la taille d'un DMD de flipper. Vérifie sur la page ce qui est inclus (alimentation, cadre).
+
+### Option B, la même taille que dans la vidéo
+
+La dalle des vidéos est plus grande, sans doute du P4 ou du P5. Mesure le dessus de ta borne et choisis.
+
+| Pas | Taille d'un module 64x32 | Dalle 128x32 complète |
+|---|---|---|
+| P3 | 19,2 × 9,6 cm | 38 × 10 cm |
+| P4 | 25,6 × 12,8 cm | 51 × 13 cm |
+| P5 | 32 × 16 cm | 64 × 16 cm |
+
+Liste d'achats pour l'option B (ordres de grandeur de prix)
+
+| Quantité | Article | Remarque |
+|---|---|---|
+| 2 | Module LED RGB HUB75 64x32, intérieur, scan 1/16 | Waveshare P4 vers 18 $ pièce, moins cher sur AliExpress |
+| 1 | ESP32-S3-DevKitC-1 **N16R8** | vers 10 à 15 €, c'est la carte recommandée par ZeDMD |
+| 1 | Shield ZeDMD pour ESP32-S3 (SmallCab, Benfactory, Arnoz) | évite de câbler 14 fils à la main, et ajoute les boutons du menu |
+| 1 | Alimentation 5 V 10 A (type Mean Well LRS-50-5) | un module peut tirer 4 A en plein blanc, un DMD reste loin de ça |
+| 1 | Câble USB-C **data** | vers le PC de la borne |
+
+Évite les modules « outdoor » ou en scan 1/8. Les modules avec puces FM6126A ou ICN2038S marchent aussi, il suffit de régler le « panel driver » avec ZeDMD_Updater2.
+
+### Montage
+
+1. Branche le shield sur l'entrée HUB75 du premier module (la flèche imprimée au dos indique le sens des données).
+2. Relie la sortie du module 1 à l'entrée du module 2 avec la nappe fournie.
+3. Alimente les deux modules en 5 V depuis l'alimentation.
+4. Relie l'ESP32-S3 au PC par son port USB **natif** (celui marqué USB, à gauche sur la DevKitC-1).
+
+Sans shield, le câblage fil à fil est donné dans le README de ZeDMD (tableau « ZeDMD pinout diagram ») https://github.com/PPUC/ZeDMD
+
+### Firmware de la dalle
+
+1. Télécharge ZeDMD_Updater2 (Windows) https://github.com/zesinger/ZeDMD_Updater2 et flashe la variante **ZeDMD S3 128x32**. Autre possibilité, le fichier `.bin` des releases ZeDMD avec esptool.
+2. Au premier démarrage la dalle affiche un menu. Règle l'ordre des couleurs (le rouge doit être rouge), la luminosité, « USB packet size » à 1024 et « min refresh » vers 90 Hz, puis va sur **Exit**.
+3. Si la dalle vient d'un pack déjà flashé, mets quand même le firmware à jour. La bibliothèque libzedmd récente attend un firmware récent.
+
+---
+
+## 2. Le logiciel
+
+### Installation
+
+1. Installe Python 3.12 ou plus récent depuis https://www.python.org/downloads/ en cochant « Add python.exe to PATH ».
+2. Copie le dossier `ArcadeDMD` dans un chemin sans accent, idéalement `C:\ArcadeDMD`. MAME ne sait pas ouvrir les dossiers avec accents.
+3. Lance `installer.bat`. Il installe Pillow, pyserial et pygame-ce, télécharge libzedmd (le pilote des dalles ZeDMD) et vérifie qu'elle se charge, copie le plugin dans MAME et propose le lancement automatique au démarrage de Windows. Avec une Pixelcade seule, l'échec de libzedmd n'a aucune importance.
+
+Si le téléchargement de libzedmd échoue, prends l'archive `win-mingw-x64-Release` sur https://github.com/PPUC/libzedmd/releases et copie toutes ses DLL dans `ArcadeDMD\libzedmd\`. Prends bien la version mingw, l'autre archive n'embarque pas les DLL dont zedmd64.dll a besoin.
+
+### Vérifier le plugin dans MAME
+
+Lance un jeu, appuie sur Tab, puis « Options des plugins » (Plugin Options). Tu dois voir **ArcadeDMD** avec le jeu détecté et les valeurs lues en direct. S'il n'apparaît pas, vérifie dans le menu Plugins de MAME qu'il est bien activé, ou ajoute la ligne `arcadedmd 1` dans `plugin.ini` (dossier de MAME ou `ini\`).
+
+Le plugin n'a besoin d'aucun réglage dans LaunchBox, il est chargé par MAME à chaque lancement.
+
+### Premier essai sans MAME
+
+`demo_afterburner.bat` et `demo_sonic.bat` ouvrent une fenêtre « LED virtuelles » avec des valeurs simulées. Si la dalle est branchée, elle affiche la même chose.
+
+### En vrai
+
+Lance `lancer.bat` (ou laisse le démarrage automatique faire), puis lance un jeu depuis LaunchBox. Sans jeu, la dalle affiche l'heure et « INSERT COIN ». Un jeu sans fichier dédié affiche son titre qui défile.
+
+---
+
+## 3. Ton écran marquee 1920×470 en « LED virtuelles »
+
+Ton marquee a presque le format 4:1 d'un DMD, la scène y tient pile (128 × 15 = 1920 pixels de large). Dans `config.json`, section `preview`
+
+```json
+"preview": {
+  "enabled": true,
+  "x": 0, "y": 1080,
+  "width": 1920, "height": 470,
+  "borderless": true,
+  "topmost": true
+}
+```
+
+`x` et `y` sont la position du coin haut gauche de l'écran marquee dans le bureau Windows (Paramètres, Affichage). L'exemple vaut pour un marquee placé sous un écran 1080p. Mets `"enabled": false` si tu ne veux que la vraie dalle. `"topmost": true` garde la fenêtre au-dessus du marquee de BigBox pendant les parties.
+
+---
+
+## 4. Pixelcade LED
+
+La Pixelcade LED est elle-même une dalle 128x32. ArcadeDMD la pilote directement par son port USB, avec le même protocole que Visual Pinball (dmdext, libdmdutil). Les cartes V1 et V2 sont reconnues toutes seules.
+
+Le logiciel Pixelcade (pixelweb) ne peut pas partager la dalle. ArcadeDMD fait donc ce que Pixelcade recommande pour Visual Pinball. Au lancement d'un jeu qui a son fichier dans `games\`, il arrête pixelweb par son API (`/quit`) et prend la dalle. Quand tu quittes le jeu, il la rend et relance pixelweb. Pour tous les autres jeux, pixelweb continue d'afficher ses marquees comme avant.
+
+### Réglage
+
+`installer.bat` pose la question à l'étape 4 et règle le port tout seul. Pour le faire à la main :
+
+1. Lance `ports.bat` et repère le port de la Pixelcade (dans le doute, débranche-la et regarde quel port disparaît).
+2. Dans `config.json`, section `pixelcade`, mets `"enabled": true` et ce port.
+
+```json
+"pixelcade": {
+  "enabled": true,
+  "device": "COM4",
+  "color_order": "auto",
+  "mode": "games",
+  "takeover": "known",
+  "max_fps": 30
+}
+```
+
+3. Lance `test_pixelcade.bat`. La mire doit afficher ROUGE en rouge, VERT en vert et BLEU en bleu. Si le vert et le bleu sont inversés, mets `"color_order": "rbg"` (ou `"rgb"` si c'était déjà `rbg`).
+4. Lance `demo_afterburner.bat`, la scène passe sur la Pixelcade, puis pixelweb revient à la fermeture.
+
+### Options
+
+| Réglage | Effet |
+|---|---|
+| `"takeover": "known"` | prend la dalle seulement pour les jeux qui ont un fichier dans `games\` (After Burner II, Sonic 1 et 2, et ceux que tu ajoutes) |
+| `"takeover": "all"` | prend la dalle pour tous les jeux MAME, avec la scène générique |
+| `"mode": "always"` | garde la dalle en permanence (si tu n'utilises plus pixelweb), avec l'écran d'attente hors jeu |
+| `"pixelweb_exe"` | chemin de pixelweb.exe, trouvé tout seul d'habitude. S'il a besoin d'options, mets ici un .bat qui le lance avec |
+| `"art_dir"` | dossier Pixelcade, pour reprendre ses marquees en fond de la scène générique (trouvé tout seul d'habitude) |
+
+Les cartes V1 affichent 3 bits par couleur en mode direct, c'est une limite du matériel. Les cartes V2 affichent toutes les couleurs.
+
+Pour un jeu avec fichier mais sans scène dédiée (un jeu appris avec `apprendre.bat` par exemple), la scène générique reprend le marquee Pixelcade du jeu en fond, atténué, avec le score et les crédits par-dessus.
+
+---
+
+## 5. After Burner II, trouver le score et les crédits
+
+Le record est connu publiquement (table des records à `0xFF846E`, la même que `hiscore.dat`). L'adresse du score et celle des crédits ne sont documentées nulle part, d'où l'outil d'apprentissage. Compte cinq minutes.
+
+1. Lance After Burner II.
+2. Mets une pièce, attends un peu, mets-en une deuxième. Les crédits changent.
+3. Joue. Quand le score est stable (pas pendant un décompte de bonus), appuie sur **Ctrl droit + D**. Un message « capture enregistrée » s'affiche. Tu peux aussi passer par Tab, Options des plugins, ArcadeDMD, « Capturer la RAM ».
+4. Refais une capture à trois ou quatre moments avec des scores et des crédits différents.
+5. Quitte MAME et lance `apprendre.bat`. Pour chaque capture, l'outil ouvre la photo d'écran et te demande les valeurs, par exemple `score=16060 credits=3`.
+6. Il cherche ces valeurs dans tous les formats courants, propose l'adresse et l'écrit dans `games\aburner2.json`.
+
+Relance le jeu, le score et les crédits s'affichent sur la dalle et dans le menu Tab du plugin.
+
+Avec une seule zone trouvée, c'est la bonne. Avec plusieurs, une capture de plus suffit à trancher. Si rien n'est trouvé, supprime la ligne `learn_ranges` dans `games\aburner2.json`, efface le dossier `runtime\learn\aburner2` et refais les captures. L'outil fouille alors toute la RAM visible du processeur principal.
+
+Autre voie si tu utilises déjà DOFLinx avec DOF2DMD (voir la section 8). DOFLinx sait déjà lire le score et les crédits d'After Burner II et de plus de 2 000 jeux.
+
+---
+
+## 6. Sonic 1 et Sonic 2
+
+Les adresses viennent des désassemblages communautaires de Sonic 1 et de Sonic 2 (score, anneaux, vies, zone). Elles sont les mêmes dans les deux jeux. La scène se déclenche dans MAME avec la Mega Drive (pilotes `genesis` ou `megadriv`, cartouche « Sonic The Hedgehog » ou « Sonic The Hedgehog 2 » par la liste logicielle ou un fichier ROM portant ce nom) et normalement avec les versions arcade Mega Play et Mega-Tech (`mp_sonic`, `mt_sonic`, `mp_soni2`, `mt_soni2`). Elle ne marche pas si tu lances Sonic avec RetroArch.
+
+Le fichier `games\sonic.json` sert pour Sonic 1 et `games\sonic2.json` pour Sonic 2. Les deux scènes sont pareilles, seul le titre change.
+
+Le petit personnage qui court sur l'herbe est un anneau générique. Pour mettre ton propre sprite animé, dépose `sonic.gif` (ou un `sonic.png` en bande horizontale de 6 images) dans `sprites\`. Pour Sonic 2, un `sonic2.gif` passe en priorité s'il existe. Ajuste `"y"` dans le fichier du jeu selon sa hauteur.
+
+---
+
+## 7. Ajouter un jeu ou modifier une scène
+
+1. Copie `games\aburner2.json` sous le nom court du jeu, par exemple `games\outrun.json`.
+2. Change `"match"` (`"system": ["outrun"]`), le titre et les valeurs.
+3. Trouve les adresses avec `apprendre.bat` (sans fichier dédié, l'outil crée le fichier pour toi).
+4. Modifie la scène. Le moteur recharge les fichiers à chaud, pas besoin de relancer pendant que tu ajustes.
+
+Formats de valeurs reconnus
+
+| `type` | Signification |
+|---|---|
+| `u8` | un octet |
+| `be` / `le` | binaire sur `bytes` octets, ordre normal ou inversé |
+| `bcd` / `bcd_le` | BCD sur `bytes` octets (deux chiffres par octet) |
+| `digits` | un chiffre par octet (`digit_offset` 0x30 pour de l'ASCII) |
+
+Options communes, `mult` (score stocké divisé par 10, très fréquent), `add`, `mask`, `shift`. `learn_ranges` limite la zone capturée par l'outil d'apprentissage.
+
+Éléments de scène
+
+| `type` | Rôle | Réglages principaux |
+|---|---|---|
+| `marquee` | texte qui défile | `text`, `font`, `y`, `speed`, `gap`, `color`, `accent_initials` |
+| `text` | texte fixe ou valeur | `text` avec `{score}`, `x`, `y`, `align`, `segments`, `flash` |
+| `cycle` | alterne plusieurs pages | `period`, `pages` |
+| `bars` | herbe ou égaliseur | `x`, `w`, `min`, `max`, `color`, `tip`, `flowers` |
+| `waves` | collines qui défilent en fond | `layers` (`y`, `amp`, `speed`, `color`, `edge`) |
+| `particles` | missiles et gerbes quand une valeur monte | `rate`, `color`, `y`, `burst` |
+| `sprite` | sprite animé (PNG en bande ou GIF) | `image`, `frames`, `mode` (`pass`, `pingpong`, `fixed`) |
+| `clock` | horloge | `format`, `font` |
+| `image`, `rect` | image fixe, rectangle | |
+
+Polices disponibles `4x6`, `5x8`, `6x10`, `6x13`, `7x14`, `7x14B`, `8x13B`, `9x15B`. Le `y` d'un texte correspond au haut des majuscules. `when` affiche un élément sous condition, par exemple `{"has": "credits"}` ou `{"var": "mode", "eq": 12}`.
+
+---
+
+## 8. Passerelle DOFLinx (facultatif)
+
+ArcadeDMD sait se faire passer pour DOF2DMD. DOFLinx lui envoie alors le score et les crédits de tous les jeux qu'il connaît, sans aucune adresse à chercher.
+
+1. Dans `config.json`, mets `"doflinx_bridge": {"enabled": true, "host": "127.0.0.1", "port": 8080}`.
+2. DOFLinx lit l'adresse dans le `settings.ini` de DOF2DMD (`url_prefix`). Laisse `http://127.0.0.1:8080`.
+3. Ne lance plus DOF2DMD en même temps, les deux ne peuvent pas écouter le même port. Quand ArcadeDMD répond, DOFLinx ne cherche plus à démarrer DOF2DMD.
+
+Les deux sources se complètent. Pour After Burner II, le record vient du plugin et le score de DOFLinx.
+
+pixelweb écoute aussi sur le port 8080. Si tu gardes pixelweb, choisis un autre port pour la passerelle (8081 par exemple) et mets la même adresse dans le `url_prefix` du `settings.ini` de DOF2DMD.
+
+---
+
+## 9. Dépannage
+
+- **Rien ne s'affiche pendant un jeu.** Regarde `runtime\arcadedmd.log` et vérifie que `runtime\events.jsonl` grossit pendant la partie. Sinon, le chemin `root` du fichier `MAME\plugins\arcadedmd\settings.json` ne pointe pas vers le dossier ArcadeDMD.
+- **« ZeDMD : dalle non trouvée ».** Vérifie le câble (data), le port USB natif de l'ESP32-S3, et qu'aucun autre logiciel n'utilise la dalle (DOF2DMD, VPX, dmdext, ou le moteur ArcadeDMD déjà lancé en arrière-plan). La recherche automatique s'arrête après trois essais. Une fois la dalle trouvée, son port est mémorisé et seul ce port est réessayé.
+- **Pistolets RetroShooter ou autres appareils série.** La recherche de la dalle interroge les ports COM. Pour ne jamais toucher aux pistolets, indique le port de la dalle dans `config.json` (`"device": "COM5"`) ou exclus ceux des pistolets (`"ignore_devices": ["COM3", "COM4"]`).
+- **Dalle noire après une mise en veille ou un débranchement.** Relance ArcadeDMD, libzedmd ne se reconnecte pas toute seule.
+- **Couleurs inversées, lignes fantômes.** Ordre RGB et « panel driver » dans le menu ZeDMD (ou avec ZeDMD_Updater2).
+- **Animation saccadée sur la dalle.** Monte « USB packet size » et « min refresh » dans le menu ZeDMD.
+- **Pas de fenêtre LED virtuelles.** pygame-ce doit être installé (`py -m pip install pygame-ce`).
+- **`test_dalle.bat` dit que le moteur tourne déjà.** Le lancement automatique occupe la dalle. Ferme `pythonw.exe` dans le Gestionnaire des tâches, ou teste directement avec un jeu.
+- **Le moteur s'arrête tout seul.** L'erreur est notée dans `runtime\arcadedmd.log`.
+- **« Pixelcade : port introuvable ».** Indique le port dans `config.json` (`ports.bat` pour le trouver). ArcadeDMD ne sonde pas les autres ports COM, pour ne pas déranger les pistolets.
+- **« pixelweb ne s'arrête pas ».** Ferme pixelweb à la main (icône dans la barre des tâches) et vérifie `pixelweb_url` (par défaut `http://127.0.0.1:8080`).
+- **pixelweb ne revient pas après un jeu.** Le chemin est mémorisé dans `runtime\pixelweb_path.txt` au premier arrêt. Sinon, renseigne `pixelweb_exe` dans `config.json`.
+- **Pixelcade noire pendant un jeu.** Regarde le journal. Si pixelweb a bien été arrêté mais que la carte ne répond pas, débranche et rebranche la Pixelcade, puis relance `test_pixelcade.bat`.
+
+---
+
+## Licences et crédits
+
+Code ArcadeDMD sous licence MIT. Polices bitmap issues des polices X11 « misc-fixed » (domaine public). ZeDMD (firmware GPLv2) et libzedmd (GPLv3) sont téléchargés séparément depuis leurs dépôts officiels https://github.com/PPUC. Les noms de jeux servent uniquement à les identifier.

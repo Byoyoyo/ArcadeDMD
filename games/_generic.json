@@ -1,0 +1,122 @@
+{
+ "title": "Scène générique (tous les jeux sans fichier dédié)",
+ "scene": {
+  "layers": [
+   {
+    "type": "image",
+    "fit": true,
+    "alpha": 0.35,
+    "fps": 12,
+    "image": [
+     "{pixelcade}/mame/{system}.gif",
+     "{pixelcade}/mame/{system}.png",
+     "{pixelcade}/mame/{parent}.gif",
+     "{pixelcade}/mame/{parent}.png"
+    ]
+   },
+   {
+    "type": "waves",
+    "layers": [
+     {
+      "y": 28,
+      "amp": 2,
+      "freq": 0.09,
+      "speed": 0.4,
+      "color": "#05101c",
+      "edge": "#0b2a44"
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "text": "{manufacturer} {year}",
+    "font": "5x8",
+    "x": 64,
+    "y": 1,
+    "align": "center",
+    "color": "#9a8450",
+    "upper": true,
+    "missing": "",
+    "when": {
+     "not": {
+      "has": "score"
+     }
+    }
+   },
+   {
+    "type": "marquee",
+    "text": "{title}",
+    "font": "7x14",
+    "y": 11,
+    "speed": 26,
+    "gap": 40,
+    "color": "#f0f0f0",
+    "upper": true,
+    "accent_initials": [
+     "#3c8cff",
+     "#ff3030",
+     "#ffd030"
+    ],
+    "static_if_fits": true,
+    "when": {
+     "not": {
+      "has": "score"
+     }
+    }
+   },
+   {
+    "type": "marquee",
+    "text": "{title}",
+    "font": "6x10",
+    "y": 0,
+    "speed": 22,
+    "gap": 40,
+    "color": "#e6e6e6",
+    "upper": true,
+    "accent_initials": [
+     "#3c8cff",
+     "#ff3030",
+     "#ffd030"
+    ],
+    "static_if_fits": true,
+    "when": {
+     "has": "score"
+    }
+   },
+   {
+    "type": "text",
+    "text": "{score}",
+    "font": "7x14",
+    "x": 64,
+    "y": 10,
+    "align": "center",
+    "color": "#30ff60",
+    "when": {
+     "has": "score"
+    },
+    "flash": {
+     "on": "score",
+     "color": "#d8ffe0",
+     "ms": 120
+    }
+   },
+   {
+    "type": "text",
+    "text": "CRÉDITS {credits}",
+    "font": "6x10",
+    "x": 64,
+    "y": 23,
+    "align": "center",
+    "color": "#30d8ff",
+    "when": {
+     "has": "credits"
+    },
+    "flash": {
+     "on": "credits",
+     "color": "#ffffff",
+     "ms": 400
+    }
+   }
+  ]
+ }
+}

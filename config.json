@@ -1,0 +1,42 @@
+{
+  "fps": 50,
+  "idle": {
+    "text": "INSERT COIN"
+  },
+  "show_pause": true,
+  "outputs": {
+    "zedmd": {
+      "enabled": true,
+      "dll": "libzedmd/zedmd64.dll",
+      "device": "",
+      "ignore_devices": [],
+      "wifi_ip": "",
+      "brightness": null
+    },
+    "preview": {
+      "enabled": false,
+      "x": 0,
+      "y": 1080,
+      "width": 1920,
+      "height": 470,
+      "borderless": true,
+      "topmost": true
+    },
+    "pixelcade": {
+      "enabled": false,
+      "device": "",
+      "color_order": "auto",
+      "mode": "games",
+      "takeover": "known",
+      "max_fps": 30,
+      "pixelweb_url": "http://127.0.0.1:8080",
+      "pixelweb_exe": "",
+      "art_dir": ""
+    }
+  },
+  "doflinx_bridge": {
+    "enabled": false,
+    "host": "127.0.0.1",
+    "port": 8080
+  }
+}

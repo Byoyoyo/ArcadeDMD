@@ -1,0 +1,38 @@
+{
+  "title": "After Burner II",
+  "match": [{"system": ["aburner2", "aburner2g"]}],
+  "memory": {
+    "cpu": ":mainpcb:maincpu",
+    "values": {
+      "record": {"addr": "0xFF846E", "type": "bcd", "bytes": 4, "mult": 10,
+                 "note": "1re ligne de la table des records (même zone que hiscore.dat)"},
+      "score": {"addr": "", "type": "bcd", "bytes": 4, "mult": 10,
+                "note": "adresse à trouver avec apprendre.bat"},
+      "credits": {"addr": "", "type": "u8",
+                  "note": "adresse à trouver avec apprendre.bat"}
+    },
+    "learn_ranges": [["0xFF8000", "0xFFFFFF"]]
+  },
+  "demo": {"record": 7000000, "credits": 3},
+  "scene": {
+    "layers": [
+      {"type": "waves", "layers": [
+        {"y": 24, "amp": 3, "freq": 0.08, "speed": 0.5, "color": "#03101c", "edge": "#08304a"},
+        {"y": 28, "amp": 2, "freq": 0.15, "speed": 0.9, "color": "#051826"}
+      ]},
+      {"type": "marquee", "text": "AFTER BURNER II", "font": "6x10", "y": 0, "speed": 22, "gap": 36,
+       "color": "#e6e6e6", "accent_initials": ["#3c8cff", "#ff3030"]},
+      {"type": "particles", "rate": 0.9, "color": "#ff7a10", "trail": 3, "speed": [55, 95], "y": [10, 21],
+       "dir": "right", "burst": {"on": "score", "count": 7, "color": "#ffcc40"}},
+      {"type": "sprite", "image": "sprites/jet.png", "frames": 2, "fps": 10, "mode": "pass", "dir": "right",
+       "y": 12, "speed": 34, "every": 9, "face": "right"},
+      {"type": "text", "text": "P1", "font": "7x14", "x": 1, "y": 10, "color": "#30ff60"},
+      {"type": "text", "text": "{score}", "font": "7x14", "x": 18, "y": 10, "color": "#30ff60",
+       "flash": {"on": "score", "color": "#c8ffd8", "ms": 120}},
+      {"type": "text", "text": "R{record}", "font": "7x14", "x": 127, "y": 10, "align": "right",
+       "color": "#ffd030", "when": {"has": "record"}},
+      {"type": "text", "text": "CRÉDITS {credits}", "font": "6x10", "x": 64, "y": 23, "align": "center",
+       "color": "#30d8ff", "when": {"has": "credits"}, "flash": {"on": "credits", "color": "#ffffff", "ms": 400}}
+    ]
+  }
+}

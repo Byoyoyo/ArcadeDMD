@@ -1,0 +1,6 @@
+{
+  "root": "C:/ArcadeDMD",
+  "capture_key": "KEYCODE_RCONTROL KEYCODE_D",
+  "poll_frames": 2,
+  "heartbeat_seconds": 2
+}

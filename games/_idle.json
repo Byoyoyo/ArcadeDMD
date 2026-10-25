@@ -1,0 +1,13 @@
+{
+  "title": "Écran d'attente (aucun jeu lancé)",
+  "scene": {
+    "layers": [
+      {"type": "waves", "layers": [
+        {"y": 27, "amp": 2.5, "freq": 0.07, "speed": 0.35, "color": "#031421", "edge": "#0a3550"},
+        {"y": 30, "amp": 1.5, "freq": 0.12, "speed": -0.5, "color": "#05202f"}
+      ]},
+      {"type": "clock", "font": "9x15B", "x": 64, "y": 2, "align": "center", "color": "#ffb020"},
+      {"type": "marquee", "text": "{idle_text}", "font": "6x10", "y": 16, "speed": 18, "gap": 48, "color": "#30d8ff"}
+    ]
+  }
+}

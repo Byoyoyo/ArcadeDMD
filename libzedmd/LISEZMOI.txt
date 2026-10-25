@@ -1,0 +1,5 @@
+Copie ici toutes les DLL de libzedmd (archive win-x64-Release)
+https://github.com/PPUC/libzedmd/releases
+
+installer.bat le fait tout seul quand le telechargement fonctionne.
+Le fichier principal est zedmd64.dll, les autres DLL de l archive doivent etre a cote.

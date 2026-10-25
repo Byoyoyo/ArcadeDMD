@@ -1,0 +1,47 @@
+{
+  "title": "Sonic The Hedgehog",
+  "match": [
+    {"system": ["mp_sonic", "mt_sonic"]},
+    {"system": ["genesis", "genesis_tmss", "megadriv", "megadrij"],
+     "software": ["sonic the hedgehog", "sonic1"],
+     "software_not": ["hedgehog 2", "hedgehog 3", "hedgehog 4", "hedgehog cd", "spinball", "sonic2", "sonic3"]}
+  ],
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "score": {"addr": "0xFFFE26", "type": "be", "bytes": 4, "mult": 10, "note": "v_score (stocké /10)"},
+      "rings": {"addr": "0xFFFE20", "type": "be", "bytes": 2, "note": "v_rings"},
+      "lives": {"addr": "0xFFFE12", "type": "u8", "note": "v_lives"},
+      "zone":  {"addr": "0xFFFE10", "type": "u8", "note": "v_zone"},
+      "act":   {"addr": "0xFFFE11", "type": "u8", "note": "v_act"},
+      "mode":  {"addr": "0xFFF600", "type": "u8", "note": "v_gamemode (0x0C = en jeu)"}
+    }
+  },
+  "demo": {"lives": 3},
+  "scene": {
+    "layers": [
+      {"type": "marquee", "text": "SONIC", "font": "6x10", "y": 0, "speed": 20, "gap": 52, "color": "#2ee6ff"},
+      {"type": "bars", "x": 0, "w": 42, "bottom": 31, "min": 3, "max": 6, "color": "#1aa83c", "tip": "#8dff7a",
+       "seed": 4, "flowers": ["#ff4040", "#ffdd33"]},
+      {"type": "bars", "x": 86, "w": 42, "bottom": 31, "min": 3, "max": 6, "color": "#1aa83c", "tip": "#8dff7a",
+       "seed": 9, "flowers": ["#ff4040"]},
+      {"type": "sprite", "image": ["sprites/sonic.gif", "sprites/sonic.png", "sprites/ring.png"], "frames": 6,
+       "fps": 12, "mode": "pingpong", "x0": 88, "x1": 128, "y": 19, "speed": 14, "bob": 1},
+      {"type": "cycle", "period": 4, "pages": [
+        {"layers": [
+          {"type": "text", "text": "SCORE", "font": "6x10", "x": 2, "y": 12, "color": "#38f070"},
+          {"type": "text", "text": "{score}", "font": "9x15B", "x": 48, "y": 9, "color": "#38f070",
+           "flash": {"on": "score", "color": "#d8ffe0", "ms": 120}}
+        ]},
+        {"when": {"has": "rings"}, "layers": [
+          {"type": "text", "text": "ANNEAUX", "font": "6x10", "x": 2, "y": 12, "color": "#ffc21a"},
+          {"type": "text", "text": "{rings}", "font": "9x15B", "x": 48, "y": 9, "color": "#ffc21a",
+           "flash": {"on": "rings", "color": "#ffffff", "ms": 150}}
+        ]}
+      ]},
+      {"type": "text", "segments": [{"text": "VIES ", "color": "#2ee6ff"}, {"text": "{lives}", "color": "#ffffff"}],
+       "font": "6x10", "x": 64, "y": 23, "align": "center", "when": {"has": "lives"},
+       "flash": {"on": "lives", "color": "#ff4040", "ms": 600}}
+    ]
+  }
+}
