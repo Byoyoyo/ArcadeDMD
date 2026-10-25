@@ -19,7 +19,7 @@ Contenu du dossier
 | `ports.bat` | liste les ports COM, pour trouver celui de la Pixelcade |
 | `test_dalle.bat` | mire de test sur une dalle ZeDMD |
 | `config.json` | tes réglages (Pixelcade, RetroArch, fenêtre LED virtuelles...), créé par l'installeur à partir de `config.defaut.json`. Une nouvelle version d'ArcadeDMD ne l'écrase jamais |
-| `games\*.json` | un fichier par jeu, avec les adresses RAM et la scène. `neogeo.json` sert de scène commune à tous les jeux Neo Geo |
+| `games\*.json` | un fichier par jeu, avec les adresses RAM et la scène. Les fichiers `neogeo*.json` servent de scènes communes aux jeux Neo Geo, une par genre |
 | `appris\` | copie des adresses trouvées par `apprendre.bat`. Remises en place toutes seules après une mise à jour |
 | `mame-plugin\arcadedmd` | le plugin à copier dans `MAME\plugins` (l'installeur le fait) |
 | `sprites\` | petits sprites (avion, anneau). Tu peux ajouter les tiens |
@@ -254,7 +254,7 @@ Pour savoir quel cœur tourne, appuie sur F1 pendant le jeu, puis Informations, 
 | Metal Slug 2 (`mslug2`), Metal Slug X (`mslugx`) | FinalBurn Neo | vies, bombes, arme et munitions | score |
 | Metal Slug 3 (`mslug3`) | FinalBurn Neo | vies, bombes, arme et munitions | score J1 et J2 |
 | Metal Slug 4 (`mslug4`), Metal Slug 5 (`mslug5`) | FinalBurn Neo | vies, bombes, arme et munitions | score |
-| Tous les autres jeux Neo Geo | FinalBurn Neo | titre du jeu (et crédits avec MAME) | score, vies |
+| Tous les autres jeux Neo Geo | FinalBurn Neo | scène selon le genre, barres de vie et chrono pour 36 jeux de combat (crédits avec MAME) | score |
 | Sonic 1 et Sonic 2 | Genesis Plus GX | score, anneaux, vies | rien |
 
 Les adresses des vies, bombes et munitions viennent de la base de codes de triche de MAME 2003-Plus. Celles de Sonic sont les mêmes que dans MAME. Les vies des Metal Slug suivent le « 1UP » de l'écran (le jeu compte aussi la vie en cours). Ça a été vérifié sur le premier. Si un autre Metal Slug affiche une vie de moins que l'écran, enlève les lignes `"add"` et `"min"` de ses vies dans son fichier `games\mslugX.json`. Les crédits des Neo Geo ne se lisent qu'avec MAME, RetroArch ne voit pas cette mémoire.
@@ -265,11 +265,19 @@ Le score de Metal Slug est déjà dans le fichier, trouvé avec `apprendre.bat` 
 
 ### Tous les jeux Neo Geo
 
-Les 291 jeux Neo Geo connus de MAME (clones compris) ont une scène commune, sans rien faire. Le fichier `games\neogeo.json` contient leur liste et leur vrai titre. En haut, « SNK - » puis le titre du jeu défilent, avec des collines bleues en bas.
+Les jeux Neo Geo connus de MAME (clones compris) ont une scène commune selon leur genre, sans rien faire. En haut, « SNK - » puis le vrai titre du jeu défilent.
 
-- Avec RetroArch, la scène affiche « NEO GEO » au milieu tant que rien n'est appris pour ce jeu.
-- Avec MAME, les crédits s'affichent en plus, pour tous les jeux.
-- Apprends le score d'un jeu avec `apprendre.bat` (même méthode que juste en dessous). L'outil crée alors `games\<jeu>.json`, par exemple `games\kof98.json`, qui garde la scène commune et ajoute le score. Le modèle `neogeo.json` n'est jamais modifié.
+| Genre | Fichier | Ce qui s'affiche |
+|---|---|---|
+| Combat (King of Fighters, Samurai Shodown, Fatal Fury, Art of Fighting, World Heroes...) | `neogeo_combat.json` | les deux barres de vie avec le chrono au milieu et « KO », comme dans le jeu, quand leurs adresses sont connues (36 jeux, dont KOF 94 à 2001, Garou, Real Bout, Samurai Shodown III à V). Sinon « 1P VS 2P ». Des flammes en bas |
+| Shoot'em up (Blazing Star, Pulstar, Last Resort, Aero Fighters...) | `neogeo_shoot.json` | un petit vaisseau qui traverse un champ d'étoiles et tire quand le score monte |
+| Sport et course (Super Sidekicks, Neo Turf Masters, Windjammers...) | `neogeo_sport.json` | un terrain avec un ballon qui rebondit |
+| Réflexion, quiz, mahjong (Puzzle Bobble, Magical Drop...) | `neogeo_reflexion.json` | une rangée de blocs de couleur qui changent |
+| Action, plates-formes, beat'em up et le reste (Sengoku, Shock Troopers...) | `neogeo.json` | des collines bleues, et les barres de vie des deux joueurs quand elles sont connues |
+
+- Avec RetroArch, la scène affiche « NEO GEO » au milieu tant que rien n'est connu pour ce jeu. Avec MAME, les crédits s'affichent en plus.
+- Les barres de vie et le chrono viennent de la base de codes de triche de MAME 2003-Plus. Ils marchent avec RetroArch comme avec MAME.
+- Apprends le score d'un jeu avec `apprendre.bat` (même méthode que juste en dessous). L'outil crée alors `games\<jeu>.json`, par exemple `games\kof98.json`. Il garde la scène du genre et ses barres de vie, et ajoute le score. Les fichiers communs ne sont jamais modifiés.
 - Un jeu qui a son propre fichier (les Metal Slug par exemple) passe toujours avant la scène commune.
 
 ### Apprendre le score
@@ -325,6 +333,7 @@ Options communes, `mult` (score stocké divisé par 10, très fréquent), `add`,
 | `mountains` | montagnes pleines et ligne de sol (style Vera) | `peaks` (`[x, hauteur]`), `floor`, `color`, `ground`, `speed` |
 | `particles` | missiles et gerbes quand une valeur monte | `rate`, `color`, `y`, `burst` |
 | `sprite` | sprite animé (PNG en bande ou GIF) | `image`, `frames`, `mode` (`pass`, `pingpong`, `fixed`), `dim` (luminosité), `alpha`, `shoot` (tire quand une valeur monte) |
+| `gauge` | barre de vie | `var`, `max`, `x`, `y`, `w`, `h`, `anchor` (côté accroché), `color`, `low`, `back`, `border` |
 | `clock` | horloge | `format`, `font` |
 | `image`, `rect` | image fixe, rectangle | |
 

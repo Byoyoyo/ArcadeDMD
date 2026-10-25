@@ -393,8 +393,8 @@ def apply_template(cfg, games, tkey, system):
     cfg["retroarch"] = dict({k: v for k, v in ra.items() if k in ("ram_base", "ram_size", "swap16", "big_endian")},
                             content=[system])
     mem = cfg.setdefault("memory", {})
-    base = ((tmpl.get("memory") or {}).get("values")) or {}
-    vals = dict(base)
+    from .memvalues import game_values
+    vals = game_values(tmpl, system)          # adresses communes + barres de vie connues pour ce jeu
     vals.update(mem.get("values") or {})
     mem["values"] = vals
     mem.setdefault("cpu", (tmpl.get("memory") or {}).get("cpu", ":maincpu"))

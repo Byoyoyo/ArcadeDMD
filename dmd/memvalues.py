@@ -91,3 +91,16 @@ def decode(d, getb, big_endian=True):
     if isinstance(v, float) and v.is_integer():
         v = int(v)
     return v
+
+
+def game_values(game, system="", parent=""):
+    """Adresses d'un jeu : celles du fichier, plus celles propres au romset dans un modèle ("per_game")."""
+    g = game or {}
+    vals = dict(((g.get("memory") or {}).get("values")) or {})
+    pg = g.get("per_game")
+    if isinstance(pg, dict):
+        co = g.get("clone_of") if isinstance(g.get("clone_of"), dict) else {}
+        extra = pg.get(system or "") or pg.get(co.get(system or "", "")) or pg.get(parent or "")
+        if isinstance(extra, dict):
+            vals.update(extra)
+    return vals

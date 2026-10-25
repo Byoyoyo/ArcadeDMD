@@ -431,6 +431,51 @@ class MountainsEl(Element):
             cv.set(x, self.bottom, self.ground if self.ground is not None else self.color)
 
 
+class GaugeEl(Element):
+    """Barre de vie (jeux de combat) : var / max, accrochée d'un côté comme dans le jeu.
+
+    anchor "right" : la barre reste collée à droite et se vide par la gauche (joueur 1),
+    anchor "left" : l'inverse (joueur 2). low_at : sous ce rapport, couleur low."""
+
+    def __init__(self, spec, root, log):
+        super().__init__(spec, root, log)
+        self.var = spec.get("var", "health")
+        self.max = float(spec.get("max", 100))
+        self.x, self.y = int(spec.get("x", 0)), int(spec.get("y", 0))
+        self.w, self.h = max(1, int(spec.get("w", 50))), max(1, int(spec.get("h", 5)))
+        self.anchor = spec.get("anchor", "left")
+        self.color = parse_color(spec.get("color"), (255, 208, 48))
+        self.low = parse_color(spec.get("low"), (255, 64, 32))
+        self.low_at = float(spec.get("low_at", 0.3))
+        self.back = parse_color(spec.get("back"), (64, 8, 8))
+        self.border = parse_color(spec.get("border"), None) if spec.get("border") else None
+
+    def render(self, ctx):
+        v = ctx.state.values.get(self.var)
+        if not isinstance(v, (int, float)):
+            return
+        r = max(0.0, min(1.0, v / self.max)) if self.max > 0 else 0.0
+        n = int(round(r * self.w))
+        col = self.low if r <= self.low_at else self.color
+        fl = _flash_color(self.spec, ctx, None)
+        if fl is not None:
+            col = fl
+        top = scale_color(col, 1.25)
+        cv = ctx.canvas
+        x0, y0 = self.x, self.y
+        if self.border is not None:
+            for xx in range(x0 - 1, x0 + self.w + 1):
+                cv.set(xx, y0 - 1, self.border)
+                cv.set(xx, y0 + self.h, self.border)
+            for yy in range(y0, y0 + self.h):
+                cv.set(x0 - 1, yy, self.border)
+                cv.set(x0 + self.w, yy, self.border)
+        for i in range(self.w):
+            filled = (i >= self.w - n) if self.anchor == "right" else (i < n)
+            for k, yy in enumerate(range(y0, y0 + self.h)):
+                cv.set(x0 + i, yy, (top if k == 0 else col) if filled else self.back)
+
+
 class ParticlesEl(Element):
     """Missiles qui traversent + gerbes d'étincelles quand une valeur augmente."""
 
@@ -676,7 +721,7 @@ class Scene:
     def _make(self, spec):
         kind = spec.get("type", "text")
         cls = {
-            "text": TextEl, "marquee": MarqueeEl, "bars": BarsEl, "waves": WavesEl, "mountains": MountainsEl,
+            "text": TextEl, "marquee": MarqueeEl, "bars": BarsEl, "waves": WavesEl, "mountains": MountainsEl, "gauge": GaugeEl,
             "particles": ParticlesEl, "sprite": SpriteEl, "clock": ClockEl,
             "rect": RectEl, "image": ImageEl,
         }.get(kind)

@@ -6,7 +6,7 @@
 
 local exports = {
 	name = "arcadedmd",
-	version = "1.4.0",
+	version = "1.5.0",
 	description = "ArcadeDMD",
 	license = "MIT",
 	author = { name = "ArcadeDMD" } }
@@ -415,8 +415,20 @@ local function start_session()
 		log_error("CPU introuvable : " .. tostring(cpu_tag) .. " (verifier \"cpu\" dans le fichier du jeu)")
 	end
 	local readers, names = {}, {}
+	-- adresses du fichier, plus celles propres au jeu dans un modele ("per_game", barres de vie...)
+	local values = {}
 	if type(mem.values) == "table" then
-		for name, def in pairs(mem.values) do
+		for name, def in pairs(mem.values) do values[name] = def end
+	end
+	if game and type(game.per_game) == "table" then
+		local co = type(game.clone_of) == "table" and game.clone_of or {}
+		local extra = game.per_game[info.system] or game.per_game[co[info.system] or ""] or game.per_game[info.parent or ""]
+		if type(extra) == "table" then
+			for name, def in pairs(extra) do values[name] = def end
+		end
+	end
+	do
+		for name, def in pairs(values) do
 			if type(def) == "table" and def.addr ~= nil and def.addr ~= "" then
 				local sp = space
 				if def.cpu then sp = find_space(def.cpu, def.space or mem.space) end

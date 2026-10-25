@@ -1,0 +1,411 @@
+{
+ "fallback": true,
+ "note": "Scène commune des jeux Neo Geo, réflexion, quiz et mahjong. apprendre.bat crée games/<jeu>.json qui la reprend.",
+ "match": [
+  {
+   "system": [
+    "bakatono",
+    "diggerma",
+    "froman2b",
+    "ghostlop",
+    "gururin",
+    "irrmaze",
+    "janshin",
+    "joyjoy",
+    "magdrop2",
+    "magdrop3",
+    "mahretsu",
+    "marukodq",
+    "miexchng",
+    "minasan",
+    "moshougi",
+    "panicbom",
+    "pbobbl2n",
+    "pbobblen",
+    "pbobblenb",
+    "pnyaa",
+    "pnyaaa",
+    "popbounc",
+    "puzzldpr",
+    "puzzledp",
+    "quizdai2",
+    "quizdais",
+    "quizdaisk",
+    "quizkof",
+    "quizkofk",
+    "sbp",
+    "vliner",
+    "vliner53",
+    "vliner54",
+    "vliner6e",
+    "vliner7e",
+    "zintrckb"
+   ]
+  }
+ ],
+ "retroarch": {
+  "content": [
+   "bakatono",
+   "diggerma",
+   "froman2b",
+   "ghostlop",
+   "gururin",
+   "irrmaze",
+   "janshin",
+   "joyjoy",
+   "magdrop2",
+   "magdrop3",
+   "mahretsu",
+   "marukodq",
+   "miexchng",
+   "minasan",
+   "moshougi",
+   "panicbom",
+   "pbobbl2n",
+   "pbobblen",
+   "pbobblenb",
+   "pnyaa",
+   "pnyaaa",
+   "popbounc",
+   "puzzldpr",
+   "puzzledp",
+   "quizdai2",
+   "quizdais",
+   "quizdaisk",
+   "quizkof",
+   "quizkofk",
+   "sbp",
+   "vliner",
+   "vliner53",
+   "vliner54",
+   "vliner6e",
+   "vliner7e",
+   "zintrckb"
+  ],
+  "ram_base": "0x100000",
+  "ram_size": "0x10000",
+  "swap16": true,
+  "note": "cœur FinalBurn Neo : RAM 68000 de la Neo Geo vue à partir de 0x100000, octets inversés par mots de 16 bits"
+ },
+ "titles": {
+  "bakatono": "Bakatonosama Mahjong Manyuuki",
+  "diggerma": "Digger Man",
+  "froman2b": "Idol Mahjong Final Romance 2",
+  "ghostlop": "Ghostlop",
+  "gururin": "Gururin",
+  "irrmaze": "The Irritating Maze",
+  "janshin": "Janshin Densetsu",
+  "joyjoy": "Puzzled",
+  "magdrop2": "Magical Drop II",
+  "magdrop3": "Magical Drop III",
+  "mahretsu": "Mahjong Kyo Retsuden",
+  "marukodq": "Chibi Maruko-chan: Maruko Deluxe Quiz",
+  "miexchng": "Money Puzzle Exchanger",
+  "minasan": "Minasan no Okagesamadesu! Dai Sugoroku Taikai",
+  "moshougi": "Shougi no Tatsujin",
+  "panicbom": "Panic Bomber",
+  "pbobbl2n": "Puzzle Bobble 2",
+  "pbobblen": "Puzzle Bobble",
+  "pbobblenb": "Puzzle Bobble",
+  "pnyaa": "Pochi and Nyaa",
+  "pnyaaa": "Pochi and Nyaa",
+  "popbounc": "Pop 'n Bounce",
+  "puzzldpr": "Puzzle De Pon! R!",
+  "puzzledp": "Puzzle De Pon!",
+  "quizdai2": "Quiz Meitantei Neo & Geo",
+  "quizdais": "Quiz Daisousa Sen",
+  "quizdaisk": "Quiz Salibtamjeong",
+  "quizkof": "Quiz King of Fighters",
+  "quizkofk": "Quiz King of Fighters",
+  "sbp": "Super Bubble Pop",
+  "vliner": "V-Liner",
+  "vliner53": "V-Liner",
+  "vliner54": "V-Liner",
+  "vliner6e": "V-Liner",
+  "vliner7e": "V-Liner",
+  "zintrckb": "Zintrick"
+ },
+ "memory": {
+  "cpu": ":maincpu",
+  "values": {
+   "credits": {
+    "addr": "0xD00034",
+    "type": "bcd",
+    "bytes": 1,
+    "mame_only": true,
+    "note": "crédits MVS (mémoire de sauvegarde), lisibles dans MAME seulement"
+   }
+  }
+ },
+ "demo": {
+  "credits": 2,
+  "score": 0
+ },
+ "scene": {
+  "layers": [
+   {
+    "type": "sprite",
+    "image": [
+     "sprites/blocks.png"
+    ],
+    "frames": 6,
+    "fps": 1.5,
+    "mode": "fixed",
+    "x": 0,
+    "y": 27
+   },
+   {
+    "type": "marquee",
+    "segments": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#e6e6e6"
+     }
+    ],
+    "font": "6x10",
+    "y": 0,
+    "speed": 12,
+    "gap": 40,
+    "upper": true
+   },
+   {
+    "type": "text",
+    "font": "7x14",
+    "x": 64,
+    "y": 11,
+    "align": "center",
+    "segments": [
+     {
+      "text": "NEO",
+      "color": "#ececec"
+     },
+     {
+      "text": " GEO",
+      "color": "#6f8cff"
+     }
+    ],
+    "when": {
+     "not": {
+      "any": [
+       {
+        "has": "score"
+       },
+       {
+        "has": "lives"
+       },
+       {
+        "has": "credits"
+       },
+       {
+        "has": "health"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "7x14",
+    "x": 64,
+    "y": 8,
+    "align": "center",
+    "segments": [
+     {
+      "text": "CRÉDITS ",
+      "color": "#30d8ff"
+     },
+     {
+      "text": "{credits}",
+      "color": "#ffc830"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "has": "credits"
+      },
+      {
+       "not": {
+        "any": [
+         {
+          "has": "score"
+         },
+         {
+          "has": "lives"
+         },
+         {
+          "has": "health"
+         }
+        ]
+       }
+      }
+     ]
+    },
+    "flash": {
+     "on": "credits",
+     "color": "#ffffff",
+     "ms": 400
+    }
+   },
+   {
+    "type": "text",
+    "font": "7x14",
+    "x": 1,
+    "y": 8,
+    "align": "left",
+    "text": "P1",
+    "color": "#30ff60",
+    "when": {
+     "has": "score"
+    }
+   },
+   {
+    "type": "text",
+    "font": "7x14",
+    "x": 20,
+    "y": 8,
+    "align": "left",
+    "text": "{score}",
+    "color": "#ececec",
+    "when": {
+     "has": "score"
+    },
+    "flash": {
+     "on": "score",
+     "color": "#a8ffbc",
+     "ms": 120
+    }
+   },
+   {
+    "type": "text",
+    "font": "7x14",
+    "x": 127,
+    "y": 8,
+    "align": "right",
+    "segments": [
+     {
+      "text": "P2 ",
+      "color": "#30d8ff"
+     },
+     {
+      "text": "{score_p2}",
+      "color": "#ffc830"
+     }
+    ],
+    "when": {
+     "has": "score_p2"
+    },
+    "flash": {
+     "on": "score_p2",
+     "color": "#fff4c8",
+     "ms": 120
+    }
+   },
+   {
+    "type": "text",
+    "font": "7x14",
+    "x": 127,
+    "y": 8,
+    "align": "right",
+    "segments": [
+     {
+      "text": "VIES ",
+      "color": "#30d8ff"
+     },
+     {
+      "text": "{lives}",
+      "color": "#ffc830"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "has": "lives"
+      },
+      {
+       "not": {
+        "has": "score_p2"
+       }
+      }
+     ]
+    },
+    "flash": {
+     "on": "lives",
+     "color": "#ff4040",
+     "ms": 600
+    }
+   },
+   {
+    "type": "cycle",
+    "period": 4,
+    "when": {
+     "not": {
+      "has": "health"
+     }
+    },
+    "pages": [
+     {
+      "when": {
+       "has": "bombs"
+      },
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 64,
+        "y": 19,
+        "align": "center",
+        "text": "BOMBES {bombs}",
+        "color": "#30d8ff",
+        "flash": {
+         "on": "bombs",
+         "color": "#ffffff",
+         "ms": 300
+        }
+       }
+      ]
+     },
+     {
+      "when": {
+       "all": [
+        {
+         "has": "credits"
+        },
+        {
+         "any": [
+          {
+           "has": "score"
+          },
+          {
+           "has": "lives"
+          }
+         ]
+        }
+       ]
+      },
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 64,
+        "y": 19,
+        "align": "center",
+        "text": "CRÉDITS {credits}",
+        "color": "#30d8ff",
+        "flash": {
+         "on": "credits",
+         "color": "#ffffff",
+         "ms": 400
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

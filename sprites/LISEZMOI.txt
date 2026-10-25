@@ -1,11 +1,16 @@
 Sprites utilises par les scenes (PNG en bande horizontale ou GIF anime).
+Tous sont dessines pour ArcadeDMD, aucun ne vient d un jeu.
 
-jet.png   avion generique (2 images) pour After Burner II
-ring.png  anneau generique (6 images) pour Sonic 1 et Sonic 2
-tank.png  petit char generique (3 images de 14x5) pour Metal Slug et Metal Slug 3
+jet.png     avion generique (2 images) pour After Burner II
+ring.png    anneau generique (6 images) pour Sonic 1 et Sonic 2
+tank.png    petit char generique (3 images de 14x5) pour les Metal Slug
+ship.png    petit vaisseau (2 images de 9x5) pour les shoot'em up Neo Geo
+ball.png    ballon (3x3) pour les jeux de sport Neo Geo
+blocks.png  blocs de couleur (6 images de 128x5) pour les jeux de reflexion Neo Geo
 
 Pour remplacer l anneau par ton propre personnage, depose sonic.gif
 (ou sonic.png en bande de 6 images) dans ce dossier.
 Pour Sonic 2, sonic2.gif (ou sonic2.png) passe en priorite s il existe.
-Pour Metal Slug, mslug_tank.gif (ou mslug_tank.png en bande de 3 images)
+Pour les Metal Slug, mslug_tank.gif (ou mslug_tank.png en bande de 3 images)
 remplace le char. 5 pixels de haut au plus, canon vers la droite.
+Pour les shoot'em up, neogeo_ship.gif (ou .png) remplace le vaisseau.

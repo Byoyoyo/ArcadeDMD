@@ -1,0 +1,437 @@
+{
+ "fallback": true,
+ "note": "Scène commune des jeux Neo Geo, sport et course. apprendre.bat crée games/<jeu>.json qui la reprend.",
+ "match": [
+  {
+   "system": [
+    "2020bb",
+    "2020bba",
+    "2020bbh",
+    "bangbead",
+    "bstars",
+    "bstars2",
+    "bstarsh",
+    "fbfrenzy",
+    "flipshot",
+    "goalx3",
+    "jockeygp",
+    "jockeygpa",
+    "lbowling",
+    "neocup98",
+    "neodrift",
+    "overtop",
+    "pgoal",
+    "pspikes2",
+    "ridhero",
+    "ridheroh",
+    "sdodgeb",
+    "socbrawl",
+    "socbrawlh",
+    "ssideki",
+    "ssideki2",
+    "ssideki3",
+    "ssideki4",
+    "stakwin",
+    "stakwin2",
+    "stakwindev",
+    "strhoop",
+    "tpgolf",
+    "trally",
+    "turfmast",
+    "twsoc96",
+    "wjammers"
+   ]
+  }
+ ],
+ "retroarch": {
+  "content": [
+   "2020bb",
+   "2020bba",
+   "2020bbh",
+   "bangbead",
+   "bstars",
+   "bstars2",
+   "bstarsh",
+   "fbfrenzy",
+   "flipshot",
+   "goalx3",
+   "jockeygp",
+   "jockeygpa",
+   "lbowling",
+   "neocup98",
+   "neodrift",
+   "overtop",
+   "pgoal",
+   "pspikes2",
+   "ridhero",
+   "ridheroh",
+   "sdodgeb",
+   "socbrawl",
+   "socbrawlh",
+   "ssideki",
+   "ssideki2",
+   "ssideki3",
+   "ssideki4",
+   "stakwin",
+   "stakwin2",
+   "stakwindev",
+   "strhoop",
+   "tpgolf",
+   "trally",
+   "turfmast",
+   "twsoc96",
+   "wjammers"
+  ],
+  "ram_base": "0x100000",
+  "ram_size": "0x10000",
+  "swap16": true,
+  "note": "cœur FinalBurn Neo : RAM 68000 de la Neo Geo vue à partir de 0x100000, octets inversés par mots de 16 bits"
+ },
+ "titles": {
+  "2020bb": "2020 Super Baseball",
+  "2020bba": "2020 Super Baseball",
+  "2020bbh": "2020 Super Baseball",
+  "bangbead": "Bang Bead",
+  "bstars": "Baseball Stars Professional",
+  "bstars2": "Baseball Stars 2",
+  "bstarsh": "Baseball Stars Professional",
+  "fbfrenzy": "Football Frenzy",
+  "flipshot": "Battle Flip Shot",
+  "goalx3": "Goal! Goal! Goal!",
+  "jockeygp": "Jockey Grand Prix",
+  "jockeygpa": "Jockey Grand Prix",
+  "lbowling": "League Bowling",
+  "neocup98": "Neo-Geo Cup '98",
+  "neodrift": "Neo Drift Out",
+  "overtop": "Over Top",
+  "pgoal": "Pleasure Goal",
+  "pspikes2": "Power Spikes II",
+  "ridhero": "Riding Hero",
+  "ridheroh": "Riding Hero",
+  "sdodgeb": "Super Dodge Ball",
+  "socbrawl": "Soccer Brawl",
+  "socbrawlh": "Soccer Brawl",
+  "ssideki": "Super Sidekicks",
+  "ssideki2": "Super Sidekicks 2",
+  "ssideki3": "Super Sidekicks 3",
+  "ssideki4": "The Ultimate 11",
+  "stakwin": "Stakes Winner",
+  "stakwin2": "Stakes Winner 2",
+  "stakwindev": "Stakes Winner",
+  "strhoop": "Street Hoop",
+  "tpgolf": "Top Player's Golf",
+  "trally": "Thrash Rally",
+  "turfmast": "Neo Turf Masters",
+  "twsoc96": "Tecmo World Soccer '96",
+  "wjammers": "Windjammers"
+ },
+ "memory": {
+  "cpu": ":maincpu",
+  "values": {
+   "credits": {
+    "addr": "0xD00034",
+    "type": "bcd",
+    "bytes": 1,
+    "mame_only": true,
+    "note": "crédits MVS (mémoire de sauvegarde), lisibles dans MAME seulement"
+   }
+  }
+ },
+ "demo": {
+  "credits": 2,
+  "score": 0
+ },
+ "scene": {
+  "layers": [
+   {
+    "type": "rect",
+    "x": 0,
+    "y": 27,
+    "w": 128,
+    "h": 5,
+    "color": "#0b3d18"
+   },
+   {
+    "type": "rect",
+    "x": 0,
+    "y": 27,
+    "w": 128,
+    "h": 1,
+    "color": "#2f8a46"
+   },
+   {
+    "type": "rect",
+    "x": 64,
+    "y": 27,
+    "w": 1,
+    "h": 5,
+    "color": "#2f8a46"
+   },
+   {
+    "type": "sprite",
+    "image": [
+     "sprites/ball.png"
+    ],
+    "mode": "pingpong",
+    "x0": 2,
+    "x1": 126,
+    "y": 28,
+    "speed": 30,
+    "bob": 1,
+    "fps": 1
+   },
+   {
+    "type": "marquee",
+    "segments": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#e6e6e6"
+     }
+    ],
+    "font": "6x10",
+    "y": 0,
+    "speed": 12,
+    "gap": 40,
+    "upper": true
+   },
+   {
+    "type": "text",
+    "font": "7x14",
+    "x": 64,
+    "y": 11,
+    "align": "center",
+    "segments": [
+     {
+      "text": "NEO",
+      "color": "#ececec"
+     },
+     {
+      "text": " GEO",
+      "color": "#6f8cff"
+     }
+    ],
+    "when": {
+     "not": {
+      "any": [
+       {
+        "has": "score"
+       },
+       {
+        "has": "lives"
+       },
+       {
+        "has": "credits"
+       },
+       {
+        "has": "health"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "7x14",
+    "x": 64,
+    "y": 8,
+    "align": "center",
+    "segments": [
+     {
+      "text": "CRÉDITS ",
+      "color": "#30d8ff"
+     },
+     {
+      "text": "{credits}",
+      "color": "#ffc830"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "has": "credits"
+      },
+      {
+       "not": {
+        "any": [
+         {
+          "has": "score"
+         },
+         {
+          "has": "lives"
+         },
+         {
+          "has": "health"
+         }
+        ]
+       }
+      }
+     ]
+    },
+    "flash": {
+     "on": "credits",
+     "color": "#ffffff",
+     "ms": 400
+    }
+   },
+   {
+    "type": "text",
+    "font": "7x14",
+    "x": 1,
+    "y": 8,
+    "align": "left",
+    "text": "P1",
+    "color": "#30ff60",
+    "when": {
+     "has": "score"
+    }
+   },
+   {
+    "type": "text",
+    "font": "7x14",
+    "x": 20,
+    "y": 8,
+    "align": "left",
+    "text": "{score}",
+    "color": "#ececec",
+    "when": {
+     "has": "score"
+    },
+    "flash": {
+     "on": "score",
+     "color": "#a8ffbc",
+     "ms": 120
+    }
+   },
+   {
+    "type": "text",
+    "font": "7x14",
+    "x": 127,
+    "y": 8,
+    "align": "right",
+    "segments": [
+     {
+      "text": "P2 ",
+      "color": "#30d8ff"
+     },
+     {
+      "text": "{score_p2}",
+      "color": "#ffc830"
+     }
+    ],
+    "when": {
+     "has": "score_p2"
+    },
+    "flash": {
+     "on": "score_p2",
+     "color": "#fff4c8",
+     "ms": 120
+    }
+   },
+   {
+    "type": "text",
+    "font": "7x14",
+    "x": 127,
+    "y": 8,
+    "align": "right",
+    "segments": [
+     {
+      "text": "VIES ",
+      "color": "#30d8ff"
+     },
+     {
+      "text": "{lives}",
+      "color": "#ffc830"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "has": "lives"
+      },
+      {
+       "not": {
+        "has": "score_p2"
+       }
+      }
+     ]
+    },
+    "flash": {
+     "on": "lives",
+     "color": "#ff4040",
+     "ms": 600
+    }
+   },
+   {
+    "type": "cycle",
+    "period": 4,
+    "when": {
+     "not": {
+      "has": "health"
+     }
+    },
+    "pages": [
+     {
+      "when": {
+       "has": "bombs"
+      },
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 64,
+        "y": 19,
+        "align": "center",
+        "text": "BOMBES {bombs}",
+        "color": "#30d8ff",
+        "flash": {
+         "on": "bombs",
+         "color": "#ffffff",
+         "ms": 300
+        }
+       }
+      ]
+     },
+     {
+      "when": {
+       "all": [
+        {
+         "has": "credits"
+        },
+        {
+         "any": [
+          {
+           "has": "score"
+          },
+          {
+           "has": "lives"
+          }
+         ]
+        }
+       ]
+      },
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 64,
+        "y": 19,
+        "align": "center",
+        "text": "CRÉDITS {credits}",
+        "color": "#30d8ff",
+        "flash": {
+         "on": "credits",
+         "color": "#ffffff",
+         "ms": 400
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

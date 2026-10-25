@@ -9,7 +9,7 @@ import time
 
 from . import wincore
 from .learn import load_games
-from .memvalues import parse_addr, value_size
+from .memvalues import game_values, parse_addr, value_size
 from .retroarch import (RetroArchClient, core_label, explain_failure, find_core, layout_for, match_game,
                         read_values, too_old)
 
@@ -127,7 +127,7 @@ def report(root, client, st, port, say):
     layout = layout_for(game, st["system"])
     say(f"La mémoire se lit ({layout.readable_size(client)} octets visibles).")
     if game:
-        values = ((game.get("memory") or {}).get("values")) or {}
+        values = game_values(game, st["content"])
         defs, outside, todo = {}, [], []
         for name, d in values.items():
             if not isinstance(d, dict):

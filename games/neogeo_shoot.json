@@ -1,0 +1,400 @@
+{
+ "fallback": true,
+ "note": "Scène commune des jeux Neo Geo, shoot'em up. apprendre.bat crée games/<jeu>.json qui la reprend.",
+ "match": [
+  {
+   "system": [
+    "alpham2",
+    "alpham2p",
+    "androdun",
+    "blazstar",
+    "ctomaday",
+    "gpilots",
+    "gpilotsh",
+    "gpilotsp",
+    "ironclad",
+    "ironclado",
+    "lasthope",
+    "lresort",
+    "lresortp",
+    "preisle2",
+    "pulstar",
+    "s1945p",
+    "sonicwi2",
+    "sonicwi3",
+    "twinspri",
+    "viewpoin",
+    "viewpoinp",
+    "zedblade"
+   ]
+  }
+ ],
+ "retroarch": {
+  "content": [
+   "alpham2",
+   "alpham2p",
+   "androdun",
+   "blazstar",
+   "ctomaday",
+   "gpilots",
+   "gpilotsh",
+   "gpilotsp",
+   "ironclad",
+   "ironclado",
+   "lasthope",
+   "lresort",
+   "lresortp",
+   "preisle2",
+   "pulstar",
+   "s1945p",
+   "sonicwi2",
+   "sonicwi3",
+   "twinspri",
+   "viewpoin",
+   "viewpoinp",
+   "zedblade"
+  ],
+  "ram_base": "0x100000",
+  "ram_size": "0x10000",
+  "swap16": true,
+  "note": "cœur FinalBurn Neo : RAM 68000 de la Neo Geo vue à partir de 0x100000, octets inversés par mots de 16 bits"
+ },
+ "titles": {
+  "alpham2": "Alpha Mission II",
+  "alpham2p": "Alpha Mission II",
+  "androdun": "Andro Dunos",
+  "blazstar": "Blazing Star",
+  "ctomaday": "Captain Tomaday",
+  "gpilots": "Ghost Pilots",
+  "gpilotsh": "Ghost Pilots",
+  "gpilotsp": "Ghost Pilots",
+  "ironclad": "Choutetsu Brikin'ger",
+  "ironclado": "Choutetsu Brikin'ger",
+  "lasthope": "Last Hope",
+  "lresort": "Last Resort",
+  "lresortp": "Last Resort",
+  "preisle2": "Prehistoric Isle 2",
+  "pulstar": "Pulstar",
+  "s1945p": "Strikers 1945 Plus",
+  "sonicwi2": "Aero Fighters 2",
+  "sonicwi3": "Aero Fighters 3",
+  "twinspri": "Twinkle Star Sprites",
+  "viewpoin": "Viewpoint",
+  "viewpoinp": "Viewpoint",
+  "zedblade": "Zed Blade"
+ },
+ "memory": {
+  "cpu": ":maincpu",
+  "values": {
+   "credits": {
+    "addr": "0xD00034",
+    "type": "bcd",
+    "bytes": 1,
+    "mame_only": true,
+    "note": "crédits MVS (mémoire de sauvegarde), lisibles dans MAME seulement"
+   }
+  }
+ },
+ "demo": {
+  "credits": 2,
+  "score": 0
+ },
+ "scene": {
+  "layers": [
+   {
+    "type": "particles",
+    "rate": 6,
+    "color": "#4a5a7a",
+    "trail": 1,
+    "speed": [
+     12,
+     40
+    ],
+    "y": [
+     26,
+     31
+    ],
+    "dir": "left"
+   },
+   {
+    "type": "sprite",
+    "image": [
+     "sprites/neogeo_ship.gif",
+     "sprites/neogeo_ship.png",
+     "sprites/ship.png"
+    ],
+    "frames": 2,
+    "fps": 10,
+    "mode": "pass",
+    "dir": "right",
+    "face": "right",
+    "speed": 10,
+    "every": 3,
+    "y": 26,
+    "dim": 0.9,
+    "shoot": {
+     "on": [
+      "score"
+     ],
+     "dx": 8,
+     "dy": 2,
+     "speed": 110,
+     "color": "#30d8ff",
+     "gap": 0.25
+    }
+   },
+   {
+    "type": "marquee",
+    "segments": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#e6e6e6"
+     }
+    ],
+    "font": "6x10",
+    "y": 0,
+    "speed": 12,
+    "gap": 40,
+    "upper": true
+   },
+   {
+    "type": "text",
+    "font": "7x14",
+    "x": 64,
+    "y": 11,
+    "align": "center",
+    "segments": [
+     {
+      "text": "NEO",
+      "color": "#ececec"
+     },
+     {
+      "text": " GEO",
+      "color": "#6f8cff"
+     }
+    ],
+    "when": {
+     "not": {
+      "any": [
+       {
+        "has": "score"
+       },
+       {
+        "has": "lives"
+       },
+       {
+        "has": "credits"
+       },
+       {
+        "has": "health"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "7x14",
+    "x": 64,
+    "y": 8,
+    "align": "center",
+    "segments": [
+     {
+      "text": "CRÉDITS ",
+      "color": "#30d8ff"
+     },
+     {
+      "text": "{credits}",
+      "color": "#ffc830"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "has": "credits"
+      },
+      {
+       "not": {
+        "any": [
+         {
+          "has": "score"
+         },
+         {
+          "has": "lives"
+         },
+         {
+          "has": "health"
+         }
+        ]
+       }
+      }
+     ]
+    },
+    "flash": {
+     "on": "credits",
+     "color": "#ffffff",
+     "ms": 400
+    }
+   },
+   {
+    "type": "text",
+    "font": "7x14",
+    "x": 1,
+    "y": 8,
+    "align": "left",
+    "text": "P1",
+    "color": "#30ff60",
+    "when": {
+     "has": "score"
+    }
+   },
+   {
+    "type": "text",
+    "font": "7x14",
+    "x": 20,
+    "y": 8,
+    "align": "left",
+    "text": "{score}",
+    "color": "#ececec",
+    "when": {
+     "has": "score"
+    },
+    "flash": {
+     "on": "score",
+     "color": "#a8ffbc",
+     "ms": 120
+    }
+   },
+   {
+    "type": "text",
+    "font": "7x14",
+    "x": 127,
+    "y": 8,
+    "align": "right",
+    "segments": [
+     {
+      "text": "P2 ",
+      "color": "#30d8ff"
+     },
+     {
+      "text": "{score_p2}",
+      "color": "#ffc830"
+     }
+    ],
+    "when": {
+     "has": "score_p2"
+    },
+    "flash": {
+     "on": "score_p2",
+     "color": "#fff4c8",
+     "ms": 120
+    }
+   },
+   {
+    "type": "text",
+    "font": "7x14",
+    "x": 127,
+    "y": 8,
+    "align": "right",
+    "segments": [
+     {
+      "text": "VIES ",
+      "color": "#30d8ff"
+     },
+     {
+      "text": "{lives}",
+      "color": "#ffc830"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "has": "lives"
+      },
+      {
+       "not": {
+        "has": "score_p2"
+       }
+      }
+     ]
+    },
+    "flash": {
+     "on": "lives",
+     "color": "#ff4040",
+     "ms": 600
+    }
+   },
+   {
+    "type": "cycle",
+    "period": 4,
+    "when": {
+     "not": {
+      "has": "health"
+     }
+    },
+    "pages": [
+     {
+      "when": {
+       "has": "bombs"
+      },
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 64,
+        "y": 19,
+        "align": "center",
+        "text": "BOMBES {bombs}",
+        "color": "#30d8ff",
+        "flash": {
+         "on": "bombs",
+         "color": "#ffffff",
+         "ms": 300
+        }
+       }
+      ]
+     },
+     {
+      "when": {
+       "all": [
+        {
+         "has": "credits"
+        },
+        {
+         "any": [
+          {
+           "has": "score"
+          },
+          {
+           "has": "lives"
+          }
+         ]
+        }
+       ]
+      },
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 64,
+        "y": 19,
+        "align": "center",
+        "text": "CRÉDITS {credits}",
+        "color": "#30d8ff",
+        "flash": {
+         "on": "credits",
+         "color": "#ffffff",
+         "ms": 400
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

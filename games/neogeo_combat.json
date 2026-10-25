@@ -1,0 +1,1571 @@
+{
+ "fallback": true,
+ "note": "Scène commune des jeux Neo Geo, jeux de combat. apprendre.bat crée games/<jeu>.json qui la reprend.",
+ "match": [
+  {
+   "system": [
+    "3countb",
+    "aodk",
+    "aof",
+    "aof2",
+    "aof2a",
+    "aof3",
+    "aof3k",
+    "breakers",
+    "breakrev",
+    "ct2k3sa",
+    "ct2k3sp",
+    "cthd2003",
+    "doubledr",
+    "dragonsh",
+    "fatfursp",
+    "fatfurspa",
+    "fatfury1",
+    "fatfury2",
+    "fatfury3",
+    "fightfev",
+    "fightfeva",
+    "fswords",
+    "galaxyfg",
+    "garou",
+    "garoubl",
+    "garouh",
+    "garouha",
+    "garoup",
+    "gowcaizr",
+    "kabukikl",
+    "karnovr",
+    "kf10thep",
+    "kf2k2mp",
+    "kf2k2mp2",
+    "kf2k2pla",
+    "kf2k2pls",
+    "kf2k3bl",
+    "kf2k3bla",
+    "kf2k3pcb",
+    "kf2k3pl",
+    "kf2k3upl",
+    "kf2k5uni",
+    "kizuna",
+    "kizuna4p",
+    "kof10th",
+    "kof2000",
+    "kof2000n",
+    "kof2001",
+    "kof2001h",
+    "kof2002",
+    "kof2002b",
+    "kof2003",
+    "kof2003h",
+    "kof2k4se",
+    "kof94",
+    "kof95",
+    "kof95a",
+    "kof95h",
+    "kof96",
+    "kof96h",
+    "kof97",
+    "kof97h",
+    "kof97k",
+    "kof97oro",
+    "kof97pls",
+    "kof98",
+    "kof98a",
+    "kof98h",
+    "kof98k",
+    "kof98ka",
+    "kof99",
+    "kof99e",
+    "kof99h",
+    "kof99k",
+    "kof99ka",
+    "kof99p",
+    "kog",
+    "kotm",
+    "kotm2",
+    "kotm2a",
+    "kotm2p",
+    "kotmh",
+    "lastblad",
+    "lastbladh",
+    "lastbld2",
+    "lastsold",
+    "legendos",
+    "matrim",
+    "matrimbl",
+    "ninjamas",
+    "ragnagrd",
+    "rbff1",
+    "rbff1a",
+    "rbff1k",
+    "rbff1ka",
+    "rbff2",
+    "rbff2h",
+    "rbff2k",
+    "rbffspec",
+    "rbffspeck",
+    "rotd",
+    "rotdh",
+    "samsh5sp",
+    "samsh5sph",
+    "samsh5spho",
+    "samsho",
+    "samsho2",
+    "samsho2k",
+    "samsho2ka",
+    "samsho3",
+    "samsho3h",
+    "samsho4",
+    "samsho4k",
+    "samsho5",
+    "samsho5a",
+    "samsho5b",
+    "samsho5h",
+    "samshoh",
+    "savagere",
+    "svc",
+    "svcboot",
+    "svcpcb",
+    "svcpcba",
+    "svcplus",
+    "svcplusa",
+    "svcsplus",
+    "wakuwak7",
+    "wh1",
+    "wh1h",
+    "wh1ha",
+    "wh2",
+    "wh2h",
+    "wh2j",
+    "whp"
+   ]
+  }
+ ],
+ "retroarch": {
+  "content": [
+   "3countb",
+   "aodk",
+   "aof",
+   "aof2",
+   "aof2a",
+   "aof3",
+   "aof3k",
+   "breakers",
+   "breakrev",
+   "ct2k3sa",
+   "ct2k3sp",
+   "cthd2003",
+   "doubledr",
+   "dragonsh",
+   "fatfursp",
+   "fatfurspa",
+   "fatfury1",
+   "fatfury2",
+   "fatfury3",
+   "fightfev",
+   "fightfeva",
+   "fswords",
+   "galaxyfg",
+   "garou",
+   "garoubl",
+   "garouh",
+   "garouha",
+   "garoup",
+   "gowcaizr",
+   "kabukikl",
+   "karnovr",
+   "kf10thep",
+   "kf2k2mp",
+   "kf2k2mp2",
+   "kf2k2pla",
+   "kf2k2pls",
+   "kf2k3bl",
+   "kf2k3bla",
+   "kf2k3pcb",
+   "kf2k3pl",
+   "kf2k3upl",
+   "kf2k5uni",
+   "kizuna",
+   "kizuna4p",
+   "kof10th",
+   "kof2000",
+   "kof2000n",
+   "kof2001",
+   "kof2001h",
+   "kof2002",
+   "kof2002b",
+   "kof2003",
+   "kof2003h",
+   "kof2k4se",
+   "kof94",
+   "kof95",
+   "kof95a",
+   "kof95h",
+   "kof96",
+   "kof96h",
+   "kof97",
+   "kof97h",
+   "kof97k",
+   "kof97oro",
+   "kof97pls",
+   "kof98",
+   "kof98a",
+   "kof98h",
+   "kof98k",
+   "kof98ka",
+   "kof99",
+   "kof99e",
+   "kof99h",
+   "kof99k",
+   "kof99ka",
+   "kof99p",
+   "kog",
+   "kotm",
+   "kotm2",
+   "kotm2a",
+   "kotm2p",
+   "kotmh",
+   "lastblad",
+   "lastbladh",
+   "lastbld2",
+   "lastsold",
+   "legendos",
+   "matrim",
+   "matrimbl",
+   "ninjamas",
+   "ragnagrd",
+   "rbff1",
+   "rbff1a",
+   "rbff1k",
+   "rbff1ka",
+   "rbff2",
+   "rbff2h",
+   "rbff2k",
+   "rbffspec",
+   "rbffspeck",
+   "rotd",
+   "rotdh",
+   "samsh5sp",
+   "samsh5sph",
+   "samsh5spho",
+   "samsho",
+   "samsho2",
+   "samsho2k",
+   "samsho2ka",
+   "samsho3",
+   "samsho3h",
+   "samsho4",
+   "samsho4k",
+   "samsho5",
+   "samsho5a",
+   "samsho5b",
+   "samsho5h",
+   "samshoh",
+   "savagere",
+   "svc",
+   "svcboot",
+   "svcpcb",
+   "svcpcba",
+   "svcplus",
+   "svcplusa",
+   "svcsplus",
+   "wakuwak7",
+   "wh1",
+   "wh1h",
+   "wh1ha",
+   "wh2",
+   "wh2h",
+   "wh2j",
+   "whp"
+  ],
+  "ram_base": "0x100000",
+  "ram_size": "0x10000",
+  "swap16": true,
+  "note": "cœur FinalBurn Neo : RAM 68000 de la Neo Geo vue à partir de 0x100000, octets inversés par mots de 16 bits"
+ },
+ "titles": {
+  "3countb": "3 Count Bout",
+  "aodk": "Aggressors of Dark Kombat",
+  "aof": "Art of Fighting",
+  "aof2": "Art of Fighting 2",
+  "aof2a": "Art of Fighting 2",
+  "aof3": "Art of Fighting 3",
+  "aof3k": "Art of Fighting 3",
+  "breakers": "Breakers",
+  "breakrev": "Breakers Revenge",
+  "ct2k3sa": "Crouching Tiger Hidden Dragon 2003 Super Plus",
+  "ct2k3sp": "Crouching Tiger Hidden Dragon 2003 Super Plus",
+  "cthd2003": "Crouching Tiger Hidden Dragon 2003",
+  "doubledr": "Double Dragon",
+  "dragonsh": "Dragon's Heaven",
+  "fatfursp": "Fatal Fury Special",
+  "fatfurspa": "Fatal Fury Special",
+  "fatfury1": "Fatal Fury",
+  "fatfury2": "Fatal Fury 2",
+  "fatfury3": "Fatal Fury 3",
+  "fightfev": "Fight Fever",
+  "fightfeva": "Fight Fever",
+  "fswords": "Fighters Swords",
+  "galaxyfg": "Galaxy Fight",
+  "garou": "Garou",
+  "garoubl": "Garou",
+  "garouh": "Garou",
+  "garouha": "Garou",
+  "garoup": "Garou",
+  "gowcaizr": "Voltage Fighter",
+  "kabukikl": "Far East of Eden",
+  "karnovr": "Karnov's Revenge",
+  "kf10thep": "The King of Fighters 10th Anniversary Extra Plus",
+  "kf2k2mp": "The King of Fighters 2002 Magic Plus",
+  "kf2k2mp2": "The King of Fighters 2002 Magic Plus II",
+  "kf2k2pla": "The King of Fighters 2002 Plus",
+  "kf2k2pls": "The King of Fighters 2002 Plus",
+  "kf2k3bl": "The King of Fighters 2003",
+  "kf2k3bla": "The King of Fighters 2003",
+  "kf2k3pcb": "The King of Fighters 2003",
+  "kf2k3pl": "The King of Fighters 2004 Plus",
+  "kf2k3upl": "The King of Fighters 2004 Ultra Plus",
+  "kf2k5uni": "The King of Fighters 10th Anniversary 2005 Unique",
+  "kizuna": "Kizuna Encounter",
+  "kizuna4p": "Kizuna Encounter",
+  "kof10th": "The King of Fighters 10th Anniversary",
+  "kof2000": "The King of Fighters 2000",
+  "kof2000n": "The King of Fighters 2000",
+  "kof2001": "The King of Fighters 2001",
+  "kof2001h": "The King of Fighters 2001",
+  "kof2002": "The King of Fighters 2002",
+  "kof2002b": "The King of Fighters 2002",
+  "kof2003": "The King of Fighters 2003",
+  "kof2003h": "The King of Fighters 2003",
+  "kof2k4se": "The King of Fighters Special Edition 2004",
+  "kof94": "The King of Fighters '94",
+  "kof95": "The King of Fighters '95",
+  "kof95a": "The King of Fighters '95",
+  "kof95h": "The King of Fighters '95",
+  "kof96": "The King of Fighters '96",
+  "kof96h": "The King of Fighters '96",
+  "kof97": "The King of Fighters '97",
+  "kof97h": "The King of Fighters '97",
+  "kof97k": "The King of Fighters '97",
+  "kof97oro": "The King of Fighters '97 Chongchu Jianghu Plus 2003",
+  "kof97pls": "The King of Fighters '97 Plus",
+  "kof98": "The King of Fighters '98",
+  "kof98a": "The King of Fighters '98",
+  "kof98h": "The King of Fighters '98",
+  "kof98k": "The King of Fighters '98",
+  "kof98ka": "The King of Fighters '98",
+  "kof99": "The King of Fighters '99",
+  "kof99e": "The King of Fighters '99",
+  "kof99h": "The King of Fighters '99",
+  "kof99k": "The King of Fighters '99",
+  "kof99ka": "The King of Fighters '99",
+  "kof99p": "The King of Fighters '99",
+  "kog": "King of Gladiator",
+  "kotm": "King of the Monsters",
+  "kotm2": "King of the Monsters 2",
+  "kotm2a": "King of the Monsters 2",
+  "kotm2p": "King of the Monsters 2",
+  "kotmh": "King of the Monsters",
+  "lastblad": "The Last Blade",
+  "lastbladh": "The Last Blade",
+  "lastbld2": "The Last Blade 2",
+  "lastsold": "The Last Soldier",
+  "legendos": "Legend of Success Joe",
+  "matrim": "Matrimelee",
+  "matrimbl": "Matrimelee",
+  "ninjamas": "Ninja Master's",
+  "ragnagrd": "Ragnagard",
+  "rbff1": "Real Bout Fatal Fury",
+  "rbff1a": "Real Bout Fatal Fury",
+  "rbff1k": "Real Bout Fatal Fury",
+  "rbff1ka": "Real Bout Fatal Fury",
+  "rbff2": "Real Bout Fatal Fury 2",
+  "rbff2h": "Real Bout Fatal Fury 2",
+  "rbff2k": "Real Bout Fatal Fury 2",
+  "rbffspec": "Real Bout Fatal Fury Special",
+  "rbffspeck": "Real Bout Fatal Fury Special",
+  "rotd": "Rage of the Dragons",
+  "rotdh": "Rage of the Dragons",
+  "samsh5sp": "Samurai Shodown V Special",
+  "samsh5sph": "Samurai Shodown V Special",
+  "samsh5spho": "Samurai Shodown V Special",
+  "samsho": "Samurai Shodown",
+  "samsho2": "Samurai Shodown II",
+  "samsho2k": "Saulabi Spirits",
+  "samsho2ka": "Saulabi Spirits",
+  "samsho3": "Samurai Shodown III",
+  "samsho3h": "Samurai Shodown III",
+  "samsho4": "Samurai Shodown IV",
+  "samsho4k": "Paewang Jeonseol",
+  "samsho5": "Samurai Shodown V",
+  "samsho5a": "Samurai Shodown V",
+  "samsho5b": "Samurai Shodown V",
+  "samsho5h": "Samurai Shodown V",
+  "samshoh": "Samurai Shodown",
+  "savagere": "Savage Reign",
+  "svc": "SNK vs. Capcom",
+  "svcboot": "SNK vs. Capcom",
+  "svcpcb": "SNK vs. Capcom",
+  "svcpcba": "SNK vs. Capcom",
+  "svcplus": "SNK vs. Capcom",
+  "svcplusa": "SNK vs. Capcom",
+  "svcsplus": "SNK vs. Capcom",
+  "wakuwak7": "Waku Waku 7",
+  "wh1": "World Heroes",
+  "wh1h": "World Heroes",
+  "wh1ha": "World Heroes",
+  "wh2": "World Heroes 2",
+  "wh2h": "World Heroes 2",
+  "wh2j": "World Heroes 2 Jet",
+  "whp": "World Heroes Perfect"
+ },
+ "memory": {
+  "cpu": ":maincpu",
+  "values": {
+   "credits": {
+    "addr": "0xD00034",
+    "type": "bcd",
+    "bytes": 1,
+    "mame_only": true,
+    "note": "crédits MVS (mémoire de sauvegarde), lisibles dans MAME seulement"
+   }
+  }
+ },
+ "demo": {
+  "credits": 2,
+  "score": 0,
+  "health": 100,
+  "health_p2": 100,
+  "time": 60
+ },
+ "scene": {
+  "layers": [
+   {
+    "type": "bars",
+    "x": 0,
+    "w": 128,
+    "bottom": 31,
+    "min": 1,
+    "max": 4,
+    "color": "#5a1200",
+    "tip": "#ff6a10",
+    "speed": 2.5,
+    "seed": 5
+   },
+   {
+    "type": "marquee",
+    "segments": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#e6e6e6"
+     }
+    ],
+    "font": "6x10",
+    "y": 0,
+    "speed": 12,
+    "gap": 40,
+    "upper": true
+   },
+   {
+    "type": "gauge",
+    "max": 100,
+    "y": 10,
+    "w": 52,
+    "h": 5,
+    "color": "#ffd030",
+    "low": "#ff4020",
+    "back": "#3a0606",
+    "border": "#5a5a5a",
+    "var": "health",
+    "x": 2,
+    "anchor": "right",
+    "when": {
+     "has": [
+      "health",
+      "health_p2"
+     ]
+    },
+    "flash": {
+     "on": "health",
+     "color": "#ffffff",
+     "ms": 90
+    }
+   },
+   {
+    "type": "gauge",
+    "max": 100,
+    "y": 10,
+    "w": 52,
+    "h": 5,
+    "color": "#ffd030",
+    "low": "#ff4020",
+    "back": "#3a0606",
+    "border": "#5a5a5a",
+    "var": "health_p2",
+    "x": 74,
+    "anchor": "left",
+    "when": {
+     "has": [
+      "health",
+      "health_p2"
+     ]
+    },
+    "flash": {
+     "on": "health_p2",
+     "color": "#ffffff",
+     "ms": 90
+    }
+   },
+   {
+    "type": "text",
+    "font": "7x14",
+    "x": 64,
+    "y": 8,
+    "align": "center",
+    "text": "{time}",
+    "color": "#ececec",
+    "when": {
+     "all": [
+      {
+       "has": "time"
+      },
+      {
+       "has": [
+        "health",
+        "health_p2"
+       ]
+      },
+      {
+       "not": {
+        "any": [
+         {
+          "var": "health",
+          "eq": 0
+         },
+         {
+          "var": "health_p2",
+          "eq": 0
+         }
+        ]
+       }
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "7x14",
+    "x": 64,
+    "y": 8,
+    "align": "center",
+    "text": "KO",
+    "color": "#ff3030",
+    "when": {
+     "all": [
+      {
+       "has": [
+        "health",
+        "health_p2"
+       ]
+      },
+      {
+       "any": [
+        {
+         "var": "health",
+         "eq": 0
+        },
+        {
+         "var": "health_p2",
+         "eq": 0
+        }
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 2,
+    "y": 19,
+    "align": "left",
+    "text": "1P",
+    "color": "#ff4040",
+    "when": {
+     "has": [
+      "health",
+      "health_p2"
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 17,
+    "y": 19,
+    "align": "left",
+    "text": "{score}",
+    "color": "#ececec",
+    "when": {
+     "all": [
+      {
+       "has": [
+        "health",
+        "health_p2"
+       ]
+      },
+      {
+       "has": "score"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 126,
+    "y": 19,
+    "align": "right",
+    "text": "2P",
+    "color": "#3a8cff",
+    "when": {
+     "has": [
+      "health",
+      "health_p2"
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 64,
+    "y": 19,
+    "align": "center",
+    "text": "CRÉDITS {credits}",
+    "color": "#30d8ff",
+    "when": {
+     "all": [
+      {
+       "has": [
+        "health",
+        "health_p2"
+       ]
+      },
+      {
+       "has": "credits"
+      },
+      {
+       "not": {
+        "has": "score"
+       }
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "7x14",
+    "x": 2,
+    "y": 8,
+    "align": "left",
+    "text": "1P",
+    "color": "#ff4040",
+    "when": {
+     "not": {
+      "has": "health"
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "9x15B",
+    "x": 64,
+    "y": 8,
+    "align": "center",
+    "text": "VS",
+    "color": "#ffd030",
+    "when": {
+     "not": {
+      "has": "health"
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "7x14",
+    "x": 126,
+    "y": 8,
+    "align": "right",
+    "text": "2P",
+    "color": "#3a8cff",
+    "when": {
+     "not": {
+      "has": "health"
+     }
+    }
+   },
+   {
+    "type": "cycle",
+    "period": 4,
+    "when": {
+     "not": {
+      "has": "health"
+     }
+    },
+    "pages": [
+     {
+      "when": {
+       "has": "score"
+      },
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 64,
+        "y": 19,
+        "align": "center",
+        "segments": [
+         {
+          "text": "1P ",
+          "color": "#ff4040"
+         },
+         {
+          "text": "{score}",
+          "color": "#ececec"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "when": {
+       "has": "credits"
+      },
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 64,
+        "y": 19,
+        "align": "center",
+        "text": "CRÉDITS {credits}",
+        "color": "#30d8ff"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "per_game": {
+  "aodk": {
+   "health": {
+    "addr": "0x100066",
+    "type": "be",
+    "bytes": 2,
+    "mult": 0.032563,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 3071 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x100166",
+    "type": "be",
+    "bytes": 2,
+    "mult": 0.032563,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 3071 (base de triche)"
+   }
+  },
+  "aof": {
+   "health": {
+    "addr": "0x1092CD",
+    "type": "u8",
+    "mult": 1.041667,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 96 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x1093CD",
+    "type": "u8",
+    "mult": 1.041667,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 96 (base de triche)"
+   }
+  },
+  "aof2": {
+   "health": {
+    "addr": "0x1092ED",
+    "type": "u8",
+    "mult": 1.041667,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 96 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x1093ED",
+    "type": "u8",
+    "mult": 1.041667,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 96 (base de triche)"
+   }
+  },
+  "aof3": {
+   "health": {
+    "addr": "0x100468",
+    "type": "be",
+    "bytes": 2,
+    "mult": 0.024414,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 4096 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x100568",
+    "type": "be",
+    "bytes": 2,
+    "mult": 0.024414,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 4096 (base de triche)"
+   }
+  },
+  "breakers": {
+   "health": {
+    "addr": "0x107332",
+    "type": "u8",
+    "mult": 3.333333,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 30 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x107892",
+    "type": "u8",
+    "mult": 3.333333,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 30 (base de triche)"
+   }
+  },
+  "breakrev": {
+   "health": {
+    "addr": "0x10734E",
+    "type": "u8",
+    "mult": 3.333333,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 30 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x1078AE",
+    "type": "u8",
+    "mult": 3.333333,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 30 (base de triche)"
+   }
+  },
+  "fatfursp": {
+   "health": {
+    "addr": "0x10049A",
+    "type": "u8",
+    "mult": 1.041667,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 96 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x10059A",
+    "type": "u8",
+    "mult": 1.041667,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 96 (base de triche)"
+   },
+   "time": {
+    "addr": "0x10092A",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "chrono (base de triche)"
+   }
+  },
+  "fatfury1": {
+   "health": {
+    "addr": "0x1003B8",
+    "type": "be",
+    "bytes": 2,
+    "mult": 0.004053,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 24672 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x1004B8",
+    "type": "be",
+    "bytes": 2,
+    "mult": 0.004053,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 24672 (base de triche)"
+   },
+   "time": {
+    "addr": "0x1042F3",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "chrono (base de triche)"
+   }
+  },
+  "fatfury2": {
+   "health": {
+    "addr": "0x1003CB",
+    "type": "u8",
+    "mult": 1.041667,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 96 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x1004CB",
+    "type": "u8",
+    "mult": 1.041667,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 96 (base de triche)"
+   },
+   "time": {
+    "addr": "0x10092A",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "chrono (base de triche)"
+   }
+  },
+  "fatfury3": {
+   "health": {
+    "addr": "0x100489",
+    "type": "u8",
+    "mult": 0.833333,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 120 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x100589",
+    "type": "u8",
+    "mult": 0.833333,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 120 (base de triche)"
+   }
+  },
+  "fightfev": {
+   "health": {
+    "addr": "0x10C602",
+    "type": "u8",
+    "mult": 0.833333,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 120 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x10C702",
+    "type": "u8",
+    "mult": 0.833333,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 120 (base de triche)"
+   },
+   "time": {
+    "addr": "0x108110",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "chrono (base de triche)"
+   }
+  },
+  "galaxyfg": {
+   "health": {
+    "addr": "0x10103C",
+    "type": "u8",
+    "mult": 0.392157,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 255 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x101152",
+    "type": "u8",
+    "mult": 0.392157,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 255 (base de triche)"
+   }
+  },
+  "garou": {
+   "health": {
+    "addr": "0x10048E",
+    "type": "u8",
+    "mult": 0.833333,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 120 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x10058E",
+    "type": "u8",
+    "mult": 0.833333,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 120 (base de triche)"
+   },
+   "time": {
+    "addr": "0x107490",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "chrono (base de triche)"
+   }
+  },
+  "gowcaizr": {
+   "health": {
+    "addr": "0x102D09",
+    "type": "u8",
+    "mult": 1.0,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 100 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x1035BF",
+    "type": "u8",
+    "mult": 1.0,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 100 (base de triche)"
+   }
+  },
+  "kizuna": {
+   "health": {
+    "addr": "0x108313",
+    "type": "u8",
+    "mult": 0.520833,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 192 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x108513",
+    "type": "u8",
+    "mult": 0.520833,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 192 (base de triche)"
+   },
+   "time": {
+    "addr": "0x10892A",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "chrono (base de triche)"
+   }
+  },
+  "kof2000": {
+   "health": {
+    "addr": "0x108239",
+    "type": "u8",
+    "mult": 0.980392,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 102 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x108439",
+    "type": "u8",
+    "mult": 0.980392,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 102 (base de triche)"
+   },
+   "time": {
+    "addr": "0x10A7E6",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "chrono (base de triche)"
+   }
+  },
+  "kof2001": {
+   "health": {
+    "addr": "0x108239",
+    "type": "u8",
+    "mult": 0.980392,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 102 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x108439",
+    "type": "u8",
+    "mult": 0.980392,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 102 (base de triche)"
+   }
+  },
+  "kof94": {
+   "health": {
+    "addr": "0x108221",
+    "type": "u8",
+    "mult": 0.483092,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 207 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x108421",
+    "type": "u8",
+    "mult": 0.483092,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 207 (base de triche)"
+   },
+   "time": {
+    "addr": "0x10882E",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "chrono (base de triche)"
+   }
+  },
+  "kof95": {
+   "health": {
+    "addr": "0x108221",
+    "type": "u8",
+    "mult": 0.483092,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 207 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x108421",
+    "type": "u8",
+    "mult": 0.483092,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 207 (base de triche)"
+   },
+   "time": {
+    "addr": "0x10A836",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "chrono (base de triche)"
+   }
+  },
+  "kof96": {
+   "health": {
+    "addr": "0x108239",
+    "type": "u8",
+    "mult": 0.970874,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 103 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x108439",
+    "type": "u8",
+    "mult": 0.970874,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 103 (base de triche)"
+   },
+   "time": {
+    "addr": "0x10A836",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "chrono (base de triche)"
+   }
+  },
+  "kof97": {
+   "health": {
+    "addr": "0x108239",
+    "type": "u8",
+    "mult": 0.970874,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 103 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x108439",
+    "type": "u8",
+    "mult": 0.970874,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 103 (base de triche)"
+   },
+   "time": {
+    "addr": "0x10A83A",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "chrono (base de triche)"
+   }
+  },
+  "kof98": {
+   "health": {
+    "addr": "0x108239",
+    "type": "u8",
+    "mult": 0.970874,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 103 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x108439",
+    "type": "u8",
+    "mult": 0.970874,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 103 (base de triche)"
+   },
+   "time": {
+    "addr": "0x10A83A",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "chrono (base de triche)"
+   }
+  },
+  "kof99": {
+   "health": {
+    "addr": "0x108239",
+    "type": "u8",
+    "mult": 0.990099,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 101 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x108439",
+    "type": "u8",
+    "mult": 0.990099,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 101 (base de triche)"
+   },
+   "time": {
+    "addr": "0x10A7E6",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "chrono (base de triche)"
+   }
+  },
+  "kotm": {
+   "health": {
+    "addr": "0x10206B",
+    "type": "u8",
+    "mult": 1.666667,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 60 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x10216B",
+    "type": "u8",
+    "mult": 1.666667,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 60 (base de triche)"
+   }
+  },
+  "kotm2": {
+   "health": {
+    "addr": "0x101417",
+    "type": "u8",
+    "mult": 1.5625,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 64 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x101517",
+    "type": "u8",
+    "mult": 1.5625,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 64 (base de triche)"
+   },
+   "time": {
+    "addr": "0x1013D2",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "chrono (base de triche)"
+   }
+  },
+  "legendos": {
+   "health": {
+    "addr": "0x100363",
+    "type": "u8",
+    "mult": 0.833333,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 120 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x100763",
+    "type": "u8",
+    "mult": 0.833333,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 120 (base de triche)"
+   }
+  },
+  "ninjamas": {
+   "health": {
+    "addr": "0x100050",
+    "type": "u8",
+    "mult": 0.480769,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 208 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x101050",
+    "type": "u8",
+    "mult": 0.480769,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 208 (base de triche)"
+   }
+  },
+  "rbff1": {
+   "health": {
+    "addr": "0x100489",
+    "type": "u8",
+    "mult": 0.520833,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 192 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x100589",
+    "type": "u8",
+    "mult": 0.520833,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 192 (base de triche)"
+   }
+  },
+  "rbff2": {
+   "health": {
+    "addr": "0x10048B",
+    "type": "u8",
+    "mult": 0.520833,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 192 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x10058B",
+    "type": "u8",
+    "mult": 0.520833,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 192 (base de triche)"
+   },
+   "time": {
+    "addr": "0x107C28",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "chrono (base de triche)"
+   }
+  },
+  "rbffspec": {
+   "health": {
+    "addr": "0x10048B",
+    "type": "u8",
+    "mult": 0.520833,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 192 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x10058B",
+    "type": "u8",
+    "mult": 0.520833,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 192 (base de triche)"
+   },
+   "time": {
+    "addr": "0x106AB4",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "chrono (base de triche)"
+   }
+  },
+  "samsho3": {
+   "health": {
+    "addr": "0x108573",
+    "type": "u8",
+    "mult": 0.78125,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 128 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x108673",
+    "type": "u8",
+    "mult": 0.78125,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 128 (base de triche)"
+   },
+   "time": {
+    "addr": "0x10849E",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "chrono (base de triche)"
+   }
+  },
+  "samsho4": {
+   "health": {
+    "addr": "0x108443",
+    "type": "u8",
+    "mult": 0.396825,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 252 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x108643",
+    "type": "u8",
+    "mult": 0.396825,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 252 (base de triche)"
+   }
+  },
+  "samsho5": {
+   "health": {
+    "addr": "0x108445",
+    "type": "u8",
+    "mult": 0.8,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 125 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x108655",
+    "type": "u8",
+    "mult": 0.8,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 125 (base de triche)"
+   }
+  },
+  "wh2": {
+   "health": {
+    "addr": "0x10600C",
+    "type": "u8",
+    "mult": 0.787402,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 127 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x10610C",
+    "type": "u8",
+    "mult": 0.787402,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 127 (base de triche)"
+   }
+  },
+  "wh2j": {
+   "health": {
+    "addr": "0x10600C",
+    "type": "u8",
+    "mult": 1.041667,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 96 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x10610C",
+    "type": "u8",
+    "mult": 1.041667,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 96 (base de triche)"
+   }
+  },
+  "whp": {
+   "health": {
+    "addr": "0x10600C",
+    "type": "u8",
+    "mult": 0.520833,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 192 (base de triche)"
+   },
+   "health_p2": {
+    "addr": "0x10610C",
+    "type": "u8",
+    "mult": 0.520833,
+    "min": 0,
+    "max": 100,
+    "note": "barre de vie en %, pleine = 192 (base de triche)"
+   }
+  }
+ },
+ "clone_of": {
+  "aof2a": "aof2",
+  "aof3k": "aof3",
+  "ct2k3sa": "kof2001",
+  "ct2k3sp": "kof2001",
+  "cthd2003": "kof2001",
+  "fatfurspa": "fatfursp",
+  "fightfeva": "fightfev",
+  "fswords": "samsho3",
+  "garoubl": "garou",
+  "garouh": "garou",
+  "garouha": "garou",
+  "garoup": "garou",
+  "kizuna4p": "kizuna",
+  "kof2000n": "kof2000",
+  "kof2001h": "kof2001",
+  "kof95a": "kof95",
+  "kof95h": "kof95",
+  "kof96h": "kof96",
+  "kof97h": "kof97",
+  "kof97k": "kof97",
+  "kof97oro": "kof97",
+  "kof97pls": "kof97",
+  "kof98a": "kof98",
+  "kof98h": "kof98",
+  "kof98k": "kof98",
+  "kof98ka": "kof98",
+  "kof99e": "kof99",
+  "kof99h": "kof99",
+  "kof99k": "kof99",
+  "kof99ka": "kof99",
+  "kof99p": "kof99",
+  "kog": "kof97",
+  "kotm2a": "kotm2",
+  "kotm2p": "kotm2",
+  "kotmh": "kotm",
+  "rbff1a": "rbff1",
+  "rbff1k": "rbff1",
+  "rbff1ka": "rbff1",
+  "rbff2h": "rbff2",
+  "rbff2k": "rbff2",
+  "rbffspeck": "rbffspec",
+  "samsho3h": "samsho3",
+  "samsho4k": "samsho4",
+  "samsho5a": "samsho5",
+  "samsho5b": "samsho5",
+  "samsho5h": "samsho5",
+  "wh2h": "wh2"
+ }
+}

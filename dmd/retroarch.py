@@ -22,7 +22,7 @@ import threading
 import time
 
 from . import wincore
-from .memvalues import decode, parse_addr, value_size
+from .memvalues import decode, game_values, parse_addr, value_size
 
 DEFAULT_PORT = 55355
 CHUNK = 512
@@ -405,7 +405,7 @@ class RetroArchSource:
     def _begin(self, st):
         key, game = match_game(self.library.games, st["content"], st["system"])
         layout = layout_for(game, st["system"])
-        values = ((game or {}).get("memory") or {}).get("values") or {}
+        values = game_values(game, st["content"])
         defs = {}
         for name, d in values.items():
             if not isinstance(d, dict):
