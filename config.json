@@ -6,7 +6,7 @@
   "show_pause": true,
   "outputs": {
     "zedmd": {
-      "enabled": true,
+      "enabled": false,
       "dll": "libzedmd/zedmd64.dll",
       "device": "",
       "ignore_devices": [],
@@ -37,6 +37,6 @@
   "doflinx_bridge": {
     "enabled": false,
     "host": "127.0.0.1",
-    "port": 8080
+    "port": 8081
   }
 }

@@ -11,6 +11,7 @@ Usage :
   python arcadedmd.py ports            liste les ports série (pour trouver la Pixelcade)
   python arcadedmd.py test-pixelcade   mire de test sur la Pixelcade LED
   python arcadedmd.py setup-pixelcade  choisit le port de la Pixelcade et l'active
+  python arcadedmd.py enable-zedmd     active la sortie ZeDMD (désactivée par défaut)
 """
 
 import os
@@ -35,6 +36,7 @@ def test_pattern(cfg, log):
     cfg = dict(cfg)
     cfg["outputs"] = dict(cfg.get("outputs", {}))
     cfg["outputs"]["pixelcade"] = {"enabled": False}
+    cfg["outputs"]["zedmd"] = dict(cfg["outputs"].get("zedmd", {}), enabled=True)   # test de la dalle ZeDMD
     outs = app.build_outputs(ROOT, cfg, log, preview=False)
     zed = [o for o in outs if o.__class__.__name__ == "ZeDMDOutput" and o.lib is not None]
     if not zed:
@@ -174,6 +176,11 @@ def main(argv):
 
     if cmd == "setup-pixelcade":
         return setup_tools.configure_pixelcade(ROOT)
+
+    if cmd == "enable-zedmd":
+        setup_tools.set_output_enabled(ROOT, "zedmd", True)
+        print("  Sortie ZeDMD activée dans config.json.")
+        return 0
 
     if cmd == "test-pixelcade":
         return test_pixelcade(cfg, log)

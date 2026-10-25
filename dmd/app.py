@@ -18,7 +18,7 @@ from .scene import Scene, Ctx, GameState
 from .outputs import ZeDMDOutput, PreviewOutput, GifRecorder, NullOutput
 from .pixelcade import PixelcadeOutput, guess_pixelcade_dir, list_ports
 
-VERSION = "1.2.1"
+VERSION = "1.2.2"
 
 DEFAULT_CONFIG = {
     "fps": 50,
@@ -27,7 +27,7 @@ DEFAULT_CONFIG = {
     "show_pause": True,
     "idle": {"text": "INSERT COIN"},
     "outputs": {
-        "zedmd": {"enabled": True, "dll": "", "device": "", "wifi_ip": "", "brightness": None,
+        "zedmd": {"enabled": False, "dll": "", "device": "", "wifi_ip": "", "brightness": None,
                   "software_brightness": 1.0},
         "preview": {"enabled": True, "x": 100, "y": 100, "width": 1024, "height": 256,
                     "borderless": False, "topmost": False, "brightness": 1.0},
@@ -35,7 +35,7 @@ DEFAULT_CONFIG = {
                       "takeover": "known", "max_fps": 30, "pixelweb_url": "http://127.0.0.1:8080",
                       "pixelweb_exe": "", "art_dir": ""},
     },
-    "doflinx_bridge": {"enabled": False, "host": "127.0.0.1", "port": 8080},
+    "doflinx_bridge": {"enabled": False, "host": "127.0.0.1", "port": 8081},
 }
 
 

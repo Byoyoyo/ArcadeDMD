@@ -58,15 +58,34 @@ def mame_version(exe):
         return None
 
 
+def find_mame_exe(mame_dir):
+    """mame.exe, mame64.exe (versions modifiées pour DOFLinx par exemple), sinon un autre mame*.exe."""
+    for n in ("mame.exe", "mame64.exe"):
+        p = os.path.join(mame_dir, n)
+        if os.path.isfile(p):
+            return p
+    try:
+        names = sorted(os.listdir(mame_dir))
+    except OSError:
+        return ""
+    for n in names:
+        low = n.lower()
+        if low.startswith("mame") and low.endswith(".exe") and "tool" not in low:
+            return os.path.join(mame_dir, n)
+    return ""
+
+
 def install_plugin(root, mame_dir):
-    """Copie le plugin dans MAME\\plugins\\arcadedmd et écrit settings.json."""
+    """Copie le plugin dans MAME\\plugins\\arcadedmd et écrit settings.json.
+    Ne touche à rien d'autre dans MAME (ni mame.ini, ni plugin.ini)."""
     mame_dir = mame_dir.strip().strip('"')
     if mame_dir.lower().endswith(".exe") and os.path.isfile(mame_dir):
         mame_dir = os.path.dirname(mame_dir)      # chemin de mame.exe tapé à la place du dossier
-    exe = next((os.path.join(mame_dir, n) for n in ("mame.exe", "mame64.exe")
-                if os.path.exists(os.path.join(mame_dir, n))), "")
-    if sys.platform == "win32" and not exe:
-        print(f"  mame.exe introuvable dans {mame_dir}")
+    exe = find_mame_exe(mame_dir)
+    is_mame = bool(exe) or os.path.isfile(os.path.join(mame_dir, "plugins", "boot.lua"))
+    if sys.platform == "win32" and not is_mame:
+        print(f"  MAME introuvable dans {mame_dir}")
+        print("  Il faut le dossier qui contient mame.exe et le sous-dossier plugins.")
         return 1
     ver = mame_version(exe) if exe else None
     if ver is not None:
@@ -138,17 +157,16 @@ def configure_pixelcade(root):
     for k, v in (("color_order", "auto"), ("mode", "games"), ("takeover", "known"), ("max_fps", 30),
                  ("pixelweb_url", "http://127.0.0.1:8080"), ("pixelweb_exe", ""), ("art_dir", "")):
         pc.setdefault(k, v)
-    # Avec une Pixelcade, la recherche d'un ZeDMD sur les ports série ne sert à rien
-    # et pourrait déranger la Pixelcade ou les pistolets de la borne.
-    z = outs.setdefault("zedmd", {})
-    zedmd_was_on = bool(z.get("enabled"))
-    z["enabled"] = False
+    # la sortie ZeDMD reste comme l'a réglée l'étape 2 de l'installeur (désactivée par défaut)
     save_config_file(root, cfg)
     print(f"  Pixelcade activée sur {dev}. Lance test_pixelcade.bat pour vérifier les couleurs.")
-    if zedmd_was_on:
-        print("  Sortie ZeDMD désactivée, inutile avec la Pixelcade.")
-        print("  Si tu as aussi un ZeDMD, remets \"enabled\": true dans la rubrique zedmd de config.json.")
     return 0
+
+
+def set_output_enabled(root, name, flag):
+    cfg = load_config_file(root)
+    cfg.setdefault("outputs", {}).setdefault(name, {})["enabled"] = bool(flag)
+    save_config_file(root, cfg)
 
 
 def load_config_file(root):

@@ -82,7 +82,27 @@ Sans shield, le câblage fil à fil est donné dans le README de ZeDMD (tableau 
 1. Installe Python 3.12 ou plus récent depuis https://www.python.org/downloads/ en cochant « Add python.exe to PATH ». Il faut aussi MAME 0.227 ou plus récent, l'installeur affiche ta version.
 2. Avant d'extraire le zip, fais un clic droit dessus, Propriétés, coche « Débloquer » puis OK. Windows ne posera plus de question à chaque fichier .bat.
 3. Extrais le dossier `ArcadeDMD` dans un chemin sans accent, idéalement `C:\ArcadeDMD`. MAME ne sait pas ouvrir les dossiers avec accents.
-4. Lance `installer.bat`. Il installe Pillow, pyserial et pygame-ce, télécharge libzedmd (le pilote des dalles ZeDMD), copie le plugin dans MAME, règle la Pixelcade et propose le lancement automatique au démarrage de Windows. Avec une Pixelcade seule, l'échec de libzedmd n'a aucune importance.
+4. Lance `installer.bat`. Il installe Pillow, pyserial et pygame-ce, copie le plugin dans MAME, règle la Pixelcade et propose le lancement automatique au démarrage de Windows. Il ne télécharge libzedmd (le pilote des dalles ZeDMD) que si tu dis avoir une dalle ZeDMD.
+
+### Ce que l'installation modifie
+
+- Le dossier `C:\ArcadeDMD`. Les réglages, le journal et les captures restent dedans.
+- Dans MAME, un nouveau dossier `plugins\arcadedmd` avec trois petits fichiers. Rien d'autre dans MAME. `mame.ini` et `plugin.ini` ne sont pas modifiés, MAME charge tout seul les plugins de son dossier `plugins`.
+- Un fichier `ArcadeDMD.bat` dans le dossier Démarrage de Windows, seulement si tu acceptes le lancement automatique.
+- Trois bibliothèques ajoutées à Python (Pillow, pyserial, pygame-ce).
+- Pendant les jeux qui ont un fichier dans `games\` (After Burner II, Sonic 1 et 2), ArcadeDMD arrête pixelweb et le relance à la fin de la partie. Pour les autres jeux, rien ne change.
+
+Le plugin ne fait que lire la mémoire du jeu. Il ne change ni le jeu, ni les touches, ni les réglages de MAME.
+
+### Et DOFLinx
+
+ArcadeDMD ne touche pas aux fichiers de DOFLinx, ni au réglage `output` de `mame.ini` dont DOFLinx a besoin. MAME fait tourner plusieurs plugins en même temps, celui de DOFLinx et celui d'ArcadeDMD ne se gênent pas. Avec la Pixelcade et sans ZeDMD, ArcadeDMD n'ouvre aucun autre port COM, les appareils pilotés par DOFLinx ne sont donc pas dérangés. Le seul point commun est la Pixelcade elle-même. Pendant After Burner II et Sonic, c'est la scène d'ArcadeDMD qui s'y affiche.
+
+### Tout enlever
+
+Supprime le dossier `plugins\arcadedmd` de MAME, le fichier `ArcadeDMD.bat` du dossier Démarrage (tape `shell:startup` dans Win+R pour l'ouvrir), puis le dossier `C:\ArcadeDMD`. Pour seulement couper le plugin sans rien supprimer, ajoute la ligne `arcadedmd 0` dans le fichier `plugin.ini` de MAME.
+
+### libzedmd (dalle ZeDMD seulement)
 
 Si le téléchargement de libzedmd échoue, prends l'archive `win-mingw-x64-Release` sur https://github.com/PPUC/libzedmd/releases et copie toutes ses DLL dans `ArcadeDMD\libzedmd\`. Prends bien la version mingw, l'autre archive n'embarque pas les DLL dont zedmd64.dll a besoin.
 
@@ -128,10 +148,10 @@ Le logiciel Pixelcade (pixelweb) ne peut pas partager la dalle. ArcadeDMD fait d
 
 ### Réglage
 
-`installer.bat` pose la question à l'étape 4 et règle le port tout seul. Il coupe aussi la sortie ZeDMD, inutile avec une Pixelcade, pour qu'ArcadeDMD ne sonde aucun autre port série (pistolets par exemple). Pour le faire à la main :
+`installer.bat` pose la question à l'étape 4 et règle le port tout seul. La sortie ZeDMD reste coupée si tu as répondu non à sa question, ArcadeDMD ne sonde alors aucun autre port série (pistolets par exemple). Pour le faire à la main :
 
 1. Lance `ports.bat` et repère le port de la Pixelcade (dans le doute, débranche-la et regarde quel port disparaît).
-2. Dans `config.json`, section `pixelcade`, mets `"enabled": true` et ce port. Si tu n'as pas de ZeDMD, mets aussi `"enabled": false` dans la section `zedmd`.
+2. Dans `config.json`, section `pixelcade`, mets `"enabled": true` et ce port.
 
 ```json
 "pixelcade": {
@@ -232,13 +252,12 @@ Polices disponibles `4x6`, `5x8`, `6x10`, `6x13`, `7x14`, `7x14B`, `8x13B`, `9x1
 
 ArcadeDMD sait se faire passer pour DOF2DMD. DOFLinx lui envoie alors le score et les crédits de tous les jeux qu'il connaît, sans aucune adresse à chercher.
 
-1. Dans `config.json`, mets `"doflinx_bridge": {"enabled": true, "host": "127.0.0.1", "port": 8080}`.
-2. DOFLinx lit l'adresse dans le `settings.ini` de DOF2DMD (`url_prefix`). Laisse `http://127.0.0.1:8080`.
+1. Dans `config.json`, mets `"enabled": true` dans la section `doflinx_bridge`. Elle écoute sur le port 8081, pour laisser le 8080 à pixelweb.
+2. DOFLinx lit l'adresse dans le `settings.ini` de DOF2DMD (`url_prefix`). Mets `http://127.0.0.1:8081`.
 3. Ne lance plus DOF2DMD en même temps, les deux ne peuvent pas écouter le même port. Quand ArcadeDMD répond, DOFLinx ne cherche plus à démarrer DOF2DMD.
 
 Les deux sources se complètent. Pour After Burner II, le record vient du plugin et le score de DOFLinx.
 
-pixelweb écoute aussi sur le port 8080. Si tu gardes pixelweb, choisis un autre port pour la passerelle (8081 par exemple) et mets la même adresse dans le `url_prefix` du `settings.ini` de DOF2DMD.
 
 ---
 

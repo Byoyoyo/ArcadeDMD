@@ -34,9 +34,16 @@ if errorlevel 1 (
   echo   pygame deja present.
 )
 
-rem ---------- 2. libzedmd ----------
+rem ---------- 2. ZeDMD (facultatif) ----------
 echo.
-echo [2/5] Bibliotheque libzedmd ^(seulement pour une dalle ZeDMD, inutile avec une Pixelcade^)
+echo [2/5] Dalle ZeDMD
+echo   Seulement si tu as une dalle ZeDMD en plus. Avec une Pixelcade seule, appuie sur Entree.
+set "ANS="
+set /p "ANS=  As-tu une dalle ZeDMD ? (o/N) : "
+if /i not "!ANS!"=="o" (
+  echo   Pas de ZeDMD, etape ignoree.
+  goto zedmd_done
+)
 %PY% arcadedmd.py check-zedmd >nul 2>nul
 if errorlevel 1 (
   set "ZVER=0.11.0"
@@ -54,8 +61,9 @@ if errorlevel 1 (
 if errorlevel 1 (
   echo   Recupere a la main l'archive "win-mingw-x64-Release" sur https://github.com/PPUC/libzedmd/releases
   echo   et copie toutes ses DLL dans le dossier libzedmd d'ArcadeDMD.
-  echo   Pas grave si tu n'as qu'une Pixelcade.
 )
+%PY% arcadedmd.py enable-zedmd
+:zedmd_done
 
 rem ---------- 3. Plugin MAME ----------
 echo.
@@ -64,6 +72,7 @@ set "MAMEDIR="
 for %%D in ("%USERPROFILE%\LaunchBox\Emulators\MAME" "C:\LaunchBox\Emulators\MAME" "D:\LaunchBox\Emulators\MAME" "E:\LaunchBox\Emulators\MAME" "C:\HyperSpin\Emulators\MAME" "D:\HyperSpin\Emulators\MAME" "E:\HyperSpin\Emulators\MAME" "C:\Emulateurs\MAME" "D:\Emulateurs\MAME" "C:\Emulators\MAME" "D:\Emulators\MAME" "C:\MAME" "D:\MAME" "E:\MAME") do (
   if not defined MAMEDIR if exist "%%~D\mame.exe" set "MAMEDIR=%%~D"
   if not defined MAMEDIR if exist "%%~D\mame64.exe" set "MAMEDIR=%%~D"
+  if not defined MAMEDIR if exist "%%~D\plugins\boot.lua" set "MAMEDIR=%%~D"
 )
 set /a TRIES=0
 :ask_mame
