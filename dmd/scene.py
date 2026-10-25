@@ -384,6 +384,43 @@ class WavesEl(Element):
                     cv.set(x, top, L["edge"])
 
 
+class MountainsEl(Element):
+    """Montagnes pleines avec une ligne de sol, comme dans la vidéo Metal Slug 3 de Vera AI.
+
+    peaks : [[x, hauteur], ...] (pentes à 45°), floor : hauteur minimale de la bande,
+    bottom : rangée du sol, color : remplissage, edge : crête (facultatif), ground : sol,
+    speed : défilement en pixels par seconde (0 = fixe), period : largeur du motif."""
+
+    def __init__(self, spec, root, log):
+        super().__init__(spec, root, log)
+        self.bottom = int(spec.get("bottom", 31))
+        self.floor = int(spec.get("floor", 4))
+        self.period = max(1, int(spec.get("period", 128)))
+        self.speed = float(spec.get("speed", 0))
+        self.color = parse_color(spec.get("color"), (14, 122, 54))
+        self.edge = parse_color(spec.get("edge"), None) if spec.get("edge") else None
+        self.ground = parse_color(spec.get("ground"), None) if spec.get("ground") else None
+        peaks = spec.get("peaks") or [[12, 7], [38, 5], [62, 11], [90, 6], [114, 9]]
+        self.heights = []
+        for x in range(self.period):
+            h = self.floor
+            for px, ph in peaks:
+                d = abs(x - px) % self.period
+                d = min(d, self.period - d)
+                h = max(h, int(ph) - d)
+            self.heights.append(h)
+
+    def render(self, ctx):
+        cv = ctx.canvas
+        off = int(self.local_time(ctx) * self.speed) if self.speed else 0
+        for x in range(cv.w):
+            h = self.heights[(x + off) % self.period]
+            top = self.bottom - h
+            for y in range(max(0, top), self.bottom):
+                cv.set(x, y, self.edge if (self.edge is not None and y == top) else self.color)
+            cv.set(x, self.bottom, self.ground if self.ground is not None else self.color)
+
+
 class ParticlesEl(Element):
     """Missiles qui traversent + gerbes d'étincelles quand une valeur augmente."""
 
@@ -480,6 +517,51 @@ class SpriteEl(Element):
         self.face = spec.get("face", "right")
         self.bob = float(spec.get("bob", 0))
         self.x = spec.get("x", 0)
+        self.alpha = float(spec.get("alpha", 1.0))
+        dim = float(spec.get("dim", 1.0))
+        if dim < 0.999 and self.frames:
+            for fr in self.frames:          # moins lumineux, mais toujours opaque
+                fr.points = [(x, y, scale_color(c, dim), a) for (x, y, c, a) in fr.points]
+        self.shoot = spec.get("shoot")
+        self.shells = []
+        self.muzzle_until = 0.0
+        self.last_shot = -9.0
+        self.last_t = None
+
+    def _shots(self, ctx, x, y, fr, moving_right):
+        """Obus tirés quand une valeur surveillée augmente (par exemple le score)."""
+        sh = self.shoot
+        t = ctx.t
+        dt = 0.0 if self.last_t is None else max(0.0, min(0.1, t - self.last_t))
+        self.last_t = t
+        cv = ctx.canvas
+        names = sh.get("on", ["score"])
+        names = names if isinstance(names, list) else [names]
+        dx = int(sh.get("dx", fr.w))
+        dy = int(sh.get("dy", 1))
+        if x is not None:
+            for (name, old, new, et) in ctx.state.events:
+                if (name in names and isinstance(old, (int, float)) and isinstance(new, (int, float))
+                        and new > old and t - self.last_shot >= float(sh.get("gap", 0.3))):
+                    self.last_shot = t
+                    sx = x + dx if moving_right else x + fr.w - 1 - dx
+                    v = float(sh.get("speed", 80))
+                    self.shells.append([float(sx), y + dy, v if moving_right else -v])
+                    self.muzzle_until = t + 0.08
+            if t < self.muzzle_until:
+                mx = x + dx if moving_right else x + fr.w - 1 - dx
+                cv.set(mx, y + dy, parse_color(sh.get("flash"), (255, 230, 120)))
+        col = parse_color(sh.get("color"), (255, 80, 40))
+        n = int(sh.get("len", 2))
+        alive = []
+        for s in self.shells:
+            s[0] += s[2] * dt
+            if -n <= s[0] <= cv.w + n:
+                alive.append(s)
+                step = -1 if s[2] > 0 else 1
+                for k in range(n):
+                    cv.set(int(s[0]) + step * k, s[1], col if k == 0 else scale_color(col, 0.5))
+        self.shells = alive
 
     def render(self, ctx):
         if not self.frames:
@@ -499,14 +581,18 @@ class SpriteEl(Element):
             travel = (cv.w + fr.w) / max(1.0, self.speed)
             cycle = travel + self.every
             p = lt % cycle
-            if p > travel:
-                return
             right = self.spec.get("dir", "left") == "right"
             moving_right = right
+            if p > travel:
+                if self.shoot:
+                    self._shots(ctx, None, self.y, fr, moving_right)
+                return
             x = -fr.w + p * self.speed if right else cv.w - p * self.speed
         flip = (self.face == "right") != moving_right
         y = self.y + (int(round(math.sin(lt * 6.0) * self.bob)) if self.bob else 0)
-        cv.sprite(fr, int(round(x)), y, flip=flip)
+        cv.sprite(fr, int(round(x)), y, flip=flip, alpha=self.alpha)
+        if self.shoot:
+            self._shots(ctx, int(round(x)), y, fr, moving_right)
 
 
 class ClockEl(Element):
@@ -580,7 +666,7 @@ class Scene:
     def _make(self, spec):
         kind = spec.get("type", "text")
         cls = {
-            "text": TextEl, "marquee": MarqueeEl, "bars": BarsEl, "waves": WavesEl,
+            "text": TextEl, "marquee": MarqueeEl, "bars": BarsEl, "waves": WavesEl, "mountains": MountainsEl,
             "particles": ParticlesEl, "sprite": SpriteEl, "clock": ClockEl,
             "rect": RectEl, "image": ImageEl,
         }.get(kind)

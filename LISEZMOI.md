@@ -248,13 +248,15 @@ Pour savoir quel cœur tourne, appuie sur F1 pendant le jeu, puis Informations, 
 
 | Jeu | Cœur RetroArch | Affiché tout de suite | À apprendre |
 |---|---|---|---|
-| Metal Slug (`mslug`) | FinalBurn Neo | vies, bombes, arme et munitions | score |
+| Metal Slug (`mslug`) | FinalBurn Neo | score, vies, bombes, arme et munitions | rien |
 | Metal Slug 3 (`mslug3`) | FinalBurn Neo | vies, bombes, munitions | score J1 et J2 |
 | Sonic 1 et Sonic 2 | Genesis Plus GX | score, anneaux, vies | rien |
 
 Les adresses des vies, bombes et munitions viennent de la base de codes de triche de MAME 2003-Plus. Celles de Sonic sont les mêmes que dans MAME. Les vies de Metal Slug suivent le « 1UP » de l'écran (le jeu compte aussi la vie en cours). Les crédits des Neo Geo ne se lisent qu'avec MAME, RetroArch ne voit pas cette mémoire.
 
-La scène de Metal Slug reprend celle de la vidéo de Metal Slug 3. Le titre défile en haut, les collines bougent en bas. Tant que le score n'est pas appris, les vies et les bombes s'affichent en grand, avec l'arme en dessous (pistolet, mitraillette, fusil à pompe, lance-flammes ou lance-roquettes, avec les munitions). Une fois le score appris, il s'affiche en vert à gauche avec « P1 », les vies à droite, et le bas alterne les bombes, l'arme et les crédits.
+Les scènes de Metal Slug et de Metal Slug 3 reprennent la vidéo de Vera. Le titre défile en haut. Au milieu, « P1 » en vert et le score en blanc à gauche, les vies à droite (le score du joueur 2 dans Metal Slug 3, une fois appris). En bas, des montagnes vertes avec un petit char qui avance en fond, moins lumineux, et tire quand le score monte. Le texte du bas alterne les bombes, l'arme avec ses munitions (pistolet, mitraillette, fusil à pompe, lance-flammes, lance-roquettes) et les crédits avec MAME.
+
+Le score de Metal Slug est déjà dans le fichier, trouvé avec `apprendre.bat` sous RetroArch et FinalBurn Neo. Pour remplacer le char par ton propre dessin, dépose `mslug_tank.gif` (ou `mslug_tank.png` en bande de 3 images) dans `sprites\`.
 
 ### Apprendre le score
 
@@ -263,7 +265,7 @@ La scène de Metal Slug reprend celle de la vidéo de Metal Slug 3. Le titre dé
 3. Tape le score affiché à l'écran, par exemple `score=20600`, puis Entrée. Le jeu est en pause tant que tu es dans cette fenêtre.
 4. Retourne dans le jeu (Alt+Tab), marque d'autres points, reviens dans la fenêtre d'`apprendre.bat` et tape le nouveau score.
 5. Recommence trois ou quatre fois, avec un score différent à chaque fois. Entrée vide pour finir.
-6. L'outil trouve l'adresse et l'écrit dans `games\mslug.json` (ou `mslug3.json`). Le score apparaît sur la dalle quelques secondes après, sans relancer le jeu.
+6. L'outil trouve l'adresse et l'écrit dans `games\mslug3.json` (ou le fichier du jeu). Le score apparaît sur la dalle quelques secondes après, sans relancer le jeu.
 
 Tape seulement les valeurs qui manquent. Les vies sont déjà connues, et les apprendre à partir du « 1UP » de l'écran donnerait une mauvaise adresse.
 
@@ -306,8 +308,9 @@ Options communes, `mult` (score stocké divisé par 10, très fréquent), `add`,
 | `cycle` | alterne plusieurs pages | `period`, `pages` |
 | `bars` | herbe ou égaliseur | `x`, `w`, `min`, `max`, `color`, `tip`, `flowers` |
 | `waves` | collines qui défilent en fond | `layers` (`y`, `amp`, `speed`, `color`, `edge`) |
+| `mountains` | montagnes pleines et ligne de sol (style Vera) | `peaks` (`[x, hauteur]`), `floor`, `color`, `ground`, `speed` |
 | `particles` | missiles et gerbes quand une valeur monte | `rate`, `color`, `y`, `burst` |
-| `sprite` | sprite animé (PNG en bande ou GIF) | `image`, `frames`, `mode` (`pass`, `pingpong`, `fixed`) |
+| `sprite` | sprite animé (PNG en bande ou GIF) | `image`, `frames`, `mode` (`pass`, `pingpong`, `fixed`), `dim` (luminosité), `alpha`, `shoot` (tire quand une valeur monte) |
 | `clock` | horloge | `format`, `font` |
 | `image`, `rect` | image fixe, rectangle | |
 

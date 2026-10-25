@@ -19,7 +19,7 @@ from .outputs import ZeDMDOutput, PreviewOutput, GifRecorder, NullOutput
 from .pixelcade import PixelcadeOutput, guess_pixelcade_dir, list_ports
 from .retroarch import RetroArchSource
 
-VERSION = "1.3.1"
+VERSION = "1.3.2"
 
 DEFAULT_CONFIG = {
     "fps": 50,

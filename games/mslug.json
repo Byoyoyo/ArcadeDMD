@@ -20,10 +20,10 @@
     "cpu": ":maincpu",
     "values": {
       "score": {
-        "addr": "",
+        "addr": "0x1081B6",
         "type": "bcd",
         "bytes": 4,
-        "note": "à trouver avec apprendre.bat"
+        "note": "score joueur 1, trouvé avec apprendre.bat (RetroArch, FinalBurn Neo)"
       },
       "lives": {
         "addr": "0x100377",
@@ -72,46 +72,59 @@
   "scene": {
     "layers": [
       {
-        "type": "waves",
-        "layers": [
-          {
-            "y": 29,
-            "amp": 2,
-            "freq": 0.11,
-            "speed": 0.5,
-            "color": "#06260d",
-            "edge": "#1fbf4a"
-          },
-          {
-            "y": 31,
-            "amp": 1,
-            "freq": 0.21,
-            "speed": 0.9,
-            "color": "#0b3d16",
-            "edge": "#ff9a2a"
-          }
-        ]
+        "type": "mountains",
+        "peaks": [
+          [
+            10,
+            12
+          ],
+          [
+            34,
+            10
+          ],
+          [
+            60,
+            17
+          ],
+          [
+            88,
+            11
+          ],
+          [
+            114,
+            14
+          ]
+        ],
+        "floor": 9,
+        "bottom": 31,
+        "color": "#0c6e30",
+        "ground": "#e8902c"
       },
       {
-        "type": "particles",
-        "rate": 0.4,
-        "color": "#ffb020",
-        "trail": 2,
-        "speed": [
-          70,
-          120
+        "type": "sprite",
+        "image": [
+          "sprites/mslug_tank.gif",
+          "sprites/mslug_tank.png",
+          "sprites/tank.png"
         ],
-        "y": [
-          10,
-          20
-        ],
-        "dir": "both",
-        "burst": {
+        "frames": 3,
+        "fps": 8,
+        "mode": "pass",
+        "dir": "right",
+        "face": "right",
+        "speed": 7,
+        "every": 4,
+        "y": 23,
+        "dim": 0.75,
+        "shoot": {
           "on": [
             "score"
           ],
-          "count": 8,
-          "color": "#ff6020"
+          "dx": 19,
+          "dy": 1,
+          "speed": 90,
+          "color": "#ff5a30",
+          "gap": 0.35
         }
       },
       {
@@ -140,13 +153,13 @@
         "font": "7x14",
         "x": 20,
         "y": 10,
-        "color": "#30ff60",
+        "color": "#ececec",
         "when": {
           "has": "score"
         },
         "flash": {
           "on": "score",
-          "color": "#c8ffd8",
+          "color": "#a8ffbc",
           "ms": 120
         }
       },
@@ -159,7 +172,7 @@
           },
           {
             "text": "{lives}",
-            "color": "#ffd030"
+            "color": "#ffc830"
           }
         ],
         "font": "7x14",
@@ -167,10 +180,7 @@
         "y": 10,
         "align": "right",
         "when": {
-          "has": [
-            "score",
-            "lives"
-          ]
+          "has": "lives"
         },
         "flash": {
           "on": "lives",
@@ -180,10 +190,7 @@
       },
       {
         "type": "cycle",
-        "period": 3.5,
-        "when": {
-          "has": "score"
-        },
+        "period": 4,
         "pages": [
           {
             "when": {
@@ -192,23 +199,15 @@
             "layers": [
               {
                 "type": "text",
-                "segments": [
-                  {
-                    "text": "BOMBES ",
-                    "color": "#ff5a28"
-                  },
-                  {
-                    "text": "{bombs}",
-                    "color": "#ffffff"
-                  }
-                ],
+                "text": "BOMBES {bombs}",
                 "font": "6x10",
                 "x": 64,
                 "y": 21,
                 "align": "center",
+                "color": "#30d8ff",
                 "flash": {
                   "on": "bombs",
-                  "color": "#ffd23c",
+                  "color": "#ffffff",
                   "ms": 300
                 }
               }
@@ -221,16 +220,12 @@
             "layers": [
               {
                 "type": "text",
-                "segments": [
-                  {
-                    "text": "ARME PISTOLET",
-                    "color": "#c8c8c8"
-                  }
-                ],
+                "text": "ARME PISTOLET",
                 "font": "6x10",
                 "x": 64,
                 "y": 21,
                 "align": "center",
+                "color": "#30d8ff",
                 "when": {
                   "var": "weapon",
                   "eq": 0
@@ -243,20 +238,12 @@
               },
               {
                 "type": "text",
-                "segments": [
-                  {
-                    "text": "FUSIL À POMPE ",
-                    "color": "#5ad7ff"
-                  },
-                  {
-                    "text": "{ammo}",
-                    "color": "#ffffff"
-                  }
-                ],
+                "text": "FUSIL À POMPE {ammo}",
                 "font": "6x10",
                 "x": 64,
                 "y": 21,
                 "align": "center",
+                "color": "#30d8ff",
                 "when": {
                   "var": "weapon",
                   "eq": 1
@@ -269,20 +256,12 @@
               },
               {
                 "type": "text",
-                "segments": [
-                  {
-                    "text": "LANCE-FLAMMES ",
-                    "color": "#ff8a1e"
-                  },
-                  {
-                    "text": "{ammo}",
-                    "color": "#ffffff"
-                  }
-                ],
+                "text": "LANCE-FLAMMES {ammo}",
                 "font": "6x10",
                 "x": 64,
                 "y": 21,
                 "align": "center",
+                "color": "#30d8ff",
                 "when": {
                   "var": "weapon",
                   "eq": 2
@@ -295,20 +274,12 @@
               },
               {
                 "type": "text",
-                "segments": [
-                  {
-                    "text": "LANCE-ROQUETTES ",
-                    "color": "#ff4040"
-                  },
-                  {
-                    "text": "{ammo}",
-                    "color": "#ffffff"
-                  }
-                ],
+                "text": "LANCE-ROQUETTES {ammo}",
                 "font": "6x10",
                 "x": 64,
                 "y": 21,
                 "align": "center",
+                "color": "#30d8ff",
                 "when": {
                   "var": "weapon",
                   "eq": 3
@@ -321,20 +292,12 @@
               },
               {
                 "type": "text",
-                "segments": [
-                  {
-                    "text": "MITRAILLETTE ",
-                    "color": "#ffd23c"
-                  },
-                  {
-                    "text": "{ammo}",
-                    "color": "#ffffff"
-                  }
-                ],
+                "text": "MITRAILLETTE {ammo}",
                 "font": "6x10",
                 "x": 64,
                 "y": 21,
                 "align": "center",
+                "color": "#30d8ff",
                 "when": {
                   "var": "weapon",
                   "eq": 4
@@ -347,20 +310,12 @@
               },
               {
                 "type": "text",
-                "segments": [
-                  {
-                    "text": "MUNITIONS ",
-                    "color": "#ff8a1e"
-                  },
-                  {
-                    "text": "{ammo}",
-                    "color": "#ffffff"
-                  }
-                ],
+                "text": "MUNITIONS {ammo}",
                 "font": "6x10",
                 "x": 64,
                 "y": 21,
                 "align": "center",
+                "color": "#30d8ff",
                 "when": {
                   "var": "weapon",
                   "gt": 4
@@ -380,292 +335,16 @@
             "layers": [
               {
                 "type": "text",
-                "segments": [
-                  {
-                    "text": "CRÉDITS ",
-                    "color": "#30d8ff"
-                  },
-                  {
-                    "text": "{credits}",
-                    "color": "#ffffff"
-                  }
-                ],
+                "text": "CRÉDITS {credits}",
                 "font": "6x10",
                 "x": 64,
                 "y": 21,
                 "align": "center",
+                "color": "#30d8ff",
                 "flash": {
                   "on": "credits",
                   "color": "#ffffff",
-                  "ms": 400
-                }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "type": "cycle",
-        "period": 3,
-        "when": {
-          "not": {
-            "has": "score"
-          }
-        },
-        "pages": [
-          {
-            "when": {
-              "has": "lives"
-            },
-            "layers": [
-              {
-                "type": "text",
-                "segments": [
-                  {
-                    "text": "VIES ",
-                    "color": "#33d6ff"
-                  },
-                  {
-                    "text": "{lives}",
-                    "color": "#ffffff"
-                  }
-                ],
-                "font": "9x15B",
-                "x": 64,
-                "y": 9,
-                "align": "center",
-                "flash": {
-                  "on": "lives",
-                  "color": "#ff4040",
-                  "ms": 600
-                }
-              }
-            ]
-          },
-          {
-            "when": {
-              "has": "bombs"
-            },
-            "layers": [
-              {
-                "type": "text",
-                "segments": [
-                  {
-                    "text": "BOMBES ",
-                    "color": "#ff5a28"
-                  },
-                  {
-                    "text": "{bombs}",
-                    "color": "#ffffff"
-                  }
-                ],
-                "font": "9x15B",
-                "x": 64,
-                "y": 9,
-                "align": "center",
-                "flash": {
-                  "on": "bombs",
-                  "color": "#ffd23c",
                   "ms": 300
-                }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "type": "cycle",
-        "period": 3.5,
-        "when": {
-          "not": {
-            "has": "score"
-          }
-        },
-        "pages": [
-          {
-            "when": {
-              "has": "weapon"
-            },
-            "layers": [
-              {
-                "type": "text",
-                "segments": [
-                  {
-                    "text": "ARME PISTOLET",
-                    "color": "#c8c8c8"
-                  }
-                ],
-                "font": "6x10",
-                "x": 64,
-                "y": 21,
-                "align": "center",
-                "when": {
-                  "var": "weapon",
-                  "eq": 0
-                },
-                "flash": {
-                  "on": "weapon",
-                  "color": "#ffffff",
-                  "ms": 300
-                }
-              },
-              {
-                "type": "text",
-                "segments": [
-                  {
-                    "text": "FUSIL À POMPE ",
-                    "color": "#5ad7ff"
-                  },
-                  {
-                    "text": "{ammo}",
-                    "color": "#ffffff"
-                  }
-                ],
-                "font": "6x10",
-                "x": 64,
-                "y": 21,
-                "align": "center",
-                "when": {
-                  "var": "weapon",
-                  "eq": 1
-                },
-                "flash": {
-                  "on": "weapon",
-                  "color": "#ffffff",
-                  "ms": 300
-                }
-              },
-              {
-                "type": "text",
-                "segments": [
-                  {
-                    "text": "LANCE-FLAMMES ",
-                    "color": "#ff8a1e"
-                  },
-                  {
-                    "text": "{ammo}",
-                    "color": "#ffffff"
-                  }
-                ],
-                "font": "6x10",
-                "x": 64,
-                "y": 21,
-                "align": "center",
-                "when": {
-                  "var": "weapon",
-                  "eq": 2
-                },
-                "flash": {
-                  "on": "weapon",
-                  "color": "#ffffff",
-                  "ms": 300
-                }
-              },
-              {
-                "type": "text",
-                "segments": [
-                  {
-                    "text": "LANCE-ROQUETTES ",
-                    "color": "#ff4040"
-                  },
-                  {
-                    "text": "{ammo}",
-                    "color": "#ffffff"
-                  }
-                ],
-                "font": "6x10",
-                "x": 64,
-                "y": 21,
-                "align": "center",
-                "when": {
-                  "var": "weapon",
-                  "eq": 3
-                },
-                "flash": {
-                  "on": "weapon",
-                  "color": "#ffffff",
-                  "ms": 300
-                }
-              },
-              {
-                "type": "text",
-                "segments": [
-                  {
-                    "text": "MITRAILLETTE ",
-                    "color": "#ffd23c"
-                  },
-                  {
-                    "text": "{ammo}",
-                    "color": "#ffffff"
-                  }
-                ],
-                "font": "6x10",
-                "x": 64,
-                "y": 21,
-                "align": "center",
-                "when": {
-                  "var": "weapon",
-                  "eq": 4
-                },
-                "flash": {
-                  "on": "weapon",
-                  "color": "#ffffff",
-                  "ms": 300
-                }
-              },
-              {
-                "type": "text",
-                "segments": [
-                  {
-                    "text": "MUNITIONS ",
-                    "color": "#ff8a1e"
-                  },
-                  {
-                    "text": "{ammo}",
-                    "color": "#ffffff"
-                  }
-                ],
-                "font": "6x10",
-                "x": 64,
-                "y": 21,
-                "align": "center",
-                "when": {
-                  "var": "weapon",
-                  "gt": 4
-                },
-                "flash": {
-                  "on": "weapon",
-                  "color": "#ffffff",
-                  "ms": 300
-                }
-              }
-            ]
-          },
-          {
-            "when": {
-              "has": "credits"
-            },
-            "layers": [
-              {
-                "type": "text",
-                "segments": [
-                  {
-                    "text": "CRÉDITS ",
-                    "color": "#30d8ff"
-                  },
-                  {
-                    "text": "{credits}",
-                    "color": "#ffffff"
-                  }
-                ],
-                "font": "6x10",
-                "x": 64,
-                "y": 21,
-                "align": "center",
-                "flash": {
-                  "on": "credits",
-                  "color": "#ffffff",
-                  "ms": 400
                 }
               }
             ]
