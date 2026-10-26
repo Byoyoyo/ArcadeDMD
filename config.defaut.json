@@ -20,7 +20,9 @@
       "width": 1920,
       "height": 470,
       "borderless": true,
-      "topmost": true
+      "topmost": true,
+      "mode": "games",
+      "takeover": "known"
     },
     "pixelcade": {
       "enabled": false,

@@ -226,7 +226,7 @@ def configure_screen(root, answer=None):
     cfg = load_config_file(root)
     pv = cfg.setdefault("outputs", {}).setdefault("preview", {})
     pv.update({"enabled": True, "x": sc["x"], "y": sc["y"], "width": sc["width"], "height": sc["height"],
-               "borderless": True, "topmost": True})
+               "borderless": True, "topmost": True, "mode": "games"})
     pv.setdefault("hd", "auto")
     pv.setdefault("style", "led")
     save_config_file(root, cfg)

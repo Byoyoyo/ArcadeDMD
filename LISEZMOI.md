@@ -142,6 +142,8 @@ Le réglage à la main, dans `config.json`, section `preview`
   "width": 1920, "height": 460,
   "borderless": true,
   "topmost": true,
+  "mode": "games",
+  "takeover": "known",
   "hd": "auto",
   "style": "led"
 }
@@ -150,7 +152,9 @@ Le réglage à la main, dans `config.json`, section `preview`
 - `x` et `y` sont la position du coin haut gauche de l'écran dans le bureau Windows (Paramètres, Affichage). Ici un LCD placé à droite d'un écran 1080p. S'il est placé dessous, ce sera `"x": 0, "y": 1080`.
 - `"hd"` vaut `"auto"` (plus fin dès que l'écran est assez grand), `1` (LED de la taille d'une vraie dalle 128 × 32), `2` ou `4` (encore plus fin, pour un très grand écran).
 - `"style"` vaut `"led"` (LED rondes, comme une vraie dalle) ou `"pixel"` (pixels carrés, plus net sur un LCD).
-- `"topmost": true` garde la fenêtre au-dessus du marquee de HyperSpin ou de BigBox pendant les parties. Mets `"enabled": false` si tu ne veux que la vraie dalle.
+- `"mode": "games"` (réglage par défaut) fait comme avec la Pixelcade. Hors jeu, la fenêtre se cache et l'écran reste au frontal, par exemple aux clear logos et marquees de BigBox. Dès qu'un jeu connu démarre, ArcadeDMD passe au premier plan, au-dessus du marquee de BigBox ou d'HyperSpin, sans prendre le focus du jeu. Si le frontal repasse devant pendant la partie, ArcadeDMD revient devant dans la seconde. À la fin de la partie, l'écran est rendu au frontal deux secondes après. `"mode": "always"` garde la fenêtre affichée tout le temps, avec l'écran d'attente hors jeu.
+- `"takeover": "known"` passe au premier plan seulement pour les jeux qui ont un fichier dans `games\` (Metal Slug, King of Fighters, tous les Neo Geo...). `"all"` le fait pour tous les jeux MAME, avec la scène générique.
+- `"topmost": true` garde la fenêtre au-dessus des autres pendant qu'elle est affichée. Mets `"enabled": false` si tu ne veux que la vraie dalle.
 
 ---
 

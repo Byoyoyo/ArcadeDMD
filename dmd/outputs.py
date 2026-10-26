@@ -4,6 +4,7 @@ import ctypes
 import os
 import sys
 import threading
+import time
 
 from .canvas import WIDTH, HEIGHT
 
@@ -287,11 +288,26 @@ def hd_factor(cfg, width, height):
 # --------------------------------------------------------------------------
 
 class PreviewOutput:
+    """"mode": "always", la fenêtre reste affichée. "mode": "games", elle n'apparaît que pendant un jeu, au premier
+    plan, et se cache ensuite : le frontal (marquee ou clear logos de BigBox...) garde l'écran le reste du temps.
+    "takeover": "known" (jeux qui ont un fichier dans games) ou "all" (tous les jeux), comme pour la Pixelcade."""
+
+    RELEASE_DELAY = 2.0     # fin de partie : se cache après ce délai (enchaîner deux jeux ne fait pas clignoter)
+    CHECK_EVERY = 1.0       # pendant un jeu : vérifie chaque seconde que rien n'est passé devant
+
     def __init__(self, cfg, log=print):
         self.cfg = cfg
         self.log = log
         self.backend = None
         self.closed = False
+        self.mode = str(cfg.get("mode") or "always").lower()
+        self.takeover = str(cfg.get("takeover") or "known").lower()
+        self.shown = True
+        self.release_at = None
+        self.next_check = 0.0
+        self.hwnd = None
+        self.pos = (int(cfg.get("x", 100)), int(cfg.get("y", 100)))
+        self.watch = sys.platform == "win32" and (self.mode == "games" or bool(cfg.get("topmost", False)))
         self.width = int(cfg.get("width", 1024))
         self.height = int(cfg.get("height", 256))
         self.hd = hd_factor(cfg, self.width, self.height)      # écran assez grand : image deux fois plus fine
@@ -310,6 +326,8 @@ class PreviewOutput:
         except Exception as e:
             self.log(f"aperçu pygame indisponible ({e}), essai tkinter")
             self._init_tk()
+        if self.mode == "games":
+            self._show(False, quiet=True)  # attend le premier jeu
 
     # -- pygame
     def _init_pygame(self):
@@ -327,6 +345,11 @@ class PreviewOutput:
         pygame.display.set_caption("ArcadeDMD")
         self.screen.fill((0, 0, 0))
         self.backend = "pygame"
+        if sys.platform == "win32":
+            try:
+                self.hwnd = pygame.display.get_wm_info()["window"]
+            except Exception:
+                self.hwnd = None
         if sys.platform == "win32" and (self.cfg.get("topmost", False) or self.cfg.get("borderless", False)):
             try:
                 hwnd = pygame.display.get_wm_info()["window"]
@@ -359,9 +382,112 @@ class PreviewOutput:
     def _on_close(self):
         self.closed = True
 
+    # -- premier plan pendant les jeux
+    def on_mode(self, mode, game_key, scene_key):
+        """Appelé par le moteur à chaque changement d'écran (jeu lancé, retour à l'attente)."""
+        if self.mode != "games" or self.closed or self.backend is None:
+            return
+        if mode == "game" and (self.takeover == "all" or bool(game_key)):
+            self.release_at = None
+            if not self.shown:
+                self._show(True)
+                self.log("écran LCD : ArcadeDMD passe au premier plan")
+            else:
+                self._raise()
+        elif self.shown and self.release_at is None:
+            self.release_at = time.monotonic() + self.RELEASE_DELAY
+
+    def _user32(self):
+        u = getattr(self, "_u32", None)
+        if u is None:
+            from ctypes import wintypes
+            u = self._u32 = ctypes.WinDLL("user32")          # fonctions à part, types précis
+            u.ShowWindow.argtypes = [wintypes.HWND, ctypes.c_int]
+            u.SetWindowPos.argtypes = [wintypes.HWND, wintypes.HWND, ctypes.c_int, ctypes.c_int, ctypes.c_int,
+                                       ctypes.c_int, ctypes.c_uint]
+            u.WindowFromPoint.argtypes = [wintypes.POINT]
+            u.WindowFromPoint.restype = wintypes.HWND
+            u.GetAncestor.argtypes = [wintypes.HWND, ctypes.c_uint]
+            u.GetAncestor.restype = wintypes.HWND
+            u.IsWindowVisible.argtypes = [wintypes.HWND]
+        return u
+
+    def _show(self, on, quiet=False):
+        self.shown = on
+        if self.backend == "pygame" and self.hwnd and sys.platform == "win32":
+            try:
+                u = self._user32()
+                if on:
+                    u.ShowWindow(self.hwnd, 4)           # SW_SHOWNOACTIVATE : le jeu garde le clavier et les manettes
+                    self._raise()
+                else:
+                    u.ShowWindow(self.hwnd, 0)           # SW_HIDE
+                    if not quiet:
+                        self.log("écran LCD : rendu au frontal")
+            except Exception as e:
+                self.log(f"écran LCD : {e}")
+        elif self.backend == "tk":
+            try:
+                if on:
+                    self.tk.deiconify()
+                    self.tk.attributes("-topmost", True)
+                    self.tk.lift()
+                else:
+                    self.tk.withdraw()
+            except Exception:
+                pass
+
+    def _raise(self):
+        """Au-dessus de toutes les fenêtres, même celles « toujours devant », sans prendre le focus."""
+        if self.backend == "pygame" and self.hwnd and sys.platform == "win32":
+            try:
+                # HWND_TOPMOST, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE | SWP_SHOWWINDOW
+                self._user32().SetWindowPos(self.hwnd, -1, 0, 0, 0, 0, 0x0001 | 0x0002 | 0x0010 | 0x0040)
+            except Exception:
+                pass
+        elif self.backend == "tk":
+            try:
+                self.tk.attributes("-topmost", True)
+                self.tk.lift()
+            except Exception:
+                pass
+
+    def _covered(self):
+        """Une autre fenêtre (marquee du frontal...) est-elle passée devant ? Vérifié à trois endroits."""
+        if not (self.backend == "pygame" and self.hwnd and sys.platform == "win32"):
+            return False
+        try:
+            from ctypes import wintypes
+            u = self._user32()
+            x, y = self.pos
+            for fx in (0.25, 0.5, 0.75):
+                h = u.WindowFromPoint(wintypes.POINT(int(x + self.width * fx), int(y + self.height // 2)))
+                if not h:
+                    continue
+                root = u.GetAncestor(h, 2) or h          # GA_ROOT
+                if int(root) != int(self.hwnd):
+                    return True
+        except Exception:
+            return False
+        return False
+
     def send(self, frame):
         if self.closed or self.backend is None:
             return
+        now = time.monotonic()
+        if self.release_at is not None and now >= self.release_at:
+            self.release_at = None
+            self._show(False)
+        if not self.shown:                          # cachée : on garde juste la fenêtre en vie
+            if self.backend == "pygame":
+                for ev in self.pg.event.get():
+                    if ev.type == self.pg.QUIT:
+                        self.closed = True
+            return
+        if self.watch and now >= self.next_check:
+            self.next_check = now + self.CHECK_EVERY
+            if self._covered():
+                self._raise()
         frame = _apply_brightness(frame, self.brightness)
         if self.hd > 1:
             if frame == self._last_in:
