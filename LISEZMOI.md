@@ -121,7 +121,7 @@ Le plugin n'a besoin d'aucun réglage dans ton frontend (HyperSpin, LaunchBox...
 
 ### En vrai
 
-Lance `lancer.bat` (ou laisse le démarrage automatique faire), puis lance un jeu depuis ton frontend ou directement dans MAME. La Pixelcade passe à ArcadeDMD pendant les jeux qui ont leur fichier dans `games\` et reste à pixelweb le reste du temps. Une dalle ZeDMD, elle, affiche l'heure et « INSERT COIN » hors jeu, et le titre qui défile pour un jeu sans fichier dédié.
+Lance `lancer.bat` (ou laisse le démarrage automatique faire), puis lance un jeu depuis ton frontend ou directement dans MAME. La Pixelcade passe à ArcadeDMD pendant les jeux qui ont leur fichier dans `games\` et reste à pixelweb le reste du temps. Une dalle ZeDMD, elle, reste noire hors jeu, et affiche le titre qui défile pour un jeu sans fichier dédié. L'ancien écran d'attente (l'heure et « INSERT COIN ») revient avec `"idle": {"show": true}` dans `config.json`.
 
 ---
 
@@ -152,7 +152,7 @@ Le réglage à la main, dans `config.json`, section `preview`
 - `x` et `y` sont la position du coin haut gauche de l'écran dans le bureau Windows (Paramètres, Affichage). Ici un LCD placé à droite d'un écran 1080p. S'il est placé dessous, ce sera `"x": 0, "y": 1080`.
 - `"hd"` vaut `"auto"` (plus fin dès que l'écran est assez grand), `1` (LED de la taille d'une vraie dalle 128 × 32), `2` ou `4` (encore plus fin, pour un très grand écran).
 - `"style"` vaut `"led"` (LED rondes, comme une vraie dalle) ou `"pixel"` (pixels carrés, plus net sur un LCD).
-- `"mode": "games"` (réglage par défaut) fait comme avec la Pixelcade. Hors jeu, la fenêtre se cache et l'écran reste au frontal, par exemple aux clear logos et marquees de BigBox. Dès qu'un jeu connu démarre, ArcadeDMD passe au premier plan, au-dessus du marquee de BigBox ou d'HyperSpin, sans prendre le focus du jeu. Si le frontal repasse devant pendant la partie, ArcadeDMD revient devant dans la seconde. À la fin de la partie, l'écran est rendu au frontal deux secondes après. `"mode": "always"` garde la fenêtre affichée tout le temps, avec l'écran d'attente hors jeu.
+- `"mode": "games"` (réglage par défaut) fait comme avec la Pixelcade. Hors jeu, la fenêtre se cache et l'écran reste au frontal, par exemple aux clear logos et marquees de BigBox. Dès qu'un jeu connu démarre, ArcadeDMD passe au premier plan, au-dessus du marquee de BigBox ou d'HyperSpin, sans prendre le focus du jeu. Si le frontal repasse devant pendant la partie, ArcadeDMD revient devant dans la seconde. À la fin de la partie, l'écran est rendu au frontal deux secondes après. `"mode": "always"` garde la fenêtre affichée tout le temps, noire hors jeu.
 - `"takeover": "known"` passe au premier plan seulement pour les jeux qui ont un fichier dans `games\` (Metal Slug, King of Fighters, tous les Neo Geo...). `"all"` le fait pour tous les jeux MAME, avec la scène générique.
 - `"topmost": true` garde la fenêtre au-dessus des autres pendant qu'elle est affichée. Mets `"enabled": false` si tu ne veux que la vraie dalle.
 
@@ -191,7 +191,7 @@ Le logiciel Pixelcade (pixelweb) ne peut pas partager la dalle. ArcadeDMD fait d
 |---|---|
 | `"takeover": "known"` | prend la dalle seulement pour les jeux qui ont un fichier dans `games\` (After Burner II, Sonic 1 et 2, et ceux que tu ajoutes) |
 | `"takeover": "all"` | prend la dalle pour tous les jeux MAME, avec la scène générique |
-| `"mode": "always"` | garde la dalle en permanence (si tu n'utilises plus pixelweb), avec l'écran d'attente hors jeu |
+| `"mode": "always"` | garde la dalle en permanence (si tu n'utilises plus pixelweb), noire hors jeu |
 | `"pixelweb_exe"` | chemin de pixelweb.exe, trouvé tout seul d'habitude. S'il a besoin d'options, mets ici un .bat qui le lance avec |
 | `"art_dir"` | dossier Pixelcade, pour reprendre ses marquees en fond de la scène générique (trouvé tout seul d'habitude) |
 

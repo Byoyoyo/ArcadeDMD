@@ -20,14 +20,14 @@ from .pixelcade import PixelcadeOutput, guess_pixelcade_dir, list_ports
 from .retroarch import RetroArchSource
 from .memvalues import derive
 
-VERSION = "1.12.1"
+VERSION = "1.12.2"
 
 DEFAULT_CONFIG = {
     "fps": 50,
     "events_file": "runtime/events.jsonl",
     "heartbeat_timeout": 8,
     "show_pause": True,
-    "idle": {"text": "INSERT COIN"},
+    "idle": {"text": "INSERT COIN", "show": False},
     "outputs": {
         "zedmd": {"enabled": False, "dll": "", "device": "", "wifi_ip": "", "brightness": None,
                   "software_brightness": 1.0},
@@ -396,6 +396,8 @@ class Engine:
 
     # -- scènes
     def _scene_spec(self, key):
+        if key == "_idle" and not (self.cfg.get("idle") or {}).get("show", False):
+            return {"layers": []}      # hors jeu : dalle noire ("idle": {"show": true} remet l'heure et INSERT COIN)
         g = self.library.get(key) or {}
         if g.get("scene") is None and g.get("scene_from"):
             return (self.library.get(g["scene_from"]) or {}).get("scene")     # jeu appris : scène de son modèle

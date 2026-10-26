@@ -1,7 +1,8 @@
 {
   "fps": 50,
   "idle": {
-    "text": "INSERT COIN"
+    "text": "INSERT COIN",
+    "show": false
   },
   "show_pause": true,
   "outputs": {
