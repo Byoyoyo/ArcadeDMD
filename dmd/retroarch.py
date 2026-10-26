@@ -354,6 +354,7 @@ class RetroArchSource:
         self.session = None
         self.seen = False
         self.version = ""
+        self.check_now = False        # lecture ratée : RetroArch vient peut-être de se fermer
         self.thread = threading.Thread(target=self._run, daemon=True)
         self.thread.start()
 
@@ -367,17 +368,22 @@ class RetroArchSource:
 
     def _run(self):
         next_status = 0.0
+        last_status = 0.0
         misses = 0
         while not self.stop_ev.is_set():
             try:
                 now = time.monotonic()
-                if now >= next_status:
+                if now >= next_status or (self.check_now and now - last_status >= 0.2):
+                    self.check_now = False
+                    last_status = now
                     next_status = now + 1.0
                     st = self.client.status()
                     if st is None:
                         misses += 1
                         if self.session and misses >= 2:
                             self._end("RetroArch ne répond plus")
+                        elif self.session:
+                            next_status = now + 0.2      # sans doute fermé : confirmation tout de suite
                         if not self.session:
                             self.stop_ev.wait(2.0)
                             continue
@@ -461,6 +467,7 @@ class RetroArchSource:
             vals = read_values(self.client, s["layout"], s["defs"], s["clusters"])
             if vals is None:
                 s["fails"] += 1
+                self.check_now = True
                 if s["warned"]:
                     s["retry_at"] = now + 3.0        # déjà expliqué : on réessaie sans insister
                 elif s["fails"] >= 10:

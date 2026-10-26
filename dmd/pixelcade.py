@@ -12,6 +12,8 @@ import subprocess
 import sys
 import threading
 import time
+import urllib.error
+import urllib.parse
 import urllib.request
 
 WIDTH, HEIGHT = 128, 32
@@ -176,11 +178,20 @@ class PixelcadeDevice:
         except Exception:
             pass
 
-    def close(self):
+    def close(self, frame=None):
+        """frame : image laissée sur la dalle (le marquee du jeu en attendant pixelweb), sinon noir."""
         if self.ser is None:
             return
         try:
-            self.clear()
+            if frame is not None and len(frame) == FRAME_BYTES:
+                self.last = None
+                self.send(frame)
+            else:
+                self.clear()
+            try:
+                self.ser.flush()
+            except Exception:
+                pass
             time.sleep(0.05)
             self.ser.reset_output_buffer()
             self.ser.dtr = False
@@ -260,6 +271,46 @@ def find_process(name):
     return found
 
 
+def http_alive(url, timeout=0.5):
+    """pixelweb répond-il (n'importe quelle réponse HTTP) ?"""
+    try:
+        with urllib.request.urlopen(url, timeout=timeout):
+            return True
+    except urllib.error.HTTPError:
+        return True
+    except Exception:
+        return False
+
+
+def marquee_path(art_dir, roms):
+    """Marquee Pixelcade d'un jeu (dossier mame, romset puis parent), ou ""."""
+    if not art_dir:
+        return ""
+    for rom in roms:
+        for ext in (".gif", ".png", ".jpg"):
+            p = os.path.join(art_dir, "mame", rom + ext)
+            if os.path.exists(p):
+                return p
+    return ""
+
+
+def marquee_frame(art_dir, roms, size=(128, 32)):
+    """Image RGB 128 x 32 du marquee Pixelcade d'un jeu (première image d'un GIF), ou None."""
+    path = marquee_path(art_dir, roms)
+    if not path:
+        return None
+    try:
+        from PIL import Image
+        with Image.open(path) as im:
+            im.seek(0)
+            rgb = im.convert("RGB")
+            if rgb.size != size:
+                rgb = rgb.resize(size, Image.LANCZOS)
+            return rgb.tobytes()
+    except Exception:
+        return None
+
+
 def http_get(url, timeout=2.0):
     try:
         with urllib.request.urlopen(url, timeout=timeout) as r:
@@ -308,7 +359,7 @@ def _read(path):
 # --------------------------------------------------------------------------
 
 class PixelcadeOutput:
-    RELEASE_DELAY = 3.0
+    RELEASE_DELAY = 0.0      # fin de partie : la dalle revient tout de suite à pixelweb et au frontal
 
     def __init__(self, cfg, root, log=print):
         self.cfg = cfg
@@ -327,6 +378,8 @@ class PixelcadeOutput:
         self.last_sent = 0.0
         self.failed = False
         self.min_interval = 1.0 / max(5.0, float(cfg.get("max_fps", 30)))
+        self.last_game = []          # jeu en cours (romset, parent) : son marquee revient après la partie
+        self.art_dir = guess_pixelcade_dir(root, cfg)
         if importlib.util.find_spec("serial") is None:
             self.log("Pixelcade : le module pyserial manque (py -m pip install pyserial)")
             self.want = False
@@ -337,10 +390,12 @@ class PixelcadeOutput:
         self.thread.start()
 
     # appelé par le moteur à chaque changement d'écran
-    def on_mode(self, mode, game_key, scene_key):
+    def on_mode(self, mode, game_key, scene_key, rom="", parent=""):
         if self.mode == "off":
             return
         active = self.mode == "always" or (mode == "game" and (self.takeover == "all" or bool(game_key)))
+        if active and mode == "game" and (rom or parent):
+            self.last_game = list(dict.fromkeys(n for n in (rom, parent) if n))
         if active:
             self.release_at = None
             if not self.want:
@@ -451,21 +506,45 @@ class PixelcadeOutput:
         return False
 
     def _release(self):
+        if not self.art_dir:                  # chemin de pixelweb mémorisé au premier arrêt
+            self.art_dir = guess_pixelcade_dir(self.root, self.cfg)
         with self.lock:
             d, self.dev = self.dev, None
             if d is not None:
-                d.close()
-        self._restart_pixelweb()
+                # le marquee du jeu qu'on quitte reste affiché le temps que pixelweb revienne
+                d.close(marquee_frame(self.art_dir, self.last_game) if self.mode != "always" else None)
+        if self._restart_pixelweb() and self.last_game and not self.closing:
+            self._marquee_back()
+
+    def _marquee_back(self):
+        """pixelweb vient d'être relancé. Le frontal ne lui a rien envoyé pendant la partie, on lui
+        demande le marquee du jeu qu'on vient de quitter (celui qui est sélectionné dans BigBox)."""
+        t_end = time.time() + 15
+        while not http_alive(self.url + "/info"):
+            if self.want or self.closing or time.time() > t_end:
+                return
+            time.sleep(0.25)
+        time.sleep(0.4)                       # pixelweb finit de démarrer
+        if self.want or self.closing:
+            return
+        path = marquee_path(self.art_dir, self.last_game)
+        # sans dossier d'images connu : le parent, qui a plus souvent son marquee qu'un clone
+        rom = os.path.splitext(os.path.basename(path))[0] if path else self.last_game[-1]
+        status, _ = http_get(f"{self.url}/arcade/stream/mame/{urllib.parse.quote(rom)}", 3.0)
+        if status is not None:
+            self.log(f"Pixelcade : pixelweb réaffiche le marquee de {rom}")
 
     def _restart_pixelweb(self):
         exe, self.stopped_exe = self.stopped_exe, None
         if not exe:
-            return
+            return False
         if not os.path.exists(exe):
             self.log(f"Pixelcade : impossible de relancer pixelweb ({exe} introuvable)")
-            return
+            return False
         try:
             start_detached(exe)
             self.log("Pixelcade : pixelweb relancé")
+            return True
         except OSError as e:
             self.log(f"Pixelcade : relance de pixelweb impossible ({e})")
+            return False

@@ -20,7 +20,7 @@ from .pixelcade import PixelcadeOutput, guess_pixelcade_dir, list_ports
 from .retroarch import RetroArchSource
 from .memvalues import derive
 
-VERSION = "1.12.2"
+VERSION = "1.12.3"
 
 DEFAULT_CONFIG = {
     "fps": 50,
@@ -417,7 +417,11 @@ class Engine:
             fn = getattr(out, "on_mode", None)
             if fn is not None:
                 try:
-                    fn(self.mode if self.mode else "idle", self.state.meta.get("game") or "", self.scene_key)
+                    args = (self.mode if self.mode else "idle", self.state.meta.get("game") or "", self.scene_key)
+                    try:     # romset et parent : la Pixelcade réaffiche le marquee du jeu après la partie
+                        fn(*args, rom=self.state.meta.get("system") or "", parent=self.state.meta.get("parent") or "")
+                    except TypeError:
+                        fn(*args)
                 except Exception as e:
                     self.log(f"sortie {out.__class__.__name__} : {e}")
 
@@ -441,6 +445,11 @@ class Engine:
         meta = dict(meta)
         meta["title"] = title
         meta["game"] = key
+        if not meta.get("parent") and not g.get("fallback"):       # RetroArch ne donne pas le parent d'un clone
+            m = g.get("match")
+            sets = m[0].get("system") if isinstance(m, list) and m and isinstance(m[0], dict) else None
+            if isinstance(sets, list) and sets and meta.get("system") in sets[1:]:
+                meta["parent"] = sets[0]
         if self.pixelcade_dir:
             meta["pixelcade"] = self.pixelcade_dir
         self.state.reset(meta)

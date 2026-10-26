@@ -152,7 +152,7 @@ Le réglage à la main, dans `config.json`, section `preview`
 - `x` et `y` sont la position du coin haut gauche de l'écran dans le bureau Windows (Paramètres, Affichage). Ici un LCD placé à droite d'un écran 1080p. S'il est placé dessous, ce sera `"x": 0, "y": 1080`.
 - `"hd"` vaut `"auto"` (plus fin dès que l'écran est assez grand), `1` (LED de la taille d'une vraie dalle 128 × 32), `2` ou `4` (encore plus fin, pour un très grand écran).
 - `"style"` vaut `"led"` (LED rondes, comme une vraie dalle) ou `"pixel"` (pixels carrés, plus net sur un LCD).
-- `"mode": "games"` (réglage par défaut) fait comme avec la Pixelcade. Hors jeu, la fenêtre se cache et l'écran reste au frontal, par exemple aux clear logos et marquees de BigBox. Dès qu'un jeu connu démarre, ArcadeDMD passe au premier plan, au-dessus du marquee de BigBox ou d'HyperSpin, sans prendre le focus du jeu. Si le frontal repasse devant pendant la partie, ArcadeDMD revient devant dans la seconde. À la fin de la partie, l'écran est rendu au frontal deux secondes après. `"mode": "always"` garde la fenêtre affichée tout le temps, noire hors jeu.
+- `"mode": "games"` (réglage par défaut) fait comme avec la Pixelcade. Hors jeu, la fenêtre se cache et l'écran reste au frontal, par exemple aux clear logos et marquees de BigBox. Dès qu'un jeu connu démarre, ArcadeDMD passe au premier plan, au-dessus du marquee de BigBox ou d'HyperSpin, sans prendre le focus du jeu. Si le frontal repasse devant pendant la partie, ArcadeDMD revient devant dans la seconde. À la fin de la partie, l'écran est rendu au frontal tout de suite. `"mode": "always"` garde la fenêtre affichée tout le temps, noire hors jeu.
 - `"takeover": "known"` passe au premier plan seulement pour les jeux qui ont un fichier dans `games\` (Metal Slug, King of Fighters, tous les Neo Geo...). `"all"` le fait pour tous les jeux MAME, avec la scène générique.
 - `"topmost": true` garde la fenêtre au-dessus des autres pendant qu'elle est affichée. Mets `"enabled": false` si tu ne veux que la vraie dalle.
 
@@ -162,7 +162,7 @@ Le réglage à la main, dans `config.json`, section `preview`
 
 La Pixelcade LED est elle-même une dalle 128x32. ArcadeDMD la pilote directement par son port USB, avec le même protocole que Visual Pinball (dmdext, libdmdutil). Les cartes V1 et V2 sont reconnues toutes seules.
 
-Le logiciel Pixelcade (pixelweb) ne peut pas partager la dalle. ArcadeDMD fait donc ce que Pixelcade recommande pour Visual Pinball. Au lancement d'un jeu qui a son fichier dans `games\`, il arrête pixelweb par son API (`/quit`) et prend la dalle. Quand tu quittes le jeu, il la rend et relance pixelweb. Pour tous les autres jeux, pixelweb continue d'afficher ses marquees comme avant.
+Le logiciel Pixelcade (pixelweb) ne peut pas partager la dalle. ArcadeDMD fait donc ce que Pixelcade recommande pour Visual Pinball. Au lancement d'un jeu qui a son fichier dans `games\`, il arrête pixelweb par son API (`/quit`) et prend la dalle. Quand tu quittes le jeu, il la rend tout de suite et relance pixelweb. Le marquee du jeu reste affiché pendant ce temps, puis ArcadeDMD demande à pixelweb de l'afficher, comme le ferait BigBox (le jeu que tu viens de quitter est celui sélectionné dans BigBox). Ensuite BigBox reprend la main sur la Pixelcade à chaque changement de jeu, comme sur l'écran LCD de la Vewlix. Pour tous les autres jeux, pixelweb continue d'afficher ses marquees comme avant.
 
 ### Réglage
 

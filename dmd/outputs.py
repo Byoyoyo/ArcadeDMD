@@ -292,7 +292,7 @@ class PreviewOutput:
     plan, et se cache ensuite : le frontal (marquee ou clear logos de BigBox...) garde l'écran le reste du temps.
     "takeover": "known" (jeux qui ont un fichier dans games) ou "all" (tous les jeux), comme pour la Pixelcade."""
 
-    RELEASE_DELAY = 2.0     # fin de partie : se cache après ce délai (enchaîner deux jeux ne fait pas clignoter)
+    RELEASE_DELAY = 0.0     # fin de partie : l'écran revient tout de suite au frontal
     CHECK_EVERY = 1.0       # pendant un jeu : vérifie chaque seconde que rien n'est passé devant
 
     def __init__(self, cfg, log=print):
@@ -383,7 +383,7 @@ class PreviewOutput:
         self.closed = True
 
     # -- premier plan pendant les jeux
-    def on_mode(self, mode, game_key, scene_key):
+    def on_mode(self, mode, game_key, scene_key, rom="", parent=""):
         """Appelé par le moteur à chaque changement d'écran (jeu lancé, retour à l'attente)."""
         if self.mode != "games" or self.closed or self.backend is None:
             return
