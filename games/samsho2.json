@@ -1,6 +1,6 @@
 {
  "title": "Samurai Shodown II",
- "note": "Jeu de combat Neo Geo : vie, chrono, 17 personnages.",
+ "note": "Jeu de combat Neo Geo : vie, chrono, score, 17 personnages.",
  "match": [
   {
    "system": [
@@ -75,16 +75,28 @@
     "note": "chrono (BCD)"
    },
    "score": {
-    "addr": "",
+    "ptr": "0x100A46",
+    "addr": "0x90",
+    "ptr_range": [
+     "0x100000",
+     "0x10FFFF"
+    ],
     "type": "bcd",
     "bytes": 4,
-    "note": "à trouver avec apprendre.bat"
+    "hold_zero": 20,
+    "note": "score joueur 1, trouvé avec apprendre.bat. Dans l'objet du combattant (adresse lue en 0x100A46), recopié à chaque round. Un 0 passager entre deux combats est ignoré 20 secondes"
    },
    "score_p2": {
-    "addr": "",
+    "ptr": "0x100A4A",
+    "addr": "0x90",
+    "ptr_range": [
+     "0x100000",
+     "0x10FFFF"
+    ],
     "type": "bcd",
     "bytes": 4,
-    "note": "joueur 2, à trouver avec apprendre.bat (partie à deux, score2=...)"
+    "hold_zero": 20,
+    "note": "score joueur 2, même place que pour le joueur 1, à confirmer en partie à deux. Dans l'objet du combattant (adresse lue en 0x100A4A), recopié à chaque round. Un 0 passager entre deux combats est ignoré 20 secondes"
    },
    "_p1_chr": {
     "addr": "0x100D0B",

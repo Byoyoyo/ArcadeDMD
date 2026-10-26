@@ -18,9 +18,9 @@ from .scene import Scene, Ctx, GameState
 from .outputs import ZeDMDOutput, PreviewOutput, GifRecorder, NullOutput
 from .pixelcade import PixelcadeOutput, guess_pixelcade_dir, list_ports
 from .retroarch import RetroArchSource
-from .memvalues import derive
+from .memvalues import derive, game_values
 
-VERSION = "1.12.3"
+VERSION = "1.12.4"
 
 DEFAULT_CONFIG = {
     "fps": 50,
@@ -373,6 +373,8 @@ class Engine:
         self.last_start = None
         self.retroarch = None
         self.derived = None
+        self.hold_zero = {}           # score qui passe à 0 un instant (combattant recréé entre deux rounds)
+        self.zero_since = {}
         self.demo_request = os.path.join(root, "runtime", "demo_request.json")
         self.next_request_check = 0.0
         self.pixelcade_dir = guess_pixelcade_dir(root, config.get("outputs", {}).get("pixelcade", {}))
@@ -454,6 +456,10 @@ class Engine:
             meta["pixelcade"] = self.pixelcade_dir
         self.state.reset(meta)
         self.derived = g.get("derived") if isinstance(g.get("derived"), dict) else None
+        vals = game_values(g, meta.get("system") or "", meta.get("parent") or "") if g else {}
+        self.hold_zero = {k: float(d["hold_zero"]) for k, d in vals.items()
+                          if isinstance(d, dict) and isinstance(d.get("hold_zero"), (int, float)) and d["hold_zero"] > 0}
+        self.zero_since = {}
         self.mode = "game"
         self.source = source
         if source != "demo":
@@ -512,7 +518,10 @@ class Engine:
             if self.mode != "game" or self.source != source:
                 # reprise après un silence (menu MAME ouvert longtemps, moteur relancé en cours de partie)
                 self.start_game(self.last_start or {"system": "?", "description": ""}, source)
-            for k, v in (ev.get("v") or {}).items():
+            # état des joueurs d'abord : il dit si un score qui tombe à 0 est une vraie remise à zéro
+            for k, v in sorted((ev.get("v") or {}).items(), key=lambda kv: not kv[0].endswith("_mode")):
+                if k in self.hold_zero and self._hold_zero(k, v, now):
+                    continue
                 self.state.update(k, v, now, quiet=(t == "hb"))
             if self.derived:      # valeurs calculées (nom du personnage en train de se battre...)
                 for k, v in derive(self.derived, self.state.values).items():
@@ -526,6 +535,17 @@ class Engine:
             self.state.paused = False
         elif t == "capture":
             self.message(f"CAPTURE {ev.get('n', '')}", 1.5, "#ffdd33")
+
+    def _hold_zero(self, k, v, now):
+        """Score lu à 0 en pleine partie (l'objet du combattant n'est pas encore recréé entre deux rounds
+        ou deux combats) : l'ancien score reste affiché, au plus "hold_zero" secondes."""
+        old = self.state.values.get(k)
+        mode = self.state.values.get("p2_mode" if "p2" in k else "p1_mode")
+        if v == 0 and isinstance(old, (int, float)) and old > 0 and mode in (None, 1):
+            first = self.zero_since.setdefault(k, now)
+            return now - first < self.hold_zero[k]
+        self.zero_since.pop(k, None)
+        return False
 
     def handle_http(self, path, qs, now):
         def num(name):

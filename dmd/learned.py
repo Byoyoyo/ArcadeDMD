@@ -63,11 +63,16 @@ def restore(root, log=print):
             continue
         vals = cfg.setdefault("memory", {}).setdefault("values", {})
         changed = []
+        obsolete = []
         for name, d in (data.get("values") or {}).items():
             if not isinstance(d, dict) or not d.get("addr"):
                 continue
             cur = vals.get(name)
             if _core(cur) == _core(d):
+                continue
+            if isinstance(cur, dict) and cur.get("ptr") and cur.get("addr") and not d.get("ptr"):
+                # le fichier du jeu suit maintenant l'objet qui bouge : l'adresse fixe apprise avant ne tient pas
+                obsolete.append(name)
                 continue
             new = _core(d)
             note = cur.get("note") if isinstance(cur, dict) else None
@@ -75,6 +80,15 @@ def restore(root, log=print):
                 new["note"] = note
             vals[name] = new
             changed.append(name)
+        if obsolete:
+            for name in obsolete:
+                data["values"].pop(name, None)
+            try:
+                _write(path, data)
+                log(f"appris/{key}.json : {', '.join(obsolete)} retiré, le fichier du jeu le lit maintenant "
+                    "dans l'objet du combattant")
+            except OSError:
+                pass
         if data.get("retroarch") and not cfg.get("retroarch"):
             cfg["retroarch"] = data["retroarch"]
             changed.append("retroarch")

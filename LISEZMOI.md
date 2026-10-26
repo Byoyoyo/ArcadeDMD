@@ -268,7 +268,7 @@ Pour savoir quel cœur tourne, appuie sur F1 pendant le jeu, puis Informations, 
 | Metal Slug 2 (`mslug2`), Metal Slug X (`mslugx`) | FinalBurn Neo | vies, bombes, arme et munitions | score |
 | Metal Slug 3 (`mslug3`) | FinalBurn Neo | score, vies, bombes, arme et munitions | score J2 |
 | Metal Slug 4 (`mslug4`), Metal Slug 5 (`mslug5`) | FinalBurn Neo | vies, bombes, arme et munitions | score |
-| Les 57 jeux de combat Neo Geo (King of Fighters, Samurai Shodown, Fatal Fury, Last Blade, World Heroes...) | FinalBurn Neo | voir le tableau Jeux de combat juste en dessous | le score, sauf KOF 96 à 2002 |
+| Les 57 jeux de combat Neo Geo (King of Fighters, Samurai Shodown, Fatal Fury, Last Blade, World Heroes...) | FinalBurn Neo | voir le tableau Jeux de combat juste en dessous | le score, sauf KOF 96 à 2002 et Samurai Shodown II |
 | Tous les autres jeux Neo Geo | FinalBurn Neo | scène selon le genre (crédits avec MAME) | score, crédits si le jeu en garde une copie |
 | Sonic 1 et Sonic 2 | Genesis Plus GX | score, anneaux, vies | rien |
 
@@ -282,7 +282,7 @@ Les scores de Metal Slug et de Metal Slug 3 sont déjà dans leurs fichiers, tro
 
 ### Jeux de combat
 
-Chaque jeu de combat Neo Geo a son propre fichier dans `games\`, versions officielles comprises (japonaise, coréenne, prototype). Les adresses viennent des codes de triche de FinalBurn Neo, des scripts d'entraînement FinalBurn Neo de peon2 et de la base de triche de MAME 2003-Plus. Le score n'est connu que pour les King of Fighters. Pour les autres, apprends-le avec `apprendre.bat` (`score=...` et `score2=...`).
+Chaque jeu de combat Neo Geo a son propre fichier dans `games\`, versions officielles comprises (japonaise, coréenne, prototype). Les adresses viennent des codes de triche de FinalBurn Neo, des scripts d'entraînement FinalBurn Neo de peon2 et de la base de triche de MAME 2003-Plus. Le score est connu pour les King of Fighters et pour Samurai Shodown II. Pour les autres, apprends-le avec `apprendre.bat` (`score=...` et `score2=...`).
 
 Quand une barre de vie, un chrono ou un nom ne colle pas à l'écran, lance `test_retroarch.bat` pendant un combat et envoie le résultat.
 
@@ -318,7 +318,7 @@ Quand une barre de vie, un chrono ou un nom ne colle pas à l'écran, lance `tes
 | Real Bout Fatal Fury 2 | `rbff2.json` | oui | oui | oui (23) | à apprendre |
 | Real Bout Fatal Fury Special | `rbffspec.json` | oui | oui | oui (20) | à apprendre |
 | Samurai Shodown | `samsho.json` | oui | oui | oui (13) | à apprendre |
-| Samurai Shodown II | `samsho2.json` | oui | oui | oui (17) | à apprendre |
+| Samurai Shodown II | `samsho2.json` | oui | oui | oui (17) | oui |
 | Samurai Shodown III | `samsho3.json` | oui | oui | oui (14) | à apprendre |
 | Samurai Shodown IV | `samsho4.json` | oui | oui | oui (18) | à apprendre |
 | Samurai Shodown V | `samsho5.json` | oui | oui | oui (28) | à apprendre |
@@ -380,7 +380,9 @@ Tape seulement les valeurs qui manquent. Les vies sont déjà connues, et les ap
 
 Pour le score du joueur 2, fais une partie à deux et tape les deux scores à chaque fois, par exemple `score=9400 score2=800`.
 
-Dans Samurai Shodown et The Last Blade, chaque combattant change de place dans la mémoire d'un combat à l'autre. Quand le jeu range le score dans le combattant, une adresse trouvée dans un seul combat passe à 0 au combat suivant. Fais donc des captures dans deux combats différents, par exemple deux dans le premier et deux dans le suivant. L'outil le rappelle au début, et prévient si toutes les captures viennent du même combat. Il enregistre alors le score « dans le combattant », et la dalle le suit de combat en combat. Si une ancienne adresse ne marche plus, refais simplement l'apprentissage. La nouvelle remplace l'ancienne dans `games\` et dans `appris\`.
+Dans Samurai Shodown et The Last Blade, les combattants changent de place dans la mémoire. Samurai Shodown II recrée chaque combattant ailleurs à chaque round. Il range le score dans le combattant et le recopie dans le nouveau. L'ancien garde un moment la dernière valeur, puis passe à 0. C'est ce qui trompait l'outil. Il préfère maintenant le score « dans le combattant » à une adresse fixe tombée dans la mémoire des combattants, et la dalle le suit de round en round. Fais tes captures sur deux rounds ou deux combats différents. L'outil le rappelle au début, et prévient si toutes les captures viennent du même round. Si une ancienne adresse ne marche plus, refais simplement l'apprentissage. La nouvelle remplace l'ancienne dans `games\` et dans `appris\`.
+
+Lancé quand RetroArch est fermé, `apprendre.bat` réanalyse les dernières captures du jeu avec les valeurs déjà tapées, sans rien redemander.
 
 Noms reconnus `score`, `score2` (ou `score_p2`), `crédits` (ou `credits`), `vies`, `vies2`, `bombes`, `munitions`. Pour un autre jeu, l'outil crée un fichier dans `games\` avec la scène générique.
 
@@ -410,7 +412,7 @@ Formats de valeurs reconnus
 | `bcd` / `bcd_le` | BCD sur `bytes` octets (deux chiffres par octet) |
 | `digits` | un chiffre par octet (`digit_offset` 0x30 pour de l'ASCII) |
 
-Options communes, `mult` (score stocké divisé par 10, très fréquent), `add`, `min`, `max`, `mask`, `shift`. `learn_ranges` limite la zone capturée par l'outil d'apprentissage.
+Options communes, `mult` (score stocké divisé par 10, très fréquent), `add`, `min`, `max`, `mask`, `shift`. `learn_ranges` limite la zone capturée par l'outil d'apprentissage. `hold_zero` (en secondes) garde le dernier score affiché quand la valeur lue tombe à 0 un instant en pleine partie, le temps que le jeu recrée le combattant entre deux rounds.
 
 Pour une valeur rangée dans un objet qui change de place en mémoire (les combattants de Samurai Shodown à chaque round), `"ptr"` donne l'adresse où lire la position de l'objet (32 bits) et `"addr"` devient le décalage dans l'objet. `"ptr_range"` écarte un pointeur pas encore prêt. `apprendre.bat` écrit ce genre de valeur tout seul quand les captures montrent que la valeur suit l'objet.
 

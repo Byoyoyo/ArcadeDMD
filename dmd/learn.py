@@ -199,7 +199,7 @@ def _search_all(snaps_values, objects=None, big_endian=True):
     results = []
     snaps = [s for s, _ in snaps_values]
     bases = object_bases(snaps, objects, big_endian)
-    still = [b[0] for b in bases.values() if len(set(b)) == 1]     # objets restés à la même place
+    seen = {s.pointer(p, o.get("range"), big_endian) for s in snaps for p, o in (objects or {}).items()} - {None}
     for kind, nbytes, mults in ENCODINGS:
         for mult in mults:
             pats = [encode(v, kind, nbytes, mult) for _, v in snaps_values]
@@ -217,9 +217,12 @@ def _search_all(snaps_values, objects=None, big_endian=True):
                 if not common:
                     break
             for a in sorted(common or []):
-                # dans un objet qui n'a pas bougé pendant les captures : gardé sous la forme pointeur + décalage
-                if not any(b <= a < b + OBJ_WINDOW for b in still):
-                    results.append({"addr": a, "type": kind, "bytes": nbytes, "mult": mult})
+                r = {"addr": a, "type": kind, "bytes": nbytes, "mult": mult}
+                # adresse fixe tombée dans un combattant pendant une capture : le jeu recycle cette mémoire,
+                # la valeur peut y rester un moment après le round (Samurai Shodown II), puis repasser à 0
+                if any(b <= a < b + OBJ_WINDOW for b in seen):
+                    r["in_obj"] = True
+                results.append(r)
             for p, bl in bases.items():
                 for o in sorted(_in_window(snaps_values, pats, bl, nbytes)):
                     results.append({"ptr": p, "addr": o, "type": kind, "bytes": nbytes, "mult": mult,
@@ -282,7 +285,8 @@ WIDE_FIELDS = ("score", "record", "hi", "point", "top", "best")
 
 def rank(results, field, objects=None):
     """Trie les candidats : un score est en général large (3-4 octets), un compteur court.
-    À codage égal : adresse fixe d'abord, puis l'objet du bon joueur."""
+    À codage égal : adresse fixe hors des combattants, puis l'objet du bon joueur, puis une adresse fixe
+    tombée dans la mémoire d'un combattant (recyclée d'un round à l'autre)."""
     wide = any(k in field.lower() for k in WIDE_FIELDS)
     pref = {"bcd": 0, "be": 1, "u8": 1, "digits": 2, "digits_ascii": 3, "le": 4, "bcd_le": 5}
     # un petit compteur (vies, bombes...) est plutôt un octet simple, les crédits souvent en BCD
@@ -294,9 +298,9 @@ def rank(results, field, objects=None):
         width = -r["bytes"] if wide else r["bytes"]
         p = small.get(r["type"], pref.get(r["type"], 9)) if (not wide and r["bytes"] == 1) else pref.get(r["type"], 9)
         if r.get("ptr") is None:
-            where = 0
+            where = 2 if r.get("in_obj") else 0
         else:
-            where = 1 if ((objects or {}).get(r["ptr"]) or {}).get("player", side) == side else 2
+            where = 1 if ((objects or {}).get(r["ptr"]) or {}).get("player", side) == side else 3
         return (p, aligned, width, 0 if (r["mult"] == 10) == wide else 1, where, r.get("ptr") or 0, r["addr"])
 
     return sorted(results, key=key)
@@ -330,6 +334,8 @@ def describe(r):
     if r.get("ptr") is not None:
         who = "zone qui change de place" if r.get("auto") else "objet du combattant"
         return f"0x{r['ptr']:06X} +0x{r['addr']:X}  {what}   ({who}, suivi par le pointeur 0x{r['ptr']:06X})"
+    if r.get("in_obj"):
+        return f"0x{r['addr']:06X}  {what}   (mémoire d'un combattant, recyclée d'un round à l'autre)"
     return f"0x{r['addr']:06X}  {what}"
 
 
@@ -433,7 +439,10 @@ def run(root, game=None, answers=None, write=None, show=True, pick_interactive=F
     objects, big_endian = learn_context(root, cfg or new_cfg, snaps[-1].meta)
 
     print(f"\n{len(snaps)} capture(s) pour {game}.")
-    if answers is None:
+    stored = all(s.meta.get("source") == "retroarch" and s.meta.get("values") for s in snaps)
+    if answers is None and stored:
+        print("Valeurs tapées pendant la partie, analysées de nouveau :")
+    elif answers is None:
         print("Pour chaque capture, tape les valeurs lues sur l'image, par exemple :  score=16060 credits=3")
         print("(Entrée vide = capture ignorée)\n")
     observations = {}
@@ -441,6 +450,9 @@ def run(root, game=None, answers=None, write=None, show=True, pick_interactive=F
         n = s.meta.get("n")
         if answers is not None:
             vals = answers.get(n, {})
+        elif s.meta.get("source") == "retroarch" and isinstance(s.meta.get("values"), dict) and s.meta["values"]:
+            vals = {k: v for k, v in s.meta["values"].items() if isinstance(v, int)}     # tapées pendant la partie
+            print(f"Capture {n} : " + ", ".join(f"{k}={v}" for k, v in vals.items()))
         else:
             if show:
                 open_image(s.bmp_path)
@@ -536,6 +548,9 @@ def run(root, game=None, answers=None, write=None, show=True, pick_interactive=F
                 note = "copie gardée par le jeu, trouvée avec apprendre.bat"     # lisible aussi avec RetroArch
             if v.get("ptr") and not (isinstance(old, dict) and old.get("ptr") == v["ptr"]):
                 note = f"dans une zone qui change de place, adresse lue en {v['ptr']}, trouvé avec apprendre.bat"
+            if v.get("ptr") and k.startswith("score"):
+                # entre deux rounds l'objet est recréé : un 0 passager ne doit pas effacer le score
+                v["hold_zero"] = old.get("hold_zero", 20) if isinstance(old, dict) else 20
             vals[k] = v
             if note and "à trouver" not in note:
                 vals[k]["note"] = note
