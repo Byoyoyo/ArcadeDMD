@@ -262,7 +262,7 @@ Pour savoir quel cœur tourne, appuie sur F1 pendant le jeu, puis Informations, 
 |---|---|---|---|
 | Metal Slug (`mslug`) | FinalBurn Neo | score, vies, bombes, arme et munitions | rien |
 | Metal Slug 2 (`mslug2`), Metal Slug X (`mslugx`) | FinalBurn Neo | vies, bombes, arme et munitions | score |
-| Metal Slug 3 (`mslug3`) | FinalBurn Neo | vies, bombes, arme et munitions | score J1 et J2 |
+| Metal Slug 3 (`mslug3`) | FinalBurn Neo | score, vies, bombes, arme et munitions | score J2 |
 | Metal Slug 4 (`mslug4`), Metal Slug 5 (`mslug5`) | FinalBurn Neo | vies, bombes, arme et munitions | score |
 | Tous les autres jeux Neo Geo | FinalBurn Neo | scène selon le genre, barres de vie et chrono pour 36 jeux de combat (crédits avec MAME) | score |
 | Sonic 1 et Sonic 2 | Genesis Plus GX | score, anneaux, vies | rien |
@@ -273,7 +273,7 @@ Les adresses des vies, bombes et munitions viennent de la base de codes de trich
 
 Les scènes des Metal Slug s'inspirent de la vidéo de Vera, adaptées à une dalle 128x32 pour que rien ne passe sous le décor. En haut, « SNK » en bleu puis « - METAL SLUG » (avec le numéro du jeu) en blanc défilent lentement. Dessous, « P1 » en vert et le score en blanc à gauche, les vies à droite (le score du joueur 2 dans Metal Slug 3, une fois appris). La ligne suivante alterne les bombes, l'arme avec ses munitions (pistolet, mitraillette, fusil à pompe, lance-flammes, lance-roquettes, laser, tête chercheuse... un « + » indique la version améliorée) et les crédits avec MAME. Tout en bas, des petites collines et un petit char moins lumineux qui avance et tire quand le score monte.
 
-Le score de Metal Slug est déjà dans le fichier, trouvé avec `apprendre.bat` sous RetroArch et FinalBurn Neo. Pour remplacer le char par ton propre dessin, dépose `mslug_tank.gif` (ou `mslug_tank.png` en bande de 3 images) dans `sprites\`. Il doit tenir sur 5 pixels de haut, canon vers la droite.
+Les scores de Metal Slug et de Metal Slug 3 sont déjà dans leurs fichiers, trouvés avec `apprendre.bat` sous RetroArch et FinalBurn Neo. Pour remplacer le char par ton propre dessin, dépose `mslug_tank.gif` (ou `mslug_tank.png` en bande de 3 images) dans `sprites\`. Il doit tenir sur 5 pixels de haut, canon vers la droite.
 
 ### Tous les jeux Neo Geo
 

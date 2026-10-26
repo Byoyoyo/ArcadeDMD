@@ -28,10 +28,10 @@
     "cpu": ":maincpu",
     "values": {
       "score": {
-        "addr": "",
+        "addr": "0x10ED18",
         "type": "bcd",
         "bytes": 4,
-        "note": "joueur 1, à trouver avec apprendre.bat"
+        "note": "score joueur 1, trouvé avec apprendre.bat (RetroArch, FinalBurn Neo)"
       },
       "score_p2": {
         "addr": "",
