@@ -63,16 +63,16 @@
     "note": "chrono (base de triche)"
    },
    "score": {
-    "addr": "",
+    "addr": "0x1081FC",
     "type": "bcd",
     "bytes": 4,
-    "note": "à trouver avec apprendre.bat"
+    "note": "score joueur 1, même place que dans KOF 98 (fiche du joueur identique), à confirmer en jeu"
    },
    "score_p2": {
-    "addr": "",
+    "addr": "0x1083FC",
     "type": "bcd",
     "bytes": 4,
-    "note": "joueur 2, à trouver avec apprendre.bat (partie à deux, score2=...)"
+    "note": "score joueur 2, même place que dans KOF 98 (fiche du joueur identique), à confirmer en jeu"
    },
    "_p1_lost": {
     "addr": "0x10A7F9",

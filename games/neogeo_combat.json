@@ -2104,6 +2104,18 @@
     "min": 0,
     "max": 100,
     "note": "barre de vie en %, pleine = 102 (base de triche)"
+   },
+   "score": {
+    "addr": "0x1081FC",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "score joueur 1, même place que dans KOF 98, à confirmer en jeu"
+   },
+   "score_p2": {
+    "addr": "0x1083FC",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "score joueur 2, même place que dans KOF 98, à confirmer en jeu"
    }
   },
   "kof94": {

@@ -69,16 +69,16 @@
     "note": "chrono (base de triche)"
    },
    "score": {
-    "addr": "",
+    "addr": "0x1081FC",
     "type": "bcd",
     "bytes": 4,
-    "note": "à trouver avec apprendre.bat"
+    "note": "score joueur 1, trouvé avec apprendre.bat (RetroArch, FinalBurn Neo)"
    },
    "score_p2": {
-    "addr": "",
+    "addr": "0x1083FC",
     "type": "bcd",
     "bytes": 4,
-    "note": "joueur 2, à trouver avec apprendre.bat (partie à deux, score2=...)"
+    "note": "score joueur 2, trouvé avec apprendre.bat (RetroArch, FinalBurn Neo)"
    },
    "_p1_lost": {
     "addr": "0x10A84D",
