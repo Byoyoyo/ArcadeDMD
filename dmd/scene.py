@@ -202,6 +202,8 @@ class TextEl(Element):
         self.spacing = spec.get("spacing", 0)
         self.upper = spec.get("upper", False)
         self.missing = spec.get("missing", "-")
+        self.fit = bool(spec.get("fit", False))          # texte trop long : police plus étroite
+        self.max_w = int(spec.get("max_w", 128))
         base = parse_color(spec.get("color"), (255, 255, 255))
         if "segments" in spec:
             self.segments = [(s.get("text", ""), parse_color(s.get("color"), base)) for s in spec["segments"]]
@@ -226,13 +228,20 @@ class TextEl(Element):
         flash = _flash_color(self.spec, ctx, None)
         if flash is not None:
             colors = [flash] * len(full)
-        w = self.font.width(full, self.spacing)
+        font = self.font
+        w = font.width(full, self.spacing)
+        if self.fit and w > self.max_w:
+            for name in ("5x8", "4x6"):
+                font = Font.get(name)
+                w = font.width(full, self.spacing)
+                if w <= self.max_w:
+                    break
         x = self.x
         if self.align == "center":
             x = self.x - w // 2
         elif self.align == "right":
             x = self.x - w + 1
-        ctx.canvas.text(self.font, full, x, self.y, self.base, self.spacing, colors)
+        ctx.canvas.text(font, full, x, self.y, self.base, self.spacing, colors)
 
 
 class MarqueeEl(Element):

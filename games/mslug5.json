@@ -33,19 +33,21 @@
         "bytes": 4,
         "note": "à trouver avec apprendre.bat"
       },
+      "score_p2": {
+        "addr": "",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "joueur 2, à trouver avec apprendre.bat (partie à deux, score_p2=...)"
+      },
       "lives": {
         "addr": "0x100A41",
         "type": "u8",
-        "add": -1,
-        "min": 0,
-        "note": "vies joueur 1, comme le 1UP de l'écran (le jeu compte aussi la vie en cours)"
+        "note": "vies joueur 1, comme le 1UP de l'écran (déduit, à confirmer)"
       },
       "lives_p2": {
         "addr": "0x100B05",
         "type": "u8",
-        "add": -1,
-        "min": 0,
-        "note": "vies joueur 2, comme le 1UP de l'écran (le jeu compte aussi la vie en cours)"
+        "note": "vies joueur 2, comme le 1UP de l'écran (déduit, à confirmer)"
       },
       "bombs": {
         "addr": "0x10D457",
@@ -91,6 +93,16 @@
         "bytes": 1,
         "mame_only": true,
         "note": "crédits MVS (mémoire de sauvegarde), lisibles dans MAME seulement"
+      },
+      "p1_mode": {
+        "addr": "0x10FDB6",
+        "type": "u8",
+        "note": "BIOS : joueur 1, 0 jamais joué, 1 en jeu, 2 continue, 3 game over"
+      },
+      "p2_mode": {
+        "addr": "0x10FDB7",
+        "type": "u8",
+        "note": "BIOS : joueur 2, mêmes valeurs"
       }
     }
   },
@@ -99,8 +111,10 @@
     "bombs": 10,
     "ammo": 0,
     "weapon": 0,
-    "time": 60,
-    "credits": 2
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "time": 60
   },
   "scene": {
     "layers": [
@@ -160,7 +174,8 @@
         "dim": 0.85,
         "shoot": {
           "on": [
-            "score"
+            "score",
+            "score_p2"
           ],
           "dx": 13,
           "dy": 1,
@@ -188,24 +203,130 @@
       },
       {
         "type": "text",
-        "text": "P1",
+        "segments": [
+          {
+            "text": "P1",
+            "color": "#30ff60"
+          }
+        ],
         "font": "7x14",
         "x": 1,
         "y": 8,
-        "color": "#30ff60",
+        "align": "left",
         "when": {
-          "has": "score"
+          "all": [
+            {
+              "not": {
+                "any": [
+                  {
+                    "all": [
+                      {
+                        "var": "p1_mode",
+                        "in": [
+                          1,
+                          2
+                        ]
+                      },
+                      {
+                        "var": "p2_mode",
+                        "in": [
+                          1,
+                          2
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "all": [
+                      {
+                        "var": "p2_mode",
+                        "in": [
+                          1,
+                          2
+                        ]
+                      },
+                      {
+                        "not": {
+                          "var": "p1_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "has": "score"
+            }
+          ]
         }
       },
       {
         "type": "text",
-        "text": "{score}",
+        "segments": [
+          {
+            "text": "{score}",
+            "color": "#ececec"
+          }
+        ],
         "font": "7x14",
         "x": 20,
         "y": 8,
-        "color": "#ececec",
+        "align": "left",
         "when": {
-          "has": "score"
+          "all": [
+            {
+              "not": {
+                "any": [
+                  {
+                    "all": [
+                      {
+                        "var": "p1_mode",
+                        "in": [
+                          1,
+                          2
+                        ]
+                      },
+                      {
+                        "var": "p2_mode",
+                        "in": [
+                          1,
+                          2
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "all": [
+                      {
+                        "var": "p2_mode",
+                        "in": [
+                          1,
+                          2
+                        ]
+                      },
+                      {
+                        "not": {
+                          "var": "p1_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "has": "score"
+            }
+          ]
         },
         "flash": {
           "on": "score",
@@ -230,7 +351,55 @@
         "y": 8,
         "align": "right",
         "when": {
-          "has": "lives"
+          "all": [
+            {
+              "not": {
+                "any": [
+                  {
+                    "all": [
+                      {
+                        "var": "p1_mode",
+                        "in": [
+                          1,
+                          2
+                        ]
+                      },
+                      {
+                        "var": "p2_mode",
+                        "in": [
+                          1,
+                          2
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "all": [
+                      {
+                        "var": "p2_mode",
+                        "in": [
+                          1,
+                          2
+                        ]
+                      },
+                      {
+                        "not": {
+                          "var": "p1_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "has": "lives"
+            }
+          ]
         },
         "flash": {
           "on": "lives",
@@ -241,6 +410,50 @@
       {
         "type": "cycle",
         "period": 4,
+        "when": {
+          "not": {
+            "any": [
+              {
+                "all": [
+                  {
+                    "var": "p1_mode",
+                    "in": [
+                      1,
+                      2
+                    ]
+                  },
+                  {
+                    "var": "p2_mode",
+                    "in": [
+                      1,
+                      2
+                    ]
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "var": "p2_mode",
+                    "in": [
+                      1,
+                      2
+                    ]
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        },
         "pages": [
           {
             "when": {
@@ -249,17 +462,22 @@
             "layers": [
               {
                 "type": "text",
-                "text": "BOMBES {bombs}",
+                "segments": [
+                  {
+                    "text": "BOMBES {bombs}",
+                    "color": "#30d8ff"
+                  }
+                ],
                 "font": "6x10",
                 "x": 64,
                 "y": 19,
                 "align": "center",
-                "color": "#30d8ff",
                 "flash": {
                   "on": "bombs",
                   "color": "#ffffff",
                   "ms": 300
-                }
+                },
+                "fit": true
               }
             ]
           },
@@ -270,12 +488,16 @@
             "layers": [
               {
                 "type": "text",
-                "text": "ARME PISTOLET",
+                "segments": [
+                  {
+                    "text": "ARME PISTOLET",
+                    "color": "#30d8ff"
+                  }
+                ],
                 "font": "6x10",
                 "x": 64,
                 "y": 19,
                 "align": "center",
-                "color": "#30d8ff",
                 "when": {
                   "var": "weapon",
                   "eq": 0
@@ -284,16 +506,21 @@
                   "on": "weapon",
                   "color": "#ffffff",
                   "ms": 300
-                }
+                },
+                "fit": true
               },
               {
                 "type": "text",
-                "text": "FUSIL À POMPE {ammo}",
+                "segments": [
+                  {
+                    "text": "FUSIL À POMPE {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
                 "font": "6x10",
                 "x": 64,
                 "y": 19,
                 "align": "center",
-                "color": "#30d8ff",
                 "when": {
                   "var": "weapon",
                   "eq": 2
@@ -302,16 +529,21 @@
                   "on": "weapon",
                   "color": "#ffffff",
                   "ms": 300
-                }
+                },
+                "fit": true
               },
               {
                 "type": "text",
-                "text": "LANCE-ROQUETTES {ammo}",
+                "segments": [
+                  {
+                    "text": "LANCE-ROQUETTES {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
                 "font": "6x10",
                 "x": 64,
                 "y": 19,
                 "align": "center",
-                "color": "#30d8ff",
                 "when": {
                   "var": "weapon",
                   "eq": 3
@@ -320,16 +552,21 @@
                   "on": "weapon",
                   "color": "#ffffff",
                   "ms": 300
-                }
+                },
+                "fit": true
               },
               {
                 "type": "text",
-                "text": "LANCE-FLAMMES {ammo}",
+                "segments": [
+                  {
+                    "text": "LANCE-FLAMMES {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
                 "font": "6x10",
                 "x": 64,
                 "y": 19,
                 "align": "center",
-                "color": "#30d8ff",
                 "when": {
                   "var": "weapon",
                   "eq": 4
@@ -338,16 +575,21 @@
                   "on": "weapon",
                   "color": "#ffffff",
                   "ms": 300
-                }
+                },
+                "fit": true
               },
               {
                 "type": "text",
-                "text": "MITRAILLETTE {ammo}",
+                "segments": [
+                  {
+                    "text": "MITRAILLETTE {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
                 "font": "6x10",
                 "x": 64,
                 "y": 19,
                 "align": "center",
-                "color": "#30d8ff",
                 "when": {
                   "var": "weapon",
                   "eq": 5
@@ -356,16 +598,21 @@
                   "on": "weapon",
                   "color": "#ffffff",
                   "ms": 300
-                }
+                },
+                "fit": true
               },
               {
                 "type": "text",
-                "text": "LASER {ammo}",
+                "segments": [
+                  {
+                    "text": "LASER {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
                 "font": "6x10",
                 "x": 64,
                 "y": 19,
                 "align": "center",
-                "color": "#30d8ff",
                 "when": {
                   "var": "weapon",
                   "eq": 6
@@ -374,16 +621,21 @@
                   "on": "weapon",
                   "color": "#ffffff",
                   "ms": 300
-                }
+                },
+                "fit": true
               },
               {
                 "type": "text",
-                "text": "FUSIL À POMPE+ {ammo}",
+                "segments": [
+                  {
+                    "text": "FUSIL À POMPE+ {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
                 "font": "6x10",
                 "x": 64,
                 "y": 19,
                 "align": "center",
-                "color": "#30d8ff",
                 "when": {
                   "var": "weapon",
                   "eq": 7
@@ -392,16 +644,21 @@
                   "on": "weapon",
                   "color": "#ffffff",
                   "ms": 300
-                }
+                },
+                "fit": true
               },
               {
                 "type": "text",
-                "text": "LANCE-ROQUETTES+ {ammo}",
+                "segments": [
+                  {
+                    "text": "LANCE-ROQUETTES+ {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
                 "font": "6x10",
                 "x": 64,
                 "y": 19,
                 "align": "center",
-                "color": "#30d8ff",
                 "when": {
                   "var": "weapon",
                   "eq": 8
@@ -410,16 +667,21 @@
                   "on": "weapon",
                   "color": "#ffffff",
                   "ms": 300
-                }
+                },
+                "fit": true
               },
               {
                 "type": "text",
-                "text": "LANCE-FLAMMES+ {ammo}",
+                "segments": [
+                  {
+                    "text": "LANCE-FLAMMES+ {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
                 "font": "6x10",
                 "x": 64,
                 "y": 19,
                 "align": "center",
-                "color": "#30d8ff",
                 "when": {
                   "var": "weapon",
                   "eq": 9
@@ -428,16 +690,21 @@
                   "on": "weapon",
                   "color": "#ffffff",
                   "ms": 300
-                }
+                },
+                "fit": true
               },
               {
                 "type": "text",
-                "text": "MITRAILLETTE+ {ammo}",
+                "segments": [
+                  {
+                    "text": "MITRAILLETTE+ {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
                 "font": "6x10",
                 "x": 64,
                 "y": 19,
                 "align": "center",
-                "color": "#30d8ff",
                 "when": {
                   "var": "weapon",
                   "eq": 10
@@ -446,16 +713,21 @@
                   "on": "weapon",
                   "color": "#ffffff",
                   "ms": 300
-                }
+                },
+                "fit": true
               },
               {
                 "type": "text",
-                "text": "LASER+ {ammo}",
+                "segments": [
+                  {
+                    "text": "LASER+ {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
                 "font": "6x10",
                 "x": 64,
                 "y": 19,
                 "align": "center",
-                "color": "#30d8ff",
                 "when": {
                   "var": "weapon",
                   "eq": 11
@@ -464,16 +736,21 @@
                   "on": "weapon",
                   "color": "#ffffff",
                   "ms": 300
-                }
+                },
+                "fit": true
               },
               {
                 "type": "text",
-                "text": "TÊTE CHERCHEUSE {ammo}",
+                "segments": [
+                  {
+                    "text": "TÊTE CHERCHEUSE {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
                 "font": "6x10",
                 "x": 64,
                 "y": 19,
                 "align": "center",
-                "color": "#30d8ff",
                 "when": {
                   "var": "weapon",
                   "eq": 12
@@ -482,16 +759,21 @@
                   "on": "weapon",
                   "color": "#ffffff",
                   "ms": 300
-                }
+                },
+                "fit": true
               },
               {
                 "type": "text",
-                "text": "IRON LIZARD {ammo}",
+                "segments": [
+                  {
+                    "text": "IRON LIZARD {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
                 "font": "6x10",
                 "x": 64,
                 "y": 19,
                 "align": "center",
-                "color": "#30d8ff",
                 "when": {
                   "var": "weapon",
                   "eq": 13
@@ -500,16 +782,21 @@
                   "on": "weapon",
                   "color": "#ffffff",
                   "ms": 300
-                }
+                },
+                "fit": true
               },
               {
                 "type": "text",
-                "text": "DROP SHOT {ammo}",
+                "segments": [
+                  {
+                    "text": "DROP SHOT {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
                 "font": "6x10",
                 "x": 64,
                 "y": 19,
                 "align": "center",
-                "color": "#30d8ff",
                 "when": {
                   "var": "weapon",
                   "eq": 14
@@ -518,16 +805,21 @@
                   "on": "weapon",
                   "color": "#ffffff",
                   "ms": 300
-                }
+                },
+                "fit": true
               },
               {
                 "type": "text",
-                "text": "SUPER GRENADE {ammo}",
+                "segments": [
+                  {
+                    "text": "SUPER GRENADE {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
                 "font": "6x10",
                 "x": 64,
                 "y": 19,
                 "align": "center",
-                "color": "#30d8ff",
                 "when": {
                   "var": "weapon",
                   "eq": 15
@@ -536,16 +828,21 @@
                   "on": "weapon",
                   "color": "#ffffff",
                   "ms": 300
-                }
+                },
+                "fit": true
               },
               {
                 "type": "text",
-                "text": "MITRAILLETTE X2 {ammo}",
+                "segments": [
+                  {
+                    "text": "MITRAILLETTE X2 {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
                 "font": "6x10",
                 "x": 64,
                 "y": 19,
                 "align": "center",
-                "color": "#30d8ff",
                 "when": {
                   "var": "weapon",
                   "eq": 18
@@ -554,16 +851,21 @@
                   "on": "weapon",
                   "color": "#ffffff",
                   "ms": 300
-                }
+                },
+                "fit": true
               },
               {
                 "type": "text",
-                "text": "MUNITIONS {ammo}",
+                "segments": [
+                  {
+                    "text": "MUNITIONS {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
                 "font": "6x10",
                 "x": 64,
                 "y": 19,
                 "align": "center",
-                "color": "#30d8ff",
                 "when": {
                   "all": [
                     {
@@ -598,7 +900,8 @@
                   "on": "weapon",
                   "color": "#ffffff",
                   "ms": 300
-                }
+                },
+                "fit": true
               }
             ]
           },
@@ -609,17 +912,1976 @@
             "layers": [
               {
                 "type": "text",
-                "text": "CRÉDITS {credits}",
+                "segments": [
+                  {
+                    "text": "CRÉDITS {credits}",
+                    "color": "#30d8ff"
+                  }
+                ],
                 "font": "6x10",
                 "x": 64,
                 "y": 19,
                 "align": "center",
-                "color": "#30d8ff",
                 "flash": {
                   "on": "credits",
                   "color": "#ffffff",
                   "ms": 300
+                },
+                "fit": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "segments": [
+          {
+            "text": "P2",
+            "color": "#30d8ff"
+          }
+        ],
+        "font": "7x14",
+        "x": 1,
+        "y": 8,
+        "align": "left",
+        "when": {
+          "all": [
+            {
+              "all": [
+                {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                },
+                {
+                  "not": {
+                    "var": "p1_mode",
+                    "in": [
+                      1,
+                      2
+                    ]
+                  }
                 }
+              ]
+            },
+            {
+              "has": "score_p2"
+            }
+          ]
+        }
+      },
+      {
+        "type": "text",
+        "segments": [
+          {
+            "text": "{score_p2}",
+            "color": "#ececec"
+          }
+        ],
+        "font": "7x14",
+        "x": 20,
+        "y": 8,
+        "align": "left",
+        "when": {
+          "all": [
+            {
+              "all": [
+                {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                },
+                {
+                  "not": {
+                    "var": "p1_mode",
+                    "in": [
+                      1,
+                      2
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "has": "score_p2"
+            }
+          ]
+        },
+        "flash": {
+          "on": "score_p2",
+          "color": "#a8ffbc",
+          "ms": 120
+        }
+      },
+      {
+        "type": "text",
+        "segments": [
+          {
+            "text": "VIES ",
+            "color": "#30d8ff"
+          },
+          {
+            "text": "{lives_p2}",
+            "color": "#ffc830"
+          }
+        ],
+        "font": "7x14",
+        "x": 127,
+        "y": 8,
+        "align": "right",
+        "when": {
+          "all": [
+            {
+              "all": [
+                {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                },
+                {
+                  "not": {
+                    "var": "p1_mode",
+                    "in": [
+                      1,
+                      2
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "has": "lives_p2"
+            }
+          ]
+        },
+        "flash": {
+          "on": "lives_p2",
+          "color": "#ff4040",
+          "ms": 600
+        }
+      },
+      {
+        "type": "cycle",
+        "period": 4,
+        "when": {
+          "all": [
+            {
+              "var": "p2_mode",
+              "in": [
+                1,
+                2
+              ]
+            },
+            {
+              "not": {
+                "var": "p1_mode",
+                "in": [
+                  1,
+                  2
+                ]
+              }
+            }
+          ]
+        },
+        "pages": [
+          {
+            "when": {
+              "has": "bombs_p2"
+            },
+            "layers": [
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "BOMBES {bombs_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "flash": {
+                  "on": "bombs_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              }
+            ]
+          },
+          {
+            "when": {
+              "has": "weapon_p2"
+            },
+            "layers": [
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "ARME PISTOLET",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 0
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "FUSIL À POMPE {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 2
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "LANCE-ROQUETTES {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 3
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "LANCE-FLAMMES {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 4
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "MITRAILLETTE {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 5
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "LASER {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 6
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "FUSIL À POMPE+ {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 7
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "LANCE-ROQUETTES+ {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 8
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "LANCE-FLAMMES+ {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 9
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "MITRAILLETTE+ {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 10
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "LASER+ {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 11
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "TÊTE CHERCHEUSE {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 12
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "IRON LIZARD {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 13
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "DROP SHOT {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 14
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "SUPER GRENADE {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 15
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "MITRAILLETTE X2 {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 18
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "MUNITIONS {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "all": [
+                    {
+                      "has": "weapon_p2"
+                    },
+                    {
+                      "not": {
+                        "var": "weapon_p2",
+                        "in": [
+                          0,
+                          2,
+                          3,
+                          4,
+                          5,
+                          6,
+                          7,
+                          8,
+                          9,
+                          10,
+                          11,
+                          12,
+                          13,
+                          14,
+                          15,
+                          18
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              }
+            ]
+          },
+          {
+            "when": {
+              "has": "credits"
+            },
+            "layers": [
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "CRÉDITS {credits}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "flash": {
+                  "on": "credits",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "segments": [
+          {
+            "text": "P1 ",
+            "color": "#30ff60"
+          },
+          {
+            "text": "{score}",
+            "color": "#ececec"
+          }
+        ],
+        "font": "6x13",
+        "x": 1,
+        "y": 8,
+        "align": "left",
+        "when": {
+          "all": [
+            {
+              "all": [
+                {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                },
+                {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              ]
+            },
+            {
+              "has": "score"
+            }
+          ]
+        },
+        "flash": {
+          "on": "score",
+          "color": "#a8ffbc",
+          "ms": 120
+        }
+      },
+      {
+        "type": "text",
+        "segments": [
+          {
+            "text": "P1 ",
+            "color": "#30ff60"
+          },
+          {
+            "text": "VIES {lives}",
+            "color": "#ececec"
+          }
+        ],
+        "font": "6x13",
+        "x": 1,
+        "y": 8,
+        "align": "left",
+        "when": {
+          "all": [
+            {
+              "all": [
+                {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                },
+                {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              ]
+            },
+            {
+              "not": {
+                "has": "score"
+              }
+            },
+            {
+              "has": "lives"
+            }
+          ]
+        }
+      },
+      {
+        "type": "text",
+        "segments": [
+          {
+            "text": "P2 ",
+            "color": "#30d8ff"
+          },
+          {
+            "text": "{score_p2}",
+            "color": "#ffc830"
+          }
+        ],
+        "font": "6x13",
+        "x": 127,
+        "y": 8,
+        "align": "right",
+        "when": {
+          "all": [
+            {
+              "all": [
+                {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                },
+                {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              ]
+            },
+            {
+              "has": "score_p2"
+            }
+          ]
+        },
+        "flash": {
+          "on": "score_p2",
+          "color": "#fff4c8",
+          "ms": 120
+        }
+      },
+      {
+        "type": "text",
+        "segments": [
+          {
+            "text": "P2 ",
+            "color": "#30d8ff"
+          },
+          {
+            "text": "VIES {lives_p2}",
+            "color": "#ffc830"
+          }
+        ],
+        "font": "6x13",
+        "x": 127,
+        "y": 8,
+        "align": "right",
+        "when": {
+          "all": [
+            {
+              "all": [
+                {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                },
+                {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              ]
+            },
+            {
+              "not": {
+                "has": "score_p2"
+              }
+            },
+            {
+              "has": "lives_p2"
+            }
+          ]
+        }
+      },
+      {
+        "type": "cycle",
+        "period": 3,
+        "when": {
+          "all": [
+            {
+              "var": "p1_mode",
+              "in": [
+                1,
+                2
+              ]
+            },
+            {
+              "var": "p2_mode",
+              "in": [
+                1,
+                2
+              ]
+            }
+          ]
+        },
+        "pages": [
+          {
+            "when": {
+              "has": "lives"
+            },
+            "layers": [
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P1 ",
+                    "color": "#30ff60"
+                  },
+                  {
+                    "text": "VIES {lives} BOMBES {bombs}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "has": "bombs"
+                },
+                "flash": {
+                  "on": "lives",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P1 ",
+                    "color": "#30ff60"
+                  },
+                  {
+                    "text": "VIES {lives}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "not": {
+                    "has": "bombs"
+                  }
+                },
+                "flash": {
+                  "on": "lives",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              }
+            ]
+          },
+          {
+            "when": {
+              "has": "lives_p2"
+            },
+            "layers": [
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P2 ",
+                    "color": "#ffc830"
+                  },
+                  {
+                    "text": "VIES {lives_p2} BOMBES {bombs_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "has": "bombs_p2"
+                },
+                "flash": {
+                  "on": "lives_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P2 ",
+                    "color": "#ffc830"
+                  },
+                  {
+                    "text": "VIES {lives_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "not": {
+                    "has": "bombs_p2"
+                  }
+                },
+                "flash": {
+                  "on": "lives_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              }
+            ]
+          },
+          {
+            "when": {
+              "has": "weapon"
+            },
+            "layers": [
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P1 ",
+                    "color": "#30ff60"
+                  },
+                  {
+                    "text": "ARME PISTOLET",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon",
+                  "eq": 0
+                },
+                "flash": {
+                  "on": "weapon",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P1 ",
+                    "color": "#30ff60"
+                  },
+                  {
+                    "text": "FUSIL À POMPE {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon",
+                  "eq": 2
+                },
+                "flash": {
+                  "on": "weapon",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P1 ",
+                    "color": "#30ff60"
+                  },
+                  {
+                    "text": "LANCE-ROQUETTES {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon",
+                  "eq": 3
+                },
+                "flash": {
+                  "on": "weapon",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P1 ",
+                    "color": "#30ff60"
+                  },
+                  {
+                    "text": "LANCE-FLAMMES {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon",
+                  "eq": 4
+                },
+                "flash": {
+                  "on": "weapon",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P1 ",
+                    "color": "#30ff60"
+                  },
+                  {
+                    "text": "MITRAILLETTE {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon",
+                  "eq": 5
+                },
+                "flash": {
+                  "on": "weapon",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P1 ",
+                    "color": "#30ff60"
+                  },
+                  {
+                    "text": "LASER {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon",
+                  "eq": 6
+                },
+                "flash": {
+                  "on": "weapon",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P1 ",
+                    "color": "#30ff60"
+                  },
+                  {
+                    "text": "FUSIL À POMPE+ {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon",
+                  "eq": 7
+                },
+                "flash": {
+                  "on": "weapon",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P1 ",
+                    "color": "#30ff60"
+                  },
+                  {
+                    "text": "LANCE-ROQUETTES+ {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon",
+                  "eq": 8
+                },
+                "flash": {
+                  "on": "weapon",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P1 ",
+                    "color": "#30ff60"
+                  },
+                  {
+                    "text": "LANCE-FLAMMES+ {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon",
+                  "eq": 9
+                },
+                "flash": {
+                  "on": "weapon",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P1 ",
+                    "color": "#30ff60"
+                  },
+                  {
+                    "text": "MITRAILLETTE+ {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon",
+                  "eq": 10
+                },
+                "flash": {
+                  "on": "weapon",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P1 ",
+                    "color": "#30ff60"
+                  },
+                  {
+                    "text": "LASER+ {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon",
+                  "eq": 11
+                },
+                "flash": {
+                  "on": "weapon",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P1 ",
+                    "color": "#30ff60"
+                  },
+                  {
+                    "text": "TÊTE CHERCHEUSE {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon",
+                  "eq": 12
+                },
+                "flash": {
+                  "on": "weapon",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P1 ",
+                    "color": "#30ff60"
+                  },
+                  {
+                    "text": "IRON LIZARD {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon",
+                  "eq": 13
+                },
+                "flash": {
+                  "on": "weapon",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P1 ",
+                    "color": "#30ff60"
+                  },
+                  {
+                    "text": "DROP SHOT {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon",
+                  "eq": 14
+                },
+                "flash": {
+                  "on": "weapon",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P1 ",
+                    "color": "#30ff60"
+                  },
+                  {
+                    "text": "SUPER GRENADE {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon",
+                  "eq": 15
+                },
+                "flash": {
+                  "on": "weapon",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P1 ",
+                    "color": "#30ff60"
+                  },
+                  {
+                    "text": "MITRAILLETTE X2 {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon",
+                  "eq": 18
+                },
+                "flash": {
+                  "on": "weapon",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P1 ",
+                    "color": "#30ff60"
+                  },
+                  {
+                    "text": "MUNITIONS {ammo}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "all": [
+                    {
+                      "has": "weapon"
+                    },
+                    {
+                      "not": {
+                        "var": "weapon",
+                        "in": [
+                          0,
+                          2,
+                          3,
+                          4,
+                          5,
+                          6,
+                          7,
+                          8,
+                          9,
+                          10,
+                          11,
+                          12,
+                          13,
+                          14,
+                          15,
+                          18
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "flash": {
+                  "on": "weapon",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              }
+            ]
+          },
+          {
+            "when": {
+              "has": "weapon_p2"
+            },
+            "layers": [
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P2 ",
+                    "color": "#ffc830"
+                  },
+                  {
+                    "text": "ARME PISTOLET",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 0
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P2 ",
+                    "color": "#ffc830"
+                  },
+                  {
+                    "text": "FUSIL À POMPE {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 2
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P2 ",
+                    "color": "#ffc830"
+                  },
+                  {
+                    "text": "LANCE-ROQUETTES {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 3
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P2 ",
+                    "color": "#ffc830"
+                  },
+                  {
+                    "text": "LANCE-FLAMMES {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 4
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P2 ",
+                    "color": "#ffc830"
+                  },
+                  {
+                    "text": "MITRAILLETTE {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 5
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P2 ",
+                    "color": "#ffc830"
+                  },
+                  {
+                    "text": "LASER {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 6
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P2 ",
+                    "color": "#ffc830"
+                  },
+                  {
+                    "text": "FUSIL À POMPE+ {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 7
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P2 ",
+                    "color": "#ffc830"
+                  },
+                  {
+                    "text": "LANCE-ROQUETTES+ {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 8
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P2 ",
+                    "color": "#ffc830"
+                  },
+                  {
+                    "text": "LANCE-FLAMMES+ {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 9
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P2 ",
+                    "color": "#ffc830"
+                  },
+                  {
+                    "text": "MITRAILLETTE+ {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 10
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P2 ",
+                    "color": "#ffc830"
+                  },
+                  {
+                    "text": "LASER+ {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 11
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P2 ",
+                    "color": "#ffc830"
+                  },
+                  {
+                    "text": "TÊTE CHERCHEUSE {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 12
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P2 ",
+                    "color": "#ffc830"
+                  },
+                  {
+                    "text": "IRON LIZARD {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 13
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P2 ",
+                    "color": "#ffc830"
+                  },
+                  {
+                    "text": "DROP SHOT {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 14
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P2 ",
+                    "color": "#ffc830"
+                  },
+                  {
+                    "text": "SUPER GRENADE {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 15
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P2 ",
+                    "color": "#ffc830"
+                  },
+                  {
+                    "text": "MITRAILLETTE X2 {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "var": "weapon_p2",
+                  "eq": 18
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
+              },
+              {
+                "type": "text",
+                "segments": [
+                  {
+                    "text": "P2 ",
+                    "color": "#ffc830"
+                  },
+                  {
+                    "text": "MUNITIONS {ammo_p2}",
+                    "color": "#30d8ff"
+                  }
+                ],
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "when": {
+                  "all": [
+                    {
+                      "has": "weapon_p2"
+                    },
+                    {
+                      "not": {
+                        "var": "weapon_p2",
+                        "in": [
+                          0,
+                          2,
+                          3,
+                          4,
+                          5,
+                          6,
+                          7,
+                          8,
+                          9,
+                          10,
+                          11,
+                          12,
+                          13,
+                          14,
+                          15,
+                          18
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "flash": {
+                  "on": "weapon_p2",
+                  "color": "#ffffff",
+                  "ms": 300
+                },
+                "fit": true
               }
             ]
           }

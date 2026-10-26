@@ -15,7 +15,11 @@ from .retroarch import (RetroArchClient, core_label, explain_failure, find_core,
 
 LABELS = {"lives": "vies", "lives_p2": "vies J2", "bombs": "bombes", "bombs_p2": "bombes J2",
           "ammo": "munitions", "ammo_p2": "munitions J2", "weapon": "arme", "credits": "crédits",
-          "time": "temps", "rings": "anneaux", "prisoners": "prisonniers", "score_p2": "score J2"}
+          "time": "temps", "rings": "anneaux", "prisoners": "prisonniers", "score_p2": "score J2",
+          "weapon_p2": "arme J2", "health": "vie J1 %", "health_p2": "vie J2 %"}
+
+
+HIDDEN = {"p1_mode", "p2_mode"}      # état des joueurs donné par le BIOS, utile à la scène seulement
 
 
 def label(name):
@@ -141,7 +145,8 @@ def report(root, client, st, port, say):
                 outside.append(name)
         vals = read_values(client, layout, defs) if defs else {}
         if vals:
-            say("Valeurs lues  " + ", ".join(f"{label(k)} {v}" for k, v in sorted(vals.items(), key=lambda kv: label(kv[0]))))
+            shown = {k: v for k, v in vals.items() if k not in HIDDEN}
+            say("Valeurs lues  " + ", ".join(f"{label(k)} {v}" for k, v in sorted(shown.items(), key=lambda kv: label(kv[0]))))
         if outside:
             say("Lisibles seulement avec MAME  " + ", ".join(sorted(label(k) for k in outside)))
         if todo:

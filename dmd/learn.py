@@ -191,6 +191,10 @@ ALIASES = {
     "munition": "ammo", "munitions": "ammo", "balles": "ammo", "arme": "weapon",
     "credit": "credits", "crédit": "credits", "crédits": "credits", "temps": "time", "chrono": "time",
     "anneau": "rings", "anneaux": "rings", "points": "score", "pts": "score",
+    # joueur 2 : score2=800 ou scorej2=800, vies2=2...
+    "score2": "score_p2", "scorej2": "score_p2", "score_j2": "score_p2", "j2": "score_p2", "p2": "score_p2",
+    "vies2": "lives_p2", "viesj2": "lives_p2", "bombes2": "bombs_p2", "bombesj2": "bombs_p2",
+    "score1": "score", "scorej1": "score", "j1": "score", "p1": "score",
 }
 
 
