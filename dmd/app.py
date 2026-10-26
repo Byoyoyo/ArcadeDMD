@@ -20,7 +20,7 @@ from .pixelcade import PixelcadeOutput, guess_pixelcade_dir, list_ports
 from .retroarch import RetroArchSource
 from .memvalues import derive
 
-VERSION = "1.10.0"
+VERSION = "1.11.0"
 
 DEFAULT_CONFIG = {
     "fps": 50,

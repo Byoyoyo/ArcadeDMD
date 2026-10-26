@@ -269,6 +269,7 @@ Pour savoir quel cœur tourne, appuie sur F1 pendant le jeu, puis Informations, 
 | Metal Slug 3 (`mslug3`) | FinalBurn Neo | score, vies, bombes, arme et munitions | score J2 |
 | Metal Slug 4 (`mslug4`), Metal Slug 5 (`mslug5`) | FinalBurn Neo | vies, bombes, arme et munitions | score |
 | King of Fighters '98 (`kof98` et ses versions) | FinalBurn Neo | score des deux joueurs, barres de vie, chrono, nom du personnage en train de se battre | rien |
+| Samurai Shodown II (`samsho2` et ses versions coréennes) | FinalBurn Neo | barres de vie, chrono, nom des personnages | score |
 | King of Fighters '96, '97, '99, 2000 et 2001 | FinalBurn Neo | barres de vie, chrono, nom du personnage (sauf 2001), score à la même place que dans KOF 98 | score, seulement si la dalle n'affiche pas le même que l'écran |
 | Tous les autres jeux Neo Geo | FinalBurn Neo | scène selon le genre, barres de vie et chrono pour 36 jeux de combat (crédits avec MAME) | score, crédits si le jeu en garde une copie |
 | Sonic 1 et Sonic 2 | Genesis Plus GX | score, anneaux, vies | rien |
@@ -345,6 +346,10 @@ Formats de valeurs reconnus
 
 Options communes, `mult` (score stocké divisé par 10, très fréquent), `add`, `min`, `max`, `mask`, `shift`. `learn_ranges` limite la zone capturée par l'outil d'apprentissage.
 
+Pour une valeur rangée dans un objet qui change de place en mémoire (les combattants de Samurai Shodown à chaque round), `"ptr"` donne l'adresse où lire la position de l'objet (32 bits) et `"addr"` devient le décalage dans l'objet. `"ptr_range"` écarte un pointeur pas encore prêt.
+
+`"derived"` calcule une valeur à partir d'autres, par exemple le nom du personnage. `"value"` reprend une valeur lue, `"pick"` choisit dans une liste selon `"at"`, `"names"` change un numéro en texte. Voir `games\samsho2.json` et `games\kof98.json`.
+
 Éléments de scène
 
 | `type` | Rôle | Réglages principaux |
@@ -357,7 +362,7 @@ Options communes, `mult` (score stocké divisé par 10, très fréquent), `add`,
 | `mountains` | montagnes pleines et ligne de sol (style Vera) | `peaks` (`[x, hauteur]`), `floor`, `color`, `ground`, `speed` |
 | `particles` | missiles et gerbes quand une valeur monte | `rate`, `color`, `y`, `burst` |
 | `sprite` | sprite animé (PNG en bande ou GIF) | `image`, `frames`, `mode` (`pass`, `pingpong`, `fixed`), `dim` (luminosité), `alpha`, `shoot` (tire quand une valeur monte) |
-| `gauge` | barre de vie | `var`, `max`, `x`, `y`, `w`, `h`, `anchor` (côté accroché), `color`, `low`, `back`, `border` |
+| `gauge` | barre de vie | `var`, `max`, `x`, `y`, `w`, `h`, `anchor` (côté accroché), `color`, `low`, `back`, `border`, `bevel` (liseré clair en bas et à droite) |
 | `clock` | horloge | `format`, `font` |
 | `image`, `rect` | image fixe, rectangle | |
 

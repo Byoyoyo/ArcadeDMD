@@ -22,7 +22,7 @@ import threading
 import time
 
 from . import wincore
-from .memvalues import decode, game_values, parse_addr, value_size
+from .memvalues import decode, game_values, parse_addr, target, value_size, value_span
 
 DEFAULT_PORT = 55355
 CHUNK = 512
@@ -296,7 +296,7 @@ def layout_for(game, system=""):
 
 
 def make_clusters(defs, gap=64, maxspan=512):
-    spans = sorted((parse_addr(d["addr"]), parse_addr(d["addr"]) + value_size(d) - 1) for d in defs.values())
+    spans = sorted(sp for sp in (value_span(d) for d in defs.values()) if sp is not None)
     out = []
     for s, e in spans:
         if out and s <= out[-1][1] + gap and max(e, out[-1][1]) - out[-1][0] < maxspan:
@@ -323,6 +323,18 @@ def read_values(client, layout, defs, clusters=None):
 
     vals = {}
     for name, d in defs.items():
+        if d.get("ptr") is not None:          # objet qui bouge : on lit là où pointe le pointeur
+            a = target(d, getb, layout.big_endian)
+            n = value_size(d)
+            if a is None:
+                continue
+            if any(getb(a + i) is None for i in range(n)):
+                if not layout.contains(a, a + n - 1):
+                    continue
+                r = layout.read_cpu(client, a, a + n - 1)
+                if r is None:
+                    continue
+                bufs.append(r)
         v = decode(d, getb, layout.big_endian)
         if v is not None:
             vals[name] = v
@@ -410,10 +422,10 @@ class RetroArchSource:
         for name, d in values.items():
             if not isinstance(d, dict):
                 continue
-            a = parse_addr(d.get("addr"))
-            if a is None:
+            span = value_span(d)
+            if span is None:
                 continue
-            if layout.contains(a, a + value_size(d) - 1):
+            if layout.contains(*span):
                 defs[name] = d
             elif not d.get("mame_only"):
                 self.log(f"RetroArch : {name} ({d.get('addr')}) hors de la mémoire visible par RetroArch, ignoré")

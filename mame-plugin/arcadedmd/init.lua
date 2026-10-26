@@ -6,7 +6,7 @@
 
 local exports = {
 	name = "arcadedmd",
-	version = "1.10.0",
+	version = "1.11.0",
 	description = "ArcadeDMD",
 	license = "MIT",
 	author = { name = "ArcadeDMD" } }
@@ -281,6 +281,13 @@ end
 local function make_reader(space, def)
 	local addr = parse_addr(def.addr)
 	if not space or not addr then return nil end
+	-- "ptr" : l'objet bouge en mémoire (Samurai Shodown...), addr est alors le décalage dans l'objet
+	local ptr = parse_addr(def.ptr)
+	local plo, phi
+	if type(def.ptr_range) == "table" then
+		plo = parse_addr(def.ptr_range[1])
+		phi = parse_addr(def.ptr_range[2])
+	end
 	local t = def.type or "u8"
 	local nbytes = math.tointeger(def.bytes) or ((t:find("32") and 4) or (t:find("16") and 2) or 1)
 	local mult = def.mult or 1
@@ -292,29 +299,29 @@ local function make_reader(space, def)
 	local doff = parse_addr(def.digit_offset) or 0
 	local raw
 	if t == "u8" then
-		raw = function() return space:read_u8(addr) end
+		raw = function(a) return space:read_u8(a) end
 	elseif t == "u16" then
-		raw = function() return space:read_u16(addr) end
+		raw = function(a) return space:read_u16(a) end
 	elseif t == "u32" then
-		raw = function() return space:read_u32(addr) end
+		raw = function(a) return space:read_u32(a) end
 	elseif t == "s8" then
-		raw = function() local v = space:read_u8(addr) if v >= 0x80 then v = v - 0x100 end return v end
+		raw = function(a) local v = space:read_u8(a) if v >= 0x80 then v = v - 0x100 end return v end
 	elseif t == "s16" then
-		raw = function() local v = space:read_u16(addr) if v >= 0x8000 then v = v - 0x10000 end return v end
+		raw = function(a) local v = space:read_u16(a) if v >= 0x8000 then v = v - 0x10000 end return v end
 	elseif t == "be" or t == "le" then
-		raw = function()
+		raw = function(a)
 			local v = 0
 			for i = 0, nbytes - 1 do
-				local b = space:read_u8(addr + ((t == "be") and i or (nbytes - 1 - i)))
+				local b = space:read_u8(a + ((t == "be") and i or (nbytes - 1 - i)))
 				v = v * 256 + b
 			end
 			return v
 		end
 	elseif t == "bcd" or t == "bcd_le" then
-		raw = function()
+		raw = function(a)
 			local v = 0
 			for i = 0, nbytes - 1 do
-				local b = space:read_u8(addr + ((t == "bcd") and i or (nbytes - 1 - i)))
+				local b = space:read_u8(a + ((t == "bcd") and i or (nbytes - 1 - i)))
 				local hi, lo = b >> 4, b & 15
 				if hi > 9 then hi = 0 end
 				if lo > 9 then lo = 0 end
@@ -323,10 +330,10 @@ local function make_reader(space, def)
 			return v
 		end
 	elseif t == "digits" or t == "digits_le" then
-		raw = function()
+		raw = function(a)
 			local v = 0
 			for i = 0, nbytes - 1 do
-				local d = space:read_u8(addr + ((t == "digits") and i or (nbytes - 1 - i))) - doff
+				local d = space:read_u8(a + ((t == "digits") and i or (nbytes - 1 - i))) - doff
 				if d < 0 or d > 9 then d = 0 end
 				v = v * 10 + d
 			end
@@ -337,7 +344,13 @@ local function make_reader(space, def)
 		return nil
 	end
 	return function()
-		local v = raw()
+		local a = addr
+		if ptr then
+			local base = space:read_u32(ptr) & 0xFFFFFF
+			if (plo and base < plo) or (phi and base > phi) then return nil end
+			a = base + addr
+		end
+		local v = raw(a)
 		if mask then v = v & mask end
 		if shift then v = v >> shift end
 		v = v * mult + add

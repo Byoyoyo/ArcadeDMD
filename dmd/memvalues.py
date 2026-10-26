@@ -39,9 +39,41 @@ def value_size(d):
     return 1
 
 
+def value_span(d):
+    """(premier, dernier) octet à lire d'office pour une valeur : son pointeur pour une valeur "ptr", sinon elle-même."""
+    p = parse_addr(d.get("ptr"))
+    if p is not None:
+        return p, p + 3
+    a = parse_addr(d.get("addr"))
+    if a is None:
+        return None
+    return a, a + value_size(d) - 1
+
+
+def target(d, getb, big_endian=True):
+    """Adresse de la valeur. Avec "ptr", l'objet bouge en mémoire (Samurai Shodown...) : adresse lue à "ptr"
+    (32 bits), plus "addr" qui est alors le décalage dans l'objet. "ptr_range" écarte un pointeur pas encore prêt."""
+    off = parse_addr(d.get("addr"))
+    if off is None:
+        return None
+    p = parse_addr(d.get("ptr"))
+    if p is None:
+        return off
+    raw = [getb(p + i) for i in range(4)]
+    if any(b is None for b in raw):
+        return None
+    base = int.from_bytes(bytes(raw), "big" if big_endian else "little") & 0xFFFFFF
+    rng = d.get("ptr_range")
+    if isinstance(rng, list) and len(rng) == 2:
+        lo, hi = parse_addr(rng[0]), parse_addr(rng[1])
+        if lo is not None and hi is not None and not lo <= base <= hi:
+            return None
+    return base + off
+
+
 def decode(d, getb, big_endian=True):
     """Valeur décodée, getb(adresse) renvoyant un octet (ou None si illisible)."""
-    addr = parse_addr(d.get("addr"))
+    addr = target(d, getb, big_endian)
     if addr is None:
         return None
     t = (d.get("type") or "u8").lower()
@@ -128,6 +160,8 @@ def _resolve(expr, values, depth=0):
         return values.get(expr)
     if not isinstance(expr, dict):
         return None
+    if "value" in expr:                       # une valeur lue telle quelle (le plus souvent avec "names")
+        return _resolve(expr.get("value"), values, depth + 1)
     if "pick" in expr:
         lst = expr.get("pick")
         idx = _resolve(expr.get("at"), values, depth + 1)

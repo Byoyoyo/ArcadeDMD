@@ -9,7 +9,7 @@ import time
 
 from . import wincore
 from .learn import load_games
-from .memvalues import derive, game_values, parse_addr, value_size
+from .memvalues import derive, game_values, value_span
 from .retroarch import (RetroArchClient, core_label, explain_failure, find_core, layout_for, match_game,
                         read_values, too_old)
 
@@ -137,10 +137,10 @@ def report(root, client, st, port, say):
         for name, d in values.items():
             if not isinstance(d, dict):
                 continue
-            a = parse_addr(d.get("addr"))
-            if a is None:
+            span = value_span(d)
+            if span is None:
                 todo.append(name)
-            elif layout.contains(a, a + value_size(d) - 1):
+            elif layout.contains(*span):
                 defs[name] = d
             else:
                 outside.append(name)
