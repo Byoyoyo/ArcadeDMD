@@ -17,7 +17,7 @@ LABELS = {"lives": "vies", "lives_p2": "vies J2", "bombs": "bombes", "bombs_p2":
           "ammo": "munitions", "ammo_p2": "munitions J2", "weapon": "arme", "credits": "crédits",
           "time": "temps", "rings": "anneaux", "prisoners": "prisonniers", "score_p2": "score J2",
           "weapon_p2": "arme J2", "health": "vie J1 %", "health_p2": "vie J2 %",
-          "p1_char": "perso J1", "p2_char": "perso J2"}
+          "p1_char": "perso J1", "p2_char": "perso J2", "beat": "BEAT BY J1", "beat_p2": "BEAT BY J2"}
 
 
 HIDDEN = {"p1_mode", "p2_mode"}      # état des joueurs donné par le BIOS, utile à la scène seulement

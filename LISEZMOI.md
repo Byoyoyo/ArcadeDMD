@@ -24,6 +24,7 @@ Contenu du dossier
 | `appris\` | copie des adresses trouvées par `apprendre.bat`. Remises en place toutes seules après une mise à jour |
 | `mame-plugin\arcadedmd` | le plugin à copier dans `MAME\plugins` (l'installeur le fait) |
 | `sprites\` | petits sprites (avion, anneau). Tu peux ajouter les tiens |
+| `obs\` | fichiers texte mis à jour en direct pour OBS, historique des matchs VS et records de séries (section 11) |
 
 ---
 
@@ -346,6 +347,20 @@ Quand une barre de vie, un chrono ou un nom ne colle pas à l'écran, lance `tes
 | World Heroes 2 Jet | `wh2j.json` | oui | oui | oui (17) | à apprendre |
 | World Heroes Perfect | `whp.json` | oui | oui | oui (19) | à apprendre |
 
+### Match VS des King of Fighters (BEAT BY)
+
+En match à deux, les King of Fighters affichent « CHALLENGER » au-dessus du joueur qui vient d'arriver, et « BEAT BY 02 » au-dessus de celui qui a déjà battu 2 challengers d'affilée. La dalle affiche la même chose à la place des scores, dès que ces compteurs sont appris. Chaque victoire est aussi notée dans `obs\vs_history.txt`, et la meilleure série de chaque jeu est gardée (section 11).
+
+Ces compteurs ne sont dans aucune base de codes de triche. Il faut les apprendre une fois par jeu, par exemple KOF 2002 puis KOF 98.
+1. Lance le jeu dans RetroArch et commence une partie avec le joueur 1.
+2. Fais entrer le joueur 2 avec une pièce et Start. Le match VS commence. Tu peux tenir les deux sticks toi-même.
+3. Lance `apprendre.bat`.
+4. Après chaque match, quand « BEAT BY » s'affiche en haut de l'écran, tape les deux compteurs, par exemple `beat=1 beat2=0`. Mets 0 du côté marqué CHALLENGER.
+5. Fais au moins cinq ou six matchs. Fais gagner tantôt un côté, tantôt l'autre, pour que les compteurs changent.
+6. Entrée vide pour finir. L'outil écrit `beat` et `beat_p2` dans le fichier du jeu.
+
+Si l'outil ne trouve rien, envoie le dossier `runtime\learn\` du jeu (`kof2002` par exemple), comme pour Samurai Shodown II.
+
 ### Tous les jeux Neo Geo
 
 Les jeux Neo Geo connus de MAME (clones compris) ont une scène commune selon leur genre, sans rien faire. En haut, « SNK - » puis le vrai titre du jeu défilent.
@@ -472,6 +487,26 @@ Les deux sources se complètent. Pour After Burner II, le record vient du plugin
 - **Pixelcade noire pendant un jeu.** Regarde le journal. Si pixelweb a bien été arrêté mais que la carte ne répond pas, débranche et rebranche la Pixelcade, puis relance `test_pixelcade.bat`.
 
 ---
+
+## 11. Fichiers texte pour OBS
+
+ArcadeDMD écrit les valeurs du jeu en cours dans le dossier `obs\`, un fichier par valeur. Chaque fichier change dès que la valeur change, et se vide hors jeu. Ça marche avec MAME, Arcade64 et RetroArch.
+
+| Fichier | Contenu |
+|---|---|
+| `game.txt` | titre du jeu |
+| `score_p1.txt`, `score_p2.txt` | score de chaque joueur |
+| `credits.txt` | crédits (MAME et Arcade64) |
+| `fighter_p1.txt`, `fighter_p2.txt` | personnage en train de se battre, quand il est connu |
+| `streak_p1.txt`, `streak_p2.txt` | victoires d'affilée en match VS (King of Fighters, une fois appris) |
+| `vs_p1.txt`, `vs_p2.txt` | « BEAT BY 02 » ou « CHALLENGER », comme en haut de l'écran du jeu |
+| `best_streak.txt` | meilleure série du jeu en cours, par exemple « BEAT BY 05 \| P2 RUGAL \| 26/10/2026 » |
+| `vs_history.txt` | une ligne par match VS gagné, avec la date, le jeu, le gagnant et sa série |
+| `records.json` | la meilleure série de chaque jeu, gardée d'une partie à l'autre |
+
+Dans OBS, ajoute une source Texte (GDI+), coche « Read from file » (lire depuis un fichier) et choisis le fichier. Les textes n'ont pas de mots français. « P2 RUGAL > P1 KIM » veut dire que P2 a battu P1.
+
+Pour couper, mets `"enabled": false` dans la section `textfiles` de `config.json`. `"folder"` choisit un autre dossier, `"history": false` coupe l'historique.
 
 ## Licences et crédits
 

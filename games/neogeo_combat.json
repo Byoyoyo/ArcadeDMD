@@ -486,6 +486,48 @@
       },
       {
        "has": "score"
+      },
+      {
+       "not": {
+        "all": [
+         {
+          "all": [
+           {
+            "var": "p1_mode",
+            "in": [
+             1,
+             2
+            ]
+           },
+           {
+            "var": "p2_mode",
+            "in": [
+             1,
+             2
+            ]
+           }
+          ]
+         },
+         {
+          "has": [
+           "beat",
+           "beat_p2"
+          ]
+         },
+         {
+          "any": [
+           {
+            "var": "beat",
+            "gt": 0
+           },
+           {
+            "var": "beat_p2",
+            "gt": 0
+           }
+          ]
+         }
+        ]
+       }
       }
      ]
     },
@@ -536,6 +578,48 @@
        "not": {
         "has": "score"
        }
+      },
+      {
+       "not": {
+        "all": [
+         {
+          "all": [
+           {
+            "var": "p1_mode",
+            "in": [
+             1,
+             2
+            ]
+           },
+           {
+            "var": "p2_mode",
+            "in": [
+             1,
+             2
+            ]
+           }
+          ]
+         },
+         {
+          "has": [
+           "beat",
+           "beat_p2"
+          ]
+         },
+         {
+          "any": [
+           {
+            "var": "beat",
+            "gt": 0
+           },
+           {
+            "var": "beat_p2",
+            "gt": 0
+           }
+          ]
+         }
+        ]
+       }
       }
      ]
     }
@@ -559,6 +643,48 @@
       },
       {
        "has": "score_p2"
+      },
+      {
+       "not": {
+        "all": [
+         {
+          "all": [
+           {
+            "var": "p1_mode",
+            "in": [
+             1,
+             2
+            ]
+           },
+           {
+            "var": "p2_mode",
+            "in": [
+             1,
+             2
+            ]
+           }
+          ]
+         },
+         {
+          "has": [
+           "beat",
+           "beat_p2"
+          ]
+         },
+         {
+          "any": [
+           {
+            "var": "beat",
+            "gt": 0
+           },
+           {
+            "var": "beat_p2",
+            "gt": 0
+           }
+          ]
+         }
+        ]
+       }
       }
      ]
     },
@@ -566,6 +692,260 @@
      "on": "score_p2",
      "color": "#ffffff",
      "ms": 120
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 1,
+    "y": 0,
+    "align": "left",
+    "segments": [
+     {
+      "text": "BEAT BY ",
+      "color": "#ff2a1a"
+     },
+     {
+      "text": "{beat:02d}",
+      "color": "#ffffff"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "all": [
+        {
+         "all": [
+          {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          },
+          {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         ]
+        },
+        {
+         "has": [
+          "beat",
+          "beat_p2"
+         ]
+        },
+        {
+         "any": [
+          {
+           "var": "beat",
+           "gt": 0
+          },
+          {
+           "var": "beat_p2",
+           "gt": 0
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "var": "beat",
+       "gt": 0
+      }
+     ]
+    },
+    "flash": {
+     "on": "beat",
+     "color": "#ffffff",
+     "ms": 400
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 1,
+    "y": 0,
+    "align": "left",
+    "text": "CHALLENGER",
+    "color": "#ff2a1a",
+    "when": {
+     "all": [
+      {
+       "all": [
+        {
+         "all": [
+          {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          },
+          {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         ]
+        },
+        {
+         "has": [
+          "beat",
+          "beat_p2"
+         ]
+        },
+        {
+         "any": [
+          {
+           "var": "beat",
+           "gt": 0
+          },
+          {
+           "var": "beat_p2",
+           "gt": 0
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "var": "beat",
+       "eq": 0
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 0,
+    "align": "right",
+    "segments": [
+     {
+      "text": "BEAT BY ",
+      "color": "#ff2a1a"
+     },
+     {
+      "text": "{beat_p2:02d}",
+      "color": "#ffffff"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "all": [
+        {
+         "all": [
+          {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          },
+          {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         ]
+        },
+        {
+         "has": [
+          "beat",
+          "beat_p2"
+         ]
+        },
+        {
+         "any": [
+          {
+           "var": "beat",
+           "gt": 0
+          },
+          {
+           "var": "beat_p2",
+           "gt": 0
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "var": "beat_p2",
+       "gt": 0
+      }
+     ]
+    },
+    "flash": {
+     "on": "beat_p2",
+     "color": "#ffffff",
+     "ms": 400
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 0,
+    "align": "right",
+    "text": "CHALLENGER",
+    "color": "#ff2a1a",
+    "when": {
+     "all": [
+      {
+       "all": [
+        {
+         "all": [
+          {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          },
+          {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         ]
+        },
+        {
+         "has": [
+          "beat",
+          "beat_p2"
+         ]
+        },
+        {
+         "any": [
+          {
+           "var": "beat",
+           "gt": 0
+          },
+          {
+           "var": "beat_p2",
+           "gt": 0
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "var": "beat_p2",
+       "eq": 0
+      }
+     ]
     }
    },
    {

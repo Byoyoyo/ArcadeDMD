@@ -376,6 +376,9 @@ ALIASES = {
     "score2": "score_p2", "scorej2": "score_p2", "score_j2": "score_p2", "j2": "score_p2", "p2": "score_p2",
     "vies2": "lives_p2", "viesj2": "lives_p2", "bombes2": "bombs_p2", "bombesj2": "bombs_p2",
     "score1": "score", "scorej1": "score", "j1": "score", "p1": "score",
+    # match VS des King of Fighters : BEAT BY (victoires d'affilée) de chaque côté, 0 pour le CHALLENGER
+    "beat1": "beat", "beatj1": "beat", "beatp1": "beat", "beatby": "beat",
+    "beat2": "beat_p2", "beatj2": "beat_p2", "beatp2": "beat_p2", "beatby2": "beat_p2",
 }
 
 

@@ -19,8 +19,9 @@ from .outputs import ZeDMDOutput, PreviewOutput, GifRecorder, NullOutput
 from .pixelcade import PixelcadeOutput, guess_pixelcade_dir, list_ports
 from .retroarch import RetroArchSource
 from .memvalues import derive, game_values
+from .textfiles import TextFiles
 
-VERSION = "1.12.4"
+VERSION = "1.13.0"
 
 DEFAULT_CONFIG = {
     "fps": 50,
@@ -38,6 +39,7 @@ DEFAULT_CONFIG = {
                       "pixelweb_exe": "", "art_dir": ""},
     },
     "doflinx_bridge": {"enabled": False, "host": "127.0.0.1", "port": 8081},
+    "textfiles": {"enabled": True, "folder": "obs", "history": True},
     "retroarch": {"enabled": True, "host": "127.0.0.1", "port": 55355, "poll_ms": 100},
 }
 
@@ -367,6 +369,8 @@ class Engine:
         self.overlay = None           # (texte, fin, couleur)
         self.q = queue.Queue()
         self.bridge = None
+        tf = config.get("textfiles") or {}
+        self.texts = TextFiles(tf, root, log) if tf.get("enabled") and not demo_game else None
         self.sim = None
         self.demo_until = None
         self.source = None
@@ -647,6 +651,13 @@ class Engine:
             self.log("plus de nouvelles de " + ("MAME" if self.source == "plugin" else "RetroArch")
                      + " : retour à l'écran d'attente")
             self.go_idle()
+        if self.texts is not None:     # fichiers texte pour OBS, séries de victoires en match VS
+            try:
+                self.texts.update(self.state, self.mode == "game" and self.source != "demo",
+                                  self.state.meta.get("game") or "")
+            except Exception as e:
+                self.log(f"fichiers texte : {e}")
+                self.texts = None
         return self.render(now)
 
     def run(self, seconds=None):

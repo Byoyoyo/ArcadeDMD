@@ -80,6 +80,16 @@
     "bytes": 4,
     "note": "score joueur 2, trouvé avec apprendre.bat (RetroArch, FinalBurn Neo)"
    },
+   "beat": {
+    "addr": "",
+    "type": "u8",
+    "note": "match VS, victoires d'affilée du joueur 1 (BEAT BY en haut de l'écran), à trouver avec apprendre.bat (beat=...)"
+   },
+   "beat_p2": {
+    "addr": "",
+    "type": "u8",
+    "note": "match VS, victoires d'affilée du joueur 2 (BEAT BY en haut de l'écran), à trouver avec apprendre.bat (beat2=...)"
+   },
    "_p1_lost": {
     "addr": "0x10A84D",
     "type": "u8",

@@ -37,6 +37,11 @@
       "art_dir": ""
     }
   },
+  "textfiles": {
+    "enabled": true,
+    "folder": "obs",
+    "history": true
+  },
   "doflinx_bridge": {
     "enabled": false,
     "host": "127.0.0.1",
