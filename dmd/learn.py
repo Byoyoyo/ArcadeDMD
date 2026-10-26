@@ -69,15 +69,19 @@ def find_all(data, pattern):
 
 
 class Snapshot:
-    def __init__(self, json_path):
-        with open(json_path, "r", encoding="utf-8") as f:
-            self.meta = json.load(f)
+    def __init__(self, json_path=None, meta=None, data=None):
+        if json_path:
+            with open(json_path, "r", encoding="utf-8") as f:
+                self.meta = json.load(f)
+            stem = json_path[:-5]
+            self.bin_path = stem + ".bin"
+            self.bmp_path = stem + ".bmp"
+            with open(self.bin_path, "rb") as f:
+                self.data = f.read()
+        else:                                   # capture encore en mémoire (apprentissage RetroArch)
+            self.meta, self.data = meta or {}, data or b""
+            self.bin_path = self.bmp_path = ""
         self.json_path = json_path
-        stem = json_path[:-5]
-        self.bin_path = stem + ".bin"
-        self.bmp_path = stem + ".bmp"
-        with open(self.bin_path, "rb") as f:
-            self.data = f.read()
         self.ranges = self.meta.get("ranges", [])
         if isinstance(self.ranges, dict):   # liste vide encodée en {}
             self.ranges = []
@@ -97,17 +101,112 @@ class Snapshot:
                 return True
         return False
 
+    def window(self, addr, size):
+        """Position (début, fin) dans data des octets [addr, addr + size), coupée à la fin de leur zone mémoire."""
+        for r in self.ranges:
+            if r["start"] <= addr < r["start"] + r["length"]:
+                lo = r["offset"] + addr - r["start"]
+                return lo, min(lo + size, r["offset"] + r["length"])
+        return None
 
-def _search_all(snaps_values):
+    def zone(self, addr):
+        """(premier, dernier) octet de la zone mémoire qui contient addr."""
+        for r in self.ranges:
+            if r["start"] <= addr < r["start"] + r["length"]:
+                return r["start"], r["start"] + r["length"] - 1
+        return None
+
+    def dword(self, addr, big_endian=True):
+        w = self.window(addr, 4)
+        if w is None or w[1] - w[0] < 4:
+            return None
+        return int.from_bytes(self.data[w[0]:w[1]], "big" if big_endian else "little")
+
+    def pointer(self, p, rng=None, big_endian=True):
+        """Adresse rangée en p (pointeur 32 bits), si elle tombe dans la mémoire capturée."""
+        v = self.dword(p, big_endian)
+        if v is None:
+            return None
+        base = v & 0xFFFFFF
+        if rng and not rng[0] <= base <= rng[1]:
+            return None
+        return base if self.window(base, 1) else None
+
+
+# Objets qui changent de place en mémoire (combattants de Samurai Shodown, The Last Blade...) :
+# le jeu garde leur adresse dans un pointeur. Une valeur rangée dans un tel objet n'a pas d'adresse
+# fixe, on la cherche alors à un décalage constant depuis l'adresse lue au pointeur.
+OBJ_WINDOW = 0x400
+
+
+def is_p2(name):
+    n = (name or "").lower()
+    return "p2" in n or n.endswith("2")
+
+
+def object_pointers(values):
+    """Pointeurs d'objets déclarés dans le fichier du jeu (valeurs "ptr") : {adresse: {"range", "player"}}."""
+    from .memvalues import parse_addr
+    out = {}
+    for name, d in (values or {}).items():
+        if not isinstance(d, dict):
+            continue
+        p = parse_addr(d.get("ptr"))
+        if p is None or p in out:
+            continue
+        rng = d.get("ptr_range")
+        rng = (parse_addr(rng[0]), parse_addr(rng[1])) if isinstance(rng, list) and len(rng) == 2 else None
+        out[p] = {"range": rng if rng and None not in rng else None, "player": "p2" if is_p2(name) else "p1"}
+    return out
+
+
+def object_bases(snaps, objects, big_endian=True):
+    """{pointeur: [adresse de l'objet dans chaque capture]} pour les pointeurs valables dans toutes les captures."""
+    out = {}
+    for p, o in (objects or {}).items():
+        bases = [s.pointer(p, o.get("range"), big_endian) for s in snaps]
+        if bases and all(b is not None for b in bases):
+            out[p] = bases
+    return out
+
+
+def objects_moved(snaps, objects, big_endian=True):
+    """Un des objets a-t-il changé de place entre les captures (pointeurs pas prêts ignorés) ?"""
+    for p, o in (objects or {}).items():
+        if len({s.pointer(p, o.get("range"), big_endian) for s in snaps} - {None}) > 1:
+            return True
+    return False
+
+
+def _in_window(snaps_values, pats, bases, nbytes):
+    """Décalages où chaque capture contient sa valeur, comptés depuis l'adresse de l'objet dans cette capture."""
+    offs = None
+    for (snap, _), pat, b in zip(snaps_values, pats, bases):
+        w = snap.window(b, OBJ_WINDOW + nbytes - 1)
+        found = set()
+        if w:
+            i = snap.data.find(pat, w[0], w[1])
+            while i != -1:
+                found.add(i - w[0])
+                i = snap.data.find(pat, i + 1, w[1])
+        offs = found if offs is None else offs & found
+        if not offs:
+            return set()
+    return offs or set()
+
+
+def _search_all(snaps_values, objects=None, big_endian=True):
     results = []
+    snaps = [s for s, _ in snaps_values]
+    bases = object_bases(snaps, objects, big_endian)
+    still = [b[0] for b in bases.values() if len(set(b)) == 1]     # objets restés à la même place
     for kind, nbytes, mults in ENCODINGS:
         for mult in mults:
+            pats = [encode(v, kind, nbytes, mult) for _, v in snaps_values]
+            if any(p is None for p in pats):
+                continue
             common = None
-            for snap, value in snaps_values:
-                pat = encode(value, kind, nbytes, mult)
-                if pat is None:
-                    common = set()
-                    break
+            for snap, pat in zip(snaps, pats):
                 addrs = set()
                 for off in find_all(snap.data, pat):
                     if snap.same_range(off, nbytes):
@@ -118,55 +217,131 @@ def _search_all(snaps_values):
                 if not common:
                     break
             for a in sorted(common or []):
-                results.append({"addr": a, "type": kind, "bytes": nbytes, "mult": mult})
+                # dans un objet qui n'a pas bougé pendant les captures : gardé sous la forme pointeur + décalage
+                if not any(b <= a < b + OBJ_WINDOW for b in still):
+                    results.append({"addr": a, "type": kind, "bytes": nbytes, "mult": mult})
+            for p, bl in bases.items():
+                for o in sorted(_in_window(snaps_values, pats, bl, nbytes)):
+                    results.append({"ptr": p, "addr": o, "type": kind, "bytes": nbytes, "mult": mult,
+                                    "ptr_range": objects[p].get("range")})
     return results
+
+
+def moving_pointers(snaps, big_endian=True, exclude=(), limit=3000):
+    """Pointeurs inconnus dont la valeur change d'une capture à l'autre (objets qui bougent) : {adresse: [bases]}."""
+    out = {}
+    first = snaps[0]
+    for r in first.ranges:
+        start, end = r["start"], r["start"] + r["length"] - 4
+        for a in range(start + (start & 1), end + 1, 2):
+            if a in exclude:
+                continue
+            bases = []
+            for s in snaps:
+                v = s.dword(a, big_endian)
+                if v is None or v >> 24 or not s.window(v, 1):
+                    break
+                bases.append(v)
+            else:
+                if len(set(bases)) > 1:
+                    out[a] = bases
+                    if len(out) > limit:
+                        return {}
+    return out
+
+
+def _search_moving(snaps_values, big_endian=True, exclude=(), most=6):
+    """Dernier recours : valeur rangée dans un objet qui bouge, suivi par un pointeur inconnu du fichier du jeu.
+    Seulement pour des valeurs assez grandes (score...) : un petit nombre se retrouve partout par hasard."""
+    if max(v for _, v in snaps_values) < 100:
+        return []
+    snaps = [s for s, _ in snaps_values]
+    ptrs = moving_pointers(snaps, big_endian, exclude)
+    results, seen = [], set()
+    for kind, nbytes, mults in ENCODINGS:
+        if nbytes < 2:
+            continue
+        for mult in mults:
+            pats = [encode(v, kind, nbytes, mult) for _, v in snaps_values]
+            if any(p is None for p in pats):
+                continue
+            for p, bl in sorted(ptrs.items()):
+                for o in sorted(_in_window(snaps_values, pats, bl, nbytes)):
+                    spot = (kind, nbytes, mult, tuple(b + o for b in bl))     # même octets vus par un autre pointeur
+                    if spot in seen:
+                        continue
+                    seen.add(spot)
+                    results.append({"ptr": p, "addr": o, "type": kind, "bytes": nbytes, "mult": mult,
+                                    "ptr_range": snaps[0].zone(bl[0]), "auto": True})
+    places = {(r["ptr"], r["addr"] // 8) for r in results}
+    return results if len(places) <= most else []          # trop de réponses : du hasard, pas un vrai score
 
 
 WIDE_FIELDS = ("score", "record", "hi", "point", "top", "best")
 
 
-def rank(results, field):
-    """Trie les candidats : un score est en général large (3-4 octets), un compteur court."""
+def rank(results, field, objects=None):
+    """Trie les candidats : un score est en général large (3-4 octets), un compteur court.
+    À codage égal : adresse fixe d'abord, puis l'objet du bon joueur."""
     wide = any(k in field.lower() for k in WIDE_FIELDS)
     pref = {"bcd": 0, "be": 1, "u8": 1, "digits": 2, "digits_ascii": 3, "le": 4, "bcd_le": 5}
     # un petit compteur (vies, bombes...) est plutôt un octet simple, les crédits souvent en BCD
     small = {"u8": 0, "bcd": 1} if "credit" not in field.lower() else {"bcd": 0, "u8": 1}
+    side = "p2" if is_p2(field) else "p1"
 
     def key(r):
         aligned = 0 if (r["bytes"] == 1 or r["addr"] % 2 == 0) else 1
         width = -r["bytes"] if wide else r["bytes"]
         p = small.get(r["type"], pref.get(r["type"], 9)) if (not wide and r["bytes"] == 1) else pref.get(r["type"], 9)
-        return (p, aligned, width, 0 if (r["mult"] == 10) == wide else 1, r["addr"])
+        if r.get("ptr") is None:
+            where = 0
+        else:
+            where = 1 if ((objects or {}).get(r["ptr"]) or {}).get("player", side) == side else 2
+        return (p, aligned, width, 0 if (r["mult"] == 10) == wide else 1, where, r.get("ptr") or 0, r["addr"])
 
     return sorted(results, key=key)
 
 
-def search(snaps_values, field="score"):
+def search(snaps_values, field="score", objects=None, big_endian=True):
     """snaps_values : liste de (Snapshot, valeur). Retourne (candidats triés, note)."""
-    res = _search_all(snaps_values)
+    res = _search_all(snaps_values, objects, big_endian)
+    if not res and len({v for _, v in snaps_values}) >= 2:
+        res = _search_moving(snaps_values, big_endian, exclude=set(objects or ()))
+        if res:
+            return rank(res, field, objects), "(trouvé dans une zone qui change de place, suivie par son pointeur)"
     if res or len(snaps_values) < 3:
-        return rank(res, field), ""
+        return rank(res, field, objects), ""
     # une capture a peut-être été prise pendant un changement : on tolère un écart
     found = []
     for i in range(len(snaps_values)):
         sub = snaps_values[:i] + snaps_values[i + 1:]
         if len({v for _, v in sub}) < 2:
             continue
-        for r in _search_all(sub):
+        for r in _search_all(sub, objects, big_endian):
             if r not in found:
                 found.append(r)
     note = "(trouvé en ignorant une capture : refais une capture pour confirmer)" if found else ""
-    return rank(found, field), note
+    return rank(found, field, objects), note
 
 
 def describe(r):
     m = f" ×{r['mult']}" if r["mult"] != 1 else ""
-    return f"0x{r['addr']:06X}  {LABELS.get(r['type'], r['type'])} {r['bytes']} octet(s){m}"
+    what = f"{LABELS.get(r['type'], r['type'])} {r['bytes']} octet(s){m}"
+    if r.get("ptr") is not None:
+        who = "zone qui change de place" if r.get("auto") else "objet du combattant"
+        return f"0x{r['ptr']:06X} +0x{r['addr']:X}  {what}   ({who}, suivi par le pointeur 0x{r['ptr']:06X})"
+    return f"0x{r['addr']:06X}  {what}"
 
 
 def to_config(r):
     kind = r["type"]
-    d = {"addr": f"0x{r['addr']:06X}"}
+    if r.get("ptr") is not None:
+        d = {"ptr": f"0x{r['ptr']:06X}", "addr": f"0x{r['addr']:X}"}
+        rng = r.get("ptr_range")
+        if rng:
+            d["ptr_range"] = [f"0x{rng[0]:06X}", f"0x{rng[1]:06X}"]
+    else:
+        d = {"addr": f"0x{r['addr']:06X}"}
     if kind == "digits_ascii":
         d.update({"type": "digits", "bytes": r["bytes"], "digit_offset": "0x30"})
     elif kind in ("bcd", "bcd_le", "digits", "le", "be"):
@@ -255,6 +430,7 @@ def run(root, game=None, answers=None, write=None, show=True, pick_interactive=F
     if os.path.exists(cfg_path):
         with open(cfg_path, "r", encoding="utf-8") as f:
             cfg = json.load(f)
+    objects, big_endian = learn_context(root, cfg or new_cfg, snaps[-1].meta)
 
     print(f"\n{len(snaps)} capture(s) pour {game}.")
     if answers is None:
@@ -284,18 +460,21 @@ def run(root, game=None, answers=None, write=None, show=True, pick_interactive=F
         if len(distinct) < 2:
             print("  Il faut au moins deux captures avec des valeurs différentes pour ce champ.")
             continue
-        res, note = search(obs, field)
+        res, note = search(obs, field, objects, big_endian)
         if note:
             print("  " + note)
         if not res:
             print("  Rien trouvé. Vérifie les valeurs saisies, ou capture à des moments où la valeur a changé.")
             continue
+        if objects and any(r.get("ptr") in objects for r in res[:3]) and not objects_moved([s for s, _ in obs], objects, big_endian):
+            print("  Les combattants sont restés à la même place pendant ces captures. Elles viennent sans doute")
+            print("  du même combat. Pour être sûr, refais l'apprentissage avec une capture dans le combat suivant.")
         # regroupe les candidats qui désignent la même zone (ex. 1, 2 ou 4 octets au même endroit)
         clusters = []
         for r in res:
             for c in clusters:
                 b = c[0]
-                if r["addr"] < b["addr"] + 4 and b["addr"] < r["addr"] + r["bytes"] + 3:
+                if r.get("ptr") == b.get("ptr") and r["addr"] < b["addr"] + 4 and b["addr"] < r["addr"] + r["bytes"] + 3:
                     c.append(r)
                     break
             else:
@@ -355,6 +534,8 @@ def run(root, game=None, answers=None, write=None, show=True, pick_interactive=F
             note = old.get("note") if isinstance(old, dict) else None
             if isinstance(old, dict) and old.get("mame_only"):
                 note = "copie gardée par le jeu, trouvée avec apprendre.bat"     # lisible aussi avec RetroArch
+            if v.get("ptr") and not (isinstance(old, dict) and old.get("ptr") == v["ptr"]):
+                note = f"dans une zone qui change de place, adresse lue en {v['ptr']}, trouvé avec apprendre.bat"
             vals[k] = v
             if note and "à trouver" not in note:
                 vals[k]["note"] = note
@@ -376,6 +557,20 @@ def run(root, game=None, answers=None, write=None, show=True, pick_interactive=F
 # --------------------------------------------------------------------------
 # apprentissage en direct pendant une partie RetroArch
 # --------------------------------------------------------------------------
+
+def learn_context(root, cfg, meta):
+    """Pointeurs d'objets connus pour ce jeu (fichier du jeu et sa scène commune), et ordre des octets."""
+    vals = dict(((cfg or {}).get("memory") or {}).get("values") or {})
+    tkey = (cfg or {}).get("scene_from") or meta.get("template")
+    if isinstance(tkey, str) and tkey:
+        tmpl = load_games(root).get(tkey)
+        if tmpl:
+            from .memvalues import game_values
+            merged = game_values(tmpl, meta.get("system", ""))
+            merged.update(vals)
+            vals = merged
+    return object_pointers(vals), bool(meta.get("big_endian", True))
+
 
 def load_games(root):
     games = {}
@@ -453,13 +648,29 @@ def run_live_retroarch(root, client, st, game=None, inputs=None):
     print("RetroArch se met en pause tout seul quand sa fenêtre n'est plus active.")
     print("Tape alors ce que tu vois, par exemple   score=1200 vies=2")
     print("Retourne jouer, et recommence trois ou quatre fois avec des valeurs différentes.")
+    known = dict(((spec or {}).get("memory") or {}).get("values") or {})
+    if not spec and tkey:
+        from .memvalues import game_values
+        known = game_values(games.get(tkey) or {}, st["content"])
+    objects = object_pointers(known)
+    if objects:
+        print("Dans ce jeu, les combattants changent de place en mémoire à chaque combat.")
+        print("Fais des captures dans deux combats différents, par exemple deux dans le premier et deux dans le suivant.")
     print("Entrée vide pour terminer.\n")
     answers = {}
+    shots = []
+    warned = False
     n = 0
     feed = iter(inputs) if inputs is not None else None
     while True:
         line = (next(feed, "") if feed is not None else ask("Valeurs à l'écran : ")).strip()
         if not line:
+            if objects and len(shots) >= 2 and not warned and not objects_moved(shots, objects, layout.big_endian):
+                warned = True
+                print("  Les combattants sont restés à la même place depuis la première capture.")
+                print("  Tes captures viennent sans doute toutes du même combat.")
+                print("  Fais encore une capture dans le combat suivant. Ou Entrée vide pour terminer quand même.")
+                continue
             break
         vals = parse_values(line)
         if not vals:
@@ -481,10 +692,11 @@ def run_live_retroarch(root, client, st, game=None, inputs=None):
         with open(stem + ".bin", "wb") as f:
             f.write(data)
         meta = {"n": n, "system": st["content"], "description": title, "source": "retroarch",
-                "core": st["system"], "values": vals,
+                "core": st["system"], "values": vals, "big_endian": layout.big_endian,
                 "ranges": [{"start": layout.base, "end": layout.base + len(data) - 1, "offset": 0, "length": len(data)}]}
         with open(stem + ".json", "w", encoding="utf-8") as f:
             json.dump(meta, f, indent=1, ensure_ascii=False)
+        shots.append(Snapshot(meta=meta, data=data))
         answers[n] = vals
         print(f"  Capture {n} enregistrée ({', '.join(f'{k}={v}' for k, v in vals.items())}).")
     if not answers:

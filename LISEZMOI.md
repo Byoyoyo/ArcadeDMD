@@ -380,6 +380,8 @@ Tape seulement les valeurs qui manquent. Les vies sont déjà connues, et les ap
 
 Pour le score du joueur 2, fais une partie à deux et tape les deux scores à chaque fois, par exemple `score=9400 score2=800`.
 
+Dans Samurai Shodown et The Last Blade, chaque combattant change de place dans la mémoire d'un combat à l'autre. Quand le jeu range le score dans le combattant, une adresse trouvée dans un seul combat passe à 0 au combat suivant. Fais donc des captures dans deux combats différents, par exemple deux dans le premier et deux dans le suivant. L'outil le rappelle au début, et prévient si toutes les captures viennent du même combat. Il enregistre alors le score « dans le combattant », et la dalle le suit de combat en combat. Si une ancienne adresse ne marche plus, refais simplement l'apprentissage. La nouvelle remplace l'ancienne dans `games\` et dans `appris\`.
+
 Noms reconnus `score`, `score2` (ou `score_p2`), `crédits` (ou `credits`), `vies`, `vies2`, `bombes`, `munitions`. Pour un autre jeu, l'outil crée un fichier dans `games\` avec la scène générique.
 
 Ce que l'outil trouve est aussi copié dans `appris\`. Une nouvelle version d'ArcadeDMD remplace les fichiers de `games\`, mais le moteur remet tout seul les adresses apprises au démarrage. Pour oublier ce qui a été appris pour un jeu, supprime son fichier dans `appris\`.
@@ -410,7 +412,7 @@ Formats de valeurs reconnus
 
 Options communes, `mult` (score stocké divisé par 10, très fréquent), `add`, `min`, `max`, `mask`, `shift`. `learn_ranges` limite la zone capturée par l'outil d'apprentissage.
 
-Pour une valeur rangée dans un objet qui change de place en mémoire (les combattants de Samurai Shodown à chaque round), `"ptr"` donne l'adresse où lire la position de l'objet (32 bits) et `"addr"` devient le décalage dans l'objet. `"ptr_range"` écarte un pointeur pas encore prêt.
+Pour une valeur rangée dans un objet qui change de place en mémoire (les combattants de Samurai Shodown à chaque round), `"ptr"` donne l'adresse où lire la position de l'objet (32 bits) et `"addr"` devient le décalage dans l'objet. `"ptr_range"` écarte un pointeur pas encore prêt. `apprendre.bat` écrit ce genre de valeur tout seul quand les captures montrent que la valeur suit l'objet.
 
 `"derived"` calcule une valeur à partir d'autres, par exemple le nom du personnage. `"value"` reprend une valeur lue, `"pick"` choisit dans une liste selon `"at"`, `"names"` change un numéro en texte. Voir `games\samsho2.json` et `games\kof98.json`.
 
