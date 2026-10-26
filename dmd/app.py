@@ -18,8 +18,9 @@ from .scene import Scene, Ctx, GameState
 from .outputs import ZeDMDOutput, PreviewOutput, GifRecorder, NullOutput
 from .pixelcade import PixelcadeOutput, guess_pixelcade_dir, list_ports
 from .retroarch import RetroArchSource
+from .memvalues import derive
 
-VERSION = "1.8.1"
+VERSION = "1.9.0"
 
 DEFAULT_CONFIG = {
     "fps": 50,
@@ -38,7 +39,6 @@ DEFAULT_CONFIG = {
     },
     "doflinx_bridge": {"enabled": False, "host": "127.0.0.1", "port": 8081},
     "retroarch": {"enabled": True, "host": "127.0.0.1", "port": 55355, "poll_ms": 100},
-    "players": {"p1": "", "p2": ""},       # noms affichés à côté de P1 et P2 (jeux de combat)
 }
 
 
@@ -372,6 +372,7 @@ class Engine:
         self.source = None
         self.last_start = None
         self.retroarch = None
+        self.derived = None
         self.demo_request = os.path.join(root, "runtime", "demo_request.json")
         self.next_request_check = 0.0
         self.pixelcade_dir = guess_pixelcade_dir(root, config.get("outputs", {}).get("pixelcade", {}))
@@ -438,14 +439,10 @@ class Engine:
         meta = dict(meta)
         meta["title"] = title
         meta["game"] = key
-        players = self.cfg.get("players") if isinstance(self.cfg.get("players"), dict) else {}
-        for n in ("p1", "p2"):
-            name = str(players.get(n) or "").strip().upper()[:6]
-            if name:
-                meta[n + "_name"] = name
         if self.pixelcade_dir:
             meta["pixelcade"] = self.pixelcade_dir
         self.state.reset(meta)
+        self.derived = g.get("derived") if isinstance(g.get("derived"), dict) else None
         self.mode = "game"
         self.source = source
         if source != "demo":
@@ -506,6 +503,9 @@ class Engine:
                 self.start_game(self.last_start or {"system": "?", "description": ""}, source)
             for k, v in (ev.get("v") or {}).items():
                 self.state.update(k, v, now, quiet=(t == "hb"))
+            if self.derived:      # valeurs calculées (nom du personnage en train de se battre...)
+                for k, v in derive(self.derived, self.state.values).items():
+                    self.state.update(k, v, now, quiet=(t == "hb"))
         elif t == "stop":
             if self.source == source or self.mode != "game":
                 self.go_idle()
@@ -605,6 +605,9 @@ class Engine:
             self.check_demo_request()
         if self.sim:
             self.sim.step(now)
+            if self.derived:
+                for k, v in derive(self.derived, self.state.values).items():
+                    self.state.update(k, v, now, quiet=True)
             if self.demo_until is not None and time.monotonic() > self.demo_until:
                 self.log("fin de la démo")
                 self.go_idle()

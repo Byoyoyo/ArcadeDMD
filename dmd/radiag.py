@@ -9,14 +9,15 @@ import time
 
 from . import wincore
 from .learn import load_games
-from .memvalues import game_values, parse_addr, value_size
+from .memvalues import derive, game_values, parse_addr, value_size
 from .retroarch import (RetroArchClient, core_label, explain_failure, find_core, layout_for, match_game,
                         read_values, too_old)
 
 LABELS = {"lives": "vies", "lives_p2": "vies J2", "bombs": "bombes", "bombs_p2": "bombes J2",
           "ammo": "munitions", "ammo_p2": "munitions J2", "weapon": "arme", "credits": "crédits",
           "time": "temps", "rings": "anneaux", "prisoners": "prisonniers", "score_p2": "score J2",
-          "weapon_p2": "arme J2", "health": "vie J1 %", "health_p2": "vie J2 %"}
+          "weapon_p2": "arme J2", "health": "vie J1 %", "health_p2": "vie J2 %",
+          "p1_char": "perso J1", "p2_char": "perso J2"}
 
 
 HIDDEN = {"p1_mode", "p2_mode"}      # état des joueurs donné par le BIOS, utile à la scène seulement
@@ -144,8 +145,11 @@ def report(root, client, st, port, say):
             else:
                 outside.append(name)
         vals = read_values(client, layout, defs) if defs else {}
+        for k, v in derive(game.get("derived"), vals).items():     # personnage en train de se battre...
+            if v is not None:
+                vals[k] = v
         if vals:
-            shown = {k: v for k, v in vals.items() if k not in HIDDEN}
+            shown = {k: v for k, v in vals.items() if k not in HIDDEN and not k.startswith("_")}
             say("Valeurs lues  " + ", ".join(f"{label(k)} {v}" for k, v in sorted(shown.items(), key=lambda kv: label(kv[0]))))
         if outside:
             say("Lisibles seulement avec MAME  " + ", ".join(sorted(label(k) for k in outside)))

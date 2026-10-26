@@ -6,7 +6,7 @@
 
 local exports = {
 	name = "arcadedmd",
-	version = "1.8.1",
+	version = "1.9.0",
 	description = "ArcadeDMD",
 	license = "MIT",
 	author = { name = "ArcadeDMD" } }
@@ -680,8 +680,10 @@ local function menu_populate()
 		items[#items + 1] = { "Configuration", session.key or "aucune (scene generique)", "off" }
 		items[#items + 1] = { "CPU", session.cpu_tag .. (session.space and "" or " (introuvable)"), "off" }
 		for _, name in ipairs(session.names) do
-			local v = session.last[name]
-			items[#items + 1] = { name, v ~= nil and tostring(v) or "-", "off" }
+			if name:sub(1, 1) ~= "_" then        -- valeurs internes (équipe des KOF...) non affichées
+				local v = session.last[name]
+				items[#items + 1] = { name, v ~= nil and tostring(v) or "-", "off" }
+			end
 		end
 		items[#items + 1] = { "---", "", "" }
 		items[#items + 1] = { "Capturer la RAM (apprentissage)", tostring(session.captures) .. " capture(s)", "" }

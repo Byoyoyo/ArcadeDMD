@@ -264,6 +264,7 @@ Pour savoir quel cœur tourne, appuie sur F1 pendant le jeu, puis Informations, 
 | Metal Slug 2 (`mslug2`), Metal Slug X (`mslugx`) | FinalBurn Neo | vies, bombes, arme et munitions | score |
 | Metal Slug 3 (`mslug3`) | FinalBurn Neo | score, vies, bombes, arme et munitions | score J2 |
 | Metal Slug 4 (`mslug4`), Metal Slug 5 (`mslug5`) | FinalBurn Neo | vies, bombes, arme et munitions | score |
+| King of Fighters '96, '97, '98, '99 et 2000 (`kof96`... `kof2000`) | FinalBurn Neo | barres de vie, chrono et nom du personnage en train de se battre | score |
 | Tous les autres jeux Neo Geo | FinalBurn Neo | scène selon le genre, barres de vie et chrono pour 36 jeux de combat (crédits avec MAME) | score, crédits si le jeu en garde une copie |
 | Sonic 1 et Sonic 2 | Genesis Plus GX | score, anneaux, vies | rien |
 
@@ -281,7 +282,7 @@ Les jeux Neo Geo connus de MAME (clones compris) ont une scène commune selon le
 
 | Genre | Fichier | Ce qui s'affiche |
 |---|---|---|
-| Combat (King of Fighters, Samurai Shodown, Fatal Fury, Art of Fighting, World Heroes...) | `neogeo_combat.json` | façon Vera. En haut le score, ou le titre tant qu'il n'est pas appris, et INSERT COIN qui clignote du côté de l'ordinateur. Au milieu les barres de vie vertes et le chrono, « KO » à la fin du combat (36 jeux, dont KOF 94 à 2001, Garou, Real Bout, Samurai Shodown III à V), sinon « VS ». En bas « P1 », et « CPU » ou « P2 » en face, les crédits sous le chrono quand ils sont connus. Un filet orange tout en bas |
+| Combat (King of Fighters, Samurai Shodown, Fatal Fury, Art of Fighting, World Heroes...) | `neogeo_combat.json` | façon Vera. En haut le score, ou le titre tant qu'il n'est pas appris, et INSERT COIN qui clignote du côté de l'ordinateur. Au milieu les barres de vie vertes et le chrono, « KO » à la fin du combat (36 jeux, dont KOF 94 à 2001, Garou, Real Bout, Samurai Shodown III à V), sinon « VS ». En bas « P1 », et « CPU » ou « P2 » en face. Dans King of Fighters '96 à 2000, le nom du personnage en train de se battre s'affiche à côté (« P1 RALF » et « LEONA CPU »). Les crédits sous le chrono quand ils sont connus. Un filet orange tout en bas |
 | Shoot'em up (Blazing Star, Pulstar, Last Resort, Aero Fighters...) | `neogeo_shoot.json` | un petit vaisseau qui traverse un champ d'étoiles et tire quand le score monte |
 | Sport et course (Super Sidekicks, Neo Turf Masters, Windjammers...) | `neogeo_sport.json` | un terrain avec un ballon qui rebondit |
 | Réflexion, quiz, mahjong (Puzzle Bobble, Magical Drop...) | `neogeo_reflexion.json` | une rangée de blocs de couleur qui changent |
@@ -292,7 +293,7 @@ Les jeux Neo Geo connus de MAME (clones compris) ont une scène commune selon le
 - Les barres de vie et le chrono viennent de la base de codes de triche de MAME 2003-Plus. Ils marchent avec RetroArch comme avec MAME.
 - Apprends le score d'un jeu avec `apprendre.bat` (même méthode que juste en dessous). L'outil crée alors `games\<jeu>.json`, par exemple `games\kof98.json`. Il garde la scène du genre et ses barres de vie, et ajoute le score. Les fichiers communs ne sont jamais modifiés.
 - Un jeu qui a son propre fichier (les Metal Slug par exemple) passe toujours avant la scène commune.
-- Facultatif, un nom après « P1 » ou « P2 » dans les jeux de combat se règle dans `config.json`, par exemple `"players": {"p1": "SEB", "p2": ""}`. Six lettres au plus. Vide, c'est juste « P1 » et « P2 ».
+- Dans King of Fighters '96 à 2000, chaque équipe est lue dans la mémoire du jeu (personnages choisis, ordre de passage, personnages déjà battus). Le nom change tout seul quand le personnage suivant entre. `test_retroarch.bat` affiche les deux personnages lus, pratique pour vérifier.
 - Le BIOS de la Neo Geo dit qui joue. Contre l'ordinateur, « CPU » s'affiche en face et INSERT COIN clignote de son côté (PRESS START s'il reste des crédits). À deux, les deux scores sont en haut. Quand personne ne joue, le titre défile en haut et INSERT COIN clignote en bas.
 
 ### Apprendre le score

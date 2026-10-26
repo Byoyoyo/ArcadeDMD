@@ -104,3 +104,61 @@ def game_values(game, system="", parent=""):
         if isinstance(extra, dict):
             vals.update(extra)
     return vals
+
+
+# --------------------------------------------------------------------------
+# valeurs calculées à partir d'autres ("derived" dans games/*.json)
+# --------------------------------------------------------------------------
+# Exemple, le personnage en train de se battre dans King of Fighters '98 :
+#   "p1_char": {"pick": ["_p1_ch0", "_p1_ch1", "_p1_ch2"],
+#               "at": {"pick": ["_p1_ord0", "_p1_ord1", "_p1_ord2"], "at": "_p1_lost"},
+#               "names": {"0": "KYO", "10": "RALF", ...}}
+# pick : l'élément de la liste désigné par "at" (un nom de valeur, un nombre ou un autre calcul)
+# find : la position dans la liste de la valeur égale à "eq"
+# names : nombre lu -> texte affiché (sans correspondance, la valeur reste vide)
+
+def _resolve(expr, values, depth=0):
+    if depth > 8:
+        return None
+    if isinstance(expr, bool):
+        return None
+    if isinstance(expr, (int, float)):
+        return expr
+    if isinstance(expr, str):
+        return values.get(expr)
+    if not isinstance(expr, dict):
+        return None
+    if "pick" in expr:
+        lst = expr.get("pick")
+        idx = _resolve(expr.get("at"), values, depth + 1)
+        if not isinstance(lst, list) or isinstance(idx, bool) or not isinstance(idx, int) or not 0 <= idx < len(lst):
+            return None
+        return _resolve(lst[idx], values, depth + 1)
+    if "find" in expr:
+        lst = expr.get("find")
+        target = _resolve(expr.get("eq"), values, depth + 1)
+        if not isinstance(lst, list) or target is None:
+            return None
+        for i, name in enumerate(lst):
+            if _resolve(name, values, depth + 1) == target:
+                return i
+        return None
+    return None
+
+
+def derive(specs, values):
+    """{nom: valeur calculée ou None} pour les définitions "derived" d'un jeu."""
+    out = {}
+    if not isinstance(specs, dict):
+        return out
+    for name, spec in specs.items():
+        if not isinstance(spec, dict):
+            continue
+        v = _resolve(spec, values)
+        names = spec.get("names")
+        if isinstance(names, dict) and v is not None:
+            v = names.get(str(v))
+        elif isinstance(names, list) and v is not None:
+            v = names[v] if isinstance(v, int) and 0 <= v < len(names) else None
+        out[name] = v
+    return out

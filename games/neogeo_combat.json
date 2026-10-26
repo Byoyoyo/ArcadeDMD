@@ -969,326 +969,693 @@
     }
    },
    {
-    "type": "text",
-    "font": "6x10",
-    "x": 1,
-    "y": 21,
-    "align": "left",
-    "text": "P1",
-    "color": "#ffa830",
+    "type": "cycle",
+    "period": 3,
     "when": {
-     "all": [
-      {
-       "any": [
-        {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
          "var": "p1_mode",
          "in": [
           1,
           2
          ]
-        },
-        {
-         "not": {
-          "has": "p1_mode"
-         }
         }
-       ]
-      },
-      {
-       "not": {
-        "all": [
-         {
-          "has": "p1_mode"
-         },
-         {
-          "not": {
-           "var": "p1_mode",
-           "in": [
-            1,
-            2
-           ]
-          }
-         },
-         {
-          "not": {
-           "var": "p2_mode",
-           "in": [
-            1,
-            2
-           ]
-          }
-         }
-        ]
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
        }
-      },
-      {
-       "not": {
-        "has": "p1_name"
-       }
-      }
-     ]
-    }
-   },
-   {
-    "type": "text",
-    "font": "6x10",
-    "x": 1,
-    "y": 21,
-    "align": "left",
-    "segments": [
-     {
-      "text": "P1 ",
-      "color": "#ffa830"
-     },
-     {
-      "text": "{p1_name}",
-      "color": "#ff2a1a"
+      ]
      }
-    ],
-    "when": {
-     "all": [
-      {
-       "any": [
-        {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        },
-        {
-         "not": {
-          "has": "p1_mode"
-         }
-        }
-       ]
-      },
-      {
-       "not": {
-        "all": [
-         {
-          "has": "p1_mode"
-         },
-         {
-          "not": {
-           "var": "p1_mode",
-           "in": [
-            1,
-            2
-           ]
-          }
-         },
-         {
-          "not": {
-           "var": "p2_mode",
-           "in": [
-            1,
-            2
-           ]
-          }
-         }
-        ]
-       }
-      },
-      {
-       "has": "p1_name"
-      }
-     ]
-    }
-   },
-   {
-    "type": "text",
-    "font": "6x10",
-    "x": 1,
-    "y": 21,
-    "align": "left",
-    "text": "CPU",
-    "color": "#ffa830",
-    "when": {
-     "all": [
-      {
-       "has": "p1_mode"
-      },
-      {
-       "not": {
-        "var": "p1_mode",
-        "in": [
-         1,
-         2
-        ]
-       }
-      },
-      {
-       "var": "p2_mode",
-       "in": [
-        1,
-        2
-       ]
-      }
-     ]
-    }
-   },
-   {
-    "type": "text",
-    "font": "6x10",
-    "x": 127,
-    "y": 21,
-    "align": "right",
-    "text": "P2",
-    "color": "#ffa830",
-    "when": {
-     "all": [
-      {
-       "var": "p2_mode",
-       "in": [
-        1,
-        2
-       ]
-      },
-      {
-       "not": {
-        "has": "p2_name"
-       }
-      }
-     ]
-    }
-   },
-   {
-    "type": "text",
-    "font": "6x10",
-    "x": 127,
-    "y": 21,
-    "align": "right",
-    "segments": [
-     {
-      "text": "P2 ",
-      "color": "#ffa830"
-     },
-     {
-      "text": "{p2_name}",
-      "color": "#ff2a1a"
-     }
-    ],
-    "when": {
-     "all": [
-      {
-       "var": "p2_mode",
-       "in": [
-        1,
-        2
-       ]
-      },
-      {
-       "has": "p2_name"
-      }
-     ]
-    }
-   },
-   {
-    "type": "text",
-    "font": "6x10",
-    "x": 127,
-    "y": 21,
-    "align": "right",
-    "text": "CPU",
-    "color": "#ffa830",
-    "when": {
-     "all": [
-      {
-       "any": [
-        {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        },
-        {
-         "not": {
-          "has": "p1_mode"
-         }
-        }
-       ]
-      },
-      {
-       "not": {
-        "var": "p2_mode",
-        "in": [
-         1,
-         2
-        ]
-       }
-      }
-     ]
-    }
-   },
-   {
-    "type": "text",
-    "font": "5x8",
-    "x": 66,
-    "y": 22,
-    "align": "center",
-    "text": "CRÉDITS {credits}",
-    "color": "#ffa830",
-    "when": {
-     "all": [
-      {
-       "has": "credits"
-      },
-      {
-       "not": {
-        "all": [
-         {
-          "has": "p1_mode"
-         },
-         {
-          "not": {
-           "var": "p1_mode",
-           "in": [
-            1,
-            2
-           ]
-          }
-         },
-         {
-          "not": {
-           "var": "p2_mode",
-           "in": [
-            1,
-            2
-           ]
-          }
-         }
-        ]
-       }
-      },
-      {
-       "not": {
-        "all": [
-         {
-          "var": "p1_mode",
-          "in": [
-           1,
-           2
-          ]
-         },
-         {
-          "var": "p2_mode",
-          "in": [
-           1,
-           2
-          ]
-         }
-        ]
-       }
-      }
-     ]
     },
-    "flash": {
-     "on": "credits",
-     "color": "#ffffff",
-     "ms": 400
-    }
+    "pages": [
+     {
+      "when": {
+       "any": [
+        {
+         "has": "p1_char"
+        },
+        {
+         "has": "p2_char"
+        }
+       ]
+      },
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 1,
+        "y": 21,
+        "align": "left",
+        "segments": [
+         {
+          "text": "P1 ",
+          "color": "#ffa830"
+         },
+         {
+          "text": "{p1_char}",
+          "color": "#ff2a1a"
+         }
+        ],
+        "when": {
+         "all": [
+          {
+           "any": [
+            {
+             "var": "p1_mode",
+             "in": [
+              1,
+              2
+             ]
+            },
+            {
+             "not": {
+              "has": "p1_mode"
+             }
+            }
+           ]
+          },
+          {
+           "has": "p1_char"
+          }
+         ]
+        },
+        "fit": true,
+        "max_w": 62
+       },
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 1,
+        "y": 21,
+        "align": "left",
+        "text": "P1",
+        "color": "#ffa830",
+        "when": {
+         "all": [
+          {
+           "any": [
+            {
+             "var": "p1_mode",
+             "in": [
+              1,
+              2
+             ]
+            },
+            {
+             "not": {
+              "has": "p1_mode"
+             }
+            }
+           ]
+          },
+          {
+           "not": {
+            "has": "p1_char"
+           }
+          }
+         ]
+        }
+       },
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 1,
+        "y": 21,
+        "align": "left",
+        "segments": [
+         {
+          "text": "CPU ",
+          "color": "#ffa830"
+         },
+         {
+          "text": "{p1_char}",
+          "color": "#ff2a1a"
+         }
+        ],
+        "when": {
+         "all": [
+          {
+           "all": [
+            {
+             "has": "p1_mode"
+            },
+            {
+             "not": {
+              "var": "p1_mode",
+              "in": [
+               1,
+               2
+              ]
+             }
+            },
+            {
+             "var": "p2_mode",
+             "in": [
+              1,
+              2
+             ]
+            }
+           ]
+          },
+          {
+           "has": "p1_char"
+          }
+         ]
+        },
+        "fit": true,
+        "max_w": 62
+       },
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 1,
+        "y": 21,
+        "align": "left",
+        "text": "CPU",
+        "color": "#ffa830",
+        "when": {
+         "all": [
+          {
+           "all": [
+            {
+             "has": "p1_mode"
+            },
+            {
+             "not": {
+              "var": "p1_mode",
+              "in": [
+               1,
+               2
+              ]
+             }
+            },
+            {
+             "var": "p2_mode",
+             "in": [
+              1,
+              2
+             ]
+            }
+           ]
+          },
+          {
+           "not": {
+            "has": "p1_char"
+           }
+          }
+         ]
+        }
+       },
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 21,
+        "align": "right",
+        "segments": [
+         {
+          "text": "{p2_char} ",
+          "color": "#ff2a1a"
+         },
+         {
+          "text": "P2",
+          "color": "#ffa830"
+         }
+        ],
+        "when": {
+         "all": [
+          {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          },
+          {
+           "has": "p2_char"
+          }
+         ]
+        },
+        "fit": true,
+        "max_w": 62
+       },
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 21,
+        "align": "right",
+        "text": "P2",
+        "color": "#ffa830",
+        "when": {
+         "all": [
+          {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          },
+          {
+           "not": {
+            "has": "p2_char"
+           }
+          }
+         ]
+        }
+       },
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 21,
+        "align": "right",
+        "segments": [
+         {
+          "text": "{p2_char} ",
+          "color": "#ff2a1a"
+         },
+         {
+          "text": "CPU",
+          "color": "#ffa830"
+         }
+        ],
+        "when": {
+         "all": [
+          {
+           "all": [
+            {
+             "any": [
+              {
+               "var": "p1_mode",
+               "in": [
+                1,
+                2
+               ]
+              },
+              {
+               "not": {
+                "has": "p1_mode"
+               }
+              }
+             ]
+            },
+            {
+             "not": {
+              "var": "p2_mode",
+              "in": [
+               1,
+               2
+              ]
+             }
+            }
+           ]
+          },
+          {
+           "has": "p2_char"
+          }
+         ]
+        },
+        "fit": true,
+        "max_w": 62
+       },
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 21,
+        "align": "right",
+        "text": "CPU",
+        "color": "#ffa830",
+        "when": {
+         "all": [
+          {
+           "all": [
+            {
+             "any": [
+              {
+               "var": "p1_mode",
+               "in": [
+                1,
+                2
+               ]
+              },
+              {
+               "not": {
+                "has": "p1_mode"
+               }
+              }
+             ]
+            },
+            {
+             "not": {
+              "var": "p2_mode",
+              "in": [
+               1,
+               2
+              ]
+             }
+            }
+           ]
+          },
+          {
+           "not": {
+            "has": "p2_char"
+           }
+          }
+         ]
+        }
+       }
+      ]
+     },
+     {
+      "when": {
+       "all": [
+        {
+         "has": "credits"
+        },
+        {
+         "not": {
+          "all": [
+           {
+            "var": "p1_mode",
+            "in": [
+             1,
+             2
+            ]
+           },
+           {
+            "var": "p2_mode",
+            "in": [
+             1,
+             2
+            ]
+           }
+          ]
+         }
+        }
+       ]
+      },
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 1,
+        "y": 21,
+        "align": "left",
+        "text": "P1",
+        "color": "#ffa830",
+        "when": {
+         "any": [
+          {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          },
+          {
+           "not": {
+            "has": "p1_mode"
+           }
+          }
+         ]
+        }
+       },
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 1,
+        "y": 21,
+        "align": "left",
+        "text": "CPU",
+        "color": "#ffa830",
+        "when": {
+         "all": [
+          {
+           "has": "p1_mode"
+          },
+          {
+           "not": {
+            "var": "p1_mode",
+            "in": [
+             1,
+             2
+            ]
+           }
+          },
+          {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         ]
+        }
+       },
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 21,
+        "align": "right",
+        "text": "P2",
+        "color": "#ffa830",
+        "when": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 21,
+        "align": "right",
+        "text": "CPU",
+        "color": "#ffa830",
+        "when": {
+         "all": [
+          {
+           "any": [
+            {
+             "var": "p1_mode",
+             "in": [
+              1,
+              2
+             ]
+            },
+            {
+             "not": {
+              "has": "p1_mode"
+             }
+            }
+           ]
+          },
+          {
+           "not": {
+            "var": "p2_mode",
+            "in": [
+             1,
+             2
+            ]
+           }
+          }
+         ]
+        }
+       },
+       {
+        "type": "text",
+        "font": "5x8",
+        "x": 66,
+        "y": 22,
+        "align": "center",
+        "text": "CRÉDITS {credits}",
+        "color": "#ffa830",
+        "flash": {
+         "on": "credits",
+         "color": "#ffffff",
+         "ms": 400
+        }
+       }
+      ]
+     },
+     {
+      "when": {
+       "all": [
+        {
+         "not": {
+          "any": [
+           {
+            "has": "p1_char"
+           },
+           {
+            "has": "p2_char"
+           }
+          ]
+         }
+        },
+        {
+         "not": {
+          "all": [
+           {
+            "has": "credits"
+           },
+           {
+            "not": {
+             "all": [
+              {
+               "var": "p1_mode",
+               "in": [
+                1,
+                2
+               ]
+              },
+              {
+               "var": "p2_mode",
+               "in": [
+                1,
+                2
+               ]
+              }
+             ]
+            }
+           }
+          ]
+         }
+        }
+       ]
+      },
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 1,
+        "y": 21,
+        "align": "left",
+        "text": "P1",
+        "color": "#ffa830",
+        "when": {
+         "any": [
+          {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          },
+          {
+           "not": {
+            "has": "p1_mode"
+           }
+          }
+         ]
+        }
+       },
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 1,
+        "y": 21,
+        "align": "left",
+        "text": "CPU",
+        "color": "#ffa830",
+        "when": {
+         "all": [
+          {
+           "has": "p1_mode"
+          },
+          {
+           "not": {
+            "var": "p1_mode",
+            "in": [
+             1,
+             2
+            ]
+           }
+          },
+          {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         ]
+        }
+       },
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 21,
+        "align": "right",
+        "text": "P2",
+        "color": "#ffa830",
+        "when": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 21,
+        "align": "right",
+        "text": "CPU",
+        "color": "#ffa830",
+        "when": {
+         "all": [
+          {
+           "any": [
+            {
+             "var": "p1_mode",
+             "in": [
+              1,
+              2
+             ]
+            },
+            {
+             "not": {
+              "has": "p1_mode"
+             }
+            }
+           ]
+          },
+          {
+           "not": {
+            "var": "p2_mode",
+            "in": [
+             1,
+             2
+            ]
+           }
+          }
+         ]
+        }
+       }
+      ]
+     }
+    ]
    },
    {
     "type": "text",
