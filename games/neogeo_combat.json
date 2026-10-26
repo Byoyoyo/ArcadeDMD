@@ -605,28 +605,6 @@
    {
     "type": "text",
     "font": "6x10",
-    "x": 17,
-    "y": 19,
-    "align": "left",
-    "text": "{score}",
-    "color": "#ececec",
-    "when": {
-     "all": [
-      {
-       "has": [
-        "health",
-        "health_p2"
-       ]
-      },
-      {
-       "has": "score"
-      }
-     ]
-    }
-   },
-   {
-    "type": "text",
-    "font": "6x10",
     "x": 126,
     "y": 19,
     "align": "right",
@@ -640,31 +618,97 @@
     }
    },
    {
-    "type": "text",
-    "font": "6x10",
-    "x": 64,
-    "y": 19,
-    "align": "center",
-    "text": "CRÉDITS {credits}",
-    "color": "#30d8ff",
+    "type": "cycle",
+    "period": 3,
     "when": {
-     "all": [
-      {
-       "has": [
-        "health",
-        "health_p2"
-       ]
-      },
-      {
+     "has": [
+      "health",
+      "health_p2"
+     ]
+    },
+    "pages": [
+     {
+      "when": {
        "has": "credits"
       },
-      {
-       "not": {
-        "has": "score"
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 64,
+        "y": 19,
+        "align": "center",
+        "segments": [
+         {
+          "text": "CRÉDITS ",
+          "color": "#30d8ff"
+         },
+         {
+          "text": "{credits}",
+          "color": "#ffc830"
+         }
+        ],
+        "flash": {
+         "on": "credits",
+         "color": "#ffffff",
+         "ms": 400
+        }
        }
-      }
-     ]
-    }
+      ]
+     },
+     {
+      "when": {
+       "any": [
+        {
+         "has": "score"
+        },
+        {
+         "has": "score_p2"
+        }
+       ]
+      },
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 16,
+        "y": 19,
+        "align": "left",
+        "text": "{score}",
+        "color": "#ececec",
+        "when": {
+         "has": "score"
+        },
+        "flash": {
+         "on": "score",
+         "color": "#a8ffbc",
+         "ms": 120
+        },
+        "fit": true,
+        "max_w": 46
+       },
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 112,
+        "y": 19,
+        "align": "right",
+        "text": "{score_p2}",
+        "color": "#ececec",
+        "when": {
+         "has": "score_p2"
+        },
+        "flash": {
+         "on": "score_p2",
+         "color": "#fff4c8",
+         "ms": 120
+        },
+        "fit": true,
+        "max_w": 46
+       }
+      ]
+     }
+    ]
    },
    {
     "type": "text",

@@ -353,8 +353,10 @@ def run(root, game=None, answers=None, write=None, show=True, pick_interactive=F
         for k, v in chosen.items():
             old = vals.get(k, {})
             note = old.get("note") if isinstance(old, dict) else None
+            if isinstance(old, dict) and old.get("mame_only"):
+                note = "copie gardée par le jeu, trouvée avec apprendre.bat"     # lisible aussi avec RetroArch
             vals[k] = v
-            if note and "apprendre" not in note:
+            if note and "à trouver" not in note:
                 vals[k]["note"] = note
         with open(cfg_path, "w", encoding="utf-8") as f:
             json.dump(cfg, f, indent=2, ensure_ascii=False)

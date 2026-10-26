@@ -204,7 +204,27 @@
         "font": "6x10",
         "y": 0,
         "speed": 12,
-        "gap": 40
+        "gap": 40,
+        "when": {
+          "not": {
+            "all": [
+              {
+                "var": "p1_mode",
+                "in": [
+                  1,
+                  2
+                ]
+              },
+              {
+                "var": "p2_mode",
+                "in": [
+                  1,
+                  2
+                ]
+              }
+            ]
+          }
+        }
       },
       {
         "type": "text",
@@ -1719,12 +1739,139 @@
         ]
       },
       {
+        "type": "marquee",
+        "segments": [
+          {
+            "text": "SNK",
+            "color": "#1d5bff"
+          },
+          {
+            "text": " - METAL SLUG 3",
+            "color": "#9a9a9a"
+          }
+        ],
+        "font": "6x10",
+        "y": 0,
+        "speed": 12,
+        "gap": 40,
+        "x": 36,
+        "w": 56,
+        "when": {
+          "all": [
+            {
+              "var": "p1_mode",
+              "in": [
+                1,
+                2
+              ]
+            },
+            {
+              "var": "p2_mode",
+              "in": [
+                1,
+                2
+              ]
+            }
+          ]
+        }
+      },
+      {
         "type": "text",
         "segments": [
           {
-            "text": "P1 ",
+            "text": "1UP=",
             "color": "#30ff60"
           },
+          {
+            "text": "{lives}",
+            "color": "#ececec"
+          }
+        ],
+        "font": "6x10",
+        "x": 1,
+        "y": 0,
+        "align": "left",
+        "when": {
+          "all": [
+            {
+              "all": [
+                {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                },
+                {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              ]
+            },
+            {
+              "has": "lives"
+            }
+          ]
+        },
+        "flash": {
+          "on": "lives",
+          "color": "#ff4040",
+          "ms": 600
+        }
+      },
+      {
+        "type": "text",
+        "segments": [
+          {
+            "text": "2UP=",
+            "color": "#ffc830"
+          },
+          {
+            "text": "{lives_p2}",
+            "color": "#ececec"
+          }
+        ],
+        "font": "6x10",
+        "x": 127,
+        "y": 0,
+        "align": "right",
+        "when": {
+          "all": [
+            {
+              "all": [
+                {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                },
+                {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              ]
+            },
+            {
+              "has": "lives_p2"
+            }
+          ]
+        },
+        "flash": {
+          "on": "lives_p2",
+          "color": "#ff4040",
+          "ms": 600
+        }
+      },
+      {
+        "type": "text",
+        "segments": [
           {
             "text": "{score}",
             "color": "#ececec"
@@ -1769,59 +1916,8 @@
         "type": "text",
         "segments": [
           {
-            "text": "P1 ",
-            "color": "#30ff60"
-          },
-          {
-            "text": "VIES {lives}",
-            "color": "#ececec"
-          }
-        ],
-        "font": "6x13",
-        "x": 1,
-        "y": 8,
-        "align": "left",
-        "when": {
-          "all": [
-            {
-              "all": [
-                {
-                  "var": "p1_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                },
-                {
-                  "var": "p2_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              ]
-            },
-            {
-              "not": {
-                "has": "score"
-              }
-            },
-            {
-              "has": "lives"
-            }
-          ]
-        }
-      },
-      {
-        "type": "text",
-        "segments": [
-          {
-            "text": "P2 ",
-            "color": "#30d8ff"
-          },
-          {
             "text": "{score_p2}",
-            "color": "#ffc830"
+            "color": "#ececec"
           }
         ],
         "font": "6x13",
@@ -1863,17 +1959,53 @@
         "type": "text",
         "segments": [
           {
-            "text": "P2 ",
-            "color": "#30d8ff"
-          },
-          {
-            "text": "VIES {lives_p2}",
-            "color": "#ffc830"
+            "text": "SCORE ?",
+            "color": "#5a5a5a"
           }
         ],
-        "font": "6x13",
+        "font": "5x8",
+        "x": 1,
+        "y": 10,
+        "align": "left",
+        "when": {
+          "all": [
+            {
+              "all": [
+                {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                },
+                {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              ]
+            },
+            {
+              "not": {
+                "has": "score"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "text",
+        "segments": [
+          {
+            "text": "SCORE ?",
+            "color": "#5a5a5a"
+          }
+        ],
+        "font": "5x8",
         "x": 127,
-        "y": 8,
+        "y": 10,
         "align": "right",
         "when": {
           "all": [
@@ -1899,9 +2031,6 @@
               "not": {
                 "has": "score_p2"
               }
-            },
-            {
-              "has": "lives_p2"
             }
           ]
         }
@@ -1930,7 +2059,7 @@
         "pages": [
           {
             "when": {
-              "has": "lives"
+              "has": "bombs"
             },
             "layers": [
               {
@@ -1941,7 +2070,7 @@
                     "color": "#30ff60"
                   },
                   {
-                    "text": "VIES {lives} BOMBES {bombs}",
+                    "text": "BOMBES {bombs}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -1949,39 +2078,8 @@
                 "x": 64,
                 "y": 19,
                 "align": "center",
-                "when": {
-                  "has": "bombs"
-                },
                 "flash": {
-                  "on": "lives",
-                  "color": "#ffffff",
-                  "ms": 300
-                },
-                "fit": true
-              },
-              {
-                "type": "text",
-                "segments": [
-                  {
-                    "text": "P1 ",
-                    "color": "#30ff60"
-                  },
-                  {
-                    "text": "VIES {lives}",
-                    "color": "#30d8ff"
-                  }
-                ],
-                "font": "6x10",
-                "x": 64,
-                "y": 19,
-                "align": "center",
-                "when": {
-                  "not": {
-                    "has": "bombs"
-                  }
-                },
-                "flash": {
-                  "on": "lives",
+                  "on": "bombs",
                   "color": "#ffffff",
                   "ms": 300
                 },
@@ -1991,7 +2089,7 @@
           },
           {
             "when": {
-              "has": "lives_p2"
+              "has": "bombs_p2"
             },
             "layers": [
               {
@@ -2002,7 +2100,7 @@
                     "color": "#ffc830"
                   },
                   {
-                    "text": "VIES {lives_p2} BOMBES {bombs_p2}",
+                    "text": "BOMBES {bombs_p2}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -2010,39 +2108,8 @@
                 "x": 64,
                 "y": 19,
                 "align": "center",
-                "when": {
-                  "has": "bombs_p2"
-                },
                 "flash": {
-                  "on": "lives_p2",
-                  "color": "#ffffff",
-                  "ms": 300
-                },
-                "fit": true
-              },
-              {
-                "type": "text",
-                "segments": [
-                  {
-                    "text": "P2 ",
-                    "color": "#ffc830"
-                  },
-                  {
-                    "text": "VIES {lives_p2}",
-                    "color": "#30d8ff"
-                  }
-                ],
-                "font": "6x10",
-                "x": 64,
-                "y": 19,
-                "align": "center",
-                "when": {
-                  "not": {
-                    "has": "bombs_p2"
-                  }
-                },
-                "flash": {
-                  "on": "lives_p2",
+                  "on": "bombs_p2",
                   "color": "#ffffff",
                   "ms": 300
                 },

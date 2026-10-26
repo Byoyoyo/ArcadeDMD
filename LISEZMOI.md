@@ -264,14 +264,14 @@ Pour savoir quel cœur tourne, appuie sur F1 pendant le jeu, puis Informations, 
 | Metal Slug 2 (`mslug2`), Metal Slug X (`mslugx`) | FinalBurn Neo | vies, bombes, arme et munitions | score |
 | Metal Slug 3 (`mslug3`) | FinalBurn Neo | score, vies, bombes, arme et munitions | score J2 |
 | Metal Slug 4 (`mslug4`), Metal Slug 5 (`mslug5`) | FinalBurn Neo | vies, bombes, arme et munitions | score |
-| Tous les autres jeux Neo Geo | FinalBurn Neo | scène selon le genre, barres de vie et chrono pour 36 jeux de combat (crédits avec MAME) | score |
+| Tous les autres jeux Neo Geo | FinalBurn Neo | scène selon le genre, barres de vie et chrono pour 36 jeux de combat (crédits avec MAME) | score, crédits si le jeu en garde une copie |
 | Sonic 1 et Sonic 2 | Genesis Plus GX | score, anneaux, vies | rien |
 
 Les adresses des vies, bombes et munitions viennent de la base de codes de triche de MAME 2003-Plus. Celles de Sonic sont les mêmes que dans MAME. Les vies des Metal Slug suivent le « 1UP » de l'écran. Metal Slug 1 compte aussi la vie en cours, ArcadeDMD enlève donc 1 (vérifié). Metal Slug 3 ne la compte pas (vérifié). Pour 2 et X, ArcadeDMD fait comme pour le 1, et pour 4 et 5 comme pour le 3. Si un de ces jeux affiche une vie de moins que l'écran, enlève les lignes `"add"` et `"min"` de ses vies dans son fichier `games\mslugX.json`. S'il en affiche une de plus, ajoute `"add": -1, "min": 0`.
 
-À deux joueurs, la scène change toute seule dès que le joueur 2 appuie sur Start. Le BIOS de la Neo Geo indique qui est en jeu. En haut, « P1 » et son score à gauche, « P2 » et son score à droite (ou ses vies tant que son score n'est pas appris). En bas, les vies et bombes puis l'arme de chaque joueur passent à tour de rôle, avec « P1 » en vert et « P2 » en jaune. Si seul le joueur 2 joue, la scène normale s'affiche avec ses valeurs à lui. Les crédits des Neo Geo ne se lisent qu'avec MAME, RetroArch ne voit pas cette mémoire.
+À deux joueurs, la scène change toute seule dès que le joueur 2 appuie sur Start. Le BIOS de la Neo Geo indique qui est en jeu. En haut, comme dans le jeu, « 1UP= » et les vies du joueur 1 à gauche, « 2UP= » et celles du joueur 2 à droite, avec le titre qui défile entre les deux. Dessous, chaque score sous son 1UP ou son 2UP. « SCORE ? » en gris veut dire que ce score n'est pas encore appris. En bas, les bombes puis l'arme de chaque joueur passent à tour de rôle, avec « P1 » en vert et « P2 » en jaune. Si seul le joueur 2 joue, la scène normale s'affiche avec ses valeurs à lui. Les crédits des Neo Geo ne se lisent qu'avec MAME (voir Tous les jeux Neo Geo).
 
-Les scènes des Metal Slug s'inspirent de la vidéo de Vera, adaptées à une dalle 128x32 pour que rien ne passe sous le décor. En haut, « SNK » en bleu puis « - METAL SLUG » (avec le numéro du jeu) en blanc défilent lentement. Dessous, « P1 » en vert et le score en blanc à gauche, les vies à droite (le score du joueur 2 dans Metal Slug 3, une fois appris). La ligne suivante alterne les bombes, l'arme avec ses munitions (pistolet, mitraillette, fusil à pompe, lance-flammes, lance-roquettes, laser, tête chercheuse... un « + » indique la version améliorée) et les crédits avec MAME. Tout en bas, des petites collines et un petit char moins lumineux qui avance et tire quand le score monte.
+Les scènes des Metal Slug s'inspirent de la vidéo de Vera, adaptées à une dalle 128x32 pour que rien ne passe sous le décor. En haut, « SNK » en bleu puis « - METAL SLUG » (avec le numéro du jeu) en blanc défilent lentement. Dessous, « P1 » en vert et le score en blanc à gauche, les vies à droite. La ligne suivante alterne les bombes, l'arme avec ses munitions (pistolet, mitraillette, fusil à pompe, lance-flammes, lance-roquettes, laser, tête chercheuse... un « + » indique la version améliorée) et les crédits avec MAME. Tout en bas, des petites collines et un petit char moins lumineux qui avance et tire quand le score monte.
 
 Les scores de Metal Slug et de Metal Slug 3 sont déjà dans leurs fichiers, trouvés avec `apprendre.bat` sous RetroArch et FinalBurn Neo. Pour remplacer le char par ton propre dessin, dépose `mslug_tank.gif` (ou `mslug_tank.png` en bande de 3 images) dans `sprites\`. Il doit tenir sur 5 pixels de haut, canon vers la droite.
 
@@ -281,13 +281,14 @@ Les jeux Neo Geo connus de MAME (clones compris) ont une scène commune selon le
 
 | Genre | Fichier | Ce qui s'affiche |
 |---|---|---|
-| Combat (King of Fighters, Samurai Shodown, Fatal Fury, Art of Fighting, World Heroes...) | `neogeo_combat.json` | les deux barres de vie avec le chrono au milieu et « KO », comme dans le jeu, quand leurs adresses sont connues (36 jeux, dont KOF 94 à 2001, Garou, Real Bout, Samurai Shodown III à V). Sinon « 1P VS 2P ». Des flammes en bas |
+| Combat (King of Fighters, Samurai Shodown, Fatal Fury, Art of Fighting, World Heroes...) | `neogeo_combat.json` | les deux barres de vie avec le chrono au milieu et « KO », comme dans le jeu, quand leurs adresses sont connues (36 jeux, dont KOF 94 à 2001, Garou, Real Bout, Samurai Shodown III à V). Les crédits sous le chrono quand ils sont connus, en alternance avec les scores s'ils sont appris. Sinon « 1P VS 2P ». Des flammes en bas |
 | Shoot'em up (Blazing Star, Pulstar, Last Resort, Aero Fighters...) | `neogeo_shoot.json` | un petit vaisseau qui traverse un champ d'étoiles et tire quand le score monte |
 | Sport et course (Super Sidekicks, Neo Turf Masters, Windjammers...) | `neogeo_sport.json` | un terrain avec un ballon qui rebondit |
 | Réflexion, quiz, mahjong (Puzzle Bobble, Magical Drop...) | `neogeo_reflexion.json` | une rangée de blocs de couleur qui changent |
 | Action, plates-formes, beat'em up et le reste (Sengoku, Shock Troopers...) | `neogeo.json` | des collines bleues, et les barres de vie des deux joueurs quand elles sont connues |
 
 - Avec RetroArch, la scène affiche « NEO GEO » au milieu tant que rien n'est connu pour ce jeu. Avec MAME, les crédits s'affichent en plus.
+- Les crédits d'une Neo Geo MVS sont rangés dans la mémoire de sauvegarde de la borne. MAME la lit. Le cœur FinalBurn Neo de RetroArch ne partage que la mémoire de travail du jeu, donc pas les crédits. Certains jeux en gardent une copie dans leur mémoire de travail. Pour le savoir, apprends-les avec `apprendre.bat` (même méthode que pour le score) en tapant `crédits=2`, puis remets une pièce et tape `crédits=3`, et encore une fois. Si l'outil trouve une adresse, les crédits s'affichent. S'il répond « Rien trouvé », ce jeu n'en garde pas de copie.
 - Les barres de vie et le chrono viennent de la base de codes de triche de MAME 2003-Plus. Ils marchent avec RetroArch comme avec MAME.
 - Apprends le score d'un jeu avec `apprendre.bat` (même méthode que juste en dessous). L'outil crée alors `games\<jeu>.json`, par exemple `games\kof98.json`. Il garde la scène du genre et ses barres de vie, et ajoute le score. Les fichiers communs ne sont jamais modifiés.
 - Un jeu qui a son propre fichier (les Metal Slug par exemple) passe toujours avant la scène commune.
@@ -305,7 +306,7 @@ Tape seulement les valeurs qui manquent. Les vies sont déjà connues, et les ap
 
 Pour le score du joueur 2, fais une partie à deux et tape les deux scores à chaque fois, par exemple `score=9400 score2=800`.
 
-Noms reconnus `score`, `score2` (ou `score_p2`), `credits`, `vies`, `vies2`, `bombes`, `munitions`. Pour un autre jeu, l'outil crée un fichier dans `games\` avec la scène générique.
+Noms reconnus `score`, `score2` (ou `score_p2`), `crédits` (ou `credits`), `vies`, `vies2`, `bombes`, `munitions`. Pour un autre jeu, l'outil crée un fichier dans `games\` avec la scène générique.
 
 Ce que l'outil trouve est aussi copié dans `appris\`. Une nouvelle version d'ArcadeDMD remplace les fichiers de `games\`, mais le moteur remet tout seul les adresses apprises au démarrage. Pour oublier ce qui a été appris pour un jeu, supprime son fichier dans `appris\`.
 
