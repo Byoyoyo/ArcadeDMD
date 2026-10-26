@@ -1,0 +1,130 @@
+{
+ "title": "Fight Fever",
+ "note": "Jeu de combat Neo Geo : vie, chrono, 10 personnages.",
+ "match": [
+  {
+   "system": [
+    "fightfev",
+    "fightfeva"
+   ]
+  }
+ ],
+ "retroarch": {
+  "content": [
+   "fightfev",
+   "fightfeva"
+  ],
+  "ram_base": "0x100000",
+  "ram_size": "0x10000",
+  "swap16": true,
+  "note": "cœur FinalBurn Neo : RAM 68000 de la Neo Geo vue à partir de 0x100000, octets inversés par mots de 16 bits"
+ },
+ "scene_from": "neogeo_combat",
+ "memory": {
+  "cpu": ":maincpu",
+  "values": {
+   "credits": {
+    "addr": "0xD00034",
+    "type": "bcd",
+    "bytes": 1,
+    "mame_only": true,
+    "note": "crédits MVS (mémoire de sauvegarde), lisibles dans MAME seulement"
+   },
+   "p1_mode": {
+    "addr": "0x10FDB6",
+    "type": "u8",
+    "note": "BIOS : joueur 1, 0 jamais joué, 1 en jeu, 2 continue, 3 game over"
+   },
+   "p2_mode": {
+    "addr": "0x10FDB7",
+    "type": "u8",
+    "note": "BIOS : joueur 2, mêmes valeurs"
+   },
+   "health": {
+    "addr": "0x10C602",
+    "type": "u8",
+    "mult": 0.833333,
+    "min": 0,
+    "max": 100,
+    "note": "vie joueur 1 en %, pleine = 0x78"
+   },
+   "health_p2": {
+    "addr": "0x10C702",
+    "type": "u8",
+    "mult": 0.833333,
+    "min": 0,
+    "max": 100,
+    "note": "vie joueur 2 en %, pleine = 0x78"
+   },
+   "time": {
+    "addr": "0x108110",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "chrono (BCD)"
+   },
+   "score": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "à trouver avec apprendre.bat"
+   },
+   "score_p2": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "joueur 2, à trouver avec apprendre.bat (partie à deux, score2=...)"
+   },
+   "_p1_chr": {
+    "addr": "0x10C6B0",
+    "type": "u8",
+    "note": "personnage du joueur 1 (codes de triche FBNeo)"
+   },
+   "_p2_chr": {
+    "addr": "0x10C7B0",
+    "type": "u8",
+    "note": "personnage du joueur 2 ou de l'ordinateur"
+   }
+  }
+ },
+ "derived": {
+  "p1_char": {
+   "value": "_p1_chr",
+   "names": {
+    "0": "HAN",
+    "1": "MIYUKI",
+    "2": "ROPHEN",
+    "3": "GOLRIO",
+    "4": "NICK",
+    "5": "CHINTAO",
+    "6": "KIM",
+    "7": "MASTER",
+    "8": "MAGIC",
+    "9": "KARATE"
+   }
+  },
+  "p2_char": {
+   "value": "_p2_chr",
+   "names": {
+    "0": "HAN",
+    "1": "MIYUKI",
+    "2": "ROPHEN",
+    "3": "GOLRIO",
+    "4": "NICK",
+    "5": "CHINTAO",
+    "6": "KIM",
+    "7": "MASTER",
+    "8": "MAGIC",
+    "9": "KARATE"
+   }
+  }
+ },
+ "demo": {
+  "health": 100,
+  "health_p2": 100,
+  "time": 60,
+  "p1_mode": 1,
+  "p2_mode": 0,
+  "_p1_chr": 0,
+  "_p2_chr": 1
+ }
+}

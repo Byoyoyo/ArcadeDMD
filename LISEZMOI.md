@@ -268,10 +268,8 @@ Pour savoir quel cœur tourne, appuie sur F1 pendant le jeu, puis Informations, 
 | Metal Slug 2 (`mslug2`), Metal Slug X (`mslugx`) | FinalBurn Neo | vies, bombes, arme et munitions | score |
 | Metal Slug 3 (`mslug3`) | FinalBurn Neo | score, vies, bombes, arme et munitions | score J2 |
 | Metal Slug 4 (`mslug4`), Metal Slug 5 (`mslug5`) | FinalBurn Neo | vies, bombes, arme et munitions | score |
-| King of Fighters '98 (`kof98` et ses versions) | FinalBurn Neo | score des deux joueurs, barres de vie, chrono, nom du personnage en train de se battre | rien |
-| Samurai Shodown II (`samsho2` et ses versions coréennes) | FinalBurn Neo | barres de vie, chrono, nom des personnages | score |
-| King of Fighters '96, '97, '99, 2000 et 2001 | FinalBurn Neo | barres de vie, chrono, nom du personnage (sauf 2001), score à la même place que dans KOF 98 | score, seulement si la dalle n'affiche pas le même que l'écran |
-| Tous les autres jeux Neo Geo | FinalBurn Neo | scène selon le genre, barres de vie et chrono pour 36 jeux de combat (crédits avec MAME) | score, crédits si le jeu en garde une copie |
+| Les 57 jeux de combat Neo Geo (King of Fighters, Samurai Shodown, Fatal Fury, Last Blade, World Heroes...) | FinalBurn Neo | voir le tableau Jeux de combat juste en dessous | le score, sauf KOF 96 à 2002 |
+| Tous les autres jeux Neo Geo | FinalBurn Neo | scène selon le genre (crédits avec MAME) | score, crédits si le jeu en garde une copie |
 | Sonic 1 et Sonic 2 | Genesis Plus GX | score, anneaux, vies | rien |
 
 Les adresses des vies, bombes et munitions viennent de la base de codes de triche de MAME 2003-Plus. Celles de Sonic sont les mêmes que dans MAME. Les vies des Metal Slug suivent le « 1UP » de l'écran. Metal Slug 1 compte aussi la vie en cours, ArcadeDMD enlève donc 1 (vérifié). Metal Slug 3 ne la compte pas (vérifié). Pour 2 et X, ArcadeDMD fait comme pour le 1, et pour 4 et 5 comme pour le 3. Si un de ces jeux affiche une vie de moins que l'écran, enlève les lignes `"add"` et `"min"` de ses vies dans son fichier `games\mslugX.json`. S'il en affiche une de plus, ajoute `"add": -1, "min": 0`.
@@ -282,13 +280,79 @@ Les scènes des Metal Slug s'inspirent de la vidéo de Vera, adaptées à une da
 
 Les scores de Metal Slug et de Metal Slug 3 sont déjà dans leurs fichiers, trouvés avec `apprendre.bat` sous RetroArch et FinalBurn Neo. Pour remplacer le char par ton propre dessin, dépose `mslug_tank.gif` (ou `mslug_tank.png` en bande de 3 images) dans `sprites\`. Il doit tenir sur 5 pixels de haut, canon vers la droite.
 
+### Jeux de combat
+
+Chaque jeu de combat Neo Geo a son propre fichier dans `games\`, versions officielles comprises (japonaise, coréenne, prototype). Les adresses viennent des codes de triche de FinalBurn Neo, des scripts d'entraînement FinalBurn Neo de peon2 et de la base de triche de MAME 2003-Plus. Le score n'est connu que pour les King of Fighters. Pour les autres, apprends-le avec `apprendre.bat` (`score=...` et `score2=...`).
+
+Quand une barre de vie, un chrono ou un nom ne colle pas à l'écran, lance `test_retroarch.bat` pendant un combat et envoie le résultat.
+
+| Jeu | Fichier | Barres de vie | Chrono | Nom des personnages | Score |
+|---|---|---|---|---|---|
+| 3 Count Bout | `3countb.json` | - | - | - | à apprendre |
+| Aggressors of Dark Kombat | `aodk.json` | oui | - | - | à apprendre |
+| Art of Fighting | `aof.json` | oui | oui | oui (10) | à apprendre |
+| Art of Fighting 2 | `aof2.json` | oui | oui | oui (13) | à apprendre |
+| Art of Fighting 3 | `aof3.json` | oui | oui | oui (10) | à apprendre |
+| Breakers | `breakers.json` | oui | oui | - | à apprendre |
+| Breakers Revenge | `breakrev.json` | oui | oui | - | à apprendre |
+| Double Dragon | `doubledr.json` | oui | oui | oui (14) | à apprendre |
+| Dragon's Heaven | `dragonsh.json` | - | - | - | à apprendre |
+| Fatal Fury | `fatfury1.json` | oui | oui | oui (14) | à apprendre |
+| Fatal Fury 2 | `fatfury2.json` | oui | oui | - | à apprendre |
+| Fatal Fury 3 | `fatfury3.json` | oui | oui | oui (13) | à apprendre |
+| Fatal Fury Special | `fatfursp.json` | oui | oui | - | à apprendre |
+| Fight Fever | `fightfev.json` | oui | oui | oui (10) | à apprendre |
+| Galaxy Fight | `galaxyfg.json` | oui | - | - | à apprendre |
+| Garou | `garou.json` | oui | oui | oui (14) | à apprendre |
+| Kabuki Klash | `kabukikl.json` | oui | oui | - | à apprendre |
+| Karnov's Revenge | `karnovr.json` | oui | - | oui (14) | à apprendre |
+| King of the Monsters | `kotm.json` | oui | - | - | à apprendre |
+| King of the Monsters 2 | `kotm2.json` | oui | oui | oui (10) | à apprendre |
+| Kizuna Encounter | `kizuna.json` | oui | oui | - | à apprendre |
+| Legend of Success Joe | `legendos.json` | oui | - | - | à apprendre |
+| Matrimelee | `matrim.json` | oui | oui | - | à apprendre |
+| Ninja Master's | `ninjamas.json` | oui | oui | - | à apprendre |
+| Rage of the Dragons | `rotd.json` | oui | oui | - | à apprendre |
+| Ragnagard | `ragnagrd.json` | oui | - | - | à apprendre |
+| Real Bout Fatal Fury | `rbff1.json` | oui | oui | oui (16) | à apprendre |
+| Real Bout Fatal Fury 2 | `rbff2.json` | oui | oui | oui (23) | à apprendre |
+| Real Bout Fatal Fury Special | `rbffspec.json` | oui | oui | oui (20) | à apprendre |
+| Samurai Shodown | `samsho.json` | oui | oui | oui (13) | à apprendre |
+| Samurai Shodown II | `samsho2.json` | oui | oui | oui (17) | à apprendre |
+| Samurai Shodown III | `samsho3.json` | oui | oui | oui (14) | à apprendre |
+| Samurai Shodown IV | `samsho4.json` | oui | oui | oui (18) | à apprendre |
+| Samurai Shodown V | `samsho5.json` | oui | oui | oui (28) | à apprendre |
+| Samurai Shodown V Special | `samsh5sp.json` | oui | oui | oui (28) | à apprendre |
+| Savage Reign | `savagere.json` | - | - | - | à apprendre |
+| SNK vs. Capcom | `svc.json` | oui | oui | oui (36) | à apprendre |
+| SNK vs. Capcom (JAMMA PCB) | `svcpcb.json` | oui | oui | oui (36) | à apprendre |
+| The King of Fighters '94 | `kof94.json` | oui | oui | - | à apprendre |
+| The King of Fighters '95 | `kof95.json` | oui | oui | - | à apprendre |
+| The King of Fighters '96 | `kof96.json` | oui | oui | oui (29) | supposé, à vérifier |
+| The King of Fighters '97 | `kof97.json` | oui | oui | oui (32) | supposé, à vérifier |
+| The King of Fighters '98 | `kof98.json` | oui | oui | oui (38) | trouvé |
+| The King of Fighters '99 | `kof99.json` | oui | oui | oui (34) | supposé, à vérifier |
+| The King of Fighters 2000 | `kof2000.json` | oui | oui | oui (36) | supposé, à vérifier |
+| The King of Fighters 2001 | `kof2001.json` | oui | oui | - | supposé, à vérifier |
+| The King of Fighters 2002 | `kof2002.json` | oui | oui | - | supposé, à vérifier |
+| The King of Fighters 2003 | `kof2003.json` | - | oui | - | à apprendre |
+| The King of Fighters 2003 (Japan, JAMMA PCB) | `kf2k3pcb.json` | - | oui | - | à apprendre |
+| The Last Blade | `lastblad.json` | oui | oui | oui (15) | à apprendre |
+| The Last Blade 2 | `lastbld2.json` | oui | oui | oui (20) | à apprendre |
+| Voltage Fighter Gowcaizer | `gowcaizr.json` | oui | oui | oui (12) | à apprendre |
+| Waku Waku 7 | `wakuwak7.json` | oui | oui | oui (9) | à apprendre |
+| World Heroes | `wh1.json` | oui | oui | oui (9) | à apprendre |
+| World Heroes 2 | `wh2.json` | oui | oui | oui (16) | à apprendre |
+| World Heroes 2 Jet | `wh2j.json` | oui | oui | oui (17) | à apprendre |
+| World Heroes Perfect | `whp.json` | oui | oui | oui (19) | à apprendre |
+
 ### Tous les jeux Neo Geo
 
 Les jeux Neo Geo connus de MAME (clones compris) ont une scène commune selon leur genre, sans rien faire. En haut, « SNK - » puis le vrai titre du jeu défilent.
 
 | Genre | Fichier | Ce qui s'affiche |
 |---|---|---|
-| Combat (King of Fighters, Samurai Shodown, Fatal Fury, Art of Fighting, World Heroes...) | `neogeo_combat.json` | façon Vera. En haut le score, ou le titre tant qu'il n'est pas appris, et INSERT COIN qui clignote du côté de l'ordinateur. Au milieu les barres de vie vertes et le chrono, « KO » à la fin du combat (36 jeux, dont KOF 94 à 2001, Garou, Real Bout, Samurai Shodown III à V), sinon « VS ». En bas « P1 », et « CPU » ou « P2 » en face. Dans King of Fighters '96 à 2000, le nom du personnage en train de se battre s'affiche à côté (« P1 RALF » et « LEONA CPU »). Les crédits sous le chrono quand ils sont connus. Un filet orange tout en bas |
+| Combat (King of Fighters, Samurai Shodown, Fatal Fury, Art of Fighting, World Heroes...) | `neogeo_combat.json` | façon Vera. En haut le score, ou le titre tant qu'il n'est pas appris, et INSERT COIN qui clignote du côté de l'ordinateur. Au milieu les barres de vie vertes et le chrono, « KO » à la fin du combat (52 jeux, voir le tableau Jeux de combat), sinon « VS ». En bas « P1 », et « CPU » ou « P2 » en face. Dans 34 jeux, le nom du personnage en train de se battre s'affiche à côté (« P1 RALF » et « LEONA CPU »). Les crédits sous le chrono quand ils sont connus. Un filet orange tout en bas |
 | Shoot'em up (Blazing Star, Pulstar, Last Resort, Aero Fighters...) | `neogeo_shoot.json` | un petit vaisseau qui traverse un champ d'étoiles et tire quand le score monte |
 | Sport et course (Super Sidekicks, Neo Turf Masters, Windjammers...) | `neogeo_sport.json` | un terrain avec un ballon qui rebondit |
 | Réflexion, quiz, mahjong (Puzzle Bobble, Magical Drop...) | `neogeo_reflexion.json` | une rangée de blocs de couleur qui changent |

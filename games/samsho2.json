@@ -1,6 +1,6 @@
 {
  "title": "Samurai Shodown II",
- "note": "Barres de vie, chrono et nom des personnages à côté de P1, P2 ou CPU.",
+ "note": "Jeu de combat Neo Geo : vie, chrono, 17 personnages.",
  "match": [
   {
    "system": [
@@ -53,7 +53,7 @@
     "mult": 0.78125,
     "min": 0,
     "max": 100,
-    "note": "barre de vie joueur 1 en %, pleine = 0x80, dans l'objet du combattant (adresse lue en 0x100A46)"
+    "note": "vie joueur 1 en %, pleine = 0x80, dans l'objet du combattant (adresse lue en 0x100A46)"
    },
    "health_p2": {
     "ptr": "0x100A4A",
@@ -66,13 +66,13 @@
     "mult": 0.78125,
     "min": 0,
     "max": 100,
-    "note": "barre de vie joueur 2 en %, pleine = 0x80, dans l'objet du combattant (adresse lue en 0x100A4A)"
+    "note": "vie joueur 2 en %, pleine = 0x80, dans l'objet du combattant (adresse lue en 0x100A4A)"
    },
    "time": {
     "addr": "0x100AC6",
     "type": "bcd",
     "bytes": 1,
-    "note": "chrono"
+    "note": "chrono (BCD)"
    },
    "score": {
     "addr": "",
@@ -89,7 +89,7 @@
    "_p1_chr": {
     "addr": "0x100D0B",
     "type": "u8",
-    "note": "personnage du joueur 1 (codes de triche)"
+    "note": "personnage du joueur 1 (codes de triche FBNeo)"
    },
    "_p2_chr": {
     "addr": "0x100D1B",
@@ -147,7 +147,7 @@
  "demo": {
   "health": 100,
   "health_p2": 100,
-  "time": 99,
+  "time": 60,
   "p1_mode": 1,
   "p2_mode": 0,
   "_p1_chr": 0,

@@ -1,0 +1,182 @@
+{
+ "title": "SNK vs. Capcom (JAMMA PCB)",
+ "note": "Jeu de combat Neo Geo : vie, chrono, 36 personnages.",
+ "match": [
+  {
+   "system": [
+    "svcpcb",
+    "svcpcba"
+   ]
+  }
+ ],
+ "retroarch": {
+  "content": [
+   "svcpcb",
+   "svcpcba"
+  ],
+  "ram_base": "0x100000",
+  "ram_size": "0x10000",
+  "swap16": true,
+  "note": "cœur FinalBurn Neo : RAM 68000 de la Neo Geo vue à partir de 0x100000, octets inversés par mots de 16 bits"
+ },
+ "scene_from": "neogeo_combat",
+ "memory": {
+  "cpu": ":maincpu",
+  "values": {
+   "credits": {
+    "addr": "0xD00034",
+    "type": "bcd",
+    "bytes": 1,
+    "mame_only": true,
+    "note": "crédits MVS (mémoire de sauvegarde), lisibles dans MAME seulement"
+   },
+   "p1_mode": {
+    "addr": "0x10FDB6",
+    "type": "u8",
+    "note": "BIOS : joueur 1, 0 jamais joué, 1 en jeu, 2 continue, 3 game over"
+   },
+   "p2_mode": {
+    "addr": "0x10FDB7",
+    "type": "u8",
+    "note": "BIOS : joueur 2, mêmes valeurs"
+   },
+   "health": {
+    "addr": "0x10A239",
+    "type": "u8",
+    "mult": 0.446429,
+    "min": 0,
+    "max": 100,
+    "note": "vie joueur 1 en %, pleine = 0xE0"
+   },
+   "health_p2": {
+    "addr": "0x10A4B9",
+    "type": "u8",
+    "mult": 0.446429,
+    "min": 0,
+    "max": 100,
+    "note": "vie joueur 2 en %, pleine = 0xE0"
+   },
+   "time": {
+    "addr": "0x10AC14",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "chrono (BCD)"
+   },
+   "score": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "à trouver avec apprendre.bat"
+   },
+   "score_p2": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "joueur 2, à trouver avec apprendre.bat (partie à deux, score2=...)"
+   },
+   "_p1_chr": {
+    "addr": "0x101353",
+    "type": "u8",
+    "note": "personnage du joueur 1 (codes de triche FBNeo)"
+   },
+   "_p2_chr": {
+    "addr": "0x1013D3",
+    "type": "u8",
+    "note": "personnage du joueur 2 ou de l'ordinateur"
+   }
+  }
+ },
+ "derived": {
+  "p1_char": {
+   "value": "_p1_chr",
+   "names": {
+    "0": "KYO",
+    "1": "IORI",
+    "2": "RYO",
+    "3": "TERRY",
+    "4": "MAI",
+    "5": "KASUMI",
+    "6": "KIM",
+    "7": "MR.KARATE",
+    "8": "CHOI",
+    "9": "EARTHQUAKE",
+    "10": "GENJYURO",
+    "11": "SHIKI",
+    "12": "GEESE",
+    "13": "MARS",
+    "14": "GOENITZ",
+    "15": "ATHENA",
+    "16": "RYU",
+    "17": "KEN",
+    "18": "CHUN-LI",
+    "19": "GUILE",
+    "20": "DHALSIM",
+    "21": "M.BISON",
+    "22": "BALROG",
+    "23": "SAGAT",
+    "24": "VEGA",
+    "25": "GOUKI",
+    "26": "HUGO",
+    "27": "TESSA",
+    "28": "ZERO",
+    "29": "DEMITRI",
+    "30": "DAN",
+    "31": "ARREMER",
+    "32": "IORI",
+    "33": "MR.KARATE",
+    "34": "V.KEN",
+    "35": "SHIN-GOUKI"
+   }
+  },
+  "p2_char": {
+   "value": "_p2_chr",
+   "names": {
+    "0": "KYO",
+    "1": "IORI",
+    "2": "RYO",
+    "3": "TERRY",
+    "4": "MAI",
+    "5": "KASUMI",
+    "6": "KIM",
+    "7": "MR.KARATE",
+    "8": "CHOI",
+    "9": "EARTHQUAKE",
+    "10": "GENJYURO",
+    "11": "SHIKI",
+    "12": "GEESE",
+    "13": "MARS",
+    "14": "GOENITZ",
+    "15": "ATHENA",
+    "16": "RYU",
+    "17": "KEN",
+    "18": "CHUN-LI",
+    "19": "GUILE",
+    "20": "DHALSIM",
+    "21": "M.BISON",
+    "22": "BALROG",
+    "23": "SAGAT",
+    "24": "VEGA",
+    "25": "GOUKI",
+    "26": "HUGO",
+    "27": "TESSA",
+    "28": "ZERO",
+    "29": "DEMITRI",
+    "30": "DAN",
+    "31": "ARREMER",
+    "32": "IORI",
+    "33": "MR.KARATE",
+    "34": "V.KEN",
+    "35": "SHIN-GOUKI"
+   }
+  }
+ },
+ "demo": {
+  "health": 100,
+  "health_p2": 100,
+  "time": 60,
+  "p1_mode": 1,
+  "p2_mode": 0,
+  "_p1_chr": 0,
+  "_p2_chr": 1
+ }
+}

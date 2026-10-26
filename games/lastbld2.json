@@ -1,0 +1,160 @@
+{
+ "title": "The Last Blade 2",
+ "note": "Jeu de combat Neo Geo : vie, chrono, 20 personnages.",
+ "match": [
+  {
+   "system": [
+    "lastbld2"
+   ]
+  }
+ ],
+ "retroarch": {
+  "content": [
+   "lastbld2"
+  ],
+  "ram_base": "0x100000",
+  "ram_size": "0x10000",
+  "swap16": true,
+  "note": "cœur FinalBurn Neo : RAM 68000 de la Neo Geo vue à partir de 0x100000, octets inversés par mots de 16 bits"
+ },
+ "scene_from": "neogeo_combat",
+ "memory": {
+  "cpu": ":maincpu",
+  "values": {
+   "credits": {
+    "addr": "0xD00034",
+    "type": "bcd",
+    "bytes": 1,
+    "mame_only": true,
+    "note": "crédits MVS (mémoire de sauvegarde), lisibles dans MAME seulement"
+   },
+   "p1_mode": {
+    "addr": "0x10FDB6",
+    "type": "u8",
+    "note": "BIOS : joueur 1, 0 jamais joué, 1 en jeu, 2 continue, 3 game over"
+   },
+   "p2_mode": {
+    "addr": "0x10FDB7",
+    "type": "u8",
+    "note": "BIOS : joueur 2, mêmes valeurs"
+   },
+   "health": {
+    "ptr": "0x10E344",
+    "addr": "0x17E",
+    "ptr_range": [
+     "0x100000",
+     "0x10FFFF"
+    ],
+    "type": "be",
+    "bytes": 2,
+    "mult": 0.390625,
+    "min": 0,
+    "max": 100,
+    "note": "vie joueur 1 en %, pleine = 0x100, dans l'objet du combattant (adresse lue en 0x10E344)"
+   },
+   "health_p2": {
+    "ptr": "0x10E348",
+    "addr": "0x17E",
+    "ptr_range": [
+     "0x100000",
+     "0x10FFFF"
+    ],
+    "type": "be",
+    "bytes": 2,
+    "mult": 0.390625,
+    "min": 0,
+    "max": 100,
+    "note": "vie joueur 2 en %, pleine = 0x100, dans l'objet du combattant (adresse lue en 0x10E348)"
+   },
+   "time": {
+    "addr": "0x10E595",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "chrono (BCD)"
+   },
+   "score": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "à trouver avec apprendre.bat"
+   },
+   "score_p2": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "joueur 2, à trouver avec apprendre.bat (partie à deux, score2=...)"
+   },
+   "_p1_chr": {
+    "addr": "0x10BD59",
+    "type": "u8",
+    "note": "personnage du joueur 1 (codes de triche FBNeo)"
+   },
+   "_p2_chr": {
+    "addr": "0x10BD5B",
+    "type": "u8",
+    "note": "personnage du joueur 2 ou de l'ordinateur"
+   }
+  }
+ },
+ "derived": {
+  "p1_char": {
+   "value": "_p1_chr",
+   "names": {
+    "0": "KAEDE",
+    "1": "MORIYA",
+    "2": "YUKI",
+    "3": "OKINA",
+    "4": "AKARI",
+    "5": "JUZOH",
+    "6": "WASHIZUKA",
+    "7": "MUKURO",
+    "8": "AMANO",
+    "9": "LEE",
+    "10": "ZANTETSU",
+    "11": "SHIGEN",
+    "12": "KAGAMI",
+    "13": "KOJIROH",
+    "14": "HIBIKI",
+    "15": "SETSUNA",
+    "16": "KOURYU",
+    "17": "KAEDE",
+    "18": "HAGURE",
+    "19": "KOTETSU"
+   }
+  },
+  "p2_char": {
+   "value": "_p2_chr",
+   "names": {
+    "0": "KAEDE",
+    "1": "MORIYA",
+    "2": "YUKI",
+    "3": "OKINA",
+    "4": "AKARI",
+    "5": "JUZOH",
+    "6": "WASHIZUKA",
+    "7": "MUKURO",
+    "8": "AMANO",
+    "9": "LEE",
+    "10": "ZANTETSU",
+    "11": "SHIGEN",
+    "12": "KAGAMI",
+    "13": "KOJIROH",
+    "14": "HIBIKI",
+    "15": "SETSUNA",
+    "16": "KOURYU",
+    "17": "KAEDE",
+    "18": "HAGURE",
+    "19": "KOTETSU"
+   }
+  }
+ },
+ "demo": {
+  "health": 100,
+  "health_p2": 100,
+  "time": 60,
+  "p1_mode": 1,
+  "p2_mode": 0,
+  "_p1_chr": 0,
+  "_p2_chr": 1
+ }
+}
