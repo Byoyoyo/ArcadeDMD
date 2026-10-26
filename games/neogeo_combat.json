@@ -428,6 +428,16 @@
     "bytes": 1,
     "mame_only": true,
     "note": "crédits MVS (mémoire de sauvegarde), lisibles dans MAME seulement"
+   },
+   "p1_mode": {
+    "addr": "0x10FDB6",
+    "type": "u8",
+    "note": "BIOS : joueur 1, 0 jamais joué, 1 en jeu, 2 continue, 3 game over"
+   },
+   "p2_mode": {
+    "addr": "0x10FDB7",
+    "type": "u8",
+    "note": "BIOS : joueur 2, mêmes valeurs"
    }
   }
  },
@@ -441,16 +451,49 @@
  "scene": {
   "layers": [
    {
-    "type": "bars",
+    "type": "rect",
     "x": 0,
+    "y": 30,
     "w": 128,
-    "bottom": 31,
-    "min": 1,
-    "max": 4,
-    "color": "#5a1200",
-    "tip": "#ff6a10",
-    "speed": 2.5,
-    "seed": 5
+    "h": 2,
+    "color": "#a8701e"
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 1,
+    "y": 0,
+    "align": "left",
+    "text": "{score}",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "any": [
+        {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        },
+        {
+         "not": {
+          "has": "p1_mode"
+         }
+        }
+       ]
+      },
+      {
+       "has": "score"
+      }
+     ]
+    },
+    "flash": {
+     "on": "score",
+     "color": "#ffffff",
+     "ms": 120
+    }
    },
    {
     "type": "marquee",
@@ -461,73 +504,397 @@
      },
      {
       "text": " - {title}",
-      "color": "#e6e6e6"
+      "color": "#ffa830"
      }
     ],
     "font": "6x10",
     "y": 0,
+    "x": 0,
+    "w": 56,
     "speed": 12,
     "gap": 40,
-    "upper": true
+    "upper": true,
+    "when": {
+     "all": [
+      {
+       "any": [
+        {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        },
+        {
+         "not": {
+          "has": "p1_mode"
+         }
+        }
+       ]
+      },
+      {
+       "not": {
+        "has": "score"
+       }
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 0,
+    "align": "right",
+    "text": "{score_p2}",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "var": "p2_mode",
+       "in": [
+        1,
+        2
+       ]
+      },
+      {
+       "has": "score_p2"
+      }
+     ]
+    },
+    "flash": {
+     "on": "score_p2",
+     "color": "#ffffff",
+     "ms": 120
+    }
+   },
+   {
+    "type": "marquee",
+    "segments": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#ffa830"
+     }
+    ],
+    "font": "6x10",
+    "y": 0,
+    "x": 72,
+    "w": 56,
+    "speed": 12,
+    "gap": 40,
+    "upper": true,
+    "when": {
+     "all": [
+      {
+       "all": [
+        {
+         "has": "p1_mode"
+        },
+        {
+         "not": {
+          "var": "p1_mode",
+          "in": [
+           1,
+           2
+          ]
+         }
+        },
+        {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       ]
+      },
+      {
+       "not": {
+        "has": "score_p2"
+       }
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 0,
+    "align": "right",
+    "blink_period": 1.0,
+    "text": "INSERT COIN",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "all": [
+        {
+         "any": [
+          {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          },
+          {
+           "not": {
+            "has": "p1_mode"
+           }
+          }
+         ]
+        },
+        {
+         "not": {
+          "var": "p2_mode",
+          "in": [
+           1,
+           2
+          ]
+         }
+        }
+       ]
+      },
+      {
+       "not": {
+        "var": "credits",
+        "gt": 0
+       }
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 0,
+    "align": "right",
+    "blink_period": 1.0,
+    "text": "PRESS START",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "all": [
+        {
+         "any": [
+          {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          },
+          {
+           "not": {
+            "has": "p1_mode"
+           }
+          }
+         ]
+        },
+        {
+         "not": {
+          "var": "p2_mode",
+          "in": [
+           1,
+           2
+          ]
+         }
+        }
+       ]
+      },
+      {
+       "var": "credits",
+       "gt": 0
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 1,
+    "y": 0,
+    "align": "left",
+    "blink_period": 1.0,
+    "text": "INSERT COIN",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "all": [
+        {
+         "has": "p1_mode"
+        },
+        {
+         "not": {
+          "var": "p1_mode",
+          "in": [
+           1,
+           2
+          ]
+         }
+        },
+        {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       ]
+      },
+      {
+       "not": {
+        "var": "credits",
+        "gt": 0
+       }
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 1,
+    "y": 0,
+    "align": "left",
+    "blink_period": 1.0,
+    "text": "PRESS START",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "all": [
+        {
+         "has": "p1_mode"
+        },
+        {
+         "not": {
+          "var": "p1_mode",
+          "in": [
+           1,
+           2
+          ]
+         }
+        },
+        {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       ]
+      },
+      {
+       "var": "credits",
+       "gt": 0
+      }
+     ]
+    }
+   },
+   {
+    "type": "marquee",
+    "segments": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#ffa830"
+     }
+    ],
+    "font": "6x10",
+    "y": 0,
+    "x": 0,
+    "w": 128,
+    "speed": 12,
+    "gap": 40,
+    "upper": true,
+    "when": {
+     "all": [
+      {
+       "has": "p1_mode"
+      },
+      {
+       "not": {
+        "var": "p1_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    }
    },
    {
     "type": "gauge",
     "max": 100,
-    "y": 10,
-    "w": 52,
-    "h": 5,
-    "color": "#ffd030",
-    "low": "#ff4020",
-    "back": "#3a0606",
-    "border": "#5a5a5a",
-    "var": "health",
-    "x": 2,
-    "anchor": "right",
+    "y": 14,
+    "w": 54,
+    "h": 4,
+    "color": "#30f0a0",
+    "low": "#30f0a0",
+    "back": "#a01a12",
+    "bevel": "#d8f0ec",
+    "shade": false,
     "when": {
      "has": [
       "health",
       "health_p2"
      ]
     },
-    "flash": {
-     "on": "health",
-     "color": "#ffffff",
-     "ms": 90
-    }
+    "var": "health",
+    "x": 0,
+    "anchor": "right"
    },
    {
     "type": "gauge",
     "max": 100,
-    "y": 10,
-    "w": 52,
-    "h": 5,
-    "color": "#ffd030",
-    "low": "#ff4020",
-    "back": "#3a0606",
-    "border": "#5a5a5a",
+    "y": 14,
+    "w": 54,
+    "h": 4,
+    "color": "#30f0a0",
+    "low": "#30f0a0",
+    "back": "#a01a12",
+    "bevel": "#d8f0ec",
+    "shade": false,
+    "when": {
+     "has": [
+      "health",
+      "health_p2"
+     ]
+    },
     "var": "health_p2",
     "x": 74,
-    "anchor": "left",
-    "when": {
-     "has": [
-      "health",
-      "health_p2"
-     ]
-    },
-    "flash": {
-     "on": "health_p2",
-     "color": "#ffffff",
-     "ms": 90
-    }
+    "anchor": "left"
    },
    {
     "type": "text",
     "font": "7x14",
     "x": 64,
-    "y": 8,
+    "y": 9,
     "align": "center",
     "text": "{time}",
-    "color": "#ececec",
+    "color": "#ffa830",
     "when": {
      "all": [
       {
@@ -560,10 +927,10 @@
     "type": "text",
     "font": "7x14",
     "x": 64,
-    "y": 8,
+    "y": 9,
     "align": "center",
     "text": "KO",
-    "color": "#ff3030",
+    "color": "#ff3020",
     "when": {
      "all": [
       {
@@ -589,149 +956,12 @@
    },
    {
     "type": "text",
-    "font": "6x10",
-    "x": 2,
-    "y": 19,
-    "align": "left",
-    "text": "1P",
-    "color": "#ff4040",
-    "when": {
-     "has": [
-      "health",
-      "health_p2"
-     ]
-    }
-   },
-   {
-    "type": "text",
-    "font": "6x10",
-    "x": 126,
-    "y": 19,
-    "align": "right",
-    "text": "2P",
-    "color": "#3a8cff",
-    "when": {
-     "has": [
-      "health",
-      "health_p2"
-     ]
-    }
-   },
-   {
-    "type": "cycle",
-    "period": 3,
-    "when": {
-     "has": [
-      "health",
-      "health_p2"
-     ]
-    },
-    "pages": [
-     {
-      "when": {
-       "has": "credits"
-      },
-      "layers": [
-       {
-        "type": "text",
-        "font": "6x10",
-        "x": 64,
-        "y": 19,
-        "align": "center",
-        "segments": [
-         {
-          "text": "CRÉDITS ",
-          "color": "#30d8ff"
-         },
-         {
-          "text": "{credits}",
-          "color": "#ffc830"
-         }
-        ],
-        "flash": {
-         "on": "credits",
-         "color": "#ffffff",
-         "ms": 400
-        }
-       }
-      ]
-     },
-     {
-      "when": {
-       "any": [
-        {
-         "has": "score"
-        },
-        {
-         "has": "score_p2"
-        }
-       ]
-      },
-      "layers": [
-       {
-        "type": "text",
-        "font": "6x10",
-        "x": 16,
-        "y": 19,
-        "align": "left",
-        "text": "{score}",
-        "color": "#ececec",
-        "when": {
-         "has": "score"
-        },
-        "flash": {
-         "on": "score",
-         "color": "#a8ffbc",
-         "ms": 120
-        },
-        "fit": true,
-        "max_w": 46
-       },
-       {
-        "type": "text",
-        "font": "6x10",
-        "x": 112,
-        "y": 19,
-        "align": "right",
-        "text": "{score_p2}",
-        "color": "#ececec",
-        "when": {
-         "has": "score_p2"
-        },
-        "flash": {
-         "on": "score_p2",
-         "color": "#fff4c8",
-         "ms": 120
-        },
-        "fit": true,
-        "max_w": 46
-       }
-      ]
-     }
-    ]
-   },
-   {
-    "type": "text",
-    "font": "7x14",
-    "x": 2,
-    "y": 8,
-    "align": "left",
-    "text": "1P",
-    "color": "#ff4040",
-    "when": {
-     "not": {
-      "has": "health"
-     }
-    }
-   },
-   {
-    "type": "text",
     "font": "9x15B",
     "x": 64,
     "y": 8,
     "align": "center",
     "text": "VS",
-    "color": "#ffd030",
+    "color": "#ffa830",
     "when": {
      "not": {
       "has": "health"
@@ -740,68 +970,417 @@
    },
    {
     "type": "text",
-    "font": "7x14",
-    "x": 126,
-    "y": 8,
-    "align": "right",
-    "text": "2P",
-    "color": "#3a8cff",
+    "font": "6x10",
+    "x": 1,
+    "y": 21,
+    "align": "left",
+    "text": "P1",
+    "color": "#ffa830",
     "when": {
-     "not": {
-      "has": "health"
-     }
-    }
-   },
-   {
-    "type": "cycle",
-    "period": 4,
-    "when": {
-     "not": {
-      "has": "health"
-     }
-    },
-    "pages": [
-     {
-      "when": {
-       "has": "score"
+     "all": [
+      {
+       "any": [
+        {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        },
+        {
+         "not": {
+          "has": "p1_mode"
+         }
+        }
+       ]
       },
-      "layers": [
-       {
-        "type": "text",
-        "font": "6x10",
-        "x": 64,
-        "y": 19,
-        "align": "center",
-        "segments": [
+      {
+       "not": {
+        "all": [
          {
-          "text": "1P ",
-          "color": "#ff4040"
+          "has": "p1_mode"
          },
          {
-          "text": "{score}",
-          "color": "#ececec"
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
          }
         ]
        }
-      ]
+      },
+      {
+       "not": {
+        "has": "p1_name"
+       }
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 1,
+    "y": 21,
+    "align": "left",
+    "segments": [
+     {
+      "text": "P1 ",
+      "color": "#ffa830"
      },
      {
-      "when": {
+      "text": "{p1_name}",
+      "color": "#ff2a1a"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "any": [
+        {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        },
+        {
+         "not": {
+          "has": "p1_mode"
+         }
+        }
+       ]
+      },
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "p1_name"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 1,
+    "y": 21,
+    "align": "left",
+    "text": "CPU",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "has": "p1_mode"
+      },
+      {
+       "not": {
+        "var": "p1_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "var": "p2_mode",
+       "in": [
+        1,
+        2
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 21,
+    "align": "right",
+    "text": "P2",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "var": "p2_mode",
+       "in": [
+        1,
+        2
+       ]
+      },
+      {
+       "not": {
+        "has": "p2_name"
+       }
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 21,
+    "align": "right",
+    "segments": [
+     {
+      "text": "P2 ",
+      "color": "#ffa830"
+     },
+     {
+      "text": "{p2_name}",
+      "color": "#ff2a1a"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "var": "p2_mode",
+       "in": [
+        1,
+        2
+       ]
+      },
+      {
+       "has": "p2_name"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 21,
+    "align": "right",
+    "text": "CPU",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "any": [
+        {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        },
+        {
+         "not": {
+          "has": "p1_mode"
+         }
+        }
+       ]
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "5x8",
+    "x": 66,
+    "y": 22,
+    "align": "center",
+    "text": "CRÉDITS {credits}",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
        "has": "credits"
       },
-      "layers": [
-       {
-        "type": "text",
-        "font": "6x10",
-        "x": 64,
-        "y": 19,
-        "align": "center",
-        "text": "CRÉDITS {credits}",
-        "color": "#30d8ff"
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
        }
-      ]
-     }
-    ]
+      },
+      {
+       "not": {
+        "all": [
+         {
+          "var": "p1_mode",
+          "in": [
+           1,
+           2
+          ]
+         },
+         {
+          "var": "p2_mode",
+          "in": [
+           1,
+           2
+          ]
+         }
+        ]
+       }
+      }
+     ]
+    },
+    "flash": {
+     "on": "credits",
+     "color": "#ffffff",
+     "ms": 400
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 64,
+    "y": 21,
+    "align": "center",
+    "blink_period": 1.0,
+    "text": "INSERT COIN",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "all": [
+        {
+         "has": "p1_mode"
+        },
+        {
+         "not": {
+          "var": "p1_mode",
+          "in": [
+           1,
+           2
+          ]
+         }
+        },
+        {
+         "not": {
+          "var": "p2_mode",
+          "in": [
+           1,
+           2
+          ]
+         }
+        }
+       ]
+      },
+      {
+       "not": {
+        "var": "credits",
+        "gt": 0
+       }
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 64,
+    "y": 21,
+    "align": "center",
+    "text": "CRÉDITS {credits}",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "all": [
+        {
+         "has": "p1_mode"
+        },
+        {
+         "not": {
+          "var": "p1_mode",
+          "in": [
+           1,
+           2
+          ]
+         }
+        },
+        {
+         "not": {
+          "var": "p2_mode",
+          "in": [
+           1,
+           2
+          ]
+         }
+        }
+       ]
+      },
+      {
+       "var": "credits",
+       "gt": 0
+      }
+     ]
+    },
+    "flash": {
+     "on": "credits",
+     "color": "#ffffff",
+     "ms": 400
+    }
    }
   ]
  },

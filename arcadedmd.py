@@ -228,6 +228,7 @@ def main(argv):
     if not demo:
         from dmd import learned
         learned.restore(ROOT, log)
+        learned.complete(ROOT, log)
     if demo:
         pv = dict(cfg["outputs"].get("preview", {}))
         pv.update({"enabled": True, "x": 80, "y": 80, "width": 1024, "height": 256, "borderless": False, "topmost": False})

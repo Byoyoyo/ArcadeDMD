@@ -87,3 +87,50 @@ def restore(root, log=print):
             log(f"Adresses apprises remises dans games/{key}.json ({', '.join(changed)})")
             done.append(key)
     return done
+
+
+def complete(root, log=print):
+    """Fichiers créés par apprendre.bat pour un jeu couvert par une scène commune ("scene_from") :
+    ajoute les adresses que la scène commune a gagnées depuis (état des joueurs donné par le BIOS
+    par exemple). Ce qui est déjà dans le fichier du jeu ne bouge pas. Renvoie les jeux complétés."""
+    from .memvalues import game_values
+    games_dir = os.path.join(root, "games")
+    templates = {}
+    done = []
+    for path in sorted(glob.glob(os.path.join(games_dir, "*.json"))):
+        cfg = _load(path)
+        tkey = cfg.get("scene_from") if cfg else None
+        if not isinstance(tkey, str) or not tkey:
+            continue
+        if tkey not in templates:
+            templates[tkey] = _load(os.path.join(games_dir, tkey + ".json"))
+        tmpl = templates[tkey]
+        if not tmpl:
+            continue
+        system = ""
+        for m in cfg.get("match") or []:
+            names = m.get("system") if isinstance(m, dict) else None
+            if isinstance(names, list) and names:
+                system = names[0]
+                break
+            if isinstance(names, str) and names:
+                system = names
+                break
+        vals = cfg.setdefault("memory", {}).setdefault("values", {})
+        if not isinstance(vals, dict):
+            continue
+        added = [k for k in game_values(tmpl, system) if k not in vals]
+        if not added:
+            continue
+        tvals = game_values(tmpl, system)
+        for k in added:
+            vals[k] = tvals[k]
+        key = os.path.basename(path)[:-5]
+        try:
+            _write(path, cfg)
+        except OSError as e:
+            log(f"games/{key}.json non modifiable : {e}")
+            continue
+        log(f"games/{key}.json complété avec la scène commune {tkey} ({', '.join(added)})")
+        done.append(key)
+    return done

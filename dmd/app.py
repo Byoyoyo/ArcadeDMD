@@ -19,7 +19,7 @@ from .outputs import ZeDMDOutput, PreviewOutput, GifRecorder, NullOutput
 from .pixelcade import PixelcadeOutput, guess_pixelcade_dir, list_ports
 from .retroarch import RetroArchSource
 
-VERSION = "1.7.2"
+VERSION = "1.8.0"
 
 DEFAULT_CONFIG = {
     "fps": 50,
@@ -38,6 +38,7 @@ DEFAULT_CONFIG = {
     },
     "doflinx_bridge": {"enabled": False, "host": "127.0.0.1", "port": 8081},
     "retroarch": {"enabled": True, "host": "127.0.0.1", "port": 55355, "poll_ms": 100},
+    "players": {"p1": "", "p2": ""},       # noms affichés à côté de P1 et P2 (jeux de combat)
 }
 
 
@@ -437,6 +438,11 @@ class Engine:
         meta = dict(meta)
         meta["title"] = title
         meta["game"] = key
+        players = self.cfg.get("players") if isinstance(self.cfg.get("players"), dict) else {}
+        for n in ("p1", "p2"):
+            name = str(players.get(n) or "").strip().upper()[:6]
+            if name:
+                meta[n + "_name"] = name
         if self.pixelcade_dir:
             meta["pixelcade"] = self.pixelcade_dir
         self.state.reset(meta)

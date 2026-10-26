@@ -281,7 +281,7 @@ Les jeux Neo Geo connus de MAME (clones compris) ont une scène commune selon le
 
 | Genre | Fichier | Ce qui s'affiche |
 |---|---|---|
-| Combat (King of Fighters, Samurai Shodown, Fatal Fury, Art of Fighting, World Heroes...) | `neogeo_combat.json` | les deux barres de vie avec le chrono au milieu et « KO », comme dans le jeu, quand leurs adresses sont connues (36 jeux, dont KOF 94 à 2001, Garou, Real Bout, Samurai Shodown III à V). Les crédits sous le chrono quand ils sont connus, en alternance avec les scores s'ils sont appris. Sinon « 1P VS 2P ». Des flammes en bas |
+| Combat (King of Fighters, Samurai Shodown, Fatal Fury, Art of Fighting, World Heroes...) | `neogeo_combat.json` | façon Vera. En haut le score, ou le titre tant qu'il n'est pas appris, et INSERT COIN qui clignote du côté de l'ordinateur. Au milieu les barres de vie vertes et le chrono, « KO » à la fin du combat (36 jeux, dont KOF 94 à 2001, Garou, Real Bout, Samurai Shodown III à V), sinon « VS ». En bas « P1 » et ton nom, « CPU » ou « P2 » en face, les crédits sous le chrono quand ils sont connus. Un filet orange tout en bas |
 | Shoot'em up (Blazing Star, Pulstar, Last Resort, Aero Fighters...) | `neogeo_shoot.json` | un petit vaisseau qui traverse un champ d'étoiles et tire quand le score monte |
 | Sport et course (Super Sidekicks, Neo Turf Masters, Windjammers...) | `neogeo_sport.json` | un terrain avec un ballon qui rebondit |
 | Réflexion, quiz, mahjong (Puzzle Bobble, Magical Drop...) | `neogeo_reflexion.json` | une rangée de blocs de couleur qui changent |
@@ -292,6 +292,8 @@ Les jeux Neo Geo connus de MAME (clones compris) ont une scène commune selon le
 - Les barres de vie et le chrono viennent de la base de codes de triche de MAME 2003-Plus. Ils marchent avec RetroArch comme avec MAME.
 - Apprends le score d'un jeu avec `apprendre.bat` (même méthode que juste en dessous). L'outil crée alors `games\<jeu>.json`, par exemple `games\kof98.json`. Il garde la scène du genre et ses barres de vie, et ajoute le score. Les fichiers communs ne sont jamais modifiés.
 - Un jeu qui a son propre fichier (les Metal Slug par exemple) passe toujours avant la scène commune.
+- Dans les jeux de combat, le nom affiché après « P1 » se règle dans `config.json`, par exemple `"players": {"p1": "SEB", "p2": ""}`. Six lettres au plus, un nom court laisse la place aux crédits. `p2` sert quand un deuxième joueur entre dans la partie. Un nom vide affiche juste « P1 » ou « P2 ».
+- Le BIOS de la Neo Geo dit qui joue. Contre l'ordinateur, « CPU » s'affiche en face et INSERT COIN clignote de son côté (PRESS START s'il reste des crédits). À deux, les deux scores sont en haut. Quand personne ne joue, le titre défile en haut et INSERT COIN clignote en bas.
 
 ### Apprendre le score
 

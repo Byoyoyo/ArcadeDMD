@@ -98,7 +98,8 @@ def check_when(cond, state, now=None):
         return not check_when(cond["not"], state, now)
     if "has" in cond:
         names = cond["has"] if isinstance(cond["has"], list) else [cond["has"]]
-        return all(state.values.get(n) is not None for n in names)
+        # une valeur lue dans le jeu, ou une info du jeu non vide (titre, nom du joueur...)
+        return all(state.values.get(n) is not None or bool(state.meta.get(n)) for n in names)
     if "changed_within" in cond:
         c = cond["changed_within"]
         t = state.changed_at.get(c.get("var"))
@@ -153,7 +154,18 @@ class Element:
         return ctx.t - self.t0
 
     def visible(self, ctx):
-        return check_when(self.when, ctx.state, ctx.t)
+        if not check_when(self.when, ctx.state, ctx.t):
+            return False
+        period = self.spec.get("blink_period")         # clignote : allumé blink_on (part de la période)
+        if period:
+            try:
+                period = float(period)
+                on = float(self.spec.get("blink_on", 0.5))
+            except (TypeError, ValueError):
+                return True
+            if period > 0:
+                return (ctx.t % period) < period * on
+        return True
 
     def restart(self):
         self.t0 = None
@@ -458,6 +470,9 @@ class GaugeEl(Element):
         self.low_at = float(spec.get("low_at", 0.3))
         self.back = parse_color(spec.get("back"), (64, 8, 8))
         self.border = parse_color(spec.get("border"), None) if spec.get("border") else None
+        # bevel : liseré clair en bas et à droite de la barre (style de Vera)
+        self.bevel = parse_color(spec.get("bevel"), None) if spec.get("bevel") else None
+        self.shade = spec.get("shade", True)              # première ligne un peu plus claire
 
     def render(self, ctx):
         v = ctx.state.values.get(self.var)
@@ -469,9 +484,17 @@ class GaugeEl(Element):
         fl = _flash_color(self.spec, ctx, None)
         if fl is not None:
             col = fl
-        top = scale_color(col, 1.25)
+        top = scale_color(col, 1.25) if self.shade else col
         cv = ctx.canvas
         x0, y0 = self.x, self.y
+        w = self.w
+        if self.bevel is not None:
+            w = max(1, self.w - 1)                    # dernière colonne et ligne du dessous : le liseré
+            n = int(round(r * w))
+            for xx in range(x0, x0 + self.w):
+                cv.set(xx, y0 + self.h, self.bevel)
+            for yy in range(y0, y0 + self.h):
+                cv.set(x0 + self.w - 1, yy, self.bevel)
         if self.border is not None:
             for xx in range(x0 - 1, x0 + self.w + 1):
                 cv.set(xx, y0 - 1, self.border)
@@ -479,8 +502,8 @@ class GaugeEl(Element):
             for yy in range(y0, y0 + self.h):
                 cv.set(x0 - 1, yy, self.border)
                 cv.set(x0 + self.w, yy, self.border)
-        for i in range(self.w):
-            filled = (i >= self.w - n) if self.anchor == "right" else (i < n)
+        for i in range(w):
+            filled = (i >= w - n) if self.anchor == "right" else (i < n)
             for k, yy in enumerate(range(y0, y0 + self.h)):
                 cv.set(x0 + i, yy, (top if k == 0 else col) if filled else self.back)
 
