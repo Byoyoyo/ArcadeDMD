@@ -1,4 +1,6 @@
-"""Framebuffer 128x32 RGB, fonts bitmap et primitives de dessin."""
+"""128x32 RGB framebuffer, bitmap fonts and drawing primitives (text, sprites, blending).
+
+Framebuffer 128x32 RGB, fonts bitmap et primitives de dessin."""
 
 from .fonts_data import FONTS
 

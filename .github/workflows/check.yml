@@ -1,0 +1,34 @@
+# Checks every pull request: Python code, game files, version numbers and changelog.
+# Vérifie chaque pull request : code Python, fichiers des jeux, numéros de version et journal des versions.
+name: Check
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install the tools
+        run: python -m pip install --quiet pyflakes pillow pygame-ce
+
+      - name: Python code
+        run: python -m pyflakes arcadedmd.py dmd tools
+
+      - name: Version, changelog, game files
+        run: python tools/package.py --check
+
+      - name: Engine starts in both languages
+        env:
+          SDL_VIDEODRIVER: dummy
+        run: |
+          for lang in en fr; do
+            ARCADEDMD_LANG=$lang python -c "import arcadedmd, dmd.hd, dmd.hd_mslug, dmd.hd_fight, dmd.learn, dmd.radiag; print('$lang ok')"
+          done

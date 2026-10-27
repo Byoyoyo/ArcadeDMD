@@ -1,16 +1,69 @@
-"""Adresses trouvées par apprendre.bat, gardées aussi dans appris/ pour survivre aux mises à jour.
+"""Addresses found by learn.bat, also kept in learned/ so they survive updates.
+At startup the engine puts them back into games/<game>.json when an update replaced them.
+Delete learned/<game>.json to forget what was learned for a game.
+
+Adresses trouvées par learn.bat, gardées aussi dans learned/ pour survivre aux mises à jour.
 
 Une mise à jour d'ArcadeDMD remplace les fichiers games/*.json. Au démarrage, le moteur remet
 les adresses apprises dans games/<jeu>.json si elles n'y sont plus. Pour oublier ce qui a été
-appris pour un jeu, il suffit de supprimer appris/<jeu>.json.
+appris pour un jeu, il suffit de supprimer learned/<jeu>.json.
 """
 
 import glob
 import json
 import os
+import shutil
 import time
 
-DIR = "appris"
+from .i18n import tr
+
+DIR = "learned"
+OLD_DIR = "appris"          # folder name used by older versions, moved to learned/ by migrate()
+
+
+def migrate(root, log=print):
+    """One-time move of the old appris/ folder: renamed to learned/ when learned/ does not exist yet,
+    otherwise its files missing from learned/ are copied there (learned/ wins). Returns True if anything moved."""
+    old = os.path.join(root, OLD_DIR)
+    new = os.path.join(root, DIR)
+    if not os.path.isdir(old):
+        return False
+    if not os.path.exists(new):
+        try:
+            os.rename(old, new)
+            log(tr("Dossier appris/ renommé en learned/ (adresses apprises)",
+                   "Folder appris/ renamed to learned/ (learned addresses)"))
+            return True
+        except OSError as e:
+            log(tr(f"appris/ ne peut pas être renommé en learned/ ({e}), copie des fichiers à la place",
+                   f"appris/ cannot be renamed to learned/ ({e}), copying its files instead"))
+    try:
+        entries = sorted(os.listdir(old))
+    except OSError:
+        return False
+    copied = []
+    failed = False
+    for name in entries:
+        src, dst = os.path.join(old, name), os.path.join(new, name)
+        if not os.path.isfile(src) or os.path.exists(dst):
+            continue
+        try:
+            os.makedirs(new, exist_ok=True)
+            shutil.copy2(src, dst)
+            copied.append(name)
+        except OSError as e:
+            failed = True
+            log(tr(f"{name} non copié depuis appris/ ({e})", f"{name} not copied from appris/ ({e})"))
+    if copied:
+        names = ", ".join(copied)
+        log(tr(f"Adresses apprises copiées depuis appris/ vers learned/ ({names})",
+               f"Learned addresses copied from appris/ to learned/ ({names})"))
+    if not failed and not os.path.exists(old + ".old"):
+        try:                       # done once: a file deleted from learned/ must not come back from appris/
+            os.rename(old, old + ".old")
+        except OSError:
+            pass
+    return bool(copied)
 
 
 def _load(path):
@@ -35,8 +88,16 @@ def _core(d):
     return {k: v for k, v in d.items() if k != "note"} if isinstance(d, dict) else {}
 
 
+def _about_learning(note):
+    """Note that mentions the learning tool, in French or English ("à trouver avec apprendre.bat",
+    "to find with learn.bat", "found with learn.bat"...)."""
+    low = str(note).lower()
+    return "apprendre" in low or "learn" in low
+
+
 def save(root, key, values, retroarch=None):
-    """Ajoute les valeurs apprises (dict nom -> définition) à appris/<key>.json."""
+    """Ajoute les valeurs apprises (dict nom -> définition) à learned/<key>.json."""
+    migrate(root)
     path = os.path.join(root, DIR, key + ".json")
     data = _load(path) or {}
     vals = data.setdefault("values", {})
@@ -51,6 +112,7 @@ def save(root, key, values, retroarch=None):
 
 def restore(root, log=print):
     """Remet dans games/*.json les adresses apprises qu'une mise à jour a remplacées. Renvoie les jeux modifiés."""
+    migrate(root, log)
     done = []
     for path in sorted(glob.glob(os.path.join(root, DIR, "*.json"))):
         key = os.path.basename(path)[:-5]
@@ -76,7 +138,7 @@ def restore(root, log=print):
                 continue
             new = _core(d)
             note = cur.get("note") if isinstance(cur, dict) else None
-            if note and "apprendre" not in note:
+            if note and not _about_learning(note):
                 new["note"] = note
             vals[name] = new
             changed.append(name)
@@ -85,8 +147,11 @@ def restore(root, log=print):
                 data["values"].pop(name, None)
             try:
                 _write(path, data)
-                log(f"appris/{key}.json : {', '.join(obsolete)} retiré, le fichier du jeu le lit maintenant "
-                    "dans l'objet du combattant")
+                names = ", ".join(obsolete)
+                log(tr(f"learned/{key}.json : {names} retiré, le fichier du jeu le lit maintenant "
+                       "dans l'objet du combattant",
+                       f"learned/{key}.json: {names} removed, the game file now reads it "
+                       "from the fighter's object"))
             except OSError:
                 pass
         if data.get("retroarch") and not cfg.get("retroarch"):
@@ -96,15 +161,17 @@ def restore(root, log=print):
             try:
                 _write(gpath, cfg)
             except OSError as e:
-                log(f"games/{key}.json non modifiable : {e}")
+                log(tr(f"games/{key}.json non modifiable : {e}", f"games/{key}.json cannot be modified: {e}"))
                 continue
-            log(f"Adresses apprises remises dans games/{key}.json ({', '.join(changed)})")
+            names = ", ".join(changed)
+            log(tr(f"Adresses apprises remises dans games/{key}.json ({names})",
+                   f"Learned addresses put back into games/{key}.json ({names})"))
             done.append(key)
     return done
 
 
 def complete(root, log=print):
-    """Fichiers créés par apprendre.bat pour un jeu couvert par une scène commune ("scene_from") :
+    """Fichiers créés par learn.bat pour un jeu couvert par une scène commune ("scene_from") :
     ajoute les adresses que la scène commune a gagnées depuis (état des joueurs donné par le BIOS
     par exemple). Ce qui est déjà dans le fichier du jeu ne bouge pas. Renvoie les jeux complétés."""
     from .memvalues import game_values
@@ -143,8 +210,10 @@ def complete(root, log=print):
         try:
             _write(path, cfg)
         except OSError as e:
-            log(f"games/{key}.json non modifiable : {e}")
+            log(tr(f"games/{key}.json non modifiable : {e}", f"games/{key}.json cannot be modified: {e}"))
             continue
-        log(f"games/{key}.json complété avec la scène commune {tkey} ({', '.join(added)})")
+        added_names = ", ".join(added)
+        log(tr(f"games/{key}.json complété avec la scène commune {tkey} ({added_names})",
+               f"games/{key}.json completed from the shared scene {tkey} ({added_names})"))
         done.append(key)
     return done

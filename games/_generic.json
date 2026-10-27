@@ -1,5 +1,5 @@
 {
- "title": "Scène générique (tous les jeux sans fichier dédié)",
+ "title": "Generic scene (all games without a dedicated file)",
  "scene": {
   "layers": [
    {
@@ -102,7 +102,7 @@
    },
    {
     "type": "text",
-    "text": "CRÉDITS {credits}",
+    "text": "CREDITS {credits}",
     "font": "6x10",
     "x": 64,
     "y": 23,

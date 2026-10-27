@@ -1,6 +1,6 @@
 {
  "fallback": true,
- "note": "Scène commune des jeux Neo Geo, jeux de combat. apprendre.bat crée games/<jeu>.json qui la reprend.",
+ "note": "Shared scene for Neo Geo fighting games. learn.bat creates games/<game>.json, which reuses it.",
  "match": [
   {
    "system": [
@@ -281,7 +281,7 @@
   "ram_base": "0x100000",
   "ram_size": "0x10000",
   "swap16": true,
-  "note": "cœur FinalBurn Neo : RAM 68000 de la Neo Geo vue à partir de 0x100000, octets inversés par mots de 16 bits"
+  "note": "FinalBurn Neo core: Neo Geo 68000 RAM seen from 0x100000, bytes swapped within 16-bit words"
  },
  "titles": {
   "3countb": "3 Count Bout",
@@ -427,17 +427,17 @@
     "type": "bcd",
     "bytes": 1,
     "mame_only": true,
-    "note": "crédits MVS (mémoire de sauvegarde), lisibles dans MAME seulement"
+    "note": "MVS credits (backup RAM), readable in MAME only"
    },
    "p1_mode": {
     "addr": "0x10FDB6",
     "type": "u8",
-    "note": "BIOS : joueur 1, 0 jamais joué, 1 en jeu, 2 continue, 3 game over"
+    "note": "BIOS: player 1, 0 never played, 1 playing, 2 continue, 3 game over"
    },
    "p2_mode": {
     "addr": "0x10FDB7",
     "type": "u8",
-    "note": "BIOS : joueur 2, mêmes valeurs"
+    "note": "BIOS: player 2, same values"
    }
   }
  },
@@ -1865,7 +1865,7 @@
         "x": 66,
         "y": 22,
         "align": "center",
-        "text": "CRÉDITS {credits}",
+        "text": "CREDITS {credits}",
         "color": "#ffa830",
         "flash": {
          "on": "credits",
@@ -2088,7 +2088,7 @@
     "x": 64,
     "y": 21,
     "align": "center",
-    "text": "CRÉDITS {credits}",
+    "text": "CREDITS {credits}",
     "color": "#ffa830",
     "when": {
      "all": [
@@ -2140,7 +2140,7 @@
     "mult": 0.032563,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 3071 (base de triche)"
+    "note": "health bar in %, full = 3071 (cheat database)"
    },
    "health_p2": {
     "addr": "0x100166",
@@ -2149,7 +2149,7 @@
     "mult": 0.032563,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 3071 (base de triche)"
+    "note": "health bar in %, full = 3071 (cheat database)"
    }
   },
   "aof": {
@@ -2159,7 +2159,7 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 96 (base de triche)"
+    "note": "health bar in %, full = 96 (cheat database)"
    },
    "health_p2": {
     "addr": "0x1093CD",
@@ -2167,7 +2167,7 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 96 (base de triche)"
+    "note": "health bar in %, full = 96 (cheat database)"
    }
   },
   "aof2": {
@@ -2177,7 +2177,7 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 96 (base de triche)"
+    "note": "health bar in %, full = 96 (cheat database)"
    },
    "health_p2": {
     "addr": "0x1093ED",
@@ -2185,7 +2185,7 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 96 (base de triche)"
+    "note": "health bar in %, full = 96 (cheat database)"
    }
   },
   "aof3": {
@@ -2196,7 +2196,7 @@
     "mult": 0.024414,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 4096 (base de triche)"
+    "note": "health bar in %, full = 4096 (cheat database)"
    },
    "health_p2": {
     "addr": "0x100568",
@@ -2205,7 +2205,7 @@
     "mult": 0.024414,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 4096 (base de triche)"
+    "note": "health bar in %, full = 4096 (cheat database)"
    }
   },
   "breakers": {
@@ -2215,7 +2215,7 @@
     "mult": 3.333333,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 30 (base de triche)"
+    "note": "health bar in %, full = 30 (cheat database)"
    },
    "health_p2": {
     "addr": "0x107892",
@@ -2223,7 +2223,7 @@
     "mult": 3.333333,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 30 (base de triche)"
+    "note": "health bar in %, full = 30 (cheat database)"
    }
   },
   "breakrev": {
@@ -2233,7 +2233,7 @@
     "mult": 3.333333,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 30 (base de triche)"
+    "note": "health bar in %, full = 30 (cheat database)"
    },
    "health_p2": {
     "addr": "0x1078AE",
@@ -2241,7 +2241,7 @@
     "mult": 3.333333,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 30 (base de triche)"
+    "note": "health bar in %, full = 30 (cheat database)"
    }
   },
   "fatfursp": {
@@ -2251,7 +2251,7 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 96 (base de triche)"
+    "note": "health bar in %, full = 96 (cheat database)"
    },
    "health_p2": {
     "addr": "0x10059A",
@@ -2259,13 +2259,13 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 96 (base de triche)"
+    "note": "health bar in %, full = 96 (cheat database)"
    },
    "time": {
     "addr": "0x10092A",
     "type": "bcd",
     "bytes": 1,
-    "note": "chrono (base de triche)"
+    "note": "timer (cheat database)"
    }
   },
   "fatfury1": {
@@ -2276,7 +2276,7 @@
     "mult": 0.004053,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 24672 (base de triche)"
+    "note": "health bar in %, full = 24672 (cheat database)"
    },
    "health_p2": {
     "addr": "0x1004B8",
@@ -2285,13 +2285,13 @@
     "mult": 0.004053,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 24672 (base de triche)"
+    "note": "health bar in %, full = 24672 (cheat database)"
    },
    "time": {
     "addr": "0x1042F3",
     "type": "bcd",
     "bytes": 1,
-    "note": "chrono (base de triche)"
+    "note": "timer (cheat database)"
    }
   },
   "fatfury2": {
@@ -2301,7 +2301,7 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 96 (base de triche)"
+    "note": "health bar in %, full = 96 (cheat database)"
    },
    "health_p2": {
     "addr": "0x1004CB",
@@ -2309,13 +2309,13 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 96 (base de triche)"
+    "note": "health bar in %, full = 96 (cheat database)"
    },
    "time": {
     "addr": "0x10092A",
     "type": "bcd",
     "bytes": 1,
-    "note": "chrono (base de triche)"
+    "note": "timer (cheat database)"
    }
   },
   "fatfury3": {
@@ -2325,7 +2325,7 @@
     "mult": 0.833333,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 120 (base de triche)"
+    "note": "health bar in %, full = 120 (cheat database)"
    },
    "health_p2": {
     "addr": "0x100589",
@@ -2333,7 +2333,7 @@
     "mult": 0.833333,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 120 (base de triche)"
+    "note": "health bar in %, full = 120 (cheat database)"
    }
   },
   "fightfev": {
@@ -2343,7 +2343,7 @@
     "mult": 0.833333,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 120 (base de triche)"
+    "note": "health bar in %, full = 120 (cheat database)"
    },
    "health_p2": {
     "addr": "0x10C702",
@@ -2351,13 +2351,13 @@
     "mult": 0.833333,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 120 (base de triche)"
+    "note": "health bar in %, full = 120 (cheat database)"
    },
    "time": {
     "addr": "0x108110",
     "type": "bcd",
     "bytes": 1,
-    "note": "chrono (base de triche)"
+    "note": "timer (cheat database)"
    }
   },
   "galaxyfg": {
@@ -2367,7 +2367,7 @@
     "mult": 0.392157,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 255 (base de triche)"
+    "note": "health bar in %, full = 255 (cheat database)"
    },
    "health_p2": {
     "addr": "0x101152",
@@ -2375,7 +2375,7 @@
     "mult": 0.392157,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 255 (base de triche)"
+    "note": "health bar in %, full = 255 (cheat database)"
    }
   },
   "garou": {
@@ -2385,7 +2385,7 @@
     "mult": 0.833333,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 120 (base de triche)"
+    "note": "health bar in %, full = 120 (cheat database)"
    },
    "health_p2": {
     "addr": "0x10058E",
@@ -2393,13 +2393,13 @@
     "mult": 0.833333,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 120 (base de triche)"
+    "note": "health bar in %, full = 120 (cheat database)"
    },
    "time": {
     "addr": "0x107490",
     "type": "bcd",
     "bytes": 1,
-    "note": "chrono (base de triche)"
+    "note": "timer (cheat database)"
    }
   },
   "gowcaizr": {
@@ -2409,7 +2409,7 @@
     "mult": 1.0,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 100 (base de triche)"
+    "note": "health bar in %, full = 100 (cheat database)"
    },
    "health_p2": {
     "addr": "0x1035BF",
@@ -2417,7 +2417,7 @@
     "mult": 1.0,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 100 (base de triche)"
+    "note": "health bar in %, full = 100 (cheat database)"
    }
   },
   "kizuna": {
@@ -2427,7 +2427,7 @@
     "mult": 0.520833,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 192 (base de triche)"
+    "note": "health bar in %, full = 192 (cheat database)"
    },
    "health_p2": {
     "addr": "0x108513",
@@ -2435,13 +2435,13 @@
     "mult": 0.520833,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 192 (base de triche)"
+    "note": "health bar in %, full = 192 (cheat database)"
    },
    "time": {
     "addr": "0x10892A",
     "type": "bcd",
     "bytes": 1,
-    "note": "chrono (base de triche)"
+    "note": "timer (cheat database)"
    }
   },
   "kof2000": {
@@ -2451,7 +2451,7 @@
     "mult": 0.980392,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 102 (base de triche)"
+    "note": "health bar in %, full = 102 (cheat database)"
    },
    "health_p2": {
     "addr": "0x108439",
@@ -2459,13 +2459,13 @@
     "mult": 0.980392,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 102 (base de triche)"
+    "note": "health bar in %, full = 102 (cheat database)"
    },
    "time": {
     "addr": "0x10A7E6",
     "type": "bcd",
     "bytes": 1,
-    "note": "chrono (base de triche)"
+    "note": "timer (cheat database)"
    }
   },
   "kof2001": {
@@ -2475,7 +2475,7 @@
     "mult": 0.980392,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 102 (base de triche)"
+    "note": "health bar in %, full = 102 (cheat database)"
    },
    "health_p2": {
     "addr": "0x108439",
@@ -2483,19 +2483,19 @@
     "mult": 0.980392,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 102 (base de triche)"
+    "note": "health bar in %, full = 102 (cheat database)"
    },
    "score": {
     "addr": "0x1081FC",
     "type": "bcd",
     "bytes": 4,
-    "note": "score joueur 1, même place que dans KOF 98, à confirmer en jeu"
+    "note": "player 1 score, same place as in KOF 98, to be confirmed in game"
    },
    "score_p2": {
     "addr": "0x1083FC",
     "type": "bcd",
     "bytes": 4,
-    "note": "score joueur 2, même place que dans KOF 98, à confirmer en jeu"
+    "note": "player 2 score, same place as in KOF 98, to be confirmed in game"
    }
   },
   "kof94": {
@@ -2505,7 +2505,7 @@
     "mult": 0.483092,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 207 (base de triche)"
+    "note": "health bar in %, full = 207 (cheat database)"
    },
    "health_p2": {
     "addr": "0x108421",
@@ -2513,13 +2513,13 @@
     "mult": 0.483092,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 207 (base de triche)"
+    "note": "health bar in %, full = 207 (cheat database)"
    },
    "time": {
     "addr": "0x10882E",
     "type": "bcd",
     "bytes": 1,
-    "note": "chrono (base de triche)"
+    "note": "timer (cheat database)"
    }
   },
   "kof95": {
@@ -2529,7 +2529,7 @@
     "mult": 0.483092,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 207 (base de triche)"
+    "note": "health bar in %, full = 207 (cheat database)"
    },
    "health_p2": {
     "addr": "0x108421",
@@ -2537,13 +2537,13 @@
     "mult": 0.483092,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 207 (base de triche)"
+    "note": "health bar in %, full = 207 (cheat database)"
    },
    "time": {
     "addr": "0x10A836",
     "type": "bcd",
     "bytes": 1,
-    "note": "chrono (base de triche)"
+    "note": "timer (cheat database)"
    }
   },
   "kof96": {
@@ -2553,7 +2553,7 @@
     "mult": 0.970874,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 103 (base de triche)"
+    "note": "health bar in %, full = 103 (cheat database)"
    },
    "health_p2": {
     "addr": "0x108439",
@@ -2561,13 +2561,13 @@
     "mult": 0.970874,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 103 (base de triche)"
+    "note": "health bar in %, full = 103 (cheat database)"
    },
    "time": {
     "addr": "0x10A836",
     "type": "bcd",
     "bytes": 1,
-    "note": "chrono (base de triche)"
+    "note": "timer (cheat database)"
    }
   },
   "kof97": {
@@ -2577,7 +2577,7 @@
     "mult": 0.970874,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 103 (base de triche)"
+    "note": "health bar in %, full = 103 (cheat database)"
    },
    "health_p2": {
     "addr": "0x108439",
@@ -2585,13 +2585,13 @@
     "mult": 0.970874,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 103 (base de triche)"
+    "note": "health bar in %, full = 103 (cheat database)"
    },
    "time": {
     "addr": "0x10A83A",
     "type": "bcd",
     "bytes": 1,
-    "note": "chrono (base de triche)"
+    "note": "timer (cheat database)"
    }
   },
   "kof98": {
@@ -2601,7 +2601,7 @@
     "mult": 0.970874,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 103 (base de triche)"
+    "note": "health bar in %, full = 103 (cheat database)"
    },
    "health_p2": {
     "addr": "0x108439",
@@ -2609,13 +2609,13 @@
     "mult": 0.970874,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 103 (base de triche)"
+    "note": "health bar in %, full = 103 (cheat database)"
    },
    "time": {
     "addr": "0x10A83A",
     "type": "bcd",
     "bytes": 1,
-    "note": "chrono (base de triche)"
+    "note": "timer (cheat database)"
    }
   },
   "kof99": {
@@ -2625,7 +2625,7 @@
     "mult": 0.990099,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 101 (base de triche)"
+    "note": "health bar in %, full = 101 (cheat database)"
    },
    "health_p2": {
     "addr": "0x108439",
@@ -2633,13 +2633,13 @@
     "mult": 0.990099,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 101 (base de triche)"
+    "note": "health bar in %, full = 101 (cheat database)"
    },
    "time": {
     "addr": "0x10A7E6",
     "type": "bcd",
     "bytes": 1,
-    "note": "chrono (base de triche)"
+    "note": "timer (cheat database)"
    }
   },
   "kotm": {
@@ -2649,7 +2649,7 @@
     "mult": 1.666667,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 60 (base de triche)"
+    "note": "health bar in %, full = 60 (cheat database)"
    },
    "health_p2": {
     "addr": "0x10216B",
@@ -2657,7 +2657,7 @@
     "mult": 1.666667,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 60 (base de triche)"
+    "note": "health bar in %, full = 60 (cheat database)"
    }
   },
   "kotm2": {
@@ -2667,7 +2667,7 @@
     "mult": 1.5625,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 64 (base de triche)"
+    "note": "health bar in %, full = 64 (cheat database)"
    },
    "health_p2": {
     "addr": "0x101517",
@@ -2675,13 +2675,13 @@
     "mult": 1.5625,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 64 (base de triche)"
+    "note": "health bar in %, full = 64 (cheat database)"
    },
    "time": {
     "addr": "0x1013D2",
     "type": "bcd",
     "bytes": 1,
-    "note": "chrono (base de triche)"
+    "note": "timer (cheat database)"
    }
   },
   "legendos": {
@@ -2691,7 +2691,7 @@
     "mult": 0.833333,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 120 (base de triche)"
+    "note": "health bar in %, full = 120 (cheat database)"
    },
    "health_p2": {
     "addr": "0x100763",
@@ -2699,7 +2699,7 @@
     "mult": 0.833333,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 120 (base de triche)"
+    "note": "health bar in %, full = 120 (cheat database)"
    }
   },
   "ninjamas": {
@@ -2709,7 +2709,7 @@
     "mult": 0.480769,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 208 (base de triche)"
+    "note": "health bar in %, full = 208 (cheat database)"
    },
    "health_p2": {
     "addr": "0x101050",
@@ -2717,7 +2717,7 @@
     "mult": 0.480769,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 208 (base de triche)"
+    "note": "health bar in %, full = 208 (cheat database)"
    }
   },
   "rbff1": {
@@ -2727,7 +2727,7 @@
     "mult": 0.520833,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 192 (base de triche)"
+    "note": "health bar in %, full = 192 (cheat database)"
    },
    "health_p2": {
     "addr": "0x100589",
@@ -2735,7 +2735,7 @@
     "mult": 0.520833,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 192 (base de triche)"
+    "note": "health bar in %, full = 192 (cheat database)"
    }
   },
   "rbff2": {
@@ -2745,7 +2745,7 @@
     "mult": 0.520833,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 192 (base de triche)"
+    "note": "health bar in %, full = 192 (cheat database)"
    },
    "health_p2": {
     "addr": "0x10058B",
@@ -2753,13 +2753,13 @@
     "mult": 0.520833,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 192 (base de triche)"
+    "note": "health bar in %, full = 192 (cheat database)"
    },
    "time": {
     "addr": "0x107C28",
     "type": "bcd",
     "bytes": 1,
-    "note": "chrono (base de triche)"
+    "note": "timer (cheat database)"
    }
   },
   "rbffspec": {
@@ -2769,7 +2769,7 @@
     "mult": 0.520833,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 192 (base de triche)"
+    "note": "health bar in %, full = 192 (cheat database)"
    },
    "health_p2": {
     "addr": "0x10058B",
@@ -2777,13 +2777,13 @@
     "mult": 0.520833,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 192 (base de triche)"
+    "note": "health bar in %, full = 192 (cheat database)"
    },
    "time": {
     "addr": "0x106AB4",
     "type": "bcd",
     "bytes": 1,
-    "note": "chrono (base de triche)"
+    "note": "timer (cheat database)"
    }
   },
   "samsho3": {
@@ -2793,7 +2793,7 @@
     "mult": 0.78125,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 128 (base de triche)"
+    "note": "health bar in %, full = 128 (cheat database)"
    },
    "health_p2": {
     "addr": "0x108673",
@@ -2801,13 +2801,13 @@
     "mult": 0.78125,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 128 (base de triche)"
+    "note": "health bar in %, full = 128 (cheat database)"
    },
    "time": {
     "addr": "0x10849E",
     "type": "bcd",
     "bytes": 1,
-    "note": "chrono (base de triche)"
+    "note": "timer (cheat database)"
    }
   },
   "samsho4": {
@@ -2817,7 +2817,7 @@
     "mult": 0.396825,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 252 (base de triche)"
+    "note": "health bar in %, full = 252 (cheat database)"
    },
    "health_p2": {
     "addr": "0x108643",
@@ -2825,7 +2825,7 @@
     "mult": 0.396825,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 252 (base de triche)"
+    "note": "health bar in %, full = 252 (cheat database)"
    }
   },
   "samsho5": {
@@ -2835,7 +2835,7 @@
     "mult": 0.8,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 125 (base de triche)"
+    "note": "health bar in %, full = 125 (cheat database)"
    },
    "health_p2": {
     "addr": "0x108655",
@@ -2843,7 +2843,7 @@
     "mult": 0.8,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 125 (base de triche)"
+    "note": "health bar in %, full = 125 (cheat database)"
    }
   },
   "wh2": {
@@ -2853,7 +2853,7 @@
     "mult": 0.787402,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 127 (base de triche)"
+    "note": "health bar in %, full = 127 (cheat database)"
    },
    "health_p2": {
     "addr": "0x10610C",
@@ -2861,7 +2861,7 @@
     "mult": 0.787402,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 127 (base de triche)"
+    "note": "health bar in %, full = 127 (cheat database)"
    }
   },
   "wh2j": {
@@ -2871,7 +2871,7 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 96 (base de triche)"
+    "note": "health bar in %, full = 96 (cheat database)"
    },
    "health_p2": {
     "addr": "0x10610C",
@@ -2879,7 +2879,7 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 96 (base de triche)"
+    "note": "health bar in %, full = 96 (cheat database)"
    }
   },
   "whp": {
@@ -2889,7 +2889,7 @@
     "mult": 0.520833,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 192 (base de triche)"
+    "note": "health bar in %, full = 192 (cheat database)"
    },
    "health_p2": {
     "addr": "0x10610C",
@@ -2897,7 +2897,7 @@
     "mult": 0.520833,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 192 (base de triche)"
+    "note": "health bar in %, full = 192 (cheat database)"
    }
   }
  },

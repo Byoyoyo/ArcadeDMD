@@ -1,12 +1,17 @@
-"""Scènes : interprète les fichiers games/*.json et dessine chaque image."""
+"""Scenes: interprets the games/*.json files and draws each frame of the 128x32 panel.
+The scene texts are written in English; in French their words are translated when drawn (PANEL_WORDS).
+
+Scènes : interprète les fichiers games/*.json et dessine chaque image."""
 
 import math
 import os
 import random
+import re
 import string
 import time
 
 from .canvas import Font, parse_color, scale_color, load_sprite_frames
+from .i18n import lang, tr
 
 
 # --------------------------------------------------------------------------
@@ -83,6 +88,81 @@ def render_template(template, mapping, missing="-"):
         return _Formatter(missing).vformat(template, (), mapping)
     except (ValueError, KeyError, IndexError, TypeError):
         return template
+
+
+# --------------------------------------------------------------------------
+# panel words in English or French / mots de la dalle en anglais ou en français
+# --------------------------------------------------------------------------
+
+# The scene texts of games/*.json are written in English. In French, these whole words or phrases are replaced
+# when drawn, never inside the {fields}. Texts written in French (older or personal files) are translated the
+# other way for English. The panel is only 128 x 32: each French word is at most one letter longer or shorter.
+# Les textes des scènes sont écrits en anglais ; en français, ces mots entiers sont remplacés au moment du dessin.
+PANEL_WORDS = (                  # (French, English)
+    ("ARME PISTOLET", "HANDGUN"),
+    ("FUSIL À POMPE", "SHOTGUN"),
+    ("LANCE-ROQUETTES", "ROCKET LAUNCHER"),
+    ("LANCE-FLAMMES", "FLAMETHROWER"),
+    ("MITRAILLETTE", "MACHINE GUN"),
+    ("TÊTE CHERCHEUSE", "ENEMY CHASER"),
+    ("NUAGE ORAGEUX", "THUNDER CLOUD"),
+    ("MUNITIONS", "AMMO"),
+    ("PRISONNIERS", "PRISONERS"),
+    ("PISTOLET", "HANDGUN"),
+    ("CRÉDITS", "CREDITS"),
+    ("CRÉDIT", "CREDIT"),
+    ("ANNEAUX", "RINGS"),
+    ("BOMBES", "BOMBS"),
+    ("BOMBE", "BOMB"),
+    ("CANON", "CANNON"),
+    ("TEMPS", "TIME"),
+    ("VIES", "LIVES"),
+    ("ARME", "ARMS"),
+    ("SCORE ?", "SCORE?"),
+    ("J1", "P1"),
+    ("J2", "P2"),
+)
+PANEL_EN = {fr: en for fr, en in PANEL_WORDS}
+# English to French: HANDGUN stays "ARME PISTOLET", and P1/P2 stay P1/P2 (the French panel says P1 too)
+PANEL_FR = {en: fr for fr, en in PANEL_WORDS if fr not in ("PISTOLET", "J1", "J2")}
+
+
+def _words_re(table):
+    return re.compile("(?<!\\w)(?:" + "|".join(re.escape(k) for k in sorted(table, key=len, reverse=True))
+                      + ")(?!\\w)", re.IGNORECASE)        # longest phrases first
+
+
+_PANEL_RE = {"en": (_words_re(PANEL_EN), PANEL_EN), "fr": (_words_re(PANEL_FR), PANEL_FR)}
+_FIELD_RE = re.compile(r"(\{[^{}]*\})")
+_panel_cache = {}
+
+
+def _panel_word(table):
+    def sub(m):
+        src = m.group(0)
+        dst = table.get(src.upper())
+        if dst is None:
+            return src
+        if src.isupper():
+            return dst
+        return dst.lower() if src.islower() else dst.capitalize()
+    return sub
+
+
+def panel_text(text, language=None):
+    """Text of a panel element in the chosen language: the words of PANEL_WORDS are replaced outside the
+    {score}... fields. Cached for each text. / Texte d'un élément de la dalle dans la langue choisie."""
+    if not text or not isinstance(text, str):
+        return text
+    language = language or lang()
+    key = (language, text)
+    out = _panel_cache.get(key)
+    if out is None:
+        rx, table = _PANEL_RE.get(language, _PANEL_RE["en"])
+        parts = _FIELD_RE.split(text)
+        parts[::2] = [rx.sub(_panel_word(table), p) for p in parts[::2]]
+        out = _panel_cache[key] = "".join(parts)
+    return out
 
 
 def check_when(cond, state, now=None):
@@ -227,7 +307,7 @@ class TextEl(Element):
         mapping = ctx.state.mapping()
         parts = []
         for tpl, col in self.segments:
-            s = render_template(tpl, mapping, self.missing)
+            s = render_template(panel_text(tpl), mapping, self.missing)
             if self.upper:
                 s = s.upper()
             parts.append((s, col))
@@ -279,11 +359,11 @@ class MarqueeEl(Element):
         mapping = ctx.state.mapping()
         seg_colors = None
         if self.segments:
-            parts = [(render_template(t, mapping, ""), c) for t, c in self.segments]
+            parts = [(render_template(panel_text(t), mapping, ""), c) for t, c in self.segments]
             s = "".join(p for p, _ in parts)
             seg_colors = [c for p, c in parts for _ in p]
         else:
-            s = render_template(self.text, mapping, "")
+            s = render_template(panel_text(self.text), mapping, "")
         if self.upper:
             s = s.upper()
         if not s:
@@ -593,7 +673,7 @@ class SpriteEl(Element):
                     self.frames = load_sprite_frames(path, spec.get("frame_w", 0), spec.get("frames", 0))
                     break
                 except Exception as e:  # image illisible
-                    log(f"sprite illisible {path} : {e}")
+                    log(tr(f"sprite illisible {path} : {e}", f"unreadable sprite {path}: {e}"))
         self.fps = float(spec.get("fps", 8))
         self.mode = spec.get("mode", "pass")
         self.y = spec.get("y", 10)
@@ -730,7 +810,7 @@ class ImageEl(Element):
                     self.frames = load_sprite_frames(path, fit=fit)
                     break
                 except Exception as e:
-                    log(f"image illisible {path} : {e}")
+                    log(tr(f"image illisible {path} : {e}", f"unreadable image {path}: {e}"))
         self.alpha = float(spec.get("alpha", 1.0))
         self.fps = float(spec.get("fps", 10))
 
@@ -763,15 +843,15 @@ class Scene:
             try:
                 return ImageEl(spec, self.root, self.log, self.mapping)
             except Exception as e:
-                self.log(f"élément image ignoré : {e}")
+                self.log(tr(f"élément image ignoré : {e}", f"image element ignored: {e}"))
                 return None
         if cls is None:
-            self.log(f"type d'élément inconnu : {kind}")
+            self.log(tr(f"type d'élément inconnu : {kind}", f"unknown element type: {kind}"))
             return None
         try:
             return cls(spec, self.root, self.log)
         except Exception as e:
-            self.log(f"élément {kind} ignoré : {e}")
+            self.log(tr(f"élément {kind} ignoré : {e}", f"{kind} element ignored: {e}"))
             return None
 
     def restart(self):

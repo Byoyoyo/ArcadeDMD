@@ -1,4 +1,9 @@
-"""Logos des jeux pris dans les médias de LaunchBox et BigBox (images « Clear Logo »).
+"""Game logos taken from the LaunchBox and BigBox media ("Clear Logo" images).
+
+The romset is matched to the game title through <LaunchBox>\\Data\\Platforms\\<platform>.xml.
+The index is built only once, in the background.
+
+Logos des jeux pris dans les médias de LaunchBox et BigBox (images « Clear Logo »).
 
 LaunchBox range ses images par plateforme et par titre de jeu
   <LaunchBox>\\Images\\<plateforme>\\Clear Logo\\<titre>-01.png      (parfois dans un sous-dossier de région)
@@ -13,6 +18,8 @@ import re
 import sys
 import threading
 import xml.etree.ElementTree as ET
+
+from .i18n import tr
 
 IMAGE_TYPES = ("Clear Logo",)
 _BAD = re.compile(r"[\\/:*?\"<>|']")        # caractères que LaunchBox remplace par _ dans les noms d'images
@@ -83,8 +90,10 @@ class LogoFinder:
         try:
             d = find_launchbox(self.root, self.cfg)
             if not d:
-                self.log("écran HD : dossier LaunchBox introuvable, le titre du jeu remplace son logo "
-                         "(réglage \"launchbox\" de la section preview dans config.json)")
+                self.log(tr("écran HD : dossier LaunchBox introuvable, le titre du jeu remplace son logo "
+                            "(réglage \"launchbox\" de la section preview dans config.json)",
+                            "HD screen: LaunchBox folder not found, the game title replaces its logo "
+                            "(\"launchbox\" setting in the preview section of config.json)"))
                 return
             games = {}
             for xml in sorted(glob.glob(os.path.join(d, "Data", "Platforms", "*.xml"))):
@@ -101,7 +110,8 @@ class LogoFinder:
                             games.setdefault(rom, []).append((plat, title))
                         el.clear()
                 except (ET.ParseError, OSError) as e:
-                    self.log(f"écran HD : {os.path.basename(xml)} illisible ({e})")
+                    self.log(tr(f"écran HD : {os.path.basename(xml)} illisible ({e})",
+                                f"HD screen: cannot read {os.path.basename(xml)} ({e})"))
             self.games = games
             self.dir = d
             try:
@@ -110,9 +120,10 @@ class LogoFinder:
                     f.write(d)
             except OSError:
                 pass
-            self.log(f"écran HD : logos des jeux pris dans {d} ({len(games)} jeux dans LaunchBox)")
+            self.log(tr(f"écran HD : logos des jeux pris dans {d} ({len(games)} jeux dans LaunchBox)",
+                        f"HD screen: game logos taken from {d} ({len(games)} games in LaunchBox)"))
         except Exception as e:                   # l'affichage continue sans logo
-            self.log(f"écran HD : index LaunchBox impossible ({e})")
+            self.log(tr(f"écran HD : index LaunchBox impossible ({e})", f"HD screen: cannot index LaunchBox ({e})"))
         finally:
             self.ready = True
 

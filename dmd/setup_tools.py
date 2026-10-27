@@ -1,4 +1,7 @@
-"""Aides pour installer.bat : vérification de libzedmd et installation du plugin MAME."""
+"""Helpers for install.bat and the setup commands: libzedmd check, MAME plugin installation,
+Pixelcade and DMD screen settings written to config.json.
+
+Aides pour install.bat : vérification de libzedmd et installation du plugin MAME."""
 
 import ctypes
 import json
@@ -7,6 +10,8 @@ import re
 import shutil
 import subprocess
 import sys
+
+from .i18n import lang, tr
 
 
 def short_path(path):
@@ -22,7 +27,7 @@ def check_zedmd(root, dll_rel="libzedmd/zedmd64.dll"):
     """Essaie de charger la DLL et ses dépendances. Retourne (ok, message)."""
     path = dll_rel if os.path.isabs(dll_rel) else os.path.join(root, dll_rel)
     if not os.path.exists(path):
-        return False, f"absente ({path})"
+        return False, tr(f"absente ({path})", f"missing ({path})")
     handle = None
     try:
         if sys.platform == "win32" and hasattr(os, "add_dll_directory"):
@@ -31,7 +36,7 @@ def check_zedmd(root, dll_rel="libzedmd/zedmd64.dll"):
         for fn in ("ZeDMD_GetInstance", "ZeDMD_Open", "ZeDMD_SetFrameSize", "ZeDMD_RenderRgb888"):
             getattr(lib, fn)
     except (OSError, AttributeError) as e:
-        return False, f"chargement impossible : {e}"
+        return False, tr(f"chargement impossible : {e}", f"cannot be loaded: {e}")
     finally:
         if handle is not None:
             try:
@@ -84,23 +89,28 @@ def install_plugin(root, mame_dir):
     exe = find_mame_exe(mame_dir)
     is_mame = bool(exe) or os.path.isfile(os.path.join(mame_dir, "plugins", "boot.lua"))
     if sys.platform == "win32" and not is_mame:
-        print(f"  MAME introuvable dans {mame_dir}")
-        print("  Il faut le dossier qui contient mame.exe et le sous-dossier plugins.")
+        print(tr(f"  MAME introuvable dans {mame_dir}", f"  MAME not found in {mame_dir}"))
+        print(tr("  Il faut le dossier qui contient mame.exe et le sous-dossier plugins.",
+                 "  Give the folder that contains mame.exe and the plugins subfolder."))
         return 1
     ver = mame_version(exe) if exe else None
     if ver is not None:
         print(f"  MAME 0.{ver}")
         if ver < MIN_MAME:
-            print(f"  Cette version de MAME est trop ancienne pour le plugin. Il faut MAME 0.{MIN_MAME} ou plus récent.")
-            print("  Le plugin est installé quand même, mais il ne lira rien tant que MAME n'est pas mis à jour.")
+            print(tr(f"  Cette version de MAME est trop ancienne pour le plugin. Il faut MAME 0.{MIN_MAME} ou plus récent.",
+                     f"  This MAME version is too old for the plugin. MAME 0.{MIN_MAME} or newer is required."))
+            print(tr("  Le plugin est installé quand même, mais il ne lira rien tant que MAME n'est pas mis à jour.",
+                     "  The plugin is installed anyway, but it will not read anything until MAME is updated."))
     # MAME passe le chemin tel quel à Lua : il doit être en ASCII
     safe_root = root if root.isascii() else short_path(root)
     if not safe_root.isascii():
-        print("  Le dossier ArcadeDMD contient des accents ou des caractères spéciaux :")
+        print(tr("  Le dossier ArcadeDMD contient des accents ou des caractères spéciaux :",
+                 "  The path of the ArcadeDMD folder contains accents or special characters:"))
         print(f"  {root}")
-        print("  MAME ne saura pas l'ouvrir. Déplace ArcadeDMD dans un dossier simple, par exemple C:\\ArcadeDMD,")
-        print("  puis relance installer.bat.")
-        return 2      # installer.bat s'arrête au lieu de redemander le dossier de MAME
+        print(tr("  MAME ne saura pas l'ouvrir. Déplace ArcadeDMD dans un dossier simple, par exemple C:\\ArcadeDMD,",
+                 "  MAME will not be able to open it. Move ArcadeDMD to a simple folder, for example C:\\ArcadeDMD,"))
+        print(tr("  puis relance install.bat.", "  then run install.bat again."))
+        return 2      # install.bat s'arrête au lieu de redemander le dossier de MAME
     src = os.path.join(root, "mame-plugin", "arcadedmd")
     dst = os.path.join(mame_dir, "plugins", "arcadedmd")
     old = {}
@@ -118,13 +128,14 @@ def install_plugin(root, mame_dir):
         "capture_key": old.get("capture_key", "KEYCODE_RCONTROL KEYCODE_D"),
         "poll_frames": old.get("poll_frames", 2),
         "heartbeat_seconds": old.get("heartbeat_seconds", 2),
+        "language": lang(),          # language of the plugin messages and menu (config.json "language" wins)
     }
     with open(os.path.join(dst, "settings.json"), "w", encoding="ascii") as f:
         json.dump(settings, f, indent=2)
         f.write("\n")
-    print(f"  Plugin installé dans {dst}")
+    print(tr(f"  Plugin installé dans {dst}", f"  Plugin installed in {dst}"))
     if safe_root != root:
-        print(f"  (chemin court utilisé pour MAME : {safe_root})")
+        print(tr(f"  (chemin court utilisé pour MAME : {safe_root})", f"  (short path used for MAME: {safe_root})"))
     return 0
 
 
@@ -133,14 +144,17 @@ def configure_pixelcade(root):
     from .pixelcade import list_ports
     ports = list_ports()
     if not ports:
-        print("  Aucun port série visible (Pixelcade débranchée, ou pyserial absent).")
+        print(tr("  Aucun port série visible (Pixelcade débranchée, ou pyserial absent).",
+                 "  No serial port visible (Pixelcade unplugged, or pyserial missing)."))
         return 1
-    print("  Ports série :")
+    print(tr("  Ports série :", "  Serial ports:"))
     for i, (dev, text, likely) in enumerate(ports, 1):
-        print(f"   {i}. {dev:8} {text}{'   <- Pixelcade probable' if likely else ''}")
+        mark = tr("   <- Pixelcade probable", "   <- probably the Pixelcade") if likely else ""
+        print(f"   {i}. {dev:8} {text}{mark}")
     guess = next((d for d, _, likely in ports if likely), "")
     try:
-        ans = input(f"  Port de la Pixelcade (numéro ou nom{', Entrée = ' + guess if guess else ''}) : ").strip()
+        ans = input(tr(f"  Port de la Pixelcade (numéro ou nom{', Entrée = ' + guess if guess else ''}) : ",
+                       f"  Pixelcade port (number or name{', Enter = ' + guess if guess else ''}): ")).strip()
     except EOFError:
         ans = ""
     if ans.isdigit() and 0 < int(ans) <= len(ports):
@@ -148,7 +162,7 @@ def configure_pixelcade(root):
     else:
         dev = ans or guess
     if not dev:
-        print("  Aucun port choisi, Pixelcade non activée.")
+        print(tr("  Aucun port choisi, Pixelcade non activée.", "  No port chosen, Pixelcade not enabled."))
         return 1
     cfg = load_config_file(root)
     outs = cfg.setdefault("outputs", {})
@@ -159,7 +173,8 @@ def configure_pixelcade(root):
         pc.setdefault(k, v)
     # la sortie ZeDMD reste comme l'a réglée l'étape 2 de l'installeur (désactivée par défaut)
     save_config_file(root, cfg)
-    print(f"  Pixelcade activée sur {dev}. Lance test_pixelcade.bat pour vérifier les couleurs.")
+    print(tr(f"  Pixelcade activée sur {dev}. Lance test_pixelcade.bat pour vérifier les couleurs.",
+             f"  Pixelcade enabled on {dev}. Run test_pixelcade.bat to check the colors."))
     return 0
 
 
@@ -170,8 +185,9 @@ def set_output_enabled(root, name, flag):
 
 
 def load_config_file(root):
-    """config.json (tes réglages), sinon les valeurs de départ de config.defaut.json."""
-    for name in ("config.json", "config.defaut.json"):
+    """config.json (tes réglages), sinon les valeurs de départ de config.default.json
+    (ou de config.defaut.json, son ancien nom)."""
+    for name in ("config.json", "config.default.json", "config.defaut.json"):
         path = os.path.join(root, name)
         if os.path.exists(path):
             with open(path, "r", encoding="utf-8") as f:
@@ -199,17 +215,19 @@ def configure_screen(root, answer=None, style_answer=None):
     from .screens import guess_dmd, list_screens
     screens = list_screens()
     if not screens:
-        print("  Aucun écran trouvé (cette commande ne marche que sous Windows).")
+        print(tr("  Aucun écran trouvé (cette commande ne marche que sous Windows).",
+                 "  No screen found (this command only works on Windows)."))
         return 1
-    print("  Écrans branchés :")
+    print(tr("  Écrans branchés :", "  Connected screens:"))
     for i, sc in enumerate(screens, 1):
-        tag = "   écran principal" if sc["primary"] else ""
+        tag = tr("   écran principal", "   main screen") if sc["primary"] else ""
         print(f"   {i}. {sc['width']} x {sc['height']}, position {sc['x']}, {sc['y']}{tag}")
     g = guess_dmd(screens)
-    hint = f", Entrée = {g + 1}" if g is not None else ""
+    hint = tr(f", Entrée = {g + 1}", f", Enter = {g + 1}") if g is not None else ""
     if answer is None:
         try:
-            answer = input(f"  Numéro de l'écran qui sert de DMD (0 pour n'en mettre aucun{hint}) : ").strip()
+            answer = input(tr(f"  Numéro de l'écran qui sert de DMD (0 pour n'en mettre aucun{hint}) : ",
+                              f"  Number of the screen used as DMD (0 for none{hint}): ")).strip()
         except EOFError:
             answer = ""
     if answer == "" and g is not None:
@@ -220,9 +238,10 @@ def configure_screen(root, answer=None, style_answer=None):
         cfg = load_config_file(root)
         cfg.setdefault("outputs", {}).setdefault("preview", {})["enabled"] = False
         save_config_file(root, cfg)
-        print("  Pas d'écran DMD, fenêtre LED virtuelles coupée.")
+        print(tr("  Pas d'écran DMD, fenêtre LED virtuelles coupée.", "  No DMD screen, virtual LED window turned off."))
         return 0
     sc = screens[idx]
+    size = f"{sc['width']} x {sc['height']}"
     cfg = load_config_file(root)
     pv = cfg.setdefault("outputs", {}).setdefault("preview", {})
     pv.update({"enabled": True, "x": sc["x"], "y": sc["y"], "width": sc["width"], "height": sc["height"],
@@ -232,8 +251,10 @@ def configure_screen(root, answer=None, style_answer=None):
     cur = "HD" if str(pv.get("style")).lower() == "hd" else "LED"
     if style_answer is None:
         try:
-            style_answer = input(f"  Affichage. 1 = LED virtuelles, comme une vraie dalle. 2 = HD lisse, avec le logo du jeu "
-                                 f"(Entrée = garder {cur}) : ").strip()
+            style_answer = input(tr(f"  Affichage. 1 = LED virtuelles, comme une vraie dalle. 2 = HD lisse, avec le logo du jeu "
+                                    f"(Entrée = garder {cur}) : ",
+                                    f"  Display. 1 = virtual LEDs, like a real LED panel. 2 = smooth HD, with the game logo "
+                                    f"(Enter = keep {cur}): ")).strip()
         except EOFError:
             style_answer = ""
     if style_answer == "2":
@@ -242,13 +263,19 @@ def configure_screen(root, answer=None, style_answer=None):
         pv["style"] = "led"
     save_config_file(root, cfg)
     if str(pv.get("style")).lower() == "hd":
-        print(f"  Affichage HD lisse sur l'écran {idx + 1} ({sc['width']} x {sc['height']}). Le logo de chaque jeu vient de "
-              "tes images Clear Logo de LaunchBox.")
-        print("  Lance demo_combat.bat pour voir le résultat, ou un jeu depuis BigBox.")
+        print(tr(f"  Affichage HD lisse sur l'écran {idx + 1} ({size}). Le logo de chaque jeu vient de "
+                 "tes images Clear Logo de LaunchBox.",
+                 f"  Smooth HD display on screen {idx + 1} ({size}). Each game's logo comes from "
+                 "your LaunchBox Clear Logo images."))
+        print(tr("  Lance demo_fight.bat pour voir le résultat, ou un jeu depuis BigBox.",
+                 "  Run demo_fight.bat to see the result, or start a game from BigBox."))
         return 0
     from .outputs import hd_factor
     f = hd_factor(pv, sc["width"], sc["height"])
-    finesse = f"{128 * f} x {32 * f} LED" + (", deux fois plus fin qu'une vraie dalle" if f == 2 else "")
-    print(f"  Fenêtre LED virtuelles sur l'écran {idx + 1} ({sc['width']} x {sc['height']}), {finesse}.")
-    print("  Lance lancer.bat ou demo_afterburner.bat pour voir le résultat.")
+    finesse = (tr(f"{128 * f} x {32 * f} LED", f"{128 * f} x {32 * f} LEDs")
+               + (tr(", deux fois plus fin qu'une vraie dalle", ", twice as fine as a real LED panel") if f == 2 else ""))
+    print(tr(f"  Fenêtre LED virtuelles sur l'écran {idx + 1} ({size}), {finesse}.",
+             f"  Virtual LED window on screen {idx + 1} ({size}), {finesse}."))
+    print(tr("  Lance run.bat ou demo_afterburner.bat pour voir le résultat.",
+             "  Launch run.bat or demo_afterburner.bat to see the result."))
     return 0

@@ -1,4 +1,5 @@
 {
+  "language": "auto",
   "fps": 50,
   "idle": {
     "text": "INSERT COIN",

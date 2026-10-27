@@ -1,4 +1,7 @@
-"""Moteur ArcadeDMD : lit les événements du plugin MAME, choisit la scène, envoie les images."""
+"""ArcadeDMD engine: reads the events of the MAME plugin (and of RetroArch and DOFLinx),
+picks the scene and sends each frame to the outputs. Also loads config.json.
+
+Moteur ArcadeDMD : lit les événements du plugin MAME, choisit la scène, envoie les images."""
 
 import errno
 import json
@@ -20,10 +23,12 @@ from .pixelcade import PixelcadeOutput, guess_pixelcade_dir, list_ports
 from .retroarch import RetroArchSource
 from .memvalues import derive, game_values
 from .textfiles import TextFiles
+from .i18n import tr
 
-VERSION = "1.14.0"
+VERSION = "1.15.0"
 
 DEFAULT_CONFIG = {
+    "language": "auto",
     "fps": 50,
     "events_file": "runtime/events.jsonl",
     "heartbeat_timeout": 8,
@@ -123,12 +128,12 @@ class GameLibrary:
                 with open(p, "r", encoding="utf-8") as f:
                     games[key] = json.load(f)
             except (OSError, ValueError) as e:
-                self.log(f"games/{key}.json illisible : {e}")
+                self.log(tr(f"games/{key}.json illisible : {e}", f"games/{key}.json unreadable: {e}"))
         changed = [k for k in mt if self.mtimes.get(k) != mt[k]]
         self.games = games
         self.mtimes = mt
         if not force:
-            self.log("configuration rechargée : " + ", ".join(changed))
+            self.log(tr("configuration rechargée : ", "configuration reloaded: ") + ", ".join(changed))
         return True
 
     def get(self, key):
@@ -209,7 +214,7 @@ class EventTail:
             try:
                 out.append(json.loads(line.decode("utf-8", errors="replace")))
             except ValueError:
-                self.log("événement illisible ignoré")
+                self.log(tr("événement illisible ignoré", "unreadable event ignored"))
         return out
 
 
@@ -246,7 +251,7 @@ class Dof2DmdBridge:
         self.server = ThreadingHTTPServer((host, port), Handler)
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
-        log(f"passerelle DOFLinx active sur http://{host}:{port}")
+        log(tr(f"passerelle DOFLinx active sur http://{host}:{port}", f"DOFLinx bridge active on http://{host}:{port}"))
 
     def close(self):
         try:
@@ -271,6 +276,11 @@ class Simulator:
         self.fighters = [n for n in ("health", "health_p2") if n in self.names]
         self.fight_next = 1.0
         self.ko_until = None
+        self.kos = 0
+        # stage backdrops of the HD screen: a new stage every two K.O., like a new team in King of Fighters
+        self.backdrops = len(((game or {}).get("hd") or {}).get("stages") or []) or 8
+        if "mission" in self.names and not self.values.get("mission"):
+            self.values["mission"] = 1
         for n in self.names:
             ln = n.lower()
             state.update(n, self.values[n], 0.0, quiet=True)
@@ -286,6 +296,8 @@ class Simulator:
                 self.next[n] = 0.4
             elif "time" in ln or "chrono" in ln:
                 self.next[n] = 1.0
+            elif n == "mission":
+                self.next[n] = 25.0
             else:
                 self.next[n] = float("inf")
 
@@ -312,6 +324,13 @@ class Simulator:
             return
         if self.ko_until is not None:
             if t >= self.ko_until:                      # nouveau round
+                self.kos += 1
+                if self.kos % 2 == 0:                   # new stage: round number and backdrop change
+                    if "stage" in self.values:
+                        self._set("stage", (self.values["stage"] + 1) % 6, t)
+                    if "backdrop" in self.values:
+                        b = self.values["backdrop"]
+                        self._set("backdrop", self.rng.choice([i for i in range(self.backdrops) if i != b] or [b]), t)
                 for n in self.fighters:
                     self._set(n, 100, t)
                 if "time" in self.values:
@@ -368,6 +387,9 @@ class Simulator:
             elif "time" in ln or "chrono" in ln:
                 v = 60 if v <= 0 else v - 1
                 self.next[n] = t + 1.0
+            elif n == "mission":                       # Metal Slug: next mission, then back to the first one
+                v = v + 1 if v < 6 else 1
+                self.next[n] = t + 25.0
             else:
                 self.next[n] = t + 5.0
                 continue
@@ -399,7 +421,7 @@ class Engine:
         self.bridge = None
         tf = config.get("textfiles") or {}
         self.texts = TextFiles(tf, root, log) if tf.get("enabled") and not demo_game else None
-        # config.json modifié (ecran_dmd.bat, réglage à la main) : le moteur redémarre avec les nouveaux réglages
+        # config.json modifié (screen_setup.bat, réglage à la main) : le moteur redémarre avec les nouveaux réglages
         self.cfg_path = os.path.join(root, "config.json")
         self.cfg_mtime = _mtime(self.cfg_path)
         self.next_cfg_check = 0.0
@@ -426,13 +448,14 @@ class Engine:
             try:
                 self.bridge = Dof2DmdBridge(br.get("host", "127.0.0.1"), int(br.get("port", 8080)), self.q, log)
             except OSError as e:
-                log(f"passerelle DOFLinx impossible sur le port {br.get('port')} : {e}")
+                log(tr(f"passerelle DOFLinx impossible sur le port {br.get('port')} : {e}",
+                       f"DOFLinx bridge unavailable on port {br.get('port')}: {e}"))
         ra = config.get("retroarch", {})
         if ra.get("enabled", True) and not demo_game:
             try:
                 self.retroarch = RetroArchSource(self.library, self.q, ra, log)
             except OSError as e:
-                log(f"RetroArch : surveillance impossible ({e})")
+                log(tr(f"RetroArch : surveillance impossible ({e})", f"RetroArch: cannot watch for games ({e})"))
         self.go_idle()
         if demo_game:
             self.start_demo(demo_game)
@@ -466,7 +489,7 @@ class Engine:
                     except TypeError:
                         fn(*args)
                 except Exception as e:
-                    self.log(f"sortie {out.__class__.__name__} : {e}")
+                    self.log(tr(f"sortie {out.__class__.__name__} : {e}", f"output {out.__class__.__name__}: {e}"))
 
     def go_idle(self):
         self.mode = "idle"
@@ -507,12 +530,15 @@ class Engine:
             self.sim = None
             self.demo_until = None
         self.set_scene(key if key else "_generic")
-        self.log(f"jeu : {meta.get('system')} « {title} » -> scène {self.scene_key}")
+        self.log(tr(f"jeu : {meta.get('system')} « {title} » -> scène {self.scene_key}",
+                    f"game: {meta.get('system')} \"{title}\" -> scene {self.scene_key}"))
 
     def start_demo(self, key, seconds=None):
         g = self.library.get(key)
         if g is None and key not in ("_idle", "_generic"):
-            self.log(f"jeu inconnu : {key} (fichiers disponibles : {', '.join(sorted(self.library.games))})")
+            files = ", ".join(sorted(self.library.games))
+            self.log(tr(f"jeu inconnu : {key} (fichiers disponibles : {files})",
+                        f"unknown game: {key} (available files: {files})"))
         if key == "_idle":
             return
         self.start_game({"game": key, "system": key, "description": (g or {}).get("title", key)}, "demo")
@@ -540,9 +566,9 @@ class Engine:
         if not key:
             return
         if self.mode == "game" and self.source in ("plugin", "retroarch"):
-            self.log(f"démo {key} ignorée : une partie est en cours")
+            self.log(tr(f"démo {key} ignorée : une partie est en cours", f"demo {key} ignored: a game is in progress"))
             return
-        self.log(f"démo demandée : {key}")
+        self.log(tr(f"démo demandée : {key}", f"demo requested: {key}"))
         self.start_demo(key, float(req.get("seconds", 20)))
 
     def message(self, text, seconds=2.0, color="#ffffff"):
@@ -680,7 +706,8 @@ class Engine:
                 m = _mtime(self.cfg_path)
                 if m != self.cfg_mtime:
                     self.cfg_mtime = m
-                    self.log("config.json modifié : redémarrage avec les nouveaux réglages")
+                    self.log(tr("config.json modifié : redémarrage avec les nouveaux réglages",
+                                "config.json changed: restarting with the new settings"))
                     self.restart = True
         if self.sim:
             self.sim.step(now)
@@ -688,19 +715,20 @@ class Engine:
                 for k, v in derive(self.derived, self.state.values).items():
                     self.state.update(k, v, now, quiet=True)
             if self.demo_until is not None and time.monotonic() > self.demo_until:
-                self.log("fin de la démo")
+                self.log(tr("fin de la démo", "end of the demo"))
                 self.go_idle()
         if (self.mode == "game" and self.source in ("plugin", "retroarch")
                 and time.monotonic() - self.last_event > float(self.cfg.get("heartbeat_timeout", 8))):
-            self.log("plus de nouvelles de " + ("MAME" if self.source == "plugin" else "RetroArch")
-                     + " : retour à l'écran d'attente")
+            src = "MAME" if self.source == "plugin" else "RetroArch"
+            self.log(tr(f"plus de nouvelles de {src} : retour à l'écran d'attente",
+                        f"no news from {src}: back to the idle screen"))
             self.go_idle()
         if self.texts is not None:     # fichiers texte pour OBS, séries de victoires en match VS
             try:
                 self.texts.update(self.state, self.mode == "game" and self.source != "demo",
                                   self.state.meta.get("game") or "")
             except Exception as e:
-                self.log(f"fichiers texte : {e}")
+                self.log(tr(f"fichiers texte : {e}", f"text files: {e}"))
                 self.texts = None
         return self.render(now)
 
@@ -737,7 +765,7 @@ class Engine:
                 try:
                     out.close()
                 except Exception as e:
-                    self.log(f"fermeture sortie : {e}")
+                    self.log(tr(f"fermeture sortie : {e}", f"closing output: {e}"))
             if self.bridge:
                 self.bridge.close()
             if self.retroarch:
@@ -761,9 +789,12 @@ def scale(c, k):
 # --------------------------------------------------------------------------
 
 def load_config(root, log):
-    """Valeurs internes, puis config.defaut.json (livré), puis config.json (tes réglages, jamais écrasé)."""
+    """Valeurs internes, puis config.default.json (livré), puis config.json (tes réglages, jamais écrasé)."""
     cfg = DEFAULT_CONFIG
-    for name in ("config.defaut.json", "config.json"):
+    defaults = "config.default.json"
+    if not os.path.exists(os.path.join(root, defaults)) and os.path.exists(os.path.join(root, "config.defaut.json")):
+        defaults = "config.defaut.json"         # ancien nom, dossier pas encore mis à jour
+    for name in (defaults, "config.json"):
         path = os.path.join(root, name)
         if not os.path.exists(path):
             continue
@@ -771,7 +802,7 @@ def load_config(root, log):
             with open(path, "r", encoding="utf-8") as f:
                 cfg = deep_merge(cfg, json.load(f))
         except (OSError, ValueError) as e:
-            log(f"{name} illisible ({e}), fichier ignoré")
+            log(tr(f"{name} illisible ({e}), fichier ignoré", f"{name} unreadable ({e}), file ignored"))
     return cfg
 
 
@@ -850,7 +881,7 @@ def build_outputs(root, cfg, log, preview=True, zedmd=True, gif=None, gif_second
         try:
             outs.append(PreviewOutput(o["preview"], log))
         except Exception as e:
-            log(f"aperçu impossible : {e}")
+            log(tr(f"aperçu impossible : {e}", f"preview window unavailable: {e}"))
     if zedmd and o.get("pixelcade", {}).get("enabled"):
         outs.append(PixelcadeOutput(o["pixelcade"], root, log))
     if gif:

@@ -1,4 +1,4 @@
-Inter, polices utilisées par l'affichage HD d'ArcadeDMD.
+Inter, fonts used by the ArcadeDMD HD display. / Inter, polices utilisées par l'affichage HD d'ArcadeDMD.
 Copyright 2016-2023 The Inter Project Authors (https://github.com/rsms/inter)
 
 SIL OPEN FONT LICENSE

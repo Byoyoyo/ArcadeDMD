@@ -1,0 +1,37 @@
+# When main gets a version that has no release yet: build the zip and publish the release with its notes.
+# Quand main reçoit une version qui n'a pas encore de release : construit le zip et publie la release avec ses notes.
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build the zip and the notes
+        id: build
+        run: python tools/package.py --out dist --github-output "$GITHUB_OUTPUT"
+
+      - name: Publish the release if this version has none
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.build.outputs.version }}
+        run: |
+          if gh release view "v$VERSION" > /dev/null 2>&1; then
+            echo "Release v$VERSION already exists, nothing to do."
+            exit 0
+          fi
+          gh release create "v$VERSION" "dist/ArcadeDMD-$VERSION.zip" \
+            --title "ArcadeDMD $VERSION" --notes-file dist/notes.md --target "$GITHUB_SHA"

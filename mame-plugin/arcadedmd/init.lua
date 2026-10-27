@@ -1,4 +1,10 @@
 -- license:MIT
+-- ArcadeDMD: MAME plugin
+-- Reads values in the game RAM (score, lives, credits...) as described by <root>/games/*.json
+-- and writes them to <root>/runtime/events.jsonl for the display engine (arcadedmd.py).
+-- Also captures the RAM for the learning tool (learn.bat).
+-- Messages and menu in English, or in French (see detect_language).
+--
 -- ArcadeDMD : plugin MAME
 -- Lit des valeurs dans la RAM du jeu (score, vies, credits...) selon les fichiers
 -- <root>/games/*.json et les ecrit dans <root>/runtime/events.jsonl pour le moteur
@@ -6,7 +12,7 @@
 
 local exports = {
 	name = "arcadedmd",
-	version = "1.14.0",
+	version = "1.15.0",
 	description = "ArcadeDMD",
 	license = "MIT",
 	author = { name = "ArcadeDMD" } }
@@ -30,6 +36,14 @@ end
 
 local function log_error(msg)
 	emu.print_error("[arcadedmd] " .. msg)
+end
+
+-- "en" or "fr", set by detect_language() once the settings are loaded
+local lang = "en"
+
+local function tr(fr, en)
+	if lang == "fr" then return fr end
+	return en
 end
 
 local function read_file(path)
@@ -120,7 +134,7 @@ local function load_settings()
 				for k, v in pairs(parsed) do settings[k] = v end
 				log("settings loaded from " .. path)
 			else
-				log_error("settings.json invalide : " .. path)
+				log_error(tr("settings.json invalide : ", "invalid settings.json: ") .. path)
 			end
 			break
 		end
@@ -129,12 +143,36 @@ local function load_settings()
 	settings.poll_frames = math.max(1, math.tointeger(settings.poll_frames) or 2)
 end
 
+local function pick_lang(v)
+	v = tostring(v or ""):lower():sub(1, 2)
+	if v == "fr" or v == "en" then return v end
+	return nil
+end
+
+-- Same rule as ArcadeDMD: "language" in config.json ("en" or "fr"), then ARCADEDMD_LANG, then the
+-- language noted by install.bat in settings.json, then the MAME display language, else English.
+-- Meme regle qu'ArcadeDMD : config.json, ARCADEDMD_LANG, langue notee par install.bat, langue de MAME.
+local function detect_language()
+	local found = nil
+	local data = read_file(settings.root .. "/config.json")
+	if data then
+		local ok, cfg = pcall(require("json").parse, data)
+		if ok and type(cfg) == "table" then found = pick_lang(cfg.language) end
+	end
+	found = found or pick_lang(os.getenv("ARCADEDMD_LANG")) or pick_lang(settings.language)
+	if not found then
+		local ok, v = pcall(function() return manager.options.entries["language"]:value() end)
+		if ok then found = pick_lang(v) end
+	end
+	lang = found or "en"
+end
+
 local function load_games()
 	local json = require("json")
 	local games = {}
 	local dir = settings.root .. "/games"
 	if not dir_exists(dir) then
-		log_error("dossier introuvable : " .. dir)
+		log_error(tr("dossier introuvable : ", "folder not found: ") .. dir)
 		return games
 	end
 	local names = {}
@@ -150,7 +188,7 @@ local function load_games()
 				parsed._key = name:gsub("%.json$", "")
 				games[#games + 1] = parsed
 			else
-				log_error("JSON invalide : " .. name)
+				log_error(tr("JSON invalide : ", "invalid JSON: ") .. name)
 			end
 		end
 	end
@@ -340,7 +378,7 @@ local function make_reader(space, def)
 			return v
 		end
 	else
-		log_error("type inconnu : " .. tostring(t))
+		log_error(tr("type inconnu : ", "unknown type: ") .. tostring(t))
 		return nil
 	end
 	return function()
@@ -382,7 +420,7 @@ local function open_events()
 		ev_file:setvbuf("no")
 		log("events -> " .. path)
 	else
-		log_error("impossible d'ecrire " .. path)
+		log_error(tr("impossible d'ecrire ", "cannot write ") .. path)
 	end
 end
 
@@ -391,7 +429,7 @@ local function emit(tbl)
 	local ok = pcall(function() ev_file:write(json_val(tbl) .. "\n") end)
 	if not ok then
 		ev_file = nil
-		log_error("ecriture des evenements interrompue")
+		log_error(tr("ecriture des evenements interrompue", "event writing stopped"))
 	end
 end
 
@@ -409,6 +447,7 @@ end
 local session = nil
 
 local function start_session()
+	detect_language()
 	local info = machine_info()
 	local games = load_games()
 	local game = nil
@@ -425,7 +464,8 @@ local function start_session()
 	local cpu_tag = mem.cpu or default_cpu_tag()
 	local space = find_space(cpu_tag, mem.space)
 	if not space then
-		log_error("CPU introuvable : " .. tostring(cpu_tag) .. " (verifier \"cpu\" dans le fichier du jeu)")
+		log_error(tr("CPU introuvable : ", "CPU not found: ") .. tostring(cpu_tag)
+			.. tr(" (verifier \"cpu\" dans le fichier du jeu)", " (check \"cpu\" in the game file)"))
 	end
 	local readers, names = {}, {}
 	-- adresses du fichier, plus celles propres au jeu dans un modele ("per_game", barres de vie...)
@@ -452,7 +492,7 @@ local function start_session()
 						readers[name] = r
 						names[#names + 1] = name
 					else
-						log_error("lecture impossible pour " .. name)
+						log_error(tr("lecture impossible pour ", "cannot read ") .. name)
 					end
 				end
 			end
@@ -492,7 +532,8 @@ local function start_session()
 		plugin = exports.version,
 		mame = emu.app_version(),
 	})
-	log(string.format("jeu %s (%s) -> config %s, %d valeur(s)", info.system, info.description, tostring(session.key), #names))
+	log(string.format(tr("jeu %s (%s) -> config %s, %d valeur(s)", "game %s (%s) -> config %s, %d value(s)"),
+		info.system, info.description, tostring(session.key), #names))
 end
 
 local function read_all()
@@ -560,7 +601,7 @@ end
 
 local function capture()
 	if not session or not session.space then
-		manager.machine:popmessage("ArcadeDMD : capture impossible (CPU introuvable)")
+		manager.machine:popmessage(tr("ArcadeDMD : capture impossible (CPU introuvable)", "ArcadeDMD: cannot capture (CPU not found)"))
 		return
 	end
 	-- un modele (neogeo.json) ne recoit jamais les captures : elles vont au nom du jeu
@@ -577,7 +618,7 @@ local function capture()
 	local ranges = capture_ranges()
 	local f = io.open(stem .. ".bin", "wb")
 	if not f then
-		manager.machine:popmessage("ArcadeDMD : ecriture impossible dans " .. dir)
+		manager.machine:popmessage(tr("ArcadeDMD : ecriture impossible dans ", "ArcadeDMD: cannot write to ") .. dir)
 		return
 	end
 	local offset = 0
@@ -604,7 +645,7 @@ local function capture()
 			out_ranges[#out_ranges + 1] = { start = r.s, ["end"] = r.e, offset = offset, length = #data, share = r.share or "" }
 			offset = offset + #data
 		else
-			log_error(string.format("zone %X-%X illisible", r.s, r.e))
+			log_error(string.format(tr("zone %X-%X illisible", "area %X-%X unreadable"), r.s, r.e))
 		end
 	end
 	f:close()
@@ -632,9 +673,9 @@ local function capture()
 		break
 	end
 	session.captures = session.captures + 1
-	manager.machine:popmessage(string.format("ArcadeDMD : capture %d enregistree", n))
+	manager.machine:popmessage(string.format(tr("ArcadeDMD : capture %d enregistree", "ArcadeDMD: capture %d saved"), n))
 	emit({ t = "capture", n = n, game = key })
-	log(string.format("capture %d -> %s (%d octets)", n, stem, offset))
+	log(string.format(tr("capture %d -> %s (%d octets)", "capture %d -> %s (%d bytes)"), n, stem, offset))
 end
 
 ----------------------------------------------------------------------------
@@ -679,7 +720,7 @@ local function on_frame()
 end
 
 ----------------------------------------------------------------------------
--- MAME menu (Tab > Options des plugins > ArcadeDMD)
+-- MAME menu (Tab > Plugin Options > ArcadeDMD)
 ----------------------------------------------------------------------------
 
 local menu_capture_index = nil
@@ -689,9 +730,9 @@ local function menu_populate()
 	items[#items + 1] = { "ArcadeDMD " .. exports.version, "", "off" }
 	items[#items + 1] = { "---", "", "" }
 	if session then
-		items[#items + 1] = { "Jeu", session.info.system, "off" }
-		items[#items + 1] = { "Configuration", session.key or "aucune (scene generique)", "off" }
-		items[#items + 1] = { "CPU", session.cpu_tag .. (session.space and "" or " (introuvable)"), "off" }
+		items[#items + 1] = { tr("Jeu", "Game"), session.info.system, "off" }
+		items[#items + 1] = { "Configuration", session.key or tr("aucune (scene generique)", "none (generic scene)"), "off" }
+		items[#items + 1] = { "CPU", session.cpu_tag .. (session.space and "" or tr(" (introuvable)", " (not found)")), "off" }
 		for _, name in ipairs(session.names) do
 			if name:sub(1, 1) ~= "_" then        -- valeurs internes (équipe des KOF...) non affichées
 				local v = session.last[name]
@@ -699,7 +740,7 @@ local function menu_populate()
 			end
 		end
 		items[#items + 1] = { "---", "", "" }
-		items[#items + 1] = { "Capturer la RAM (apprentissage)", tostring(session.captures) .. " capture(s)", "" }
+		items[#items + 1] = { tr("Capturer la RAM (apprentissage)", "Capture the RAM (learning)"), tostring(session.captures) .. " capture(s)", "" }
 		menu_capture_index = #items
 	end
 	return items
@@ -734,22 +775,24 @@ local function subscribe(kind, fn)
 		subs[kind] = true
 		return true
 	end
-	log_error("version de MAME trop ancienne (ni add_machine_" .. kind .. "_notifier ni " .. LEGACY[kind] .. ")")
+	log_error(tr("version de MAME trop ancienne (ni add_machine_", "MAME version too old (neither add_machine_") .. kind
+		.. tr("_notifier ni ", "_notifier nor ") .. LEGACY[kind] .. ")")
 	return false
 end
 
 function arcadedmd.startplugin()
 	load_settings()
+	detect_language()
 
 	subscribe("reset", function()
 		local ok, err = pcall(start_session)
-		if not ok then log_error("demarrage : " .. tostring(err)) end
+		if not ok then log_error(tr("demarrage : ", "start: ") .. tostring(err)) end
 	end)
 
 	subscribe("frame", function()
 		local ok, err = pcall(on_frame)
 		if not ok then
-			log_error("frame : " .. tostring(err))
+			log_error(tr("frame : ", "frame: ") .. tostring(err))
 			session = nil
 		end
 	end)

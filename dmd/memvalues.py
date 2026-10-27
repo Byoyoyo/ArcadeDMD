@@ -1,4 +1,7 @@
-"""Décodage des valeurs RAM (score, vies...) à partir d'octets, comme le plugin MAME.
+"""Decodes RAM values (score, lives...) from raw bytes, the same way as the MAME plugin.
+Definitions come from games/*.json, section memory.values; also computes "derived" values.
+
+Décodage des valeurs RAM (score, vies...) à partir d'octets, comme le plugin MAME.
 
 Les définitions sont celles de games/*.json, rubrique memory.values :
   {"addr": "0x100377", "type": "u8"}
