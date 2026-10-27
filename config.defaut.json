@@ -23,7 +23,9 @@
       "borderless": true,
       "topmost": true,
       "mode": "games",
-      "takeover": "known"
+      "takeover": "known",
+      "style": "led",
+      "launchbox": ""
     },
     "pixelcade": {
       "enabled": false,

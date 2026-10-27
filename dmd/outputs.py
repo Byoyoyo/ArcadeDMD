@@ -321,13 +321,36 @@ class PreviewOutput:
         self.brightness = float(cfg.get("brightness", 1.0))
         self._last_in = None
         self._last_out = None
+        self.engine = None
+        self.hd_view = None
+        self.hd_next = 0.0
         try:
             self._init_pygame()
         except Exception as e:
             self.log(f"aperçu pygame indisponible ({e}), essai tkinter")
             self._init_tk()
+        if str(cfg.get("style", "")).lower() == "hd":
+            self._init_hd(cfg)
         if self.mode == "games":
             self._show(False, quiet=True)  # attend le premier jeu
+
+    def _init_hd(self, cfg):
+        """Affichage HD lisse : la scène est dessinée à la taille de l'écran, avec le logo du jeu."""
+        if self.backend != "pygame":
+            self.log("écran HD : il faut pygame, affichage LED gardé")
+            return
+        try:
+            from .hd import HDRenderer
+            root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            self.hd_view = HDRenderer(self.pg, (self.width, self.height), root, cfg, self.log)
+            self.log(f"écran HD : affichage lisse en {self.width} x {self.height}")
+        except Exception as e:
+            self.log(f"écran HD indisponible ({e}), affichage LED gardé")
+            self.hd_view = None
+
+    def attach(self, engine):
+        """Le moteur se présente : l'affichage HD lit directement les valeurs du jeu."""
+        self.engine = engine
 
     # -- pygame
     def _init_pygame(self):
@@ -488,6 +511,22 @@ class PreviewOutput:
             self.next_check = now + self.CHECK_EVERY
             if self._covered():
                 self._raise()
+        if self.hd_view is not None and self.engine is not None:
+            pg = self.pg
+            for ev in pg.event.get():
+                if ev.type == pg.QUIT or (ev.type == pg.KEYDOWN and ev.key == pg.K_ESCAPE):
+                    self.closed = True
+            if now < self.hd_next:
+                return
+            self.hd_next = now + 1.0 / self.hd_view.FPS
+            try:
+                self.hd_view.render(self.screen, self.engine)
+            except Exception as e:                  # jamais d'écran figé : retour au rendu LED
+                self.log(f"écran HD : {e!r}, retour à l'affichage LED")
+                self.hd_view = None
+                return
+            pg.display.flip()
+            return
         frame = _apply_brightness(frame, self.brightness)
         if self.hd > 1:
             if frame == self._last_in:

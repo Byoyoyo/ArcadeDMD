@@ -194,7 +194,7 @@ def set_pixelcade_option(root, key, value):
     save_config_file(root, cfg)
 
 
-def configure_screen(root, answer=None):
+def configure_screen(root, answer=None, style_answer=None):
     """Place la fenêtre « LED virtuelles » sur l'écran choisi (LCD qui sert de DMD) dans config.json."""
     from .screens import guess_dmd, list_screens
     screens = list_screens()
@@ -229,7 +229,23 @@ def configure_screen(root, answer=None):
                "borderless": True, "topmost": True, "mode": "games"})
     pv.setdefault("hd", "auto")
     pv.setdefault("style", "led")
+    cur = "HD" if str(pv.get("style")).lower() == "hd" else "LED"
+    if style_answer is None:
+        try:
+            style_answer = input(f"  Affichage. 1 = LED virtuelles, comme une vraie dalle. 2 = HD lisse, avec le logo du jeu "
+                                 f"(Entrée = garder {cur}) : ").strip()
+        except EOFError:
+            style_answer = ""
+    if style_answer == "2":
+        pv["style"] = "hd"
+    elif style_answer == "1":
+        pv["style"] = "led"
     save_config_file(root, cfg)
+    if str(pv.get("style")).lower() == "hd":
+        print(f"  Affichage HD lisse sur l'écran {idx + 1} ({sc['width']} x {sc['height']}). Le logo de chaque jeu vient de "
+              "tes images Clear Logo de LaunchBox.")
+        print("  Lance demo_combat.bat pour voir le résultat, ou un jeu depuis BigBox.")
+        return 0
     from .outputs import hd_factor
     f = hd_factor(pv, sc["width"], sc["height"])
     finesse = f"{128 * f} x {32 * f} LED" + (", deux fois plus fin qu'une vraie dalle" if f == 2 else "")

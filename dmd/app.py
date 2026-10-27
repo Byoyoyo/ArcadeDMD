@@ -21,7 +21,7 @@ from .retroarch import RetroArchSource
 from .memvalues import derive, game_values
 from .textfiles import TextFiles
 
-VERSION = "1.13.0"
+VERSION = "1.14.0"
 
 DEFAULT_CONFIG = {
     "fps": 50,
@@ -267,6 +267,10 @@ class Simulator:
         demo = (game or {}).get("demo", {})
         self.values = {n: demo.get(n, self._initial(n)) for n in self.names}
         self.next = {}
+        # jeux de combat : des coups au hasard, KO, puis nouveau round
+        self.fighters = [n for n in ("health", "health_p2") if n in self.names]
+        self.fight_next = 1.0
+        self.ko_until = None
         for n in self.names:
             ln = n.lower()
             state.update(n, self.values[n], 0.0, quiet=True)
@@ -299,7 +303,31 @@ class Simulator:
             return 0
         return 0
 
+    def _set(self, n, v, t):
+        self.values[n] = v
+        self.state.update(n, v, t)
+
+    def _fight(self, t):
+        if len(self.fighters) < 2 or t < self.fight_next:
+            return
+        if self.ko_until is not None:
+            if t >= self.ko_until:                      # nouveau round
+                for n in self.fighters:
+                    self._set(n, 100, t)
+                if "time" in self.values:
+                    self._set("time", 60, t)
+                self.ko_until = None
+            self.fight_next = t + 0.5
+            return
+        n = self.rng.choice(self.fighters)
+        v = max(0, self.values[n] - self.rng.choice([4, 6, 8, 12, 18]))
+        self._set(n, v, t)
+        if v <= 0:
+            self.ko_until = t + 2.5
+        self.fight_next = t + self.rng.uniform(0.6, 2.2)
+
     def step(self, t):
+        self._fight(t)
         for n in self.names:
             if t < self.next[n]:
                 continue
@@ -371,6 +399,15 @@ class Engine:
         self.bridge = None
         tf = config.get("textfiles") or {}
         self.texts = TextFiles(tf, root, log) if tf.get("enabled") and not demo_game else None
+        # config.json modifié (ecran_dmd.bat, réglage à la main) : le moteur redémarre avec les nouveaux réglages
+        self.cfg_path = os.path.join(root, "config.json")
+        self.cfg_mtime = _mtime(self.cfg_path)
+        self.next_cfg_check = 0.0
+        self.restart = False
+        for out in outputs:            # l'affichage HD du LCD lit directement l'état du jeu
+            attach = getattr(out, "attach", None)
+            if attach is not None:
+                attach(self)
         self.sim = None
         self.demo_until = None
         self.source = None
@@ -638,6 +675,13 @@ class Engine:
                 self.handle_event(item[1], now, "retroarch")
         if self.tail is not None:
             self.check_demo_request()
+            if time.monotonic() >= self.next_cfg_check:
+                self.next_cfg_check = time.monotonic() + 2.0
+                m = _mtime(self.cfg_path)
+                if m != self.cfg_mtime:
+                    self.cfg_mtime = m
+                    self.log("config.json modifié : redémarrage avec les nouveaux réglages")
+                    self.restart = True
         if self.sim:
             self.sim.step(now)
             if self.derived:
@@ -676,6 +720,8 @@ class Engine:
                         out.send(frame)
                 if any(getattr(o, "closed", False) for o in self.outputs):
                     break
+                if self.restart:
+                    break
                 if seconds is not None and now >= seconds:
                     break
                 nxt += period
@@ -696,6 +742,14 @@ class Engine:
                 self.bridge.close()
             if self.retroarch:
                 self.retroarch.close()
+        return "restart" if self.restart else None
+
+
+def _mtime(path):
+    try:
+        return os.path.getmtime(path)
+    except OSError:
+        return None
 
 
 def scale(c, k):

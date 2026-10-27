@@ -234,12 +234,14 @@ def main(argv):
         pv.update({"enabled": True, "x": 80, "y": 80, "width": 1024, "height": 256, "borderless": False, "topmost": False,
                    "mode": "always"})
         cfg["outputs"]["preview"] = pv
-    outs = app.build_outputs(ROOT, cfg, log, zedmd=use_zedmd)
-    if not demo and not any(o.__class__.__name__ in ("ZeDMDOutput", "PreviewOutput", "PixelcadeOutput") for o in outs):
-        log("Aucune sortie active. Active la Pixelcade, la dalle ZeDMD ou la fenêtre LED virtuelles dans config.json")
-    eng = app.Engine(ROOT, cfg, outs, log, demo_game=demo)
-    eng.run()
-    return 0
+    while True:
+        outs = app.build_outputs(ROOT, cfg, log, zedmd=use_zedmd)
+        if not demo and not any(o.__class__.__name__ in ("ZeDMDOutput", "PreviewOutput", "PixelcadeOutput") for o in outs):
+            log("Aucune sortie active. Active la Pixelcade, la dalle ZeDMD ou la fenêtre LED virtuelles dans config.json")
+        eng = app.Engine(ROOT, cfg, outs, log, demo_game=demo)
+        if eng.run() != "restart":
+            return 0
+        cfg = app.load_config(ROOT, log)      # réglages modifiés pendant que le moteur tournait
 
 
 if __name__ == "__main__":

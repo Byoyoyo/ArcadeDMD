@@ -15,7 +15,8 @@ Contenu du dossier
 | `lancer.bat` | démarre le moteur avec la console visible |
 | `apprendre.bat` | outil qui trouve une adresse RAM manquante (score, crédits...) |
 | `test_pixelcade.bat` | mire de test sur la Pixelcade LED |
-| `ecran_dmd.bat` | place la scène sur un écran LCD qui sert de DMD (section 3) |
+| `ecran_dmd.bat` | place la scène sur un écran LCD qui sert de DMD, en LED virtuelles ou en HD lisse avec le logo du jeu (section 3) |
+| `demo_combat.bat` | démo d'un jeu de combat (King of Fighters '98) avec des valeurs simulées |
 | `test_retroarch.bat` | vérifie RetroArch, le cœur chargé et la lecture de la mémoire (section 7) |
 | `ports.bat` | liste les ports COM, pour trouver celui de la Pixelcade |
 | `test_dalle.bat` | mire de test sur une dalle ZeDMD |
@@ -25,6 +26,7 @@ Contenu du dossier
 | `mame-plugin\arcadedmd` | le plugin à copier dans `MAME\plugins` (l'installeur le fait) |
 | `sprites\` | petits sprites (avion, anneau). Tu peux ajouter les tiens |
 | `obs\` | fichiers texte mis à jour en direct pour OBS, historique des matchs VS et records de séries (section 11) |
+| `fonts\` | polices Inter de l'affichage HD (licence libre OFL, dans `fonts\OFL.txt`) |
 
 ---
 
@@ -158,6 +160,20 @@ Le réglage à la main, dans `config.json`, section `preview`
 - `"topmost": true` garde la fenêtre au-dessus des autres pendant qu'elle est affichée. Mets `"enabled": false` si tu ne veux que la vraie dalle.
 
 ---
+
+### Affichage HD lisse, avec le logo du jeu
+
+Sur un écran LCD, ArcadeDMD peut aussi dessiner la scène directement à la taille de l'écran, sans effet LED. Les textes sont lisses, les barres de vie ont des dégradés, et le logo du jeu est en haut au centre.
+
+Pour l'activer, relance `ecran_dmd.bat` et choisis 2 à la question sur l'affichage. Ou mets `"style": "hd"` dans la section `preview` de `config.json`. ArcadeDMD voit tout seul que `config.json` a changé et redémarre avec le nouveau réglage. Lance ensuite `demo_combat.bat`, ou un jeu depuis BigBox.
+
+Le logo vient de tes images Clear Logo de LaunchBox. ArcadeDMD trouve le dossier LaunchBox tout seul quand BigBox tourne, ou dans les emplacements habituels (`C:\LaunchBox`, `E:\LaunchBox`...). Sinon, indique-le dans la section `preview`, par exemple `"launchbox": "E:\\LaunchBox"`. Le lien entre le jeu lancé et son logo passe par le chemin de la rom dans LaunchBox, et pour un clone par le jeu parent. Quand un jeu n'a pas de logo, son titre s'affiche à la place en lettres métal.
+
+- Jeux de combat. En haut le score de chaque joueur, ou CHALLENGER et BEAT BY en match VS. Au milieu les barres de vie, avec une traînée claire qui montre le coup qu'on vient de prendre, et le chrono ou KO. En bas P1, P2 ou CPU avec le combattant en cours, l'équipe complète dans les King of Fighters '96 à 2000 (ceux déjà battus sont barrés), et les crédits.
+- Les autres jeux. Le logo, le score de chaque joueur, puis en bas l'arme, les vies, les bombes, le temps et les crédits quand ils sont connus.
+- Personne ne joue. Le logo en grand, et INSERT COIN ou les crédits.
+
+La Pixelcade et les dalles ZeDMD gardent la scène en 128 x 32, c'est la taille de leurs LED.
 
 ## 4. Pixelcade LED
 

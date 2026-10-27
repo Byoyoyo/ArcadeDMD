@@ -1,0 +1,532 @@
+"""Affichage HD lisse pour un écran LCD (le marquee 1920 x 460 d'une Vewlix par exemple).
+
+La scène n'est plus dessinée en 128 x 32 puis agrandie. Elle est dessinée directement à la taille de l'écran,
+avec des polices vectorielles (Inter, dossier fonts), des dégradés, une lueur sous les textes et le logo du jeu
+pris dans les médias de LaunchBox et BigBox (Clear Logo). Sans logo trouvé, le titre du jeu le remplace.
+
+Deux mises en page
+- combat (King of Fighters, Samurai Shodown...) : score ou CHALLENGER et BEAT BY en haut, logo, barres de vie
+  avec traînée des coups encaissés, chrono, nom des combattants, équipes des King of Fighters, crédits ;
+- les autres jeux : logo, score de chaque joueur, puis vies, bombes, arme, crédits... en bas.
+
+Rendu avec pygame. Les textes, dégradés et logos sont préparés une fois avec Pillow puis gardés en cache.
+"""
+
+import math
+import os
+import time
+from collections import OrderedDict
+
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
+
+AMBER, RED, CREAM, LINE = (255, 168, 48), (255, 52, 30), (235, 225, 205), (168, 112, 30)
+GREY, DIM = (150, 150, 165), (90, 90, 100)
+BARS = {"g": ((48, 240, 160), (20, 150, 110)), "y": ((255, 214, 60), (190, 130, 20)), "r": ((255, 70, 50), (160, 30, 20))}
+FONT_FILES = {"black": "Inter-Black.otf", "xbold": "Inter-ExtraBold.otf", "bold": "Inter-Bold.otf",
+              "logo": "InterDisplay-BlackItalic.otf"}
+FALLBACK_FONTS = ("C:\\Windows\\Fonts\\arialbd.ttf", "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")
+CHIPS = (("lives", "VIES"), ("lives_p2", "VIES J2"), ("bombs", "BOMBES"), ("bombs_p2", "BOMBES J2"),
+         ("prisoners", "PRISONNIERS"), ("rings", "ANNEAUX"), ("time", "TEMPS"), ("record", "RECORD"),
+         ("credits", "CRÉDITS"))
+MSLUG_WEAPONS = {0: "PISTOLET", 1: "FUSIL À POMPE", 2: "LANCE-FLAMMES", 3: "LANCE-ROQUETTES", 4: "MITRAILLETTE"}
+
+
+def _num(v):
+    if isinstance(v, bool):
+        return None
+    if isinstance(v, (int, float)):
+        return v
+    return None
+
+
+class HDRenderer:
+    FPS = 40
+
+    def __init__(self, pg, size, root, cfg=None, log=print, logos=None):
+        self.pg = pg
+        self.W, self.H = size
+        self.s = min(self.W / 1920.0, self.H / 460.0)
+        self.root = root
+        self.log = log
+        self.fonts = {}
+        self.cache = OrderedDict()
+        self.bars = {}
+        self.trails = {}
+        self.logo_key = None
+        self.logo = None
+        self.logo_file = False
+        self.logo_retry = 0.0
+        self.fitted = {}
+        if logos is None and (cfg or {}).get("logos", True):
+            from .launchbox import LogoFinder
+            logos = LogoFinder(root, cfg, log)
+        self.logos = logos
+        self.bg = self._background()
+        self.badge = self._badge()
+
+    # ------------------------------------------------------------ outils
+    def S(self, v):
+        return int(round(v * self.s))
+
+    def _surf(self, img):
+        pg = self.pg
+        fn = getattr(pg.image, "frombytes", None) or pg.image.fromstring
+        surf = fn(img.tobytes(), img.size, img.mode)
+        try:
+            return surf.convert_alpha() if img.mode == "RGBA" else surf.convert()
+        except pg.error:                         # pas encore de fenêtre (tests)
+            return surf
+
+    def font(self, key, size):
+        k = (key, size)
+        f = self.fonts.get(k)
+        if f is None:
+            paths = [os.path.join(self.root, "fonts", FONT_FILES.get(key, FONT_FILES["black"]))] + list(FALLBACK_FONTS)
+            for p in paths:
+                try:
+                    f = ImageFont.truetype(p, size)
+                    break
+                except OSError:
+                    continue
+            if f is None:
+                f = ImageFont.load_default()
+            self.fonts[k] = f
+        return f
+
+    def text(self, text, key, size, color, glow=0.5):
+        """Texte prêt à poser (surface, lueur), gardé en cache."""
+        ck = (text, key, size, color, glow)
+        hit = self.cache.get(ck)
+        if hit is not None:
+            self.cache.move_to_end(ck)
+            return hit
+        f = self.font(key, size)
+        l, t, r, b = f.getbbox(text) if text else (0, 0, 1, 1)
+        pad = int(size * 0.45) + 4 if glow else 2
+        w, h = max(1, r - l) + 2 * pad, max(1, b - t) + 2 * pad
+        alpha = Image.new("L", (w, h), 0)
+        ImageDraw.Draw(alpha).text((pad - l, pad - t), text, font=f, fill=255)
+        img = Image.new("RGBA", (w, h), tuple(color) + (0,))
+        img.putalpha(alpha)
+        out = {"surf": self._surf(img), "w": r - l, "h": b - t, "pad": pad}
+        if glow:
+            gl = Image.new("RGB", (w, h))
+            gl.paste(tuple(int(c * glow) for c in color), (0, 0, w, h), alpha.filter(ImageFilter.MaxFilter(3)))
+            out["glow"] = self._surf(gl.filter(ImageFilter.GaussianBlur(max(2, size * 0.16))))
+        self.cache[ck] = out
+        while len(self.cache) > 400:
+            self.cache.popitem(last=False)
+        return out
+
+    def put(self, screen, t, x, y, align="left", valign="top", scale=1.0):
+        """Pose un texte. (x, y) vise le bord ou le centre des lettres elles-mêmes. Renvoie la largeur."""
+        pg = self.pg
+        surf, glow = t["surf"], t.get("glow")
+        if scale != 1.0:
+            size = (max(1, int(surf.get_width() * scale)), max(1, int(surf.get_height() * scale)))
+            surf = pg.transform.smoothscale(surf, size)
+            glow = pg.transform.smoothscale(glow, size) if glow is not None else None
+        w, h, pad = t["w"] * scale, t["h"] * scale, t["pad"] * scale
+        ix = x if align == "left" else (x - w / 2 if align == "center" else x - w)
+        iy = y if valign == "top" else (y - h / 2 if valign == "middle" else y - h)
+        pos = (int(ix - pad), int(iy - pad))
+        if glow is not None:
+            screen.blit(glow, pos, special_flags=pg.BLEND_RGB_ADD)
+        screen.blit(surf, pos)
+        return w
+
+    def fit_size(self, text, key, size, max_w, min_size=10):
+        """Taille de police pour que le texte tienne dans max_w pixels."""
+        while size > min_size:
+            l, _, r, _ = self.font(key, size).getbbox(text)
+            if r - l <= max_w:
+                break
+            size = int(size * 0.9)
+        return size
+
+    # ------------------------------------------------------------ éléments fixes
+    def _background(self):
+        W, H = self.W, self.H
+        bg = Image.new("RGB", (W, H))
+        d = ImageDraw.Draw(bg)
+        for y in range(H):
+            k = y / max(1, H)
+            d.line([0, y, W, y], fill=(int(7 + 9 * k), int(9 + 5 * k), int(22 + 16 * k)))
+        streak = Image.new("L", (W, H), 0)
+        sd = ImageDraw.Draw(streak)
+        step, wd, sl = max(40, self.S(140)), max(10, self.S(46)), self.S(200)
+        for i, x in enumerate(range(-sl * 2, W + sl * 2, step)):      # rayures obliques très discrètes
+            sd.polygon([(x, 0), (x + wd, 0), (x + wd - sl, H), (x - sl, H)], fill=10 + (i % 3) * 4)
+        bg = Image.composite(Image.new("RGB", (W, H), (60, 90, 170)), bg, streak)
+        vign = Image.new("L", (W, H), 0)
+        ImageDraw.Draw(vign).ellipse([-W // 6, -H // 2, W + W // 6, H + H // 2], fill=255)
+        vign = vign.filter(ImageFilter.GaussianBlur(max(20, self.S(120))))
+        return self._surf(Image.composite(bg, Image.new("RGB", (W, H)), vign))
+
+    def _badge(self):
+        w, h = self.S(200), self.S(160)
+        img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+        ImageDraw.Draw(img).rounded_rectangle([0, 0, w - 1, h - 1], radius=self.S(26), fill=(14, 16, 34, 235),
+                                              outline=CREAM + (255,), width=max(2, self.S(4)))
+        return self._surf(img)
+
+    def _bar(self, w, h, side):
+        key = (w, h, side)
+        b = self.bars.get(key)
+        if b is not None:
+            return b
+        sl = self.S(26)
+        shape = [(sl, 0), (w - 1, 0), (w - 1 - sl, h - 1), (0, h - 1)] if side == "left" else \
+                [(0, 0), (w - 1 - sl, 0), (w - 1, h - 1), (sl, h - 1)]
+        mask = Image.new("L", (w, h), 0)
+        ImageDraw.Draw(mask).polygon(shape, fill=255)
+
+        def solid(color):
+            img = Image.new("RGBA", (w, h), tuple(color) + (0,))
+            img.putalpha(mask)
+            return self._surf(img)
+
+        def gradient(top, bottom):
+            img = Image.new("RGB", (w, h))
+            d = ImageDraw.Draw(img)
+            for i in range(h):
+                k = i / max(1, h - 1)
+                d.line([0, i, w, i], fill=tuple(int(top[j] * (1 - k) + bottom[j] * k) for j in range(3)))
+            hi = max(1, self.S(3))
+            d.line([0, hi, w, hi], fill=(235, 255, 248))
+            img = img.convert("RGBA")
+            img.putalpha(mask)
+            return self._surf(img)
+
+        line = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+        ImageDraw.Draw(line).line(shape + [shape[0]], fill=CREAM + (255,), width=max(2, self.S(4)))
+        b = {"back": solid((70, 12, 14)), "trail": solid((255, 235, 235)), "line": self._surf(line),
+             "fill": {k: gradient(*v) for k, v in BARS.items()}}
+        self.bars[key] = b
+        return b
+
+    def draw_bar(self, screen, x, y, w, h, frac, trail, side):
+        pg = self.pg
+        b = self._bar(w, h, side)
+        screen.blit(b["back"], (x, y))
+
+        def span(f):
+            n = int(round(w * max(0.0, min(1.0, f))))
+            return (w - n, n) if side == "left" else (0, n)
+
+        tx, tw = span(trail)
+        if tw > 0:
+            screen.blit(b["trail"], (x + tx, y), area=pg.Rect(tx, 0, tw, h))
+        fx, fw = span(frac)
+        if fw > 0:
+            col = "g" if frac > 0.5 else ("y" if frac > 0.25 else "r")
+            screen.blit(b["fill"][col], (x + fx, y), area=pg.Rect(fx, 0, fw, h))
+        screen.blit(b["line"], (x, y))
+
+    def trail(self, side, frac, now):
+        """Traînée des dégâts : reste 0,3 s sur l'ancienne vie, puis la rattrape en 0,5 s."""
+        st = self.trails.get(side)
+        if st is None or frac > st["hp"] + 0.005:          # nouveau round, vie remplie
+            self.trails[side] = {"hp": frac, "from": frac, "t": now}
+            return frac
+        if frac < st["hp"] - 0.0001:
+            st["from"] = max(self._trail_at(st, now), st["hp"])
+            st["hp"], st["t"] = frac, now
+        return self._trail_at(st, now)
+
+    @staticmethod
+    def _trail_at(st, now):
+        dt = now - st["t"]
+        if dt < 0.3:
+            return st["from"]
+        if dt < 0.8:
+            return st["from"] - (st["from"] - st["hp"]) * (dt - 0.3) / 0.5
+        return st["hp"]
+
+    # ------------------------------------------------------------ logo du jeu
+    def _title_logo(self, title):
+        """Titre du jeu en métal, quand LaunchBox n'a pas de logo."""
+        text = (title or "ARCADE").upper()
+        size = self.fit_size(text, "logo", self.S(96), self.S(1100), self.S(30))
+        f = self.font("logo", size)
+        l, t, r, b = f.getbbox(text)
+        pad = self.S(14) + 4
+        w, h = r - l + 2 * pad, b - t + 2 * pad
+        mask = Image.new("L", (w, h), 0)
+        ImageDraw.Draw(mask).text((pad - l, pad - t), text, font=f, fill=255)
+        grad = Image.new("RGB", (w, h))
+        gd = ImageDraw.Draw(grad)
+        for y in range(h):
+            k = y / max(1, h - 1)
+            if k < 0.45:
+                c = (255 - int(40 * k), 255 - int(30 * k), 255)
+            elif k < 0.55:
+                c = (120, 140, 190)
+            else:
+                c = (190 + int(40 * (k - 0.55)), 200 + int(30 * (k - 0.55)), 240)
+            gd.line([0, y, w, y], fill=c)
+        img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+        img.paste((20, 24, 60, 255), (0, 0, w, h), mask.filter(ImageFilter.MaxFilter(max(3, (self.S(9) // 2) * 2 + 1))))
+        img.paste(grad, (0, 0), mask)
+        return img
+
+    def _logo_image(self, path):
+        img = Image.open(path)
+        img.load()
+        img = img.convert("RGBA")
+        box = img.getchannel("A").getbbox()
+        return img.crop(box) if box else img
+
+    def logo_for(self, meta, title):
+        key = (meta.get("system") or "", meta.get("parent") or "", title)
+        now = time.monotonic()
+        if key != self.logo_key:
+            self.logo_key, self.logo, self.logo_file, self.logo_retry, self.fitted = key, None, False, 0.0, {}
+        if not self.logo_file and now >= self.logo_retry:
+            path = self.logos.find([key[0], key[1]], title) if self.logos is not None else None
+            if path:
+                try:
+                    self.logo, self.logo_file, self.fitted = self._logo_image(path), True, {}
+                except OSError as e:
+                    self.log(f"écran HD : logo illisible {path} ({e})")
+            done = self.logos is None or self.logos.ready
+            self.logo_retry = float("inf") if (self.logo_file or done) else now + 1.0
+            if self.logo is None:
+                self.logo = self._title_logo(title)
+        return self.logo
+
+    def draw_logo(self, screen, img, cx, y, max_w, max_h, now, valign="top"):
+        pg = self.pg
+        key = (max_w, max_h)
+        fit = self.fitted.get(key)
+        if fit is None:
+            k = min(max_w / img.width, max_h / img.height, 1.6)
+            size = (max(1, int(img.width * k)), max(1, int(img.height * k)))
+            small = img.resize(size, Image.LANCZOS)
+            white = Image.new("RGBA", size, (255, 255, 255, 0))
+            white.putalpha(small.getchannel("A"))
+            band_w = max(8, size[1] // 2)
+            band = Image.new("RGBA", (band_w * 3, size[1]), (255, 255, 255, 0))
+            bd = ImageDraw.Draw(band)
+            for i in range(band_w * 3):                   # bande de lumière en biais, bords doux
+                a = int(150 * max(0.0, 1 - abs(i - band_w * 1.5) / (band_w * 0.9)))
+                bd.line([(i + size[1] // 3, 0), (i - size[1] // 3, size[1])], fill=(255, 255, 255, a), width=2)
+            fit = {"surf": self._surf(small), "mask": self._surf(white), "band": self._surf(band), "w": size[0], "h": size[1]}
+            self.fitted[key] = fit
+        x = int(cx - fit["w"] / 2)
+        top = int(y - fit["h"] / 2) if valign == "middle" else int(y)
+        screen.blit(fit["surf"], (x, top))
+        ph = (now % 4.5) / 0.9                             # reflet toutes les 4,5 s
+        if ph <= 1.0:
+            bw = fit["band"].get_width()
+            tmp = pg.Surface((fit["w"], fit["h"]), pg.SRCALPHA)
+            tmp.blit(fit["band"], (int(-bw + (fit["w"] + bw) * ph), 0))
+            tmp.blit(fit["mask"], (0, 0), special_flags=pg.BLEND_RGBA_MULT)
+            screen.blit(tmp, (x, top))
+        return fit["h"]
+
+    # ------------------------------------------------------------ dessin d'une image
+    def render(self, screen, eng):
+        now = time.monotonic()
+        st = eng.state
+        if eng.mode != "game":
+            screen.fill((0, 0, 0))
+            return
+        vals, meta = st.values, st.meta
+        key = meta.get("game") or ""
+        title = meta.get("title") or ""
+        g = eng.library.get(key) or {}
+        fight = (g.get("scene_from") or key) == "neogeo_combat" or ("health" in vals and "health_p2" in vals)
+        screen.blit(self.bg, (0, 0))
+        logo = self.logo_for(meta, title)
+        if fight:
+            self.draw_fight(screen, eng, vals, logo, now)
+        else:
+            self.draw_generic(screen, eng, vals, logo, now, key)
+        self.pg.draw.rect(screen, LINE, (0, self.S(444), self.W, max(2, self.S(8))))
+
+    def _pulse(self, now, period=1.2):
+        a = 0.55 + 0.45 * (0.5 + 0.5 * math.cos(now * 2 * math.pi / period))
+        return round(a * 8) / 8                               # 8 niveaux : textes gardés en cache
+
+    def _invite(self, vals, now):
+        credits = _num(vals.get("credits"))
+        word = "PRESS START" if credits and credits > 0 else "INSERT COIN"
+        return word, tuple(int(c * self._pulse(now)) for c in AMBER)
+
+    def _score(self, screen, eng, name, x, y, align, size):
+        v = eng.state.values.get(name)
+        if v is None:
+            return
+        pop = 0.0
+        t = eng.state.changed_at.get(name)
+        if t is not None:
+            dt = eng.ctx.t - t
+            if 0 <= dt < 0.25:
+                pop = 1 - dt / 0.25
+        self.put(screen, self.text(str(v), "black", size, AMBER), x, y, align, scale=1 + 0.2 * pop)
+
+    # ------------------------------------------------------------ jeux de combat
+    def draw_fight(self, screen, eng, vals, logo, now):
+        W, S = self.W, self.S
+        p1m, p2m = vals.get("p1_mode"), vals.get("p2_mode")
+        known = p1m is not None
+        p1_in = p1m in (1, 2) or not known
+        p2_in = p2m in (1, 2)
+        if known and not p1_in and not p2_in:                 # personne ne joue : démo du jeu
+            self.draw_logo(screen, logo, W / 2, S(190), S(1000), S(220), now, valign="middle")
+            word, col = self._invite(vals, now)
+            credits = _num(vals.get("credits"))
+            msg = f"CRÉDITS {int(credits):02d}" if credits else word
+            self.put(screen, self.text(msg, "xbold", S(56), col if not credits else AMBER), W / 2, S(372), "center", "middle")
+            return
+        # en haut : score de chaque joueur, ou CHALLENGER et BEAT BY en match VS
+        b1, b2 = _num(vals.get("beat")), _num(vals.get("beat_p2"))
+        vs = p1m == 1 and p2m == 1 and b1 is not None and b2 is not None and (b1 > 0 or b2 > 0)
+        for side, x, align in (("p1", S(30), "left"), ("p2", W - S(30), "right")):
+            human = p1_in if side == "p1" else p2_in
+            if vs:
+                b = b1 if side == "p1" else b2
+                txt = f"BEAT BY {int(b):02d}" if b else "CHALLENGER"
+                self.put(screen, self.text(txt, "black", S(54), RED if not b else AMBER), x, S(22), align)
+            elif human:
+                self._score(screen, eng, "score" if side == "p1" else "score_p2", x, S(14), align, S(64))
+            else:
+                word, col = self._invite(vals, now)
+                self.put(screen, self.text(word, "xbold", S(40), col), x, S(24), align)
+        wide = not self.logo_file                       # titre écrit à la place du logo : plus de place en largeur
+        self.draw_logo(screen, logo, W / 2, S(8), S(900 if wide else 640), S(124), now)
+        # au milieu : barres de vie et chrono
+        h1, h2 = _num(vals.get("health")), _num(vals.get("health_p2"))
+        cx = W / 2
+        bw = int(cx - S(160) - S(40))
+        if h1 is not None and h2 is not None:
+            f1, f2 = h1 / 100.0, h2 / 100.0
+            self.draw_bar(screen, S(40), S(176), bw, S(50), f1, self.trail("p1", f1, now), "left")
+            self.draw_bar(screen, int(cx + S(160)), S(176), bw, S(50), f2, self.trail("p2", f2, now), "right")
+        screen.blit(self.badge, (int(cx - self.badge.get_width() / 2), S(140)))
+        ko = h1 is not None and h2 is not None and (h1 <= 0 or h2 <= 0)
+        t = _num(vals.get("time"))
+        if ko:
+            self.put(screen, self.text("KO", "black", S(120), (255, 48, 32)), cx, S(220), "center", "middle")
+        elif t is not None and h1 is not None:
+            self.put(screen, self.text(str(int(t)), "black", S(130), AMBER), cx, S(220), "center", "middle")
+        else:
+            self.put(screen, self.text("VS", "black", S(110), AMBER), cx, S(220), "center", "middle")
+        # en bas : qui joue, le combattant en cours, les équipes des King of Fighters
+        room = cx - S(120) - S(40)
+        for side in ("p1", "p2"):
+            human = p1_in if side == "p1" else p2_in
+            tag = ("P1" if side == "p1" else "P2") if human else "CPU"
+            name = vals.get(side + "_char")
+            tsize = S(76)
+            tw = self.text(tag, "black", tsize, AMBER)["w"]
+            nsize = self.fit_size(str(name), "black", S(76), room - tw - S(40), S(30)) if name else tsize
+            if side == "p1":
+                self.put(screen, self.text(tag, "black", tsize, AMBER), S(40), S(268))
+                if name:
+                    self.put(screen, self.text(str(name), "black", nsize, RED), S(40) + tw + S(40), S(268 + (76 - nsize / self.s) * 0.8))
+            else:
+                self.put(screen, self.text(tag, "black", tsize, AMBER), W - S(40), S(268), "right")
+                if name:
+                    self.put(screen, self.text(str(name), "black", nsize, RED), W - S(40) - tw - S(40),
+                             S(268 + (76 - nsize / self.s) * 0.8), "right")
+            team = self.team(eng, side)
+            if team:
+                self.draw_team(screen, team, S(44) if side == "p1" else W - S(44), S(372), side, room)
+        credits = _num(vals.get("credits"))
+        if credits is not None:
+            self.put(screen, self.text(f"CRÉDITS {int(credits):02d}", "bold", S(30), (200, 170, 120), glow=0),
+                     cx, S(335), "center", "middle")
+
+    def team(self, eng, side):
+        """Équipe King of Fighters dans l'ordre de passage : [(nom, état)], état « done », « now » ou « next »."""
+        vals = eng.state.values
+        names = ((eng.derived or {}).get(side + "_char") or {}).get("names")
+        if not isinstance(names, dict):
+            return None
+        chars = [vals.get(f"_{side}_ch{i}") for i in range(4)]
+        orders = [vals.get(f"_{side}_ord{i}") for i in range(3)]
+        lost = _num(vals.get(f"_{side}_lost"))
+        if lost is None or any(o is None for o in orders):
+            return None
+        out = []
+        for k, o in enumerate(orders):
+            c = chars[int(o)] if 0 <= int(o) < len(chars) else None
+            n = names.get(str(c)) if c is not None else None
+            if n is None:
+                return None
+            out.append((n, "done" if k < lost else ("now" if k == lost else "next")))
+        return out
+
+    def draw_team(self, screen, team, x, y, side, room):
+        size = self.S(30)
+        gap = self.S(30)
+        while size > self.S(16):
+            total = sum(self.text(n, "bold", size, GREY, glow=0)["w"] for n, _ in team) + gap * (len(team) - 1)
+            if total <= room:
+                break
+            size = int(size * 0.9)
+        items = team if side == "p1" else list(reversed(team))
+        cx = x
+        for n, state in items:
+            col = AMBER if state == "now" else (DIM if state == "done" else GREY)
+            t = self.text(n, "bold", size, col, glow=0)
+            if side == "p1":
+                self.put(screen, t, cx, y)
+                left = cx
+                cx += t["w"] + gap
+            else:
+                self.put(screen, t, cx, y, "right")
+                left = cx - t["w"]
+                cx -= t["w"] + gap
+            if state == "done":
+                ly = y + t["h"] // 2
+                self.pg.draw.line(screen, (200, 60, 50), (left - 4, ly), (left + t["w"] + 4, ly), max(2, self.S(4)))
+
+    # ------------------------------------------------------------ autres jeux
+    def draw_generic(self, screen, eng, vals, logo, now, key):
+        W, S = self.W, self.S
+        self.draw_logo(screen, logo, W / 2, S(10), S(760), S(150), now)
+        p2m = vals.get("p2_mode")
+        p2_in = p2m in (1, 2) or (p2m is None and vals.get("score_p2") not in (None, 0))
+        if vals.get("score") is not None:
+            w = self.put(screen, self.text("P1", "black", S(64), RED), S(40), S(196))
+            self._score(screen, eng, "score", S(40) + w + S(30), S(186), "left", S(96))
+        if p2_in and vals.get("score_p2") is not None:
+            w = self.put(screen, self.text("P2", "black", S(64), RED), W - S(40), S(196), "right")
+            self._score(screen, eng, "score_p2", W - S(40) - w - S(30), S(186), "right", S(96))
+        elif p2m is not None:
+            word, col = self._invite(vals, now)
+            self.put(screen, self.text(word, "xbold", S(44), col), W - S(40), S(210), "right")
+        chips = []
+        if key.startswith("mslug"):
+            for wk, ak, tag in (("weapon", "ammo", ""), ("weapon_p2", "ammo_p2", " J2")):
+                wv = vals.get(wk)
+                if wv is None or (tag and not p2_in):
+                    continue
+                name = MSLUG_WEAPONS.get(wv, "ARME")
+                ammo = vals.get(ak)
+                chips.append(("ARME" + tag, name + (f" {ammo}" if ammo and wv != 0 else "")))
+        for k, label in CHIPS:
+            v = vals.get(k)
+            if v is None or (k.endswith("_p2") and not p2_in):       # rien du joueur 2 s'il ne joue pas
+                continue
+            chips.append((label, str(v)))
+        chips = chips[:6]
+        if not chips:
+            return
+        size = S(40)
+        gap = S(60)
+
+        def width(sz):
+            return sum(self.text(lab, "bold", sz, CREAM, glow=0)["w"] + S(16) + self.text(val, "black", sz, AMBER)["w"]
+                       for lab, val in chips) + gap * (len(chips) - 1)
+
+        while size > S(20) and width(size) > W - S(80):
+            size = int(size * 0.9)
+        x = (W - width(size)) / 2
+        y = S(348)
+        for lab, val in chips:
+            x += self.put(screen, self.text(lab, "bold", size, CREAM, glow=0), x, y, valign="middle") + S(16)
+            x += self.put(screen, self.text(val, "black", size, AMBER), x, y, valign="middle") + gap
