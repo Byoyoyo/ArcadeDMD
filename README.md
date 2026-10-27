@@ -16,7 +16,7 @@ Live score, lives, credits and game events from MAME and RetroArch games, shown 
 
 How it works, in one sentence. A MAME plugin reads the values from the game's RAM, and a small Python program draws the scene and sends it over USB to the panel, or shows it on an LCD screen used as a DMD (section 3).
 
-Download the latest version from the [Releases](../../releases) page, then follow section 2. The changes of each version are in [CHANGELOG.md](CHANGELOG.md).
+Download the latest version from the [Releases](../../releases) page, then follow section 2. The changes of each version are in [CHANGELOG.md](CHANGELOG.md). To report a problem or ask for a new game, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Already have a Pixelcade LED? It does the job on its own, no need to buy a panel. Go straight to sections 2 and 4. For games launched in RetroArch (Metal Slug, Sonic...), also read section 7.
 
@@ -92,6 +92,29 @@ Without a shield, the wire-by-wire connections are given in the ZeDMD README ("Z
 1. Download ZeDMD_Updater2 (Windows) https://github.com/zesinger/ZeDMD_Updater2 and flash the **ZeDMD S3 128x32** variant. Alternatively, flash the `.bin` file from the ZeDMD releases with esptool.
 2. On first boot the panel shows a menu. Set the color order (red must be red), the brightness, "USB packet size" to 1024 and "min refresh" to around 90 Hz, then go to **Exit**.
 3. If the panel comes from a pre-flashed kit, update the firmware anyway. Recent versions of the libzedmd library expect a recent firmware.
+
+### Option C, an LCD screen instead of LEDs
+
+An LCD screen shows the scenes in smooth HD, with the animated backgrounds (section 3). Any screen that Windows sees as an extra display works, plugged into the PC by HDMI, DisplayPort or USB-C. For a marquee, look for a "stretched bar LCD", a very long and thin screen. The same screens are sold for shelf-edge advertising and PC sensor panels.
+
+Measure the marquee window of your cabinet first, then choose the biggest visible area that fits.
+
+| Size | Resolution | Visible area, about | Note |
+|---|---|---|---|
+| 12.3" | 1920 × 720 | 29 × 11 cm | close to the size of a pinball DMD |
+| 14.9" | 1280 × 390 | 36 × 11 cm | sold as a marquee kit for Vewlix-type cabinets |
+| 19" | 1920 × 360 | 48 × 9 cm | |
+| 24" | 1920 × 360 | 60 × 11 cm | |
+
+The HD scenes adapt to the screen. They were checked at 1920 × 360, 1280 × 390, 1920 × 480 and 1920 × 720.
+
+Where to buy (prices seen in October 2026)
+- AliExpress, Amazon or eBay. Search for "stretched bar LCD HDMI" followed by the resolution. Take a version sold with its HDMI controller board and its power supply. A bare panel (LVDS or eDP connector) needs a separate controller board. A 19" 1920 × 360 sold with its board was listed around $260 plus shipping on eBay, shipped from China.
+- Waveshare 12.3inch 1920x720 LCD, HDMI or USB-C, around $110, seen by Windows as a normal display https://www.waveshare.com/product/displays/12.3inch-1920x720-lcd.htm
+- Arcade Game Sales, 14.9" 1280 × 390 LCD marquee with a metal frame, for Vewlix, Chewlix and Game Wizard Xtreme cabinets, around $225, VGA and HDMI https://arcade-game-sales.com/products/lcd-arcade-marquee-for-arcade-cabinets/19366-2.html
+- A standard PC monitor also works, if the top of the cabinet is deep and tall enough to hold it. Hide what is outside the marquee window, and set the ArcadeDMD window to the visible band with `x`, `y`, `width` and `height` (section 3).
+
+ArcadeDMD only draws on screens that Windows sees as displays. Check this before buying a marquee that comes with its own software, such as the Pixelcade LCD (it has its own small computer and is reached over the network) or the AtGames Legends BitLCD HD (it connects by USB and is driven by its own app).
 
 ---
 
