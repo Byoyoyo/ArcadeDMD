@@ -1,0 +1,43 @@
+# Creates the tags of the versions released before the project moved to GitHub (v1.2 to v1.14.0),
+# on the commits named "ArcadeDMD x.y.z" of main. Run it once by hand from the Actions tab.
+# Crée les tags des versions publiées avant GitHub (v1.2 à v1.14.0), sur les commits « ArcadeDMD x.y.z » de main.
+# À lancer une fois à la main depuis l'onglet Actions.
+name: Tag older versions
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  tags:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create the missing tags
+        run: |
+          created=0
+          while read -r sha subject; do
+            case "$subject" in
+              "ArcadeDMD "[0-9]*) ;;
+              *) continue ;;
+            esac
+            version="${subject#ArcadeDMD }"
+            case "$version" in
+              *[!0-9.]*) continue ;;          # "ArcadeDMD 1.15.0: ..." and the like get their tag from the release
+            esac
+            if git rev-parse -q --verify "refs/tags/v$version" > /dev/null; then
+              continue
+            fi
+            git tag "v$version" "$sha"
+            echo "v$version -> $sha"
+            created=$((created + 1))
+          done < <(git log --format='%H %s' HEAD)
+          if [ "$created" -gt 0 ]; then
+            git push origin --tags
+          fi
+          echo "$created tag(s) created"
