@@ -16,7 +16,7 @@ Score, vies, crédits et événements des jeux MAME et RetroArch en direct sur l
 
 Comment ça marche, en une phrase. Un plugin MAME lit les valeurs dans la RAM du jeu, un petit programme Python dessine la scène et l'envoie à la dalle en USB, ou l'affiche sur un écran LCD qui sert de DMD (section 3).
 
-Télécharge la dernière version sur la page [Releases](../../releases), puis suis la section 2. Les changements de chaque version sont dans [CHANGELOG.md](CHANGELOG.md).
+Télécharge la dernière version sur la page [Releases](../../releases), puis suis la section 2. Les changements de chaque version sont dans [CHANGELOG.md](CHANGELOG.md). Pour signaler un problème ou demander un nouveau jeu, vois [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Tu as déjà une Pixelcade LED ? Elle suffit, pas besoin d'acheter de dalle. Va directement aux sections 2 et 4. Pour les jeux lancés dans RetroArch (Metal Slug, Sonic...), lis aussi la section 7.
 
@@ -92,6 +92,29 @@ Sans shield, le câblage fil à fil est donné dans le README de ZeDMD (tableau 
 1. Télécharge ZeDMD_Updater2 (Windows) https://github.com/zesinger/ZeDMD_Updater2 et flashe la variante **ZeDMD S3 128x32**. Autre possibilité, le fichier `.bin` des releases ZeDMD avec esptool.
 2. Au premier démarrage la dalle affiche un menu. Règle l'ordre des couleurs (le rouge doit être rouge), la luminosité, « USB packet size » à 1024 et « min refresh » vers 90 Hz, puis va sur **Exit**.
 3. Si la dalle vient d'un pack déjà flashé, mets quand même le firmware à jour. La bibliothèque libzedmd récente attend un firmware récent.
+
+### Option C, un écran LCD à la place des LED
+
+Un écran LCD affiche les scènes en HD lisse, avec les décors animés (section 3). N'importe quel écran que Windows voit comme un écran en plus convient, branché au PC en HDMI, DisplayPort ou USB-C. Pour un marquee, cherche un « stretched bar LCD », un écran très long et très fin. Les mêmes écrans sont vendus pour l'affichage en rayon des magasins et pour les panneaux de capteurs des PC.
+
+Mesure d'abord la fenêtre du marquee de ta borne, puis prends la plus grande surface visible qui rentre.
+
+| Taille | Résolution | Surface visible, environ | Remarque |
+|---|---|---|---|
+| 12,3" | 1920 × 720 | 29 × 11 cm | proche de la taille d'un DMD de flipper |
+| 14,9" | 1280 × 390 | 36 × 11 cm | vendu en kit marquee pour les bornes de type Vewlix |
+| 19" | 1920 × 360 | 48 × 9 cm | |
+| 24" | 1920 × 360 | 60 × 11 cm | |
+
+Les scènes HD s'adaptent à l'écran. Elles ont été vérifiées en 1920 × 360, 1280 × 390, 1920 × 480 et 1920 × 720.
+
+Où acheter (prix relevés en octobre 2026)
+- AliExpress, Amazon ou eBay. Cherche « stretched bar LCD HDMI » suivi de la résolution. Prends une version vendue avec sa carte contrôleur HDMI et son alimentation. Une dalle nue (connecteur LVDS ou eDP) demande une carte contrôleur à part. Un 19" 1920 × 360 vendu avec sa carte était annoncé vers 260 $ plus le port sur eBay, envoyé de Chine.
+- Waveshare 12.3inch 1920x720 LCD, en HDMI ou USB-C, vers 110 $, vu par Windows comme un écran normal https://www.waveshare.com/product/displays/12.3inch-1920x720-lcd.htm
+- Arcade Game Sales, marquee LCD 14,9" 1280 × 390 avec cadre métal, pour bornes Vewlix, Chewlix et Game Wizard Xtreme, vers 225 $, en VGA et HDMI https://arcade-game-sales.com/products/lcd-arcade-marquee-for-arcade-cabinets/19366-2.html
+- Un écran de PC classique marche aussi, si le haut de la borne est assez profond et assez haut pour le loger. Cache ce qui dépasse de la fenêtre du marquee, et règle la fenêtre d'ArcadeDMD sur la bande visible avec `x`, `y`, `width` et `height` (section 3).
+
+ArcadeDMD dessine seulement sur un écran que Windows voit comme un écran. Vérifie-le avant d'acheter un marquee livré avec son propre logiciel, comme le Pixelcade LCD (il a son propre petit ordinateur et se pilote par le réseau) ou l'AtGames Legends BitLCD HD (il se branche en USB et se pilote avec sa propre application).
 
 ---
 
