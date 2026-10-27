@@ -1,4 +1,5 @@
 -- license:MIT
+-- copyright-holders:Byoyoyo
 -- ArcadeDMD: MAME plugin
 -- Reads values in the game RAM (score, lives, credits...) as described by <root>/games/*.json
 -- and writes them to <root>/runtime/events.jsonl for the display engine (arcadedmd.py).
@@ -15,7 +16,7 @@ local exports = {
 	version = "1.15.0",
 	description = "ArcadeDMD",
 	license = "MIT",
-	author = { name = "ArcadeDMD" } }
+	author = { name = "Byoyoyo" } }
 
 local arcadedmd = exports
 
