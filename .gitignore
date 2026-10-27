@@ -1,0 +1,26 @@
+# Your own settings and data, never in the repository
+# Tes réglages et tes données, jamais dans le dépôt
+config.json
+runtime/
+learned/
+appris/
+appris.old/
+obs/
+libzedmd/*.dll
+libzedmd/*.zip
+sprites/sonic*.gif
+sprites/sonic*.png
+sprites/mslug_tank.*
+sprites/neogeo_ship.*
+
+# Python and build files
+__pycache__/
+*.pyc
+dist/
+
+# Editors and system files
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+.DS_Store

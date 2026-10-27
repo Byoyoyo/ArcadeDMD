@@ -1,4 +1,8 @@
-"""Valeurs du jeu écrites dans de petits fichiers texte, mis à jour en direct.
+"""Live game values written to small text files for OBS (score, credits, fighters, VS win streaks),
+plus the King of Fighters VS history (vs_history.txt) and best streaks (records.json).
+The file contents use no French words, only the log messages are translated.
+
+Valeurs du jeu écrites dans de petits fichiers texte, mis à jour en direct.
 
 OBS (source « Texte », case « Lire à partir d'un fichier ») les affiche pendant un direct.
 Dans les King of Fighters en match VS, chaque victoire d'affilée (BEAT BY en haut de l'écran du jeu)
@@ -10,6 +14,8 @@ Textes sans mots français, lisibles par tout le monde : « P2 RUGAL > P1 KIM »
 import json
 import os
 import time
+
+from .i18n import tr
 
 LIVE = (
     ("game.txt", "title"),
@@ -72,7 +78,8 @@ class TextFiles:
         except OSError as e:
             if not self.warned:
                 self.warned = True
-                self.log(f"fichiers texte : écriture impossible dans {self.dir} ({e})")
+                self.log(tr(f"fichiers texte : écriture impossible dans {self.dir} ({e})",
+                            f"text files: cannot write to {self.dir} ({e})"))
             return False
 
     def _append(self, name, line):
@@ -81,7 +88,7 @@ class TextFiles:
             with open(os.path.join(self.dir, name), "a", encoding="utf-8") as f:
                 f.write(line + "\n")
         except OSError as e:
-            self.log(f"fichiers texte : {name} non modifiable ({e})")
+            self.log(tr(f"fichiers texte : {name} non modifiable ({e})", f"text files: cannot update {name} ({e})"))
 
     # -- séries de victoires en match VS
     def _won(self, state, game, side, streak):
@@ -103,8 +110,9 @@ class TextFiles:
                     json.dump(self.records, f, indent=1, ensure_ascii=False)
                     f.write("\n")
             except OSError as e:
-                self.log(f"fichiers texte : records.json non modifiable ({e})")
-            self.log(f"nouveau record de série pour {title} : BEAT BY {streak:02d} ({who})")
+                self.log(tr(f"fichiers texte : records.json non modifiable ({e})", f"text files: cannot update records.json ({e})"))
+            self.log(tr(f"nouveau record de série pour {title} : BEAT BY {streak:02d} ({who})",
+                        f"new win streak record for {title}: BEAT BY {streak:02d} ({who})"))
 
     def best_text(self, game):
         r = self.records.get(game) if game else None

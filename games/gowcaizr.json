@@ -1,6 +1,6 @@
 {
  "title": "Voltage Fighter Gowcaizer",
- "note": "Jeu de combat Neo Geo : vie, chrono, 12 personnages.",
+ "note": "Neo Geo fighting game: health, timer, 12 characters.",
  "match": [
   {
    "system": [
@@ -15,7 +15,7 @@
   "ram_base": "0x100000",
   "ram_size": "0x10000",
   "swap16": true,
-  "note": "cœur FinalBurn Neo : RAM 68000 de la Neo Geo vue à partir de 0x100000, octets inversés par mots de 16 bits"
+  "note": "FinalBurn Neo core: Neo Geo 68000 RAM seen from 0x100000, bytes swapped within 16-bit words"
  },
  "scene_from": "neogeo_combat",
  "memory": {
@@ -26,17 +26,17 @@
     "type": "bcd",
     "bytes": 1,
     "mame_only": true,
-    "note": "crédits MVS (mémoire de sauvegarde), lisibles dans MAME seulement"
+    "note": "MVS credits (backup RAM), readable in MAME only"
    },
    "p1_mode": {
     "addr": "0x10FDB6",
     "type": "u8",
-    "note": "BIOS : joueur 1, 0 jamais joué, 1 en jeu, 2 continue, 3 game over"
+    "note": "BIOS: player 1, 0 never played, 1 playing, 2 continue, 3 game over"
    },
    "p2_mode": {
     "addr": "0x10FDB7",
     "type": "u8",
-    "note": "BIOS : joueur 2, mêmes valeurs"
+    "note": "BIOS: player 2, same values"
    },
    "health": {
     "addr": "0x102D09",
@@ -44,7 +44,7 @@
     "mult": 1.0,
     "min": 0,
     "max": 100,
-    "note": "vie joueur 1 en %, pleine = 0x64"
+    "note": "player 1 health in %, full = 0x64"
    },
    "health_p2": {
     "addr": "0x1035BF",
@@ -52,35 +52,35 @@
     "mult": 1.0,
     "min": 0,
     "max": 100,
-    "note": "vie joueur 2 en %, pleine = 0x64"
+    "note": "player 2 health in %, full = 0x64"
    },
    "time": {
     "addr": "0x1062E1",
     "type": "u8",
-    "note": "chrono",
+    "note": "timer",
     "max": 99
    },
    "score": {
     "addr": "",
     "type": "bcd",
     "bytes": 4,
-    "note": "à trouver avec apprendre.bat"
+    "note": "to find with learn.bat"
    },
    "score_p2": {
     "addr": "",
     "type": "bcd",
     "bytes": 4,
-    "note": "joueur 2, à trouver avec apprendre.bat (partie à deux, score2=...)"
+    "note": "player 2, to find with learn.bat (two-player game, score2=...)"
    },
    "_p1_chr": {
     "addr": "0x10464D",
     "type": "u8",
-    "note": "personnage du joueur 1 (codes de triche FBNeo)"
+    "note": "player 1 character (FBNeo cheat codes)"
    },
    "_p2_chr": {
     "addr": "0x10467D",
     "type": "u8",
-    "note": "personnage du joueur 2 ou de l'ordinateur"
+    "note": "player 2 or computer character"
    }
   }
  },

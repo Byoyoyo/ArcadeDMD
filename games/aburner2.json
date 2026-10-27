@@ -5,11 +5,11 @@
     "cpu": ":mainpcb:maincpu",
     "values": {
       "record": {"addr": "0xFF846E", "type": "bcd", "bytes": 4, "mult": 10,
-                 "note": "1re ligne de la table des records (même zone que hiscore.dat)"},
+                 "note": "first line of the high score table (same area as hiscore.dat)"},
       "score": {"addr": "", "type": "bcd", "bytes": 4, "mult": 10,
-                "note": "adresse à trouver avec apprendre.bat"},
+                "note": "address to find with learn.bat"},
       "credits": {"addr": "", "type": "u8",
-                  "note": "adresse à trouver avec apprendre.bat"}
+                  "note": "address to find with learn.bat"}
     },
     "learn_ranges": [["0xFF8000", "0xFFFFFF"]]
   },
@@ -31,7 +31,7 @@
        "flash": {"on": "score", "color": "#c8ffd8", "ms": 120}},
       {"type": "text", "text": "R{record}", "font": "7x14", "x": 127, "y": 10, "align": "right",
        "color": "#ffd030", "when": {"has": "record"}},
-      {"type": "text", "text": "CRÉDITS {credits}", "font": "6x10", "x": 64, "y": 23, "align": "center",
+      {"type": "text", "text": "CREDITS {credits}", "font": "6x10", "x": 64, "y": 23, "align": "center",
        "color": "#30d8ff", "when": {"has": "credits"}, "flash": {"on": "credits", "color": "#ffffff", "ms": 400}}
     ]
   }

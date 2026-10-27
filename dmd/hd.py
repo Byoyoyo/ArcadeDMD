@@ -1,4 +1,8 @@
-"""Affichage HD lisse pour un écran LCD (le marquee 1920 x 460 d'une Vewlix par exemple).
+"""Smooth HD display for an LCD screen (e.g. the 1920 x 460 marquee of a Vewlix): the scene is drawn at the
+screen size with vector fonts, gradients, glowing texts and the game's logo from LaunchBox (Clear Logo).
+Two layouts: fighting games, and all the other games.
+
+Affichage HD lisse pour un écran LCD (le marquee 1920 x 460 d'une Vewlix par exemple).
 
 La scène n'est plus dessinée en 128 x 32 puis agrandie. Elle est dessinée directement à la taille de l'écran,
 avec des polices vectorielles (Inter, dossier fonts), des dégradés, une lueur sous les textes et le logo du jeu
@@ -19,16 +23,22 @@ from collections import OrderedDict
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
+from .hd_fight import FightFX
+from .hd_mslug import MetalSlugScene, family
+from .i18n import tr
+
 AMBER, RED, CREAM, LINE = (255, 168, 48), (255, 52, 30), (235, 225, 205), (168, 112, 30)
 GREY, DIM = (150, 150, 165), (90, 90, 100)
 BARS = {"g": ((48, 240, 160), (20, 150, 110)), "y": ((255, 214, 60), (190, 130, 20)), "r": ((255, 70, 50), (160, 30, 20))}
 FONT_FILES = {"black": "Inter-Black.otf", "xbold": "Inter-ExtraBold.otf", "bold": "Inter-Bold.otf",
-              "logo": "InterDisplay-BlackItalic.otf"}
+              "logo": "InterDisplay-BlackItalic.otf", "stencil": "BlackOpsOne-Regular.ttf"}
 FALLBACK_FONTS = ("C:\\Windows\\Fonts\\arialbd.ttf", "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")
-CHIPS = (("lives", "VIES"), ("lives_p2", "VIES J2"), ("bombs", "BOMBES"), ("bombs_p2", "BOMBES J2"),
-         ("prisoners", "PRISONNIERS"), ("rings", "ANNEAUX"), ("time", "TEMPS"), ("record", "RECORD"),
-         ("credits", "CRÉDITS"))
-MSLUG_WEAPONS = {0: "PISTOLET", 1: "FUSIL À POMPE", 2: "LANCE-FLAMMES", 3: "LANCE-ROQUETTES", 4: "MITRAILLETTE"}
+# étiquettes (français, anglais) : tr() au moment du dessin, la langue est choisie après l'import
+CHIPS = (("lives", ("VIES", "LIVES")), ("lives_p2", ("VIES J2", "LIVES P2")), ("bombs", ("BOMBES", "BOMBS")),
+         ("bombs_p2", ("BOMBES J2", "BOMBS P2")), ("prisoners", ("PRISONNIERS", "PRISONERS")), ("rings", ("ANNEAUX", "RINGS")),
+         ("time", ("TEMPS", "TIME")), ("record", ("RECORD", "HI-SCORE")), ("credits", ("CRÉDITS", "CREDITS")))
+MSLUG_WEAPONS = {0: ("PISTOLET", "HANDGUN"), 1: ("FUSIL À POMPE", "SHOTGUN"), 2: ("LANCE-FLAMMES", "FLAMETHROWER"),
+                 3: ("LANCE-ROQUETTES", "ROCKET LAUNCHER"), 4: ("MITRAILLETTE", "MACHINE GUN")}
 
 
 def _num(v):
@@ -49,6 +59,9 @@ class HDRenderer:
         self.root = root
         self.log = log
         self.fonts = {}
+        self.fits = {}
+        self.metrics = {}
+        self.scaled = OrderedDict()
         self.cache = OrderedDict()
         self.bars = {}
         self.trails = {}
@@ -63,6 +76,10 @@ class HDRenderer:
         self.logos = logos
         self.bg = self._background()
         self.badge = self._badge()
+        self.clock = time.monotonic           # remplacé par une horloge simulée pour les vidéos de démo
+        self.themed = (cfg or {}).get("themes", True)
+        self.mslug = None
+        self.fight = None
 
     # ------------------------------------------------------------ outils
     def S(self, v):
@@ -108,7 +125,7 @@ class HDRenderer:
         ImageDraw.Draw(alpha).text((pad - l, pad - t), text, font=f, fill=255)
         img = Image.new("RGBA", (w, h), tuple(color) + (0,))
         img.putalpha(alpha)
-        out = {"surf": self._surf(img), "w": r - l, "h": b - t, "pad": pad}
+        out = {"surf": self._surf(img), "w": r - l, "h": b - t, "pad": pad, "key": ck}
         if glow:
             gl = Image.new("RGB", (w, h))
             gl.paste(tuple(int(c * glow) for c in color), (0, 0, w, h), alpha.filter(ImageFilter.MaxFilter(3)))
@@ -118,31 +135,91 @@ class HDRenderer:
             self.cache.popitem(last=False)
         return out
 
-    def put(self, screen, t, x, y, align="left", valign="top", scale=1.0):
-        """Pose un texte. (x, y) vise le bord ou le centre des lettres elles-mêmes. Renvoie la largeur."""
+    def put(self, screen, t, x, y, align="left", valign="top", scale=1.0, alpha=1.0):
+        """Pose un texte. (x, y) vise le bord ou le centre des lettres elles-mêmes. Renvoie la largeur.
+        alpha < 1 : texte transparent (sa lueur disparaît sous 0,55)."""
         pg = self.pg
         surf, glow = t["surf"], t.get("glow")
         if scale != 1.0:
+            scale = round(scale * 50) / 50.0                     # tailles gardées en cache (pas de 2 %)
             size = (max(1, int(surf.get_width() * scale)), max(1, int(surf.get_height() * scale)))
-            surf = pg.transform.smoothscale(surf, size)
-            glow = pg.transform.smoothscale(glow, size) if glow is not None else None
+            if size[0] * size[1] > 250000:                       # très grand texte qui grossit (bandeau) : rapide
+                surf = pg.transform.scale(surf, size)
+                glow = pg.transform.scale(glow, size) if glow is not None else None
+            else:
+                sk = (t.get("key"), scale)
+                hit = self.scaled.get(sk) if sk[0] is not None else None
+                if hit is None:
+                    hit = (pg.transform.smoothscale(surf, size), pg.transform.smoothscale(glow, size) if glow is not None else None)
+                    if sk[0] is not None:
+                        self.scaled[sk] = hit
+                        while len(self.scaled) > 300:
+                            self.scaled.popitem(last=False)
+                surf, glow = hit
         w, h, pad = t["w"] * scale, t["h"] * scale, t["pad"] * scale
         ix = x if align == "left" else (x - w / 2 if align == "center" else x - w)
         iy = y if valign == "top" else (y - h / 2 if valign == "middle" else y - h)
         pos = (int(ix - pad), int(iy - pad))
-        if glow is not None:
+        if glow is not None and alpha > 0.55:
             screen.blit(glow, pos, special_flags=pg.BLEND_RGB_ADD)
-        screen.blit(surf, pos)
+        if alpha < 1.0:
+            surf.set_alpha(max(0, int(255 * alpha)))
+            screen.blit(surf, pos)
+            surf.set_alpha(255)
+        else:
+            screen.blit(surf, pos)
         return w
 
     def fit_size(self, text, key, size, max_w, min_size=10):
-        """Taille de police pour que le texte tienne dans max_w pixels."""
+        """Taille de police pour que le texte tienne dans max_w pixels (mémorisée)."""
+        ck = (text, key, size, max_w, min_size)
+        hit = self.fits.get(ck)
+        if hit is not None:
+            return hit
+        s0 = size
         while size > min_size:
             l, _, r, _ = self.font(key, size).getbbox(text)
             if r - l <= max_w:
                 break
             size = int(size * 0.9)
+        if len(self.fits) > 2000:
+            self.fits.clear()
+        self.fits[(text, key, s0, max_w, min_size)] = size
         return size
+
+    def _glyph(self, key, size, c):
+        """Mesures d'un caractère : (décalage gauche, haut de l'encre, avance, bas de l'encre)."""
+        k = (key, size, c)
+        m = self.metrics.get(k)
+        if m is None:
+            f = self.font(key, size)
+            l, t, r, b = f.getbbox(c) if c.strip() else (0, 0, 0, 0)
+            m = self.metrics[k] = (l, t, f.getlength(c), b, r)
+        return m
+
+    def text_width(self, text, key, size):
+        """Largeur de l'encre, du premier au dernier caractère."""
+        if not text:
+            return 0
+        return sum(self._glyph(key, size, c)[2] for c in text[:-1]) + self._glyph(key, size, text[-1])[4]
+
+    def put_number(self, screen, text, key, size, color, x, y, align="left", valign="top", scale=1.0, glow=0.5):
+        """Nombre posé chiffre par chiffre : un score qui défile ne redessine aucun texte."""
+        total = self.text_width(text, key, size) * scale
+        x0 = x if align == "left" else (x - total / 2 if align == "center" else x - total)
+        _, top, _, bottom, _ = self._glyph(key, size, "0")
+        if valign == "middle":
+            y -= (bottom - top) * scale / 2
+        elif valign == "bottom":
+            y -= (bottom - top) * scale
+        pen = 0.0
+        for c in text:
+            l, t, adv, _, _ = self._glyph(key, size, c)
+            if c.strip():
+                self.put(screen, self.text(c, key, size, color, glow), x0 + (pen + l) * scale, y + (t - top) * scale,
+                         scale=scale)
+            pen += adv * scale
+        return total
 
     # ------------------------------------------------------------ éléments fixes
     def _background(self):
@@ -288,7 +365,7 @@ class HDRenderer:
                 try:
                     self.logo, self.logo_file, self.fitted = self._logo_image(path), True, {}
                 except OSError as e:
-                    self.log(f"écran HD : logo illisible {path} ({e})")
+                    self.log(tr(f"écran HD : logo illisible {path} ({e})", f"HD screen: unreadable logo {path} ({e})"))
             done = self.logos is None or self.logos.ready
             self.logo_retry = float("inf") if (self.logo_file or done) else now + 1.0
             if self.logo is None:
@@ -327,18 +404,35 @@ class HDRenderer:
 
     # ------------------------------------------------------------ dessin d'une image
     def render(self, screen, eng):
-        now = time.monotonic()
+        now = self.clock()
         st = eng.state
         if eng.mode != "game":
             screen.fill((0, 0, 0))
+            self.FPS = HDRenderer.FPS
             return
         vals, meta = st.values, st.meta
         key = meta.get("game") or ""
         title = meta.get("title") or ""
         g = eng.library.get(key) or {}
+        if self.themed and family(key):                       # Metal Slug : décor animé et effets
+            if self.mslug is None:
+                self.mslug = MetalSlugScene(self)
+            self.FPS = MetalSlugScene.FPS
+            self.mslug.render(screen, eng, now, self.logo_for(meta, title))
+            return
+        self.FPS = HDRenderer.FPS
         fight = (g.get("scene_from") or key) == "neogeo_combat" or ("health" in vals and "health_p2" in vals)
-        screen.blit(self.bg, (0, 0))
         logo = self.logo_for(meta, title)
+        if fight and self.themed:                             # combat : salle de tournoi, étincelles, combos, K.O.
+            if self.fight is None:
+                self.fight = FightFX(self)
+            self.FPS = MetalSlugScene.FPS
+            self.fight.update(vals, now, key, g)
+            target = self.fight.begin(screen, now)
+            self.draw_fight(target, eng, vals, logo, now)
+            self.fight.end(screen, target, now)
+            return
+        screen.blit(self.bg, (0, 0))
         if fight:
             self.draw_fight(screen, eng, vals, logo, now)
         else:
@@ -377,7 +471,7 @@ class HDRenderer:
             self.draw_logo(screen, logo, W / 2, S(190), S(1000), S(220), now, valign="middle")
             word, col = self._invite(vals, now)
             credits = _num(vals.get("credits"))
-            msg = f"CRÉDITS {int(credits):02d}" if credits else word
+            msg = tr(f"CRÉDITS {int(credits):02d}", f"CREDITS {int(credits):02d}") if credits else word
             self.put(screen, self.text(msg, "xbold", S(56), col if not credits else AMBER), W / 2, S(372), "center", "middle")
             return
         # en haut : score de chaque joueur, ou CHALLENGER et BEAT BY en match VS
@@ -408,9 +502,13 @@ class HDRenderer:
         ko = h1 is not None and h2 is not None and (h1 <= 0 or h2 <= 0)
         t = _num(vals.get("time"))
         if ko:
-            self.put(screen, self.text("KO", "black", S(120), (255, 48, 32)), cx, S(220), "center", "middle")
+            ks = self.fight.ko_scale(now) if self.fight is not None else 1.0
+            self.put(screen, self.text("KO", "black", S(120), (255, 48, 32)), cx, S(220), "center", "middle", scale=ks)
         elif t is not None and h1 is not None:
-            self.put(screen, self.text(str(int(t)), "black", S(130), AMBER), cx, S(220), "center", "middle")
+            low = t <= 10 and self.fight is not None                 # chrono sous 10 : rouge qui bat
+            pulse = 0.5 + 0.5 * math.sin(now * 9) if low else 0.0
+            self.put(screen, self.text(str(int(t)), "black", S(130), RED if low else AMBER), cx, S(220), "center", "middle",
+                     scale=1 + 0.1 * pulse)
         else:
             self.put(screen, self.text("VS", "black", S(110), AMBER), cx, S(220), "center", "middle")
         # en bas : qui joue, le combattant en cours, les équipes des King of Fighters
@@ -436,8 +534,8 @@ class HDRenderer:
                 self.draw_team(screen, team, S(44) if side == "p1" else W - S(44), S(372), side, room)
         credits = _num(vals.get("credits"))
         if credits is not None:
-            self.put(screen, self.text(f"CRÉDITS {int(credits):02d}", "bold", S(30), (200, 170, 120), glow=0),
-                     cx, S(335), "center", "middle")
+            self.put(screen, self.text(tr(f"CRÉDITS {int(credits):02d}", f"CREDITS {int(credits):02d}"), "bold", S(30),
+                                       (200, 170, 120), glow=0), cx, S(335), "center", "middle")
 
     def team(self, eng, side):
         """Équipe King of Fighters dans l'ordre de passage : [(nom, état)], état « done », « now » ou « next »."""
@@ -501,18 +599,18 @@ class HDRenderer:
             self.put(screen, self.text(word, "xbold", S(44), col), W - S(40), S(210), "right")
         chips = []
         if key.startswith("mslug"):
-            for wk, ak, tag in (("weapon", "ammo", ""), ("weapon_p2", "ammo_p2", " J2")):
+            for wk, ak, label in (("weapon", "ammo", ("ARME", "WEAPON")), ("weapon_p2", "ammo_p2", ("ARME J2", "WEAPON P2"))):
                 wv = vals.get(wk)
-                if wv is None or (tag and not p2_in):
+                if wv is None or (wk.endswith("_p2") and not p2_in):
                     continue
-                name = MSLUG_WEAPONS.get(wv, "ARME")
+                name = tr(*MSLUG_WEAPONS.get(wv, ("ARME", "WEAPON")))
                 ammo = vals.get(ak)
-                chips.append(("ARME" + tag, name + (f" {ammo}" if ammo and wv != 0 else "")))
+                chips.append((tr(*label), name + (f" {ammo}" if ammo and wv != 0 else "")))
         for k, label in CHIPS:
             v = vals.get(k)
             if v is None or (k.endswith("_p2") and not p2_in):       # rien du joueur 2 s'il ne joue pas
                 continue
-            chips.append((label, str(v)))
+            chips.append((tr(*label), str(v)))
         chips = chips[:6]
         if not chips:
             return

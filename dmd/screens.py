@@ -1,4 +1,6 @@
-"""Écrans branchés sur le PC (Windows), pour placer la fenêtre « LED virtuelles » sur un LCD qui sert de DMD."""
+"""Screens connected to the PC (Windows only), used to place the "virtual LED" window on an LCD screen used as a DMD.
+
+Écrans branchés sur le PC (Windows), pour placer la fenêtre « LED virtuelles » sur un LCD qui sert de DMD."""
 
 import ctypes
 import sys

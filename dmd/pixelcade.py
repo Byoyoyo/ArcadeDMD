@@ -1,4 +1,9 @@
-"""Pixelcade LED : pilotage direct de la dalle par le port série.
+"""Pixelcade LED: drives the panel directly through the serial port (IOIO protocol, as dmdext does).
+
+The Pixelcade software (pixelweb.exe) must release the port: ArcadeDMD stops it through its API (/quit)
+when a game starts, then restarts it when the game ends.
+
+Pixelcade LED : pilotage direct de la dalle par le port série.
 
 Le protocole (IOIO) est celui qu'utilisent dmdext et libdmdutil pour afficher le DMD de
 Visual Pinball sur une Pixelcade. Comme pour Visual Pinball, le logiciel Pixelcade
@@ -15,6 +20,8 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+
+from .i18n import tr
 
 WIDTH, HEIGHT = 128, 32
 FRAME_BYTES = WIDTH * HEIGHT * 3
@@ -119,7 +126,8 @@ class PixelcadeDevice:
             time.sleep(0.1)
             resp = s.read(29)
         except (serial.SerialException, OSError, ValueError) as e:
-            self.log(f"Pixelcade : ouverture de {self.port} impossible ({e})")
+            self.log(tr(f"Pixelcade : ouverture de {self.port} impossible ({e})",
+                        f"Pixelcade: cannot open {self.port} ({e})"))
             return False
         if len(resp) < 29 or resp[0] != 0 or resp[1:5] != b"IOIO":
             s.close()
@@ -141,7 +149,8 @@ class PixelcadeDevice:
         else:
             self.rbg = (not self.v2) and fw[4:5] == b"C"
         if self.size != (128, 32):
-            self.log(f"Pixelcade {self.size[0]}x{self.size[1]} non gérée (firmware {self.firmware})")
+            self.log(tr(f"Pixelcade {self.size[0]}x{self.size[1]} non gérée (firmware {self.firmware})",
+                        f"Pixelcade {self.size[0]}x{self.size[1]} not supported (firmware {self.firmware})"))
             s.close()
             return False
         self.ser = s
@@ -151,9 +160,12 @@ class PixelcadeDevice:
             self._write(framed(CMD_ENABLE_V23, bytes((cfg,))))
         else:
             self._write(bytes((CMD_ENABLE, cfg)))
-        self.log(f"Pixelcade connectée sur {self.port} (firmware {self.firmware}, "
-                 f"{'V2' if self.v2 else 'V1'}{', protocole encadré' if self.framing else ''}, "
-                 f"couleurs {'RBG' if self.rbg else 'RGB'})")
+        self.log(tr(f"Pixelcade connectée sur {self.port} (firmware {self.firmware}, "
+                    f"{'V2' if self.v2 else 'V1'}{', protocole encadré' if self.framing else ''}, "
+                    f"couleurs {'RBG' if self.rbg else 'RGB'})",
+                    f"Pixelcade connected on {self.port} (firmware {self.firmware}, "
+                    f"{'V2' if self.v2 else 'V1'}{', framed protocol' if self.framing else ''}, "
+                    f"colors {'RBG' if self.rbg else 'RGB'})"))
         return True
 
     def _write(self, data):
@@ -381,7 +393,8 @@ class PixelcadeOutput:
         self.last_game = []          # jeu en cours (romset, parent) : son marquee revient après la partie
         self.art_dir = guess_pixelcade_dir(root, cfg)
         if importlib.util.find_spec("serial") is None:
-            self.log("Pixelcade : le module pyserial manque (py -m pip install pyserial)")
+            self.log(tr("Pixelcade : le module pyserial manque (py -m pip install pyserial)",
+                        "Pixelcade: the pyserial module is missing (py -m pip install pyserial)"))
             self.want = False
             self.mode = "off"
             return
@@ -421,7 +434,7 @@ class PixelcadeOutput:
                 dev.send(frame)
                 self.last_sent = now
             except Exception as e:
-                self.log(f"Pixelcade : envoi interrompu ({e})")
+                self.log(tr(f"Pixelcade : envoi interrompu ({e})", f"Pixelcade: sending interrupted ({e})"))
                 dev.close()
                 self.dev = None
                 self.blocked_until = now + 10
@@ -465,7 +478,7 @@ class PixelcadeOutput:
                     f.write(exe)
             except OSError:
                 pass
-        self.log("Pixelcade : arrêt de pixelweb le temps du jeu")
+        self.log(tr("Pixelcade : arrêt de pixelweb le temps du jeu", "Pixelcade: stopping pixelweb while the game runs"))
         http_get(self.url + "/quit", 3.0)
         t_end = time.time() + 8
         while time.time() < t_end:
@@ -474,7 +487,8 @@ class PixelcadeOutput:
                 time.sleep(0.5)
                 return True
             time.sleep(0.3)
-        self.log("Pixelcade : pixelweb ne s'arrête pas, la dalle reste à pixelweb")
+        self.log(tr("Pixelcade : pixelweb ne s'arrête pas, la dalle reste à pixelweb",
+                    "Pixelcade: pixelweb does not stop, the panel stays with pixelweb"))
         return False
 
     def _ports(self):
@@ -488,8 +502,10 @@ class PixelcadeOutput:
             return False
         ports = self._ports()
         if not ports:
-            self.log("Pixelcade : port introuvable. Indique-le dans config.json (\"device\": \"COM4\"), "
-                     "la liste s'obtient avec ports.bat")
+            self.log(tr("Pixelcade : port introuvable. Indique-le dans config.json (\"device\": \"COM4\"), "
+                        "la liste s'obtient avec ports.bat",
+                        "Pixelcade: port not found. Set it in config.json (\"device\": \"COM4\"), "
+                        "ports.bat lists the ports"))
             self._restart_pixelweb()
             return False
         t_end = time.time() + 6
@@ -501,7 +517,7 @@ class PixelcadeOutput:
                         self.dev = d
                     return True
             time.sleep(0.5)
-        self.log("Pixelcade : pas de réponse de la carte")
+        self.log(tr("Pixelcade : pas de réponse de la carte", "Pixelcade: no response from the board"))
         self._restart_pixelweb()
         return False
 
@@ -532,19 +548,21 @@ class PixelcadeOutput:
         rom = os.path.splitext(os.path.basename(path))[0] if path else self.last_game[-1]
         status, _ = http_get(f"{self.url}/arcade/stream/mame/{urllib.parse.quote(rom)}", 3.0)
         if status is not None:
-            self.log(f"Pixelcade : pixelweb réaffiche le marquee de {rom}")
+            self.log(tr(f"Pixelcade : pixelweb réaffiche le marquee de {rom}",
+                        f"Pixelcade: pixelweb shows the marquee of {rom} again"))
 
     def _restart_pixelweb(self):
         exe, self.stopped_exe = self.stopped_exe, None
         if not exe:
             return False
         if not os.path.exists(exe):
-            self.log(f"Pixelcade : impossible de relancer pixelweb ({exe} introuvable)")
+            self.log(tr(f"Pixelcade : impossible de relancer pixelweb ({exe} introuvable)",
+                        f"Pixelcade: cannot restart pixelweb ({exe} not found)"))
             return False
         try:
             start_detached(exe)
-            self.log("Pixelcade : pixelweb relancé")
+            self.log(tr("Pixelcade : pixelweb relancé", "Pixelcade: pixelweb restarted"))
             return True
         except OSError as e:
-            self.log(f"Pixelcade : relance de pixelweb impossible ({e})")
+            self.log(tr(f"Pixelcade : relance de pixelweb impossible ({e})", f"Pixelcade: cannot restart pixelweb ({e})"))
             return False

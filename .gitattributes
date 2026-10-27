@@ -1,0 +1,15 @@
+# Windows files keep Windows line endings / les fichiers Windows gardent leurs fins de ligne Windows
+*.bat text eol=crlf
+sprites/README.txt text eol=crlf
+libzedmd/README.txt text eol=crlf
+# Everything else in Unix line endings in the repository
+*.py text eol=lf
+*.json text eol=lf
+*.lua text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.png binary
+*.gif binary
+*.jpg binary
+*.otf binary
+*.ttf binary

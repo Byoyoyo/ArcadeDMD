@@ -1,4 +1,9 @@
-"""Jeux lancés dans RetroArch : lecture de la mémoire par les commandes réseau.
+"""Games running in RetroArch: reads the game memory through RetroArch's network commands.
+
+Needs RetroArch 1.19 or newer with Network Commands enabled (UDP port 55355) and a core that shares
+its memory (FinalBurn Neo, Genesis Plus GX). Addresses are mapped back to the CPU addresses.
+
+Jeux lancés dans RetroArch : lecture de la mémoire par les commandes réseau.
 
 RetroArch (1.19 ou plus récent) répond en UDP sur le port 55355 quand le réglage
 « Commandes réseau » est activé :
@@ -22,6 +27,7 @@ import threading
 import time
 
 from . import wincore
+from .i18n import tr
 from .memvalues import decode, game_values, parse_addr, target, value_size, value_span
 
 DEFAULT_PORT = 55355
@@ -150,34 +156,50 @@ def explain_failure(reply, version="", core=None):
     """Phrases (journal, apprentissage, test_retroarch) qui disent pourquoi la mémoire ne se lit pas."""
     kind = failure_kind(reply)
     if kind == "muet":
-        lines = ["RetroArch ne répond pas aux lectures de la mémoire (commande READ_CORE_RAM)."]
+        lines = [tr("RetroArch ne répond pas aux lectures de la mémoire (commande READ_CORE_RAM).",
+                    "RetroArch does not answer memory reads (READ_CORE_RAM command).")]
         if too_old(version):
-            lines.append(f"RetroArch {version} est trop ancien. Il faut la version 1.19 ou plus récente.")
+            lines.append(tr(f"RetroArch {version} est trop ancien. Il faut la version 1.19 ou plus récente.",
+                            f"RetroArch {version} is too old. Version 1.19 or newer is required."))
         else:
-            lines.append("Il faut la version officielle de RetroArch, 1.19 ou plus récente (voir LISEZMOI, section RetroArch).")
+            lines.append(tr("Il faut la version officielle de RetroArch, 1.19 ou plus récente (voir README.fr.md, section RetroArch).",
+                            "You need the official RetroArch release, 1.19 or newer (see README.md, RetroArch section)."))
         return lines
     if kind == "bizarre":
-        return [f"RetroArch donne une réponse inattendue à la lecture de la mémoire « {reply[:80]} »."]
-    lines = [f"RetroArch refuse de lire la mémoire du jeu (réponse « {reply[:60]} »)."]
+        return [tr(f"RetroArch donne une réponse inattendue à la lecture de la mémoire « {reply[:80]} ».",
+                   f"RetroArch gives an unexpected reply to the memory read \"{reply[:80]}\".")]
+    lines = [tr(f"RetroArch refuse de lire la mémoire du jeu (réponse « {reply[:60]} »).",
+                f"RetroArch refuses to read the game memory (reply \"{reply[:60]}\").")]
     if too_old(version):
-        lines.append(f"RetroArch {version} est trop ancien. Il faut la version 1.19 ou plus récente.")
+        lines.append(tr(f"RetroArch {version} est trop ancien. Il faut la version 1.19 ou plus récente.",
+                        f"RetroArch {version} is too old. Version 1.19 or newer is required."))
         return lines
     if not core:
-        lines.append("Le cœur chargé ne donne pas sa mémoire à RetroArch. Pour voir lequel c'est, "
-                     "appuie sur F1 puis Informations, Informations sur le cœur.")
-        lines.append("Pour l'arcade il faut FinalBurn Neo. FB Alpha 2012 et les cœurs MAME ne donnent pas "
-                     "leur mémoire (voir LISEZMOI, section RetroArch).")
+        lines.append(tr("Le cœur chargé ne donne pas sa mémoire à RetroArch. Pour voir lequel c'est, "
+                        "appuie sur F1 puis Informations, Informations sur le cœur.",
+                        "The loaded core does not share its memory with RetroArch. To see which one it is, "
+                        "press F1, then Information, Core Information."))
+        lines.append(tr("Pour l'arcade il faut FinalBurn Neo. FB Alpha 2012 et les cœurs MAME ne donnent pas "
+                        "leur mémoire (voir README.fr.md, section RetroArch).",
+                        "For arcade games you need FinalBurn Neo. FB Alpha 2012 and the MAME cores do not share "
+                        "their memory (see README.md, RetroArch section)."))
         return lines
-    lines.append(f"Le cœur chargé est {core_label(core)}.")
+    lines.append(tr(f"Le cœur chargé est {core_label(core)}.", f"The loaded core is {core_label(core)}."))
     if core.get("memory") is False:
-        lines.append("Ce cœur ne donne jamais sa mémoire à RetroArch. ArcadeDMD ne peut rien lire avec lui.")
-        lines.append("Lance ce jeu avec le cœur FinalBurn Neo (voir LISEZMOI, section RetroArch).")
+        lines.append(tr("Ce cœur ne donne jamais sa mémoire à RetroArch. ArcadeDMD ne peut rien lire avec lui.",
+                        "This core never shares its memory with RetroArch. ArcadeDMD cannot read anything with it."))
+        lines.append(tr("Lance ce jeu avec le cœur FinalBurn Neo (voir README.fr.md, section RetroArch).",
+                        "Run this game with the FinalBurn Neo core (see README.md, RetroArch section)."))
     elif core.get("memory") is True:
-        lines.append("Ce cœur est sûrement trop ancien pour donner sa mémoire. "
-                     "Mets-le à jour (voir LISEZMOI, section RetroArch).")
+        lines.append(tr("Ce cœur est sûrement trop ancien pour donner sa mémoire. "
+                        "Mets-le à jour (voir README.fr.md, section RetroArch).",
+                        "This core is probably too old to share its memory. "
+                        "Update it (see README.md, RetroArch section)."))
     else:
-        lines.append("Ce cœur ne donne pas sa mémoire à RetroArch. Il faut un cœur compatible avec les succès "
-                     "RetroAchievements, par exemple FinalBurn Neo pour l'arcade (voir LISEZMOI, section RetroArch).")
+        lines.append(tr("Ce cœur ne donne pas sa mémoire à RetroArch. Il faut un cœur compatible avec les succès "
+                        "RetroAchievements, par exemple FinalBurn Neo pour l'arcade (voir README.fr.md, section RetroArch).",
+                        "This core does not share its memory with RetroArch. You need a core that supports "
+                        "RetroAchievements, for example FinalBurn Neo for arcade games (see README.md, RetroArch section)."))
     return lines
 
 
@@ -381,7 +403,7 @@ class RetroArchSource:
                     if st is None:
                         misses += 1
                         if self.session and misses >= 2:
-                            self._end("RetroArch ne répond plus")
+                            self._end(tr("RetroArch ne répond plus", "RetroArch stopped responding"))
                         elif self.session:
                             next_status = now + 0.2      # sans doute fermé : confirmation tout de suite
                         if not self.session:
@@ -393,18 +415,21 @@ class RetroArchSource:
                             self.seen = True
                             v = self.client.version()
                             self.version = v or ""
-                            self.log(f"RetroArch {v or ''} détecté (commandes réseau actives)".replace("  ", " "))
+                            self.log(tr(f"RetroArch {v or ''} détecté (commandes réseau actives)",
+                                        f"RetroArch {v or ''} detected (network commands active)").replace("  ", " "))
                             if too_old(v):
-                                self.log("RetroArch est trop ancien pour lire la mémoire des jeux, il faut la version 1.19 ou plus récente.")
+                                self.log(tr("RetroArch est trop ancien pour lire la mémoire des jeux, "
+                                            "il faut la version 1.19 ou plus récente.",
+                                            "RetroArch is too old to read game memory, version 1.19 or newer is required."))
                         if st["state"] not in ("PLAYING", "PAUSED"):
                             if self.session:
-                                self._end("jeu fermé")
+                                self._end(tr("jeu fermé", "game closed"))
                             self.stop_ev.wait(1.0)
                             continue
                         ident = (st["system"], st["content"])
                         if self.session is None or self.session["ident"] != ident:
                             if self.session:
-                                self._end("changement de jeu")
+                                self._end(tr("changement de jeu", "game changed"))
                             self._begin(st)
                         elif self._game_file_changed():
                             self._begin(st)              # adresses apprises : on les lit tout de suite
@@ -415,7 +440,7 @@ class RetroArchSource:
                 if self.session:
                     self._poll_values()
             except Exception as e:          # le moteur doit continuer quoi qu'il arrive
-                self.log(f"RetroArch : erreur {e!r}")
+                self.log(tr(f"RetroArch : erreur {e!r}", f"RetroArch: error {e!r}"))
                 self.session = None
                 self.stop_ev.wait(2.0)
             self.stop_ev.wait(self.poll)
@@ -434,7 +459,8 @@ class RetroArchSource:
             if layout.contains(*span):
                 defs[name] = d
             elif not d.get("mame_only"):
-                self.log(f"RetroArch : {name} ({d.get('addr')}) hors de la mémoire visible par RetroArch, ignoré")
+                self.log(tr(f"RetroArch : {name} ({d.get('addr')}) hors de la mémoire visible par RetroArch, ignoré",
+                            f"RetroArch: {name} ({d.get('addr')}) is outside the memory visible to RetroArch, ignored"))
         core = find_core(st["content"])
         self.session = {"ident": (st["system"], st["content"]), "key": key or "", "layout": layout,
                         "defs": defs, "clusters": make_clusters(defs) if defs else [], "last": {},
@@ -443,9 +469,10 @@ class RetroArchSource:
         title = game_title(game, st["content"])
         self._emit({"t": "start", "game": key or "", "system": st["content"], "description": title,
                     "media": [], "values": sorted(defs), "source": "retroarch", "core": st["system"]})
-        where = st["system"] + (f", cœur {core['file']}" if core else "")
-        self.log(f"RetroArch : {st['content']} ({where}) -> "
-                 + (f"games/{key}.json, {len(defs)} valeur(s)" if key else "pas de fichier dans games"))
+        where = st["system"] + (tr(f", cœur {core['file']}", f", core {core['file']}") if core else "")
+        self.log(tr(f"RetroArch : {st['content']} ({where}) -> ", f"RetroArch: {st['content']} ({where}) -> ")
+                 + (tr(f"games/{key}.json, {len(defs)} valeur(s)", f"games/{key}.json, {len(defs)} value(s)") if key
+                    else tr("pas de fichier dans games", "no file in games")))
 
     def _game_file_changed(self):
         """Fichier du jeu modifié, ou nouveau fichier propre au jeu (appris pendant la partie)."""
@@ -458,7 +485,7 @@ class RetroArchSource:
     def _end(self, why):
         self.session = None
         self._emit({"t": "stop"})
-        self.log(f"RetroArch : fin de partie ({why})")
+        self.log(tr(f"RetroArch : fin de partie ({why})", f"RetroArch: game ended ({why})"))
 
     def _poll_values(self):
         s = self.session
@@ -479,7 +506,8 @@ class RetroArchSource:
                         self.log(line)
             else:
                 if s["warned"]:
-                    self.log("RetroArch : la lecture de la mémoire marche à nouveau.")
+                    self.log(tr("RetroArch : la lecture de la mémoire marche à nouveau.",
+                                "RetroArch: memory reads work again."))
                 s["fails"] = 0
                 s["warned"] = False
                 s["retry_at"] = 0.0

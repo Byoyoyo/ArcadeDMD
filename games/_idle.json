@@ -1,5 +1,5 @@
 {
-  "title": "Écran d'attente (aucun jeu lancé)",
+  "title": "Idle screen (no game running)",
   "scene": {
     "layers": [
       {"type": "waves", "layers": [

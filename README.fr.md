@@ -1,50 +1,64 @@
 # ArcadeDMD
 
-Score, vies et crédits des jeux MAME en direct sur une dalle LED 128x32 posée sur la borne, avec une scène animée propre à chaque jeu. Même principe que les vidéos After Burner II et Sonic.
+English version: [README.md](README.md)
 
-Comment ça marche, en une phrase. Un plugin MAME lit les valeurs dans la RAM du jeu, un petit programme Python dessine la scène et l'envoie à la dalle, une **Pixelcade LED** ou un **ZeDMD**, en USB. Le même programme peut aussi afficher la scène en « LED virtuelles » sur un écran LCD qui sert de DMD (section 3).
+Score, vies, crédits et événements des jeux MAME et RetroArch en direct sur le marquee d'une borne d'arcade, avec une scène animée propre à chaque jeu. Sur une dalle LED 128x32 (**Pixelcade LED**, **ZeDMD**), ou en HD lisse sur un écran LCD de marquee (le marquee 1920 x 460 d'une Vewlix par exemple).
 
-Tu as déjà une Pixelcade LED. Elle suffit, pas besoin d'acheter de dalle. Va directement aux sections 2 et 4. Pour les jeux lancés dans RetroArch (Metal Slug, Sonic...), lis aussi la section 7.
+![Jeu de combat sur un marquee LCD, affichage HD](docs/images/hd_fight.jpg)
+![Metal Slug sur un marquee LCD, affichage HD](docs/images/hd_metal_slug.jpg)
+![Metal Slug sur une dalle LED 128x32](docs/images/led_metal_slug.gif)
+
+- Lit la mémoire du jeu en direct, avec un plugin MAME ou par les commandes réseau de RetroArch (FinalBurn Neo, Genesis Plus GX). Rien n'est modifié dans le jeu ni dans l'émulateur.
+- Scènes prêtes pour Metal Slug 1 à 5 et X, les 57 jeux de combat Neo Geo, tous les autres jeux Neo Geo selon leur genre, After Burner II, Sonic 1 et 2.
+- Scènes HD avec des décors animés qui suivent le stage ou la mission du jeu, et un effet pour chaque événement (coups, combos, K.O., armes, bombes, pièces...).
+- Un outil d'apprentissage trouve les adresses manquantes (score, crédits...) à partir de quelques captures.
+- En anglais et en français. Windows, Python 3.12 ou plus récent.
+
+Comment ça marche, en une phrase. Un plugin MAME lit les valeurs dans la RAM du jeu, un petit programme Python dessine la scène et l'envoie à la dalle en USB, ou l'affiche sur un écran LCD qui sert de DMD (section 3).
+
+Télécharge la dernière version sur la page [Releases](../../releases), puis suis la section 2. Les changements de chaque version sont dans [CHANGELOG.md](CHANGELOG.md).
+
+Tu as déjà une Pixelcade LED ? Elle suffit, pas besoin d'acheter de dalle. Va directement aux sections 2 et 4. Pour les jeux lancés dans RetroArch (Metal Slug, Sonic...), lis aussi la section 7.
 
 Contenu du dossier
 
 | Fichier | Rôle |
 |---|---|
-| `installer.bat` | installe tout (Python requis, voir plus bas) |
+| `install.bat` | installe tout (Python requis, voir plus bas) |
 | `demo_afterburner.bat`, `demo_sonic.bat` | montrent les scènes avec des valeurs simulées, sans MAME |
-| `lancer.bat` | démarre le moteur avec la console visible |
-| `apprendre.bat` | outil qui trouve une adresse RAM manquante (score, crédits...) |
+| `run.bat` | démarre le moteur avec la console visible |
+| `learn.bat` | outil qui trouve une adresse RAM manquante (score, crédits...) |
 | `test_pixelcade.bat` | mire de test sur la Pixelcade LED |
-| `ecran_dmd.bat` | place la scène sur un écran LCD qui sert de DMD, en LED virtuelles ou en HD lisse avec le logo du jeu (section 3) |
-| `demo_combat.bat` | démo d'un jeu de combat (King of Fighters '98) avec des valeurs simulées |
+| `screen_setup.bat` | place la scène sur un écran LCD qui sert de DMD, en LED virtuelles ou en HD lisse avec le logo du jeu (section 3) |
+| `demo_fight.bat` | démo d'un jeu de combat (King of Fighters '98) avec des valeurs simulées |
 | `test_retroarch.bat` | vérifie RetroArch, le cœur chargé et la lecture de la mémoire (section 7) |
 | `ports.bat` | liste les ports COM, pour trouver celui de la Pixelcade |
-| `test_dalle.bat` | mire de test sur une dalle ZeDMD |
-| `config.json` | tes réglages (Pixelcade, RetroArch, fenêtre LED virtuelles...), créé par l'installeur à partir de `config.defaut.json`. Une nouvelle version d'ArcadeDMD ne l'écrase jamais |
+| `test_panel.bat` | mire de test sur une dalle ZeDMD |
+| `config.json` | tes réglages (Pixelcade, RetroArch, fenêtre LED virtuelles...), créé par l'installeur à partir de `config.default.json`. Une nouvelle version d'ArcadeDMD ne l'écrase jamais |
 | `games\*.json` | un fichier par jeu, avec les adresses RAM et la scène. Les fichiers `neogeo*.json` servent de scènes communes aux jeux Neo Geo, une par genre |
-| `appris\` | copie des adresses trouvées par `apprendre.bat`. Remises en place toutes seules après une mise à jour |
+| `learned\` | copie des adresses trouvées par `learn.bat`. Remises en place toutes seules après une mise à jour |
 | `mame-plugin\arcadedmd` | le plugin à copier dans `MAME\plugins` (l'installeur le fait) |
 | `sprites\` | petits sprites (avion, anneau). Tu peux ajouter les tiens |
 | `obs\` | fichiers texte mis à jour en direct pour OBS, historique des matchs VS et records de séries (section 11) |
-| `fonts\` | polices Inter de l'affichage HD (licence libre OFL, dans `fonts\OFL.txt`) |
+| `fonts\` | polices Inter et Black Ops One de l'affichage HD (licence libre OFL, dans `fonts\OFL.txt` et `fonts\OFL-BlackOpsOne.txt`) |
 
 ---
 
 ## 1. Le matériel (seulement si tu n'as pas de Pixelcade)
 
-La dalle de la vidéo est un DMD RGB 128x32, c'est-à-dire deux modules LED HUB75 de 64x32 côte à côte. C'est exactement le format ZeDMD, le DMD libre bien connu du monde du flipper virtuel. On s'appuie dessus pour la partie dalle.
+Un DMD RGB 128x32, ce sont deux modules LED HUB75 de 64x32 côte à côte. C'est exactement le format ZeDMD, le DMD libre bien connu du monde du flipper virtuel. On s'appuie dessus pour la partie dalle.
 
 ### Option A, le plus simple (pack prêt à brancher)
 
-Des boutiques françaises vendent des ZeDMD montés ou des cartes prêtes à l'emploi.
+Des boutiques vendent des ZeDMD montés ou des cartes prêtes à l'emploi, par exemple en France.
 - SmallCab, « Pack ZeDMD S3 – P2.5 » https://www.smallcab.net/pack-zedmd-p-3182.html
 - Benfactory, « ZeDMD » https://benfactory.fr/produit/zedmd/
 
 En P2.5 (2,5 mm entre deux LED) la dalle fait environ 32 × 8 cm. C'est la taille d'un DMD de flipper. Vérifie sur la page ce qui est inclus (alimentation, cadre).
 
-### Option B, la même taille que dans la vidéo
+### Option B, une dalle plus grande
 
-La dalle des vidéos est plus grande, sans doute du P4 ou du P5. Mesure le dessus de ta borne et choisis.
+Avec des LED plus grosses (P4 ou P5), la dalle occupe tout le dessus de la borne. Mesure le dessus de ta borne et choisis.
 
 | Pas | Taille d'un module 64x32 | Dalle 128x32 complète |
 |---|---|---|
@@ -85,10 +99,10 @@ Sans shield, le câblage fil à fil est donné dans le README de ZeDMD (tableau 
 
 ### Installation
 
-1. Il faut Python 3.12 ou plus récent. S'il manque, `installer.bat` propose de l'installer (Python 3.13, depuis python.org). Sinon installe-le depuis https://www.python.org/downloads/ en cochant « Add python.exe to PATH ». Il faut aussi MAME 0.227 ou plus récent, l'installeur affiche ta version.
+1. Il faut Python 3.12 ou plus récent. S'il manque, `install.bat` propose de l'installer (Python 3.13, depuis python.org). Sinon installe-le depuis https://www.python.org/downloads/ en cochant « Add python.exe to PATH ». Il faut aussi MAME 0.227 ou plus récent, l'installeur affiche ta version.
 2. Avant d'extraire le zip, fais un clic droit dessus, Propriétés, coche « Débloquer » puis OK. Windows ne posera plus de question à chaque fichier .bat.
 3. Extrais le dossier `ArcadeDMD` dans un chemin sans accent, idéalement `C:\ArcadeDMD`. MAME ne sait pas ouvrir les dossiers avec accents.
-4. Lance `installer.bat`. Il installe Pillow, pyserial et pygame-ce, copie le plugin dans MAME, règle la Pixelcade et propose le lancement automatique au démarrage de Windows. Il ne télécharge libzedmd (le pilote des dalles ZeDMD) que si tu dis avoir une dalle ZeDMD. Si tu n'utilises que RetroArch, appuie sur Entrée à la question sur MAME.
+4. Lance `install.bat`. Il installe Pillow, pyserial et pygame-ce, copie le plugin dans MAME, règle la Pixelcade et propose le lancement automatique au démarrage de Windows. Il ne télécharge libzedmd (le pilote des dalles ZeDMD) que si tu dis avoir une dalle ZeDMD. Si tu n'utilises que RetroArch, appuie sur Entrée à la question sur MAME.
 
 ### Ce que l'installation modifie
 
@@ -96,7 +110,7 @@ Sans shield, le câblage fil à fil est donné dans le README de ZeDMD (tableau 
 - Dans MAME, un nouveau dossier `plugins\arcadedmd` avec trois petits fichiers. Rien d'autre dans MAME. `mame.ini` et `plugin.ini` ne sont pas modifiés, MAME charge tout seul les plugins de son dossier `plugins`.
 - Un fichier `ArcadeDMD.bat` dans le dossier Démarrage de Windows, seulement si tu acceptes le lancement automatique.
 - Trois bibliothèques ajoutées à Python (Pillow, pyserial, pygame-ce).
-- Pendant les jeux qui ont un fichier dans `games\` (After Burner II, Sonic 1 et 2), ArcadeDMD arrête pixelweb et le relance à la fin de la partie. Pour les autres jeux, rien ne change.
+- Pendant les jeux qui ont un fichier dans `games\` (Metal Slug, jeux Neo Geo, After Burner II, Sonic...), ArcadeDMD arrête pixelweb et le relance à la fin de la partie. Pour les autres jeux, rien ne change.
 
 Le plugin ne fait que lire la mémoire du jeu. Il ne change ni le jeu, ni les touches, ni les réglages de MAME.
 
@@ -124,7 +138,15 @@ Le plugin n'a besoin d'aucun réglage dans ton frontend (HyperSpin, LaunchBox...
 
 ### En vrai
 
-Lance `lancer.bat` (ou laisse le démarrage automatique faire), puis lance un jeu depuis ton frontend ou directement dans MAME. La Pixelcade passe à ArcadeDMD pendant les jeux qui ont leur fichier dans `games\` et reste à pixelweb le reste du temps. Une dalle ZeDMD, elle, reste noire hors jeu, et affiche le titre qui défile pour un jeu sans fichier dédié. L'ancien écran d'attente (l'heure et « INSERT COIN ») revient avec `"idle": {"show": true}` dans `config.json`.
+Lance `run.bat` (ou laisse le démarrage automatique faire), puis lance un jeu depuis ton frontend ou directement dans MAME. La Pixelcade passe à ArcadeDMD pendant les jeux qui ont leur fichier dans `games\` et reste à pixelweb le reste du temps. Une dalle ZeDMD, elle, reste noire hors jeu, et affiche le titre qui défile pour un jeu sans fichier dédié. L'ancien écran d'attente (l'heure et « INSERT COIN ») revient avec `"idle": {"show": true}` dans `config.json`.
+
+### Langue
+
+Les messages et les textes affichés à l'écran sont en anglais par défaut. Ils passent tout seuls en français quand Windows est en français. Pour choisir la langue, mets `"language"` dans `config.json`, au premier niveau (pas dans une section). `"auto"` suit la langue de Windows (réglage par défaut), `"en"` force l'anglais et `"fr"` force le français.
+
+```json
+"language": "fr"
+```
 
 ---
 
@@ -132,7 +154,7 @@ Lance `lancer.bat` (ou laisse le démarrage automatique faire), puis lance un je
 
 ArcadeDMD dessine la scène sur n'importe quel écran branché en plus, par exemple le LCD d'une borne qui sert de DMD, ou un marquee 1920×470. Ça marche avec RetroArch comme avec MAME.
 
-Le plus simple, lance `ecran_dmd.bat` (l'installeur le propose aussi). Il liste les écrans, devine celui qui sert de DMD (le plus allongé) et règle tout dans `config.json`. Lance ensuite `lancer.bat` ou `demo_afterburner.bat` pour voir le résultat.
+Le plus simple, lance `screen_setup.bat` (l'installeur le propose aussi). Il liste les écrans, devine celui qui sert de DMD (le plus allongé) et règle tout dans `config.json`. Lance ensuite `run.bat` ou `demo_afterburner.bat` pour voir le résultat.
 
 Sur un grand écran, la scène s'affiche deux fois plus fine qu'une vraie dalle. 256 × 64 LED au lieu de 128 × 32, avec les lettres et les pentes lissées. Sur un LCD de 1920 × 460, chaque LED fait 7 pixels.
 
@@ -165,7 +187,7 @@ Le réglage à la main, dans `config.json`, section `preview`
 
 Sur un écran LCD, ArcadeDMD peut aussi dessiner la scène directement à la taille de l'écran, sans effet LED. Les textes sont lisses, les barres de vie ont des dégradés, et le logo du jeu est en haut au centre.
 
-Pour l'activer, relance `ecran_dmd.bat` et choisis 2 à la question sur l'affichage. Ou mets `"style": "hd"` dans la section `preview` de `config.json`. ArcadeDMD voit tout seul que `config.json` a changé et redémarre avec le nouveau réglage. Lance ensuite `demo_combat.bat`, ou un jeu depuis BigBox.
+Pour l'activer, relance `screen_setup.bat` et choisis 2 à la question sur l'affichage. Ou mets `"style": "hd"` dans la section `preview` de `config.json`. ArcadeDMD voit tout seul que `config.json` a changé et redémarre avec le nouveau réglage. Lance ensuite `demo_fight.bat`, ou un jeu depuis BigBox.
 
 Le logo vient de tes images Clear Logo de LaunchBox. ArcadeDMD trouve le dossier LaunchBox tout seul quand BigBox tourne, ou dans les emplacements habituels (`C:\LaunchBox`, `E:\LaunchBox`...). Sinon, indique-le dans la section `preview`, par exemple `"launchbox": "E:\\LaunchBox"`. Le lien entre le jeu lancé et son logo passe par le chemin de la rom dans LaunchBox, et pour un clone par le jeu parent. Quand un jeu n'a pas de logo, son titre s'affiche à la place en lettres métal.
 
@@ -175,15 +197,59 @@ Le logo vient de tes images Clear Logo de LaunchBox. ArcadeDMD trouve le dossier
 
 La Pixelcade et les dalles ZeDMD gardent la scène en 128 x 32, c'est la taille de leurs LED.
 
+### Scènes HD animées, Metal Slug et jeux de combat
+
+Avec l'affichage HD lisse, les Metal Slug et les jeux de combat ont une scène complète à eux. Tout est dessiné par le programme, aucune image ne vient des jeux.
+
+![Changement de stage dans un jeu de combat](docs/images/hd_fight_stage.jpg)
+
+- **Metal Slug.** Un panneau de soldat par joueur, avec le score, l'arme et sa jauge de munitions, les bombes et les vies. Les tirs suivent l'arme (traçantes et douilles, décharges du fusil à pompe, roquettes, lance-flammes), les bombes volent et explosent dans le décor, une caisse tombe quand on ramasse une arme, le casque tombe quand on perd une vie et DERNIÈRE VIE clignote sur la dernière. Le joueur 2 peut arriver à tout moment. Chaque mission a son décor (jungle, désert, montagne enneigée, ville en guerre, port, base ennemie), avec MISSION COMPLETE et un feu d'artifice entre les deux. Quand personne ne joue, les décors passent à tour de rôle.
+- **Jeux de combat.** Étincelles à chaque coup, compteur de combo, PREMIER COUP, super coups (l'écran s'assombrit), battement de cœur rouge quand la vie est basse, K.O. qui explose, DOUBLE K.O., TIME UP, PERFECT, confettis pour le vainqueur, combattant suivant des King of Fighters, et FIGHT ! au début de chaque round. Le public en bas réagit à l'action.
+
+#### Des décors qui suivent le stage
+
+Le décor change avec le stage du jeu quand le fichier du jeu sait où le lire.
+- `backdrop` est le décor du combat en cours, tiré des bases de triche (« Select Backdrop »). Il choisit le décor HD dans la liste `"hd"` du fichier du jeu.
+- `stage` est le numéro du match dans la partie (« Select Current Round »). Il s'affiche en STAGE 2, STAGE 3... avec le nom du lieu.
+- Pour les Metal Slug, `mission` choisit le décor de chaque mission.
+
+| Jeux | Valeurs |
+|---|---|
+| The King of Fighters '96, '97, '98, '99 et 2000, Rage of the Dragons | `stage` et `backdrop` |
+| The King of Fighters 2002, Garou, Fatal Fury 2, Fatal Fury Special, Real Bout Fatal Fury 2, Real Bout Fatal Fury Special, Samurai Shodown II, III et IV, World Heroes, World Heroes Perfect, SNK vs. Capcom (JAMMA PCB) | `backdrop` |
+| Metal Slug, Metal Slug 2 | `mission` |
+
+Ces adresses viennent des bases de triche et restent à confirmer en jeu (`test_retroarch.bat` les affiche). Les autres jeux gardent toujours le même décor. `demo_fight.bat` change de stage tous les deux K.O., pour le voir sans jouer.
+
+Chaque fichier de jeu dit quel décor HD va avec chaque décor du jeu, dans l'ordre de leurs numéros. Par exemple, dans `games\kof98.json`
+
+```json
+"hd": {"stages": ["fight_city", "fight_jungle", "fight_snow", "fight_desert", "fight_ruins", "arena", "fight_temple", "fight_harbor", "base"]}
+```
+
+Le décor 0 (Japon, rue) donne la ville la nuit, le 3 (Moyen-Orient) le désert, le 7 (USA, quai) le port, et ainsi de suite. La note de la valeur `backdrop` liste les décors du jeu. Change la liste à ton goût, le moteur recharge le fichier tout seul.
+
+| Décor | Ce qu'il montre |
+|---|---|
+| `fight_city` | ville la nuit, néons, métro aérien, vapeur |
+| `fight_temple` | temple au crépuscule, lanternes qui se balancent, pétales qui tombent |
+| `fight_harbor` | port au soleil couchant, reflets sur l'eau, phare, mouettes |
+| `fight_ruins` | ruines la nuit, torches, braises, lucioles |
+| `fight_desert`, `fight_jungle`, `fight_snow` | désert au crépuscule, jungle de nuit, montagne enneigée |
+| `arena` | arène avec projecteurs |
+| `base`, `city_war` | base ennemie (gyrophares, projecteurs), ville en guerre (incendies, explosions) |
+
+Les décors `fight_` et `arena` ont du public devant. Sans le préfixe `fight_` (`city`, `temple`, `harbor`, `ruins`, `desert`, `jungle`, `snow`), les mêmes lieux n'ont pas de public, comme dans les missions des Metal Slug. Un fichier Metal Slug peut aussi avoir sa propre liste `"hd": {"stages": [...]}`, un décor par mission.
+
 ## 4. Pixelcade LED
 
 La Pixelcade LED est elle-même une dalle 128x32. ArcadeDMD la pilote directement par son port USB, avec le même protocole que Visual Pinball (dmdext, libdmdutil). Les cartes V1 et V2 sont reconnues toutes seules.
 
-Le logiciel Pixelcade (pixelweb) ne peut pas partager la dalle. ArcadeDMD fait donc ce que Pixelcade recommande pour Visual Pinball. Au lancement d'un jeu qui a son fichier dans `games\`, il arrête pixelweb par son API (`/quit`) et prend la dalle. Quand tu quittes le jeu, il la rend tout de suite et relance pixelweb. Le marquee du jeu reste affiché pendant ce temps, puis ArcadeDMD demande à pixelweb de l'afficher, comme le ferait BigBox (le jeu que tu viens de quitter est celui sélectionné dans BigBox). Ensuite BigBox reprend la main sur la Pixelcade à chaque changement de jeu, comme sur l'écran LCD de la Vewlix. Pour tous les autres jeux, pixelweb continue d'afficher ses marquees comme avant.
+Le logiciel Pixelcade (pixelweb) ne peut pas partager la dalle. ArcadeDMD fait donc ce que Pixelcade recommande pour Visual Pinball. Au lancement d'un jeu qui a son fichier dans `games\`, il arrête pixelweb par son API (`/quit`) et prend la dalle. Quand tu quittes le jeu, il la rend tout de suite et relance pixelweb. Le marquee du jeu reste affiché pendant ce temps, puis ArcadeDMD demande à pixelweb de l'afficher, comme le ferait BigBox (le jeu que tu viens de quitter est celui sélectionné dans BigBox). Ensuite BigBox reprend la main sur la Pixelcade à chaque changement de jeu, comme sur un écran LCD de marquee. Pour tous les autres jeux, pixelweb continue d'afficher ses marquees comme avant.
 
 ### Réglage
 
-`installer.bat` pose la question à l'étape 4 et règle le port tout seul. La sortie ZeDMD reste coupée si tu as répondu non à sa question, ArcadeDMD ne sonde alors aucun autre port série (pistolets par exemple). Pour le faire à la main :
+`install.bat` pose la question à l'étape 4 et règle le port tout seul. La sortie ZeDMD reste coupée si tu as répondu non à sa question, ArcadeDMD ne sonde alors aucun autre port série (pistolets par exemple). Pour le faire à la main :
 
 1. Lance `ports.bat` et repère le port de la Pixelcade (dans le doute, débranche-la et regarde quel port disparaît).
 2. Dans `config.json`, section `pixelcade`, mets `"enabled": true` et ce port.
@@ -214,7 +280,7 @@ Le logiciel Pixelcade (pixelweb) ne peut pas partager la dalle. ArcadeDMD fait d
 
 Les cartes V1 affichent 3 bits par couleur en mode direct, c'est une limite du matériel. Les cartes V2 affichent toutes les couleurs.
 
-Pour un jeu avec fichier mais sans scène dédiée (un jeu appris avec `apprendre.bat` par exemple), la scène générique reprend le marquee Pixelcade du jeu en fond, atténué, avec le score et les crédits par-dessus.
+Pour un jeu avec fichier mais sans scène dédiée (un jeu appris avec `learn.bat` par exemple), la scène générique reprend le marquee Pixelcade du jeu en fond, atténué, avec le score et les crédits par-dessus.
 
 ---
 
@@ -226,7 +292,7 @@ Le record est connu publiquement (table des records à `0xFF846E`, la même que 
 2. Mets une pièce, attends un peu, mets-en une deuxième. Les crédits changent.
 3. Joue. Quand le score est stable (pas pendant un décompte de bonus), appuie sur **Ctrl droit + D**. Un message « capture enregistrée » s'affiche. Tu peux aussi passer par Tab, Options des plugins, ArcadeDMD, « Capturer la RAM ».
 4. Refais une capture à trois ou quatre moments avec des scores et des crédits différents.
-5. Quitte MAME et lance `apprendre.bat`. Pour chaque capture, l'outil ouvre la photo d'écran et te demande les valeurs, par exemple `score=16060 credits=3`.
+5. Quitte MAME et lance `learn.bat`. Pour chaque capture, l'outil ouvre la photo d'écran et te demande les valeurs, par exemple `score=16060 credits=3`.
 6. Il cherche ces valeurs dans tous les formats courants, propose l'adresse et l'écrit dans `games\aburner2.json`.
 
 Relance le jeu, le score et les crédits s'affichent sur la dalle et dans le menu Tab du plugin.
@@ -258,7 +324,7 @@ ArcadeDMD lit aussi les jeux lancés dans RetroArch, sans plugin. RetroArch donn
 3. Laisse activé « Mettre en pause quand la fenêtre n'est plus active » (Réglages, Interface utilisateur). C'est le réglage par défaut, il sert pour l'apprentissage.
 4. Lance le jeu avec un cœur qui donne sa mémoire (voir juste en dessous).
 
-Rien d'autre à installer. Dès que le moteur tourne (`lancer.bat` ou le lancement automatique), il surveille RetroArch tout seul. Le journal indique « RetroArch détecté » quand les commandes réseau répondent, puis le cœur chargé à chaque jeu.
+Rien d'autre à installer. Dès que le moteur tourne (`run.bat` ou le lancement automatique), il surveille RetroArch tout seul. Le journal indique « RetroArch détecté » quand les commandes réseau répondent, puis le cœur chargé à chaque jeu.
 
 ### Le bon cœur
 
@@ -295,13 +361,13 @@ Les adresses des vies, bombes et munitions viennent de la base de codes de trich
 
 Les scènes des Metal Slug s'inspirent de la vidéo de Vera, adaptées à une dalle 128x32 pour que rien ne passe sous le décor. En haut, « SNK » en bleu puis « - METAL SLUG » (avec le numéro du jeu) en blanc défilent lentement. Dessous, « P1 » en vert et le score en blanc à gauche, les vies à droite. La ligne suivante alterne les bombes, l'arme avec ses munitions (pistolet, mitraillette, fusil à pompe, lance-flammes, lance-roquettes, laser, tête chercheuse... un « + » indique la version améliorée) et les crédits avec MAME. Tout en bas, des petites collines et un petit char moins lumineux qui avance et tire quand le score monte.
 
-Les scores de Metal Slug et de Metal Slug 3 sont déjà dans leurs fichiers, trouvés avec `apprendre.bat` sous RetroArch et FinalBurn Neo. Pour remplacer le char par ton propre dessin, dépose `mslug_tank.gif` (ou `mslug_tank.png` en bande de 3 images) dans `sprites\`. Il doit tenir sur 5 pixels de haut, canon vers la droite.
+Les scores de Metal Slug et de Metal Slug 3 sont déjà dans leurs fichiers, trouvés avec `learn.bat` sous RetroArch et FinalBurn Neo. Pour remplacer le char par ton propre dessin, dépose `mslug_tank.gif` (ou `mslug_tank.png` en bande de 3 images) dans `sprites\`. Il doit tenir sur 5 pixels de haut, canon vers la droite.
 
 ### Jeux de combat
 
-Chaque jeu de combat Neo Geo a son propre fichier dans `games\`, versions officielles comprises (japonaise, coréenne, prototype). Les adresses viennent des codes de triche de FinalBurn Neo, des scripts d'entraînement FinalBurn Neo de peon2 et de la base de triche de MAME 2003-Plus. Le score est connu pour les King of Fighters et pour Samurai Shodown II. Pour les autres, apprends-le avec `apprendre.bat` (`score=...` et `score2=...`).
+Chaque jeu de combat Neo Geo a son propre fichier dans `games\`, versions officielles comprises (japonaise, coréenne, prototype). Les adresses viennent des codes de triche de FinalBurn Neo, des scripts d'entraînement FinalBurn Neo de peon2 et de la base de triche de MAME 2003-Plus. Le score est connu pour les King of Fighters et pour Samurai Shodown II. Pour les autres, apprends-le avec `learn.bat` (`score=...` et `score2=...`).
 
-Quand une barre de vie, un chrono ou un nom ne colle pas à l'écran, lance `test_retroarch.bat` pendant un combat et envoie le résultat.
+Quand une barre de vie, un chrono ou un nom ne colle pas à l'écran, lance `test_retroarch.bat` pendant un combat et poste le résultat dans une issue GitHub.
 
 | Jeu | Fichier | Barres de vie | Chrono | Nom des personnages | Score |
 |---|---|---|---|---|---|
@@ -370,12 +436,12 @@ En match à deux, les King of Fighters affichent « CHALLENGER » au-dessus du j
 Ces compteurs ne sont dans aucune base de codes de triche. Il faut les apprendre une fois par jeu, par exemple KOF 2002 puis KOF 98.
 1. Lance le jeu dans RetroArch et commence une partie avec le joueur 1.
 2. Fais entrer le joueur 2 avec une pièce et Start. Le match VS commence. Tu peux tenir les deux sticks toi-même.
-3. Lance `apprendre.bat`.
+3. Lance `learn.bat`.
 4. Après chaque match, quand « BEAT BY » s'affiche en haut de l'écran, tape les deux compteurs, par exemple `beat=1 beat2=0`. Mets 0 du côté marqué CHALLENGER.
 5. Fais au moins cinq ou six matchs. Fais gagner tantôt un côté, tantôt l'autre, pour que les compteurs changent.
 6. Entrée vide pour finir. L'outil écrit `beat` et `beat_p2` dans le fichier du jeu.
 
-Si l'outil ne trouve rien, envoie le dossier `runtime\learn\` du jeu (`kof2002` par exemple), comme pour Samurai Shodown II.
+Si l'outil ne trouve rien, zippe le dossier `runtime\learn\` du jeu (`kof2002` par exemple) et joins-le à une issue GitHub, comme pour Samurai Shodown II.
 
 ### Tous les jeux Neo Geo
 
@@ -390,20 +456,20 @@ Les jeux Neo Geo connus de MAME (clones compris) ont une scène commune selon le
 | Action, plates-formes, beat'em up et le reste (Sengoku, Shock Troopers...) | `neogeo.json` | des collines bleues, et les barres de vie des deux joueurs quand elles sont connues |
 
 - Avec RetroArch, la scène affiche « NEO GEO » au milieu tant que rien n'est connu pour ce jeu. Avec MAME, les crédits s'affichent en plus.
-- Les crédits d'une Neo Geo MVS sont rangés dans la mémoire de sauvegarde de la borne. MAME la lit. Le cœur FinalBurn Neo de RetroArch ne partage que la mémoire de travail du jeu, donc pas les crédits. Certains jeux en gardent une copie dans leur mémoire de travail. Pour le savoir, apprends-les avec `apprendre.bat` (même méthode que pour le score) en tapant `crédits=2`, puis remets une pièce et tape `crédits=3`, et encore une fois. Si l'outil trouve une adresse, les crédits s'affichent. S'il répond « Rien trouvé », ce jeu n'en garde pas de copie.
+- Les crédits d'une Neo Geo MVS sont rangés dans la mémoire de sauvegarde de la borne. MAME la lit. Le cœur FinalBurn Neo de RetroArch ne partage que la mémoire de travail du jeu, donc pas les crédits. Certains jeux en gardent une copie dans leur mémoire de travail. Pour le savoir, apprends-les avec `learn.bat` (même méthode que pour le score) en tapant `crédits=2`, puis remets une pièce et tape `crédits=3`, et encore une fois. Si l'outil trouve une adresse, les crédits s'affichent. S'il répond « Rien trouvé », ce jeu n'en garde pas de copie.
 - Les barres de vie et le chrono viennent de la base de codes de triche de MAME 2003-Plus. Ils marchent avec RetroArch comme avec MAME.
-- Apprends le score d'un jeu avec `apprendre.bat` (même méthode que juste en dessous). L'outil crée alors `games\<jeu>.json`, par exemple `games\kof98.json`. Il garde la scène du genre et ses barres de vie, et ajoute le score. Les fichiers communs ne sont jamais modifiés.
+- Apprends le score d'un jeu avec `learn.bat` (même méthode que juste en dessous). L'outil crée alors `games\<jeu>.json`, par exemple `games\kof98.json`. Il garde la scène du genre et ses barres de vie, et ajoute le score. Les fichiers communs ne sont jamais modifiés.
 - Un jeu qui a son propre fichier (les Metal Slug par exemple) passe toujours avant la scène commune.
-- Le score de KOF 98 a été trouvé avec `apprendre.bat`. Il est rangé dans la fiche de chaque joueur, et cette fiche est la même de KOF 96 à 2001 (barre de vie et jauge de puissance aux mêmes adresses). Le score de ces jeux est donc pris à la même place. Si la dalle n'affiche pas le même score que l'écran dans l'un d'eux, apprends-le avec `apprendre.bat`, l'adresse trouvée remplace la supposée.
+- Le score de KOF 98 a été trouvé avec `learn.bat`. Il est rangé dans la fiche de chaque joueur, et cette fiche est la même de KOF 96 à 2001 (barre de vie et jauge de puissance aux mêmes adresses). Le score de ces jeux est donc pris à la même place. Si la dalle n'affiche pas le même score que l'écran dans l'un d'eux, apprends-le avec `learn.bat`, l'adresse trouvée remplace la supposée.
 - Dans King of Fighters '96 à 2000, chaque équipe est lue dans la mémoire du jeu (personnages choisis, ordre de passage, personnages déjà battus). Le nom change tout seul quand le personnage suivant entre. `test_retroarch.bat` affiche les deux personnages lus, pratique pour vérifier.
 - Le BIOS de la Neo Geo dit qui joue. Contre l'ordinateur, « CPU » s'affiche en face et INSERT COIN clignote de son côté (PRESS START s'il reste des crédits). À deux, les deux scores sont en haut. Quand personne ne joue, le titre défile en haut et INSERT COIN clignote en bas.
 
 ### Apprendre le score
 
 1. Lance le jeu dans RetroArch et commence une partie. Joue jusqu'à avoir quelques points.
-2. Lance `apprendre.bat`. Il voit que RetroArch tourne et passe en mode direct.
+2. Lance `learn.bat`. Il voit que RetroArch tourne et passe en mode direct.
 3. Tape le score affiché à l'écran, par exemple `score=20600`, puis Entrée. Le jeu est en pause tant que tu es dans cette fenêtre.
-4. Retourne dans le jeu (Alt+Tab), marque d'autres points, reviens dans la fenêtre d'`apprendre.bat` et tape le nouveau score.
+4. Retourne dans le jeu (Alt+Tab), marque d'autres points, reviens dans la fenêtre de `learn.bat` et tape le nouveau score.
 5. Recommence trois ou quatre fois, avec un score différent à chaque fois. Entrée vide pour finir.
 6. L'outil trouve l'adresse et l'écrit dans le fichier du jeu (`games\mslug3.json` par exemple, ou un nouveau fichier pour un jeu Neo Geo qui n'en a pas). Le score apparaît sur la dalle quelques secondes après, sans relancer le jeu.
 
@@ -411,13 +477,13 @@ Tape seulement les valeurs qui manquent. Les vies sont déjà connues, et les ap
 
 Pour le score du joueur 2, fais une partie à deux et tape les deux scores à chaque fois, par exemple `score=9400 score2=800`.
 
-Dans Samurai Shodown et The Last Blade, les combattants changent de place dans la mémoire. Samurai Shodown II recrée chaque combattant ailleurs à chaque round. Il range le score dans le combattant et le recopie dans le nouveau. L'ancien garde un moment la dernière valeur, puis passe à 0. C'est ce qui trompait l'outil. Il préfère maintenant le score « dans le combattant » à une adresse fixe tombée dans la mémoire des combattants, et la dalle le suit de round en round. Fais tes captures sur deux rounds ou deux combats différents. L'outil le rappelle au début, et prévient si toutes les captures viennent du même round. Si une ancienne adresse ne marche plus, refais simplement l'apprentissage. La nouvelle remplace l'ancienne dans `games\` et dans `appris\`.
+Dans Samurai Shodown et The Last Blade, les combattants changent de place dans la mémoire. Samurai Shodown II recrée chaque combattant ailleurs à chaque round. Il range le score dans le combattant et le recopie dans le nouveau. L'ancien garde un moment la dernière valeur, puis passe à 0. C'est ce qui trompait l'outil. Il préfère maintenant le score « dans le combattant » à une adresse fixe tombée dans la mémoire des combattants, et la dalle le suit de round en round. Fais tes captures sur deux rounds ou deux combats différents. L'outil le rappelle au début, et prévient si toutes les captures viennent du même round. Si une ancienne adresse ne marche plus, refais simplement l'apprentissage. La nouvelle remplace l'ancienne dans `games\` et dans `learned\`.
 
-Lancé quand RetroArch est fermé, `apprendre.bat` réanalyse les dernières captures du jeu avec les valeurs déjà tapées, sans rien redemander.
+Lancé quand RetroArch est fermé, `learn.bat` réanalyse les dernières captures du jeu avec les valeurs déjà tapées, sans rien redemander.
 
 Noms reconnus `score`, `score2` (ou `score_p2`), `crédits` (ou `credits`), `vies`, `vies2`, `bombes`, `munitions`. Pour un autre jeu, l'outil crée un fichier dans `games\` avec la scène générique.
 
-Ce que l'outil trouve est aussi copié dans `appris\`. Une nouvelle version d'ArcadeDMD remplace les fichiers de `games\`, mais le moteur remet tout seul les adresses apprises au démarrage. Pour oublier ce qui a été appris pour un jeu, supprime son fichier dans `appris\`.
+Ce que l'outil trouve est aussi copié dans `learned\`. Une nouvelle version d'ArcadeDMD remplace les fichiers de `games\`, mais le moteur remet tout seul les adresses apprises au démarrage. Pour oublier ce qui a été appris pour un jeu, supprime son fichier dans `learned\`.
 
 ### Bon à savoir
 
@@ -431,7 +497,7 @@ Ce que l'outil trouve est aussi copié dans `appris\`. Une nouvelle version d'Ar
 
 1. Copie `games\aburner2.json` sous le nom court du jeu, par exemple `games\outrun.json`.
 2. Change `"match"` (`"system": ["outrun"]`), le titre et les valeurs.
-3. Trouve les adresses avec `apprendre.bat` (sans fichier dédié, l'outil crée le fichier pour toi).
+3. Trouve les adresses avec `learn.bat` (sans fichier dédié, l'outil crée le fichier pour toi).
 4. Modifie la scène. Le moteur recharge les fichiers à chaud, pas besoin de relancer pendant que tu ajustes.
 
 Formats de valeurs reconnus
@@ -445,7 +511,9 @@ Formats de valeurs reconnus
 
 Options communes, `mult` (score stocké divisé par 10, très fréquent), `add`, `min`, `max`, `mask`, `shift`. `learn_ranges` limite la zone capturée par l'outil d'apprentissage. `hold_zero` (en secondes) garde le dernier score affiché quand la valeur lue tombe à 0 un instant en pleine partie, le temps que le jeu recrée le combattant entre deux rounds.
 
-Pour une valeur rangée dans un objet qui change de place en mémoire (les combattants de Samurai Shodown à chaque round), `"ptr"` donne l'adresse où lire la position de l'objet (32 bits) et `"addr"` devient le décalage dans l'objet. `"ptr_range"` écarte un pointeur pas encore prêt. `apprendre.bat` écrit ce genre de valeur tout seul quand les captures montrent que la valeur suit l'objet.
+Pour une valeur rangée dans un objet qui change de place en mémoire (les combattants de Samurai Shodown à chaque round), `"ptr"` donne l'adresse où lire la position de l'objet (32 bits) et `"addr"` devient le décalage dans l'objet. `"ptr_range"` écarte un pointeur pas encore prêt. `learn.bat` écrit ce genre de valeur tout seul quand les captures montrent que la valeur suit l'objet.
+
+Certains noms de valeurs ont un rôle particulier dans les scènes HD. `stage`, `backdrop` et `mission` changent le décor (section 3), `p1_input` et `p2_input` sont le stick et les boutons lus par le BIOS Neo Geo (tirs au pistolet des Metal Slug).
 
 `"derived"` calcule une valeur à partir d'autres, par exemple le nom du personnage. `"value"` reprend une valeur lue, `"pick"` choisit dans une liste selon `"at"`, `"names"` change un numéro en texte. Voir `games\samsho2.json` et `games\kof98.json`.
 
@@ -486,8 +554,8 @@ Les deux sources se complètent. Pour After Burner II, le record vient du plugin
 
 - **RetroArch, rien ne change sur la Pixelcade.** Vérifie que les « Commandes réseau » sont actives dans RetroArch et que le journal dit « RetroArch détecté ». Le jeu doit avoir son fichier dans `games\`.
 - **RetroArch, la scène s'affiche mais sans valeurs.** Le cœur ne donne sûrement pas sa mémoire (FB Alpha 2012 par exemple). Lance `test_retroarch.bat` pendant la partie, il dit quel cœur tourne et lequel prendre (voir « Le bon cœur », section 7).
-- **« Python est introuvable ».** Le raccourci `python` du Microsoft Store ne compte pas, il ne lance rien. Relance `installer.bat`, il propose d'installer Python 3.13. Les fichiers .bat trouvent aussi un Python installé sans être dans le PATH.
-- **ArcadeDMD n'apparaît pas dans le menu Tab de MAME.** MAME est peut-être trop ancien (il faut 0.227 ou plus récent, `installer.bat` affiche la version). Sinon le plugin est désactivé, voir « Vérifier le plugin dans MAME ».
+- **« Python est introuvable ».** Le raccourci `python` du Microsoft Store ne compte pas, il ne lance rien. Relance `install.bat`, il propose d'installer Python 3.13. Les fichiers .bat trouvent aussi un Python installé sans être dans le PATH.
+- **ArcadeDMD n'apparaît pas dans le menu Tab de MAME.** MAME est peut-être trop ancien (il faut 0.227 ou plus récent, `install.bat` affiche la version). Sinon le plugin est désactivé, voir « Vérifier le plugin dans MAME ».
 - **Rien ne s'affiche pendant un jeu.** Regarde `runtime\arcadedmd.log` et vérifie que `runtime\events.jsonl` grossit pendant la partie. Sinon, le chemin `root` du fichier `MAME\plugins\arcadedmd\settings.json` ne pointe pas vers le dossier ArcadeDMD.
 - **« ZeDMD : dalle non trouvée ».** Vérifie le câble (data), le port USB natif de l'ESP32-S3, et qu'aucun autre logiciel n'utilise la dalle (DOF2DMD, VPX, dmdext, ou le moteur ArcadeDMD déjà lancé en arrière-plan). La recherche automatique s'arrête après trois essais. Une fois la dalle trouvée, son port est mémorisé et seul ce port est réessayé.
 - **Pistolets RetroShooter ou autres appareils série.** La recherche d'une dalle ZeDMD interroge les ports COM (jamais celui de la Pixelcade, et pas du tout si la sortie ZeDMD est coupée). Pour ne jamais toucher aux pistolets, indique le port de la dalle dans `config.json` (`"device": "COM5"`) ou exclus ceux des pistolets (`"ignore_devices": ["COM3", "COM4"]`).
@@ -495,7 +563,7 @@ Les deux sources se complètent. Pour After Burner II, le record vient du plugin
 - **Couleurs inversées, lignes fantômes.** Ordre RGB et « panel driver » dans le menu ZeDMD (ou avec ZeDMD_Updater2).
 - **Animation saccadée sur la dalle.** Monte « USB packet size » et « min refresh » dans le menu ZeDMD.
 - **Pas de fenêtre LED virtuelles.** pygame-ce doit être installé (`py -m pip install pygame-ce`).
-- **`test_dalle.bat` dit que le moteur tourne déjà.** Le lancement automatique occupe la dalle. Ferme `pythonw.exe` dans le Gestionnaire des tâches, ou teste directement avec un jeu.
+- **`test_panel.bat` dit que le moteur tourne déjà.** Le lancement automatique occupe la dalle. Ferme `pythonw.exe` dans le Gestionnaire des tâches, ou teste directement avec un jeu.
 - **Le moteur s'arrête tout seul.** L'erreur est notée dans `runtime\arcadedmd.log`.
 - **« Pixelcade : port introuvable ».** Indique le port dans `config.json` (`ports.bat` pour le trouver). ArcadeDMD ne sonde pas les autres ports COM, pour ne pas déranger les pistolets.
 - **« pixelweb ne s'arrête pas ».** Ferme pixelweb à la main (icône dans la barre des tâches) et vérifie `pixelweb_url` (par défaut `http://127.0.0.1:8080`).
@@ -520,10 +588,10 @@ ArcadeDMD écrit les valeurs du jeu en cours dans le dossier `obs\`, un fichier 
 | `vs_history.txt` | une ligne par match VS gagné, avec la date, le jeu, le gagnant et sa série |
 | `records.json` | la meilleure série de chaque jeu, gardée d'une partie à l'autre |
 
-Dans OBS, ajoute une source Texte (GDI+), coche « Read from file » (lire depuis un fichier) et choisis le fichier. Les textes n'ont pas de mots français. « P2 RUGAL > P1 KIM » veut dire que P2 a battu P1.
+Dans OBS, ajoute une source Texte (GDI+), coche « Read from file » (lire depuis un fichier) et choisis le fichier. Les textes sont les mêmes dans toutes les langues. « P2 RUGAL > P1 KIM » veut dire que P2 a battu P1.
 
 Pour couper, mets `"enabled": false` dans la section `textfiles` de `config.json`. `"folder"` choisit un autre dossier, `"history": false` coupe l'historique.
 
 ## Licences et crédits
 
-Code ArcadeDMD sous licence MIT. Polices bitmap issues des polices X11 « misc-fixed » (domaine public). ZeDMD (firmware GPLv2) et libzedmd (GPLv3) sont téléchargés séparément depuis leurs dépôts officiels https://github.com/PPUC. Les noms de jeux servent uniquement à les identifier.
+Code ArcadeDMD sous licence MIT (fichier `LICENSE`). Polices bitmap issues des polices X11 « misc-fixed » (domaine public). Les polices HD sont Inter (The Inter Project Authors) et Black Ops One (The Black-Ops Project Authors), toutes deux sous licence SIL Open Font License, voir le dossier `fonts`. Les sprites, les décors HD et les effets sont dessinés par le programme ou pour lui, aucune image ne vient d'un jeu. ZeDMD (firmware GPLv2) et libzedmd (GPLv3) sont téléchargés séparément depuis leurs dépôts officiels https://github.com/PPUC. Les noms de jeux servent uniquement à les identifier. Les adresses viennent des bases de triche de la communauté (FinalBurn Neo, MAME 2003-Plus), des scripts d'entraînement de peon2 et des désassemblages de Sonic, merci à leurs auteurs.

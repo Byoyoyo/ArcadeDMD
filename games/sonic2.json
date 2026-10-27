@@ -53,7 +53,7 @@
     "ram_base": "0xFF0000",
     "ram_size": "0x10000",
     "swap16": true,
-    "note": "cœur Genesis Plus GX : RAM 68000 vue à partir de 0xFF0000, octets inversés par mots de 16 bits"
+    "note": "Genesis Plus GX core: 68000 RAM seen from 0xFF0000, bytes swapped within 16-bit words"
   },
   "memory": {
     "cpu": ":maincpu",
@@ -63,7 +63,7 @@
         "type": "be",
         "bytes": 4,
         "mult": 10,
-        "note": "Score (stocké /10)"
+        "note": "Score (stored /10)"
       },
       "rings": {
         "addr": "0xFFFE20",
@@ -89,7 +89,7 @@
       "mode": {
         "addr": "0xFFF600",
         "type": "u8",
-        "note": "Game_Mode (0x0C = en jeu)"
+        "note": "Game_Mode (0x0C = in game)"
       }
     }
   },
@@ -190,7 +190,7 @@
             "layers": [
               {
                 "type": "text",
-                "text": "ANNEAUX",
+                "text": "RINGS",
                 "font": "6x10",
                 "x": 2,
                 "y": 12,
@@ -217,7 +217,7 @@
         "type": "text",
         "segments": [
           {
-            "text": "VIES ",
+            "text": "LIVES ",
             "color": "#2ee6ff"
           },
           {

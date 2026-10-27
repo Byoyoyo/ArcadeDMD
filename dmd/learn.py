@@ -1,4 +1,8 @@
-"""Outil d'apprentissage : retrouve l'adresse RAM d'une valeur affichée (score, crédits...).
+"""Learning tool that finds the RAM address of a value shown on screen (score, credits...).
+Capture the RAM several times during a game, then type the value seen on each capture. The tool
+looks for the bytes holding exactly those values, in every common format.
+
+Outil d'apprentissage : retrouve l'adresse RAM d'une valeur affichée (score, crédits...).
 
 Principe : pendant une partie, on capture la RAM plusieurs fois (Ctrl droit + D, ou
 Tab > Options des plugins > ArcadeDMD > Capturer). Ensuite on indique pour chaque capture
@@ -9,7 +13,10 @@ valeurs, dans tous les formats courants (binaire, BCD, un chiffre par octet...).
 import glob
 import json
 import os
+import re
 import sys
+
+from .i18n import tr
 
 # (type plugin, nombre d'octets, multiplicateurs testés)
 ENCODINGS = [
@@ -22,10 +29,12 @@ ENCODINGS = [
     ("digits_ascii", 8, (1, 10)), ("digits_ascii", 7, (1, 10)), ("digits_ascii", 6, (1, 10)),
 ]
 
+# (French, English) pairs, picked with tr() when displayed
 LABELS = {
-    "bcd": "BCD", "bcd_le": "BCD (ordre inversé)", "be": "binaire",
-    "le": "binaire (ordre inversé)", "u8": "octet", "digits": "1 chiffre par octet",
-    "digits_ascii": "chiffres ASCII",
+    "bcd": ("BCD", "BCD"), "bcd_le": ("BCD (ordre inversé)", "BCD (reversed byte order)"),
+    "be": ("binaire", "binary"), "le": ("binaire (ordre inversé)", "binary (reversed byte order)"),
+    "u8": ("octet", "byte"), "digits": ("1 chiffre par octet", "1 digit per byte"),
+    "digits_ascii": ("chiffres ASCII", "ASCII digits"),
 }
 
 
@@ -312,7 +321,8 @@ def search(snaps_values, field="score", objects=None, big_endian=True):
     if not res and len({v for _, v in snaps_values}) >= 2:
         res = _search_moving(snaps_values, big_endian, exclude=set(objects or ()))
         if res:
-            return rank(res, field, objects), "(trouvé dans une zone qui change de place, suivie par son pointeur)"
+            return rank(res, field, objects), tr("(trouvé dans une zone qui change de place, suivie par son pointeur)",
+                                                 "(found in a moving area, tracked by its pointer)")
     if res or len(snaps_values) < 3:
         return rank(res, field, objects), ""
     # une capture a peut-être été prise pendant un changement : on tolère un écart
@@ -324,18 +334,22 @@ def search(snaps_values, field="score", objects=None, big_endian=True):
         for r in _search_all(sub, objects, big_endian):
             if r not in found:
                 found.append(r)
-    note = "(trouvé en ignorant une capture : refais une capture pour confirmer)" if found else ""
+    note = tr("(trouvé en ignorant une capture : refais une capture pour confirmer)",
+              "(found by ignoring one capture: take another capture to confirm)") if found else ""
     return rank(found, field, objects), note
 
 
 def describe(r):
     m = f" ×{r['mult']}" if r["mult"] != 1 else ""
-    what = f"{LABELS.get(r['type'], r['type'])} {r['bytes']} octet(s){m}"
+    label = tr(*LABELS[r["type"]]) if r["type"] in LABELS else r["type"]
+    what = tr(f"{label} {r['bytes']} octet(s){m}", f"{label} {r['bytes']} byte(s){m}")
     if r.get("ptr") is not None:
-        who = "zone qui change de place" if r.get("auto") else "objet du combattant"
-        return f"0x{r['ptr']:06X} +0x{r['addr']:X}  {what}   ({who}, suivi par le pointeur 0x{r['ptr']:06X})"
+        who = tr("zone qui change de place", "moving area") if r.get("auto") else tr("objet du combattant", "fighter's object")
+        return tr(f"0x{r['ptr']:06X} +0x{r['addr']:X}  {what}   ({who}, suivi par le pointeur 0x{r['ptr']:06X})",
+                  f"0x{r['ptr']:06X} +0x{r['addr']:X}  {what}   ({who}, tracked by pointer 0x{r['ptr']:06X})")
     if r.get("in_obj"):
-        return f"0x{r['addr']:06X}  {what}   (mémoire d'un combattant, recyclée d'un round à l'autre)"
+        return tr(f"0x{r['addr']:06X}  {what}   (mémoire d'un combattant, recyclée d'un round à l'autre)",
+                  f"0x{r['addr']:06X}  {what}   (a fighter's memory, reused from one round to the next)")
     return f"0x{r['addr']:06X}  {what}"
 
 
@@ -359,6 +373,16 @@ def to_config(r):
     return d
 
 
+# placeholder notes of games/*.json, in French or English ("à trouver avec learn.bat", "to find with learn.bat"...)
+TO_FIND = ("à trouver", "to find", "to be found", "to learn")
+
+
+def still_to_find(d):
+    """Definition of games/*.json that is only a reminder: no address yet, or a note saying it is still to be found."""
+    note = str(d.get("note") or "").lower()
+    return not d.get("addr") or any(m in note for m in TO_FIND)
+
+
 def ask(prompt):
     try:
         return input(prompt)
@@ -379,11 +403,28 @@ ALIASES = {
     # match VS des King of Fighters : BEAT BY (victoires d'affilée) de chaque côté, 0 pour le CHALLENGER
     "beat1": "beat", "beatj1": "beat", "beatp1": "beat", "beatby": "beat",
     "beat2": "beat_p2", "beatj2": "beat_p2", "beatp2": "beat_p2", "beatby2": "beat_p2",
+    # English names. score, lives, bombs, ammo, credits, time, weapon, prisoners, health, beat, rings, record
+    # and their *_p2 forms are already the names used in games/*.json and need no alias.
+    "score_p1": "score", "scorep1": "score", "scorep2": "score_p2",
+    "life": "lives", "lives1": "lives", "livesp1": "lives", "lives_p1": "lives",
+    "lives2": "lives_p2", "livesp2": "lives_p2", "life2": "lives_p2",
+    "bomb": "bombs", "grenade": "bombs", "bombs1": "bombs", "bombsp1": "bombs", "bombs_p1": "bombs",
+    "bombs2": "bombs_p2", "bombsp2": "bombs_p2", "bomb2": "bombs_p2",
+    "bullets": "ammo", "ammo1": "ammo", "ammop1": "ammo", "ammo_p1": "ammo", "ammo2": "ammo_p2", "ammop2": "ammo_p2",
+    "weapon1": "weapon", "weapon_p1": "weapon", "weapon2": "weapon_p2", "weaponp2": "weapon_p2",
+    "timer": "time", "ring": "rings",
+    "prisoner": "prisoners", "pow": "prisoners", "pows": "prisoners", "prisonnier": "prisoners", "prisonniers": "prisoners",
+    "hp": "health", "health1": "health", "healthp1": "health", "health_p1": "health",
+    "health2": "health_p2", "healthp2": "health_p2", "hp2": "health_p2",
+    "beat_p1": "beat", "beatby1": "beat",
+    "hiscore": "record", "highscore": "record", "hi_score": "record", "high_score": "record", "hi": "record",
+    "top": "record", "best": "record",
 }
 
 
 def parse_values(line):
     out = {}
+    line = re.sub(r"(?<=\d),(?=\d{3}(?!\d))", "", line)        # 16,060: English thousands separator
     for part in line.replace(",", " ").split():
         if "=" in part:
             k, v = part.split("=", 1)
@@ -404,33 +445,44 @@ def open_image(path):
         pass
 
 
+def _migrate_learned(root):
+    """Old appris/ folder moved to learned/ once, before the learning tool uses it."""
+    from . import learned
+    learned.migrate(root)
+
+
 def run(root, game=None, answers=None, write=None, show=True, pick_interactive=False, new_cfg=None):
     """answers : dict {numéro de capture: {champ: valeur}} (valeurs déjà connues).
     pick_interactive : demander quand même le choix des candidats (mode RetroArch)."""
+    _migrate_learned(root)
     base = os.path.join(root, "runtime", "learn")
     if not os.path.isdir(base):
-        print("Aucune capture trouvée. Lance un jeu dans MAME et appuie sur Ctrl droit + D (voir le guide).")
+        print(tr("Aucune capture trouvée. Lance un jeu dans MAME et appuie sur Ctrl droit + D, "
+                 "ou lance d'abord le jeu dans RetroArch (voir README.fr.md, sections 5 et 7).",
+                 "No capture found. Start a game in MAME and press Right Ctrl + D, "
+                 "or start the game in RetroArch first (see README.md, sections 5 and 7)."))
         return 1
     games = sorted(d for d in os.listdir(base) if glob.glob(os.path.join(base, d, "snap_*.json")))
     if not games:
-        print("Aucune capture trouvée.")
+        print(tr("Aucune capture trouvée.", "No capture found."))
         return 1
     if game is None:
         if len(games) == 1:
             game = games[0]
         else:
-            print("Jeux avec des captures :")
+            print(tr("Jeux avec des captures :", "Games with captures:"))
             for i, g in enumerate(games, 1):
                 print(f"  {i}. {g}")
-            c = ask("Numéro du jeu : ").strip()
+            c = ask(tr("Numéro du jeu : ", "Game number: ")).strip()
             game = games[int(c) - 1] if c.isdigit() and 0 < int(c) <= len(games) else games[0]
     snaps = [Snapshot(p) for p in sorted(glob.glob(os.path.join(base, game, "snap_*.json")))]
     if not snaps:
-        print(f"Pas de capture pour {game}.")
+        print(tr(f"Pas de capture pour {game}.", f"No capture for {game}."))
         return 1
     layouts = {s.layout() for s in snaps}
     if len(layouts) > 1:
-        print("Attention : les captures n'ont pas toutes la même zone mémoire, seules les plus récentes sont gardées.")
+        print(tr("Attention : les captures n'ont pas toutes la même zone mémoire, seules les plus récentes sont gardées.",
+                 "Warning: the captures do not all cover the same memory area, only the most recent ones are kept."))
         last = snaps[-1].layout()
         snaps = [s for s in snaps if s.layout() == last]
 
@@ -441,13 +493,14 @@ def run(root, game=None, answers=None, write=None, show=True, pick_interactive=F
             cfg = json.load(f)
     objects, big_endian = learn_context(root, cfg or new_cfg, snaps[-1].meta)
 
-    print(f"\n{len(snaps)} capture(s) pour {game}.")
+    print(tr(f"\n{len(snaps)} capture(s) pour {game}.", f"\n{len(snaps)} capture(s) for {game}."))
     stored = all(s.meta.get("source") == "retroarch" and s.meta.get("values") for s in snaps)
     if answers is None and stored:
-        print("Valeurs tapées pendant la partie, analysées de nouveau :")
+        print(tr("Valeurs tapées pendant la partie, analysées de nouveau :", "Values typed during the game, analyzed again:"))
     elif answers is None:
-        print("Pour chaque capture, tape les valeurs lues sur l'image, par exemple :  score=16060 credits=3")
-        print("(Entrée vide = capture ignorée)\n")
+        print(tr("Pour chaque capture, tape les valeurs lues sur l'image, par exemple :  score=16060 credits=3",
+                 "For each capture, type the values shown in the picture, for example:  score=16060 credits=3"))
+        print(tr("(Entrée vide = capture ignorée)\n", "(Enter alone = capture skipped)\n"))
     observations = {}
     for s in snaps:
         n = s.meta.get("n")
@@ -455,35 +508,41 @@ def run(root, game=None, answers=None, write=None, show=True, pick_interactive=F
             vals = answers.get(n, {})
         elif s.meta.get("source") == "retroarch" and isinstance(s.meta.get("values"), dict) and s.meta["values"]:
             vals = {k: v for k, v in s.meta["values"].items() if isinstance(v, int)}     # tapées pendant la partie
-            print(f"Capture {n} : " + ", ".join(f"{k}={v}" for k, v in vals.items()))
+            print(tr(f"Capture {n} : ", f"Capture {n}: ") + ", ".join(f"{k}={v}" for k, v in vals.items()))
         else:
             if show:
                 open_image(s.bmp_path)
-            print(f"Capture {n} : {s.bmp_path if os.path.exists(s.bmp_path) else '(pas d image)'}")
-            vals = parse_values(ask("  valeurs : "))
+            img = s.bmp_path if os.path.exists(s.bmp_path) else tr("(pas d image)", "(no image)")
+            print(tr(f"Capture {n} : {img}", f"Capture {n}: {img}"))
+            vals = parse_values(ask(tr("  valeurs : ", "  values: ")))
         for k, v in vals.items():
             observations.setdefault(k, []).append((s, v))
 
     if not observations:
-        print("Aucune valeur saisie.")
+        print(tr("Aucune valeur saisie.", "No value entered."))
         return 1
 
     chosen = {}
     for field, obs in observations.items():
         distinct = {v for _, v in obs}
-        print(f"\n=== {field} ({len(obs)} capture(s), {len(distinct)} valeur(s) différente(s)) ===")
+        print(tr(f"\n=== {field} ({len(obs)} capture(s), {len(distinct)} valeur(s) différente(s)) ===",
+                 f"\n=== {field} ({len(obs)} capture(s), {len(distinct)} different value(s)) ==="))
         if len(distinct) < 2:
-            print("  Il faut au moins deux captures avec des valeurs différentes pour ce champ.")
+            print(tr("  Il faut au moins deux captures avec des valeurs différentes pour ce champ.",
+                     "  This field needs at least two captures with different values."))
             continue
         res, note = search(obs, field, objects, big_endian)
         if note:
             print("  " + note)
         if not res:
-            print("  Rien trouvé. Vérifie les valeurs saisies, ou capture à des moments où la valeur a changé.")
+            print(tr("  Rien trouvé. Vérifie les valeurs saisies, ou capture à des moments où la valeur a changé.",
+                     "  Nothing found. Check the values you typed, or capture at moments when the value has changed."))
             continue
         if objects and any(r.get("ptr") in objects for r in res[:3]) and not objects_moved([s for s, _ in obs], objects, big_endian):
-            print("  Les combattants sont restés à la même place pendant ces captures. Elles viennent sans doute")
-            print("  du même combat. Pour être sûr, refais l'apprentissage avec une capture dans le combat suivant.")
+            print(tr("  Les combattants sont restés à la même place pendant ces captures. Elles viennent sans doute",
+                     "  The fighters stayed in the same place during these captures. They probably come"))
+            print(tr("  du même combat. Pour être sûr, refais l'apprentissage avec une capture dans le combat suivant.",
+                     "  from the same fight. To be sure, learn again with a capture in the next fight."))
         # regroupe les candidats qui désignent la même zone (ex. 1, 2 ou 4 octets au même endroit)
         clusters = []
         for r in res:
@@ -496,19 +555,25 @@ def run(root, game=None, answers=None, write=None, show=True, pick_interactive=F
                 clusters.append([r])
         res = [c[0] for c in clusters]
         for i, r in enumerate(res[:12], 1):
-            alt = f"   (+{len(clusters[i - 1]) - 1} variante(s) au même endroit)" if len(clusters[i - 1]) > 1 else ""
+            more = len(clusters[i - 1]) - 1
+            alt = tr(f"   (+{more} variante(s) au même endroit)", f"   (+{more} variant(s) at the same place)") if more else ""
             print(f"  {i}. {describe(r)}{alt}")
         if len(res) > 12:
-            print(f"  ... {len(res) - 12} autre(s)")
+            print(tr(f"  ... {len(res) - 12} autre(s)", f"  ... {len(res) - 12} more"))
         if len(res) == 1:
-            print("  Une seule zone mémoire correspond : c'est quasi certainement la bonne.")
+            print(tr("  Une seule zone mémoire correspond : c'est quasi certainement la bonne.",
+                     "  Only one memory area matches: it is almost certainly the right one."))
         elif len(res) <= 3:
-            print("  Peu de candidats : le 1er est le plus probable. Une capture de plus permet de trancher.")
+            print(tr("  Peu de candidats : le 1er est le plus probable. Une capture de plus permet de trancher.",
+                     "  Few candidates: the 1st is the most likely. One more capture will settle it."))
         else:
-            print("  Trop de candidats : fais une ou deux captures de plus avec une valeur différente.")
+            print(tr("  Trop de candidats : fais une ou deux captures de plus avec une valeur différente.",
+                     "  Too many candidates: take one or two more captures with a different value."))
         pick = res[0] if len(res) <= 3 else None
         if answers is None or pick_interactive:
-            c = ask(f"  Numéro à enregistrer pour « {field} » (Entrée = {'1' if pick else 'aucun'}) : ").strip()
+            default = "1" if pick else tr("aucun", "none")
+            c = ask(tr(f"  Numéro à enregistrer pour « {field} » (Entrée = {default}) : ",
+                       f'  Number to save for "{field}" (Enter = {default}): ')).strip()
             if c.isdigit() and 0 < int(c) <= len(res):
                 pick = res[int(c) - 1]
             elif c:
@@ -518,7 +583,7 @@ def run(root, game=None, answers=None, write=None, show=True, pick_interactive=F
 
     if not chosen:
         return 0
-    print("\nÀ enregistrer :")
+    print(tr("\nÀ enregistrer :", "\nTo save:"))
     for k, v in chosen.items():
         print(f"  {k}: {json.dumps(v)}")
     created = False
@@ -526,9 +591,11 @@ def run(root, game=None, answers=None, write=None, show=True, pick_interactive=F
         cfg = new_cfg
         created = True
         if cfg.get("scene_from"):
-            print(f"(nouveau fichier games/{game}.json, avec la scène de {cfg['scene_from']}.json)")
+            print(tr(f"(nouveau fichier games/{game}.json, avec la scène de {cfg['scene_from']}.json)",
+                     f"(new file games/{game}.json, with the scene from {cfg['scene_from']}.json)"))
         else:
-            print(f"(nouveau fichier games/{game}.json, la scène générique sera utilisée)")
+            print(tr(f"(nouveau fichier games/{game}.json, la scène générique sera utilisée)",
+                     f"(new file games/{game}.json, the generic scene will be used)"))
     if cfg is None:
         meta = snaps[-1].meta
         cfg = {"title": meta.get("description", game),
@@ -537,25 +604,28 @@ def run(root, game=None, answers=None, write=None, show=True, pick_interactive=F
         tkey = meta.get("template")
         if tkey and tkey in (all_games := load_games(root)):
             apply_template(cfg, all_games, tkey, meta.get("system", game))
-            print(f"(nouveau fichier games/{game}.json, avec la scène de {tkey}.json)")
+            print(tr(f"(nouveau fichier games/{game}.json, avec la scène de {tkey}.json)",
+                     f"(new file games/{game}.json, with the scene from {tkey}.json)"))
         else:
-            print(f"(nouveau fichier games/{game}.json, la scène générique sera utilisée)")
-    do_write = write if write is not None else ask(f"Écrire dans games/{game}.json ? (O/n) ").strip().lower() in ("", "o", "oui", "y")
+            print(tr(f"(nouveau fichier games/{game}.json, la scène générique sera utilisée)",
+                     f"(new file games/{game}.json, the generic scene will be used)"))
+    prompt = tr(f"Écrire dans games/{game}.json ? (O/n) ", f"Write to games/{game}.json? (Y/n) ")
+    do_write = write if write is not None else ask(prompt).strip().lower() in ("", "o", "oui", "y", "yes")
     if do_write:
         mem = cfg.setdefault("memory", {})
         vals = mem.setdefault("values", {})
         for k, v in chosen.items():
             old = vals.get(k, {})
-            note = old.get("note") if isinstance(old, dict) else None
+            note = old.get("note") if isinstance(old, dict) and not still_to_find(old) else None
             if isinstance(old, dict) and old.get("mame_only"):
-                note = "copie gardée par le jeu, trouvée avec apprendre.bat"     # lisible aussi avec RetroArch
+                note = "copy kept by the game, found with learn.bat"     # lisible aussi avec RetroArch
             if v.get("ptr") and not (isinstance(old, dict) and old.get("ptr") == v["ptr"]):
-                note = f"dans une zone qui change de place, adresse lue en {v['ptr']}, trouvé avec apprendre.bat"
+                note = f"in a moving area, address read at {v['ptr']}, found with learn.bat"
             if v.get("ptr") and k.startswith("score"):
                 # entre deux rounds l'objet est recréé : un 0 passager ne doit pas effacer le score
                 v["hold_zero"] = old.get("hold_zero", 20) if isinstance(old, dict) else 20
             vals[k] = v
-            if note and "à trouver" not in note:
+            if note:
                 vals[k]["note"] = note
         with open(cfg_path, "w", encoding="utf-8") as f:
             json.dump(cfg, f, indent=2, ensure_ascii=False)
@@ -566,9 +636,11 @@ def run(root, game=None, answers=None, write=None, show=True, pick_interactive=F
         except OSError:
             pass
         if snaps[-1].meta.get("source") == "retroarch":
-            print("Enregistré. ArcadeDMD prend les nouvelles adresses tout seul, la dalle les affiche dans quelques secondes.")
+            print(tr("Enregistré. ArcadeDMD prend les nouvelles adresses tout seul, la dalle les affiche dans quelques secondes.",
+                     "Saved. ArcadeDMD picks up the new addresses by itself, the panel shows them within a few seconds."))
         else:
-            print("Enregistré. Relance le jeu, les valeurs s'affichent aussi dans Tab > Options des plugins > ArcadeDMD.")
+            print(tr("Enregistré. Relance le jeu, les valeurs s'affichent aussi dans Tab > Options des plugins > ArcadeDMD.",
+                     "Saved. Restart the game, the values also show in Tab > Plugin Options > ArcadeDMD."))
     return 0
 
 
@@ -627,6 +699,7 @@ def safe_key(text):
 
 def run_live_retroarch(root, client, st, game=None, inputs=None):
     """Captures prises au moment où l'on tape les valeurs vues à l'écran."""
+    _migrate_learned(root)
     from .retroarch import game_title, layout_for, match_game
     games = load_games(root)
     key, spec = match_game(games, st["content"], st["system"])
@@ -653,53 +726,66 @@ def run_live_retroarch(root, client, st, game=None, inputs=None):
     from .retroarch import explain_failure, find_core, too_old
     version = client.version()
     if too_old(version):
-        print(f"RetroArch {version} est trop ancien pour lire la mémoire des jeux. Il faut la version 1.19 ou plus récente.")
+        print(tr(f"RetroArch {version} est trop ancien pour lire la mémoire des jeux. Il faut la version 1.19 ou plus récente.",
+                 f"RetroArch {version} is too old to read game memory. Version 1.19 or later is needed."))
         return 1
     core = find_core(st["content"])
     if client.read(0, 1) is None:          # inutile de jouer si la mémoire ne se lit pas
         for line in explain_failure(client.last_reply, version, core):
             print(line)
         return 1
-    what = f"cœur {core['name']}" if core else f"système {st['system']}"
-    print(f"Jeu RetroArch : {st['content']} ({what}), fichier games/{key}.json")
-    print("Joue, puis reviens dans cette fenêtre (Alt+Tab) quand une valeur est bien visible.")
-    print("RetroArch se met en pause tout seul quand sa fenêtre n'est plus active.")
-    print("Tape alors ce que tu vois, par exemple   score=1200 vies=2")
-    print("Retourne jouer, et recommence trois ou quatre fois avec des valeurs différentes.")
+    what = tr(f"cœur {core['name']}", f"core {core['name']}") if core else tr(f"système {st['system']}", f"system {st['system']}")
+    print(tr(f"Jeu RetroArch : {st['content']} ({what}), fichier games/{key}.json",
+             f"RetroArch game: {st['content']} ({what}), file games/{key}.json"))
+    print(tr("Joue, puis reviens dans cette fenêtre (Alt+Tab) quand une valeur est bien visible.",
+             "Play, then come back to this window (Alt+Tab) when a value is clearly visible."))
+    print(tr("RetroArch se met en pause tout seul quand sa fenêtre n'est plus active.",
+             "RetroArch pauses by itself when its window is no longer active."))
+    print(tr("Tape alors ce que tu vois, par exemple   score=1200 vies=2",
+             "Then type what you see, for example   score=1200 lives=2"))
+    print(tr("Retourne jouer, et recommence trois ou quatre fois avec des valeurs différentes.",
+             "Go back to the game, and repeat three or four times with different values."))
     known = dict(((spec or {}).get("memory") or {}).get("values") or {})
     if not spec and tkey:
         from .memvalues import game_values
         known = game_values(games.get(tkey) or {}, st["content"])
     objects = object_pointers(known)
     if objects:
-        print("Dans ce jeu, les combattants changent de place en mémoire à chaque combat.")
-        print("Fais des captures dans deux combats différents, par exemple deux dans le premier et deux dans le suivant.")
-    print("Entrée vide pour terminer.\n")
+        print(tr("Dans ce jeu, les combattants changent de place en mémoire à chaque combat.",
+                 "In this game, the fighters move to a new place in memory at every fight."))
+        print(tr("Fais des captures dans deux combats différents, par exemple deux dans le premier et deux dans le suivant.",
+                 "Take captures in two different fights, for example two in the first one and two in the next."))
+    print(tr("Entrée vide pour terminer.\n", "Press Enter alone to finish.\n"))
     answers = {}
     shots = []
     warned = False
     n = 0
     feed = iter(inputs) if inputs is not None else None
     while True:
-        line = (next(feed, "") if feed is not None else ask("Valeurs à l'écran : ")).strip()
+        line = (next(feed, "") if feed is not None else ask(tr("Valeurs à l'écran : ", "Values on screen: "))).strip()
         if not line:
             if objects and len(shots) >= 2 and not warned and not objects_moved(shots, objects, layout.big_endian):
                 warned = True
-                print("  Les combattants sont restés à la même place depuis la première capture.")
-                print("  Tes captures viennent sans doute toutes du même combat.")
-                print("  Fais encore une capture dans le combat suivant. Ou Entrée vide pour terminer quand même.")
+                print(tr("  Les combattants sont restés à la même place depuis la première capture.",
+                         "  The fighters have stayed in the same place since the first capture."))
+                print(tr("  Tes captures viennent sans doute toutes du même combat.",
+                         "  Your captures probably all come from the same fight."))
+                print(tr("  Fais encore une capture dans le combat suivant. Ou Entrée vide pour terminer quand même.",
+                         "  Take one more capture in the next fight. Or press Enter alone to finish anyway."))
                 continue
             break
         vals = parse_values(line)
         if not vals:
-            print("  Exemple de saisie :  score=1200 vies=2")
+            print(tr("  Exemple de saisie :  score=1200 vies=2", "  Example:  score=1200 lives=2"))
             continue
         now = client.status()
         if not now or now.get("content") != st["content"]:
-            print("  RetroArch ne répond plus, ou le jeu a changé. Arrêt des captures.")
+            print(tr("  RetroArch ne répond plus, ou le jeu a changé. Arrêt des captures.",
+                     "  RetroArch no longer responds, or the game has changed. Stopping captures."))
             break
         if now.get("state") != "PAUSED":
-            print("  (le jeu n'était pas en pause, la capture peut être un peu décalée)")
+            print(tr("  (le jeu n'était pas en pause, la capture peut être un peu décalée)",
+                     "  (the game was not paused, the capture may be slightly off)"))
         data = layout.capture(client)
         if not data:
             for line in explain_failure(client.last_reply, version, core):
@@ -716,9 +802,10 @@ def run_live_retroarch(root, client, st, game=None, inputs=None):
             json.dump(meta, f, indent=1, ensure_ascii=False)
         shots.append(Snapshot(meta=meta, data=data))
         answers[n] = vals
-        print(f"  Capture {n} enregistrée ({', '.join(f'{k}={v}' for k, v in vals.items())}).")
+        typed = ", ".join(f"{k}={v}" for k, v in vals.items())
+        print(tr(f"  Capture {n} enregistrée ({typed}).", f"  Capture {n} saved ({typed})."))
     if not answers:
-        print("Aucune capture.")
+        print(tr("Aucune capture.", "No captures."))
         return 1
     new_cfg = {"title": title, "match": [],
                "retroarch": {"content": [st["content"]], "ram_base": f"0x{layout.base:06X}",

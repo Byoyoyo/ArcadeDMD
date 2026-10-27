@@ -1,4 +1,8 @@
-"""Quel cœur RetroArch est chargé ? (Windows)
+"""Which RetroArch core is loaded? (Windows)
+
+Reads the list of DLLs loaded by retroarch.exe, or else RetroArch's content history. Changes nothing.
+
+Quel cœur RetroArch est chargé ? (Windows)
 
 GET_STATUS ne donne qu'un identifiant de système. « fb_alpha » vaut aussi bien pour
 FinalBurn Neo que pour les cœurs FB Alpha 2012, qui ne donnent pas leur mémoire.
@@ -13,6 +17,8 @@ import os
 import re
 import sys
 import time
+
+from .i18n import tr
 
 # nom du fichier sans extension -> (nom lisible, donne sa mémoire à RetroArch)
 CORES = {
@@ -38,7 +44,7 @@ CORES = {
 
 
 def _day(ts):
-    return time.strftime("%d/%m/%Y", time.localtime(ts))
+    return time.strftime(tr("%d/%m/%Y", "%Y-%m-%d"), time.localtime(ts))
 
 
 def pe_build_time(path):
@@ -81,10 +87,10 @@ def describe(path):
     date = ""
     ts = pe_build_time(path)
     if ts:
-        date = "compilé le " + _day(ts)
+        date = tr("compilé le ", "built on ") + _day(ts)
     else:
         try:
-            date = "fichier du " + _day(os.path.getmtime(path))
+            date = tr("fichier du ", "file dated ") + _day(os.path.getmtime(path))
         except OSError:
             pass
     return {"path": path, "file": file, "name": name, "memory": mem, "date": date}

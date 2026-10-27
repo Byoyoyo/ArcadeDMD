@@ -1,6 +1,6 @@
 {
  "title": "The King of Fighters 2002",
- "note": "Jeu de combat Neo Geo : vie, chrono, score supposé.",
+ "note": "Neo Geo fighting game: health, timer, assumed score.",
  "match": [
   {
    "system": [
@@ -15,7 +15,7 @@
   "ram_base": "0x100000",
   "ram_size": "0x10000",
   "swap16": true,
-  "note": "cœur FinalBurn Neo : RAM 68000 de la Neo Geo vue à partir de 0x100000, octets inversés par mots de 16 bits"
+  "note": "FinalBurn Neo core: Neo Geo 68000 RAM seen from 0x100000, bytes swapped within 16-bit words"
  },
  "scene_from": "neogeo_combat",
  "memory": {
@@ -26,17 +26,17 @@
     "type": "bcd",
     "bytes": 1,
     "mame_only": true,
-    "note": "crédits MVS (mémoire de sauvegarde), lisibles dans MAME seulement"
+    "note": "MVS credits (backup RAM), readable in MAME only"
    },
    "p1_mode": {
     "addr": "0x10FDB6",
     "type": "u8",
-    "note": "BIOS : joueur 1, 0 jamais joué, 1 en jeu, 2 continue, 3 game over"
+    "note": "BIOS: player 1, 0 never played, 1 playing, 2 continue, 3 game over"
    },
    "p2_mode": {
     "addr": "0x10FDB7",
     "type": "u8",
-    "note": "BIOS : joueur 2, mêmes valeurs"
+    "note": "BIOS: player 2, same values"
    },
    "health": {
     "addr": "0x108239",
@@ -44,7 +44,7 @@
     "mult": 0.980392,
     "min": 0,
     "max": 100,
-    "note": "vie joueur 1 en %, pleine = 0x66"
+    "note": "player 1 health in %, full = 0x66"
    },
    "health_p2": {
     "addr": "0x108439",
@@ -52,35 +52,40 @@
     "mult": 0.980392,
     "min": 0,
     "max": 100,
-    "note": "vie joueur 2 en %, pleine = 0x66"
+    "note": "player 2 health in %, full = 0x66"
    },
    "time": {
     "addr": "0x10A7D2",
     "type": "bcd",
     "bytes": 1,
-    "note": "chrono (BCD)"
+    "note": "timer (BCD)"
    },
    "score": {
     "addr": "0x1081FC",
     "type": "bcd",
     "bytes": 4,
-    "note": "score joueur 1, même place que dans KOF 98 (fiche du joueur identique), à confirmer en jeu"
+    "note": "player 1 score, same place as in KOF 98 (identical player record), to be confirmed in game"
    },
    "score_p2": {
     "addr": "0x1083FC",
     "type": "bcd",
     "bytes": 4,
-    "note": "score joueur 2, même place que dans KOF 98 (fiche du joueur identique), à confirmer en jeu"
+    "note": "player 2 score, same place as in KOF 98 (identical player record), to be confirmed in game"
    },
    "beat": {
     "addr": "",
     "type": "u8",
-    "note": "match VS, victoires d'affilée du joueur 1 (BEAT BY en haut de l'écran), à trouver avec apprendre.bat (beat=...)"
+    "note": "VS match, player 1 win streak (BEAT BY at the top of the screen), to find with learn.bat (beat=...)"
    },
    "beat_p2": {
     "addr": "",
     "type": "u8",
-    "note": "match VS, victoires d'affilée du joueur 2 (BEAT BY en haut de l'écran), à trouver avec apprendre.bat (beat2=...)"
+    "note": "VS match, player 2 win streak (BEAT BY at the top of the screen), to find with learn.bat (beat2=...)"
+   },
+   "backdrop": {
+    "addr": "0x10A79A",
+    "type": "u8",
+    "note": "backdrop of the fight (cheat database \"Select Backdrop\"): 0 Japan, 1 Korea, 2 China, 3 Holland, 4 Cambodia, 5 Mexico, 6 Italy, 7 Rugal, 8 NESTS. Picks the HD theme in \"hd\": \"stages\""
    }
   }
  },
@@ -90,5 +95,19 @@
   "time": 60,
   "p1_mode": 1,
   "p2_mode": 0
+ },
+ "hd": {
+  "stages": [
+   "fight_city",
+   "fight_snow",
+   "fight_temple",
+   "fight_harbor",
+   "fight_jungle",
+   "fight_desert",
+   "fight_ruins",
+   "base",
+   "arena"
+  ],
+  "note": "HD screen theme for each backdrop value (index = value), see README, HD themes"
  }
 }

@@ -14,7 +14,7 @@
     "ram_base": "0x100000",
     "ram_size": "0x10000",
     "swap16": true,
-    "note": "cœur FinalBurn Neo : RAM 68000 de la Neo Geo vue à partir de 0x100000, octets inversés par mots de 16 bits"
+    "note": "FinalBurn Neo core: Neo Geo 68000 RAM seen from 0x100000, bytes swapped within 16-bit words"
   },
   "memory": {
     "cpu": ":maincpu",
@@ -23,76 +23,86 @@
         "addr": "",
         "type": "bcd",
         "bytes": 4,
-        "note": "à trouver avec apprendre.bat"
+        "note": "to find with learn.bat"
       },
       "score_p2": {
         "addr": "",
         "type": "bcd",
         "bytes": 4,
-        "note": "joueur 2, à trouver avec apprendre.bat (partie à deux, score_p2=...)"
+        "note": "player 2, to find with learn.bat (two-player game, score_p2=...)"
       },
       "lives": {
         "addr": "0x101288",
         "type": "u8",
         "add": -1,
         "min": 0,
-        "note": "vies joueur 1, comme le 1UP de l'écran (le jeu compte la vie en cours, déduit, à confirmer)"
+        "note": "player 1 lives, like the 1UP on screen (the game counts the current life, deduced, to be confirmed)"
       },
       "lives_p2": {
         "addr": "0x101338",
         "type": "u8",
         "add": -1,
         "min": 0,
-        "note": "vies joueur 2, comme le 1UP de l'écran (le jeu compte la vie en cours, déduit, à confirmer)"
+        "note": "player 2 lives, like the 2UP on screen (the game counts the current life, deduced, to be confirmed)"
       },
       "bombs": {
         "addr": "0x10C720",
         "type": "u8",
-        "note": "bombes joueur 1"
+        "note": "player 1 bombs"
       },
       "bombs_p2": {
         "addr": "0x10C721",
         "type": "u8",
-        "note": "bombes joueur 2"
+        "note": "player 2 bombs"
       },
       "ammo": {
         "addr": "0x10C724",
         "type": "be",
         "bytes": 2,
-        "note": "munitions joueur 1, sur 2 octets"
+        "note": "player 1 ammo, 2 bytes"
       },
       "ammo_p2": {
         "addr": "0x10C726",
         "type": "be",
         "bytes": 2,
-        "note": "munitions joueur 2"
+        "note": "player 2 ammo"
       },
       "weapon": {
         "addr": "0x10C71E",
         "type": "u8",
-        "note": "arme joueur 1 (codes de la base de triche)"
+        "note": "player 1 weapon (cheat database codes)"
       },
       "weapon_p2": {
         "addr": "0x10C71F",
         "type": "u8",
-        "note": "arme joueur 2"
+        "note": "player 2 weapon"
       },
       "credits": {
         "addr": "0xD00034",
         "type": "bcd",
         "bytes": 1,
         "mame_only": true,
-        "note": "crédits MVS (mémoire de sauvegarde), lisibles dans MAME seulement"
+        "note": "MVS credits (backup RAM), readable in MAME only"
       },
       "p1_mode": {
         "addr": "0x10FDB6",
         "type": "u8",
-        "note": "BIOS : joueur 1, 0 jamais joué, 1 en jeu, 2 continue, 3 game over"
+        "note": "BIOS: player 1, 0 never played, 1 playing, 2 continue, 3 game over"
       },
       "p2_mode": {
         "addr": "0x10FDB7",
         "type": "u8",
-        "note": "BIOS : joueur 2, mêmes valeurs"
+        "note": "BIOS: player 2, same values"
+      },
+      "p1_input": {
+        "addr": "0x10FD96",
+        "type": "u8",
+        "note": "Neo Geo BIOS, player 1 stick and buttons (P1CURRENT): 0x04 left, 0x08 right, 0x10 A. Fires the handgun and scrolls the HD backdrop, to be confirmed in game"
+      },
+      "p2_input": {
+        "addr": "0x10FD9C",
+        "type": "u8",
+        "note": "Neo Geo BIOS, player 2 stick and buttons (P2CURRENT), same bits"
       }
     }
   },
@@ -347,7 +357,7 @@
         "type": "text",
         "segments": [
           {
-            "text": "VIES ",
+            "text": "LIVES ",
             "color": "#30d8ff"
           },
           {
@@ -473,7 +483,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "BOMBES {bombs}",
+                    "text": "BOMBS {bombs}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -499,7 +509,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "ARME PISTOLET",
+                    "text": "HANDGUN",
                     "color": "#30d8ff"
                   }
                 ],
@@ -522,7 +532,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "CANON {ammo}",
+                    "text": "CANNON {ammo}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -545,7 +555,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "FUSIL À POMPE {ammo}",
+                    "text": "SHOTGUN {ammo}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -568,7 +578,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "TÊTE CHERCHEUSE {ammo}",
+                    "text": "ENEMY CHASER {ammo}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -591,7 +601,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "LANCE-FLAMMES {ammo}",
+                    "text": "FLAMETHROWER {ammo}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -614,7 +624,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "MITRAILLETTE {ammo}",
+                    "text": "MACHINE GUN {ammo}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -660,7 +670,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "FUSIL À POMPE+ {ammo}",
+                    "text": "SHOTGUN+ {ammo}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -683,7 +693,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "LANCE-ROQUETTES {ammo}",
+                    "text": "ROCKET LAUNCHER {ammo}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -706,7 +716,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "LANCE-FLAMMES+ {ammo}",
+                    "text": "FLAMETHROWER+ {ammo}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -729,7 +739,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "MITRAILLETTE+ {ammo}",
+                    "text": "MACHINE GUN+ {ammo}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -775,7 +785,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "TÊTE CHERCHEUSE+ {ammo}",
+                    "text": "ENEMY CHASER+ {ammo}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -867,7 +877,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "MUNITIONS {ammo}",
+                    "text": "AMMO {ammo}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -923,7 +933,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "CRÉDITS {credits}",
+                    "text": "CREDITS {credits}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -1031,7 +1041,7 @@
         "type": "text",
         "segments": [
           {
-            "text": "VIES ",
+            "text": "LIVES ",
             "color": "#30d8ff"
           },
           {
@@ -1109,7 +1119,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "BOMBES {bombs_p2}",
+                    "text": "BOMBS {bombs_p2}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -1135,7 +1145,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "ARME PISTOLET",
+                    "text": "HANDGUN",
                     "color": "#30d8ff"
                   }
                 ],
@@ -1158,7 +1168,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "CANON {ammo_p2}",
+                    "text": "CANNON {ammo_p2}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -1181,7 +1191,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "FUSIL À POMPE {ammo_p2}",
+                    "text": "SHOTGUN {ammo_p2}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -1204,7 +1214,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "TÊTE CHERCHEUSE {ammo_p2}",
+                    "text": "ENEMY CHASER {ammo_p2}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -1227,7 +1237,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "LANCE-FLAMMES {ammo_p2}",
+                    "text": "FLAMETHROWER {ammo_p2}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -1250,7 +1260,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "MITRAILLETTE {ammo_p2}",
+                    "text": "MACHINE GUN {ammo_p2}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -1296,7 +1306,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "FUSIL À POMPE+ {ammo_p2}",
+                    "text": "SHOTGUN+ {ammo_p2}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -1319,7 +1329,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "LANCE-ROQUETTES {ammo_p2}",
+                    "text": "ROCKET LAUNCHER {ammo_p2}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -1342,7 +1352,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "LANCE-FLAMMES+ {ammo_p2}",
+                    "text": "FLAMETHROWER+ {ammo_p2}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -1365,7 +1375,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "MITRAILLETTE+ {ammo_p2}",
+                    "text": "MACHINE GUN+ {ammo_p2}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -1411,7 +1421,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "TÊTE CHERCHEUSE+ {ammo_p2}",
+                    "text": "ENEMY CHASER+ {ammo_p2}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -1503,7 +1513,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "MUNITIONS {ammo_p2}",
+                    "text": "AMMO {ammo_p2}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -1559,7 +1569,7 @@
                 "type": "text",
                 "segments": [
                   {
-                    "text": "CRÉDITS {credits}",
+                    "text": "CREDITS {credits}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -1799,7 +1809,7 @@
         "type": "text",
         "segments": [
           {
-            "text": "SCORE ?",
+            "text": "SCORE?",
             "color": "#5a5a5a"
           }
         ],
@@ -1839,7 +1849,7 @@
         "type": "text",
         "segments": [
           {
-            "text": "SCORE ?",
+            "text": "SCORE?",
             "color": "#5a5a5a"
           }
         ],
@@ -1910,7 +1920,7 @@
                     "color": "#30ff60"
                   },
                   {
-                    "text": "BOMBES {bombs}",
+                    "text": "BOMBS {bombs}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -1940,7 +1950,7 @@
                     "color": "#ffc830"
                   },
                   {
-                    "text": "BOMBES {bombs_p2}",
+                    "text": "BOMBS {bombs_p2}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -1970,7 +1980,7 @@
                     "color": "#30ff60"
                   },
                   {
-                    "text": "ARME PISTOLET",
+                    "text": "HANDGUN",
                     "color": "#30d8ff"
                   }
                 ],
@@ -1997,7 +2007,7 @@
                     "color": "#30ff60"
                   },
                   {
-                    "text": "CANON {ammo}",
+                    "text": "CANNON {ammo}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -2024,7 +2034,7 @@
                     "color": "#30ff60"
                   },
                   {
-                    "text": "FUSIL À POMPE {ammo}",
+                    "text": "SHOTGUN {ammo}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -2051,7 +2061,7 @@
                     "color": "#30ff60"
                   },
                   {
-                    "text": "TÊTE CHERCHEUSE {ammo}",
+                    "text": "ENEMY CHASER {ammo}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -2078,7 +2088,7 @@
                     "color": "#30ff60"
                   },
                   {
-                    "text": "LANCE-FLAMMES {ammo}",
+                    "text": "FLAMETHROWER {ammo}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -2105,7 +2115,7 @@
                     "color": "#30ff60"
                   },
                   {
-                    "text": "MITRAILLETTE {ammo}",
+                    "text": "MACHINE GUN {ammo}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -2159,7 +2169,7 @@
                     "color": "#30ff60"
                   },
                   {
-                    "text": "FUSIL À POMPE+ {ammo}",
+                    "text": "SHOTGUN+ {ammo}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -2186,7 +2196,7 @@
                     "color": "#30ff60"
                   },
                   {
-                    "text": "LANCE-ROQUETTES {ammo}",
+                    "text": "ROCKET LAUNCHER {ammo}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -2213,7 +2223,7 @@
                     "color": "#30ff60"
                   },
                   {
-                    "text": "LANCE-FLAMMES+ {ammo}",
+                    "text": "FLAMETHROWER+ {ammo}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -2240,7 +2250,7 @@
                     "color": "#30ff60"
                   },
                   {
-                    "text": "MITRAILLETTE+ {ammo}",
+                    "text": "MACHINE GUN+ {ammo}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -2294,7 +2304,7 @@
                     "color": "#30ff60"
                   },
                   {
-                    "text": "TÊTE CHERCHEUSE+ {ammo}",
+                    "text": "ENEMY CHASER+ {ammo}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -2402,7 +2412,7 @@
                     "color": "#30ff60"
                   },
                   {
-                    "text": "MUNITIONS {ammo}",
+                    "text": "AMMO {ammo}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -2462,7 +2472,7 @@
                     "color": "#ffc830"
                   },
                   {
-                    "text": "ARME PISTOLET",
+                    "text": "HANDGUN",
                     "color": "#30d8ff"
                   }
                 ],
@@ -2489,7 +2499,7 @@
                     "color": "#ffc830"
                   },
                   {
-                    "text": "CANON {ammo_p2}",
+                    "text": "CANNON {ammo_p2}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -2516,7 +2526,7 @@
                     "color": "#ffc830"
                   },
                   {
-                    "text": "FUSIL À POMPE {ammo_p2}",
+                    "text": "SHOTGUN {ammo_p2}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -2543,7 +2553,7 @@
                     "color": "#ffc830"
                   },
                   {
-                    "text": "TÊTE CHERCHEUSE {ammo_p2}",
+                    "text": "ENEMY CHASER {ammo_p2}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -2570,7 +2580,7 @@
                     "color": "#ffc830"
                   },
                   {
-                    "text": "LANCE-FLAMMES {ammo_p2}",
+                    "text": "FLAMETHROWER {ammo_p2}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -2597,7 +2607,7 @@
                     "color": "#ffc830"
                   },
                   {
-                    "text": "MITRAILLETTE {ammo_p2}",
+                    "text": "MACHINE GUN {ammo_p2}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -2651,7 +2661,7 @@
                     "color": "#ffc830"
                   },
                   {
-                    "text": "FUSIL À POMPE+ {ammo_p2}",
+                    "text": "SHOTGUN+ {ammo_p2}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -2678,7 +2688,7 @@
                     "color": "#ffc830"
                   },
                   {
-                    "text": "LANCE-ROQUETTES {ammo_p2}",
+                    "text": "ROCKET LAUNCHER {ammo_p2}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -2705,7 +2715,7 @@
                     "color": "#ffc830"
                   },
                   {
-                    "text": "LANCE-FLAMMES+ {ammo_p2}",
+                    "text": "FLAMETHROWER+ {ammo_p2}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -2732,7 +2742,7 @@
                     "color": "#ffc830"
                   },
                   {
-                    "text": "MITRAILLETTE+ {ammo_p2}",
+                    "text": "MACHINE GUN+ {ammo_p2}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -2786,7 +2796,7 @@
                     "color": "#ffc830"
                   },
                   {
-                    "text": "TÊTE CHERCHEUSE+ {ammo_p2}",
+                    "text": "ENEMY CHASER+ {ammo_p2}",
                     "color": "#30d8ff"
                   }
                 ],
@@ -2894,7 +2904,7 @@
                     "color": "#ffc830"
                   },
                   {
-                    "text": "MUNITIONS {ammo_p2}",
+                    "text": "AMMO {ammo_p2}",
                     "color": "#30d8ff"
                   }
                 ],

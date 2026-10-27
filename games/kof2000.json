@@ -1,6 +1,6 @@
 {
  "title": "The King of Fighters 2000",
- "note": "Nom du personnage en train de se battre à côté de P1, P2 ou CPU (équipe lue dans la RAM, codes de triche FBNeo).",
+ "note": "Name of the character currently fighting next to P1, P2 or CPU (team read from RAM, FBNeo cheat codes).",
  "match": [
   {
    "system": [
@@ -17,7 +17,7 @@
   "ram_base": "0x100000",
   "ram_size": "0x10000",
   "swap16": true,
-  "note": "cœur FinalBurn Neo : RAM 68000 de la Neo Geo vue à partir de 0x100000, octets inversés par mots de 16 bits"
+  "note": "FinalBurn Neo core: Neo Geo 68000 RAM seen from 0x100000, bytes swapped within 16-bit words"
  },
  "scene_from": "neogeo_combat",
  "memory": {
@@ -28,17 +28,17 @@
     "type": "bcd",
     "bytes": 1,
     "mame_only": true,
-    "note": "crédits MVS (mémoire de sauvegarde), lisibles dans MAME seulement"
+    "note": "MVS credits (backup RAM), readable in MAME only"
    },
    "p1_mode": {
     "addr": "0x10FDB6",
     "type": "u8",
-    "note": "BIOS : joueur 1, 0 jamais joué, 1 en jeu, 2 continue, 3 game over"
+    "note": "BIOS: player 1, 0 never played, 1 playing, 2 continue, 3 game over"
    },
    "p2_mode": {
     "addr": "0x10FDB7",
     "type": "u8",
-    "note": "BIOS : joueur 2, mêmes valeurs"
+    "note": "BIOS: player 2, same values"
    },
    "health": {
     "addr": "0x108239",
@@ -46,7 +46,7 @@
     "mult": 0.980392,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 102 (base de triche)"
+    "note": "health bar in %, full = 102 (cheat database)"
    },
    "health_p2": {
     "addr": "0x108439",
@@ -54,115 +54,125 @@
     "mult": 0.980392,
     "min": 0,
     "max": 100,
-    "note": "barre de vie en %, pleine = 102 (base de triche)"
+    "note": "health bar in %, full = 102 (cheat database)"
    },
    "time": {
     "addr": "0x10A7E6",
     "type": "bcd",
     "bytes": 1,
-    "note": "chrono (base de triche)"
+    "note": "timer (cheat database)"
    },
    "score": {
     "addr": "0x1081FC",
     "type": "bcd",
     "bytes": 4,
-    "note": "score joueur 1, même place que dans KOF 98 (fiche du joueur identique), à confirmer en jeu"
+    "note": "player 1 score, same place as in KOF 98 (identical player record), to be confirmed in game"
    },
    "score_p2": {
     "addr": "0x1083FC",
     "type": "bcd",
     "bytes": 4,
-    "note": "score joueur 2, même place que dans KOF 98 (fiche du joueur identique), à confirmer en jeu"
+    "note": "player 2 score, same place as in KOF 98 (identical player record), to be confirmed in game"
    },
    "beat": {
     "addr": "",
     "type": "u8",
-    "note": "match VS, victoires d'affilée du joueur 1 (BEAT BY en haut de l'écran), à trouver avec apprendre.bat (beat=...)"
+    "note": "VS match, player 1 win streak (BEAT BY at the top of the screen), to find with learn.bat (beat=...)"
    },
    "beat_p2": {
     "addr": "",
     "type": "u8",
-    "note": "match VS, victoires d'affilée du joueur 2 (BEAT BY en haut de l'écran), à trouver avec apprendre.bat (beat2=...)"
+    "note": "VS match, player 2 win streak (BEAT BY at the top of the screen), to find with learn.bat (beat2=...)"
    },
    "_p1_lost": {
     "addr": "0x10A7F9",
     "type": "u8",
-    "note": "P1, personnages déjà battus"
+    "note": "P1, characters already beaten"
    },
    "_p1_ch0": {
     "addr": "0x10A7FA",
     "type": "u8",
-    "note": "P1, personnage A de l'équipe"
+    "note": "P1, team character A"
    },
    "_p1_ch1": {
     "addr": "0x10A7FB",
     "type": "u8",
-    "note": "P1, personnage B de l'équipe"
+    "note": "P1, team character B"
    },
    "_p1_ch2": {
     "addr": "0x10A7FC",
     "type": "u8",
-    "note": "P1, personnage C de l'équipe"
+    "note": "P1, team character C"
    },
    "_p1_ch3": {
     "addr": "0x10A7FD",
     "type": "u8",
-    "note": "P1, personnage D de l'équipe"
+    "note": "P1, team character D"
    },
    "_p1_ord0": {
     "addr": "0x10A802",
     "type": "u8",
-    "note": "P1, premier à combattre (0 = A)"
+    "note": "P1, first to fight (0 = A)"
    },
    "_p1_ord1": {
     "addr": "0x10A803",
     "type": "u8",
-    "note": "P1, deuxième à combattre (0 = A)"
+    "note": "P1, second to fight (0 = A)"
    },
    "_p1_ord2": {
     "addr": "0x10A804",
     "type": "u8",
-    "note": "P1, troisième à combattre (0 = A)"
+    "note": "P1, third to fight (0 = A)"
    },
    "_p2_lost": {
     "addr": "0x10A80E",
     "type": "u8",
-    "note": "P2, personnages déjà battus"
+    "note": "P2, characters already beaten"
    },
    "_p2_ch0": {
     "addr": "0x10A80F",
     "type": "u8",
-    "note": "P2, personnage A de l'équipe"
+    "note": "P2, team character A"
    },
    "_p2_ch1": {
     "addr": "0x10A810",
     "type": "u8",
-    "note": "P2, personnage B de l'équipe"
+    "note": "P2, team character B"
    },
    "_p2_ch2": {
     "addr": "0x10A811",
     "type": "u8",
-    "note": "P2, personnage C de l'équipe"
+    "note": "P2, team character C"
    },
    "_p2_ch3": {
     "addr": "0x10A812",
     "type": "u8",
-    "note": "P2, personnage D de l'équipe"
+    "note": "P2, team character D"
    },
    "_p2_ord0": {
     "addr": "0x10A817",
     "type": "u8",
-    "note": "P2, premier à combattre (0 = A)"
+    "note": "P2, first to fight (0 = A)"
    },
    "_p2_ord1": {
     "addr": "0x10A818",
     "type": "u8",
-    "note": "P2, deuxième à combattre (0 = A)"
+    "note": "P2, second to fight (0 = A)"
    },
    "_p2_ord2": {
     "addr": "0x10A819",
     "type": "u8",
-    "note": "P2, troisième à combattre (0 = A)"
+    "note": "P2, third to fight (0 = A)"
+   },
+   "stage": {
+    "addr": "0x10A7B6",
+    "type": "u8",
+    "note": "match number in the run, from 0 (cheat database \"Select Current Round\"), shown as STAGE n"
+   },
+   "backdrop": {
+    "addr": "0x10A7AE",
+    "type": "u8",
+    "note": "backdrop of the fight (cheat database \"Select Backdrop\"): 0 Factory, 1 Scrap Dump, 2 Garbage Dump, 3 Desert, 4 Korea, 5 Aquarium, 6 Temple, 7 Frozen Factory, 8 Frozen Scrap Dump. Picks the HD theme in \"hd\": \"stages\""
    }
   }
  },
@@ -296,5 +306,19 @@
   "_p1_ord2": 2,
   "_p2_ch2": 11,
   "_p2_ord2": 2
+ },
+ "hd": {
+  "stages": [
+   "base",
+   "fight_city",
+   "fight_ruins",
+   "fight_desert",
+   "arena",
+   "fight_harbor",
+   "fight_temple",
+   "fight_snow",
+   "fight_snow"
+  ],
+  "note": "HD screen theme for each backdrop value (index = value), see README, HD themes"
  }
 }

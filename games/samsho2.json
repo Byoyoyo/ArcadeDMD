@@ -1,6 +1,6 @@
 {
  "title": "Samurai Shodown II",
- "note": "Jeu de combat Neo Geo : vie, chrono, score, 17 personnages.",
+ "note": "Neo Geo fighting game: health, timer, score, 17 characters.",
  "match": [
   {
    "system": [
@@ -19,7 +19,7 @@
   "ram_base": "0x100000",
   "ram_size": "0x10000",
   "swap16": true,
-  "note": "cœur FinalBurn Neo : RAM 68000 de la Neo Geo vue à partir de 0x100000, octets inversés par mots de 16 bits"
+  "note": "FinalBurn Neo core: Neo Geo 68000 RAM seen from 0x100000, bytes swapped within 16-bit words"
  },
  "scene_from": "neogeo_combat",
  "memory": {
@@ -30,17 +30,17 @@
     "type": "bcd",
     "bytes": 1,
     "mame_only": true,
-    "note": "crédits MVS (mémoire de sauvegarde), lisibles dans MAME seulement"
+    "note": "MVS credits (backup RAM), readable in MAME only"
    },
    "p1_mode": {
     "addr": "0x10FDB6",
     "type": "u8",
-    "note": "BIOS : joueur 1, 0 jamais joué, 1 en jeu, 2 continue, 3 game over"
+    "note": "BIOS: player 1, 0 never played, 1 playing, 2 continue, 3 game over"
    },
    "p2_mode": {
     "addr": "0x10FDB7",
     "type": "u8",
-    "note": "BIOS : joueur 2, mêmes valeurs"
+    "note": "BIOS: player 2, same values"
    },
    "health": {
     "ptr": "0x100A46",
@@ -53,7 +53,7 @@
     "mult": 0.78125,
     "min": 0,
     "max": 100,
-    "note": "vie joueur 1 en %, pleine = 0x80, dans l'objet du combattant (adresse lue en 0x100A46)"
+    "note": "player 1 health in %, full = 0x80, inside the fighter object (address read at 0x100A46)"
    },
    "health_p2": {
     "ptr": "0x100A4A",
@@ -66,13 +66,13 @@
     "mult": 0.78125,
     "min": 0,
     "max": 100,
-    "note": "vie joueur 2 en %, pleine = 0x80, dans l'objet du combattant (adresse lue en 0x100A4A)"
+    "note": "player 2 health in %, full = 0x80, inside the fighter object (address read at 0x100A4A)"
    },
    "time": {
     "addr": "0x100AC6",
     "type": "bcd",
     "bytes": 1,
-    "note": "chrono (BCD)"
+    "note": "timer (BCD)"
    },
    "score": {
     "ptr": "0x100A46",
@@ -84,7 +84,7 @@
     "type": "bcd",
     "bytes": 4,
     "hold_zero": 20,
-    "note": "score joueur 1, trouvé avec apprendre.bat. Dans l'objet du combattant (adresse lue en 0x100A46), recopié à chaque round. Un 0 passager entre deux combats est ignoré 20 secondes"
+    "note": "player 1 score, found with learn.bat. Inside the fighter object (address read at 0x100A46), copied again every round. A brief 0 between two fights is ignored for 20 seconds"
    },
    "score_p2": {
     "ptr": "0x100A4A",
@@ -96,17 +96,22 @@
     "type": "bcd",
     "bytes": 4,
     "hold_zero": 20,
-    "note": "score joueur 2, même place que pour le joueur 1, à confirmer en partie à deux. Dans l'objet du combattant (adresse lue en 0x100A4A), recopié à chaque round. Un 0 passager entre deux combats est ignoré 20 secondes"
+    "note": "player 2 score, same place as for player 1, to be confirmed in a two-player game. Inside the fighter object (address read at 0x100A4A), copied again every round. A brief 0 between two fights is ignored for 20 seconds"
    },
    "_p1_chr": {
     "addr": "0x100D0B",
     "type": "u8",
-    "note": "personnage du joueur 1 (codes de triche FBNeo)"
+    "note": "player 1 character (FBNeo cheat codes)"
    },
    "_p2_chr": {
     "addr": "0x100D1B",
     "type": "u8",
-    "note": "personnage du joueur 2 ou de l'ordinateur"
+    "note": "player 2 or computer character"
+   },
+   "backdrop": {
+    "addr": "0x100AD9",
+    "type": "u8",
+    "note": "backdrop of the fight (cheat database \"Select Backdrop\"): 0 Haohmaru, 1 Nakoruru, 2 Hanzo, 3 Galford, 4 Wan-Fu, 5 Ukyo, 6 Kyoshiro, 7 Gen-An, 8 Earthquake, 9 Jubei, 10 (unused), 11 Charlotte, 12 Genjuro, 13 Cham Cham, 14 Sieger, 15 Nicotine, 16 Mizuki, 17 Kuroko. Picks the HD theme in \"hd\": \"stages\""
    }
   }
  },
@@ -164,5 +169,28 @@
   "p2_mode": 0,
   "_p1_chr": 0,
   "_p2_chr": 1
+ },
+ "hd": {
+  "stages": [
+   "fight_temple",
+   "fight_jungle",
+   "fight_temple",
+   "fight_harbor",
+   "fight_ruins",
+   "fight_temple",
+   "arena",
+   "fight_jungle",
+   "fight_desert",
+   "fight_snow",
+   "arena",
+   "fight_ruins",
+   "fight_snow",
+   "fight_jungle",
+   "fight_ruins",
+   "fight_temple",
+   "fight_ruins",
+   "arena"
+  ],
+  "note": "HD screen theme for each backdrop value (index = value), see README, HD themes"
  }
 }

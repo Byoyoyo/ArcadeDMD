@@ -1,4 +1,7 @@
-"""Sorties : dalle ZeDMD (libzedmd), fenêtre « LED virtuelles », enregistrement GIF."""
+"""Outputs: ZeDMD LED panel (libzedmd), "virtual LED" window (pygame or tkinter, with the optional
+smooth HD view for an LCD screen) and GIF recording.
+
+Sorties : dalle ZeDMD (libzedmd), fenêtre « LED virtuelles », enregistrement GIF."""
 
 import ctypes
 import os
@@ -7,6 +10,7 @@ import threading
 import time
 
 from .canvas import WIDTH, HEIGHT
+from .i18n import tr
 
 FRAME_BYTES = WIDTH * HEIGHT * 3
 _BRIGHT_TABLES = {}
@@ -52,14 +56,15 @@ class ZeDMDOutput:
         name = self.cfg.get("dll") or ("libzedmd/zedmd64.dll" if sys.platform == "win32" else "libzedmd/libzedmd.so")
         path = name if os.path.isabs(name) else os.path.join(self.root, name)
         if not os.path.exists(path):
-            self.log(f"ZeDMD : bibliothèque introuvable ({path}). Voir le guide, étape « libzedmd ».")
+            self.log(tr(f"ZeDMD : bibliothèque introuvable ({path}). Voir README.fr.md, étape « libzedmd ».",
+                        f"ZeDMD: library not found ({path}). See README.md, \"libzedmd\" step."))
             return False
         try:
             if sys.platform == "win32" and hasattr(os, "add_dll_directory"):
                 self._dll_dir = os.add_dll_directory(os.path.dirname(os.path.abspath(path)))
             lib = ctypes.CDLL(path)
         except OSError as e:
-            self.log(f"ZeDMD : chargement impossible de {path} : {e}")
+            self.log(tr(f"ZeDMD : chargement impossible de {path} : {e}", f"ZeDMD: cannot load {path}: {e}"))
             return False
         vp = ctypes.c_void_p
         lib.ZeDMD_GetInstance.restype = vp
@@ -79,7 +84,7 @@ class ZeDMDOutput:
         ):
             f = getattr(lib, fn, None)
             if f is None:
-                self.log(f"ZeDMD : fonction absente de la bibliothèque : {fn}")
+                self.log(tr(f"ZeDMD : fonction absente de la bibliothèque : {fn}", f"ZeDMD: function missing from the library: {fn}"))
                 return False
             f.argtypes = args
             f.restype = res
@@ -113,7 +118,8 @@ class ZeDMDOutput:
                 if self._open(device=saved, quiet=True):
                     return
                 if not warned:
-                    self.log(f"ZeDMD : pas de réponse sur {saved}, recherche sur tous les ports")
+                    self.log(tr(f"ZeDMD : pas de réponse sur {saved}, recherche sur tous les ports",
+                                f"ZeDMD: no answer on {saved}, searching all ports"))
                 saved = ""
                 continue
             else:
@@ -121,7 +127,8 @@ class ZeDMDOutput:
                 if self._open(quiet=warned):
                     return
                 if scans >= 3:
-                    self.log("ZeDMD : dalle introuvable, recherche arrêtée. Indique le port dans config.json (\"device\": \"COM5\") ou relance ArcadeDMD.")
+                    self.log(tr("ZeDMD : dalle introuvable, recherche arrêtée. Indique le port dans config.json (\"device\": \"COM5\") ou relance ArcadeDMD.",
+                                "ZeDMD: LED panel not found, search stopped. Set the port in config.json (\"device\": \"COM5\") or restart ArcadeDMD."))
                     return
             warned = True
             self.stop.wait(10 if (ip or dev) else 10 * scans)
@@ -147,11 +154,14 @@ class ZeDMDOutput:
                     fw = lib.ZeDMD_GetFirmwareVersion(h)
                     found = lib.ZeDMD_GetDevice(h)
         except OSError as e:
-            self.log(f"ZeDMD : erreur à l'ouverture : {e}")
+            self.log(tr(f"ZeDMD : erreur à l'ouverture : {e}", f"ZeDMD: error while opening: {e}"))
             return False
         if not ok:
             if not quiet:
-                self.log("ZeDMD : dalle non trouvée" + (f" sur {device or ip}" if (device or ip) else "") + ", nouvel essai dans 10 s")
+                where = device or ip
+                self.log(tr("ZeDMD : dalle non trouvée", "ZeDMD: LED panel not found")
+                         + (tr(f" sur {where}", f" on {where}") if where else "")
+                         + tr(", nouvel essai dans 10 s", ", retrying in 10 s"))
             return False
         found = found.decode(errors="replace") if found else ""
         if found and not ip:
@@ -163,7 +173,8 @@ class ZeDMDOutput:
                 pass
         self.last = None
         self.ok = True
-        self.log(f"ZeDMD connecté {found} (firmware {fw.decode(errors='replace') if fw else '?'})")
+        fw = fw.decode(errors="replace") if fw else "?"
+        self.log(tr(f"ZeDMD connecté {found} (firmware {fw})", f"ZeDMD connected {found} (firmware {fw})"))
         return True
 
     def send(self, frame):
@@ -176,7 +187,7 @@ class ZeDMDOutput:
             with self.lock:
                 self.lib.ZeDMD_RenderRgb888(self.handle, buf)
         except OSError as e:
-            self.log(f"ZeDMD : envoi interrompu : {e}")
+            self.log(tr(f"ZeDMD : envoi interrompu : {e}", f"ZeDMD: sending interrupted: {e}"))
 
     def close(self):
         self.stop.set()
@@ -327,7 +338,7 @@ class PreviewOutput:
         try:
             self._init_pygame()
         except Exception as e:
-            self.log(f"aperçu pygame indisponible ({e}), essai tkinter")
+            self.log(tr(f"aperçu pygame indisponible ({e}), essai tkinter", f"pygame preview unavailable ({e}), trying tkinter"))
             self._init_tk()
         if str(cfg.get("style", "")).lower() == "hd":
             self._init_hd(cfg)
@@ -337,15 +348,16 @@ class PreviewOutput:
     def _init_hd(self, cfg):
         """Affichage HD lisse : la scène est dessinée à la taille de l'écran, avec le logo du jeu."""
         if self.backend != "pygame":
-            self.log("écran HD : il faut pygame, affichage LED gardé")
+            self.log(tr("écran HD : il faut pygame, affichage LED gardé", "HD screen: pygame is required, keeping the LED display"))
             return
         try:
             from .hd import HDRenderer
             root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             self.hd_view = HDRenderer(self.pg, (self.width, self.height), root, cfg, self.log)
-            self.log(f"écran HD : affichage lisse en {self.width} x {self.height}")
+            self.log(tr(f"écran HD : affichage lisse en {self.width} x {self.height}",
+                        f"HD screen: smooth display at {self.width} x {self.height}"))
         except Exception as e:
-            self.log(f"écran HD indisponible ({e}), affichage LED gardé")
+            self.log(tr(f"écran HD indisponible ({e}), affichage LED gardé", f"HD screen unavailable ({e}), keeping the LED display"))
             self.hd_view = None
 
     def attach(self, engine):
@@ -414,7 +426,7 @@ class PreviewOutput:
             self.release_at = None
             if not self.shown:
                 self._show(True)
-                self.log("écran LCD : ArcadeDMD passe au premier plan")
+                self.log(tr("écran LCD : ArcadeDMD passe au premier plan", "LCD screen: ArcadeDMD comes to the front"))
             else:
                 self._raise()
         elif self.shown and self.release_at is None:
@@ -446,9 +458,9 @@ class PreviewOutput:
                 else:
                     u.ShowWindow(self.hwnd, 0)           # SW_HIDE
                     if not quiet:
-                        self.log("écran LCD : rendu au frontal")
+                        self.log(tr("écran LCD : rendu au frontal", "LCD screen: handed back to the frontend"))
             except Exception as e:
-                self.log(f"écran LCD : {e}")
+                self.log(tr(f"écran LCD : {e}", f"LCD screen: {e}"))
         elif self.backend == "tk":
             try:
                 if on:
@@ -522,7 +534,7 @@ class PreviewOutput:
             try:
                 self.hd_view.render(self.screen, self.engine)
             except Exception as e:                  # jamais d'écran figé : retour au rendu LED
-                self.log(f"écran HD : {e!r}, retour à l'affichage LED")
+                self.log(tr(f"écran HD : {e!r}, retour à l'affichage LED", f"HD screen: {e!r}, back to the LED display"))
                 self.hd_view = None
                 return
             pg.display.flip()
@@ -595,7 +607,8 @@ class GifRecorder:
         from PIL import Image
         pal = [f.convert("P", palette=Image.ADAPTIVE, colors=128) for f in self.frames]
         pal[0].save(self.path, save_all=True, append_images=pal[1:], duration=int(1000 / self.fps), loop=0, optimize=False)
-        self.log(f"GIF écrit : {self.path} ({len(self.frames)} images)")
+        n = len(self.frames)
+        self.log(tr(f"GIF écrit : {self.path} ({n} images)", f"GIF written: {self.path} ({n} frames)"))
 
 
 class NullOutput:
