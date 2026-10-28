@@ -75,8 +75,9 @@ def find_launchbox(root, cfg):
 
 
 class LogoFinder:
-    def __init__(self, root, cfg, log=print, background=True):
+    def __init__(self, root, cfg, log=print, background=True, label=None):
         self.root, self.cfg, self.log = root, cfg or {}, log
+        self.label = label           # (français, anglais) : qui cherche les logos, dans les messages
         self.dir = ""
         self.games = {}          # romset -> [(plateforme, titre)]
         self.files = {}          # plateforme -> {titre normalisé: chemin de l'image}
@@ -90,6 +91,12 @@ class LogoFinder:
         try:
             d = find_launchbox(self.root, self.cfg)
             if not d:
+                if self.label:
+                    self.log(tr(f"{self.label[0]} : dossier LaunchBox introuvable, pas de logo au lancement des jeux "
+                                "(réglage \"launchbox\" de la section intro dans config.json)",
+                                f"{self.label[1]}: LaunchBox folder not found, no logo when a game starts "
+                                "(\"launchbox\" setting in the intro section of config.json)"))
+                    return
                 self.log(tr("écran HD : dossier LaunchBox introuvable, le titre du jeu remplace son logo "
                             "(réglage \"launchbox\" de la section preview dans config.json)",
                             "HD screen: LaunchBox folder not found, the game title replaces its logo "
@@ -120,10 +127,12 @@ class LogoFinder:
                     f.write(d)
             except OSError:
                 pass
-            self.log(tr(f"écran HD : logos des jeux pris dans {d} ({len(games)} jeux dans LaunchBox)",
-                        f"HD screen: game logos taken from {d} ({len(games)} games in LaunchBox)"))
+            who = self.label or ("écran HD", "HD screen")
+            self.log(tr(f"{who[0]} : logos des jeux pris dans {d} ({len(games)} jeux dans LaunchBox)",
+                        f"{who[1]}: game logos taken from {d} ({len(games)} games in LaunchBox)"))
         except Exception as e:                   # l'affichage continue sans logo
-            self.log(tr(f"écran HD : index LaunchBox impossible ({e})", f"HD screen: cannot index LaunchBox ({e})"))
+            who = self.label or ("écran HD", "HD screen")
+            self.log(tr(f"{who[0]} : index LaunchBox impossible ({e})", f"{who[1]}: cannot index LaunchBox ({e})"))
         finally:
             self.ready = True
 

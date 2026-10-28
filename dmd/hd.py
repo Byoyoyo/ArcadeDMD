@@ -23,6 +23,7 @@ from collections import OrderedDict
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
+from .hd_coin import CoinDoors
 from .hd_fight import FightFX
 from .hd_mslug import MetalSlugScene, family
 from .i18n import tr
@@ -80,6 +81,16 @@ class HDRenderer:
         self.themed = (cfg or {}).get("themes", True)
         self.mslug = None
         self.fight = None
+        self.coins_on = (cfg or {}).get("coins", True)   # fighting games: coin doors on the attract screen
+        self.coins = None
+        self.intro_serial = 0         # game logo when a game starts (the engine counts the starts)
+        self.intro_t0 = None
+        self.intro_len = 2.6
+        self.logo_alpha = 1.0         # logo of the scene, hidden during the intro
+        self.logo_rect = None         # where the scene drew its logo
+        self.enter = 1.0              # attract screen coming in after the intro
+        self.veil = None
+        self.flash_glow = None
 
     # ------------------------------------------------------------ outils
     def S(self, v):
@@ -372,8 +383,8 @@ class HDRenderer:
                 self.logo = self._title_logo(title)
         return self.logo
 
-    def draw_logo(self, screen, img, cx, y, max_w, max_h, now, valign="top"):
-        pg = self.pg
+    def fit_logo(self, img, max_w, max_h):
+        """Logo brought to the size of its box, with its light band (kept until the logo changes)."""
         key = (max_w, max_h)
         fit = self.fitted.get(key)
         if fit is None:
@@ -390,26 +401,135 @@ class HDRenderer:
                 bd.line([(i + size[1] // 3, 0), (i - size[1] // 3, size[1])], fill=(255, 255, 255, a), width=2)
             fit = {"surf": self._surf(small), "mask": self._surf(white), "band": self._surf(band), "w": size[0], "h": size[1]}
             self.fitted[key] = fit
+        return fit
+
+    def shine(self, screen, fit, x, top, ph, alpha=1.0):
+        """Light band across the logo (ph from 0 to 1)."""
+        pg = self.pg
+        bw = fit["band"].get_width()
+        tmp = pg.Surface((fit["w"], fit["h"]), pg.SRCALPHA)
+        tmp.blit(fit["band"], (int(-bw + (fit["w"] + bw) * ph), 0))
+        tmp.blit(fit["mask"], (0, 0), special_flags=pg.BLEND_RGBA_MULT)
+        if alpha < 0.99:
+            tmp.set_alpha(int(255 * alpha))
+        screen.blit(tmp, (x, top))
+
+    def draw_logo(self, screen, img, cx, y, max_w, max_h, now, valign="top"):
+        if img is None:
+            return 0
+        fit = self.fit_logo(img, max_w, max_h)
         x = int(cx - fit["w"] / 2)
         top = int(y - fit["h"] / 2) if valign == "middle" else int(y)
-        screen.blit(fit["surf"], (x, top))
+        self.logo_rect = (x, top, fit["w"], fit["h"])      # where the logo intro ends
+        a = self.logo_alpha                                # 0 during the game's logo intro
+        if a <= 0.01:
+            return fit["h"]
+        if a < 0.99:
+            fit["surf"].set_alpha(int(255 * a))
+            screen.blit(fit["surf"], (x, top))
+            fit["surf"].set_alpha(255)
+        else:
+            screen.blit(fit["surf"], (x, top))
         ph = (now % 4.5) / 0.9                             # reflet toutes les 4,5 s
         if ph <= 1.0:
-            bw = fit["band"].get_width()
-            tmp = pg.Surface((fit["w"], fit["h"]), pg.SRCALPHA)
-            tmp.blit(fit["band"], (int(-bw + (fit["w"] + bw) * ph), 0))
-            tmp.blit(fit["mask"], (0, 0), special_flags=pg.BLEND_RGBA_MULT)
-            screen.blit(tmp, (x, top))
+            self.shine(screen, fit, x, top, ph, a)
         return fit["h"]
 
     # ------------------------------------------------------------ dessin d'une image
     def render(self, screen, eng):
         now = self.clock()
-        st = eng.state
         if eng.mode != "game":
             screen.fill((0, 0, 0))
             self.FPS = HDRenderer.FPS
+            self.intro_t0 = None
             return
+        lt = self._intro_time(eng, now)
+        cross = 1.0 if lt is None else max(0.0, min(1.0, (lt - (self.intro_len - 0.45)) / 0.45))
+        self.logo_alpha = 1.0 if lt is None else 0.0       # the intro's logo goes to the scene's logo at the end
+        self.enter = cross
+        self.logo_rect = None
+        self._render_scene(screen, eng, now)
+        self.logo_alpha = self.enter = 1.0
+        if lt is not None:
+            self._draw_intro(screen, now, lt, cross)
+
+    # ------------------------------------------------------------ logo du jeu au lancement
+    def _intro_time(self, eng, now):
+        """Seconds since the game started, while its logo intro is on, otherwise None."""
+        serial = getattr(eng, "intro_serial", 0)
+        if serial != self.intro_serial:
+            self.intro_serial = serial
+            self.intro_t0 = now
+            try:
+                self.intro_len = max(1.0, min(10.0, float((getattr(eng, "intro_cfg", None) or {}).get("seconds", 2.6))))
+            except (TypeError, ValueError):
+                self.intro_len = 2.6
+        if self.intro_t0 is None:
+            return None
+        lt = now - self.intro_t0
+        if lt < 0 or lt >= self.intro_len:
+            self.intro_t0 = None
+            return None
+        return lt
+
+    def _draw_intro(self, screen, now, lt, cross):
+        """The logo comes in big on a dark screen, with a white flash and a light sweep, then takes its place."""
+        pg, W, S = self.pg, self.W, self.S
+        fade = min(1.0, lt / 1.6)
+        dark = int(255 * (1 - fade) * 0.95)
+        if dark > 0:
+            if self.veil is None or self.veil.get_size() != screen.get_size():
+                self.veil = pg.Surface(screen.get_size()).convert()
+                self.veil.fill((0, 0, 0))
+            self.veil.set_alpha(dark)
+            screen.blit(self.veil, (0, 0))
+        if 0.45 < lt < 1.2:                                          # white flash when it lands
+            k = max(0.0, 1 - abs(lt - 0.6) / 0.6) * 0.35
+            if self.flash_glow is None:                              # soft ellipse, blurred small then enlarged (quick)
+                gw, gh = S(1040) + S(240), S(260) + S(240)
+                q = 4
+                m = Image.new("L", (max(4, gw // q), max(4, gh // q)), 0)
+                ImageDraw.Draw(m).ellipse([S(120) / q, S(120) / q, (gw - S(120)) / q, (gh - S(120)) / q], fill=255)
+                m = m.filter(ImageFilter.GaussianBlur(max(1, S(60) / q))).resize((gw, gh), Image.BILINEAR)
+                self.flash_glow = self._surf(Image.merge("RGB", (m, m, m)))
+            g = self.flash_glow.copy()
+            v = int(255 * k)
+            g.fill((v, v, v), special_flags=pg.BLEND_RGB_MULT)
+            screen.blit(g, (int(W / 2 - g.get_width() / 2), int(S(190) - g.get_height() / 2)), special_flags=pg.BLEND_RGB_ADD)
+        logo = self.logo
+        if logo is None:
+            return
+        a = min(1.0, lt / 0.3)
+        fit = self.fit_logo(logo, S(1000), S(220))
+        sc = 0.55 + 0.45 * min(1.0, lt / 0.5) ** 0.5
+        sc *= 1.0 + 0.04 * max(0.0, 1 - abs(lt - 0.55) / 0.25)
+        w, h, cx, cy = fit["w"] * sc, fit["h"] * sc, W / 2, S(190)
+        if cross > 0:                                                # glides to the scene's own logo
+            dest = self.logo_rect
+            if dest is None:
+                a *= 1.0 - cross
+            else:
+                e = cross * cross * (3 - 2 * cross)
+                dx, dy, dw, dh = dest
+                cx, cy = cx + (dx + dw / 2 - cx) * e, cy + (dy + dh / 2 - cy) * e
+                w, h = w + (dw - w) * e, h + (dh - h) * e
+        if a <= 0.01:
+            return
+        size = (max(1, int(round(w))), max(1, int(round(h))))
+        surf = fit["surf"]
+        if size != (fit["w"], fit["h"]):
+            surf = pg.transform.smoothscale(surf, size)
+        x, top = int(cx - size[0] / 2), int(cy - size[1] / 2)
+        surf.set_alpha(int(255 * a))
+        screen.blit(surf, (x, top))
+        surf.set_alpha(255)
+        if surf is fit["surf"] and lt >= 0.8:                       # light sweeps across the logo
+            ph = ((lt - 0.8) % 1.0) / 0.9
+            if ph <= 1.0:
+                self.shine(screen, fit, x, top, ph, a)
+
+    def _render_scene(self, screen, eng, now):
+        st = eng.state
         vals, meta = st.values, st.meta
         key = meta.get("game") or ""
         title = meta.get("title") or ""
@@ -427,7 +547,7 @@ class HDRenderer:
             if self.fight is None:
                 self.fight = FightFX(self)
             self.FPS = MetalSlugScene.FPS
-            self.fight.update(vals, now, key, g)
+            self.fight.update(vals, now, key, g, idle=self._nobody(vals))
             target = self.fight.begin(screen, now)
             self.draw_fight(target, eng, vals, logo, now)
             self.fight.end(screen, target, now)
@@ -438,6 +558,12 @@ class HDRenderer:
         else:
             self.draw_generic(screen, eng, vals, logo, now, key)
         self.pg.draw.rect(screen, LINE, (0, self.S(444), self.W, max(2, self.S(8))))
+
+    @staticmethod
+    def _nobody(vals):
+        """Nobody plays (the game's demo runs): attract screen. / Personne ne joue : écran d'attente."""
+        p1m, p2m = vals.get("p1_mode"), vals.get("p2_mode")
+        return p1m is not None and p1m not in (1, 2) and p2m not in (1, 2)
 
     def _pulse(self, now, period=1.2):
         a = 0.55 + 0.45 * (0.5 + 0.5 * math.cos(now * 2 * math.pi / period))
@@ -469,6 +595,12 @@ class HDRenderer:
         p2_in = p2m in (1, 2)
         if known and not p1_in and not p2_in:                 # personne ne joue : démo du jeu
             self.draw_logo(screen, logo, W / 2, S(190), S(1000), S(220), now, valign="middle")
+            if self.coins_on:                                 # monnayeurs, pièces, crédits, boutons START
+                if self.coins is None:
+                    self.coins = CoinDoors(self)
+                fx = self.fight.fx if self.fight is not None else None
+                self.coins.draw(screen, vals, now, fx, (getattr(eng, "cfg", None) or {}).get("coin_symbol", "€"), self.enter)
+                return
             word, col = self._invite(vals, now)
             credits = _num(vals.get("credits"))
             msg = tr(f"CRÉDITS {int(credits):02d}", f"CREDITS {int(credits):02d}") if credits else word

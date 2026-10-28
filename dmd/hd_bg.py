@@ -979,8 +979,7 @@ class Backdrop:
             cx = x + math.cos(math.radians(ang)) * ln / 2
             cy = y + math.sin(math.radians(ang)) * ln / 2
             screen.blit(g, (int(cx - g.get_width() / 2), int(cy - g.get_height() / 2)), special_flags=self.pg.BLEND_RGB_ADD)
-            h = sp.glow(16 * self.s, (255, 250, 230), 10, hot=0.8)
-            screen.blit(h, (int(x - h.get_width() / 2), int(y - h.get_height() / 2)), special_flags=self.pg.BLEND_RGB_ADD)
+            # no bright dot on the lamps any more: the beams alone (1.16) / plus de point lumineux sur les lampes
 
     def _flashes(self, amb, now, dt):
         """Flashs d'appareils photo dans le public."""

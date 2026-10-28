@@ -18,6 +18,11 @@ For the Metal Slug games, mslug_tank.gif (or mslug_tank.png as a strip of 3 fram
 replaces the tank. 5 pixels high at most, cannon facing right.
 For shoot'em ups, neogeo_ship.gif (or .png) replaces the ship.
 
+For the coin screen of the Neo Geo fighting games (nobody playing),
+insert_coin.gif (or insert_coin.png), 128x32, replaces the coin and
+INSERT COIN as long as there is no credit. A Pixelcade GIF works.
+The coin still drops and the credits still roll when you insert one.
+
 
 Francais
 ========
@@ -38,3 +43,8 @@ Pour Sonic 2, sonic2.gif (ou sonic2.png) passe en priorite s il existe.
 Pour les Metal Slug, mslug_tank.gif (ou mslug_tank.png en bande de 3 images)
 remplace le char. 5 pixels de haut au plus, canon vers la droite.
 Pour les shoot'em up, neogeo_ship.gif (ou .png) remplace le vaisseau.
+
+Pour l ecran des pieces des jeux de combat Neo Geo (personne ne joue),
+insert_coin.gif (ou insert_coin.png), 128x32, remplace la piece et
+INSERT COIN tant qu il n y a pas de credit. Un GIF de la Pixelcade convient.
+La piece tombe et les credits roulent toujours quand tu en mets une.

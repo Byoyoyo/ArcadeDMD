@@ -6,6 +6,12 @@
     "show": false
   },
   "show_pause": true,
+  "intro": {
+    "logo": true,
+    "seconds": 2.6,
+    "launchbox": ""
+  },
+  "coin_symbol": "€",
   "outputs": {
     "zedmd": {
       "enabled": false,
@@ -26,7 +32,8 @@
       "mode": "games",
       "takeover": "known",
       "style": "led",
-      "launchbox": ""
+      "launchbox": "",
+      "coins": true
     },
     "pixelcade": {
       "enabled": false,

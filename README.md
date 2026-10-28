@@ -11,6 +11,7 @@ Live score, lives, credits and game events from MAME and RetroArch games, shown 
 - Reads the game memory live, with a MAME plugin or through RetroArch's network commands (FinalBurn Neo, Genesis Plus GX). Nothing in the game or the emulator is modified.
 - Ready-made scenes for Metal Slug 1 to 5 and X, the 57 Neo Geo fighting games, every other Neo Geo game by genre, After Burner II, Sonic 1 and 2.
 - HD scenes with animated backgrounds that follow the game's stage or mission, and an effect for every event (hits, combos, K.O., weapons, bombs, coins...).
+- The game's logo when it starts (your LaunchBox Clear Logo). With nobody playing, the fighting games wait for a coin. Insert one and it drops into the slot, the credits roll, then PRESS START.
 - A learning tool finds the missing addresses (score, credits...) from a few captures.
 - English and French. Windows, Python 3.12 or newer.
 
@@ -216,9 +217,27 @@ The logo comes from your LaunchBox Clear Logo images. ArcadeDMD finds the Launch
 
 - Fighting games. At the top, each player's score, or CHALLENGER and BEAT BY in a VS match. In the middle, the health bars, with a light trail showing the hit just taken, and the timer or KO. At the bottom, P1, P2 or CPU with the current fighter, the full team in King of Fighters '96 to 2000 (fighters already beaten are crossed out), and the credits.
 - Other games. The logo, each player's score, then at the bottom the weapon, lives, bombs, time and credits when they are known.
-- Nobody playing. A large logo, and INSERT COIN or the credits.
+- Nobody playing. A large logo, and INSERT COIN or the credits. In the fighting games, the logo sits between two coin doors (Coin screen, section 7).
 
 The Pixelcade and ZeDMD panels keep the scene at 128 x 32, which is their LED resolution.
+
+### Game logo when a game starts
+
+When a game starts, its logo comes first. On the HD screen it arrives big on a dark screen, with a flash and a light sweep, then glides to its place in the scene. On the Pixelcade and ZeDMD panels it zooms in on the 128 x 32 LEDs, then the scene comes. The Pixelcade shows it as soon as pixelweb has handed the panel over.
+
+It is the game's LaunchBox Clear Logo, found as described just above. On a panel, a game without a Clear Logo goes straight to its scene. On the HD screen, its title in metallic lettering is used instead.
+
+```json
+"intro": {
+  "logo": true,
+  "seconds": 2.6,
+  "launchbox": ""
+}
+```
+
+- `"logo": false` turns it off, on the panel and on the HD screen.
+- `"seconds"` is how long it lasts, from 1 to 10 seconds.
+- `"launchbox"` is the LaunchBox folder, when it is not found by itself. With a panel and no HD screen, set it here. The one in the `preview` section works too.
 
 ### Animated HD scenes, Metal Slug and fighting games
 
@@ -472,7 +491,7 @@ Neo Geo games known to MAME (clones included) get a shared scene based on their 
 
 | Genre | File | What is shown |
 |---|---|---|
-| Fighting (King of Fighters, Samurai Shodown, Fatal Fury, Art of Fighting, World Heroes...) | `neogeo_combat.json` | Vera style. At the top the score, or the title as long as the score has not been learned, and INSERT COIN blinking on the computer's side. In the middle the green health bars and the timer, "KO" at the end of the fight (52 games, see the Fighting games table), otherwise "VS". At the bottom "P1", and "CPU" or "P2" opposite. In 34 games, the name of the character currently fighting shows next to it ("P1 RALF" and "LEONA CPU"). The credits under the timer when they are known. A thin orange line at the very bottom |
+| Fighting (King of Fighters, Samurai Shodown, Fatal Fury, Art of Fighting, World Heroes...) | `neogeo_combat.json` | Vera style. At the top the score, or the title as long as the score has not been learned, and on the computer's side INSERT COIN blinking, or the credits and PRESS START in turn. In the middle the green health bars and the timer in a frame, "KO" at the end of the fight (52 games, see the Fighting games table), otherwise "VS". At the bottom "P1", and "CPU" or "P2" opposite. In 34 games, the name of the character currently fighting shows next to it, in white ("P1 RALF" and "LEONA CPU"). A thin orange line at the very bottom. When nobody is playing, the coin screen (below) |
 | Shoot'em up (Blazing Star, Pulstar, Last Resort, Aero Fighters...) | `neogeo_shoot.json` | a small ship flying through a star field, firing when the score goes up |
 | Sports and racing (Super Sidekicks, Neo Turf Masters, Windjammers...) | `neogeo_sport.json` | a field with a bouncing ball |
 | Puzzle, quiz, mahjong (Puzzle Bobble, Magical Drop...) | `neogeo_reflexion.json` | a row of colored blocks that keep changing |
@@ -485,7 +504,19 @@ Neo Geo games known to MAME (clones included) get a shared scene based on their 
 - A game that has its own file (the Metal Slug games, for example) always takes priority over the shared scene.
 - The KOF 98 score was found with `learn.bat`. It is stored in each player's data block, and that block is the same from KOF 96 to 2001 (health bar and power gauge at the same addresses). So the score of these games is read from the same place. If the panel does not show the same score as the screen in one of them, learn it with `learn.bat`, and the address found replaces the assumed one.
 - In King of Fighters '96 to 2000, each team is read from the game memory (chosen characters, fighting order, characters already beaten). The name changes by itself when the next character steps in. `test_retroarch.bat` shows both characters read, which is handy for checking.
-- The Neo Geo BIOS tells who is playing. Against the computer, "CPU" shows opposite and INSERT COIN blinks on its side (PRESS START if there are credits left). With two players, both scores are at the top. When nobody is playing, the title scrolls at the top and INSERT COIN blinks at the bottom.
+- The Neo Geo BIOS tells who is playing. Against the computer, "CPU" shows opposite, with INSERT COIN blinking on its side, or the credits and PRESS START in turn when there are credits left. With two players, both scores are at the top. When nobody is playing, the coin screen just below.
+
+### Coin screen (fighting games)
+
+When nobody is playing, the Neo Geo fighting games wait for a coin, on the panel and on the HD screen. The coin drops only when the credits really go up, so the credits have to be known. MAME reads them for every Neo Geo game. With RetroArch, learn them first (see above).
+
+- On the panel, a € coin floats above a coin slot, next to INSERT COIN. Insert a coin and it drops into the slot, +1 rises and the credit counter rolls. A moment later, PRESS START shows with a red button and the credits underneath. The title keeps scrolling at the top.
+- On the HD screen, the game's logo sits between two coin doors, with a coin spinning above each one. Insert a coin and one of them turns on its edge and drops into its slot, with sparks, +1 and the counter rolling. Then the doors make way for the 1P and 2P START buttons and PRESS START.
+- As long as no coin goes in, nothing drops. The game's own demo fights, behind, set off no effect on the HD screen.
+- At the top of `config.json`, `"coin_symbol": "€"` is the symbol on the coins. `"$"` and `"£"` work too, and `""` gives a plain coin.
+- Your own INSERT COIN animation for the panel (a Pixelcade GIF, for example) goes in `sprites\insert_coin.gif` (or `.png`), 128 x 32. It replaces the coin screen as long as there is no credit, and the coin still drops when you insert one.
+- In the `preview` section, `"coins": false` brings back the plain INSERT COIN on the HD screen.
+- `demo_fight.bat` now starts on this screen. Two coins go in, START is pressed, then the fight begins. In a game file, `"demo": {"attract": false}` goes straight to the fight.
 
 ### Learning the score
 

@@ -418,6 +418,13 @@ class PixelcadeOutput:
             # petit délai : enchaîner deux jeux ne relance pas pixelweb pour rien
             self.release_at = time.time() + self.RELEASE_DELAY
 
+    def panel_ready(self):
+        """False while the panel is being taken over (pixelweb stopping, serial port opening): the game's logo
+        waits for it. / Faux pendant la prise de la dalle : le logo du jeu attend qu'elle soit à nous."""
+        if self.mode == "off" or not self.want:
+            return True
+        return self.dev is not None or self.failed or time.time() < self.blocked_until
+
     def send(self, frame):
         now = time.time()
         if self.release_at is not None and now >= self.release_at:

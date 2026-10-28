@@ -17,7 +17,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 
 from .canvas import Canvas, Font, parse_color
-from .scene import Scene, Ctx, GameState
+from .scene import Scene, Ctx, GameState, LogoIntro
 from .outputs import ZeDMDOutput, PreviewOutput, GifRecorder, NullOutput
 from .pixelcade import PixelcadeOutput, guess_pixelcade_dir, list_ports
 from .retroarch import RetroArchSource
@@ -25,7 +25,7 @@ from .memvalues import derive, game_values
 from .textfiles import TextFiles
 from .i18n import tr
 
-VERSION = "1.15.0"
+VERSION = "1.16.0"
 
 DEFAULT_CONFIG = {
     "language": "auto",
@@ -281,9 +281,23 @@ class Simulator:
         self.backdrops = len(((game or {}).get("hd") or {}).get("stages") or []) or 8
         if "mission" in self.names and not self.values.get("mission"):
             self.values["mission"] = 1
+        # fighting games: first the attract screen (INSERT COIN, two coins, PRESS START), then the fight
+        # jeux de combat : d'abord l'écran d'attente (deux pièces, PRESS START), puis le combat ("attract": false sans)
+        self.t0 = None
+        self.attract = None
+        self.hidden = ()
+        if demo.get("attract", True) and len(self.fighters) == 2 and "p1_mode" in self.names:
+            self.attract = [(4.0, {"credits": 1}), (6.0, {"credits": 2}), (11.0, {"p1_mode": 1, "credits": 1})]
+            self.values["p1_mode"] = 0
+            if "p2_mode" in self.values:
+                self.values["p2_mode"] = 0
+            if "credits" in self.values:
+                self.values["credits"] = 0
+            self.hidden = tuple(n for n in ("health", "health_p2", "time") if n in self.values)   # pas encore de combat
         for n in self.names:
             ln = n.lower()
-            state.update(n, self.values[n], 0.0, quiet=True)
+            if n not in self.hidden:
+                state.update(n, self.values[n], 0.0, quiet=True)
             if "score" in ln or "point" in ln or "ring" in ln or "anneau" in ln or "record" in ln:
                 self.next[n] = 1.0
             elif "credit" in ln or "live" in ln or "vie" in ln:
@@ -345,7 +359,29 @@ class Simulator:
             self.ko_until = t + 2.5
         self.fight_next = t + self.rng.uniform(0.6, 2.2)
 
+    def _attract(self, t):
+        """Écran d'attente du jeu de combat : True tant que la partie n'a pas commencé."""
+        lt = t - self.t0
+        while self.attract and lt >= self.attract[0][0]:
+            for n, v in self.attract.pop(0)[1].items():
+                if n in self.values:
+                    self._set(n, v, t)
+        if self.attract:
+            return True
+        self.attract = None
+        for n in self.hidden:                      # la partie commence : barres pleines, chrono
+            self._set(n, self.values[n], t)
+        self.hidden = ()
+        self.fight_next = t + 1.0
+        for n in self.names:                       # les valeurs bougent à partir de maintenant
+            self.next[n] = t + self.next[n]
+        return False
+
     def step(self, t):
+        if self.t0 is None:
+            self.t0 = t
+        if self.attract is not None and self._attract(t):
+            return
         self._fight(t)
         for n in self.names:
             if t < self.next[n]:
@@ -409,6 +445,7 @@ class Engine:
         self.log = log
         self.canvas = Canvas()
         self.ctx = Ctx(self.canvas, root, log)
+        self.ctx.cfg = config
         self.state = GameState()
         self.ctx.state = self.state
         self.library = GameLibrary(root, log)
@@ -430,6 +467,24 @@ class Engine:
             attach = getattr(out, "attach", None)
             if attach is not None:
                 attach(self)
+        # game logo at the start of a game (LaunchBox Clear Logo), on the panel and on the HD screen
+        # logo du jeu au lancement (Clear Logo de LaunchBox), sur la dalle et sur l'écran HD
+        self.intro_cfg = config.get("intro") if isinstance(config.get("intro"), dict) else {}
+        self.intro = None             # LogoIntro en cours sur la dalle
+        self.intro_wait = None        # jeu lancé : on attend l'index LaunchBox et la dalle (Pixelcade qui se libère)
+        self.intro_serial = 0         # +1 à chaque lancement : l'écran HD joue aussi son intro
+        self.logos = None
+        if self.intro_cfg.get("logo", True):
+            for out in outputs:
+                hv = getattr(out, "hd_view", None)
+                if hv is not None and getattr(hv, "logos", None) is not None:
+                    self.logos = hv.logos          # même index que l'écran HD
+                    break
+            if self.logos is None:
+                from .launchbox import LogoFinder
+                pv = (config.get("outputs") or {}).get("preview") or {}
+                lb = self.intro_cfg.get("launchbox") or pv.get("launchbox") or ""
+                self.logos = LogoFinder(root, {"launchbox": lb}, log, label=("logo au lancement", "logo at launch"))
         self.sim = None
         self.demo_until = None
         self.source = None
@@ -496,11 +551,13 @@ class Engine:
         self.source = None
         self.sim = None
         self.demo_until = None
+        self.intro = None
+        self.intro_wait = None
         idle = self.cfg.get("idle", {})
         self.state.reset({"title": idle.get("text", "INSERT COIN"), "idle_text": idle.get("text", "INSERT COIN")})
         self.set_scene("_idle")
 
-    def start_game(self, meta, source):
+    def start_game(self, meta, source, intro=True):
         key = meta.get("game") or ""
         if not key or key not in self.library.games:
             key = self.library.match(meta) or ""
@@ -530,6 +587,12 @@ class Engine:
             self.sim = None
             self.demo_until = None
         self.set_scene(key if key else "_generic")
+        self.intro = None
+        self.intro_wait = None
+        if intro and self.intro_cfg.get("logo", True):
+            self.intro_serial += 1
+            self.intro_wait = {"since": None, "roms": [meta.get("system") or "", meta.get("parent") or ""],
+                               "title": title, "path": None}
         self.log(tr(f"jeu : {meta.get('system')} « {title} » -> scène {self.scene_key}",
                     f"game: {meta.get('system')} \"{title}\" -> scene {self.scene_key}"))
 
@@ -583,8 +646,8 @@ class Engine:
             self.start_game(ev, source)
         elif t in ("v", "hb"):
             if self.mode != "game" or self.source != source:
-                # reprise après un silence (menu MAME ouvert longtemps, moteur relancé en cours de partie)
-                self.start_game(self.last_start or {"system": "?", "description": ""}, source)
+                # reprise après un silence (menu MAME ouvert longtemps, moteur relancé en cours de partie) : sans le logo
+                self.start_game(self.last_start or {"system": "?", "description": ""}, source, intro=False)
             # état des joueurs d'abord : il dit si un score qui tombe à 0 est une vraie remise à zéro
             for k, v in sorted((ev.get("v") or {}).items(), key=lambda kv: not kv[0].endswith("_mode")):
                 if k in self.hold_zero and self._hold_zero(k, v, now):
@@ -670,9 +733,59 @@ class Engine:
         cv.hline(x - 2, x + w + 1, 21, scale(color, 0.5))
         cv.text(font, text, x, 12, color)
 
+    def _panels_ready(self):
+        """Faux tant qu'une dalle n'est pas encore à nous (la Pixelcade attend que pixelweb la libère)."""
+        for out in self.outputs:
+            fn = getattr(out, "panel_ready", None)
+            if fn is not None:
+                try:
+                    if not fn():
+                        return False
+                except Exception:
+                    pass
+        return True
+
+    def _intro_start(self, now):
+        """Jeu lancé : le logo arrive dès que LaunchBox l'a trouvé et que la dalle est prête.
+        Renvoie True s'il faut garder la dalle noire en attendant (logo trouvé, dalle pas encore libre)."""
+        w = self.intro_wait
+        if w["since"] is None:
+            w["since"] = now
+        waited = now - w["since"]
+        logos = self.logos
+        if logos is None or waited > 10.0:
+            self.intro_wait = None
+            return False
+        if w["path"] is None:
+            if not logos.ready:                    # index LaunchBox pas encore prêt (ArcadeDMD tout juste lancé)
+                if waited > 4.0:
+                    self.intro_wait = None
+                return False
+            try:
+                w["path"] = logos.find(w["roms"], w["title"]) or ""
+            except Exception:
+                w["path"] = ""
+            if not w["path"]:
+                self.intro_wait = None
+                return False
+        if not self._panels_ready() and waited < 8.0:
+            return True
+        try:
+            self.intro = LogoIntro(w["path"], now, float(self.intro_cfg.get("seconds", 2.6)))
+        except Exception as e:
+            self.log(tr(f"logo au lancement illisible {w['path']} ({e})", f"unreadable launch logo {w['path']} ({e})"))
+        self.intro_wait = None
+        return False
+
     def render(self, now):
         self.ctx.t = now
-        self.scene.render(self.ctx)
+        black = self._intro_start(now) if self.intro_wait is not None else False
+        if self.intro is not None and not self.intro.draw(self.canvas, now):
+            self.intro = None
+        if black:
+            self.canvas.clear((0, 0, 0))
+        elif self.intro is None:
+            self.scene.render(self.ctx)
         if self.state.paused and self.cfg.get("show_pause", True) and int(now * 2) % 2 == 0:
             cv = self.canvas
             f = Font.get("5x8")
