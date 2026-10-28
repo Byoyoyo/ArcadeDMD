@@ -118,6 +118,9 @@ PANEL_WORDS = (                  # (French, English)
     ("TEMPS", "TIME"),
     ("VIES", "LIVES"),
     ("ARME", "ARMS"),
+    ("SUIVANTE", "NEXT"),
+    ("COUP", "STROKE"),
+    ("VENT", "WIND"),
     ("SCORE ?", "SCORE?"),
     ("J1", "P1"),
     ("J2", "P2"),
@@ -821,6 +824,118 @@ class ImageEl(Element):
             ctx.canvas.sprite(fr, self.spec.get("x", 0), self.spec.get("y", 0), alpha=self.alpha)
 
 
+def _int_value(ctx, name):
+    v = ctx.state.values.get(name)
+    if isinstance(v, bool) or not isinstance(v, (int, float)):
+        return None
+    return int(v)
+
+
+class IconsEl(Element):
+    """A small drawing repeated for a value: lives as ships, bombs, power pips.
+    "pattern": rows of characters, "." empty, other characters colored by "colors" (or "color").
+    "max": at most this many, "empty": color of the slots left (up to max), "align": "left" or "right".
+
+    Un petit dessin répété autant de fois que la valeur : vies en vaisseaux, bombes, niveaux de puissance."""
+
+    def __init__(self, spec, root, log):
+        super().__init__(spec, root, log)
+        rows = spec.get("pattern") or ["#"]
+        base = parse_color(spec.get("color"), (255, 255, 255))
+        cmap = {k: parse_color(v, base) for k, v in (spec.get("colors") or {}).items()}
+        self.points = [(x, y, cmap.get(ch, base)) for y, row in enumerate(rows) for x, ch in enumerate(row) if ch not in ". "]
+        self.w = max((len(r) for r in rows), default=1)
+        self.empty = parse_color(spec.get("empty"), None) if spec.get("empty") else None
+
+    def render(self, ctx):
+        s = self.spec
+        n = _int_value(ctx, s.get("var", "lives"))
+        if n is None:
+            return
+        mx = int(s.get("max", 8))
+        n = max(0, min(n, mx))
+        slots = mx if self.empty is not None else n
+        gap = int(s.get("gap", 1))
+        x0, y0 = int(s.get("x", 0)), int(s.get("y", 0))
+        right = s.get("align") == "right"
+        flash = _flash_color(s, ctx, None)
+        cv = ctx.canvas
+        for i in range(slots):
+            ox = x0 - (i + 1) * self.w - i * gap + 1 if right else x0 + i * (self.w + gap)
+            for (px, py, c) in self.points:
+                col = c if i < n else self.empty
+                if i < n and flash is not None:
+                    col = flash
+                cv.set(ox + px, y0 + py, col)
+
+
+class DotEl(Element):
+    """A round dot whose color comes from a value: the bubbles of Puzzle Bobble.
+    "colors": color of each value (0, 1, 2...), "r": radius, "shine": a light pixel at the top left.
+
+    Un disque dont la couleur vient d'une valeur : les bulles de Puzzle Bobble."""
+
+    def render(self, ctx):
+        s = self.spec
+        v = _int_value(ctx, s.get("var", ""))
+        cols = s.get("colors") or []
+        if v is None or not 0 <= v < len(cols) or not cols[v]:
+            return
+        col = parse_color(cols[v], (255, 255, 255))
+        rim = parse_color(s.get("rim"), None) if s.get("rim") else None
+        cx, cy, r = float(s.get("x", 0)), float(s.get("y", 0)), float(s.get("r", 3))
+        cv = ctx.canvas
+        for y in range(int(math.floor(cy - r)), int(math.ceil(cy + r)) + 1):
+            for x in range(int(math.floor(cx - r)), int(math.ceil(cx + r)) + 1):
+                d = math.hypot(x + 0.5 - cx, y + 0.5 - cy)
+                if d > r:
+                    continue
+                c = col
+                if rim is not None and d > r - 1.0:
+                    c = rim
+                elif d > r * 0.7:
+                    c = scale_color(col, 0.7)
+                cv.set(x, y, c)
+        if s.get("shine", True) and r >= 2.5:
+            cv.add(int(cx - r * 0.45), int(cy - r * 0.45), (255, 255, 255), 0.85)
+
+
+class ArrowEl(Element):
+    """An arrow pointing in the direction of a value: the wind of Neo Turf Masters.
+    "steps": number of directions (16), 0 points up, then clockwise. "ring": circle color around it.
+
+    Une flèche orientée selon une valeur : le vent de Neo Turf Masters."""
+
+    def render(self, ctx):
+        s = self.spec
+        v = _int_value(ctx, s.get("var", ""))
+        if v is None:
+            return
+        steps = max(1, int(s.get("steps", 16)))
+        a = math.radians(360.0 * (v % steps) / steps + float(s.get("offset", 0)))
+        cx, cy, ln = float(s.get("x", 0)), float(s.get("y", 0)), float(s.get("len", 6))
+        col = _flash_color(s, ctx, parse_color(s.get("color"), (255, 255, 255)))
+        cv = ctx.canvas
+        if s.get("ring"):
+            ring = parse_color(s.get("ring"), (60, 60, 80))
+            for k in range(48):
+                t = k * math.tau / 48
+                cv.set(int(round(cx + math.cos(t) * (ln + 1.5))), int(round(cy + math.sin(t) * (ln + 1.5))), ring)
+        dx, dy = math.sin(a), -math.cos(a)
+
+        def line(x0, y0, x1, y1, c):
+            n = int(max(abs(x1 - x0), abs(y1 - y0)) * 2) + 1
+            for i in range(n + 1):
+                k = i / n
+                cv.set(int(round(x0 + (x1 - x0) * k)), int(round(y0 + (y1 - y0) * k)), c)
+
+        tip = (cx + dx * ln, cy + dy * ln)
+        line(cx - dx * ln * 0.8, cy - dy * ln * 0.8, tip[0], tip[1], col)
+        for side in (-1, 1):                                      # pointe de la flèche
+            b = a + math.pi + side * 0.55
+            line(tip[0], tip[1], tip[0] + math.sin(b) * ln * 0.55, tip[1] - math.cos(b) * ln * 0.55, col)
+
+
 # --------------------------------------------------------------------------
 # attract screen of a game with credits / écran d'attente d'un jeu à crédits
 # --------------------------------------------------------------------------
@@ -1142,7 +1257,7 @@ class Scene:
         cls = {
             "text": TextEl, "marquee": MarqueeEl, "bars": BarsEl, "waves": WavesEl, "mountains": MountainsEl, "gauge": GaugeEl,
             "particles": ParticlesEl, "sprite": SpriteEl, "clock": ClockEl,
-            "rect": RectEl, "image": ImageEl, "coinop": CoinOpEl,
+            "rect": RectEl, "image": ImageEl, "coinop": CoinOpEl, "icons": IconsEl, "dot": DotEl, "arrow": ArrowEl,
         }.get(kind)
         if kind == "cycle":
             return CycleEl(spec, self.root, self.log, self._make)

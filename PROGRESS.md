@@ -94,19 +94,19 @@ Scène de combat commune sur la dalle, avec l'écran des pièces depuis la 1.16.
 | World Heroes 2 Jet | ✅ | ✅ | ✅ | ⬜ | ⬜ |
 | World Heroes Perfect | ✅ | ✅ | ✅ | ⬜ | ✅ |
 
-### The other Neo Geo games / Les autres jeux Neo Geo (0 / 97)
+### The other Neo Geo games / Les autres jeux Neo Geo (5 / 97)
 
-The best-known games first. Until its turn, each game keeps the shared scene of its genre.
+The best-known games first. Until its turn, each game keeps the shared scene of its genre. 🟡 in Values means the score still has to be learned with `learn.bat`.
 
-Les plus connus d'abord. En attendant son tour, chaque jeu garde la scène commune de son genre.
+Les plus connus d'abord. En attendant son tour, chaque jeu garde la scène commune de son genre. 🟡 dans Valeurs veut dire que le score reste à apprendre avec `learn.bat`.
 
 | # | Game / Jeu | Genre | Values / Valeurs | Panel / Dalle | HD | Version |
 |---|---|---|---|---|---|---|
-| 1 | Blazing Star | Shoot'em up | 🔨 | 🔨 | 🔨 | 1.17 |
-| 2 | Puzzle Bobble | Puzzle / Réflexion | 🔨 | 🔨 | 🔨 | 1.17 |
-| 3 | Windjammers | Sport | 🔨 | 🔨 | 🔨 | 1.17 |
-| 4 | Shock Troopers | Action | 🔨 | 🔨 | 🔨 | 1.17 |
-| 5 | Neo Turf Masters | Sport (golf) | 🔨 | 🔨 | 🔨 | 1.17 |
+| 1 | Blazing Star | Shoot'em up | 🟡 | ✅ | ✅ | 1.17 |
+| 2 | Puzzle Bobble | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.17 |
+| 3 | Windjammers | Sport | ✅ | ✅ | ✅ | 1.17 |
+| 4 | Shock Troopers | Action | 🟡 | ✅ | ✅ | 1.17 |
+| 5 | Neo Turf Masters | Sport (golf) | ✅ | ✅ | ✅ | 1.17 |
 | 6 | Pulstar | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
 | 7 | Magical Drop III | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
 | 8 | Super Sidekicks 3 | Sport (soccer) / Sport (football) | ⬜ | ⬜ | ⬜ |  |

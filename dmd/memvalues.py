@@ -151,6 +151,7 @@ def game_values(game, system="", parent=""):
 # pick : l'élément de la liste désigné par "at" (un nom de valeur, un nombre ou un autre calcul)
 # find : la position dans la liste de la valeur égale à "eq"
 # names : nombre lu -> texte affiché (sans correspondance, la valeur reste vide)
+#         {"en": [...], "fr": [...]} : les noms dans chaque langue (club de golf, terrain, arme...)
 
 def _resolve(expr, values, depth=0):
     if depth > 8:
@@ -193,6 +194,9 @@ def derive(specs, values):
             continue
         v = _resolve(spec, values)
         names = spec.get("names")
+        if isinstance(names, dict) and names and set(names) <= {"en", "fr"}:   # names in both languages
+            from .i18n import lang
+            names = names.get(lang()) or names.get("en") or names.get("fr")
         if isinstance(names, dict) and v is not None:
             v = names.get(str(v))
         elif isinstance(names, list) and v is not None:

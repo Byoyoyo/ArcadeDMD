@@ -1,0 +1,755 @@
+{
+ "title": "Shock Troopers",
+ "match": [
+  {
+   "system": [
+    "shocktro",
+    "shocktroa"
+   ]
+  }
+ ],
+ "retroarch": {
+  "content": [
+   "shocktro",
+   "shocktroa"
+  ],
+  "ram_base": "0x100000",
+  "ram_size": "0x10000",
+  "swap16": true,
+  "note": "FinalBurn Neo core: Neo Geo 68000 RAM seen from 0x100000, bytes swapped within 16-bit words"
+ },
+ "memory": {
+  "cpu": ":maincpu",
+  "values": {
+   "score": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+   },
+   "score_p2": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+   },
+   "p1_input": {
+    "addr": "0x10FD96",
+    "type": "u8",
+    "note": "BIOS_P1CURRENT: player 1 stick and buttons, 1 up, 2 down, 4 left, 8 right, 16 A, 32 B, 64 C, 128 D (HD scene)"
+   },
+   "p2_input": {
+    "addr": "0x10FD9C",
+    "type": "u8",
+    "note": "BIOS_P2CURRENT: player 2 stick and buttons, same bits (HD scene)"
+   },
+   "energy": {
+    "addr": "0x1001B5",
+    "type": "u8",
+    "note": "player 1 energy, 128 when full (FinalBurn Neo cheats, Infinite Energy PL1)"
+   },
+   "energy_p2": {
+    "addr": "0x1021B5",
+    "type": "u8",
+    "note": "player 2 energy (FinalBurn Neo cheats, Infinite Energy PL2)"
+   },
+   "weapon": {
+    "addr": "0x108DB9",
+    "type": "u8",
+    "shift": 2,
+    "note": "player 1 gun, 0 normal, 1 heavy, 2 vulcan, 3 3-way, 4 buster, 5 flame, 6 rocket, 7 missile, 8 hyper (FinalBurn Neo cheats, Select Normal Weapon PL1, x4 in RAM)"
+   },
+   "ammo": {
+    "addr": "0x108DBB",
+    "type": "u8",
+    "note": "player 1 gun ammo (FinalBurn Neo cheats, Infinite Normal Ammo PL1)"
+   },
+   "special": {
+    "addr": "0x108DC1",
+    "type": "u8",
+    "shift": 2,
+    "note": "player 1 special weapon, team member 1 (solo), 0 grenade to 7 bazooka (FinalBurn Neo cheats, x4 in RAM)"
+   },
+   "bombs": {
+    "addr": "0x108DC3",
+    "type": "u8",
+    "note": "player 1 special ammo, team member 1 (solo) (FinalBurn Neo cheats, Infinite Special Ammo TM1 PL1)"
+   },
+   "weapon_p2": {
+    "addr": "0x108FB9",
+    "type": "u8",
+    "shift": 2,
+    "note": "player 2 gun (FinalBurn Neo cheats, Select Normal Weapon PL2)"
+   },
+   "ammo_p2": {
+    "addr": "0x108FBB",
+    "type": "u8",
+    "note": "player 2 gun ammo (FinalBurn Neo cheats, Infinite Normal Ammo PL2)"
+   },
+   "time": {
+    "addr": "0x108D01",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "timer (FinalBurn Neo cheats, Infinite Time)"
+   },
+   "credits": {
+    "addr": "0xD00034",
+    "type": "bcd",
+    "bytes": 1,
+    "mame_only": true,
+    "note": "MVS credits (backup RAM), readable in MAME only"
+   },
+   "p1_mode": {
+    "addr": "0x10FDB6",
+    "type": "u8",
+    "note": "BIOS: player 1, 0 never played, 1 playing, 2 continue, 3 game over"
+   },
+   "p2_mode": {
+    "addr": "0x10FDB7",
+    "type": "u8",
+    "note": "BIOS: player 2, same values"
+   }
+  }
+ },
+ "hd": {
+  "scene": "shocktro"
+ },
+ "demo": {
+  "attract": true,
+  "credits": 0,
+  "p1_mode": 1,
+  "p2_mode": 0,
+  "energy": 128,
+  "weapon": 0,
+  "ammo": 0,
+  "special": 0,
+  "bombs": 9,
+  "time": 99,
+  "score": 0,
+  "sim": {
+   "time": {
+    "count": [
+     0,
+     99,
+     -1
+    ],
+    "every": 1.0,
+    "start": 1.0
+   },
+   "energy": {
+    "cycle": [
+     128,
+     112,
+     96,
+     96,
+     80,
+     128,
+     64,
+     40
+    ],
+    "every": [
+     2.0,
+     4.0
+    ],
+    "start": 3.0
+   },
+   "weapon": {
+    "cycle": [
+     0,
+     2,
+     2,
+     5,
+     6,
+     0,
+     3
+    ],
+    "every": 6.0,
+    "start": 5.0
+   },
+   "ammo": {
+    "count": [
+     0,
+     200,
+     -7
+    ],
+    "every": 0.25,
+    "start": 5.2
+   },
+   "bombs": {
+    "count": [
+     0,
+     9,
+     -1
+    ],
+    "every": [
+     2.5,
+     5.0
+    ],
+    "start": 4.0
+   },
+   "special": {
+    "cycle": [
+     0,
+     7,
+     4,
+     0
+    ],
+    "every": 12.0,
+    "start": 12.0
+   }
+  }
+ },
+ "scene": {
+  "layers": [
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 1,
+    "y": 1,
+    "align": "left",
+    "segments": [
+     {
+      "text": "{score}",
+      "color": "#ffa830"
+     }
+    ],
+    "when": {
+     "has": "score"
+    },
+    "flash": {
+     "on": "score",
+     "color": "#ffffff",
+     "ms": 120
+    }
+   },
+   {
+    "type": "marquee",
+    "font": "6x10",
+    "y": 1,
+    "x": 0,
+    "w": 70,
+    "speed": 12,
+    "gap": 40,
+    "upper": true,
+    "segments": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#b8d070"
+     }
+    ],
+    "when": {
+     "not": {
+      "has": "score"
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "segments": [
+     {
+      "text": "{score_p2}",
+      "color": "#ffa830"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "var": "p2_mode",
+       "in": [
+        1,
+        2
+       ]
+      },
+      {
+       "has": "score_p2"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "text": "INSERT COIN",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "credits",
+        "gt": 0
+       }
+      }
+     ]
+    },
+    "blink_period": 1.0
+   },
+   {
+    "type": "cycle",
+    "period": 1.5,
+    "when": {
+     "all": [
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "var": "credits",
+       "gt": 0
+      }
+     ]
+    },
+    "pages": [
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "CREDITS {credits}",
+        "color": "#ffa830"
+       }
+      ]
+     },
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "PRESS START",
+        "color": "#ffa830"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "gauge",
+    "var": "energy",
+    "max": 128,
+    "x": 1,
+    "y": 13,
+    "w": 54,
+    "h": 4,
+    "color": "#60f060",
+    "low": "#ff3020",
+    "back": "#3a1010",
+    "bevel": "#d8f0c0",
+    "shade": false,
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "energy"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "5x8",
+    "x": 127,
+    "y": 12,
+    "align": "right",
+    "segments": [
+     {
+      "text": "{weapon_name}",
+      "color": "#b8d070"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "weapon_name"
+      }
+     ]
+    },
+    "flash": {
+     "on": "weapon",
+     "color": "#ffffff",
+     "ms": 700
+    }
+   },
+   {
+    "type": "text",
+    "font": "5x8",
+    "x": 1,
+    "y": 21,
+    "align": "left",
+    "segments": [
+     {
+      "text": "AMMO ",
+      "color": "#8a9a70"
+     },
+     {
+      "text": "{ammo}",
+      "color": "#ececec"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "ammo"
+      },
+      {
+       "var": "weapon",
+       "gt": 0
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "5x8",
+    "x": 127,
+    "y": 21,
+    "align": "right",
+    "segments": [
+     {
+      "text": "{special_name} ",
+      "color": "#b8d070"
+     },
+     {
+      "text": "{bombs}",
+      "color": "#ececec"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "special_name"
+      },
+      {
+       "has": "bombs"
+      }
+     ]
+    },
+    "flash": {
+     "on": "bombs",
+     "color": "#ffffff",
+     "ms": 300
+    }
+   },
+   {
+    "type": "text",
+    "font": "5x8",
+    "x": 64,
+    "y": 21,
+    "align": "center",
+    "segments": [
+     {
+      "text": "{time}",
+      "color": "#ffd060"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "time"
+      },
+      {
+       "not": {
+        "var": "weapon",
+        "gt": 0
+       }
+      }
+     ]
+    }
+   },
+   {
+    "type": "rect",
+    "x": 0,
+    "y": 30,
+    "w": 128,
+    "h": 2,
+    "color": "#4a6a20"
+   },
+   {
+    "type": "coinop",
+    "when": {
+     "all": [
+      {
+       "has": "p1_mode"
+      },
+      {
+       "not": {
+        "var": "p1_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    },
+    "title": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#b8d070"
+     }
+    ],
+    "idle_image": [
+     "sprites/insert_coin.gif",
+     "sprites/insert_coin.png"
+    ]
+   }
+  ]
+ },
+ "derived": {
+  "weapon_name": {
+   "value": "weapon",
+   "names": {
+    "en": [
+     "NORMAL GUN",
+     "HEAVY GUN",
+     "VULCAN GUN",
+     "3-WAY GUN",
+     "BUSTER GUN",
+     "FLAME GUN",
+     "ROCKET GUN",
+     "MISSILE GUN",
+     "HYPER GUN"
+    ],
+    "fr": [
+     "FUSIL",
+     "FUSIL LOURD",
+     "VULCAN",
+     "TIR TRIPLE",
+     "BUSTER",
+     "LANCE-FLAMMES",
+     "ROQUETTES",
+     "MISSILES",
+     "HYPER"
+    ]
+   }
+  },
+  "special_name": {
+   "value": "special",
+   "names": {
+    "en": [
+     "GRENADE",
+     "SMOKE CAN",
+     "CAN GUN",
+     "BOOMERANG",
+     "MISSILE L.",
+     "BOW",
+     "CHEMICAL",
+     "BAZOOKA"
+    ],
+    "fr": [
+     "GRENADE",
+     "FUMIGÈNE",
+     "BIDON",
+     "BOOMERANG",
+     "MISSILES",
+     "ARC",
+     "CHIMIQUE",
+     "BAZOOKA"
+    ]
+   }
+  },
+  "weapon_name_p2": {
+   "value": "weapon_p2",
+   "names": {
+    "en": [
+     "NORMAL GUN",
+     "HEAVY GUN",
+     "VULCAN GUN",
+     "3-WAY GUN",
+     "BUSTER GUN",
+     "FLAME GUN",
+     "ROCKET GUN",
+     "MISSILE GUN",
+     "HYPER GUN"
+    ],
+    "fr": [
+     "FUSIL",
+     "FUSIL LOURD",
+     "VULCAN",
+     "TIR TRIPLE",
+     "BUSTER",
+     "LANCE-FLAMMES",
+     "ROQUETTES",
+     "MISSILES",
+     "HYPER"
+    ]
+   }
+  }
+ }
+}
