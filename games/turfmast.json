@@ -1,0 +1,560 @@
+{
+ "title": "Neo Turf Masters",
+ "match": [
+  {
+   "system": [
+    "turfmast"
+   ]
+  }
+ ],
+ "retroarch": {
+  "content": [
+   "turfmast"
+  ],
+  "ram_base": "0x100000",
+  "ram_size": "0x10000",
+  "swap16": true,
+  "note": "FinalBurn Neo core: Neo Geo 68000 RAM seen from 0x100000, bytes swapped within 16-bit words"
+ },
+ "memory": {
+  "cpu": ":maincpu",
+  "values": {
+   "club": {
+    "addr": "0x106FDF",
+    "type": "u8",
+    "note": "club, 0 1W to 13 putter (FinalBurn Neo cheats, Select Club)"
+   },
+   "power": {
+    "addr": "0x106FE7",
+    "type": "u8",
+    "note": "shot power, 100 = 100 %, 127 at the tee (FinalBurn Neo cheats, Select Shot Power)"
+   },
+   "wind": {
+    "addr": "0x106FE1",
+    "type": "u8",
+    "note": "wind speed, 0 to 19 (FinalBurn Neo cheats, Select Wind Power)"
+   },
+   "wind_dir": {
+    "addr": "0x106FE3",
+    "type": "u8",
+    "note": "wind direction, 0 north then clockwise in 16 steps (FinalBurn Neo cheats, Select Wind Direction)"
+   },
+   "strokes": {
+    "addr": "0x107006",
+    "type": "u8",
+    "note": "player 1 strokes on this hole (FinalBurn Neo cheats, Infinite Strokes PL1), to be confirmed in game"
+   },
+   "strokes_p2": {
+    "addr": "0x10702C",
+    "type": "u8",
+    "note": "player 2 strokes on this hole (FinalBurn Neo cheats, Infinite Strokes PL2)"
+   },
+   "golfer": {
+    "addr": "0x107005",
+    "type": "u8",
+    "note": "player 1 golfer, 0 USA, 1 Brazil, 2 Germany, 3 Japan, 4 Australia, 5 England (FinalBurn Neo cheats, Select Character PL1)"
+   },
+   "credits": {
+    "addr": "0xD00034",
+    "type": "bcd",
+    "bytes": 1,
+    "mame_only": true,
+    "note": "MVS credits (backup RAM), readable in MAME only"
+   },
+   "p1_mode": {
+    "addr": "0x10FDB6",
+    "type": "u8",
+    "note": "BIOS: player 1, 0 never played, 1 playing, 2 continue, 3 game over"
+   },
+   "p2_mode": {
+    "addr": "0x10FDB7",
+    "type": "u8",
+    "note": "BIOS: player 2, same values"
+   }
+  }
+ },
+ "hd": {
+  "scene": "turfmast"
+ },
+ "demo": {
+  "attract": true,
+  "credits": 0,
+  "p1_mode": 1,
+  "p2_mode": 0,
+  "club": 0,
+  "power": 0,
+  "wind": 6,
+  "wind_dir": 3,
+  "strokes": 1,
+  "golfer": 3,
+  "sim": {
+   "power": {
+    "count": [
+     0,
+     100,
+     9
+    ],
+    "every": 0.12,
+    "start": 1.0
+   },
+   "club": {
+    "cycle": [
+     0,
+     1,
+     5,
+     8,
+     11,
+     13
+    ],
+    "every": 6.0,
+    "start": 6.0
+   },
+   "strokes": {
+    "count": [
+     1,
+     5
+    ],
+    "every": 6.0,
+    "start": 6.5
+   },
+   "wind_dir": {
+    "random": [
+     0,
+     15
+    ],
+    "every": 6.0,
+    "start": 6.5
+   },
+   "wind": {
+    "random": [
+     0,
+     19
+    ],
+    "every": 6.0,
+    "start": 6.5
+   }
+  }
+ },
+ "scene": {
+  "layers": [
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 1,
+    "y": 1,
+    "align": "left",
+    "segments": [
+     {
+      "text": "{club_name}",
+      "color": "#ececec"
+     },
+     {
+      "text": " {club_yards}Y",
+      "color": "#8ab08a"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "club_name"
+      }
+     ]
+    },
+    "flash": {
+     "on": "club",
+     "color": "#ffff80",
+     "ms": 400
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "segments": [
+     {
+      "text": "STROKE ",
+      "color": "#8ab08a"
+     },
+     {
+      "text": "{strokes}",
+      "color": "#ececec"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "strokes"
+      }
+     ]
+    },
+    "flash": {
+     "on": "strokes",
+     "color": "#ffff80",
+     "ms": 900
+    }
+   },
+   {
+    "type": "gauge",
+    "var": "power",
+    "max": 100,
+    "x": 1,
+    "y": 13,
+    "w": 94,
+    "h": 5,
+    "color": "#6aff70",
+    "low": "#6aff70",
+    "back": "#103010",
+    "bevel": "#e0ffe0",
+    "shade": false,
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "power"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "5x8",
+    "x": 1,
+    "y": 21,
+    "align": "left",
+    "segments": [
+     {
+      "text": "{golfer_name}",
+      "color": "#ffd060"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "golfer_name"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "4x6",
+    "x": 96,
+    "y": 21,
+    "align": "right",
+    "segments": [
+     {
+      "text": "WIND ",
+      "color": "#8ab08a"
+     },
+     {
+      "text": "{wind}",
+      "color": "#ececec"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "wind"
+      }
+     ]
+    }
+   },
+   {
+    "type": "arrow",
+    "var": "wind_dir",
+    "x": 113,
+    "y": 19,
+    "len": 6,
+    "steps": 16,
+    "color": "#ffffff",
+    "ring": "#2a5a2a",
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "wind_dir"
+      }
+     ]
+    },
+    "flash": {
+     "on": "wind_dir",
+     "color": "#ffff80",
+     "ms": 600
+    }
+   },
+   {
+    "type": "rect",
+    "x": 0,
+    "y": 30,
+    "w": 128,
+    "h": 2,
+    "color": "#2a7a2a"
+   },
+   {
+    "type": "coinop",
+    "when": {
+     "all": [
+      {
+       "has": "p1_mode"
+      },
+      {
+       "not": {
+        "var": "p1_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    },
+    "title": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#6aff70"
+     }
+    ],
+    "idle_image": [
+     "sprites/insert_coin.gif",
+     "sprites/insert_coin.png"
+    ]
+   }
+  ]
+ },
+ "derived": {
+  "club_name": {
+   "value": "club",
+   "names": [
+    "1W",
+    "3W",
+    "4W",
+    "1I",
+    "3I",
+    "4I",
+    "5I",
+    "6I",
+    "7I",
+    "8I",
+    "9I",
+    "PW",
+    "SW",
+    "PT"
+   ]
+  },
+  "club_yards": {
+   "value": "club",
+   "names": [
+    "260",
+    "240",
+    "230",
+    "220",
+    "200",
+    "190",
+    "180",
+    "170",
+    "160",
+    "150",
+    "140",
+    "120",
+    "100",
+    "28"
+   ]
+  },
+  "golfer_name": {
+   "value": "golfer",
+   "names": {
+    "en": [
+     "USA",
+     "BRAZIL",
+     "GERMANY",
+     "JAPAN",
+     "AUSTRALIA",
+     "ENGLAND"
+    ],
+    "fr": [
+     "USA",
+     "BRÉSIL",
+     "ALLEMAGNE",
+     "JAPON",
+     "AUSTRALIE",
+     "ANGLETERRE"
+    ]
+   }
+  }
+ }
+}

@@ -25,7 +25,7 @@ from .memvalues import derive, game_values
 from .textfiles import TextFiles
 from .i18n import tr
 
-VERSION = "1.16.0"
+VERSION = "1.17.0"
 
 DEFAULT_CONFIG = {
     "language": "auto",
@@ -286,7 +286,13 @@ class Simulator:
         self.t0 = None
         self.attract = None
         self.hidden = ()
-        if demo.get("attract", True) and len(self.fighters) == 2 and "p1_mode" in self.names:
+        # values of a game of their own ("demo": {"sim": {...}}): they take turns, count or move at random
+        # valeurs propres à un jeu : elles défilent, comptent ou bougent au hasard ("demo": {"sim": {...}})
+        self.sim = {n: s for n, s in (demo.get("sim") or {}).items() if n in self.names and isinstance(s, dict)}
+        self.sim_next = {n: float(s.get("start", 1.0)) for n, s in self.sim.items()}
+        self.sim_index = {n: 0 for n in self.sim}
+        fighting = len(self.fighters) == 2
+        if demo.get("attract", fighting) and "p1_mode" in self.names:
             self.attract = [(4.0, {"credits": 1}), (6.0, {"credits": 2}), (11.0, {"p1_mode": 1, "credits": 1})]
             self.values["p1_mode"] = 0
             if "p2_mode" in self.values:
@@ -375,7 +381,33 @@ class Simulator:
         self.fight_next = t + 1.0
         for n in self.names:                       # les valeurs bougent à partir de maintenant
             self.next[n] = t + self.next[n]
+        for n in self.sim:
+            self.sim_next[n] = t + self.sim_next[n]
         return False
+
+    def _sim_step(self, t):
+        """Valeurs propres au jeu : "cycle" (une liste, à tour de rôle), "count" (min, max, pas), "random" (min, max).
+        "every" : secondes entre deux changements (ou [min, max])."""
+        for n, s in self.sim.items():
+            if t < self.sim_next[n]:
+                continue
+            ev = s.get("every", 3.0)
+            self.sim_next[n] = t + (self.rng.uniform(*ev) if isinstance(ev, list) and len(ev) == 2 else float(ev))
+            v = self.values.get(n)
+            if isinstance(s.get("cycle"), list) and s["cycle"]:
+                i = self.sim_index[n] = (self.sim_index[n] + 1) % len(s["cycle"])
+                v = s["cycle"][i]
+            elif isinstance(s.get("count"), list) and len(s["count"]) >= 2:
+                lo, hi = s["count"][0], s["count"][1]
+                step = s["count"][2] if len(s["count"]) > 2 else 1
+                v = (v if isinstance(v, (int, float)) else lo) + step
+                if (step > 0 and v > hi) or (step < 0 and v < lo):
+                    v = lo if step > 0 else hi
+            elif isinstance(s.get("random"), list) and len(s["random"]) == 2:
+                v = self.rng.randint(int(s["random"][0]), int(s["random"][1]))
+            else:
+                continue
+            self._set(n, v, t)
 
     def step(self, t):
         if self.t0 is None:
@@ -383,8 +415,10 @@ class Simulator:
         if self.attract is not None and self._attract(t):
             return
         self._fight(t)
+        if self.sim:
+            self._sim_step(t)
         for n in self.names:
-            if t < self.next[n]:
+            if t < self.next[n] or n in self.sim:
                 continue
             ln = n.lower()
             v = self.values[n]

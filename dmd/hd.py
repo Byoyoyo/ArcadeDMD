@@ -25,6 +25,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 from .hd_coin import CoinDoors
 from .hd_fight import FightFX
+from .hd_games import SCENES as GAME_SCENES
 from .hd_mslug import MetalSlugScene, family
 from .i18n import tr
 
@@ -81,6 +82,7 @@ class HDRenderer:
         self.themed = (cfg or {}).get("themes", True)
         self.mslug = None
         self.fight = None
+        self.game_scene = None        # (key, scene) of the game played, games done one by one (hd_games)
         self.coins_on = (cfg or {}).get("coins", True)   # fighting games: coin doors on the attract screen
         self.coins = None
         self.intro_serial = 0         # game logo when a game starts (the engine counts the starts)
@@ -539,6 +541,13 @@ class HDRenderer:
                 self.mslug = MetalSlugScene(self)
             self.FPS = MetalSlugScene.FPS
             self.mslug.render(screen, eng, now, self.logo_for(meta, title))
+            return
+        scene = (g.get("hd") or {}).get("scene") if isinstance(g.get("hd"), dict) else None
+        if self.themed and scene in GAME_SCENES:              # Neo Geo games done one by one (1.17): a scene of their own
+            if self.game_scene is None or self.game_scene[0] != scene:
+                self.game_scene = (scene, GAME_SCENES[scene](self))
+            self.FPS = GAME_SCENES[scene].FPS
+            self.game_scene[1].render(screen, eng, now, self.logo_for(meta, title))
             return
         self.FPS = HDRenderer.FPS
         fight = (g.get("scene_from") or key) == "neogeo_combat" or ("health" in vals and "health_p2" in vals)

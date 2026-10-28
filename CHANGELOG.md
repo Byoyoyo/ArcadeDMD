@@ -3,6 +3,58 @@
 Newest version first. Each version is in English, then in French.
 La version la plus récente en premier. Chaque version est en anglais, puis en français.
 
+## 1.17.0
+
+### English
+
+**Neo Geo games done one by one**
+- Blazing Star, Puzzle Bobble, Windjammers, Shock Troopers and Neo Turf Masters now have a file of their own, with a panel scene and an animated HD scene made for each game. They are the first five, the best-known first. `PROGRESS.md` shows what comes next.
+- Blazing Star. On the panel, the lives as small ships, ROUND and the shot power. On the HD screen, the ship flies above a big planet and fires, an enemy blows up when the score goes up, POWER UP, and ROUND with a burst of speed.
+- Puzzle Bobble. On the panel, the bubble in the launcher and the next one, in their colors. On the HD screen, each bubble shot in the game leaves the launcher and sticks to a little board, and three of a color pop.
+- Windjammers. On the panel, the points of the set with the timer in between, the court and the opponent's country. On the HD screen, the court of the game and the scoreboard. The disc flies into the goal with +3 or +5, or drops on the other side with +2.
+- Shock Troopers. Energy, gun and ammo, special weapon. On the HD screen, a jungle at war with the shots and the grenades blowing up.
+- Neo Turf Masters. Club and distance, stroke, power and wind. On the HD screen, a golf course where the wind pushes the clouds and the flag, and the ball flies to the green at each stroke.
+- The score of Blazing Star, Puzzle Bobble and Shock Troopers is in no database. Learn it with `learn.bat`.
+- When the stick and the buttons can be read (Neo Geo BIOS), the ship and the launcher follow them. Until the player touches them, the scene plays by itself.
+- With nobody playing, the coin screen, as for the fighting games. GAME OVER when the game ends, CONTINUE ? during the countdown.
+- `demo_neogeo.bat` shows these games with simulated values.
+
+**HD screen**
+- The animated backgrounds are 2 to 8 times faster to draw, for Metal Slug and the fighting games too.
+
+**Game files**
+- New panel elements, `icons` (a small drawing repeated for a value, such as lives), `dot` (a disk colored by a value, such as a bubble) and `arrow` (an arrow that turns with a value, such as the wind). See README section 8.
+- `"names"` in `"derived"` can hold one list per language.
+- The `"demo"` section can move the game's own values (`"sim"`), and `"attract": true` starts any game on the coin screen.
+
+**Updating from 1.16**
+Extract the new zip over the old folder (`config.json` and your learned addresses are kept), then run `install.bat` once to update the MAME plugin.
+
+### Français
+
+**Jeux Neo Geo faits un par un**
+- Blazing Star, Puzzle Bobble, Windjammers, Shock Troopers et Neo Turf Masters ont maintenant un fichier à eux, avec une scène de dalle et une scène HD animée faites pour chaque jeu. Ce sont les cinq premiers, les plus connus d'abord. `PROGRESS.md` montre ce qui vient ensuite.
+- Blazing Star. Sur la dalle, les vies en petits vaisseaux, ROUND et la puissance du tir. Sur l'écran HD, le vaisseau vole au-dessus d'une grosse planète et tire, un ennemi explose quand le score monte, POWER UP, et ROUND avec une pointe de vitesse.
+- Puzzle Bobble. Sur la dalle, la bulle dans le lanceur et la suivante, à leurs couleurs. Sur l'écran HD, chaque bulle tirée dans le jeu part du lanceur et colle à un petit plateau, et trois de la même couleur éclatent.
+- Windjammers. Sur la dalle, les points du set avec le chrono entre les deux, le terrain et le pays de l'adversaire. Sur l'écran HD, le terrain du jeu et le tableau des scores. Le palet file dans le but avec +3 ou +5, ou tombe de l'autre côté avec +2.
+- Shock Troopers. L'énergie, l'arme et ses munitions, l'arme spéciale. Sur l'écran HD, une jungle en guerre avec les tirs et les grenades qui explosent.
+- Neo Turf Masters. Le club et sa distance, le coup, la puissance et le vent. Sur l'écran HD, un parcours de golf où le vent pousse les nuages et le drapeau, et la balle part vers le green à chaque coup.
+- Le score de Blazing Star, Puzzle Bobble et Shock Troopers n'est dans aucune base. Apprends-le avec `learn.bat`.
+- Quand le stick et les boutons se lisent (BIOS Neo Geo), le vaisseau et le lanceur les suivent. Tant que le joueur n'y touche pas, la scène joue toute seule.
+- Quand personne ne joue, l'écran des pièces, comme pour les jeux de combat. GAME OVER quand la partie finit, CONTINUE ? pendant le compte à rebours.
+- `demo_neogeo.bat` montre ces jeux avec des valeurs simulées.
+
+**Écran HD**
+- Les décors animés se dessinent 2 à 8 fois plus vite, pour les Metal Slug et les jeux de combat aussi.
+
+**Fichiers de jeu**
+- Nouveaux éléments de dalle, `icons` (un petit dessin répété selon une valeur, comme les vies), `dot` (un disque coloré selon une valeur, comme une bulle) et `arrow` (une flèche qui tourne selon une valeur, comme le vent). Voir la section 8 du README.
+- `"names"` dans `"derived"` peut avoir une liste par langue.
+- La section `"demo"` peut faire bouger les valeurs propres au jeu (`"sim"`), et `"attract": true` fait commencer n'importe quel jeu sur l'écran des pièces.
+
+**Mettre à jour depuis la 1.16**
+Décompresse le nouveau zip par-dessus l'ancien dossier (`config.json` et tes adresses apprises sont gardés), puis lance `install.bat` une fois pour mettre à jour le plugin MAME.
+
 ## 1.16.0
 
 ### English

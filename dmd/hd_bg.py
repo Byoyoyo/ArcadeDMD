@@ -865,8 +865,14 @@ class Backdrop:
                 item["surf"] = hd._surf(L["aurora"])
                 item["kind"] = "aurora"
             else:
-                item["surf"] = hd._surf(L["img"])
+                img = L["img"]
+                item["surf"] = hd._surf(img)
                 item["kind"] = "layer"
+                if img.mode == "RGBA" and img.getchannel("A").histogram()[0] >= 0.65 * img.width * img.height:
+                    try:                                      # mostly empty layer (stars...): its empty runs are skipped (1.17)
+                        item["surf"].set_alpha(255, self.pg.RLEACCEL)
+                    except (AttributeError, self.pg.error):
+                        pass
             item["img"] = item["aurora"] = None
             layers.append(item)
         b = {"sky": hd._surf(raw["sky"]), "layers": layers, "tw": raw["tw"], "amb": raw["amb"],
