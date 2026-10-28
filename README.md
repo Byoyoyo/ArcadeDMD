@@ -618,3 +618,8 @@ To turn this off, set `"enabled": false` in the `textfiles` section of `config.j
 ## Licenses and credits
 
 ArcadeDMD is © 2026 Byoyoyo, released under the MIT license (`LICENSE` file). You may use, modify and share it, as long as the copyright notice and the license stay with it. The bitmap fonts come from the X11 "misc-fixed" fonts (public domain). The HD fonts are Inter (The Inter Project Authors) and Black Ops One (The Black-Ops Project Authors), both under the SIL Open Font License, see the `fonts` folder. The sprites, the HD backgrounds and the effects are drawn by the program or for it, no image comes from a game. ZeDMD (GPLv2 firmware) and libzedmd (GPLv3) are downloaded separately from their official repositories https://github.com/PPUC. Game names are used only to identify the games. The addresses come from the community cheat databases (FinalBurn Neo, MAME 2003-Plus), peon2's training scripts and the Sonic disassemblies, with thanks to their authors.
+
+### Contributors
+
+- **Byoyoyo**, creator and maintainer.
+- **Vera AI**, original idea and inspiration. Vera AI's videos and Sonic DMD for Batocera showed live game scenes on a DMD, read through RetroArch's network commands, and inspired the style of the LED scenes.

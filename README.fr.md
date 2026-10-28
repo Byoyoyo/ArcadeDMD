@@ -618,3 +618,8 @@ Pour couper, mets `"enabled": false` dans la section `textfiles` de `config.json
 ## Licences et crédits
 
 ArcadeDMD © 2026 Byoyoyo, sous licence MIT (fichier `LICENSE`). Tu peux l'utiliser, le modifier et le partager, à condition de garder la mention de copyright et la licence avec. Polices bitmap issues des polices X11 « misc-fixed » (domaine public). Les polices HD sont Inter (The Inter Project Authors) et Black Ops One (The Black-Ops Project Authors), toutes deux sous licence SIL Open Font License, voir le dossier `fonts`. Les sprites, les décors HD et les effets sont dessinés par le programme ou pour lui, aucune image ne vient d'un jeu. ZeDMD (firmware GPLv2) et libzedmd (GPLv3) sont téléchargés séparément depuis leurs dépôts officiels https://github.com/PPUC. Les noms de jeux servent uniquement à les identifier. Les adresses viennent des bases de triche de la communauté (FinalBurn Neo, MAME 2003-Plus), des scripts d'entraînement de peon2 et des désassemblages de Sonic, merci à leurs auteurs.
+
+### Contributeurs
+
+- **Byoyoyo**, créateur et mainteneur.
+- **Vera AI**, idée de départ et inspiration. Ses vidéos et son DMD Sonic pour Batocera montraient des scènes de jeu en direct sur un DMD, lues par les commandes réseau de RetroArch, et ont inspiré le style des scènes LED.
