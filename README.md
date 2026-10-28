@@ -17,7 +17,7 @@ Live score, lives, credits and game events from MAME and RetroArch games, shown 
 
 How it works, in one sentence. A MAME plugin reads the values from the game's RAM, and a small Python program draws the scene and sends it over USB to the panel, or shows it on an LCD screen used as a DMD (section 3).
 
-Download the latest version from the [Releases](../../releases) page, then follow section 2. The changes of each version are in [CHANGELOG.md](CHANGELOG.md). To report a problem or ask for a new game, see [CONTRIBUTING.md](CONTRIBUTING.md).
+Download the latest version from the [Releases](../../releases) page, then follow section 2. The changes of each version are in [CHANGELOG.md](CHANGELOG.md), and the progress game by game, with what comes next, in [PROGRESS.md](PROGRESS.md). To report a problem or ask for a new game, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Already have a Pixelcade LED? It does the job on its own, no need to buy a panel. Go straight to sections 2 and 4. For games launched in RetroArch (Metal Slug, Sonic...), also read section 7.
 
