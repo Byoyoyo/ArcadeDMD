@@ -104,12 +104,12 @@ Mesure d'abord la fenêtre du marquee de ta borne, puis prends la plus grande su
 | 12,3" | 1920 × 720 | 29 × 11 cm | proche de la taille d'un DMD de flipper |
 | 14,9" | 1280 × 390 | 36 × 11 cm | vendu en kit marquee pour les bornes de type Vewlix |
 | 19" | 1920 × 360 | 48 × 9 cm | |
-| 24" | 1920 × 360 | 60 × 11 cm | |
+| 24" | 1920 × 360 | 58 × 11 cm | le format des marquees LCD faits pour l'AtGames Legends Ultimate |
 
 Les scènes HD s'adaptent à l'écran. Elles ont été vérifiées en 1920 × 360, 1280 × 390, 1920 × 480 et 1920 × 720.
 
 Où acheter (prix relevés en octobre 2026)
-- AliExpress, Amazon ou eBay. Cherche « stretched bar LCD HDMI » suivi de la résolution. Prends une version vendue avec sa carte contrôleur HDMI et son alimentation. Une dalle nue (connecteur LVDS ou eDP) demande une carte contrôleur à part. Un 19" 1920 × 360 vendu avec sa carte était annoncé vers 260 $ plus le port sur eBay, envoyé de Chine.
+- AliExpress, Amazon ou eBay. Cherche « stretched bar LCD HDMI » suivi de la résolution. Prends une version vendue avec sa carte contrôleur HDMI et son alimentation. Une dalle nue (connecteur LVDS ou eDP) demande une carte contrôleur à part. Un 19" 1920 × 360 vendu avec sa carte était annoncé vers 260 $ plus le port sur eBay, envoyé de Chine, et un 24" vers 250 £ plus le port. Le module 24" nu mesure 61,3 × 13,2 cm pour 1 cm d'épaisseur, prévois un cadre pour le tenir dans le marquee.
 - Waveshare 12.3inch 1920x720 LCD, en HDMI ou USB-C, vers 110 $, vu par Windows comme un écran normal https://www.waveshare.com/product/displays/12.3inch-1920x720-lcd.htm
 - Arcade Game Sales, marquee LCD 14,9" 1280 × 390 avec cadre métal, pour bornes Vewlix, Chewlix et Game Wizard Xtreme, vers 225 $, en VGA et HDMI https://arcade-game-sales.com/products/lcd-arcade-marquee-for-arcade-cabinets/19366-2.html
 - Un écran de PC classique marche aussi, si le haut de la borne est assez profond et assez haut pour le loger. Cache ce qui dépasse de la fenêtre du marquee, et règle la fenêtre d'ArcadeDMD sur la bande visible avec `x`, `y`, `width` et `height` (section 3).
