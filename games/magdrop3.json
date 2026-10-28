@@ -1,0 +1,789 @@
+{
+ "title": "Magical Drop III",
+ "match": [
+  {
+   "system": [
+    "magdrop3"
+   ]
+  }
+ ],
+ "retroarch": {
+  "content": [
+   "magdrop3"
+  ],
+  "ram_base": "0x100000",
+  "ram_size": "0x10000",
+  "swap16": true,
+  "note": "FinalBurn Neo core: Neo Geo 68000 RAM seen from 0x100000, bytes swapped within 16-bit words"
+ },
+ "memory": {
+  "cpu": ":maincpu",
+  "values": {
+   "score": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+   },
+   "score_p2": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+   },
+   "p1_input": {
+    "addr": "0x10FD96",
+    "type": "u8",
+    "note": "BIOS_P1CURRENT: player 1 stick and buttons, 1 up, 2 down, 4 left, 8 right, 16 A, 32 B, 64 C, 128 D (HD scene)"
+   },
+   "p2_input": {
+    "addr": "0x10FD9C",
+    "type": "u8",
+    "note": "BIOS_P2CURRENT: player 2 stick and buttons, same bits (HD scene)"
+   },
+   "card": {
+    "addr": "0x1000FA",
+    "type": "u8",
+    "mask": 127,
+    "note": "player 1 character (tarot card), 0 Fool to 21 World, 22 Black Pierrot, 23 Strength's Father (FinalBurn Neo cheats, Select Card PL1)"
+   },
+   "card_p2": {
+    "addr": "0x1000FB",
+    "type": "u8",
+    "mask": 127,
+    "note": "player 2 or computer character, same cards (FinalBurn Neo cheats, Select Card PL2)"
+   },
+   "cpu_p2": {
+    "addr": "0x1000FB",
+    "type": "u8",
+    "mask": 128,
+    "shift": 7,
+    "note": "1 when the computer plays the right side (FinalBurn Neo cheats, cards + 0x80)"
+   },
+   "quota": {
+    "addr": "0x100611",
+    "type": "u8",
+    "note": "player 1 quota, drops left to clear to win the battle (MAME 2003-Plus cheats, Always have Quota PL1, battle game)"
+   },
+   "quota_p2": {
+    "addr": "0x100651",
+    "type": "u8",
+    "note": "player 2 or computer quota (MAME 2003-Plus cheats, Always have Quota PL2, battle game)"
+   },
+   "level": {
+    "addr": "0x100626",
+    "type": "u8",
+    "note": "level, it rises during the survival game (FinalBurn Neo cheats, No more level gain)"
+   },
+   "credits": {
+    "addr": "0xD00034",
+    "type": "bcd",
+    "bytes": 1,
+    "mame_only": true,
+    "note": "MVS credits (backup RAM), readable in MAME only"
+   },
+   "p1_mode": {
+    "addr": "0x10FDB6",
+    "type": "u8",
+    "note": "BIOS: player 1, 0 never played, 1 playing, 2 continue, 3 game over"
+   },
+   "p2_mode": {
+    "addr": "0x10FDB7",
+    "type": "u8",
+    "note": "BIOS: player 2, same values"
+   }
+  }
+ },
+ "hd": {
+  "scene": "magdrop3"
+ },
+ "demo": {
+  "attract": true,
+  "credits": 0,
+  "p1_mode": 1,
+  "p2_mode": 0,
+  "card": 1,
+  "card_p2": 5,
+  "cpu_p2": 1,
+  "quota": 40,
+  "quota_p2": 40,
+  "level": 1,
+  "score": 0,
+  "sim": {
+   "quota": {
+    "cycle": [
+     40,
+     37,
+     34,
+     28,
+     25,
+     19,
+     16,
+     13,
+     4,
+     1,
+     0
+    ],
+    "every": [
+     0.9,
+     1.8
+    ],
+    "start": 2.0
+   },
+   "quota_p2": {
+    "cycle": [
+     40,
+     38,
+     36,
+     33,
+     31,
+     27,
+     25,
+     22,
+     20,
+     17,
+     15,
+     12,
+     10
+    ],
+    "every": [
+     1.0,
+     2.0
+    ],
+    "start": 3.0
+   },
+   "level": {
+    "count": [
+     1,
+     20
+    ],
+    "every": 6.0,
+    "start": 6.0
+   },
+   "card": {
+    "cycle": [
+     1,
+     11,
+     19,
+     1
+    ],
+    "every": 12.0,
+    "start": 12.0
+   }
+  }
+ },
+ "scene": {
+  "layers": [
+   {
+    "type": "sprite",
+    "image": [
+     "sprites/blocks.png"
+    ],
+    "frames": 6,
+    "fps": 3,
+    "mode": "fixed",
+    "x": 0,
+    "y": 27,
+    "dim": 0.55,
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 1,
+    "y": 1,
+    "align": "left",
+    "segments": [
+     {
+      "text": "{score}",
+      "color": "#ffa830"
+     }
+    ],
+    "when": {
+     "has": "score"
+    },
+    "flash": {
+     "on": "score",
+     "color": "#ffffff",
+     "ms": 120
+    }
+   },
+   {
+    "type": "marquee",
+    "font": "6x10",
+    "y": 1,
+    "x": 0,
+    "w": 70,
+    "speed": 12,
+    "gap": 40,
+    "upper": true,
+    "segments": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#ff5ad0"
+     }
+    ],
+    "when": {
+     "not": {
+      "has": "score"
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "segments": [
+     {
+      "text": "{score_p2}",
+      "color": "#ffa830"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "var": "p2_mode",
+       "in": [
+        1,
+        2
+       ]
+      },
+      {
+       "has": "score_p2"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "text": "INSERT COIN",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "credits",
+        "gt": 0
+       }
+      }
+     ]
+    },
+    "blink_period": 1.0
+   },
+   {
+    "type": "cycle",
+    "period": 1.5,
+    "when": {
+     "all": [
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "var": "credits",
+       "gt": 0
+      }
+     ]
+    },
+    "pages": [
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "CREDITS {credits}",
+        "color": "#ffa830"
+       }
+      ]
+     },
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "PRESS START",
+        "color": "#ffa830"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "font": "4x6",
+    "x": 1,
+    "y": 12,
+    "align": "left",
+    "segments": [
+     {
+      "text": "{card_name}",
+      "color": "#ff5ad0"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "card_name"
+      }
+     ]
+    },
+    "flash": {
+     "on": "card",
+     "color": "#ffffff",
+     "ms": 600
+    }
+   },
+   {
+    "type": "text",
+    "font": "4x6",
+    "x": 127,
+    "y": 12,
+    "align": "right",
+    "segments": [
+     {
+      "text": "{card_name_p2}",
+      "color": "#5ad0ff"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "card_name_p2"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "5x8",
+    "x": 1,
+    "y": 19,
+    "align": "left",
+    "segments": [
+     {
+      "text": "QUOTA ",
+      "color": "#a07898"
+     },
+     {
+      "text": "{quota}",
+      "color": "#ececec"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "quota"
+      }
+     ]
+    },
+    "flash": {
+     "on": "quota",
+     "color": "#ffff80",
+     "ms": 250
+    }
+   },
+   {
+    "type": "text",
+    "font": "5x8",
+    "x": 127,
+    "y": 19,
+    "align": "right",
+    "segments": [
+     {
+      "text": "{quota_p2}",
+      "color": "#ececec"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "quota_p2"
+      }
+     ]
+    },
+    "flash": {
+     "on": "quota_p2",
+     "color": "#ffff80",
+     "ms": 250
+    }
+   },
+   {
+    "type": "text",
+    "font": "5x8",
+    "x": 64,
+    "y": 19,
+    "align": "center",
+    "segments": [
+     {
+      "text": "LV ",
+      "color": "#a07898"
+     },
+     {
+      "text": "{level}",
+      "color": "#ececec"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "level"
+      },
+      {
+       "var": "level",
+       "gt": 0
+      }
+     ]
+    }
+   },
+   {
+    "type": "coinop",
+    "when": {
+     "all": [
+      {
+       "has": "p1_mode"
+      },
+      {
+       "not": {
+        "var": "p1_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    },
+    "title": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#ff5ad0"
+     }
+    ],
+    "idle_image": [
+     "sprites/insert_coin.gif",
+     "sprites/insert_coin.png"
+    ]
+   }
+  ]
+ },
+ "derived": {
+  "card_name": {
+   "value": "card",
+   "names": {
+    "en": [
+     "FOOL",
+     "MAGICIAN",
+     "HIGH PRIESTESS",
+     "EMPRESS",
+     "EMPEROR",
+     "HIEROPHANT",
+     "LOVERS",
+     "CHARIOT",
+     "STRENGTH",
+     "HERMIT",
+     "FORTUNE",
+     "JUSTICE",
+     "HANGED MAN",
+     "DEATH",
+     "TEMPERANCE",
+     "DEVIL",
+     "TOWER",
+     "STAR",
+     "MOON",
+     "SUN",
+     "JUDGMENT",
+     "WORLD",
+     "BLACK PIERROT",
+     "STR. FATHER"
+    ],
+    "fr": [
+     "LE FOU",
+     "LE MAGICIEN",
+     "LA PAPESSE",
+     "L'IMPÉRATRICE",
+     "L'EMPEREUR",
+     "LE PAPE",
+     "LES AMOUREUX",
+     "LE CHARIOT",
+     "LA FORCE",
+     "L'ERMITE",
+     "LA ROUE",
+     "LA JUSTICE",
+     "LE PENDU",
+     "LA MORT",
+     "LA TEMPÉRANCE",
+     "LE DIABLE",
+     "LA TOUR",
+     "L'ÉTOILE",
+     "LA LUNE",
+     "LE SOLEIL",
+     "LE JUGEMENT",
+     "LE MONDE",
+     "PIERROT NOIR",
+     "PÈRE DE FORCE"
+    ]
+   }
+  },
+  "card_name_p2": {
+   "value": "card_p2",
+   "names": {
+    "en": [
+     "FOOL",
+     "MAGICIAN",
+     "HIGH PRIESTESS",
+     "EMPRESS",
+     "EMPEROR",
+     "HIEROPHANT",
+     "LOVERS",
+     "CHARIOT",
+     "STRENGTH",
+     "HERMIT",
+     "FORTUNE",
+     "JUSTICE",
+     "HANGED MAN",
+     "DEATH",
+     "TEMPERANCE",
+     "DEVIL",
+     "TOWER",
+     "STAR",
+     "MOON",
+     "SUN",
+     "JUDGMENT",
+     "WORLD",
+     "BLACK PIERROT",
+     "STR. FATHER"
+    ],
+    "fr": [
+     "LE FOU",
+     "LE MAGICIEN",
+     "LA PAPESSE",
+     "L'IMPÉRATRICE",
+     "L'EMPEREUR",
+     "LE PAPE",
+     "LES AMOUREUX",
+     "LE CHARIOT",
+     "LA FORCE",
+     "L'ERMITE",
+     "LA ROUE",
+     "LA JUSTICE",
+     "LE PENDU",
+     "LA MORT",
+     "LA TEMPÉRANCE",
+     "LE DIABLE",
+     "LA TOUR",
+     "L'ÉTOILE",
+     "LA LUNE",
+     "LE SOLEIL",
+     "LE JUGEMENT",
+     "LE MONDE",
+     "PIERROT NOIR",
+     "PÈRE DE FORCE"
+    ]
+   }
+  }
+ }
+}

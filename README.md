@@ -11,7 +11,7 @@ Live score, lives, credits and game events from MAME and RetroArch games, shown 
 ![Metal Slug on a 128x32 LED panel](docs/images/led_metal_slug.gif)
 
 - Reads the game memory live, with a MAME plugin or through RetroArch's network commands (FinalBurn Neo, Genesis Plus GX). Nothing in the game or the emulator is modified.
-- Ready-made scenes for Metal Slug 1 to 5 and X, the 57 Neo Geo fighting games, Blazing Star, Puzzle Bobble, Windjammers, Shock Troopers and Neo Turf Masters, every other Neo Geo game by genre, After Burner II, Sonic 1 and 2.
+- Ready-made scenes for Metal Slug 1 to 5 and X, the 57 Neo Geo fighting games, ten Neo Geo games done one by one (Blazing Star, Puzzle Bobble, Windjammers, Shock Troopers, Neo Turf Masters, Pulstar, Magical Drop III, Super Sidekicks 3, The Ultimate 11, Sengoku 3), every other Neo Geo game by genre, After Burner II, Sonic 1 and 2.
 - HD scenes with animated backgrounds that follow the game's stage or mission, and an effect for every event (hits, combos, K.O., weapons, bombs, coins...).
 - The game's logo when it starts (your LaunchBox Clear Logo). With nobody playing, the fighting games wait for a coin. Insert one and it drops into the slot, the credits roll, then PRESS START.
 - A learning tool finds the missing addresses (score, credits...) from a few captures.
@@ -34,7 +34,7 @@ What's in the folder
 | `test_pixelcade.bat` | test pattern on the Pixelcade LED |
 | `screen_setup.bat` | puts the scene on an LCD screen used as a DMD, as virtual LEDs or in smooth HD with the game logo (section 3) |
 | `demo_fight.bat` | fighting game demo (King of Fighters '98) with simulated values |
-| `demo_neogeo.bat` | demo of a Neo Geo game done one by one (Blazing Star, Puzzle Bobble, Windjammers, Shock Troopers, Neo Turf Masters) with simulated values |
+| `demo_neogeo.bat` | demo of a Neo Geo game done one by one (Blazing Star, Puzzle Bobble, Windjammers, Shock Troopers, Neo Turf Masters, Pulstar, Magical Drop III, Super Sidekicks 3, The Ultimate 11, Sengoku 3) with simulated values |
 | `test_retroarch.bat` | checks RetroArch, the loaded core and memory reading (section 7) |
 | `ports.bat` | lists the COM ports, to find the Pixelcade's port |
 | `test_panel.bat` | test pattern on a ZeDMD panel |
@@ -252,7 +252,7 @@ With the smooth HD display, the Metal Slug games and the fighting games get a fu
 
 - **Metal Slug.** One soldier panel per player, with the score, the weapon and its ammo gauge, the bombs and the lives. Shots follow the weapon (tracers and shell casings, shotgun blasts, rockets, flamethrower), bombs fly and explode in the backdrop, a crate drops when a weapon is picked up, the helmet falls when a life is lost and LAST LIFE blinks on the last one. Player 2 can join at any time. Each mission has its own backdrop (jungle, desert, snowy mountain, city at war, harbor, enemy base), with MISSION COMPLETE and fireworks in between. With nobody playing, the backdrops take turns.
 - **Fighting games.** Sparks on every hit, combo counter, FIRST ATTACK, super moves (the screen darkens), a red heartbeat when health is low, exploding K.O., DOUBLE K.O., TIME UP, PERFECT, confetti for the winner, the next King of Fighters fighter, and FIGHT ! at the start of each round. The crowd at the bottom reacts to the action.
-- **Neo Geo games done one by one.** Blazing Star, Puzzle Bobble, Windjammers, Shock Troopers and Neo Turf Masters each have a scene of their own, see section 7 (Neo Geo games done one by one).
+- **Neo Geo games done one by one.** Blazing Star, Puzzle Bobble, Windjammers, Shock Troopers, Neo Turf Masters, Pulstar, Magical Drop III, Super Sidekicks 3, The Ultimate 11 and Sengoku 3 each have a scene of their own, see section 7 (Neo Geo games done one by one).
 
 #### Backgrounds that follow the stage
 
@@ -400,8 +400,8 @@ To see which core is running, press F1 during the game, then go to Information >
 | Metal Slug 3 (`mslug3`) | FinalBurn Neo | score, lives, bombs, weapon and ammo | P2 score |
 | Metal Slug 4 (`mslug4`), Metal Slug 5 (`mslug5`) | FinalBurn Neo | lives, bombs, weapon and ammo | score |
 | The 57 Neo Geo fighting games (King of Fighters, Samurai Shodown, Fatal Fury, Last Blade, World Heroes...) | FinalBurn Neo | see the Fighting games table just below | the score, except KOF 96 to 2002 and Samurai Shodown II |
-| Blazing Star (`blazstar`), Puzzle Bobble (`pbobblen`), Shock Troopers (`shocktro`) | FinalBurn Neo | see Neo Geo games done one by one | score |
-| Windjammers (`wjammers`), Neo Turf Masters (`turfmast`) | FinalBurn Neo | see Neo Geo games done one by one | nothing |
+| Blazing Star (`blazstar`), Puzzle Bobble (`pbobblen`), Shock Troopers (`shocktro`), Pulstar (`pulstar`), Magical Drop III (`magdrop3`), Sengoku 3 (`sengoku3`) | FinalBurn Neo | see Neo Geo games done one by one | score |
+| Windjammers (`wjammers`), Neo Turf Masters (`turfmast`), Super Sidekicks 3 (`ssideki3`), The Ultimate 11 (`ssideki4`) | FinalBurn Neo | see Neo Geo games done one by one | nothing |
 | All other Neo Geo games | FinalBurn Neo | scene by genre (credits with MAME) | score, and credits if the game keeps a copy of them |
 | Sonic 1 and Sonic 2 | Genesis Plus GX | score, rings, lives | nothing |
 
@@ -499,6 +499,8 @@ Game after game, the Neo Geo games get a panel scene and an animated HD scene of
 
 ![Blazing Star, Puzzle Bobble, Windjammers, Shock Troopers and Neo Turf Masters on an LCD marquee, HD display](docs/images/hd_neogeo_games.jpg)
 
+![Pulstar, Magical Drop III, Super Sidekicks 3, The Ultimate 11 and Sengoku 3 on an LCD marquee, HD display](docs/images/hd_neogeo_games_2.jpg)
+
 | Game | File | Panel | HD screen |
 |---|---|---|---|
 | Blazing Star | `blazstar.json` | lives as small ships, ROUND, shot power, a ship that fires when the score goes up | space and a big planet. The ship fires, an enemy blows up when the score goes up, POWER UP, ROUND with a burst of speed, the ship explodes when a life is lost |
@@ -506,9 +508,14 @@ Game after game, the Neo Geo games get a panel scene and an animated HD scene of
 | Windjammers | `wjammers.json` | points of the set with the timer in between, the court, the opponent's country, a disc going back and forth | the court of the game (beach, lawn, tiles, concrete, clay, stadium) and the scoreboard. The disc flies into the goal zone with +3 or +5, or drops on the other side with +2 |
 | Shock Troopers | `shocktro.json` | energy, gun and ammo, special weapon and what is left, timer | jungle at war, one panel per player with energy, gun, ammo and grenades. Shots, grenades blowing up in the jungle, the panel shakes when hit |
 | Neo Turf Masters | `turfmast.json` | club and distance, stroke, power gauge, golfer, wind with an arrow | golf course, club, power gauge and wind compass. The wind pushes the clouds and the flag, and the ball flies to the green at each stroke |
+| Pulstar | `pulstar.json` | lives as small ships, STAGE, charge gauge, a ship that fires when the score goes up | one world per stage (Earth, water vein, fire, space station, forest, nebula). The charge glows on the nose and leaves as a beam, the pods and the front shield follow the ship, an enemy blows up when the score goes up, STAGE with its name |
+| Magical Drop III | `magdrop3.json` | both players' tarot cards, quota, level | two fields of drops under a tarot sky, both cards in the middle. When the quota goes down, the jester throws a drop and as many pop, a big group makes a chain, the level pushes a row down, the card flips when the character changes |
+| Super Sidekicks 3 | `ssideki3.json` | both teams' goals, GOAL! when one goes in, a ball going back and forth | a stadium by day, the match seen by the TV camera. When the goals go up, the ball ends in the net, GOAL!, confetti, the crowd jumps |
+| The Ultimate 11 | `ssideki4.json` | goals and both players' power gauges | the same match at night under the floodlights, with the power gauge. When the full gauge empties, the super shot flies on fire |
+| Sengoku 3 | `sengoku3.json` | health and magic of both players, timer, fighter, throwing weapon and how many are left | a temple under the moon and shadow warriors, one panel per fighter. The throwing weapons fly (shuriken, kunai, bomb, saucer), a warrior falls under the sword when the score goes up, the magic sweeps the screen, the panel shakes when hit |
 
-- The values come from the FinalBurn Neo cheats and still have to be confirmed in game (`test_retroarch.bat` shows them). The score of Blazing Star, Puzzle Bobble and Shock Troopers is in no database, learn it with `learn.bat` (see Learning the score). Until then, the title scrolls in its place on the panel.
-- When the stick and the buttons can be read (the Neo Geo BIOS keeps them, with MAME as with RetroArch), the ship of Blazing Star and the arrow of Puzzle Bobble follow them, and button A fires in Blazing Star and Shock Troopers. As long as the player has not touched them, the scene plays by itself.
+- The values come from the FinalBurn Neo and MAME 2003-Plus cheats and still have to be confirmed in game (`test_retroarch.bat` shows them). The score of Blazing Star, Puzzle Bobble, Shock Troopers, Pulstar, Magical Drop III and Sengoku 3 is in no database, learn it with `learn.bat` (see Learning the score). Until then, the title scrolls in its place on the panel.
+- When the stick and the buttons can be read (the Neo Geo BIOS keeps them, with MAME as with RetroArch), the ships of Blazing Star and Pulstar, the arrow of Puzzle Bobble and the jester of Magical Drop III follow them. Button A fires in Blazing Star, Pulstar and Shock Troopers and strikes in Sengoku 3. In Magical Drop III, button A grabs the drops and B throws them back. As long as the player has not touched them, the scene plays by itself.
 - With nobody playing, the coin screen, as for the fighting games (see Coin screen).
 - `demo_neogeo.bat` shows them without playing. Pick the game in the list, or give it directly, `demo_neogeo.bat wjammers` for example.
 
@@ -519,10 +526,10 @@ Neo Geo games known to MAME (clones included) get a shared scene based on their 
 | Genre | File | What is shown |
 |---|---|---|
 | Fighting (King of Fighters, Samurai Shodown, Fatal Fury, Art of Fighting, World Heroes...) | `neogeo_combat.json` | Vera style. At the top the score, or the title as long as the score has not been learned, and on the computer's side INSERT COIN blinking, or the credits and PRESS START in turn. In the middle the green health bars and the timer in a frame, "KO" at the end of the fight (52 games, see the Fighting games table), otherwise "VS". At the bottom "P1", and "CPU" or "P2" opposite. In 34 games, the name of the character currently fighting shows next to it, in white ("P1 RALF" and "LEONA CPU"). A thin orange line at the very bottom. When nobody is playing, the coin screen (below) |
-| Shoot'em up (Pulstar, Last Resort, Aero Fighters...) | `neogeo_shoot.json` | a small ship flying through a star field, firing when the score goes up |
-| Sports and racing (Super Sidekicks, Neo Drift Out, Riding Hero...) | `neogeo_sport.json` | a field with a bouncing ball |
-| Puzzle, quiz, mahjong (Magical Drop, Puzzle De Pon, Pop 'n Bounce...) | `neogeo_reflexion.json` | a row of colored blocks that keep changing |
-| Action, platformers, beat'em ups and everything else (Sengoku, Top Hunter, Ninja Combat...) | `neogeo.json` | blue hills, and both players' health bars when they are known |
+| Shoot'em up (Last Resort, Aero Fighters, Zed Blade...) | `neogeo_shoot.json` | a small ship flying through a star field, firing when the score goes up |
+| Sports and racing (Neo Drift Out, Riding Hero, Super Sidekicks 2...) | `neogeo_sport.json` | a field with a bouncing ball |
+| Puzzle, quiz, mahjong (Puzzle De Pon, Pop 'n Bounce, Magical Drop II...) | `neogeo_reflexion.json` | a row of colored blocks that keep changing |
+| Action, platformers, beat'em ups and everything else (Top Hunter, Ninja Combat, Sengoku 2...) | `neogeo.json` | blue hills, and both players' health bars when they are known |
 
 - With RetroArch, the scene shows "NEO GEO" in the middle as long as nothing is known for that game. With MAME, the credits are shown as well.
 - The credits of a Neo Geo MVS are stored in the cabinet's backup memory. MAME reads it. RetroArch's FinalBurn Neo core only shares the game's work RAM, so not the credits. Some games keep a copy of them in their work RAM. To find out, learn them with `learn.bat` (same method as for the score) by typing `credits=2`, then insert another coin and type `credits=3`, and once more. If the tool finds an address, the credits are shown. If it answers "Nothing found", that game does not keep a copy.
@@ -596,7 +603,7 @@ The common options are `mult` (for a score stored divided by 10, which is very c
 
 For a value stored in an object that moves around in memory (the Samurai Shodown fighters at every round), `"ptr"` gives the address where the object's location is read (32 bits) and `"addr"` becomes the offset inside the object. `"ptr_range"` rules out a pointer that is not ready yet. `learn.bat` writes this kind of value by itself when the captures show that the value follows the object.
 
-Some value names have a special role in the HD scenes. `stage`, `backdrop` and `mission` change the background (section 3), `p1_input` and `p2_input` are the Neo Geo BIOS stick and buttons (Metal Slug handgun shots, the ship of Blazing Star, the arrow of Puzzle Bobble).
+Some value names have a special role in the HD scenes. `stage`, `backdrop` and `mission` change the background (section 3), `p1_input` and `p2_input` are the Neo Geo BIOS stick and buttons (Metal Slug handgun shots, the ships of Blazing Star and Pulstar, the arrow of Puzzle Bobble, the jester of Magical Drop III).
 
 `"derived"` computes a value from other values, for example the character name. `"value"` takes a value that was read, `"pick"` chooses from a list according to `"at"`, and `"names"` turns a number into text. `"names"` can also hold one list per language, `{"en": [...], "fr": [...]}`, as in `games\wjammers.json`. See `games\samsho2.json` and `games\kof98.json`.
 

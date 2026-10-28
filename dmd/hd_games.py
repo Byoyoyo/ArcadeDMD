@@ -132,7 +132,7 @@ class GameScene:
 
     def rotated(self, key, surf, angle, step=2):
         """Picture turned, kept by steps of a few degrees. / Image tournée, gardée en cache."""
-        a = int(round(angle / step)) * step
+        a = int(round(angle / step)) * step % 360              # wrapped: a spinning picture keeps a bounded cache
         k = ("rot", key, a)
         r = self.imgs.get(k)
         if r is None:
@@ -202,8 +202,9 @@ class GameScene:
         return w
 
     def popup(self, text, x, y, color, size=40, life=1.2, rise=60, key="black"):
-        """Text that pops up, rises and fades, on a dark pill (readable on any backdrop)."""
-        self.pops.append((text, x, y, color, size, self.fx.now, life, rise, key))
+        """Text that pops up, rises and fades, on a dark pill (readable on any backdrop). Never over the top bar.
+        / Texte qui surgit, monte et s'efface, jamais sur la barre du haut."""
+        self.pops.append((text, x, max(y, self.S(150)), color, size, self.fx.now, life, rise, key))
 
     def draw_pops(self, screen, now):
         keep = []
@@ -262,13 +263,14 @@ class GameScene:
                 surf = self.shades[where] = self.hd._surf(col.resize((self.W, h)))
             screen.blit(surf, (0, 0 if where == "top" else self.H - surf.get_height()), special_flags=self.pg.BLEND_RGB_MULT)
 
-    def slam(self, text, color, now, dur=1.4):
-        self.banner = (text, color, now, dur)
+    def slam(self, text, color, now, dur=1.4, sub=None):
+        """Big banner across the screen, with an optional line under it (1.18). / Bandeau, avec une ligne dessous."""
+        self.banner = (text, color, now, dur, sub)
 
     def draw_banner(self, screen, now):
         if self.banner is None:
             return
-        text, color, t0, dur = self.banner
+        text, color, t0, dur, sub = self.banner
         k = now - t0
         if k > dur:
             self.banner = None
@@ -278,13 +280,19 @@ class GameScene:
         hd, S, W = self.hd, self.S, self.W
         scale = 2.0 - min(1.0, k / 0.16)
         alpha = 1.0 if k < dur - 0.25 else max(0.0, (dur - k) / 0.25)
-        band = self.imgs.get("_band")
+        bh = S(160) if sub else S(124)
+        band = self.imgs.get(("_band", bh))
         if band is None:
-            band = self.imgs["_band"] = self.pg.Surface((W, S(124))).convert()
+            band = self.imgs[("_band", bh)] = self.pg.Surface((W, bh)).convert()
             band.fill((0, 0, 0))
         band.set_alpha(int(190 * alpha))
-        screen.blit(band, (0, S(240) - band.get_height() // 2))
-        hd.put(screen, hd.text(text, "stencil", S(100), color, glow=0.8), W / 2, S(240), "center", "middle", scale=scale, alpha=alpha)
+        cy = S(240)
+        screen.blit(band, (0, cy - bh // 2))
+        y = cy - S(24) if sub else cy
+        hd.put(screen, hd.text(text, "stencil", S(100), color, glow=0.8), W / 2, y, "center", "middle", scale=scale, alpha=alpha)
+        if sub:
+            sk = min(1.0, max(0.0, (k - 0.12) / 0.2))
+            hd.put(screen, hd.text(sub, "xbold", S(34), CREAM, 0.3), W / 2, cy + S(48), "center", "middle", alpha=alpha * sk)
 
     def invite(self, vals, now):
         return self.hd._invite(vals, now)
@@ -1254,7 +1262,7 @@ class ShockTroopersScene(GameScene):
     def panel(self, screen, side, suf, acc, vals, now):
         S, pg, hd = self.S, self.pg, self.hd
         x0, y0, pw, ph = self.panel_x(side), S(258), S(self.PW), S(192)
-        hurt = max(0.0, 1 - (now - self.hurt[side]) / 0.45)
+        hurt = _clamp(1 - (now - self.hurt[side]) / 0.45)
         x0 += int(math.sin(now * 80) * S(6) * hurt) if hurt else 0
         self.box(screen, x0, y0, pw, ph, _mix(acc, RED, math.ceil(hurt * 4) / 4))
         if hurt:                                                       # hit: the panel flashes red

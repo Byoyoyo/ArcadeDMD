@@ -121,6 +121,7 @@ PANEL_WORDS = (                  # (French, English)
     ("SUIVANTE", "NEXT"),
     ("COUP", "STROKE"),
     ("VENT", "WIND"),
+    ("BUT !", "GOAL!"),
     ("SCORE ?", "SCORE?"),
     ("J1", "P1"),
     ("J2", "P2"),

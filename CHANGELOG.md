@@ -3,6 +3,46 @@
 Newest version first. Each version is in English, then in French.
 La version la plus récente en premier. Chaque version est en anglais, puis en français.
 
+## 1.18.0
+
+### English
+
+**Neo Geo games done one by one, second batch**
+- Pulstar, Magical Drop III, Super Sidekicks 3, The Ultimate 11 and Sengoku 3 now have a file of their own, with a panel scene and an animated HD scene made for each game. That makes ten games done one by one. `PROGRESS.md` shows what comes next.
+- Pulstar. On the panel, the lives as small ships, the stage and the charge gauge. On the HD screen, one world per stage (Earth, water vein, fire, space station, forest, nebula). The charge glows on the nose of the ship and leaves as a big beam, the pods and the front shield follow the ship, and STAGE comes with the name of the stage.
+- Magical Drop III. On the panel, both players' tarot cards, the quota and the level. On the HD screen, two fields of drops under a tarot sky. When the quota goes down, the jester throws a drop and as many pop, a big group makes a chain, the level pushes a row down, and the card flips when the character changes.
+- Super Sidekicks 3 and The Ultimate 11. On the panel, the goals of both teams and GOAL! when one goes in, with the power gauges in The Ultimate 11. On the HD screen, the match seen by the TV camera, by day, or at night under the floodlights. When the goals go up, the ball ends in the net, GOAL!, confetti, and the crowd jumps. In The Ultimate 11, a full power gauge that empties fires a super shot on fire.
+- Sengoku 3. On the panel, the health and the magic of both players, the timer, the fighter, the throwing weapon and how many are left. On the HD screen, a temple under the moon and shadow warriors. The throwing weapons fly when their count goes down, a warrior falls under the sword when the score goes up, the magic sweeps the screen, and the panel shakes when hit.
+- The score of Pulstar, Magical Drop III and Sengoku 3 is in no database. Learn it with `learn.bat`.
+- When the stick and the buttons can be read (Neo Geo BIOS), the ship of Pulstar and the jester of Magical Drop III follow them, and button A strikes in Sengoku 3.
+- `demo_neogeo.bat` now lists the ten games.
+
+**HD screen**
+- A banner can have a line under it, such as the name of the stage in Pulstar.
+- Preparing a background while a game runs no longer freezes the display for a moment.
+
+**Updating from 1.17**
+Extract the new zip over the old folder (`config.json` and your learned addresses are kept), then run `install.bat` once to update the MAME plugin.
+
+### Français
+
+**Jeux Neo Geo faits un par un, deuxième lot**
+- Pulstar, Magical Drop III, Super Sidekicks 3, The Ultimate 11 et Sengoku 3 ont maintenant un fichier à eux, avec une scène de dalle et une scène HD animée faites pour chaque jeu. Ça fait dix jeux faits un par un. `PROGRESS.md` montre ce qui vient ensuite.
+- Pulstar. Sur la dalle, les vies en petits vaisseaux, le stage et la jauge de charge. Sur l'écran HD, un monde par stage (la Terre, la veine d'eau, le feu, la station spatiale, la forêt, la nébuleuse). La charge brille au nez du vaisseau et part en gros rayon, les modules et le bouclier avant suivent le vaisseau, et STAGE arrive avec le nom du stage.
+- Magical Drop III. Sur la dalle, les cartes de tarot des deux joueurs, le quota et le niveau. Sur l'écran HD, deux champs de gouttes sous un ciel de tarot. Quand le quota baisse, le fou lance une goutte et autant de gouttes éclatent, un gros groupe fait une chaîne, le niveau fait descendre une rangée, et la carte se retourne quand le personnage change.
+- Super Sidekicks 3 et The Ultimate 11. Sur la dalle, les buts des deux équipes et BUT ! quand il y en a un, avec les jauges de puissance dans The Ultimate 11. Sur l'écran HD, le match vu par la caméra de télé, de jour, ou de nuit sous les projecteurs. Quand les buts montent, le ballon finit au fond du filet, BUT !, des confettis, et le public saute. Dans The Ultimate 11, une jauge de puissance pleine qui se vide lance un super tir en feu.
+- Sengoku 3. Sur la dalle, la vie et la magie des deux joueurs, le chrono, le combattant, l'arme de jet et ce qu'il en reste. Sur l'écran HD, un temple sous la lune et des guerriers de l'ombre. Les armes de jet partent quand leur nombre baisse, un guerrier tombe sous le sabre quand le score monte, la magie balaie l'écran, et le panneau tremble quand on est touché.
+- Le score de Pulstar, Magical Drop III et Sengoku 3 n'est dans aucune base. Apprends-le avec `learn.bat`.
+- Quand le stick et les boutons se lisent (BIOS Neo Geo), le vaisseau de Pulstar et le fou de Magical Drop III les suivent, et le bouton A frappe dans Sengoku 3.
+- `demo_neogeo.bat` propose maintenant les dix jeux.
+
+**Écran HD**
+- Un bandeau peut avoir une ligne dessous, comme le nom du stage dans Pulstar.
+- Préparer un décor pendant qu'un jeu tourne ne fige plus l'affichage un instant.
+
+**Mettre à jour depuis la 1.17**
+Décompresse le nouveau zip par-dessus l'ancien dossier (`config.json` et tes adresses apprises sont gardés), puis lance `install.bat` une fois pour mettre à jour le plugin MAME.
+
 ## 1.17.0
 
 ### English

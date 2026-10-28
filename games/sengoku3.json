@@ -1,0 +1,833 @@
+{
+ "title": "Sengoku 3",
+ "match": [
+  {
+   "system": [
+    "sengoku3",
+    "sengoku3a"
+   ]
+  }
+ ],
+ "retroarch": {
+  "content": [
+   "sengoku3",
+   "sengoku3a"
+  ],
+  "ram_base": "0x100000",
+  "ram_size": "0x10000",
+  "swap16": true,
+  "note": "FinalBurn Neo core: Neo Geo 68000 RAM seen from 0x100000, bytes swapped within 16-bit words"
+ },
+ "memory": {
+  "cpu": ":maincpu",
+  "values": {
+   "score": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+   },
+   "score_p2": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+   },
+   "p1_input": {
+    "addr": "0x10FD96",
+    "type": "u8",
+    "note": "BIOS_P1CURRENT: player 1 stick and buttons, 1 up, 2 down, 4 left, 8 right, 16 A, 32 B, 64 C, 128 D (HD scene)"
+   },
+   "p2_input": {
+    "addr": "0x10FD9C",
+    "type": "u8",
+    "note": "BIOS_P2CURRENT: player 2 stick and buttons, same bits (HD scene)"
+   },
+   "health": {
+    "addr": "0x102C19",
+    "type": "u8",
+    "mult": 1.041667,
+    "min": 0,
+    "max": 100,
+    "note": "player 1 health in %, full = 96 (FinalBurn Neo cheats, Infinite Energy PL1)"
+   },
+   "health_p2": {
+    "addr": "0x102D13",
+    "type": "u8",
+    "mult": 1.041667,
+    "min": 0,
+    "max": 100,
+    "note": "player 2 health in %, full = 96 (FinalBurn Neo cheats, Infinite Energy PL2)"
+   },
+   "magic": {
+    "addr": "0x1083E3",
+    "type": "u8",
+    "max": 56,
+    "note": "player 1 magic gauge, 56 when full (FinalBurn Neo cheats, Infinite Magic PL1)"
+   },
+   "magic_p2": {
+    "addr": "0x108401",
+    "type": "u8",
+    "max": 56,
+    "note": "player 2 magic gauge (FinalBurn Neo cheats, Infinite Magic PL2)"
+   },
+   "stars": {
+    "addr": "0x1083EB",
+    "type": "u8",
+    "note": "player 1 throwing weapons left, 9 at most (FinalBurn Neo cheats, Infinite Throwing Stars PL1)"
+   },
+   "stars_p2": {
+    "addr": "0x108409",
+    "type": "u8",
+    "note": "player 2 throwing weapons left (FinalBurn Neo cheats, Infinite Throwing Stars PL2)"
+   },
+   "weapon": {
+    "addr": "0x1083EA",
+    "type": "u8",
+    "note": "player 1 throwing weapon, 0 shuriken, 1 kunai, 2 bomb, 3 saucer (FinalBurn Neo cheats, Select Weapon PL1)"
+   },
+   "weapon_p2": {
+    "addr": "0x108408",
+    "type": "u8",
+    "note": "player 2 throwing weapon, same values (FinalBurn Neo cheats, Select Weapon PL2)"
+   },
+   "fighter": {
+    "addr": "0x1083CA",
+    "type": "u8",
+    "note": "player 1 character, 0 Byakko, 1 Kagetsura, 2 Kongoh, 3 Falcon, 4 Kurenai, 5 Okuni (FinalBurn Neo cheats, Select Character PL1)"
+   },
+   "fighter_p2": {
+    "addr": "0x1083CC",
+    "type": "u8",
+    "note": "player 2 character, same values (FinalBurn Neo cheats, Select Character PL2)"
+   },
+   "time": {
+    "addr": "0x108457",
+    "type": "u8",
+    "note": "timer, 99 at most (FinalBurn Neo cheats, Infinite Time)"
+   },
+   "credits": {
+    "addr": "0xD00034",
+    "type": "bcd",
+    "bytes": 1,
+    "mame_only": true,
+    "note": "MVS credits (backup RAM), readable in MAME only"
+   },
+   "p1_mode": {
+    "addr": "0x10FDB6",
+    "type": "u8",
+    "note": "BIOS: player 1, 0 never played, 1 playing, 2 continue, 3 game over"
+   },
+   "p2_mode": {
+    "addr": "0x10FDB7",
+    "type": "u8",
+    "note": "BIOS: player 2, same values"
+   }
+  }
+ },
+ "hd": {
+  "scene": "sengoku3"
+ },
+ "demo": {
+  "attract": true,
+  "credits": 0,
+  "p1_mode": 1,
+  "p2_mode": 0,
+  "health": 100,
+  "health_p2": 100,
+  "magic": 56,
+  "stars": 9,
+  "weapon": 0,
+  "fighter": 1,
+  "time": 99,
+  "score": 0,
+  "sim": {
+   "magic": {
+    "cycle": [
+     56,
+     0,
+     14,
+     28,
+     42,
+     56,
+     56
+    ],
+    "every": 2.5,
+    "start": 4.0
+   },
+   "stars": {
+    "count": [
+     0,
+     9,
+     -1
+    ],
+    "every": [
+     1.5,
+     3.0
+    ],
+    "start": 2.0
+   },
+   "weapon": {
+    "cycle": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "every": 8.0,
+    "start": 7.0
+   },
+   "time": {
+    "count": [
+     0,
+     99,
+     -1
+    ],
+    "every": 1.0,
+    "start": 1.0
+   }
+  }
+ },
+ "scene": {
+  "layers": [
+   {
+    "type": "mountains",
+    "peaks": [
+     [
+      0,
+      4
+     ],
+     [
+      20,
+      7
+     ],
+     [
+      44,
+      3
+     ],
+     [
+      70,
+      8
+     ],
+     [
+      96,
+      4
+     ],
+     [
+      118,
+      6
+     ]
+    ],
+    "floor": 1,
+    "bottom": 31,
+    "color": "#2a1028",
+    "ground": "#4a1830",
+    "speed": 3,
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 1,
+    "y": 1,
+    "align": "left",
+    "segments": [
+     {
+      "text": "{score}",
+      "color": "#ffa830"
+     }
+    ],
+    "when": {
+     "has": "score"
+    },
+    "flash": {
+     "on": "score",
+     "color": "#ffffff",
+     "ms": 120
+    }
+   },
+   {
+    "type": "marquee",
+    "font": "6x10",
+    "y": 1,
+    "x": 0,
+    "w": 70,
+    "speed": 12,
+    "gap": 40,
+    "upper": true,
+    "segments": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#ff5050"
+     }
+    ],
+    "when": {
+     "not": {
+      "has": "score"
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "segments": [
+     {
+      "text": "{score_p2}",
+      "color": "#ffa830"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "var": "p2_mode",
+       "in": [
+        1,
+        2
+       ]
+      },
+      {
+       "has": "score_p2"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "text": "INSERT COIN",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "credits",
+        "gt": 0
+       }
+      }
+     ]
+    },
+    "blink_period": 1.0
+   },
+   {
+    "type": "cycle",
+    "period": 1.5,
+    "when": {
+     "all": [
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "var": "credits",
+       "gt": 0
+      }
+     ]
+    },
+    "pages": [
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "CREDITS {credits}",
+        "color": "#ffa830"
+       }
+      ]
+     },
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "PRESS START",
+        "color": "#ffa830"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "gauge",
+    "var": "health",
+    "max": 100,
+    "x": 1,
+    "y": 12,
+    "w": 52,
+    "h": 4,
+    "color": "#60f060",
+    "low": "#ff3020",
+    "back": "#3a1010",
+    "bevel": "#d8f0c0",
+    "shade": false,
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "health"
+      }
+     ]
+    }
+   },
+   {
+    "type": "gauge",
+    "var": "magic",
+    "max": 56,
+    "x": 1,
+    "y": 17,
+    "w": 52,
+    "h": 2,
+    "color": "#4a90ff",
+    "low": "#4a90ff",
+    "back": "#101a3a",
+    "shade": false,
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "magic"
+      }
+     ]
+    }
+   },
+   {
+    "type": "gauge",
+    "var": "health_p2",
+    "max": 100,
+    "x": 75,
+    "y": 12,
+    "w": 52,
+    "h": 4,
+    "anchor": "right",
+    "color": "#60f060",
+    "low": "#ff3020",
+    "back": "#3a1010",
+    "bevel": "#d8f0c0",
+    "shade": false,
+    "when": {
+     "all": [
+      {
+       "var": "p2_mode",
+       "in": [
+        1,
+        2
+       ]
+      },
+      {
+       "has": "health_p2"
+      }
+     ]
+    }
+   },
+   {
+    "type": "gauge",
+    "var": "magic_p2",
+    "max": 56,
+    "x": 75,
+    "y": 17,
+    "w": 52,
+    "h": 2,
+    "anchor": "right",
+    "color": "#4a90ff",
+    "low": "#4a90ff",
+    "back": "#101a3a",
+    "shade": false,
+    "when": {
+     "all": [
+      {
+       "var": "p2_mode",
+       "in": [
+        1,
+        2
+       ]
+      },
+      {
+       "has": "magic_p2"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 64,
+    "y": 12,
+    "align": "center",
+    "segments": [
+     {
+      "text": "{time}",
+      "color": "#ffd060"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "time"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "5x8",
+    "x": 1,
+    "y": 21,
+    "align": "left",
+    "segments": [
+     {
+      "text": "{fighter_name}",
+      "color": "#ff5050"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "fighter_name"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "5x8",
+    "x": 127,
+    "y": 21,
+    "align": "right",
+    "segments": [
+     {
+      "text": "{weapon_name} ",
+      "color": "#c0a0b0"
+     },
+     {
+      "text": "{stars}",
+      "color": "#ececec"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "has": "weapon_name"
+      },
+      {
+       "has": "stars"
+      }
+     ]
+    },
+    "flash": {
+     "on": "stars",
+     "color": "#ffffff",
+     "ms": 250
+    }
+   },
+   {
+    "type": "text",
+    "font": "5x8",
+    "x": 127,
+    "y": 21,
+    "align": "right",
+    "segments": [
+     {
+      "text": "{fighter_name_p2}",
+      "color": "#5ab0ff"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "var": "p2_mode",
+       "in": [
+        1,
+        2
+       ]
+      },
+      {
+       "has": "fighter_name_p2"
+      }
+     ]
+    }
+   },
+   {
+    "type": "coinop",
+    "when": {
+     "all": [
+      {
+       "has": "p1_mode"
+      },
+      {
+       "not": {
+        "var": "p1_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    },
+    "title": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#ff5050"
+     }
+    ],
+    "idle_image": [
+     "sprites/insert_coin.gif",
+     "sprites/insert_coin.png"
+    ]
+   }
+  ]
+ },
+ "derived": {
+  "fighter_name": {
+   "value": "fighter",
+   "names": [
+    "BYAKKO",
+    "KAGETSURA",
+    "KONGOH",
+    "FALCON",
+    "KURENAI",
+    "OKUNI",
+    null
+   ]
+  },
+  "fighter_name_p2": {
+   "value": "fighter_p2",
+   "names": [
+    "BYAKKO",
+    "KAGETSURA",
+    "KONGOH",
+    "FALCON",
+    "KURENAI",
+    "OKUNI",
+    null
+   ]
+  },
+  "weapon_name": {
+   "value": "weapon",
+   "names": {
+    "en": [
+     "SHURIKEN",
+     "KUNAI",
+     "BOMB",
+     "SAUCER"
+    ],
+    "fr": [
+     "SHURIKEN",
+     "KUNAI",
+     "BOMBE",
+     "DISQUE"
+    ]
+   }
+  }
+ }
+}

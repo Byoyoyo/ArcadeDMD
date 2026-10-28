@@ -94,7 +94,7 @@ Scène de combat commune sur la dalle, avec l'écran des pièces depuis la 1.16.
 | World Heroes 2 Jet | ✅ | ✅ | ✅ | ⬜ | ⬜ |
 | World Heroes Perfect | ✅ | ✅ | ✅ | ⬜ | ✅ |
 
-### The other Neo Geo games / Les autres jeux Neo Geo (5 / 97)
+### The other Neo Geo games / Les autres jeux Neo Geo (10 / 97)
 
 The best-known games first. Until its turn, each game keeps the shared scene of its genre. 🟡 in Values means the score still has to be learned with `learn.bat`.
 
@@ -107,11 +107,11 @@ Les plus connus d'abord. En attendant son tour, chaque jeu garde la scène commu
 | 3 | Windjammers | Sport | ✅ | ✅ | ✅ | 1.17 |
 | 4 | Shock Troopers | Action | 🟡 | ✅ | ✅ | 1.17 |
 | 5 | Neo Turf Masters | Sport (golf) | ✅ | ✅ | ✅ | 1.17 |
-| 6 | Pulstar | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
-| 7 | Magical Drop III | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
-| 8 | Super Sidekicks 3 | Sport (soccer) / Sport (football) | ⬜ | ⬜ | ⬜ |  |
-| 9 | The Ultimate 11 | Sport (soccer) / Sport (football) | ⬜ | ⬜ | ⬜ |  |
-| 10 | Sengoku 3 | Beat'em up | ⬜ | ⬜ | ⬜ |  |
+| 6 | Pulstar | Shoot'em up | 🟡 | ✅ | ✅ | 1.18 |
+| 7 | Magical Drop III | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.18 |
+| 8 | Super Sidekicks 3 | Sport (soccer) / Sport (football) | ✅ | ✅ | ✅ | 1.18 |
+| 9 | The Ultimate 11 | Sport (soccer) / Sport (football) | ✅ | ✅ | ✅ | 1.18 |
+| 10 | Sengoku 3 | Beat'em up | 🟡 | ✅ | ✅ | 1.18 |
 | 11 | Top Hunter | Action | ⬜ | ⬜ | ⬜ |  |
 | 12 | Baseball Stars 2 | Sport (baseball) | ⬜ | ⬜ | ⬜ |  |
 | 13 | Last Resort | Shoot'em up | ⬜ | ⬜ | ⬜ |  |

@@ -29,6 +29,23 @@ def mix(a, b, k):
     return tuple(int(a[i] + (b[i] - a[i]) * k) for i in range(3))
 
 
+_NOISE = {}
+
+
+def noise_rgb(w, h, sigma):
+    """Light noise (RGB, around 128) made of a small tile repeated. Image.effect_noise on a whole screen keeps Python
+    busy for 40 ms and stops the display while a backdrop is built in the background (1.18).
+    / Bruit léger fait d'un petit carreau répété : sur tout l'écran, effect_noise bloque l'affichage 40 ms."""
+    tile = _NOISE.get(sigma)
+    if tile is None:
+        tile = _NOISE[sigma] = Image.effect_noise((128, 128), sigma).convert("RGB")
+    out = Image.new("RGB", (w, h))
+    for y in range(0, h, 128):
+        for x in range(0, w, 128):
+            out.paste(tile, (x, y))
+    return out
+
+
 def vgrad(w, h, stops, noise=1.6):
     """Dégradé vertical. stops = [(position 0..1, couleur)], léger bruit pour éviter les bandes."""
     img = Image.new("RGB", (w, h))
@@ -45,7 +62,7 @@ def vgrad(w, h, stops, noise=1.6):
             c = stops[-1][1] if k > stops[-1][0] else stops[0][1]
         d.line([0, y, w, y], fill=c)
     if noise:
-        n = Image.effect_noise((w, h), noise).convert("RGB")
+        n = noise_rgb(w, h, noise)
         img = ImageChops.add(img, n, 1.0, -128)
     return img
 
