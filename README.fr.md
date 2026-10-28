@@ -5,7 +5,9 @@ English version: [README.md](README.md)
 Score, vies, crédits et événements des jeux MAME et RetroArch en direct sur le marquee d'une borne d'arcade, avec une scène animée propre à chaque jeu. Sur une dalle LED 128x32 (**Pixelcade LED**, **ZeDMD**), ou en HD lisse sur un écran LCD de marquee (le marquee 1920 x 460 d'une Vewlix par exemple).
 
 ![Jeu de combat sur un marquee LCD, affichage HD](docs/images/hd_fight.jpg)
+![Écran des pièces d'un jeu de combat sur un marquee LCD, affichage HD](docs/images/hd_coin_screen.jpg)
 ![Metal Slug sur un marquee LCD, affichage HD](docs/images/hd_metal_slug.jpg)
+![Logo du jeu, écran des pièces et combat sur une dalle LED 128x32](docs/images/led_fight.gif)
 ![Metal Slug sur une dalle LED 128x32](docs/images/led_metal_slug.gif)
 
 - Lit la mémoire du jeu en direct, avec un plugin MAME ou par les commandes réseau de RetroArch (FinalBurn Neo, Genesis Plus GX). Rien n'est modifié dans le jeu ni dans l'émulateur.
@@ -224,6 +226,8 @@ La Pixelcade et les dalles ZeDMD gardent la scène en 128 x 32, c'est la taille 
 ### Logo du jeu au lancement
 
 Quand un jeu démarre, son logo arrive d'abord. Sur l'écran HD, il entre en grand sur un écran sombre, avec un éclair et un reflet, puis glisse à sa place dans la scène. Sur la Pixelcade et les dalles ZeDMD, il grandit sur les LED 128 x 32, puis la scène arrive. La Pixelcade l'affiche dès que pixelweb lui a laissé la dalle.
+
+![Logo du jeu au lancement, affichage HD](docs/images/hd_logo_intro.jpg)
 
 C'est le Clear Logo LaunchBox du jeu, trouvé comme expliqué juste au-dessus. Sur une dalle, un jeu sans Clear Logo passe directement à sa scène. Sur l'écran HD, son titre en lettres métal le remplace.
 
@@ -509,6 +513,8 @@ Les jeux Neo Geo connus de MAME (clones compris) ont une scène commune selon le
 ### Écran des pièces (jeux de combat)
 
 Quand personne ne joue, les jeux de combat Neo Geo attendent une pièce, sur la dalle et sur l'écran HD. La pièce ne tombe que quand les crédits montent vraiment, il faut donc que les crédits soient connus. MAME les lit pour tous les jeux Neo Geo. Avec RetroArch, apprends-les d'abord (voir plus haut).
+
+![Boutons START une fois les pièces mises, affichage HD](docs/images/hd_start_buttons.jpg)
 
 - Sur la dalle, une pièce € flotte au-dessus d'une fente, à côté de INSERT COIN. Mets une pièce, elle tombe dans la fente, +1 monte et le compteur de crédits roule. Un instant après, PRESS START s'affiche avec un bouton rouge et les crédits en dessous. Le titre défile toujours en haut.
 - Sur l'écran HD, le logo du jeu est entre deux monnayeurs, avec une pièce qui tourne au-dessus de chacun. Mets une pièce, l'une d'elles se met sur la tranche et tombe dans sa fente, avec des étincelles, +1 et le compteur qui roule. Puis les monnayeurs laissent la place aux boutons START 1P et 2P et à PRESS START.
