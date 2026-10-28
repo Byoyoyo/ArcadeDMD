@@ -5,7 +5,9 @@ Version française : [README.fr.md](README.fr.md)
 Live score, lives, credits and game events from MAME and RetroArch games, shown on the marquee of an arcade cabinet, with an animated scene for each game. On a 128x32 LED panel (**Pixelcade LED**, **ZeDMD**), or in smooth HD on an LCD marquee screen (a 1920 x 460 Vewlix marquee, for example).
 
 ![Fighting game on an LCD marquee, HD display](docs/images/hd_fight.jpg)
+![Coin screen of a fighting game on an LCD marquee, HD display](docs/images/hd_coin_screen.jpg)
 ![Metal Slug on an LCD marquee, HD display](docs/images/hd_metal_slug.jpg)
+![Game logo, coin screen and fight on a 128x32 LED panel](docs/images/led_fight.gif)
 ![Metal Slug on a 128x32 LED panel](docs/images/led_metal_slug.gif)
 
 - Reads the game memory live, with a MAME plugin or through RetroArch's network commands (FinalBurn Neo, Genesis Plus GX). Nothing in the game or the emulator is modified.
@@ -224,6 +226,8 @@ The Pixelcade and ZeDMD panels keep the scene at 128 x 32, which is their LED re
 ### Game logo when a game starts
 
 When a game starts, its logo comes first. On the HD screen it arrives big on a dark screen, with a flash and a light sweep, then glides to its place in the scene. On the Pixelcade and ZeDMD panels it zooms in on the 128 x 32 LEDs, then the scene comes. The Pixelcade shows it as soon as pixelweb has handed the panel over.
+
+![Game logo when a game starts, HD display](docs/images/hd_logo_intro.jpg)
 
 It is the game's LaunchBox Clear Logo, found as described just above. On a panel, a game without a Clear Logo goes straight to its scene. On the HD screen, its title in metallic lettering is used instead.
 
@@ -509,6 +513,8 @@ Neo Geo games known to MAME (clones included) get a shared scene based on their 
 ### Coin screen (fighting games)
 
 When nobody is playing, the Neo Geo fighting games wait for a coin, on the panel and on the HD screen. The coin drops only when the credits really go up, so the credits have to be known. MAME reads them for every Neo Geo game. With RetroArch, learn them first (see above).
+
+![START buttons once the coins are in, HD display](docs/images/hd_start_buttons.jpg)
 
 - On the panel, a € coin floats above a coin slot, next to INSERT COIN. Insert a coin and it drops into the slot, +1 rises and the credit counter rolls. A moment later, PRESS START shows with a red button and the credits underneath. The title keeps scrolling at the top.
 - On the HD screen, the game's logo sits between two coin doors, with a coin spinning above each one. Insert a coin and one of them turns on its edge and drops into its slot, with sparks, +1 and the counter rolling. Then the doors make way for the 1P and 2P START buttons and PRESS START.
