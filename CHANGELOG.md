@@ -3,6 +3,56 @@
 Newest version first. Each version is in English, then in French.
 La version la plus récente en premier. Chaque version est en anglais, puis en français.
 
+## 1.16.0
+
+### English
+
+**Game logo when a game starts**
+- When a game starts, its LaunchBox Clear Logo comes first. On the HD screen it arrives big with a flash and a light sweep, then glides to its place in the scene. On the Pixelcade and ZeDMD panels it zooms in on the LEDs. The Pixelcade shows it as soon as pixelweb has handed the panel over.
+- New `"intro"` section in `config.json` (`"logo"`, `"seconds"`, `"launchbox"`), see README section 3.
+
+**Coin screen for the fighting games**
+- With nobody playing, the Neo Geo fighting games wait for a coin. On the panel, a € coin floats above a slot and drops into it when a coin is inserted, with +1 and the credit counter rolling, then PRESS START with a button.
+- On the HD screen, two coin doors with a coin spinning above each one. An inserted coin drops into its slot with sparks, +1 and the counter rolling, then come the 1P and 2P START buttons.
+- A coin only drops when the credits really go up. The game's own demo fights no longer set off sparks or K.O. on the HD screen.
+- `"coin_symbol"` sets the symbol on the coins (€, $, £ or none). `sprites\insert_coin.gif` replaces the panel's coin screen with your own animation. `"coins": false` in the `preview` section brings back the plain INSERT COIN on the HD screen. See README section 7.
+
+**Fighting scene on the panel**
+- The top row is one pixel lower, so the accents stay visible.
+- On the computer's side, the credits and PRESS START take turns.
+- The timer sits in a frame, and the fighters' names are white.
+
+**Other changes**
+- `demo_fight.bat` starts on the coin screen. Two coins go in, then the fight begins (`"demo": {"attract": false}` in a game file skips it).
+- HD screen, the arena backdrop no longer has bright dots on its spotlights.
+
+**Updating from 1.15**
+Extract the new zip over the old folder (`config.json` and your learned addresses are kept), then run `install.bat` once to update the MAME plugin.
+
+### Français
+
+**Logo du jeu au lancement**
+- Quand un jeu démarre, son Clear Logo LaunchBox arrive d'abord. Sur l'écran HD, il entre en grand avec un éclair et un reflet, puis glisse à sa place dans la scène. Sur la Pixelcade et les dalles ZeDMD, il grandit sur les LED. La Pixelcade l'affiche dès que pixelweb lui a laissé la dalle.
+- Nouvelle section `"intro"` dans `config.json` (`"logo"`, `"seconds"`, `"launchbox"`), voir la section 3 du README.
+
+**Écran des pièces des jeux de combat**
+- Quand personne ne joue, les jeux de combat Neo Geo attendent une pièce. Sur la dalle, une pièce € flotte au-dessus d'une fente et tombe dedans quand une pièce est mise, avec +1 et le compteur de crédits qui roule, puis PRESS START avec un bouton.
+- Sur l'écran HD, deux monnayeurs avec une pièce qui tourne au-dessus de chacun. Une pièce mise tombe dans sa fente avec des étincelles, +1 et le compteur qui roule, puis arrivent les boutons START 1P et 2P.
+- Une pièce ne tombe que quand les crédits montent vraiment. Les combats de démonstration du jeu ne déclenchent plus d'étincelles ni de K.O. sur l'écran HD.
+- `"coin_symbol"` règle le symbole des pièces (€, $, £ ou aucun). `sprites\insert_coin.gif` remplace l'écran des pièces de la dalle par ta propre animation. `"coins": false` dans la section `preview` remet le simple INSERT COIN sur l'écran HD. Voir la section 7 du README.
+
+**Scène de combat sur la dalle**
+- La ligne du haut est un pixel plus bas, les accents restent visibles.
+- Du côté de l'ordinateur, les crédits et PRESS START s'affichent tour à tour.
+- Le chrono est dans un cadre, et les noms des combattants sont en blanc.
+
+**Autres changements**
+- `demo_fight.bat` commence sur l'écran des pièces. Deux pièces entrent, puis le combat commence (`"demo": {"attract": false}` dans un fichier de jeu le saute).
+- Écran HD, le décor de l'arène n'a plus de points lumineux sur ses projecteurs.
+
+**Mettre à jour depuis la 1.15**
+Décompresse le nouveau zip par-dessus l'ancien dossier (`config.json` et tes adresses apprises sont gardés), puis lance `install.bat` une fois pour mettre à jour le plugin MAME.
+
 ## 1.15.0
 
 ### English

@@ -462,7 +462,7 @@
     "type": "text",
     "font": "6x10",
     "x": 1,
-    "y": 0,
+    "y": 1,
     "align": "left",
     "text": "{score}",
     "color": "#ffa830",
@@ -550,7 +550,7 @@
      }
     ],
     "font": "6x10",
-    "y": 0,
+    "y": 1,
     "x": 0,
     "w": 56,
     "speed": 12,
@@ -628,7 +628,7 @@
     "type": "text",
     "font": "6x10",
     "x": 127,
-    "y": 0,
+    "y": 1,
     "align": "right",
     "text": "{score_p2}",
     "color": "#ffa830",
@@ -698,7 +698,7 @@
     "type": "text",
     "font": "6x10",
     "x": 1,
-    "y": 0,
+    "y": 1,
     "align": "left",
     "segments": [
      {
@@ -768,7 +768,7 @@
     "type": "text",
     "font": "6x10",
     "x": 1,
-    "y": 0,
+    "y": 1,
     "align": "left",
     "text": "CHALLENGER",
     "color": "#ff2a1a",
@@ -825,7 +825,7 @@
     "type": "text",
     "font": "6x10",
     "x": 127,
-    "y": 0,
+    "y": 1,
     "align": "right",
     "segments": [
      {
@@ -895,7 +895,7 @@
     "type": "text",
     "font": "6x10",
     "x": 127,
-    "y": 0,
+    "y": 1,
     "align": "right",
     "text": "CHALLENGER",
     "color": "#ff2a1a",
@@ -961,7 +961,7 @@
      }
     ],
     "font": "6x10",
-    "y": 0,
+    "y": 1,
     "x": 72,
     "w": 56,
     "speed": 12,
@@ -1004,7 +1004,7 @@
     "type": "text",
     "font": "6x10",
     "x": 127,
-    "y": 0,
+    "y": 1,
     "align": "right",
     "blink_period": 1.0,
     "text": "INSERT COIN",
@@ -1050,14 +1050,8 @@
     }
    },
    {
-    "type": "text",
-    "font": "6x10",
-    "x": 127,
-    "y": 0,
-    "align": "right",
-    "blink_period": 1.0,
-    "text": "PRESS START",
-    "color": "#ffa830",
+    "type": "cycle",
+    "period": 1.5,
     "when": {
      "all": [
       {
@@ -1094,136 +1088,141 @@
        "gt": 0
       }
      ]
-    }
-   },
-   {
-    "type": "text",
-    "font": "6x10",
-    "x": 1,
-    "y": 0,
-    "align": "left",
-    "blink_period": 1.0,
-    "text": "INSERT COIN",
-    "color": "#ffa830",
-    "when": {
-     "all": [
-      {
-       "all": [
-        {
-         "has": "p1_mode"
-        },
-        {
-         "not": {
-          "var": "p1_mode",
-          "in": [
-           1,
-           2
-          ]
-         }
-        },
-        {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       ]
-      },
-      {
-       "not": {
-        "var": "credits",
-        "gt": 0
-       }
-      }
-     ]
-    }
-   },
-   {
-    "type": "text",
-    "font": "6x10",
-    "x": 1,
-    "y": 0,
-    "align": "left",
-    "blink_period": 1.0,
-    "text": "PRESS START",
-    "color": "#ffa830",
-    "when": {
-     "all": [
-      {
-       "all": [
-        {
-         "has": "p1_mode"
-        },
-        {
-         "not": {
-          "var": "p1_mode",
-          "in": [
-           1,
-           2
-          ]
-         }
-        },
-        {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       ]
-      },
-      {
-       "var": "credits",
-       "gt": 0
-      }
-     ]
-    }
-   },
-   {
-    "type": "marquee",
-    "segments": [
+    },
+    "pages": [
      {
-      "text": "SNK",
-      "color": "#1d5bff"
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "CREDITS {credits}",
+        "color": "#ffa830"
+       }
+      ]
      },
      {
-      "text": " - {title}",
-      "color": "#ffa830"
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "PRESS START",
+        "color": "#ffa830"
+       }
+      ]
      }
-    ],
+    ]
+   },
+   {
+    "type": "text",
     "font": "6x10",
-    "y": 0,
-    "x": 0,
-    "w": 128,
-    "speed": 12,
-    "gap": 40,
-    "upper": true,
+    "x": 1,
+    "y": 1,
+    "align": "left",
+    "blink_period": 1.0,
+    "text": "INSERT COIN",
+    "color": "#ffa830",
     "when": {
      "all": [
       {
-       "has": "p1_mode"
+       "all": [
+        {
+         "has": "p1_mode"
+        },
+        {
+         "not": {
+          "var": "p1_mode",
+          "in": [
+           1,
+           2
+          ]
+         }
+        },
+        {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       ]
       },
       {
        "not": {
-        "var": "p1_mode",
-        "in": [
-         1,
-         2
-        ]
-       }
-      },
-      {
-       "not": {
-        "var": "p2_mode",
-        "in": [
-         1,
-         2
-        ]
+        "var": "credits",
+        "gt": 0
        }
       }
      ]
     }
+   },
+   {
+    "type": "cycle",
+    "period": 1.5,
+    "when": {
+     "all": [
+      {
+       "all": [
+        {
+         "has": "p1_mode"
+        },
+        {
+         "not": {
+          "var": "p1_mode",
+          "in": [
+           1,
+           2
+          ]
+         }
+        },
+        {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       ]
+      },
+      {
+       "var": "credits",
+       "gt": 0
+      }
+     ]
+    },
+    "pages": [
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 1,
+        "y": 1,
+        "align": "left",
+        "text": "CREDITS {credits}",
+        "color": "#ffa830"
+       }
+      ]
+     },
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 1,
+        "y": 1,
+        "align": "left",
+        "text": "PRESS START",
+        "color": "#ffa830"
+       }
+      ]
+     }
+    ]
    },
    {
     "type": "gauge",
@@ -1266,6 +1265,34 @@
     "var": "health_p2",
     "x": 74,
     "anchor": "left"
+   },
+   {
+    "type": "rect",
+    "x": 56,
+    "y": 9,
+    "w": 1,
+    "h": 11,
+    "color": "#a8701e",
+    "when": {
+     "has": [
+      "health",
+      "health_p2"
+     ]
+    }
+   },
+   {
+    "type": "rect",
+    "x": 72,
+    "y": 9,
+    "w": 1,
+    "h": 11,
+    "color": "#a8701e",
+    "when": {
+     "has": [
+      "health",
+      "health_p2"
+     ]
+    }
    },
    {
     "type": "text",
@@ -1404,7 +1431,7 @@
          },
          {
           "text": "{p1_char}",
-          "color": "#ff2a1a"
+          "color": "#ffffff"
          }
         ],
         "when": {
@@ -1480,7 +1507,7 @@
          },
          {
           "text": "{p1_char}",
-          "color": "#ff2a1a"
+          "color": "#ffffff"
          }
         ],
         "when": {
@@ -1566,7 +1593,7 @@
         "segments": [
          {
           "text": "{p2_char} ",
-          "color": "#ff2a1a"
+          "color": "#ffffff"
          },
          {
           "text": "P2",
@@ -1624,7 +1651,7 @@
         "segments": [
          {
           "text": "{p2_char} ",
-          "color": "#ff2a1a"
+          "color": "#ffffff"
          },
          {
           "text": "CPU",
@@ -1721,205 +1748,16 @@
      },
      {
       "when": {
-       "all": [
-        {
-         "has": "credits"
-        },
-        {
-         "not": {
-          "all": [
-           {
-            "var": "p1_mode",
-            "in": [
-             1,
-             2
-            ]
-           },
-           {
-            "var": "p2_mode",
-            "in": [
-             1,
-             2
-            ]
-           }
-          ]
+       "not": {
+        "any": [
+         {
+          "has": "p1_char"
+         },
+         {
+          "has": "p2_char"
          }
-        }
-       ]
-      },
-      "layers": [
-       {
-        "type": "text",
-        "font": "6x10",
-        "x": 1,
-        "y": 21,
-        "align": "left",
-        "text": "P1",
-        "color": "#ffa830",
-        "when": {
-         "any": [
-          {
-           "var": "p1_mode",
-           "in": [
-            1,
-            2
-           ]
-          },
-          {
-           "not": {
-            "has": "p1_mode"
-           }
-          }
-         ]
-        }
-       },
-       {
-        "type": "text",
-        "font": "6x10",
-        "x": 1,
-        "y": 21,
-        "align": "left",
-        "text": "CPU",
-        "color": "#ffa830",
-        "when": {
-         "all": [
-          {
-           "has": "p1_mode"
-          },
-          {
-           "not": {
-            "var": "p1_mode",
-            "in": [
-             1,
-             2
-            ]
-           }
-          },
-          {
-           "var": "p2_mode",
-           "in": [
-            1,
-            2
-           ]
-          }
-         ]
-        }
-       },
-       {
-        "type": "text",
-        "font": "6x10",
-        "x": 127,
-        "y": 21,
-        "align": "right",
-        "text": "P2",
-        "color": "#ffa830",
-        "when": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "type": "text",
-        "font": "6x10",
-        "x": 127,
-        "y": 21,
-        "align": "right",
-        "text": "CPU",
-        "color": "#ffa830",
-        "when": {
-         "all": [
-          {
-           "any": [
-            {
-             "var": "p1_mode",
-             "in": [
-              1,
-              2
-             ]
-            },
-            {
-             "not": {
-              "has": "p1_mode"
-             }
-            }
-           ]
-          },
-          {
-           "not": {
-            "var": "p2_mode",
-            "in": [
-             1,
-             2
-            ]
-           }
-          }
-         ]
-        }
-       },
-       {
-        "type": "text",
-        "font": "5x8",
-        "x": 66,
-        "y": 22,
-        "align": "center",
-        "text": "CREDITS {credits}",
-        "color": "#ffa830",
-        "flash": {
-         "on": "credits",
-         "color": "#ffffff",
-         "ms": 400
-        }
+        ]
        }
-      ]
-     },
-     {
-      "when": {
-       "all": [
-        {
-         "not": {
-          "any": [
-           {
-            "has": "p1_char"
-           },
-           {
-            "has": "p2_char"
-           }
-          ]
-         }
-        },
-        {
-         "not": {
-          "all": [
-           {
-            "has": "credits"
-           },
-           {
-            "not": {
-             "all": [
-              {
-               "var": "p1_mode",
-               "in": [
-                1,
-                2
-               ]
-              },
-              {
-               "var": "p2_mode",
-               "in": [
-                1,
-                2
-               ]
-              }
-             ]
-            }
-           }
-          ]
-         }
-        }
-       ]
       },
       "layers": [
        {
@@ -2038,96 +1876,46 @@
     ]
    },
    {
-    "type": "text",
-    "font": "6x10",
-    "x": 64,
-    "y": 21,
-    "align": "center",
-    "blink_period": 1.0,
-    "text": "INSERT COIN",
-    "color": "#ffa830",
+    "type": "coinop",
     "when": {
      "all": [
       {
-       "all": [
-        {
-         "has": "p1_mode"
-        },
-        {
-         "not": {
-          "var": "p1_mode",
-          "in": [
-           1,
-           2
-          ]
-         }
-        },
-        {
-         "not": {
-          "var": "p2_mode",
-          "in": [
-           1,
-           2
-          ]
-         }
-        }
-       ]
+       "has": "p1_mode"
       },
       {
        "not": {
-        "var": "credits",
-        "gt": 0
+        "var": "p1_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
        }
       }
      ]
-    }
-   },
-   {
-    "type": "text",
-    "font": "6x10",
-    "x": 64,
-    "y": 21,
-    "align": "center",
-    "text": "CREDITS {credits}",
-    "color": "#ffa830",
-    "when": {
-     "all": [
-      {
-       "all": [
-        {
-         "has": "p1_mode"
-        },
-        {
-         "not": {
-          "var": "p1_mode",
-          "in": [
-           1,
-           2
-          ]
-         }
-        },
-        {
-         "not": {
-          "var": "p2_mode",
-          "in": [
-           1,
-           2
-          ]
-         }
-        }
-       ]
-      },
-      {
-       "var": "credits",
-       "gt": 0
-      }
-     ]
     },
-    "flash": {
-     "on": "credits",
-     "color": "#ffffff",
-     "ms": 400
-    }
+    "title": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#ffa830"
+     }
+    ],
+    "idle_image": [
+     "sprites/insert_coin.gif",
+     "sprites/insert_coin.png"
+    ]
    }
   ]
  },

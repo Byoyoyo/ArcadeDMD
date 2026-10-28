@@ -2,7 +2,7 @@
   "plugin": {
 	"name": "arcadedmd",
 	"description": "ArcadeDMD (score, lives, credits to the LED panel or marquee screen)",
-	"version": "1.15.0",
+	"version": "1.16.0",
 	"author": "Byoyoyo",
 	"type": "plugin",
 	"start": "true"

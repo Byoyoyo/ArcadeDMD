@@ -218,6 +218,7 @@ class Ctx:
         self.t = 0.0
         self.dt = 0.0
         self.state = None
+        self.cfg = {}                 # config.json (coin symbol of the attract screen...)
 
 
 class Element:
@@ -820,6 +821,312 @@ class ImageEl(Element):
             ctx.canvas.sprite(fr, self.spec.get("x", 0), self.spec.get("y", 0), alpha=self.alpha)
 
 
+# --------------------------------------------------------------------------
+# attract screen of a game with credits / écran d'attente d'un jeu à crédits
+# --------------------------------------------------------------------------
+
+GOLD_TOP, GOLD_BOTTOM, WHITE = (255, 246, 160), (255, 130, 15), (255, 255, 255)
+COIN_FACE, COIN_LIGHT, COIN_RIM, COIN_EDGE, COIN_SIGN = (255, 200, 40), (255, 246, 170), (205, 125, 15), (150, 92, 8), (115, 60, 0)
+EURO = ("..###", ".#...", "####.", ".#...", "####.", ".#...", "..###")
+# coin symbol ("coin_symbol" in config.json): €, $, £ or "" for a plain coin / symbole de la pièce
+COIN_SYMBOLS = {"€": EURO,
+                "$": ("..#..", ".####", "#.#..", ".###.", "..#.#", "####.", "..#.."),
+                "£": ("..##.", ".#..#", ".#...", "###..", ".#...", ".#...", "#####")}
+
+
+def _mix(a, b, t):
+    return (int(a[0] + (b[0] - a[0]) * t), int(a[1] + (b[1] - a[1]) * t), int(a[2] + (b[2] - a[2]) * t))
+
+
+class CoinOpEl(Element):
+    """Attract screen of a game with credits, drawn over the whole panel.
+
+    With no credit, a € coin floats above a coin slot, next to INSERT COIN. When the credits go up, the coin
+    drops into the slot, +1 rises and the credit counter rolls. A moment later, PRESS START with a button.
+    "title": segments of the title that scrolls at the top. "idle_image": your own GIF (or PNG) shown
+    instead of the INSERT COIN screen, for example sprites/insert_coin.gif.
+
+    Écran d'attente d'un jeu à crédits, sur toute la dalle. Sans crédit, une pièce € flotte au-dessus d'une
+    fente, à côté de INSERT COIN. Quand les crédits montent, la pièce tombe dans la fente, +1 monte et le
+    compteur de crédits roule. Puis PRESS START avec un bouton. "idle_image" : ton propre GIF à la place."""
+
+    HOLD = 2.6                       # seconds of CREDITS n after a coin, then PRESS START
+    FALL, INSERT, GLOW = 0.35, 0.40, 0.30
+    SLOT_X, SLOT_W, SLOT_Y = 3, 19, 25
+    R = 6.5
+    HOVER = 9.5
+    ZONE_X, ZONE_W = 26, 102         # right part of the panel: title and big texts
+
+    def __init__(self, spec, root, log):
+        super().__init__(spec, root, log)
+        base = parse_color(spec.get("color"), (255, 168, 48))
+        title = [g for g in spec.get("title", []) if isinstance(g, dict)] or [{"text": "{title}", "color": "#ffa830"}]
+        self.marquee = MarqueeEl({"segments": title, "font": "6x10", "x": self.ZONE_X, "y": 1, "w": self.ZONE_W,
+                                  "speed": 12, "gap": 40, "upper": True, "color": base}, root, log)
+        self.big = Font.get(spec.get("font", "8x13B"))
+        self.small = Font.get("4x6")
+        self.plus = Font.get("6x10")
+        self.line = parse_color(spec.get("line"), (168, 112, 30)) if spec.get("line", True) else None
+        self.frames = []
+        images = spec.get("idle_image") or []
+        for img in images if isinstance(images, list) else [images]:
+            path = img if os.path.isabs(img) else os.path.join(root, img)
+            if img and os.path.exists(path):
+                try:
+                    self.frames = load_sprite_frames(path, fit=(128, 32))
+                    break
+                except Exception as e:  # image illisible
+                    log(tr(f"image d'attente illisible {path} : {e}", f"unreadable attract image {path}: {e}"))
+        self.fps = float(spec.get("fps", 12))
+        self.symbol = EURO
+        self.restart()
+
+    def restart(self):
+        super().restart()
+        self.marquee.restart()
+        self.credits = None
+        self.seen = None
+        self.inserted = None
+        self.roll_from = 0
+
+    # -- drawing helpers
+    def _coin(self, cv, cx, cy, f, clip_bottom=None):
+        """€ coin seen from the front (f = 1) or more and more from the side (f towards 0), cut below clip_bottom."""
+        r = self.R
+        rx = max(0.6, r * f)
+        for y in range(int(math.floor(cy - r)), int(math.ceil(cy + r)) + 1):
+            if clip_bottom is not None and y >= clip_bottom:
+                continue
+            for x in range(int(math.floor(cx - rx)) - 1, int(math.ceil(cx + rx)) + 2):
+                dx, dy = (x + 0.5 - cx) / rx, (y + 0.5 - cy) / r
+                d = dx * dx + dy * dy
+                if d > 1.0:
+                    continue
+                if f < 0.3:
+                    col = COIN_EDGE if abs(x + 0.5 - cx) < 0.7 else COIN_RIM
+                elif d > 0.55:
+                    col = COIN_RIM
+                else:
+                    col = COIN_LIGHT if (dx < -0.05 and dy < -0.05 and d < 0.3) else COIN_FACE
+                cv.set(x, y, col)
+        if f > 0.8 and self.symbol:
+            for j, row in enumerate(self.symbol):
+                yy = int(round(cy)) - 3 + j
+                if clip_bottom is not None and yy >= clip_bottom:
+                    continue
+                for i, ch in enumerate(row):
+                    if ch == "#":
+                        cv.set(int(round(cx)) - 2 + i, yy, COIN_SIGN)
+
+    def _slot(self, cv, glow):
+        lip = _mix((205, 205, 215), (255, 225, 130), glow)
+        x0, y0, w = self.SLOT_X, self.SLOT_Y, self.SLOT_W
+        for x in range(x0, x0 + w):
+            end = x in (x0, x0 + w - 1)
+            cv.set(x, y0, scale_color(lip, 0.65 if end else 1.0))
+            cv.set(x, y0 + 1, scale_color(lip, 0.45))
+        if glow > 0:
+            for x in range(x0 + 1, x0 + w - 1):
+                cv.add(x, y0 - 1, (255, 215, 110), 0.7 * glow)
+                cv.add(x, y0 - 2, (255, 215, 110), 0.3 * glow)
+
+    def _idle_coin(self, cv, t, appear=1.0):
+        cx = self.SLOT_X + self.SLOT_W / 2
+        f = max(0.3, abs(math.cos(2 * math.pi * t / 2.4)))
+        cy = self.HOVER + 0.8 * math.sin(t * 3)
+        if appear < 1.0:                                  # the next coin comes down from the top
+            e = 1 - (1 - appear) ** 2
+            cy = -self.R - 1 + (cy + self.R + 1) * e
+        self._coin(cv, cx, cy, f)
+
+    def _drop(self, cv, lt):
+        """Coin put in: falls into the slot and goes in on its edge, the slot lights up, a new coin arrives."""
+        cx = self.SLOT_X + self.SLOT_W / 2
+        rest = self.SLOT_Y - self.R
+        if lt < self.FALL:
+            k = lt / self.FALL
+            self._coin(cv, cx, self.HOVER + (rest - self.HOVER) * k * k, 1.0)
+            return 0.0
+        if lt < self.FALL + self.INSERT:
+            k = (lt - self.FALL) / self.INSERT
+            self._coin(cv, cx, rest + (2 * self.R + 1) * k, 1.0 - 0.75 * k, clip_bottom=self.SLOT_Y)
+            return 0.25 * k
+        done = lt - self.FALL - self.INSERT
+        if done >= self.GLOW * 0.5:
+            self._idle_coin(cv, lt, appear=min(1.0, (done - self.GLOW * 0.5) / 0.45))
+        return max(0.0, 1.0 - done / self.GLOW)
+
+    def _button(self, cv, cx, cy, r, press, glow):
+        for y in range(int(cy - r - 3), int(cy + r + 4)):
+            for x in range(int(cx - r - 3), int(cx + r + 4)):
+                d = math.hypot(x + 0.5 - cx, y + 0.5 - cy)
+                if r + 1.2 < d <= r + 2.8:
+                    cv.add(x, y, (255, 70, 30), 0.4 * glow)
+                elif r < d <= r + 1.2:
+                    cv.set(x, y, (70, 70, 80))
+        oy = 1 if press else 0
+        for y in range(int(cy - r), int(cy + r + 1)):
+            for x in range(int(cx - r), int(cx + r + 1)):
+                dx, dy = x + 0.5 - cx, y + 0.5 - (cy + oy * 0.6)
+                d = math.hypot(dx, dy)
+                if d > r - (0.6 if press else 0):
+                    continue
+                col = (150, 15, 8) if press else (215, 25, 15)
+                if dx < -1 and dy < -1 and d < r * 0.55 and not press:
+                    col = (255, 175, 160)
+                elif dx + dy > r * 0.6:
+                    col = scale_color(col, 0.7)
+                cv.set(x, y, col)
+
+    def _gold(self, cv, text, x, y, t, k=1.0, flash=0.0):
+        """Big gold text, lighter at the top, with a light sweep."""
+        font = self.big
+        sx = 20 + ((t % 2.2) / 2.2) * 130
+        oy = y - font.cap_top
+        cx = x
+        for ch in text:
+            for (px, py) in font.glyph_points(ch):
+                r = py - font.cap_top
+                col = scale_color(_mix(GOLD_TOP, GOLD_BOTTOM, max(0.0, min(1.0, r / 9.0))), k)
+                dd = abs((cx + px - sx) - r * 0.5)
+                if dd < 4.0:
+                    col = _mix(col, WHITE, (1 - dd / 4.0) * 0.85)
+                if flash:
+                    col = _mix(col, WHITE, flash)
+                cv.set(cx + px, oy + py, col)
+            cx += font.w
+        return cx - x
+
+    def _centered_x(self, text):
+        return self.ZONE_X + (self.ZONE_W - self.big.width(text)) // 2
+
+    # -- frame
+    def render(self, ctx):
+        cv, t = ctx.canvas, ctx.t
+        cv.clear((0, 0, 0))
+        sym = self.spec.get("symbol", (getattr(ctx, "cfg", None) or {}).get("coin_symbol", "€"))
+        self.symbol = COIN_SYMBOLS.get(str(sym or "").strip())
+        c = ctx.state.values.get("credits")
+        c = c if isinstance(c, (int, float)) and not isinstance(c, bool) else None
+        if self.seen is None or t - self.seen > 0.5:          # shown again: no coin for credits added meanwhile
+            self.credits = c
+        elif c is not None and self.credits is not None and c > self.credits:
+            self.roll_from = int(self.credits)
+            self.inserted = t
+            self.credits = c
+        else:
+            self.credits = c
+        self.seen = t
+        recent = self.inserted is not None and 0 <= t - self.inserted < self.HOLD
+        if not recent and not c and self.frames:               # your own INSERT COIN animation
+            fr = self.frames[int(self.local_time(ctx) * self.fps) % len(self.frames)]
+            cv.sprite(fr, 0, 0)
+            return
+        self.marquee.render(ctx)
+        if recent:
+            lt = t - self.inserted
+            self._slot(cv, self._drop(cv, lt))
+            shown = self.FALL + self.INSERT                   # the counter changes when the coin is in
+            n = int(c) if lt >= shown else self.roll_from
+            if shown <= lt < shown + 0.8:                     # +1 rising from the slot
+                k = (lt - shown) / 0.8
+                cv.text(self.plus, "+1", int(self.SLOT_X + self.SLOT_W / 2 - 6), int(self.SLOT_Y - 9 - 10 * k),
+                        _mix(WHITE, (255, 168, 48), k), alpha=1 - k * 0.8)
+            if n <= 0:
+                self._gold(cv, "INSERT COIN", self._centered_x("INSERT COIN"), 14, t)
+            else:
+                word = panel_text(f"CREDIT {n}" if n == 1 else f"CREDITS {n}")
+                num = str(n)
+                label = word[:-len(num)]
+                x = self._centered_x(word)
+                roll = min(1.0, max(0.0, (lt - shown) / 0.25))
+                flash = max(0.0, 1 - (lt - shown) / 0.4) if lt >= shown else 0.0
+                self._gold(cv, label, x, 14, t, flash=flash)
+                nx = x + self.big.width(label)
+                cv.set_clip(nx, 12, nx + self.big.w * max(len(num), len(str(self.roll_from))) + 1, 26)
+                if lt >= shown and roll < 1.0:
+                    cv.text(self.big, str(self.roll_from), nx, int(14 - 13 * roll), (255, 168, 48))
+                    cv.text(self.big, num, nx, int(14 + 13 * (1 - roll)), _mix((255, 168, 48), WHITE, flash))
+                else:
+                    self._gold(cv, num, nx, 14, t, flash=flash)
+                cv.reset_clip()
+        elif c:                                               # credits: PRESS START with a button
+            lt = t % 1.2
+            self._button(cv, self.SLOT_X + self.SLOT_W / 2, 20.5, 6.0, 0.15 < lt < 0.4, 0.5 + 0.5 * math.sin(t * 6))
+            cv.text(self.small, "1P", int(self.SLOT_X + self.SLOT_W / 2) - 3, 9, (255, 168, 48))
+            k = 0.75 + 0.25 * math.sin(t * 6)
+            self._gold(cv, "PRESS START", self._centered_x("PRESS START"), 13, t, k=k)
+            n = int(c)
+            s = panel_text(f"CREDIT {n}" if n == 1 else f"CREDITS {n}")
+            cv.text(self.small, s, self.ZONE_X + (self.ZONE_W - self.small.width(s)) // 2, 25, scale_color((255, 168, 48), 0.8))
+        else:                                                 # no credit: the coin floats above the slot
+            self._idle_coin(cv, t)
+            self._slot(cv, 0.0)
+            k = 0.8 + 0.2 * math.sin(t * 5)
+            self._gold(cv, "INSERT COIN", self._centered_x("INSERT COIN"), 14, t, k=k)
+        if self.line is not None:
+            cv.fill_rect(0, 30, 128, 2, self.line)
+
+
+class LogoIntro:
+    """The game's logo (LaunchBox Clear Logo) at the start of a game, on the 128 x 32 panel: it zooms in,
+    a light sweeps across it, then the scene comes. / Le logo du jeu au lancement, sur la dalle 128 x 32."""
+
+    def __init__(self, path, t0, seconds=2.6):
+        from PIL import Image
+        img = Image.open(path)
+        img.load()
+        img = img.convert("RGBA")
+        box = img.getchannel("A").getbbox()
+        if box:
+            img = img.crop(box)
+        k = min(126 / img.width, 30 / img.height)
+        self.base = img.resize((max(1, int(img.width * k)), max(1, int(img.height * k))), Image.LANCZOS)
+        k4 = min(1.0, 4 * k)                       # big logo brought down to 4 x the panel: quick zoom frames
+        self.big = img.resize((max(1, int(img.width * k4)), max(1, int(img.height * k4))), Image.LANCZOS) if k4 < 1 else img
+        self.t0 = t0
+        self.seconds = max(1.0, min(10.0, float(seconds)))
+        self.cache = {}
+
+    def _frame(self, sc):
+        from PIL import Image
+        key = round(sc, 2)
+        hit = self.cache.get(key)
+        if hit is None:
+            w, h = max(1, int(self.base.width * key)), max(1, int(self.base.height * key))
+            small = self.big.resize((w, h), Image.LANCZOS)
+            tile = Image.new("RGBA", (128, 32), (0, 0, 0, 0))
+            tile.paste(small, ((128 - w) // 2, (32 - h) // 2), small)
+            px = tile.load()
+            hit = [(x, y, px[x, y][:3], px[x, y][3] / 255.0) for y in range(32) for x in range(128) if px[x, y][3] > 30]
+            self.cache[key] = hit
+        return hit
+
+    def draw(self, cv, now):
+        """Draws the intro over the whole panel. False when it is over."""
+        lt = now - self.t0
+        if lt < 0 or lt >= self.seconds:
+            return False
+        sc = 0.45 + 0.55 * min(1.0, lt / 0.45) ** 0.6
+        k = min(1.0, lt / 0.3, max(0.0, (self.seconds - lt) / 0.3))
+        sx = -20 + (lt - 0.6) / 0.7 * 170 if 0.6 <= lt < 1.3 else -99
+        cv.clear((0, 0, 0))
+        pts = self._frame(sc)
+        for x, y, col, a in pts:
+            c = scale_color(col, a * k)
+            dd = abs((x - sx) - (y - 16) * 0.6)
+            if dd < 5:
+                c = _mix(c, WHITE, (1 - dd / 5) * 0.8 * k)
+            cv.set(x, y, c)
+        if lt > 1.3 and pts:
+            rng = random.Random(int(lt * 10))
+            for _ in range(3):
+                x, y, _, a = pts[rng.randrange(len(pts))]
+                if a > 0.5:
+                    cv.add(x, y, WHITE, 0.8 * k)
+        return True
+
+
 class Scene:
     def __init__(self, spec, root, log=print, mapping=None):
         self.spec = spec or {}
@@ -835,7 +1142,7 @@ class Scene:
         cls = {
             "text": TextEl, "marquee": MarqueeEl, "bars": BarsEl, "waves": WavesEl, "mountains": MountainsEl, "gauge": GaugeEl,
             "particles": ParticlesEl, "sprite": SpriteEl, "clock": ClockEl,
-            "rect": RectEl, "image": ImageEl,
+            "rect": RectEl, "image": ImageEl, "coinop": CoinOpEl,
         }.get(kind)
         if kind == "cycle":
             return CycleEl(spec, self.root, self.log, self._make)

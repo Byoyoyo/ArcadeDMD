@@ -11,6 +11,7 @@ Score, vies, crédits et événements des jeux MAME et RetroArch en direct sur l
 - Lit la mémoire du jeu en direct, avec un plugin MAME ou par les commandes réseau de RetroArch (FinalBurn Neo, Genesis Plus GX). Rien n'est modifié dans le jeu ni dans l'émulateur.
 - Scènes prêtes pour Metal Slug 1 à 5 et X, les 57 jeux de combat Neo Geo, tous les autres jeux Neo Geo selon leur genre, After Burner II, Sonic 1 et 2.
 - Scènes HD avec des décors animés qui suivent le stage ou la mission du jeu, et un effet pour chaque événement (coups, combos, K.O., armes, bombes, pièces...).
+- Le logo du jeu au lancement (ton Clear Logo LaunchBox). Quand personne ne joue, les jeux de combat attendent une pièce. Mets-en une, elle tombe dans la fente, les crédits roulent, puis PRESS START.
 - Un outil d'apprentissage trouve les adresses manquantes (score, crédits...) à partir de quelques captures.
 - En anglais et en français. Windows, Python 3.12 ou plus récent.
 
@@ -216,9 +217,27 @@ Le logo vient de tes images Clear Logo de LaunchBox. ArcadeDMD trouve le dossier
 
 - Jeux de combat. En haut le score de chaque joueur, ou CHALLENGER et BEAT BY en match VS. Au milieu les barres de vie, avec une traînée claire qui montre le coup qu'on vient de prendre, et le chrono ou KO. En bas P1, P2 ou CPU avec le combattant en cours, l'équipe complète dans les King of Fighters '96 à 2000 (ceux déjà battus sont barrés), et les crédits.
 - Les autres jeux. Le logo, le score de chaque joueur, puis en bas l'arme, les vies, les bombes, le temps et les crédits quand ils sont connus.
-- Personne ne joue. Le logo en grand, et INSERT COIN ou les crédits.
+- Personne ne joue. Le logo en grand, et INSERT COIN ou les crédits. Dans les jeux de combat, le logo est entre deux monnayeurs (Écran des pièces, section 7).
 
 La Pixelcade et les dalles ZeDMD gardent la scène en 128 x 32, c'est la taille de leurs LED.
+
+### Logo du jeu au lancement
+
+Quand un jeu démarre, son logo arrive d'abord. Sur l'écran HD, il entre en grand sur un écran sombre, avec un éclair et un reflet, puis glisse à sa place dans la scène. Sur la Pixelcade et les dalles ZeDMD, il grandit sur les LED 128 x 32, puis la scène arrive. La Pixelcade l'affiche dès que pixelweb lui a laissé la dalle.
+
+C'est le Clear Logo LaunchBox du jeu, trouvé comme expliqué juste au-dessus. Sur une dalle, un jeu sans Clear Logo passe directement à sa scène. Sur l'écran HD, son titre en lettres métal le remplace.
+
+```json
+"intro": {
+  "logo": true,
+  "seconds": 2.6,
+  "launchbox": ""
+}
+```
+
+- `"logo": false` le coupe, sur la dalle et sur l'écran HD.
+- `"seconds"` est sa durée, de 1 à 10 secondes.
+- `"launchbox"` est le dossier LaunchBox, s'il n'est pas trouvé tout seul. Avec une dalle et sans écran HD, c'est ici qu'il faut l'indiquer. Celui de la section `preview` marche aussi.
 
 ### Scènes HD animées, Metal Slug et jeux de combat
 
@@ -472,7 +491,7 @@ Les jeux Neo Geo connus de MAME (clones compris) ont une scène commune selon le
 
 | Genre | Fichier | Ce qui s'affiche |
 |---|---|---|
-| Combat (King of Fighters, Samurai Shodown, Fatal Fury, Art of Fighting, World Heroes...) | `neogeo_combat.json` | façon Vera. En haut le score, ou le titre tant qu'il n'est pas appris, et INSERT COIN qui clignote du côté de l'ordinateur. Au milieu les barres de vie vertes et le chrono, « KO » à la fin du combat (52 jeux, voir le tableau Jeux de combat), sinon « VS ». En bas « P1 », et « CPU » ou « P2 » en face. Dans 34 jeux, le nom du personnage en train de se battre s'affiche à côté (« P1 RALF » et « LEONA CPU »). Les crédits sous le chrono quand ils sont connus. Un filet orange tout en bas |
+| Combat (King of Fighters, Samurai Shodown, Fatal Fury, Art of Fighting, World Heroes...) | `neogeo_combat.json` | façon Vera. En haut le score, ou le titre tant qu'il n'est pas appris, et du côté de l'ordinateur INSERT COIN qui clignote, ou les crédits et PRESS START tour à tour. Au milieu les barres de vie vertes et le chrono dans un cadre, « KO » à la fin du combat (52 jeux, voir le tableau Jeux de combat), sinon « VS ». En bas « P1 », et « CPU » ou « P2 » en face. Dans 34 jeux, le nom du personnage en train de se battre s'affiche à côté, en blanc (« P1 RALF » et « LEONA CPU »). Un filet orange tout en bas. Quand personne ne joue, l'écran des pièces (plus bas) |
 | Shoot'em up (Blazing Star, Pulstar, Last Resort, Aero Fighters...) | `neogeo_shoot.json` | un petit vaisseau qui traverse un champ d'étoiles et tire quand le score monte |
 | Sport et course (Super Sidekicks, Neo Turf Masters, Windjammers...) | `neogeo_sport.json` | un terrain avec un ballon qui rebondit |
 | Réflexion, quiz, mahjong (Puzzle Bobble, Magical Drop...) | `neogeo_reflexion.json` | une rangée de blocs de couleur qui changent |
@@ -485,7 +504,19 @@ Les jeux Neo Geo connus de MAME (clones compris) ont une scène commune selon le
 - Un jeu qui a son propre fichier (les Metal Slug par exemple) passe toujours avant la scène commune.
 - Le score de KOF 98 a été trouvé avec `learn.bat`. Il est rangé dans la fiche de chaque joueur, et cette fiche est la même de KOF 96 à 2001 (barre de vie et jauge de puissance aux mêmes adresses). Le score de ces jeux est donc pris à la même place. Si la dalle n'affiche pas le même score que l'écran dans l'un d'eux, apprends-le avec `learn.bat`, l'adresse trouvée remplace la supposée.
 - Dans King of Fighters '96 à 2000, chaque équipe est lue dans la mémoire du jeu (personnages choisis, ordre de passage, personnages déjà battus). Le nom change tout seul quand le personnage suivant entre. `test_retroarch.bat` affiche les deux personnages lus, pratique pour vérifier.
-- Le BIOS de la Neo Geo dit qui joue. Contre l'ordinateur, « CPU » s'affiche en face et INSERT COIN clignote de son côté (PRESS START s'il reste des crédits). À deux, les deux scores sont en haut. Quand personne ne joue, le titre défile en haut et INSERT COIN clignote en bas.
+- Le BIOS de la Neo Geo dit qui joue. Contre l'ordinateur, « CPU » s'affiche en face, avec INSERT COIN qui clignote de son côté, ou les crédits et PRESS START tour à tour s'il reste des crédits. À deux, les deux scores sont en haut. Quand personne ne joue, l'écran des pièces juste en dessous.
+
+### Écran des pièces (jeux de combat)
+
+Quand personne ne joue, les jeux de combat Neo Geo attendent une pièce, sur la dalle et sur l'écran HD. La pièce ne tombe que quand les crédits montent vraiment, il faut donc que les crédits soient connus. MAME les lit pour tous les jeux Neo Geo. Avec RetroArch, apprends-les d'abord (voir plus haut).
+
+- Sur la dalle, une pièce € flotte au-dessus d'une fente, à côté de INSERT COIN. Mets une pièce, elle tombe dans la fente, +1 monte et le compteur de crédits roule. Un instant après, PRESS START s'affiche avec un bouton rouge et les crédits en dessous. Le titre défile toujours en haut.
+- Sur l'écran HD, le logo du jeu est entre deux monnayeurs, avec une pièce qui tourne au-dessus de chacun. Mets une pièce, l'une d'elles se met sur la tranche et tombe dans sa fente, avec des étincelles, +1 et le compteur qui roule. Puis les monnayeurs laissent la place aux boutons START 1P et 2P et à PRESS START.
+- Tant qu'aucune pièce n'entre, rien ne tombe. Les combats de démonstration du jeu, derrière, ne déclenchent aucun effet sur l'écran HD.
+- En haut de `config.json`, `"coin_symbol": "€"` est le symbole des pièces. `"$"` et `"£"` marchent aussi, et `""` donne une pièce sans symbole.
+- Ta propre animation INSERT COIN pour la dalle (un GIF de la Pixelcade, par exemple) va dans `sprites\insert_coin.gif` (ou `.png`), en 128 x 32. Elle remplace l'écran des pièces tant qu'il n'y a pas de crédit, et la pièce tombe toujours quand tu en mets une.
+- Dans la section `preview`, `"coins": false` remet le simple INSERT COIN sur l'écran HD.
+- `demo_fight.bat` commence maintenant sur cet écran. Deux pièces entrent, START est appuyé, puis le combat commence. Dans un fichier de jeu, `"demo": {"attract": false}` passe directement au combat.
 
 ### Apprendre le score
 

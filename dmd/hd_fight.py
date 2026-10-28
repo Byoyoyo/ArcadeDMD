@@ -88,6 +88,7 @@ class FightFX:
         for i, col in enumerate(CONFETTI):
             self.fx.sp.register(f"conf{i}", confetti_img(col, self.s))
         self.danger_imgs = {}
+        self.idle = False
         self.rays = None
         self._rays()                                                  # préparés d'avance : pas d'à-coup au premier super
         self.warm = self._warm_list()
@@ -157,7 +158,9 @@ class FightFX:
         return {"p1": (S(40), S(176), bw, S(50)), "p2": (int(cx + S(160)), S(176), bw, S(50)), "cx": cx}
 
     # ------------------------------------------------------------ ce qui a changé
-    def update(self, vals, now, key, game=None):
+    def update(self, vals, now, key, game=None, idle=False):
+        """idle: nobody plays, the game's own demo runs behind the attract screen. Its fights change the health
+        bars, but no spark, banner or K.O. is shown for them. / Personne ne joue : pas d'effet pour la démo du jeu."""
         stages = self.stages(game)
         if key != self.key:
             self.key = key
@@ -165,6 +168,10 @@ class FightFX:
             self.bd.set_theme(stages[stable_index(key, len(stages))], now, wipe=0)
             self.bd.prebuild(stages)                                  # les autres stages se préparent en arrière-plan
         self.fx.update(now)
+        self.idle = idle
+        if idle:
+            self._idle(vals, stages)
+            return
         # "stage": match number in the run, from 0 (cheat "Select Current Round"), shown as STAGE n.
         # "backdrop": backdrop of the fight (cheat "Select Backdrop"), picks the theme in the game's "hd" list.
         stage = _n(vals.get("stage"))
@@ -207,8 +214,8 @@ class FightFX:
                     self._hit(side, old, h, now)
                 elif old <= 0 < h and now - self.fight_t > 2.0:     # combattant suivant ou nouveau round
                     self._fight(now)
-        if h1 is not None and h2 is not None and "p1" not in self.prev and h1 >= 100 and h2 >= 100 and (t is None or t >= 50):
-            self._fight(now)                                          # début de round vu en arrivant
+        if h1 is not None and h2 is not None and self.prev.get("p1") is None and h1 >= 100 and h2 >= 100 and (t is None or t >= 50):
+            self._fight(now)                                          # début de round vu en arrivant (ou barres qui apparaissent)
         if t is not None and self.prev_time is not None and t <= 0 < self.prev_time and (h1 or 0) > 0 and (h2 or 0) > 0:
             self.banner = ("TIME UP", GOLD, now, 1.6)                 # chrono à zéro sans K.O.
             if h1 != h2:
@@ -218,6 +225,30 @@ class FightFX:
             self._celebrate(*self.win[:3])
             self.win[3] = True
         self.prev["p1"], self.prev["p2"] = h1, h2
+
+    def _idle(self, vals, stages):
+        """Attract screen: the values are only followed (backdrop of the demo's stage, last health, names),
+        so that nothing goes off when the game starts."""
+        stage, back = _n(vals.get("stage")), _n(vals.get("backdrop"))
+        pick = back if back is not None else stage
+        if pick is not None and (stage, back) != self.stage_v:
+            theme = stages[int(pick) % len(stages)]
+            if self.stage_v is None:
+                self.bd.set_theme(theme, self.fx.now, wipe=0)
+            else:
+                self.bd.set_theme(theme, self.fx.now)                   # the demo changes stage: wipe, no banner
+            self.stage_v = (stage, back)
+        self.stage_label = None
+        self.banner = None
+        self.win = None
+        for side in ("p1", "p2"):
+            name = vals.get(side + "_char")
+            if isinstance(name, str) and name:
+                self.chars[side] = name
+        h1, h2 = _n(vals.get("health")), _n(vals.get("health_p2"))
+        self.health = {"p1": h1, "p2": h2}
+        self.prev["p1"], self.prev["p2"] = h1, h2
+        self.prev_time = _n(vals.get("time"))
 
     def _hit(self, victim, old, new, now):
         fx, rng, S = self.fx, self.rng, self.hd.S
@@ -356,7 +387,8 @@ class FightFX:
         return self.rays
 
     def end(self, screen, target, now):
-        self._danger(target, now)
+        if not getattr(self, "idle", False):                         # no health bar on the attract screen
+            self._danger(target, now)
         self.fx.draw(target, "front")
         self._next_fighter(target, now)
         self._banners(target, now)
