@@ -104,12 +104,12 @@ Measure the marquee window of your cabinet first, then choose the biggest visibl
 | 12.3" | 1920 × 720 | 29 × 11 cm | close to the size of a pinball DMD |
 | 14.9" | 1280 × 390 | 36 × 11 cm | sold as a marquee kit for Vewlix-type cabinets |
 | 19" | 1920 × 360 | 48 × 9 cm | |
-| 24" | 1920 × 360 | 60 × 11 cm | |
+| 24" | 1920 × 360 | 58 × 11 cm | the format of the LCD marquees made for the AtGames Legends Ultimate |
 
 The HD scenes adapt to the screen. They were checked at 1920 × 360, 1280 × 390, 1920 × 480 and 1920 × 720.
 
 Where to buy (prices seen in October 2026)
-- AliExpress, Amazon or eBay. Search for "stretched bar LCD HDMI" followed by the resolution. Take a version sold with its HDMI controller board and its power supply. A bare panel (LVDS or eDP connector) needs a separate controller board. A 19" 1920 × 360 sold with its board was listed around $260 plus shipping on eBay, shipped from China.
+- AliExpress, Amazon or eBay. Search for "stretched bar LCD HDMI" followed by the resolution. Take a version sold with its HDMI controller board and its power supply. A bare panel (LVDS or eDP connector) needs a separate controller board. A 19" 1920 × 360 sold with its board was listed around $260 plus shipping on eBay, shipped from China, and a 24" around £250 plus shipping. The bare 24" module measures 61.3 × 13.2 cm and 1 cm thick, plan a frame to hold it in the marquee.
 - Waveshare 12.3inch 1920x720 LCD, HDMI or USB-C, around $110, seen by Windows as a normal display https://www.waveshare.com/product/displays/12.3inch-1920x720-lcd.htm
 - Arcade Game Sales, 14.9" 1280 × 390 LCD marquee with a metal frame, for Vewlix, Chewlix and Game Wizard Xtreme cabinets, around $225, VGA and HDMI https://arcade-game-sales.com/products/lcd-arcade-marquee-for-arcade-cabinets/19366-2.html
 - A standard PC monitor also works, if the top of the cabinet is deep and tall enough to hold it. Hide what is outside the marquee window, and set the ArcadeDMD window to the visible band with `x`, `y`, `width` and `height` (section 3).
