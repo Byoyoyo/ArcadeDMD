@@ -1109,11 +1109,7 @@
     },
     "title": [
      {
-      "text": "DATA EAST",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ff8a30"
      }
     ],

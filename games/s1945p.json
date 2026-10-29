@@ -1777,11 +1777,7 @@
     },
     "title": [
      {
-      "text": "PSIKYO",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ffb030"
      }
     ],

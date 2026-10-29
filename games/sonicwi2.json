@@ -1725,11 +1725,7 @@
     },
     "title": [
      {
-      "text": "VIDEO SYSTEM",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#40c8ff"
      }
     ],

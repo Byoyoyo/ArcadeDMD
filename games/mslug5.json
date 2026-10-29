@@ -219,11 +219,7 @@
         "type": "marquee",
         "segments": [
           {
-            "text": "SNK",
-            "color": "#1d5bff"
-          },
-          {
-            "text": " - METAL SLUG 5",
+            "text": "METAL SLUG 5",
             "color": "#e6e6e6"
           }
         ],
@@ -250,7 +246,8 @@
               }
             ]
           }
-        }
+        },
+        "static_if_fits": true
       },
       {
         "type": "text",
@@ -1624,11 +1621,7 @@
         "type": "marquee",
         "segments": [
           {
-            "text": "SNK",
-            "color": "#1d5bff"
-          },
-          {
-            "text": " - METAL SLUG 5",
+            "text": "METAL SLUG 5",
             "color": "#9a9a9a"
           }
         ],
@@ -1655,7 +1648,8 @@
               ]
             }
           ]
-        }
+        },
+        "static_if_fits": true
       },
       {
         "type": "text",

@@ -1475,11 +1475,7 @@
     },
     "title": [
      {
-      "text": "VISCO",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ff4030"
      }
     ],

@@ -607,11 +607,7 @@
     "upper": true,
     "segments": [
      {
-      "text": "ADK",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ffd080"
      }
     ],
@@ -641,7 +637,8 @@
        }
       ]
      }
-    }
+    },
+    "static_if_fits": true
    },
    {
     "type": "coinop",
@@ -672,11 +669,7 @@
     },
     "title": [
      {
-      "text": "ADK",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ffd080"
      }
     ],

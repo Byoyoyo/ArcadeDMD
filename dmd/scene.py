@@ -1508,7 +1508,7 @@ class CoinOpEl(Element):
 
     With no credit, a € coin floats above a coin slot, next to INSERT COIN. When the credits go up, the coin
     drops into the slot, +1 rises and the credit counter rolls. A moment later, PRESS START with a button.
-    "title": segments of the title that scrolls at the top. "idle_image": your own GIF (or PNG) shown
+    "title": segments of the title at the top (it scrolls when it does not fit). "idle_image": your own GIF (or PNG) shown
     instead of the INSERT COIN screen, for example sprites/insert_coin.gif.
 
     Écran d'attente d'un jeu à crédits, sur toute la dalle. Sans crédit, une pièce € flotte au-dessus d'une
@@ -1527,7 +1527,7 @@ class CoinOpEl(Element):
         base = parse_color(spec.get("color"), (255, 168, 48))
         title = [g for g in spec.get("title", []) if isinstance(g, dict)] or [{"text": "{title}", "color": "#ffa830"}]
         self.marquee = MarqueeEl({"segments": title, "font": "6x10", "x": self.ZONE_X, "y": 1, "w": self.ZONE_W,
-                                  "speed": 12, "gap": 40, "upper": True, "color": base}, root, log)
+                                  "speed": 12, "gap": 40, "upper": True, "color": base, "static_if_fits": True}, root, log)
         self.big = Font.get(spec.get("font", "8x13B"))
         self.small = Font.get("4x6")
         self.plus = Font.get("6x10")

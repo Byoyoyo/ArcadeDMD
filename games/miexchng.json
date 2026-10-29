@@ -222,11 +222,7 @@
     "upper": true,
     "segments": [
      {
-      "text": "FACE",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ff60c0"
      }
     ],
@@ -234,7 +230,8 @@
      "not": {
       "has": "score"
      }
-    }
+    },
+    "static_if_fits": true
    },
    {
     "type": "text",
@@ -528,11 +525,7 @@
     },
     "title": [
      {
-      "text": "FACE",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ff60c0"
      }
     ],

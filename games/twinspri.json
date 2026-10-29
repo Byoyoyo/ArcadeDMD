@@ -471,11 +471,7 @@
     "upper": true,
     "segments": [
      {
-      "text": "ADK",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ff70b0"
      }
     ],
@@ -483,7 +479,8 @@
      "not": {
       "has": "score"
      }
-    }
+    },
+    "static_if_fits": true
    },
    {
     "type": "text",
@@ -1005,11 +1002,7 @@
     },
     "title": [
      {
-      "text": "ADK",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ff70b0"
      }
     ],

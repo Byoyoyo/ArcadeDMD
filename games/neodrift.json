@@ -334,11 +334,7 @@
     "upper": true,
     "segments": [
      {
-      "text": "VISCO",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#4080ff"
      }
     ],
@@ -368,7 +364,8 @@
        }
       ]
      }
-    }
+    },
+    "static_if_fits": true
    },
    {
     "type": "text",
@@ -576,11 +573,7 @@
     },
     "title": [
      {
-      "text": "VISCO",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#4080ff"
      }
     ],

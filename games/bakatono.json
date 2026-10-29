@@ -1043,11 +1043,7 @@
     "upper": true,
     "segments": [
      {
-      "text": "MONOLITH",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ffa040"
      }
     ],
@@ -1077,7 +1073,8 @@
        }
       ]
      }
-    }
+    },
+    "static_if_fits": true
    },
    {
     "type": "text",
@@ -1155,11 +1152,7 @@
     },
     "title": [
      {
-      "text": "MONOLITH",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ffa040"
      }
     ],

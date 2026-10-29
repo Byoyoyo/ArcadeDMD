@@ -191,11 +191,7 @@
     "upper": true,
     "segments": [
      {
-      "text": "TAITO",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#40c0ff"
      }
     ],
@@ -203,7 +199,8 @@
      "not": {
       "has": "score"
      }
-    }
+    },
+    "static_if_fits": true
    },
    {
     "type": "text",
@@ -386,11 +383,7 @@
     },
     "title": [
      {
-      "text": "TAITO",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#40c0ff"
      }
     ],

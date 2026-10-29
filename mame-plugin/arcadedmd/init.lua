@@ -13,7 +13,7 @@
 
 local exports = {
 	name = "arcadedmd",
-	version = "1.29.0",
+	version = "1.29.1",
 	description = "ArcadeDMD",
 	license = "MIT",
 	author = { name = "Byoyoyo" } }

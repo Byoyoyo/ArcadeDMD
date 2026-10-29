@@ -1465,11 +1465,7 @@
     },
     "title": [
      {
-      "text": "NMK",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ff4040"
      }
     ],

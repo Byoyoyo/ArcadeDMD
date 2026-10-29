@@ -1504,11 +1504,7 @@
     },
     "title": [
      {
-      "text": "SAURUS",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ffc060"
      }
     ],

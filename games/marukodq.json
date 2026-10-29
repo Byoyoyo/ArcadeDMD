@@ -612,11 +612,7 @@
     "upper": true,
     "segments": [
      {
-      "text": "TAKARA",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ffb0e0"
      }
     ],
@@ -624,7 +620,8 @@
      "not": {
       "has": "score"
      }
-    }
+    },
+    "static_if_fits": true
    },
    {
     "type": "text",
@@ -818,11 +815,7 @@
     },
     "title": [
      {
-      "text": "TAKARA",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ffb0e0"
      }
     ],
