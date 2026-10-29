@@ -445,6 +445,7 @@ class BlazingStarScene(GameScene):
     BANNERS = GameScene.BANNERS + tuple((f"ROUND {n}", GOLD) for n in range(1, 8))
     ZONE = (150, 318)                                   # band where the ships fly / bande où volent les vaisseaux
     ACC = {"p1": (60, 170, 255), "p2": (255, 150, 50)}
+    MAX_FOES = 6                                        # at most on the screen, they only die when the game says so
 
     def __init__(self, hd, rng=None):
         super().__init__(hd, rng)
@@ -570,6 +571,8 @@ class BlazingStarScene(GameScene):
             self.slam(f"ROUND {int(ch[1])}", GOLD, now, 1.6)
             self.boost = (3.0, now + 1.8)
             self.fx.flash((140, 200, 255), 0.25, 0.4)
+        if now >= self.next_enemy and len([e for e in self.enemies if not e.get("dead")]) >= self.MAX_FOES:
+            self.next_enemy = now + 0.4                               # enough enemies on the screen / assez d'ennemis
         if now >= self.next_enemy:                                    # enemies alone or in a line of three
             self.next_enemy = now + self.rng.uniform(1.0, 2.2)
             y, v, ph = self.rng.uniform(S(self.ZONE[0]), S(self.ZONE[1])), self.rng.uniform(230, 330) * self.s, self.rng.uniform(0, 6)
