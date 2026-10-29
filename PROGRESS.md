@@ -4,7 +4,7 @@ Game by game, what ArcadeDMD already knows how to show, and what comes next. Upd
 
 Jeu par jeu, ce qu'ArcadeDMD sait déjà afficher, et ce qui vient ensuite. Mis à jour à chaque version.
 
-Up to date with version 1.29.3. / À jour de la version 1.29.3.
+Up to date with version 1.30.0. / À jour de la version 1.30.0.
 
 For each game / Pour chaque jeu
 - **Values / Valeurs.** What is read from the game's memory, such as each player's score, lives, bombs, level or health. / Ce qui est lu dans la mémoire du jeu, comme le score de chaque joueur, les vies, les bombes, le niveau ou la vie.
@@ -230,12 +230,156 @@ The credits of an MVS are guessed from its BIOS since 1.29. Since 1.29.2, `coin_
 
 Les crédits d'une MVS sont devinés d'après son BIOS depuis la 1.29. Depuis la 1.29.2, `coin_buttons.bat` permet à ArcadeDMD de lire lui-même les deux boutons des pièces. Chaque pièce est vue avec son côté, même en pleine partie, et comptée comme sur la MVS (1 crédit à gauche, 2 à droite). Depuis la 1.29.3 les monnayeurs de l'écran HD l'affichent.
 
+## Phase 2, Capcom CPS1, CPS2 and CPS3
+
+### Fighting games / Jeux de combat (34 games / jeux)
+
+Since 1.30, the 34 Capcom fighting games share the fight scene, on the panel with the coin screen and the super gauges, on the HD screen with the stages of the game. 22 of them read their stage, the others always get the same backgrounds, taken from a list that fits them (🟡). The score still has to be learned with `learn.bat`.
+
+Depuis la 1.30, les 34 jeux de combat Capcom partagent la scène de combat, sur la dalle avec l'écran des pièces et les jauges de super, sur l'écran HD avec les décors du jeu. 22 lisent leur décor, les autres ont toujours les mêmes décors, pris dans une liste qui leur va (🟡). Le score reste à apprendre avec `learn.bat`.
+
+| Game / Jeu | System / Système | Health / Vie | Timer / Chrono | Names / Noms | Super | Stages (HD) |
+|---|---|---|---|---|---|---|
+| Cyberbots: Fullmetal Madness | CPS2 | ✅ | ✅ | ✅ 10 | ✅ | ✅ |
+| Darkstalkers: The Night Warriors | CPS2 | ✅ | ✅ | ✅ 12 | ⬜ | ✅ |
+| Hyper Street Fighter II: The Anniversary Edition | CPS2 | ✅ | ✅ | ✅ 17 | ✅ | 🟡 |
+| JoJo's Bizarre Adventure | CPS3 | ✅ | ✅ | ✅ 25 | ✅ | 🟡 |
+| JoJo's Venture | CPS3 | ✅ | ✅ | ⬜ | ✅ | 🟡 |
+| Marvel Super Heroes | CPS2 | ✅ | ✅ | ✅ 13 | ✅ | 🟡 |
+| Marvel Super Heroes Vs. Street Fighter | CPS2 | ✅ | ✅ | ✅ 25 | ✅ | 🟡 |
+| Marvel Vs. Capcom: Clash of Super Heroes | CPS2 | ✅ | ✅ | ✅ 22 | ✅ | ✅ |
+| Mega Man 2: The Power Fighters | CPS2 | ✅ | ✅ | ⬜ | ⬜ | 🟡 |
+| Mega Man: The Power Battle | CPS1 | ✅ | ✅ | ⬜ | ⬜ | 🟡 |
+| Muscle Bomber Duo: Ultimate Team Battle | CPS1 | ✅ | ✅ | ⬜ | ⬜ | 🟡 |
+| Night Warriors: Darkstalkers' Revenge | CPS2 | ✅ | ✅ | ✅ 14 | ⬜ | ✅ |
+| Red Earth | CPS3 | ✅ | ⬜ | ⬜ | ⬜ | ✅ |
+| Ring of Destruction: Slammasters II | CPS2 | ✅ | ✅ | ⬜ | ⬜ | 🟡 |
+| Saturday Night Slam Masters | CPS1 | ✅ | ✅ | ⬜ | ⬜ | 🟡 |
+| Street Fighter Alpha 2 | CPS2 | ✅ | ✅ | ✅ 24 | ✅ | ✅ |
+| Street Fighter Alpha 3 | CPS2 | ✅ | ✅ | ✅ 29 | ✅ | ✅ |
+| Street Fighter Alpha: Warriors' Dreams | CPS2 | ✅ | ✅ | ✅ 13 | ✅ | ✅ |
+| Street Fighter II': Champion Edition | CPS1 | ✅ | ✅ | ✅ 12 | ⬜ | ✅ |
+| Street Fighter II': Hyper Fighting | CPS1 | ✅ | ✅ | ✅ 12 | ⬜ | ✅ |
+| Street Fighter II: The World Warrior | CPS1 | ✅ | ✅ | ✅ 12 | ⬜ | ✅ |
+| Street Fighter III 2nd Impact: Giant Attack | CPS3 | ✅ | ✅ | ✅ 15 | ✅ | ✅ |
+| Street Fighter III 3rd Strike: Fight for the Future | CPS3 | ✅ | ✅ | ✅ 19 | ✅ | ✅ |
+| Street Fighter III: New Generation | CPS3 | ✅ | ✅ | ✅ 11 | ✅ | ✅ |
+| Street Fighter Zero | CPS1 | ⬜ | ⬜ | ⬜ | ⬜ | 🟡 |
+| Street Fighter Zero 2 Alpha | CPS2 | ✅ | ✅ | ✅ 21 | ⬜ | ✅ |
+| Super Gem Fighter: Mini Mix | CPS2 | ✅ | ✅ | ✅ 12 | ✅ | ✅ |
+| Super Street Fighter II Turbo | CPS2 | ✅ | ✅ | ✅ 16 | ✅ | ✅ |
+| Super Street Fighter II: The New Challengers | CPS2 | ✅ | ✅ | ✅ 16 | ⬜ | ✅ |
+| Vampire Hunter 2: Darkstalkers Revenge | CPS2 | ✅ | ✅ | ✅ 21 | ✅ | ✅ |
+| Vampire Savior 2: The Lord of Vampire | CPS2 | ✅ | ✅ | ✅ 19 | ⬜ | ✅ |
+| Vampire Savior: The Lord of Vampire | CPS2 | ✅ | ✅ | ✅ 18 | ⬜ | ✅ |
+| X-Men Vs. Street Fighter | CPS2 | ✅ | ✅ | ✅ 19 | ✅ | 🟡 |
+| X-Men: Children of the Atom | CPS2 | ✅ | ✅ | ✅ 13 | ✅ | ✅ |
+
+### The other Capcom games / Les autres jeux Capcom (50 / 50)
+
+Since 1.30, every other Capcom game has a panel scene and an HD scene of its own, drawn by the program. 🟡 in Values means the score still has to be learned with `learn.bat`, ⬜ that no value is known yet and the scene plays by itself. Final Fight Anniversary Edition, Final Fight EX and Tenchi wo Kurau II CPS Changer take the scene of their game, the demo program of the CPS1 the one of its genre.
+
+Depuis la 1.30, chaque autre jeu Capcom a sa scène de dalle et sa scène HD à son image, dessinées par le programme. 🟡 dans Valeurs veut dire que le score reste à apprendre avec `learn.bat`, ⬜ qu'aucune valeur n'est connue pour l'instant et que la scène joue toute seule. Final Fight Anniversary Edition, Final Fight EX et Tenchi wo Kurau II CPS Changer prennent la scène de leur jeu, le programme de démo du CPS1 celle de son genre.
+
+| # | Game / Jeu | Genre | Values / Valeurs | Panel / Dalle | HD | Version |
+|---|---|---|---|---|---|---|
+| 1 | Final Fight | Beat'em up | 🟡 | ✅ | ✅ | 1.30 |
+| 2 | Captain Commando | Beat'em up | 🟡 | ✅ | ✅ | 1.30 |
+| 3 | Cadillacs and Dinosaurs | Beat'em up | 🟡 | ✅ | ✅ | 1.30 |
+| 4 | The Punisher | Beat'em up | 🟡 | ✅ | ✅ | 1.30 |
+| 5 | The King of Dragons | Beat'em up | ✅ | ✅ | ✅ | 1.30 |
+| 6 | Knights of the Round | Beat'em up | 🟡 | ✅ | ✅ | 1.30 |
+| 7 | Warriors of Fate | Beat'em up | 🟡 | ✅ | ✅ | 1.30 |
+| 8 | Dungeons & Dragons: Shadow over Mystara | Beat'em up | 🟡 | ✅ | ✅ | 1.30 |
+| 9 | Dungeons & Dragons: Tower of Doom | Beat'em up | 🟡 | ✅ | ✅ | 1.30 |
+| 10 | Alien vs. Predator | Beat'em up | 🟡 | ✅ | ✅ | 1.30 |
+| 11 | Armored Warriors | Beat'em up | 🟡 | ✅ | ✅ | 1.30 |
+| 12 | Battle Circuit | Beat'em up | 🟡 | ✅ | ✅ | 1.30 |
+| 13 | 1944: The Loop Master | Shoot'em up | 🟡 | ✅ | ✅ | 1.30 |
+| 14 | 19XX: The War Against Destiny | Shoot'em up | 🟡 | ✅ | ✅ | 1.30 |
+| 15 | 1941: Counter Attack | Shoot'em up | 🟡 | ✅ | ✅ | 1.30 |
+| 16 | Varth: Operation Thunderstorm | Shoot'em up | 🟡 | ✅ | ✅ | 1.30 |
+| 17 | U.N. Squadron | Shoot'em up | 🟡 | ✅ | ✅ | 1.30 |
+| 18 | Carrier Air Wing | Shoot'em up | 🟡 | ✅ | ✅ | 1.30 |
+| 19 | Forgotten Worlds | Shoot'em up | 🟡 | ✅ | ✅ | 1.30 |
+| 20 | Giga Wing | Shoot'em up | 🟡 | ✅ | ✅ | 1.30 |
+| 21 | Progear | Shoot'em up | 🟡 | ✅ | ✅ | 1.30 |
+| 22 | Mars Matrix: Hyper Solid Shooting | Shoot'em up | 🟡 | ✅ | ✅ | 1.30 |
+| 23 | Dimahoo | Shoot'em up | 🟡 | ✅ | ✅ | 1.30 |
+| 24 | Eco Fighters | Shoot'em up | 🟡 | ✅ | ✅ | 1.30 |
+| 25 | Mercs | Run and gun | 🟡 | ✅ | ✅ | 1.30 |
+| 26 | Ghouls'n Ghosts | Platformer / Plateformes | 🟡 | ✅ | ✅ | 1.30 |
+| 27 | Strider | Action | 🟡 | ✅ | ✅ | 1.30 |
+| 28 | Pang! 3 | Action | 🟡 | ✅ | ✅ | 1.30 |
+| 29 | Mighty! Pang | Action | 🟡 | ✅ | ✅ | 1.30 |
+| 30 | Super Puzzle Fighter II Turbo | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.30 |
+| 31 | Mega Twins | Platformer / Plateformes | 🟡 | ✅ | ✅ | 1.30 |
+| 32 | Magic Sword: Heroic Fantasy | Action | 🟡 | ✅ | ✅ | 1.30 |
+| 33 | Willow | Platformer / Plateformes | 🟡 | ✅ | ✅ | 1.30 |
+| 34 | Nemo | Platformer / Plateformes | 🟡 | ✅ | ✅ | 1.30 |
+| 35 | Three Wonders | Action | 🟡 | ✅ | ✅ | 1.30 |
+| 36 | Dynasty Wars | Beat'em up | 🟡 | ✅ | ✅ | 1.30 |
+| 37 | Puzz Loop 2 | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.30 |
+| 38 | Capcom Sports Club | Sports | 🟡 | ✅ | ✅ | 1.30 |
+| 39 | Quiz & Dragons: Capcom Quiz Game | Quiz | 🟡 | ✅ | ✅ | 1.30 |
+| 40 | Adventure Quiz Capcom World 2 | Quiz | 🟡 | ✅ | ✅ | 1.30 |
+| 41 | Quiz Tonosama no Yabou 2: Zenkoku-ban | Quiz | 🟡 | ✅ | ✅ | 1.30 |
+| 42 | Quiz Nanairo Dreams: Nijiirochou no Kiseki | Quiz | 🟡 | ✅ | ✅ | 1.30 |
+| 43 | Jyangokushi: Haoh no Saihai | Mahjong | ⬜ | ✅ | ✅ | 1.30 |
+| 44 | Janpai Puzzle Choukou | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.30 |
+| 45 | Gulun.Pa! | Puzzle / Réflexion | ⬜ | ✅ | ✅ | 1.30 |
+| 46 | Pnickies | Puzzle / Réflexion | ⬜ | ✅ | ✅ | 1.30 |
+| 47 | Frog Feast | Action | ⬜ | ✅ | ✅ | 1.30 |
+| 48 | Pokonyan! Balloon | Kids' game / Jeu pour enfants | ⬜ | ✅ | ✅ | 1.30 |
+| 49 | Magical Pumpkin: Puroland de Daibouken | Kids' game / Jeu pour enfants | ⬜ | ✅ | ✅ | 1.30 |
+| 50 | Ganbare! Marine Kun | Kids' game / Jeu pour enfants | ⬜ | ✅ | ✅ | 1.30 |
+
+### Every Capcom set / Tous les sets Capcom (942 / 942)
+
+Since 1.30, every Capcom CPS1, CPS2 and CPS3 set of FinalBurn Neo is recognized, with MAME as with RetroArch. A version, a bootleg or a hack takes the file of its original game, with its own name when it has one.
+
+Depuis la 1.30, chaque set Capcom CPS1, CPS2 et CPS3 de FinalBurn Neo est reconnu, avec MAME comme avec RetroArch. Une version, un bootleg ou un hack prend le fichier de son jeu d'origine, avec son propre nom quand il en a un.
+
+| Sets | Recognized / Reconnus | Scene / Scène |
+|---|---|---|
+| Original games / Jeux d'origine | 83 / 83 | their own, or the fight scene / la leur, ou la scène de combat |
+| Versions | 432 / 432 | the one of the original game / celle du jeu d'origine |
+| Bootlegs | 228 / 228 | the one of the original game, with their own name when they have one / celle du jeu d'origine, avec leur propre nom quand ils en ont un |
+| Hacks | 195 / 195 | the one of the original game, with their own name (Street Fighter II' Magic Delta Turbo, Final Fight Anniversary Edition...) / celle du jeu d'origine, avec leur propre nom |
+| Prototypes | 2 / 2 | their own (Gulun.Pa!) or the one of the original game / la leur (Gulun.Pa!) ou celle du jeu d'origine |
+| Homebrew | 1 / 1 | its own (Frog Feast) / la sienne (Frog Feast) |
+| Demos / Démos | 1 / 1 | the one of its genre / celle de son genre |
+
+## Consoles, a first test / Consoles, un premier essai
+
+### Super Nintendo 🟡
+
+Read in RetroArch with the Snes9x core since 1.30. The addresses come from the rebuilt source code of the two games (snesrev) and still have to be confirmed in game with `test_retroarch.bat`.
+
+Lue dans RetroArch avec le cœur Snes9x depuis la 1.30. Les adresses viennent du code source reconstruit des deux jeux (snesrev) et doivent encore être confirmées en jeu avec `test_retroarch.bat`.
+
+| Game / Jeu | Values / Valeurs | Panel / Dalle | HD | Version |
+|---|---|---|---|---|
+| Super Mario World | ✅ | ✅ | ✅ | 1.30 |
+| The Legend of Zelda: A Link to the Past | ✅ | ✅ | ✅ | 1.30 |
+
+### Dreamcast (Flycast) 🟡
+
+Read in RetroArch with the Flycast core since 1.30. The addresses still have to be confirmed in game.
+
+Lue dans RetroArch avec le cœur Flycast depuis la 1.30. Les adresses doivent encore être confirmées en jeu.
+
+| Game / Jeu | Values / Valeurs | Panel / Dalle | HD | Version |
+|---|---|---|---|---|
+| Marvel vs. Capcom 2 (USA) | ✅ | ✅ | ✅ | 1.30 |
+| Marvel vs. Capcom 2 (Japan, Europe / Japon, Europe) | ⬜ | ⬜ | ⬜ | |
+| Marvel vs. Capcom 2 (Naomi, `mvsc2`) | ⬜ | ⬜ | ⬜ | |
+
 ## What comes next / La suite
 
-1. **Capcom CPS1 and CPS2.** 1941, 1944, Street Fighter II and its versions, Final Fight, Strider, Ghouls'n Ghosts, Cadillacs and Dinosaurs, The Punisher, Dungeons & Dragons, Darkstalkers, Marvel vs. Capcom...
-2. **MAME classics / Les classiques MAME.** Pac-Man, Ms. Pac-Man, Galaga, Donkey Kong, Space Invaders, Dig Dug, Frogger, Defender, Robotron, Asteroids, Centipede...
-3. **Sega and Konami.** Out Run, Golden Axe, Shinobi, Altered Beast, Teenage Mutant Ninja Turtles, The Simpsons, Sunset Riders...
-4. **RetroAchievements.** Your progress for the game when it starts, and each achievement as it unlocks, on the panel and on the HD screen. / Ta progression au lancement du jeu, et chaque succès débloqué, sur la dalle et l'écran HD.
+1. **MAME classics / Les classiques MAME.** Pac-Man, Ms. Pac-Man, Galaga, Donkey Kong, Space Invaders, Dig Dug, Frogger, Defender, Robotron, Asteroids, Centipede...
+2. **Sega and Konami.** Out Run, Golden Axe, Shinobi, Altered Beast, Teenage Mutant Ninja Turtles, The Simpsons, Sunset Riders...
+3. **RetroAchievements.** Your progress for the game when it starts, and each achievement as it unlocks, on the panel and on the HD screen. / Ta progression au lancement du jeu, et chaque succès débloqué, sur la dalle et l'écran HD.
 
 For these games, ArcadeDMD reads the memory itself through its MAME plugin. DOFLinx is no longer needed for the panel, it is still needed for DOF toys (flashers, solenoids, shaker, fans, button lights).
 

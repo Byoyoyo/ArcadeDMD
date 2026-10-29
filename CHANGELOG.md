@@ -20,7 +20,7 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - Street Fighter III: New Generation names its fighters.
 
 **The Capcom games done one by one**
-- Fifty-three Capcom games get a panel scene and an animated HD scene of their own, drawn by the program with heroes and foes of our own.
+- Fifty Capcom games get a panel scene and an animated HD scene of their own, drawn by the program with heroes and foes of our own.
 - The beat'em ups (Final Fight, Captain Commando, Cadillacs and Dinosaurs, The Punisher, The King of Dragons, Knights of the Round, Warriors of Fate, the two Dungeons & Dragons, Alien vs. Predator, Armored Warriors, Battle Circuit). The hero chosen in the game, things to break that leave food or treasure, the name and gauge of the foe just hit, and player 2 who joins at the hero's side with his own box.
 - The shoot'em ups (1944, 19XX, 1941, Varth, U.N. Squadron, Carrier Air Wing, Forgotten Worlds, Giga Wing, Progear, Mars Matrix, Dimahoo, Eco Fighters, Mercs). Once the score is learned, the enemies blow up when the game scores points, a bomb sweeps the screen, the weapon picked up and the plane chosen are named, and on the panel the plane of the game flies and fires.
 - The action games, platformers, puzzle games and quizzes (Ghouls'n Ghosts, Strider, Pang! 3, Mighty! Pang, Super Puzzle Fighter II Turbo, Mega Twins, Magic Sword, Willow, Nemo, Three Wonders, Dynasty Wars, Puzz Loop 2, Capcom Sports Club, Quiz & Dragons, Adventure Quiz Capcom World 2). The hero throws what the game says he holds, his armour and his partner follow the game.
@@ -61,7 +61,7 @@ Extract the new zip over the old folder (`config.json`, your learned addresses a
 - Street Fighter III: New Generation donne le nom de ses combattants.
 
 **Les jeux Capcom faits un par un**
-- Cinquante-trois jeux Capcom ont une scène de dalle et une scène HD animée à leur image, dessinées par le programme avec des héros et des ennemis à nous.
+- Cinquante jeux Capcom ont une scène de dalle et une scène HD animée à leur image, dessinées par le programme avec des héros et des ennemis à nous.
 - Les beat'em up (Final Fight, Captain Commando, Cadillacs and Dinosaurs, The Punisher, The King of Dragons, Knights of the Round, Warriors of Fate, les deux Dungeons & Dragons, Alien vs. Predator, Armored Warriors, Battle Circuit). Le héros choisi dans le jeu, des objets à casser qui laissent de la nourriture ou un trésor, le nom et la jauge de l'ennemi qu'on vient de frapper, et le joueur 2 qui arrive aux côtés du héros avec son encadré à lui.
 - Les shoot'em up (1944, 19XX, 1941, Varth, U.N. Squadron, Carrier Air Wing, Forgotten Worlds, Giga Wing, Progear, Mars Matrix, Dimahoo, Eco Fighters, Mercs). Une fois le score appris, les ennemis explosent quand le jeu marque des points, une bombe balaie l'écran, l'arme ramassée et l'avion choisi sont nommés, et sur la dalle l'avion du jeu vole et tire.
 - Les jeux d'action, de plateformes, de réflexion et les quiz (Ghouls'n Ghosts, Strider, Pang! 3, Mighty! Pang, Super Puzzle Fighter II Turbo, Mega Twins, Magic Sword, Willow, Nemo, Three Wonders, Dynasty Wars, Puzz Loop 2, Capcom Sports Club, Quiz & Dragons, Adventure Quiz Capcom World 2). Le héros lance ce que le jeu dit qu'il tient, son armure et son compagnon suivent le jeu.
