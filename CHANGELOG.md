@@ -3,6 +3,38 @@
 Newest version first. Each version is in English, then in French.
 La version la plus récente en premier. Chaque version est en anglais, puis en français.
 
+## 1.23.0
+
+### English
+
+**Neo Geo games done one by one, seventh batch**
+- Puzzle De Pon! R!, Panic Bomber, Pop 'n Bounce, Super Bubble Pop, Spin Master, Ganryu, Zupapa!, Neo Mr. Do!, Super Sidekicks and Super Sidekicks 2 now have a file of their own, with a panel scene and an animated HD scene made for each game after screenshots of the game. That makes fifty-five games done one by one. `PROGRESS.md` shows what comes next.
+- Puzzle De Pon! R!. The boards and the star dial of Puzzle De Pon!, under a pink sky.
+- Panic Bomber, Pop 'n Bounce and Super Bubble Pop. Fields of their own, little heads that fall and stack with bombs that blow up in a cross, soft creatures that a bouncing ball bursts, a white board seen at an angle where a little robot shoots its bubbles. The points and the power read in the game set things off.
+- Spin Master and Ganryu. The desert of the pyramids where our hero throws his yo-yo, a street of old Japan at night where our swordsman fights the ninjas. The counters where each game puts them.
+- Zupapa! and Neo Mr. Do!. The blue cave and its striped platforms where our little round hero boots the monsters, the field of coloured tiles where our little digger digs his tunnels and picks the cherries, EXTRA lit letter by letter.
+- Super Sidekicks and Super Sidekicks 2. The match with the scoreboard of each game, the goals and the time read in the game.
+- The score of Puzzle De Pon! R!, Panic Bomber, Pop 'n Bounce, Super Bubble Pop, Spin Master, Ganryu, Zupapa! and Neo Mr. Do! is in no database. Learn it with `learn.bat`.
+- `demo_neogeo.bat` now offers the fifty-five games.
+
+**Updating from 1.22**
+Extract the new zip over the old folder (`config.json` and your learned addresses are kept), then run `install.bat` once to update the MAME plugin.
+
+### Français
+
+**Jeux Neo Geo faits un par un, septième lot**
+- Puzzle De Pon! R!, Panic Bomber, Pop 'n Bounce, Super Bubble Pop, Spin Master, Ganryu, Zupapa!, Neo Mr. Do!, Super Sidekicks et Super Sidekicks 2 ont maintenant un fichier à eux, avec une scène de dalle et une scène HD animée faites pour chaque jeu d'après des captures du jeu. Ça fait cinquante-cinq jeux faits un par un. `PROGRESS.md` montre ce qui vient ensuite.
+- Puzzle De Pon! R!. Les plateaux et le cadran étoilé de Puzzle De Pon!, sous un ciel rose.
+- Panic Bomber, Pop 'n Bounce et Super Bubble Pop. Des champs à eux, de petites têtes qui tombent et s'empilent avec des bombes qui sautent en croix, des créatures molles qu'une balle qui rebondit fait éclater, un plateau blanc vu de biais où un petit robot tire ses bulles. Les points et la puissance lus dans le jeu déclenchent tout ça.
+- Spin Master et Ganryu. Le désert des pyramides où notre héros lance son yo-yo, une rue du vieux Japon la nuit où notre sabreur combat les ninjas. Les compteurs là où chaque jeu les met.
+- Zupapa! et Neo Mr. Do!. La grotte bleue et ses plateformes rayées où notre petit héros rond chasse les monstres, le champ de cases colorées où notre petit mineur creuse ses tunnels et ramasse les cerises, EXTRA qui s'allume lettre par lettre.
+- Super Sidekicks et Super Sidekicks 2. Le match avec le tableau de score de chaque jeu, les buts et le temps lus dans le jeu.
+- Le score de Puzzle De Pon! R!, Panic Bomber, Pop 'n Bounce, Super Bubble Pop, Spin Master, Ganryu, Zupapa! et Neo Mr. Do! n'est dans aucune base. Apprends-le avec `learn.bat`.
+- `demo_neogeo.bat` propose maintenant les cinquante-cinq jeux.
+
+**Mettre à jour depuis la 1.22**
+Décompresse le nouveau zip par-dessus l'ancien dossier (`config.json` et tes adresses apprises sont gardés), puis lance `install.bat` une fois pour mettre à jour le plugin MAME.
+
 ## 1.22.0
 
 ### English

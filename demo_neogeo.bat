@@ -55,9 +55,19 @@ echo  42  Puzzle Bobble 2
 echo  43  Magical Drop II
 echo  44  Money Puzzle Exchanger
 echo  45  Puzzle De Pon!
+echo  46  Puzzle De Pon! R!
+echo  47  Panic Bomber
+echo  48  Pop 'n Bounce
+echo  49  Super Bubble Pop
+echo  50  Spin Master
+echo  51  Ganryu
+echo  52  Zupapa!
+echo  53  Neo Mr. Do!
+echo  54  Super Sidekicks
+echo  55  Super Sidekicks 2
 echo.
 set N=
-if "%L%"=="fr" (set /p N=Quel jeu, 1 a 45 ? ) else (set /p N=Which game, 1 to 45? )
+if "%L%"=="fr" (set /p N=Quel jeu, 1 a 55 ? ) else (set /p N=Which game, 1 to 55? )
 set G=blazstar
 if "%N%"=="2" set G=pbobblen
 if "%N%"=="3" set G=wjammers
@@ -103,6 +113,16 @@ if "%N%"=="42" set G=pbobbl2n
 if "%N%"=="43" set G=magdrop2
 if "%N%"=="44" set G=miexchng
 if "%N%"=="45" set G=puzzledp
+if "%N%"=="46" set G=puzzldpr
+if "%N%"=="47" set G=panicbom
+if "%N%"=="48" set G=popbounc
+if "%N%"=="49" set G=sbp
+if "%N%"=="50" set G=spinmast
+if "%N%"=="51" set G=ganryu
+if "%N%"=="52" set G=zupapa
+if "%N%"=="53" set G=neomrdo
+if "%N%"=="54" set G=ssideki
+if "%N%"=="55" set G=ssideki2
 :play
 if "%L%"=="fr" (echo Demo %G%, avec des valeurs simulees. Echap ou ferme la fenetre pour quitter.) else (echo %G% demo, with simulated values. Press Esc or close the window to quit.)
 %PY% arcadedmd.py demo %G%
