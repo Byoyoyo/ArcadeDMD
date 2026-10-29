@@ -683,7 +683,9 @@ class AnimEl(Element):
 
     "image" : un fichier ou une liste (le premier qui existe est pris, "{game}" devient le nom du jeu). Un GIF animé garde
       ses propres durées, une bande PNG se découpe en "frames" images de "ms" millisecondes (une image de 128 x 32 ou un GIF
-      fixe reste une seule image, sur toute la dalle si elle en a la taille). Les fichiers du dossier perso
+      fixe reste une seule image, sur toute la dalle si elle en a la taille). Une image de toute la dalle dont le dessin
+      tient au milieu (une explosion de DOFLinx) est recadrée et se joue à l'endroit de l'action, sauf "trim": false.
+      Les fichiers du dossier perso
       passent avant les nôtres, par exemple ["perso/{game}/boom.gif", "perso/boom.gif", "sprites/fx_pop.png"].
     "on" : valeur(s) surveillée(s), "change" : "up" (défaut), "down" ou "any".
     "ratio" : [min, max], seulement si le gain est entre min et max fois le gain habituel (petit ennemi, gros ennemi).
@@ -749,7 +751,16 @@ class AnimEl(Element):
                             r, g, b, a = px[x, y]
                             if r + g + b < 36:
                                 px[x, y] = (0, 0, 0, 0)
-                self.frames.append(Sprite(im))
+            box = None
+            if not keep_black and raw and raw[0][0].size == (128, 32) and self.spec.get("trim", True):
+                for im, _ in raw:                            # une explosion au milieu d'une image de toute la dalle
+                    b = im.getbbox()
+                    if b:
+                        box = b if box is None else (min(box[0], b[0]), min(box[1], b[1]), max(box[2], b[2]), max(box[3], b[3]))
+                if box and box[2] - box[0] > 48:
+                    box = None                               # elle occupe la dalle : elle reste entière / it fills the panel
+            for im, d in raw:
+                self.frames.append(Sprite(im.crop(box) if box else im))
                 self.durs.append(max(10.0, d) / 1000.0)
             self.full = bool(self.frames) and self.frames[0].w >= 128 and self.frames[0].h >= 32
             return
