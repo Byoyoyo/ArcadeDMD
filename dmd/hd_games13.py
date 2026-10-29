@@ -16,6 +16,7 @@ import math
 from .hd_games import CREAM, GOLD, RED, WHITE, _clamp, _mix, _n
 from .hd_games3 import DARK, AeroFightersScene, _poly, bomber_draw, jet_draw, prop_plane_draw
 from .hd_games5 import ShockTroopers2Scene, SideShooterScene, side_heli_draw
+from .hd_games6 import portrait_draw
 from .hd_games10 import gunboat_draw
 from .hd_themes13 import GW_LANES, MC_ROAD, MM_LANES, SEA41_LANES, SEA44_LANES, THEMES, VT_LANES
 from .i18n import tr
@@ -834,12 +835,32 @@ class UNSquadronScene(_SideCps):
     def move(self, vals, now, idle):
         return 0.3 if idle else 1.1
 
+    def bombs_swept(self, vals, now):
+        """Each shot of the special weapon spends one of its stock: a missile goes to the nearest enemy ahead.
+        / Chaque tir de l'arme spéciale en dépense une : un missile part vers l'ennemi le plus proche devant."""
+        ch = self.changed(vals, "bombs")
+        if not (ch and ch[1] < ch[0] and self.ships["p1"]["in"]):
+            return
+        S, fx = self.S, self.fx
+        self.swept += 1
+        x, y = self.pos("p1", now)
+        live = [e for e in self.enemies if not e.get("dead") and e["x"] > x]
+        tgt = min(live, key=lambda e: e["x"]) if live else None
+        tx, ty = (tgt["x"], tgt.get("yy", tgt["y"])) if tgt else (self.W + S(40), y + S(20))
+        fx.tracer(x + S(60), y + S(14), tx, ty, 1600, (255, 200, 120), 8, 90, "front", False)
+        fx.glow(x + S(60), y + S(14), 16, 60, (255, 200, 120), 0.2, "front", 0.9, 0.0)
+        if tgt is not None:
+            self.weapon_window(now, 0.9)
+            fx.later(min(0.8, abs(tx - x) / (1600 * self.s)), self._boom, tgt)
+
     def status(self, screen, eng, vals, logo, now):
-        """As in the game: 1 PLAYER and the score, 2 PLAYER at the right, the special weapon and its stock at the
-        bottom. / Comme dans le jeu : 1 PLAYER et le score, l'arme spéciale et son stock en bas."""
+        """As in the game: 1 PLAYER and the score, the face of our pilot next to it, 2 PLAYER at the right, the special
+        weapon and its stock at the bottom. / Comme dans le jeu : 1 PLAYER et le score, le visage de notre pilote,
+        l'arme spéciale et son stock en bas."""
         S, W, H, hd = self.S, self.W, self.H, self.hd
         hd.draw_logo(screen, logo, W / 2, S(8), S(460), S(90), now)
         self.score_box(screen, eng, vals, "p1", "1 PLAYER", (255, 230, 120), 460)
+        screen.blit(self.img("unface", S(60), S(60), portrait_draw((226, 176, 136), (170, 70, 40), bg=(70, 100, 170)), ss=2), (S(490), S(8)))
         self.p2_corner(screen, eng, vals, now, "2 PLAYER", (120, 190, 255), 460)
         name, n = self.weapon_name(vals), _n(vals.get("bombs"))
         if name or n is not None:

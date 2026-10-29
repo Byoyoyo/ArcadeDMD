@@ -476,11 +476,7 @@
         },
         "title": [
           {
-            "text": "CAPCOM",
-            "color": "#1d5bff"
-          },
-          {
-            "text": " - {title}",
+            "text": "{title}",
             "color": "#ffc850"
           }
         ],
@@ -489,62 +485,6 @@
       {
         "type": "events",
         "events": [
-          {
-            "on": "bombs",
-            "change": "down",
-            "step": 1,
-            "when": {
-              "not": {
-                "all": [
-                  {
-                    "has": "p1_mode"
-                  },
-                  {
-                    "not": {
-                      "var": "p1_mode",
-                      "in": [
-                        1,
-                        2
-                      ]
-                    }
-                  },
-                  {
-                    "not": {
-                      "var": "p2_mode",
-                      "in": [
-                        1,
-                        2
-                      ]
-                    }
-                  }
-                ]
-              }
-            },
-            "text": "BOMB!",
-            "color": "#ff8a30",
-            "font": "9x15B",
-            "ms": 1300,
-            "priority": 3,
-            "anim": [
-              {
-                "image": ["artwork/{game}/bomb.gif", "artwork/bomb.gif", "sprites/fx_fire.png"],
-                "count": 4,
-                "spread": [
-                  10,
-                  118
-                ],
-                "y": 16,
-                "delay": 0.07,
-                "ms": 90
-              },
-              {
-                "image": ["artwork/{game}/shock.gif", "artwork/shock.gif", "sprites/fx_shock.png"],
-                "x": 64,
-                "y": 16,
-                "ms": 90
-              }
-            ]
-          },
           {
             "on": "weapon",
             "when": {

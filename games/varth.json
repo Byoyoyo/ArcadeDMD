@@ -552,11 +552,7 @@
         },
         "title": [
           {
-            "text": "CAPCOM",
-            "color": "#1d5bff"
-          },
-          {
-            "text": " - {title}",
+            "text": "{title}",
             "color": "#50c8ff"
           }
         ],

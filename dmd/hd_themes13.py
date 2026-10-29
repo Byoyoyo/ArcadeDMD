@@ -53,7 +53,7 @@ def battleship(p, x, y, L, s, rng, wk=None):
             t = k / 39
             r = h * 0.3 + h * 0.55 * t
             cx = x - L * 0.45 - t * L * 0.8
-            wk.ellipse(cx - r, y - r * 0.6, cx + r, y + r * 0.6, (226, 238, 252, int(150 * (1 - t) + 30)))
+            wk.ellipse(cx - r, y - r * 0.6, cx + r, y + r * 0.6, (220, 234, 250, int(90 * (1 - t) + 16)))
         for k in range(30):                                            # foam / l'écume
             t = rng.uniform(0, 1)
             r = (3 + 8 * (1 - t)) * s
@@ -98,7 +98,7 @@ def build_c44_sea(W, H, s, seed=301):
     for _ in range(int(tw * H / (2600 * s * s))):                        # darker and lighter patches of the sea
         x, y = rng.uniform(0, tw), rng.uniform(0, H)
         r = rng.uniform(30, 90) * s
-        p.ellipse(x - r * 1.6, y - r * 0.6, x + r * 1.6, y + r * 0.6, _rgba(rng.choice(((36, 76, 152), (46, 90, 170))), 120))
+        p.ellipse(x - r * 1.6, y - r * 0.6, x + r * 1.6, y + r * 0.6, _rgba(rng.choice(((38, 79, 156), (43, 86, 165)))))
     _ripples(p, rng, tw, H, s, int(tw * H / (320 * s * s)), (120, 160, 225, 255), (28, 62, 130, 255))
     ships = [(tw * 0.2, 236 * s, 900 * s), (tw * 0.7, 250 * s, 980 * s)]
     wk = _Pic(tw, H, 2, tw)
