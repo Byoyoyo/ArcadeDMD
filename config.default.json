@@ -63,5 +63,13 @@
     "host": "127.0.0.1",
     "port": 55355,
     "poll_ms": 100
+  },
+  "coin_buttons": {
+    "left": null,
+    "right": null,
+    "mvs_credits": [
+      1,
+      2
+    ]
   }
 }

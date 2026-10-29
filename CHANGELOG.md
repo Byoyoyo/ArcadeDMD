@@ -3,6 +3,30 @@
 Newest version first. Each version is in English, then in French.
 La version la plus récente en premier. Chaque version est en anglais, puis en français.
 
+## 1.29.2
+
+### English
+
+**Every coin and its side, with RetroArch**
+- `coin_buttons.bat` shows ArcadeDMD your two coin buttons, on the controllers or the keyboard. ArcadeDMD then reads them itself, at the same time as RetroArch and without taking them from it. Every coin is seen with its side, during a game too, and on the HD screen the coin drops in the slot on the side where you put it. Windows only.
+- An MVS gives 2 credits for a coin in its second slot when its settings were not changed. ArcadeDMD counts the same way (`"mvs_credits": [1, 2]` in the `coin_buttons` section of `config.json`).
+- Without the buttons, the BIOS now also shows the first coin put in during a game.
+- `test_coins.bat` also writes down each press on the coin buttons.
+
+**Updating from 1.29.1**
+Extract the new zip over the old folder (`config.json`, your learned addresses and your `artwork` folder are kept). Then run `coin_buttons.bat` once.
+
+### Français
+
+**Chaque pièce et son côté, avec RetroArch**
+- `coin_buttons.bat` montre à ArcadeDMD tes deux boutons de pièce, sur les manettes ou le clavier. ArcadeDMD les lit alors lui-même, en même temps que RetroArch et sans les lui prendre. Chaque pièce est vue avec son côté, même en pleine partie, et sur l'écran HD la pièce tombe dans le monnayeur du côté où tu l'as mise. Seulement sous Windows.
+- Une MVS donne 2 crédits pour une pièce dans son deuxième monnayeur quand ses réglages n'ont pas été changés. ArcadeDMD compte pareil (`"mvs_credits": [1, 2]` dans la rubrique `coin_buttons` de `config.json`).
+- Sans les boutons, le BIOS montre maintenant aussi la première pièce mise en pleine partie.
+- `test_coins.bat` note aussi chaque appui sur les boutons des pièces.
+
+**Mettre à jour depuis la 1.29.1**
+Décompresse le nouveau zip par-dessus l'ancien dossier (`config.json`, tes adresses apprises et ton dossier `artwork` sont gardés). Lance ensuite une fois `coin_buttons.bat`.
+
 ## 1.29.1
 
 ### English

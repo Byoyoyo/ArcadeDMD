@@ -34,6 +34,7 @@ Usage :
   python arcadedmd.py enable-zedmd     active la sortie ZeDMD (désactivée par défaut)
   python arcadedmd.py test-retroarch   vérifie RetroArch, le cœur chargé et la lecture de la mémoire
   python arcadedmd.py test-coins       note ce que fait le BIOS Neo Geo quand une pièce entre (RetroArch)
+  python arcadedmd.py coin-buttons     montre à ArcadeDMD les boutons des pièces de gauche et de droite
   python arcadedmd.py setup-screen     place la fenêtre LED virtuelles sur un écran LCD qui sert de DMD
 """
 
@@ -53,6 +54,7 @@ Usage:
   python arcadedmd.py enable-zedmd     enables the ZeDMD output (disabled by default)
   python arcadedmd.py test-retroarch   checks RetroArch, the loaded core and memory reading
   python arcadedmd.py test-coins       writes down what the Neo Geo BIOS does when a coin goes in (RetroArch)
+  python arcadedmd.py coin-buttons     shows ArcadeDMD the coin buttons on the left and on the right
   python arcadedmd.py setup-screen     puts the virtual LED window on an LCD screen used as a DMD
 """
 
@@ -254,6 +256,10 @@ def main(argv):
         from dmd import coinwatch
         seconds = int(argv[2]) if len(argv) > 2 and argv[2].isdigit() else 150
         return coinwatch.run(ROOT, cfg, seconds=seconds)
+
+    if cmd == "coin-buttons":
+        from dmd import coinbuttons
+        return coinbuttons.learn(ROOT)
 
     demo = None
     use_zedmd = True
