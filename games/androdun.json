@@ -241,6 +241,65 @@
        }
       ]
      }
+    },
+    "shoot": {
+     "on": [
+      "score",
+      "score_p2"
+     ],
+     "dx": 8,
+     "dy": 2,
+     "speed": 140,
+     "color": "#ffe060",
+     "gap": 0.12
+    }
+   },
+   {
+    "type": "particles",
+    "rate": 0,
+    "y": [
+     13,
+     25
+    ],
+    "color": "#000000",
+    "burst": {
+     "on": [
+      "score",
+      "score_p2"
+     ],
+     "color": "#ffb040",
+     "count": 12,
+     "x": [
+      60,
+      120
+     ]
+    },
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
     }
    },
    {

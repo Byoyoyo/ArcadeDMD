@@ -963,6 +963,7 @@ class ZedBladeScene(SideShooterScene):
         if ch and ch[1] < ch[0] and self.ships["p1"]["in"]:
             S, fx = self.S, self.fx
             self.bombs += 1
+            self.weapon_window(now)
             x, y = self.pos("p1", now)
             for i in range(6):
                 fx.later(i * 0.08, fx.explosion, x + S(200) + i * S(220), y + self.rng.uniform(-S(80), S(80)), 0.7, False)
@@ -1028,6 +1029,7 @@ class PrehistoricIsle2Scene(SideShooterScene):
         if ch and ch[1] < ch[0] and self.ships["p1"]["in"]:
             S, fx = self.S, self.fx
             self.bombs += 1
+            self.weapon_window(now)
             x, y = self.pos("p1", now)
             fx.flash((255, 240, 200), 0.3, 0.3)
             fx.explosion(x + S(500), y, 1.4, False)

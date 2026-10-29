@@ -3,6 +3,32 @@
 Newest version first. Each version is in English, then in French.
 La version la plus récente en premier. Chaque version est en anglais, puis en français.
 
+## 1.28.0
+
+### English
+
+**The shoot'em ups follow the game more closely**
+- In the fifteen Neo Geo shoot'em ups done one by one, once the score is read, the enemies of the HD screen only blow up when the game scores points. The enemy our shots are hitting goes first and its points show above it. The bigger the gain next to the usual ones, the bigger the blast, and the screen shakes for a big enemy. Our shots still hit the enemies, they flash.
+- The bombs, the super shot of Strikers 1945 Plus and the charged shot of Pulstar stay weapons of the game, they destroy what they hit. The unit of Last Resort hits the enemies too, and the points decide which one blows up.
+- A bonus that the game counts at the end of a stage shows as one BONUS counter instead of blowing up dozens of enemies.
+- On the panel, a burst of sparks goes off ahead of the ship at each point scored, and the ship fires. Andro Dunos, Captain Tomaday, Choutetsu Brikin'ger and Last Hope fire now too.
+- The score of these games is in no database. Until it is learned with `learn.bat`, the scenes play by themselves as before.
+
+**Updating from 1.27**
+Extract the new zip over the old folder (`config.json` and your learned addresses are kept), then run `install.bat` once to update the MAME plugin.
+
+### Français
+
+**Les shoot'em up suivent mieux le jeu**
+- Dans les quinze shoot'em up Neo Geo faits un par un, dès que le score est lu, les ennemis de l'écran HD n'explosent que quand le jeu marque des points. L'ennemi que nos tirs touchent part d'abord et ses points s'affichent au-dessus. Plus le gain est gros à côté des gains habituels, plus l'explosion est forte, et l'écran tremble pour un gros ennemi. Nos tirs touchent toujours les ennemis, ils clignotent.
+- Les bombes, le super tir de Strikers 1945 Plus et le tir chargé de Pulstar restent des armes du jeu, ils détruisent ce qu'ils touchent. L'unité de Last Resort touche aussi les ennemis, et les points décident lequel explose.
+- Un bonus compté par le jeu en fin de niveau s'affiche en un seul compteur BONUS au lieu de faire exploser des dizaines d'ennemis.
+- Sur la dalle, une gerbe d'étincelles part devant le vaisseau à chaque point marqué, et le vaisseau tire. Andro Dunos, Captain Tomaday, Choutetsu Brikin'ger et Last Hope tirent maintenant aussi.
+- Le score de ces jeux n'est dans aucune base. Tant qu'il n'est pas appris avec `learn.bat`, les scènes jouent toutes seules comme avant.
+
+**Mettre à jour depuis la 1.27**
+Décompresse le nouveau zip par-dessus l'ancien dossier (`config.json` et tes adresses apprises sont gardés), puis lance `install.bat` une fois pour mettre à jour le plugin MAME.
+
 ## 1.27.0
 
 ### English

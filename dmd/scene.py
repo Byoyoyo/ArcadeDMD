@@ -594,7 +594,9 @@ class GaugeEl(Element):
 
 
 class ParticlesEl(Element):
-    """Missiles qui traversent + gerbes d'étincelles quand une valeur augmente."""
+    """Missiles qui traversent + gerbes d'étincelles quand une valeur augmente.
+    "burst": {"on": valeurs, "color", "count", "x": [x0, x1]} : une gerbe à un endroit pris entre x0 et x1 (et dans "y")
+    chaque fois qu'une des valeurs monte, par exemple un ennemi qui explose quand le score monte."""
 
     def __init__(self, spec, root, log):
         super().__init__(spec, root, log)
@@ -611,6 +613,15 @@ class ParticlesEl(Element):
         self.sparks = []
         self.rng = random.Random(7)
         self.last_t = None
+        self.burst_times = []
+
+    def _burst_ok(self, t):
+        """Not too many bursts: at most one every "gap" seconds, none while the value climbs very fast (a bonus that the
+        game counts). / Pas trop de gerbes : rien pendant un décompte rapide de points (un bonus compté par le jeu)."""
+        self.burst_times = [x for x in self.burst_times if t - x < 0.8] + [t]
+        if len(self.burst_times) > 6:
+            return False
+        return len(self.burst_times) < 2 or t - self.burst_times[-2] >= float(self.burst.get("gap", 0.0))
 
     def render(self, ctx):
         cv = ctx.canvas
@@ -631,7 +642,10 @@ class ParticlesEl(Element):
             names = names if isinstance(names, list) else [names]
             for (name, old, new, et) in ctx.state.events:
                 if name in names and isinstance(old, (int, float)) and isinstance(new, (int, float)) and new > old:
-                    cx = self.rng.randint(20, cv.w - 20)
+                    if not self._burst_ok(t):
+                        continue
+                    xr = self.burst.get("x") or [20, cv.w - 20]
+                    cx = self.rng.randint(int(xr[0]), max(int(xr[0]), int(xr[1])))
                     cy = self.rng.randint(self.ymin, self.ymax)
                     col = parse_color(self.burst.get("color"), (255, 200, 60))
                     for _ in range(int(self.burst.get("count", 8))):

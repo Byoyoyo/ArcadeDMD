@@ -497,6 +497,8 @@ Si l'outil ne trouve rien, zippe le dossier `runtime\learn\` du jeu (`kof2002` p
 
 Jeu après jeu, les jeux Neo Geo ont reçu une scène de dalle et une scène HD animée à leur image, les plus connus d'abord, et maintenant ils en ont tous une. [PROGRESS.md](PROGRESS.md) montre où on en est et ce qui vient ensuite. Tout est dessiné par le programme, aucune image ne vient des jeux.
 
+Dans les shoot'em up (Blazing Star, Pulstar, Last Resort, Aero Fighters 2 et 3, Strikers 1945 Plus, Ghost Pilots, Alpha Mission II, Viewpoint, Zed Blade, Prehistoric Isle 2, Andro Dunos, Captain Tomaday, Choutetsu Brikin'ger, Last Hope), dès que le score est lu, les ennemis de l'écran HD n'explosent que quand le jeu marque des points. L'ennemi que nos tirs touchent part d'abord, ses points s'affichent au-dessus, et plus le gain est gros plus l'explosion est forte. Une bombe ou une arme spéciale du jeu détruit ce qu'elle touche, et un bonus compté par le jeu en fin de niveau s'affiche en un seul compteur. Sur la dalle, une gerbe d'étincelles part devant le vaisseau à chaque point marqué. Tant que le score d'un jeu n'a pas été appris avec `learn.bat`, sa scène joue toute seule.
+
 ![Blazing Star, Puzzle Bobble, Windjammers, Shock Troopers et Neo Turf Masters sur un marquee LCD, affichage HD](docs/images/hd_neogeo_games.jpg)
 
 ![Pulstar, Magical Drop III, Super Sidekicks 3, The Ultimate 11 et Sengoku 3 sur un marquee LCD, affichage HD](docs/images/hd_neogeo_games_2.jpg)

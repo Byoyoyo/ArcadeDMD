@@ -2569,20 +2569,20 @@ class AeroFightersScene(BlazingStarScene):
                 x, y = self.pos(side, now)
                 self.popup(tr("BOMBE +", "BOMB UP"), x, max(S(176), y - S(80)), (255, 190, 90), 36)
                 self.bpop[side] = now
-        for name in ("score", "score_p2"):                             # points with no plane ahead: a target on the ground
-            ch = self.changed(vals, name)
-            if ch and ch[1] > ch[0]:
-                ahead = [e for e in self.enemies if S(420) < e["x"] < self.W * 0.78 and not e.get("dead")]
-                if not ahead:
-                    side = "p1" if name == "score" else "p2"
-                    tgt = [g for g in self.ground if not g.get("dead") and S(300) < self.gx(g) < self.W * 0.9]
-                    if tgt and self.ships[side]["in"]:
-                        self.strafe(side, min(tgt, key=self.gx), now)
         if now >= self.next_ground:                                    # tanks driving on the avenues
             self.next_ground = now + self.rng.uniform(2.5, 5.0)
             if len([g for g in self.ground if not g.get("dead")]) < 3:
                 self.ground.append({"wx": self.bd.scroll + self.W + S(120), "y": self.lane_y(), "v": self.rng.uniform(10, 40) * self.s,
                                     "ph": self.rng.uniform(0, 6)})
+
+    def no_target_kill(self, side, now):
+        """Points with no plane on the screen: a target on the ground. / Des points sans avion : une cible au sol."""
+        tgt = [g for g in self.ground if not g.get("dead") and self.S(300) < self.gx(g) < self.W * 0.9]
+        if tgt and self.ships[side]["in"]:
+            g = min(tgt, key=self.gx)
+            self.strafe(side, g, now)
+            return self.gx(g), g["y"]
+        return super().no_target_kill(side, now)
 
     def lane_y(self):
         """Where a tank drives: a lane of an avenue of the city. / Où roule un char : une voie d'une avenue."""

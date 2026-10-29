@@ -452,6 +452,44 @@ class BlazingStarScene(GameScene):
                              "t_dead": -99.0, "t_spawn": -99.0, "fire": 0.0, "in": False} for side in ("p1", "p2")}
         self.enemies = []
         self.next_enemy = 0.0
+        # When the score is read, the enemies of the screen only blow up when the game says so: the points scored, a
+        # bomb or a special weapon of the game. Our shots still hit them, they flash. / Quand le score est lu, les
+        # ennemis de l'écran n'explosent que quand le jeu le dit : les points marqués, une bombe, une arme spéciale.
+        self.real_kills = False
+        self.free_kills = -99.0
+        self.gains = []
+        self.tally = {side: {"times": [], "total": 0, "last": -9.0} for side in ("p1", "p2")}
+        self.last_points = -9.0
+        self.score_kills = 0                              # (tests)
+        self.big_kills = 0
+        self.booms = 0
+        self.spared = 0
+        self.tallies = 0
+        boom = self._boom
+
+        def guarded(e, *a, **k):
+            if self.real_kills and not e.pop("doomed", False) and self.fx.now > self.free_kills:
+                e["hit"] = self.fx.now                    # hit, not destroyed / touché, pas détruit
+                self.spared += 1
+                return None
+            if not e.get("dead"):
+                self.booms += 1
+            return boom(e, *a, **k)
+        self._boom = guarded
+        for name in ("bomb", "super_shot", "_release"):    # the game's own weapons destroy what they hit
+            real = getattr(self, name, None)
+            if callable(real):
+                setattr(self, name, self._weapon(real))
+
+    def _weapon(self, real):
+        def fire(*a, **k):
+            self.weapon_window(self.fx.now)
+            return real(*a, **k)
+        return fire
+
+    def weapon_window(self, now, dur=1.8):
+        """A bomb or a weapon of the game: what it hits may blow up for a moment. / Une bombe ou une arme du jeu."""
+        self.free_kills = max(self.free_kills, now + dur)
 
     def ship_surf(self, side):
         return self.img("ship_" + side, self.S(176), self.S(78), ship_draw(self.ACC[side]))
@@ -495,6 +533,7 @@ class BlazingStarScene(GameScene):
 
     def update(self, vals, now):
         fx, S, dt = self.fx, self.S, self.dt
+        self.real_kills = any(_n(vals.get(n)) is not None for n in ("score", "score_p2"))
         for side, suf in (("p1", ""), ("p2", "_p2")):
             P = self.ships[side]
             playing = self.p1_in(vals) if side == "p1" else self.p2_in(vals)
@@ -525,12 +564,7 @@ class BlazingStarScene(GameScene):
             if alive and firing and now >= P["fire"]:
                 P["fire"] = now + (0.075 if pw >= 3 else 0.11)
                 self._fire(side, pw, now)
-        for name in ("score", "score_p2"):                            # points scored: the enemy in front blows up
-            ch = self.changed(vals, name)
-            if ch and ch[1] > ch[0]:
-                ahead = [e for e in self.enemies if S(420) < e["x"] < self.W * 0.78 and not e.get("dead")]
-                if ahead:
-                    self._boom(min(ahead, key=lambda e: e["x"]))
+        self.score_events(vals, now)                                 # points scored: an enemy blows up
         ch = self.changed(vals, "round")
         if ch:
             self.slam(f"ROUND {int(ch[1])}", GOLD, now, 1.6)
@@ -541,6 +575,105 @@ class BlazingStarScene(GameScene):
             y, v, ph = self.rng.uniform(S(self.ZONE[0]), S(self.ZONE[1])), self.rng.uniform(230, 330) * self.s, self.rng.uniform(0, 6)
             for i in range(self.rng.choice((1, 1, 3))):
                 self.enemies.append({"x": self.W + S(60) + i * S(110), "y": y, "ph": ph + i * 0.5, "v": v, "hp": 3, "hit": -99.0})
+
+    def score_events(self, vals, now):
+        """Points scored in the game: an enemy of the screen blows up, the bigger the gain the bigger the blast. A quick
+        count of points (the bonus at the end of a stage) is shown as a bonus, not as enemies.
+        / Des points marqués : un ennemi explose, d'autant plus fort que le gain est gros. Un décompte rapide de points
+        (le bonus de fin de niveau) s'affiche en bonus."""
+        for name, side in (("score", "p1"), ("score_p2", "p2")):
+            T = self.tally[side]
+            ch = self.changed(vals, name)
+            if not ch or ch[1] <= ch[0]:
+                continue
+            gain = ch[1] - ch[0]
+            T["times"] = [t for t in T["times"] if now - t < 0.8] + [now]
+            if len(T["times"]) > 6:                                      # the game counts a bonus / le jeu compte un bonus
+                if now - T["last"] > 1.4:
+                    T["total"] = 0
+                    self.tallies += 1
+                T["total"] += gain
+                T["last"] = now
+                continue
+            self.score_kill(side, gain, self.gain_ratio(gain), now)
+
+    def draw_pops(self, screen, now):
+        """The popups, and the bonus that the game counts, in one counter. / Les bulles, et le bonus compté par le jeu."""
+        super().draw_pops(screen, now)
+        both = self.ships["p1"]["in"] and self.ships["p2"]["in"]
+        for side, T in self.tally.items():
+            k = now - T["last"]
+            if T["total"] <= 0 or k > 1.4:
+                continue
+            x = self.W * ((0.3 if side == "p1" else 0.7) if both else 0.5)
+            fade = 1.0 if k < 1.0 else max(0.0, (1.4 - k) / 0.4)
+            pop = 1.0 + 0.12 * max(0.0, 1 - k / 0.08)
+            self.label(screen, f"BONUS +{int(T['total'])}", x, self.S(212), 54, GOLD, key="black", align="center", glow=0.6, alpha=190,
+                       scale=round(pop * 20) / 20, fade=fade)
+
+    def play_band(self):
+        """Where the enemies can be seen, between the side panels of the game if it has some.
+        / Où l'on voit les ennemis, entre les panneaux de côté du jeu s'il en a."""
+        panel = getattr(self, "PANEL", 0)
+        if isinstance(panel, (int, float)) and panel:
+            return self.S(panel) + self.S(20), self.W - self.S(panel) - self.S(30)
+        return -self.S(40), self.W - self.S(20)
+
+    def gain_ratio(self, gain):
+        """How big a gain is next to the usual gains of the game. / La taille d'un gain à côté des gains habituels."""
+        past = sorted(self.gains)
+        self.gains = (self.gains + [gain])[-24:]
+        if len(past) < 3:
+            return 1.0
+        return gain / max(1e-6, past[len(past) // 2])
+
+    def kill_target(self, side, now):
+        """The enemy that the points scored blow up: one our shots just hit, else the nearest one ahead.
+        / L'ennemi que les points font exploser : un que nos tirs viennent de toucher, sinon le plus proche devant."""
+        x0, x1 = self.play_band()
+        alive = [e for e in self.enemies if not e.get("dead") and x0 < e["x"] < x1]
+        if not alive:
+            return None
+        x, y = self.pos(side, now) if self.ships[side]["in"] else (self.W * 0.3, self.H * 0.55)
+        hot = [e for e in alive if now - e.get("hit", -99.0) < 0.6]
+        ahead = [e for e in alive if e["x"] > x]
+        return min(hot or ahead or alive, key=lambda e: abs(e.get("yy", e["y"]) - y) * 2.0 + abs(e["x"] - x) * 0.5)
+
+    def no_target_kill(self, side, now):
+        """No enemy on the screen: the blast where one would be, ahead of the ship. / Pas d'ennemi : l'explosion devant."""
+        if not self.ships[side]["in"]:
+            return None
+        x, y = self.pos(side, now)
+        tx = min(self.play_band()[1] - self.S(100), x + self.S(self.rng.uniform(420, 760)))
+        ty = y + self.S(self.rng.uniform(-50, 50))
+        self.fx.explosion(tx, ty, 0.5, False)
+        return tx, ty
+
+    def score_kill(self, side, gain, ratio, now):
+        fx, S, rng = self.fx, self.S, self.rng
+        e = self.kill_target(side, now)
+        if e is not None:
+            e["doomed"] = True
+            self._boom(e)
+            x, y = e["x"], e.get("yy", e["y"])
+        else:
+            spot = self.no_target_kill(side, now)
+            if spot is None:
+                return
+            x, y = spot
+        self.score_kills += 1
+        big = ratio >= 2.5
+        if big:                                                          # a big enemy: more blasts, the screen shakes
+            self.big_kills += 1
+            n = 2 if ratio < 6 else 4
+            for i in range(n):
+                fx.later(0.07 * (i + 1), fx.explosion, x + rng.uniform(-S(60), S(60)), y + rng.uniform(-S(40), S(40)), 0.45 + 0.1 * i, False)
+            fx.shake(3 + min(7.0, ratio * 0.6), 0.3 + 0.05 * n)
+            if ratio >= 6:
+                fx.flash((255, 230, 190), 0.18, 0.3)
+        if big or now - self.last_points > 0.25:                         # the points scored / les points marqués
+            self.last_points = now
+            self.popup(f"+{int(gain)}", x, y - S(50), GOLD if big else CREAM, 34 if big else 24)
 
     def _fire(self, side, pw, now):
         x, y = self.pos(side, now)

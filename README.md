@@ -497,6 +497,8 @@ If the tool finds nothing, zip the game's folder from `runtime\learn\` (`kof2002
 
 Game after game, the Neo Geo games got a panel scene and an animated HD scene of their own, the best-known first, and now they all have one. [PROGRESS.md](PROGRESS.md) shows where things stand and what comes next. Everything is drawn by the program, no image comes from the games.
 
+In the shoot'em ups (Blazing Star, Pulstar, Last Resort, Aero Fighters 2 and 3, Strikers 1945 Plus, Ghost Pilots, Alpha Mission II, Viewpoint, Zed Blade, Prehistoric Isle 2, Andro Dunos, Captain Tomaday, Choutetsu Brikin'ger, Last Hope), once the score is read, the enemies of the HD screen only blow up when the game scores points. The enemy our shots are hitting goes first, its points show above it, and the bigger the gain the bigger the blast. A bomb or a special weapon of the game destroys what it hits, and a bonus that the game counts at the end of a stage shows as one counter. On the panel, a burst of sparks goes off ahead of the ship at each point scored. As long as the score of a game has not been learned with `learn.bat`, its scene plays by itself.
+
 ![Blazing Star, Puzzle Bobble, Windjammers, Shock Troopers and Neo Turf Masters on an LCD marquee, HD display](docs/images/hd_neogeo_games.jpg)
 
 ![Pulstar, Magical Drop III, Super Sidekicks 3, The Ultimate 11 and Sengoku 3 on an LCD marquee, HD display](docs/images/hd_neogeo_games_2.jpg)
