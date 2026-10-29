@@ -921,6 +921,7 @@ class ForgottenWorldsScene(_SideCps):
     WEAPONS = {0: "LASER", 2: "BEAM", 4: "MISSILE", 6: "BALCAN", 8: "NAPALM", 10: "V-CANNON", 12: "BURNER", 14: "MULTI-WAY"}
 
     sat_t = 0.0
+    shopped = 0                                        # (tests)
 
     def ship_fn(self, side):
         return flyer_draw(0)
@@ -939,6 +940,9 @@ class ForgottenWorldsScene(_SideCps):
         if ch and ch[1] > ch[0] and self.ships["p1"]["in"]:
             x, y = self.pos("p1", now)
             self.popup(f"+{int(ch[1] - ch[0])} ZENNY", x, max(self.S(176), y - self.S(80)), GOLD, 34)
+        elif ch and ch[1] < ch[0]:                                       # zenny spent at the shop / dépensés à la boutique
+            self.shopped += 1
+            self.popup(tr("BOUTIQUE", "SHOP") + f"  -{int(ch[0] - ch[1])} ZENNY", self.W / 2, self.S(230), (255, 220, 120), 40, life=2.0)
 
     def draw_hud(self, screen, eng, vals, logo, now):
         P = self.ships["p1"]

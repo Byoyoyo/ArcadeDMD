@@ -33,6 +33,13 @@ def _done(p):
     return p.done().convert("RGB")
 
 
+def _bands(img, cut, f):
+    """A layer cut in two bands at the row cut: two thin layers cost less to draw than one tall one.
+    / Une couche coupée en deux bandes : deux couches minces coûtent moins à dessiner qu'une haute."""
+    return [{"img": img.crop((0, 0, img.width, cut)), "y": 0, "f": f, "stage": "mid"},
+            {"img": img.crop((0, cut, img.width, img.height)), "y": cut, "f": f, "stage": "mid"}]
+
+
 def _ripples(p, rng, tw, H, s, n, light, dark):
     """Little waves of a sea seen from the sky. / Les vaguelettes d'une mer vue du ciel."""
     for _ in range(n):
@@ -539,7 +546,8 @@ def build_dh_clouds(W, H, s, seed=311):
     far = base.convert("RGB")
     isl = _Pic(tw, H, 2, tw)                                             # floating rocks / rochers flottants
     for k in range(5):
-        x, y = tw * (0.1 + 0.2 * k) + rng.uniform(-80, 80) * s, rng.choice((90, 380)) * s + rng.uniform(-20, 20) * s
+        band = (90, 380)[k % 2]
+        x, y = tw * (0.1 + 0.2 * k) + rng.uniform(-80, 80) * s, band * s + rng.uniform(-20, 20) * s
         r = rng.uniform(56, 84) * s
         isl.poly(_blob(x + 10 * s, y + 14 * s, r * 1.2, r * 0.8, rng), (30, 24, 60, 110))
         isl.poly(_blob(x, y, r * 1.2, r * 0.8, rng), (126, 100, 92, 255))
@@ -549,7 +557,7 @@ def build_dh_clouds(W, H, s, seed=311):
                    ((40, 100, 50), (70, 140, 60), (150, 200, 100)), n=6)
     stars = [(rng.uniform(0, W), rng.uniform(0, H), rng.uniform(1.0, 2.6), rng.uniform(0, 6)) for _ in range(26)]
     return {"sky": Image.new("RGB", (W, H), (64, 66, 150)),
-            "layers": _fit([{"img": far, "y": 0, "f": 0.7, "stage": "far"}, {"img": isl.done(), "y": 0, "f": 1.3, "stage": "mid"}]),
+            "layers": _fit([{"img": far, "y": 0, "f": 0.7, "stage": "far"}] + _bands(isl.done(), H // 2, 1.3)),
             "tw": tw, "amb": {"stars": stars}}
 
 
