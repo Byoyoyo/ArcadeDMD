@@ -10,7 +10,7 @@ import math
 import random
 
 from . import hd_bg
-from .hd_bg import periodic, vgrad
+from .hd_bg import mix, periodic, vgrad
 from .hd_themes3 import _fit, _Pic, _rgba
 
 GG_FLOOR = 386          # Ghouls'n Ghosts: the ground the knight walks on, at s = 1 / le sol où marche le chevalier
@@ -234,6 +234,112 @@ def build_st_city(W, H, s, seed=1402):
     return {"sky": sky, "layers": _fit(layers), "tw": tw, "amb": {}}
 
 
-BUILDERS = {"gg_grave": build_gg_grave, "st_city": build_st_city}
+# ============================================================================ Pang! 3 and Mighty! Pang
+PG_FLOOR = 392          # the floor of the balloons games, at s = 1 / le sol des jeux de ballons
+
+
+def build_pg_temple(W, H, s, seed=1403):
+    """Pang! 3: a stage of the game in Egypt, as in the game: a great painted wall of the temple, its sandstone blocks,
+    the frieze of signs of our own, a huge eye in the middle, the columns at the sides and the floor of slabs.
+    / Un niveau du jeu en Égypte : le grand mur peint du temple, la frise de signes à nous, un œil immense au milieu."""
+    rng = random.Random(seed)
+    sky = vgrad(W, H, [(0.0, (120, 70, 40)), (1.0, (90, 50, 30))])
+    p = _Pic(W, H, 2)
+    sand, sand_d, paint = (196, 150, 90), (150, 106, 60), (40, 70, 140)
+    for row in range(int(H / (46 * s)) + 1):                             # les blocs de grès
+        off = (row % 2) * 60 * s
+        for k in range(int(W / (120 * s)) + 2):
+            x0 = k * 120 * s - off
+            y0 = row * 46 * s
+            tone = mix(sand, sand_d, rng.uniform(0, 0.35))
+            p.poly([(x0, y0), (x0 + 118 * s, y0), (x0 + 118 * s, y0 + 44 * s), (x0, y0 + 44 * s)], _rgba(tone), _rgba(sand_d), 1.5 * s)
+    for y in (40 * s, (PG_FLOOR - 50) * s):                              # les frises
+        p.poly([(0, y), (W, y), (W, y + 30 * s), (0, y + 30 * s)], (60, 100, 170, 255), (30, 40, 80, 255), 2 * s)
+        for k in range(int(W / (40 * s))):
+            x = k * 40 * s + 20 * s
+            sh = k % 4
+            col = (240, 200, 70, 255) if sh % 2 == 0 else (200, 60, 50, 255)
+            if sh == 0:
+                p.disc(x, y + 15 * s, 8 * s, col)
+            elif sh == 1:
+                p.poly([(x - 9 * s, y + 24 * s), (x, y + 5 * s), (x + 9 * s, y + 24 * s)], col)
+            elif sh == 2:
+                p.line([(x - 9 * s, y + 15 * s), (x + 9 * s, y + 15 * s)], col, 4 * s)
+                p.line([(x, y + 6 * s), (x, y + 24 * s)], col, 4 * s)
+            else:
+                p.poly([(x - 8 * s, y + 6 * s), (x + 8 * s, y + 6 * s), (x + 8 * s, y + 24 * s), (x - 8 * s, y + 24 * s)], col)
+    cx, cy = W / 2, 200 * s                                              # l'œil immense
+    p.ellipse(cx - 230 * s, cy - 80 * s, cx + 230 * s, cy + 80 * s, (240, 230, 200, 255), (30, 30, 60, 255), 10 * s)
+    p.disc(cx, cy, 70 * s, _rgba(paint))
+    p.disc(cx, cy, 32 * s, (20, 20, 30, 255))
+    p.disc(cx - 22 * s, cy - 24 * s, 12 * s, (255, 255, 255, 255))
+    p.line([(cx - 260 * s, cy - 110 * s), (cx, cy - 140 * s), (cx + 260 * s, cy - 110 * s)], (30, 30, 60, 255), 14 * s)
+    p.line([(cx - 40 * s, cy + 78 * s), (cx - 40 * s, cy + 150 * s)], (30, 30, 60, 255), 12 * s)      # la larme et la spirale
+    p.disc(cx - 40 * s, cy + 156 * s, 14 * s, (30, 30, 60, 255))
+    spiral = [(cx + 80 * s + math.cos(a / 10) * (60 - a) * s * 0.9, cy + 120 * s + math.sin(a / 10) * (60 - a) * s * 0.6) for a in range(0, 50, 2)]
+    p.line([(cx + 60 * s, cy + 70 * s)] + spiral, (30, 30, 60, 255), 10 * s)
+    for side in (0, 1):                                                  # les colonnes
+        x0 = 30 * s if side == 0 else W - 130 * s
+        p.poly([(x0, 0), (x0 + 100 * s, 0), (x0 + 100 * s, PG_FLOOR * s), (x0, PG_FLOOR * s)], (210, 170, 110, 255), (120, 80, 40, 255), 3 * s)
+        for k in range(4):
+            p.line([(x0 + (20 + k * 20) * s, 0), (x0 + (20 + k * 20) * s, PG_FLOOR * s)], (170, 126, 76, 255), 3 * s)
+        p.poly([(x0 - 14 * s, 0), (x0 + 114 * s, 0), (x0 + 100 * s, 36 * s), (x0, 36 * s)], (60, 120, 90, 255), (30, 60, 40, 255), 3 * s)
+    for k in range(24):                                                  # oiseaux et signes peints
+        x, y = rng.uniform(170 * s, W - 170 * s), rng.uniform(100, 290) * s
+        if abs(x - cx) < 300 * s:
+            continue
+        p.ellipse(x - 18 * s, y - 10 * s, x + 18 * s, y + 10 * s, (40, 60, 120, 255))
+        p.disc(x - 18 * s, y - 8 * s, 8 * s, (40, 60, 120, 255))
+        p.poly([(x - 28 * s, y - 8 * s), (x - 40 * s, y - 4 * s), (x - 28 * s, y - 2 * s)], (240, 200, 70, 255))
+        p.line([(x - 4 * s, y + 10 * s), (x - 8 * s, y + 28 * s)], (40, 60, 120, 255), 3 * s)
+        p.line([(x + 6 * s, y + 10 * s), (x + 8 * s, y + 28 * s)], (40, 60, 120, 255), 3 * s)
+    fy = PG_FLOOR * s                                                    # le sol de dalles
+    p.poly([(0, fy), (W, fy), (W, H), (0, H)], (120, 84, 50, 255))
+    for k in range(int(W / (80 * s)) + 1):
+        p.line([(k * 80 * s, fy), (k * 80 * s - 20 * s, H)], (90, 60, 34, 255), 3 * s)
+    p.line([(0, fy), (W, fy)], (230, 190, 120, 255), 4 * s)
+    sky = sky.convert("RGBA")
+    sky.alpha_composite(p.done())
+    return {"sky": sky.convert("RGB"), "layers": [], "tw": W, "amb": {}}
+
+
+def build_pg_peak(W, H, s, seed=1404):
+    """Mighty! Pang: the highest mountain of the world, as in the game: a deep blue sky, the great snowy peak and its
+    ridges, the clouds below the summit, the snow on the ground. / La plus haute montagne du monde : ciel bleu profond,
+    le grand pic enneigé et ses arêtes, les nuages sous le sommet, la neige au sol."""
+    rng = random.Random(seed)
+    sky = vgrad(W, H, [(0.0, (16, 50, 140)), (0.6, (70, 130, 210)), (1.0, (170, 200, 240))])
+    p = _Pic(W, H, 2)
+    cx = W * 0.5
+    peak = [(cx - 900 * s, PG_FLOOR * s), (cx - 420 * s, 220 * s), (cx - 250 * s, 160 * s), (cx - 120 * s, 110 * s), (cx, 30 * s),
+            (cx + 90 * s, 90 * s), (cx + 260 * s, 140 * s), (cx + 520 * s, 230 * s), (cx + 1000 * s, PG_FLOOR * s)]
+    p.poly(peak, (90, 96, 120, 255))
+    p.poly([(cx, 30 * s), (cx + 90 * s, 90 * s), (cx + 260 * s, 140 * s), (cx + 520 * s, 230 * s), (cx + 1000 * s, PG_FLOOR * s),
+            (cx + 200 * s, PG_FLOOR * s), (cx + 40 * s, 200 * s)], (64, 70, 96, 255))               # le flanc à l'ombre
+    snow = [(cx - 420 * s, 220 * s), (cx - 250 * s, 160 * s), (cx - 120 * s, 110 * s), (cx, 30 * s), (cx + 90 * s, 90 * s), (cx + 260 * s, 140 * s),
+            (cx + 300 * s, 200 * s), (cx + 160 * s, 170 * s), (cx + 60 * s, 210 * s), (cx - 40 * s, 150 * s), (cx - 140 * s, 220 * s),
+            (cx - 260 * s, 210 * s), (cx - 330 * s, 260 * s)]
+    p.poly(snow, (246, 248, 255, 255))
+    for k in range(7):                                                   # les crevasses dans la neige
+        x = cx + rng.uniform(-260, 220) * s
+        y = rng.uniform(120, 190) * s
+        p.line([(x, y), (x + rng.uniform(-30, 30) * s, y + rng.uniform(25, 50) * s)], (190, 200, 226, 255), 3 * s)
+    for side in (-1, 1):                                                 # des sommets plus bas de chaque côté
+        bx = cx + side * 760 * s
+        p.poly([(bx - 300 * s, PG_FLOOR * s), (bx, 200 * s), (bx + 300 * s, PG_FLOOR * s)], (110, 120, 150, 255))
+        p.poly([(bx - 80 * s, 250 * s), (bx, 200 * s), (bx + 80 * s, 250 * s), (bx + 20 * s, 240 * s)], (246, 248, 255, 255))
+    for _ in range(8):                                                   # les nuages sous le sommet
+        x, y = rng.uniform(0, W), rng.uniform(250, 330) * s
+        for k in range(5):
+            p.disc(x + (k - 2) * 34 * s, y + rng.uniform(-8, 8) * s, rng.uniform(26, 40) * s, (255, 255, 255, 210))
+    fy = PG_FLOOR * s
+    p.poly([(0, fy), (W, fy), (W, H), (0, H)], (236, 242, 252, 255))
+    p.line([(0, fy), (W, fy)], (180, 196, 230, 255), 4 * s)
+    sky = sky.convert("RGBA")
+    sky.alpha_composite(p.done())
+    return {"sky": sky.convert("RGB"), "layers": [], "tw": W, "amb": {"snow": True}}
+
+
+BUILDERS = {"gg_grave": build_gg_grave, "st_city": build_st_city, "pg_temple": build_pg_temple, "pg_peak": build_pg_peak}
 hd_bg.BUILDERS.update(BUILDERS)
 THEMES = tuple(BUILDERS)                 # names of the backdrops of this batch / noms des décors de ce lot

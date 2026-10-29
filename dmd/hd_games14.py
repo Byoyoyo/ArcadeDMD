@@ -14,7 +14,7 @@ import math
 from .hd_games import AMBER, GOLD, P1C, P2C, WHITE, GameScene, _clamp, _mix, _n, draw_img
 from .hd_games3 import _capsule
 from .hd_games5 import fighter_draw
-from .hd_themes14 import GG_FLOOR, ST_FLOOR
+from .hd_themes14 import GG_FLOOR, PG_FLOOR, ST_FLOOR
 from .i18n import tr
 
 DARKLINE = (24, 20, 26, 255)
@@ -581,6 +581,234 @@ class StriderScene(SideQuestScene):
             self.invite_right(screen, vals, now)
 
 
-SCENES = {"ghouls": GhoulsScene, "strider": StriderScene}
+# ============================================================================ Pang! 3 and Mighty! Pang
+def hunter_draw(frame, coat=(230, 200, 120), hat=(250, 250, 240)):
+    """Our own little balloon hunter: a pith helmet, a coat, the harpoon gun held up when he fires.
+    / Notre petit chasseur de ballons à nous : un casque colonial, une veste, le fusil à harpon levé quand il tire."""
+    def fn(d, W, H):
+        ow = max(1.0, H * 0.025)
+        step = {1: 0.05, 2: -0.05}.get(frame, 0.0) * W
+        for x in (0.36, 0.54):
+            d.rounded_rectangle([W * x + step * (1 if x < 0.5 else -1), H * 0.72, W * (x + 0.12) + step * (1 if x < 0.5 else -1), H * 0.98],
+                                radius=W * 0.04, fill=(70, 60, 50, 255), outline=DARKLINE, width=int(ow))
+        d.rounded_rectangle([W * 0.28, H * 0.42, W * 0.72, H * 0.78], radius=W * 0.1, fill=_c(coat), outline=DARKLINE, width=int(ow))
+        d.line([(W * 0.5, H * 0.44), (W * 0.5, H * 0.76)], fill=_c(_mix(coat, (0, 0, 0), 0.3)), width=int(ow))
+        if frame == 3:                                                 # le fusil levé / the gun held up
+            d.rectangle([W * 0.6, H * 0.04, W * 0.7, H * 0.46], fill=(90, 90, 100, 255), outline=DARKLINE)
+            _capsule(d, (W * 0.62, H * 0.48), (W * 0.65, H * 0.3), H * 0.07, H * 0.06, _c(SKIN), DARKLINE, ow)
+        else:
+            d.rectangle([W * 0.66, H * 0.46, W * 0.94, H * 0.54], fill=(90, 90, 100, 255), outline=DARKLINE)
+            _capsule(d, (W * 0.6, H * 0.5), (W * 0.74, H * 0.56), H * 0.07, H * 0.06, _c(SKIN), DARKLINE, ow)
+        d.ellipse([W * 0.32, H * 0.16, W * 0.68, H * 0.46], fill=_c(SKIN), outline=DARKLINE, width=int(ow))
+        for ex in (0.44, 0.56):
+            d.ellipse([W * (ex - 0.025), H * 0.28, W * (ex + 0.025), H * 0.34], fill=DARKLINE)
+        d.chord([W * 0.26, H * 0.02, W * 0.74, H * 0.36], 180, 360, fill=_c(hat), outline=DARKLINE)
+        d.rectangle([W * 0.2, H * 0.18, W * 0.8, H * 0.22], fill=_c(hat), outline=DARKLINE)
+    return fn
+
+
+def balloon_draw(col):
+    """A shiny round balloon. / Un ballon rond et brillant."""
+    def fn(d, W, H):
+        d.ellipse([0, 0, W - 1, H - 1], fill=_c(_mix(col, (0, 0, 0), 0.35)))
+        d.ellipse([W * 0.04, H * 0.02, W * 0.94, H * 0.92], fill=_c(col))
+        d.ellipse([W * 0.16, H * 0.12, W * 0.5, H * 0.42], fill=_c(_mix(col, WHITE, 0.55)))
+        d.ellipse([W * 0.22, H * 0.16, W * 0.36, H * 0.28], fill=(255, 255, 255, 255))
+    return fn
+
+
+class BalloonScene(GameScene):
+    """A balloon game as Pang: big balloons bounce in the place of the game, our hunter of our own walks under them and
+    fires his harpoon straight up; a balloon hit splits in two smaller ones, the smallest burst. The points read in the
+    game burst a balloon, a life lost is a balloon that falls on the hunter, all burst is the next level. The bar at the
+    bottom as in the game. / Un jeu de ballons comme Pang : de gros ballons rebondissent, notre chasseur tire son harpon
+    droit vers le haut, un ballon touché se coupe en deux plus petits, les plus petits éclatent."""
+    THEME = "pg_temple"
+    STATIC = True
+    SHADE = (70, 110)
+    FLOOR = PG_FLOOR
+    SIZES = (78, 50, 30, 17)                       # radius of each size / rayon de chaque taille
+    BOUNCE = (330, 270, 210, 150)                  # height of the bounce / hauteur du rebond
+    COLORS = ((230, 40, 40),)
+    POINTS = (50, 100, 150, 200)
+
+    def __init__(self, hd, rng=None):
+        super().__init__(hd, rng)
+        self.balls = []
+        self.hero = {"x": self.W * 0.5, "dir": 1, "fire": -99.0, "hit": -99.0}
+        self.wire = None
+        self.level = 1
+        self.bursts = 0                                   # (tests)
+        self.hits = 0
+        self.warm = [(self.ball_img, (k, c)) for k in range(4) for c in range(len(self.COLORS))] + [(self.hero_img, (f,)) for f in range(4)] + self.warm
+
+    def ball_img(self, size, col):
+        r = self.S(self.SIZES[size])
+        return self.img(("pgball", size, col), 2 * r, 2 * r, balloon_draw(self.COLORS[col % len(self.COLORS)]), ss=2)
+
+    def hero_img(self, frame):
+        S = self.S
+        return self.img(("pghero", frame), S(80), S(100), hunter_draw(frame), ss=2)
+
+    def floor(self):
+        return self.S(self.FLOOR)
+
+    def new_level(self, now):
+        S, rng = self.S, self.rng
+        self.balls = []
+        for k in range(2 + min(2, self.level // 3)):
+            x = rng.uniform(self.W * 0.1, self.W * 0.9)
+            self.balls.append({"x": x, "y": S(rng.uniform(140, 220)), "vx": rng.choice((-1, 1)) * S(rng.uniform(150, 240)), "vy": 0.0, "size": 0,
+                               "col": rng.randrange(len(self.COLORS))})
+
+    def restart(self, vals, now):
+        self.wire = None
+        self.new_level(now)
+
+    def burst(self, b, now, points=None):
+        if b not in self.balls:
+            return
+        S = self.S
+        self.balls.remove(b)
+        self.bursts += 1
+        col = self.COLORS[b["col"] % len(self.COLORS)]
+        self.fx.sparks(b["x"], b["y"], 10 + 4 * (3 - b["size"]), _mix(col, WHITE, 0.3), (200, 600), (0, 360), (0.2, 0.5), 400, "front", 4, 14)
+        self.fx.glow(b["x"], b["y"], 20, S(self.SIZES[b["size"]]) / self.s * 1.6, (255, 240, 200), 0.25, "front", 0.9, 0.0)
+        if points:                                                      # the points read in the game / les points lus dans le jeu
+            self.popup(str(points), b["x"], b["y"] - S(40), GOLD, 26)
+        if b["size"] < 3:                                               # two smaller balloons / deux plus petits
+            for d in (-1, 1):
+                self.balls.append({"x": b["x"], "y": b["y"], "vx": d * S(200), "vy": -S(420), "size": b["size"] + 1, "col": b["col"]})
+
+    def update(self, vals, now):
+        S, h = self.S, self.hero
+        ch = self.changed(vals, "score")
+        if ch and ch[1] > ch[0] and self.balls:                         # the smallest balloon near the hunter / le plus petit
+            self.burst(min(self.balls, key=lambda b: (-b["size"], abs(b["x"] - h["x"]))), now, int(ch[1] - ch[0]) if ch[1] - ch[0] < 100000 else None)
+        for name in ("lives", "lives_p2"):
+            ch = self.changed(vals, name)
+            if ch and ch[1] < ch[0]:                                    # a balloon falls on the hunter / un ballon tombe sur lui
+                self.hits += 1
+                h["hit"] = now
+                self.fx.shake(10, 0.3)
+                self.popup(tr("-1 VIE", "-1 LIFE"), h["x"], self.floor() - S(160), (255, 90, 70), 36)
+                for b in self.balls:
+                    b["vy"] = -S(500)
+        if not self.balls:                                              # all burst: the next level / niveau suivant
+            self.level += 1
+            self.slam(f"LEVEL {self.level:02d}", (120, 220, 255), now, 1.2)
+            self.new_level(now)
+        if now - h["hit"] < 1.2:
+            return
+        target = min(self.balls, key=lambda b: abs(b["x"] - h["x"]) + (S(200) if b["y"] > self.floor() - S(150) else 0))
+        dx = target["x"] - h["x"]
+        if abs(dx) > S(30):
+            h["dir"] = 1 if dx > 0 else -1
+            h["x"] += h["dir"] * S(260) * self.dt
+        elif self.wire is None and now - h["fire"] > 1.1:
+            h["fire"] = now
+            self.wire = {"x": h["x"] + S(4), "top": self.floor() - S(90)}
+        h["x"] = _clamp(h["x"], S(60), self.W - S(60))
+        if self.wire is not None:                                       # the harpoon wire climbs / le fil monte
+            w = self.wire
+            w["top"] -= S(900) * self.dt
+            for b in list(self.balls):
+                r = S(self.SIZES[b["size"]])
+                if abs(b["x"] - w["x"]) < r and b["y"] + r > w["top"]:
+                    self.burst(b, now)
+                    self.wire = None
+                    break
+            if self.wire is not None and w["top"] < S(20):
+                self.wire = None
+
+    def physics(self):
+        S, dt, fl = self.S, self.dt, self.floor()
+        for b in self.balls:
+            r = S(self.SIZES[b["size"]])
+            b["vy"] += S(700) * dt
+            b["x"] += b["vx"] * dt
+            b["y"] += b["vy"] * dt
+            if b["y"] + r > fl:                                         # the bounce always reaches its height / le rebond
+                b["y"] = fl - r
+                b["vy"] = -math.sqrt(2 * S(700) * S(self.BOUNCE[b["size"]]))
+            if b["x"] - r < 0 or b["x"] + r > self.W:
+                b["vx"] = -b["vx"]
+                b["x"] = _clamp(b["x"], r, self.W - r)
+
+    def draw_hud(self, screen, eng, vals, logo, now):
+        S, pg = self.S, self.pg
+        self.physics()
+        if self.wire is not None:
+            w = self.wire
+            y0 = self.floor() - S(60)
+            for k in range(int((y0 - w["top"]) / S(14)) + 1):         # the twisted wire / le fil torsadé
+                y = y0 - k * S(14)
+                pg.draw.line(screen, (230, 230, 240), (int(w["x"] - S(5)), int(y)), (int(w["x"] + S(5)), int(y - S(7))), max(2, S(3)))
+                pg.draw.line(screen, (150, 150, 170), (int(w["x"] + S(5)), int(y - S(7))), (int(w["x"] - S(5)), int(y - S(14))), max(2, S(3)))
+            pg.draw.polygon(screen, (240, 240, 250), [(int(w["x"]), int(w["top"] - S(18))), (int(w["x"] - S(10)), int(w["top"])),
+                                                      (int(w["x"] + S(10)), int(w["top"]))])
+        for b in self.balls:
+            img = self.ball_img(b["size"], b["col"])
+            screen.blit(img, (int(b["x"] - img.get_width() / 2), int(b["y"] - img.get_height() / 2)))
+        h = self.hero
+        if self.p1_in(vals) and not (now - h["hit"] < 1.2 and int(now * 14) % 2):
+            frame = 3 if now - h["fire"] < 0.25 else (1 + int(now * 7) % 2 if self.wire is None else 0)
+            img = self.hero_img(frame)
+            if h["dir"] < 0 and frame != 3:
+                img = self.pg.transform.flip(img, True, False)
+            screen.blit(img, (int(h["x"] - img.get_width() / 2), int(self.floor() - img.get_height())))
+        self.status(screen, eng, vals, logo, now)
+
+    def lives_icons(self, screen, x, y, n, col=(250, 250, 240)):
+        S, pg = self.S, self.pg
+        for k in range(int(min(n, 6))):
+            cx = x + k * S(30)
+            pg.draw.circle(screen, (240, 196, 160), (int(cx), int(y + S(4))), S(10))
+            pg.draw.ellipse(screen, col, (int(cx - S(13)), int(y - S(12)), S(26), S(14)))
+
+    def status(self, screen, eng, vals, logo, now):
+        """The bar at the bottom as in the game: 1P and the score, the lives, LEVEL, the time; player 2 or the invitation
+        on the right. / La barre du bas comme dans le jeu : 1P et le score, les vies, LEVEL, le temps."""
+        S, W, H, hd = self.S, self.W, self.H, self.hd
+        hd.draw_logo(screen, logo, W / 2, S(6), S(400), S(80), now)
+        y = H - S(46)
+        self.pill(screen, S(12), y - S(30), S(620), S(60), 170, radius=12)
+        self.text(screen, "1P", S(30), y, 30, P1C, key="black", valign="middle")
+        if _n(vals.get("score")) is not None:
+            hd._score(screen, eng, "score", S(330), y - S(22), "right", S(40))
+        lives = _n(vals.get("lives"))
+        if lives is not None:
+            self.lives_icons(screen, S(370), y, lives)
+        self.label(screen, f"LEVEL {self.level:02d}", W / 2, y, 34, (255, 230, 60), key="black", align="center")
+        t = _n(vals.get("time"))
+        if t is not None:
+            self.label(screen, f"TIME {int(t):03d}", W / 2 + S(280), y, 30, WHITE, key="black", align="center")
+        if self.p2_in(vals):
+            self.pill(screen, W - S(420), y - S(30), S(408), S(60), 170, radius=12)
+            self.text(screen, "2P", W - S(400), y, 30, P2C, key="black", valign="middle")
+            if _n(vals.get("score_p2")) is not None:
+                hd._score(screen, eng, "score_p2", W - S(30), y - S(22), "right", S(40))
+        else:
+            word, col = self.invite(vals, now)
+            self.label(screen, word, W - S(24), y, 30, col, align="right")
+
+
+class Pang3Scene(BalloonScene):
+    """Pang! 3 as in the game: the painted wall of the temple in Egypt, the huge eye, the frieze; red balloons that our
+    hunter of our own cuts down with his harpoon. 1P and the score, the lives, LEVEL and the time at the bottom.
+    / Le mur peint du temple en Égypte, l'œil immense ; des ballons rouges que notre chasseur coupe de son harpon."""
+    THEME = "pg_temple"
+
+
+class MightyPangScene(BalloonScene):
+    """Mighty! Pang as in the game: the highest mountain of the world under a deep blue sky, the snow that falls;
+    balloons of three colours, our hunter of our own and his harpoon. SCORE, the lives, LEVEL at the bottom.
+    / La plus haute montagne du monde sous un ciel bleu profond, la neige qui tombe ; des ballons de trois couleurs."""
+    THEME = "pg_peak"
+    SHADE = (40, 100)
+    COLORS = ((230, 40, 40), (40, 120, 240), (40, 190, 80))
+
+
+SCENES = {"ghouls": GhoulsScene, "strider": StriderScene, "pang3": Pang3Scene, "mpang": MightyPangScene}
 __all__ = ["SCENES", "SideQuestScene"]
 _KEEP = (AMBER, P1C, P2C, draw_img)
