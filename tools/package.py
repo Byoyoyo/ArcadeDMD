@@ -17,7 +17,7 @@ import zipfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # shipped in the zip: everything except these (development files, user data, caches)
-EXCLUDE_DIRS = {".git", ".github", "tools", "dist", "runtime", "learned", "appris", "appris.old", "obs",
+EXCLUDE_DIRS = {".git", ".github", "tools", "dist", "runtime", "learned", "appris", "appris.old", "obs", "perso",
                 "__pycache__"}
 EXCLUDE_FILES = {"config.json", ".gitignore", ".gitattributes", "CONTRIBUTING.md"}
 EXCLUDE_EXT = (".pyc", ".pyo", ".log", ".tmp")

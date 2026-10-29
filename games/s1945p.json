@@ -1734,25 +1734,216 @@
     }
    },
    {
-    "type": "particles",
-    "rate": 0,
-    "y": [
-     13,
-     25
+    "type": "anim",
+    "image": [
+     "perso/{game}/boom.gif",
+     "perso/boom.gif",
+     "sprites/fx_pop.png"
     ],
-    "color": "#000000",
-    "burst": {
-     "on": [
-      "score",
-      "score_p2"
-     ],
-     "color": "#ffb040",
-     "count": 12,
-     "x": [
-      60,
-      120
-     ]
-    },
+    "on": [
+     "score",
+     "score_p2"
+    ],
+    "change": "up",
+    "ratio": [
+     0,
+     2.5
+    ],
+    "x": [
+     64,
+     118
+    ],
+    "y": [
+     18,
+     24
+    ],
+    "ms": 60,
+    "max": 3,
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "anim",
+    "image": [
+     "perso/{game}/boom_big.gif",
+     "perso/boom_big.gif",
+     "sprites/fx_fire.png"
+    ],
+    "on": [
+     "score",
+     "score_p2"
+    ],
+    "change": "up",
+    "ratio": [
+     2.5,
+     1000000
+    ],
+    "x": [
+     78,
+     106
+    ],
+    "y": 16,
+    "ms": 80,
+    "max": 2,
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "anim",
+    "image": [
+     "perso/{game}/bomb.gif",
+     "perso/bomb.gif",
+     "sprites/fx_fire.png"
+    ],
+    "on": [
+     "bombs",
+     "bombs_p2"
+    ],
+    "change": "down",
+    "count": 3,
+    "spread": [
+     26,
+     110
+    ],
+    "y": 16,
+    "delay": 0.12,
+    "ms": 80,
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "anim",
+    "image": [
+     "perso/{game}/shock.gif",
+     "perso/shock.gif",
+     "sprites/fx_shock.png"
+    ],
+    "on": [
+     "bombs",
+     "bombs_p2"
+    ],
+    "change": "down",
+    "x": 68,
+    "y": 16,
+    "ms": 70,
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "anim",
+    "image": [
+     "perso/{game}/super.gif",
+     "perso/super.gif",
+     "sprites/fx_shock.png"
+    ],
+    "on": [
+     "super",
+     "super_p2"
+    ],
+    "change": "down",
+    "x": 92,
+    "y": 16,
+    "ms": 60,
     "when": {
      "not": {
       "all": [

@@ -497,7 +497,9 @@ If the tool finds nothing, zip the game's folder from `runtime\learn\` (`kof2002
 
 Game after game, the Neo Geo games got a panel scene and an animated HD scene of their own, the best-known first, and now they all have one. [PROGRESS.md](PROGRESS.md) shows where things stand and what comes next. Everything is drawn by the program, no image comes from the games.
 
-In the shoot'em ups (Blazing Star, Pulstar, Last Resort, Aero Fighters 2 and 3, Strikers 1945 Plus, Ghost Pilots, Alpha Mission II, Viewpoint, Zed Blade, Prehistoric Isle 2, Andro Dunos, Captain Tomaday, Choutetsu Brikin'ger, Last Hope), once the score is read, the enemies of the HD screen only blow up when the game scores points. The enemy our shots are hitting goes first, its points show above it, and the bigger the gain the bigger the blast. A bomb or a special weapon of the game destroys what it hits, and a bonus that the game counts at the end of a stage shows as one counter. On the panel, a burst of sparks goes off ahead of the ship at each point scored. As long as the score of a game has not been learned with `learn.bat`, its scene plays by itself.
+In the shoot'em ups (Blazing Star, Pulstar, Last Resort, Aero Fighters 2 and 3, Strikers 1945 Plus, Ghost Pilots, Alpha Mission II, Viewpoint, Zed Blade, Prehistoric Isle 2, Andro Dunos, Captain Tomaday, Choutetsu Brikin'ger, Last Hope), once the score is read, the enemies of the HD screen only blow up when the game scores points. The enemy our shots are hitting goes first, its points show above it, and the bigger the gain the bigger the blast. A bomb or a special weapon of the game destroys what it hits, and a bonus that the game counts at the end of a stage shows as one counter. On the panel, a small explosion goes off ahead of the ship at each point scored, a big fireball for a big gain, and a row of explosions with a shock wave when a bomb goes off. As long as the score of a game has not been learned with `learn.bat`, its scene plays by itself.
+
+Your own animations (the GIFs of DOFLinx or of the Pixelcade, for example) can replace ours on the panel. Put them in a `perso` folder next to `arcadedmd.py`, it is never published and an update never touches it. `perso\boom.gif` is the small explosion, `boom_big.gif` the big one, `bomb.gif` and `shock.gif` the bomb, `super.gif` the super shot of Strikers 1945 Plus and `charge.gif` the charged shot of Pulstar. For one game only, put them in `perso\<game>\` (`perso\s1945p\boom.gif`, for example). A 128 x 32 GIF plays over the whole panel, and its black lets the scene show through.
 
 ![Blazing Star, Puzzle Bobble, Windjammers, Shock Troopers and Neo Turf Masters on an LCD marquee, HD display](docs/images/hd_neogeo_games.jpg)
 
@@ -741,6 +743,7 @@ Scene elements
 | `waves` | hills scrolling in the background | `layers` (`y`, `amp`, `speed`, `color`, `edge`) |
 | `mountains` | solid mountains and ground line (Vera style) | `peaks` (`[x, height]`), `floor`, `color`, `ground`, `speed` |
 | `particles` | missiles and bursts when a value goes up | `rate`, `color`, `y`, `burst` |
+| `anim` | an animation played once when a value changes (an explosion when the score goes up) | `image` (list, the first file found, `{game}` for the game), `on`, `change` (`up`, `down`, `any`), `ratio` (small or big gain), `x`, `y`, `count`, `spread`, `delay`, `ms`, `black` |
 | `sprite` | animated sprite (PNG strip or GIF) | `image`, `frames`, `mode` (`pass`, `pingpong`, `fixed`), `dim` (brightness), `alpha`, `shoot` (fires when a value goes up) |
 | `gauge` | health bar | `var`, `max`, `x`, `y`, `w`, `h`, `anchor` (anchored side), `color`, `low`, `back`, `border`, `bevel` (light edge at the bottom and on the right) |
 | `clock` | clock | `format`, `font` |

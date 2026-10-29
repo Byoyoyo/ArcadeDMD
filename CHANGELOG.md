@@ -11,7 +11,9 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - In the fifteen Neo Geo shoot'em ups done one by one, once the score is read, the enemies of the HD screen only blow up when the game scores points. The enemy our shots are hitting goes first and its points show above it. The bigger the gain next to the usual ones, the bigger the blast, and the screen shakes for a big enemy. Our shots still hit the enemies, they flash.
 - The bombs, the super shot of Strikers 1945 Plus and the charged shot of Pulstar stay weapons of the game, they destroy what they hit. The unit of Last Resort hits the enemies too, and the points decide which one blows up.
 - A bonus that the game counts at the end of a stage shows as one BONUS counter instead of blowing up dozens of enemies.
-- On the panel, a burst of sparks goes off ahead of the ship at each point scored, and the ship fires. Andro Dunos, Captain Tomaday, Choutetsu Brikin'ger and Last Hope fire now too.
+- On the panel, real explosions drawn pixel by pixel. A small one goes off ahead of the ship at each point scored, a big fireball (or a blue plasma blast in space) for a big gain, and a row of explosions with a shock wave when a bomb goes off. The super shot of Strikers 1945 Plus and the charged shot of Pulstar have theirs too. The ship fires at each point, Andro Dunos, Captain Tomaday, Choutetsu Brikin'ger and Last Hope included.
+- Your own animations (the GIFs of DOFLinx or of the Pixelcade, for example) can replace ours. They go in a `perso` folder next to `arcadedmd.py`, which is never published and which an update never touches (`perso\boom.gif`, `boom_big.gif`, `bomb.gif`, `shock.gif`, `super.gif`, `charge.gif`, or `perso\<game>\` for one game). A 128 x 32 GIF plays over the whole panel.
+- A new panel layer, `anim`, plays an animation once when a value of the game changes.
 - The score of these games is in no database. Until it is learned with `learn.bat`, the scenes play by themselves as before.
 
 **Updating from 1.27**
@@ -23,7 +25,9 @@ Extract the new zip over the old folder (`config.json` and your learned addresse
 - Dans les quinze shoot'em up Neo Geo faits un par un, dès que le score est lu, les ennemis de l'écran HD n'explosent que quand le jeu marque des points. L'ennemi que nos tirs touchent part d'abord et ses points s'affichent au-dessus. Plus le gain est gros à côté des gains habituels, plus l'explosion est forte, et l'écran tremble pour un gros ennemi. Nos tirs touchent toujours les ennemis, ils clignotent.
 - Les bombes, le super tir de Strikers 1945 Plus et le tir chargé de Pulstar restent des armes du jeu, ils détruisent ce qu'ils touchent. L'unité de Last Resort touche aussi les ennemis, et les points décident lequel explose.
 - Un bonus compté par le jeu en fin de niveau s'affiche en un seul compteur BONUS au lieu de faire exploser des dizaines d'ennemis.
-- Sur la dalle, une gerbe d'étincelles part devant le vaisseau à chaque point marqué, et le vaisseau tire. Andro Dunos, Captain Tomaday, Choutetsu Brikin'ger et Last Hope tirent maintenant aussi.
+- Sur la dalle, de vraies explosions dessinées pixel par pixel. Une petite part devant le vaisseau à chaque point marqué, une grosse boule de feu (ou une explosion de plasma bleu dans l'espace) pour un gros gain, et une rangée d'explosions avec une onde de choc quand une bombe part. Le super tir de Strikers 1945 Plus et le tir chargé de Pulstar ont aussi la leur. Le vaisseau tire à chaque point, Andro Dunos, Captain Tomaday, Choutetsu Brikin'ger et Last Hope compris.
+- Tes propres animations (les GIF de DOFLinx ou de la Pixelcade par exemple) peuvent remplacer les nôtres. Elles vont dans un dossier `perso` à côté d'`arcadedmd.py`, jamais publié et jamais touché par une mise à jour (`perso\boom.gif`, `boom_big.gif`, `bomb.gif`, `shock.gif`, `super.gif`, `charge.gif`, ou `perso\<jeu>\` pour un seul jeu). Un GIF de 128 x 32 se joue sur toute la dalle.
+- Une nouvelle couche de dalle, `anim`, joue une animation une fois quand une valeur du jeu change.
 - Le score de ces jeux n'est dans aucune base. Tant qu'il n'est pas appris avec `learn.bat`, les scènes jouent toutes seules comme avant.
 
 **Mettre à jour depuis la 1.27**
