@@ -2581,9 +2581,12 @@ class AeroFightersScene(BlazingStarScene):
         if now >= self.next_ground:                                    # tanks driving on the avenues
             self.next_ground = now + self.rng.uniform(2.5, 5.0)
             if len([g for g in self.ground if not g.get("dead")]) < 3:
-                lane = self.rng.choice([(a + k * 11.5) for a in AF_AVENUES for k in (-1, 1)])
-                self.ground.append({"wx": self.bd.scroll + self.W + S(120), "y": S(lane), "v": self.rng.uniform(10, 40) * self.s,
+                self.ground.append({"wx": self.bd.scroll + self.W + S(120), "y": self.lane_y(), "v": self.rng.uniform(10, 40) * self.s,
                                     "ph": self.rng.uniform(0, 6)})
+
+    def lane_y(self):
+        """Where a tank drives: a lane of an avenue of the city. / Où roule un char : une voie d'une avenue."""
+        return self.S(self.rng.choice([(a + k * 11.5) for a in AF_AVENUES for k in (-1, 1)]))
 
     def _fire(self, side, pw, now):
         """Shots like in the games: thick bright bolts, more of them with the power. / Des tirs épais et lumineux."""
