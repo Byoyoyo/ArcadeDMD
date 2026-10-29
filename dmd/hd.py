@@ -37,6 +37,7 @@ from .hd_games9 import SCENES as _SCENES_125
 from .hd_games10 import SCENES as _SCENES_126
 from .hd_games11 import SCENES as _SCENES_127
 from .hd_mslug import MetalSlugScene, family
+from .hd_snes import SCENES as _SCENES_SNES
 from .i18n import tr
 
 AMBER, RED, CREAM, LINE = (255, 168, 48), (255, 52, 30), (235, 225, 205), (168, 112, 30)
@@ -51,7 +52,7 @@ CHIPS = (("lives", ("VIES", "LIVES")), ("lives_p2", ("VIES J2", "LIVES P2")), ("
          ("time", ("TEMPS", "TIME")), ("record", ("RECORD", "HI-SCORE")), ("credits", ("CRÉDITS", "CREDITS")))
 GAME_SCENES = dict(_SCENES_117, **_SCENES_118, **_SCENES_119, **_SCENES_120, **_SCENES_121, **_SCENES_122, **_SCENES_123,
                    **_SCENES_124, **_SCENES_125, **_SCENES_126,
-                   **_SCENES_127)     # Neo Geo games done one by one
+                   **_SCENES_127, **_SCENES_SNES)     # Neo Geo games done one by one, then the Super Nintendo games
 MSLUG_WEAPONS = {0: ("PISTOLET", "HANDGUN"), 1: ("FUSIL À POMPE", "SHOTGUN"), 2: ("LANCE-FLAMMES", "FLAMETHROWER"),
                  3: ("LANCE-ROQUETTES", "ROCKET LAUNCHER"), 4: ("MITRAILLETTE", "MACHINE GUN")}
 

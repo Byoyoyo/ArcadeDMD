@@ -1,7 +1,7 @@
 """Games running in RetroArch: reads the game memory through RetroArch's network commands.
 
 Needs RetroArch 1.19 or newer with Network Commands enabled (UDP port 55355) and a core that shares
-its memory (FinalBurn Neo, Genesis Plus GX). Addresses are mapped back to the CPU addresses.
+its memory (FinalBurn Neo, Genesis Plus GX, Snes9x). Addresses are mapped back to the CPU addresses.
 
 Jeux lancés dans RetroArch : lecture de la mémoire par les commandes réseau.
 
@@ -40,6 +40,9 @@ SYSTEM_DEFAULTS = (
     ("mega_drive", 0xFF0000, 0x10000, True),
     ("megadrive", 0xFF0000, 0x10000, True),
     ("genesis", 0xFF0000, 0x10000, True),
+    # Super Nintendo (Snes9x, Mesen-S...): the 128 KB of WRAM from $7E0000, bytes in order (65816, little-endian)
+    # Super Nintendo : les 128 Ko de WRAM à partir de $7E0000, octets dans l'ordre
+    ("super_nes", 0x7E0000, 0x20000, False),
 )
 
 
