@@ -1,0 +1,1283 @@
+{
+ "title": "Magician Lord",
+ "match": [
+  {
+   "system": [
+    "maglord",
+    "maglordh"
+   ]
+  }
+ ],
+ "retroarch": {
+  "content": [
+   "maglord",
+   "maglordh"
+  ],
+  "ram_base": "0x100000",
+  "ram_size": "0x10000",
+  "swap16": true,
+  "note": "FinalBurn Neo core: Neo Geo 68000 RAM seen from 0x100000, bytes swapped within 16-bit words"
+ },
+ "memory": {
+  "cpu": ":maincpu",
+  "values": {
+   "score": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+   },
+   "score_p2": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+   },
+   "lives": {
+    "addr": "0x103C00",
+    "type": "u8",
+    "note": "lives in reserve (FinalBurn Neo cheats, Infinite Lives PL1; MAME 2003-Plus lists the same values 0x100 lower, to be confirmed in game)"
+   },
+   "energy": {
+    "addr": "0x103C07",
+    "type": "u8",
+    "max": 5,
+    "note": "HP, 5 at most (FinalBurn Neo cheats, Infinite Energy PL1)"
+   },
+   "power": {
+    "addr": "0x103C04",
+    "type": "u8",
+    "max": 2,
+    "note": "POW of the magic, 0 to 2 (FinalBurn Neo cheats, Infinite Power PL1)"
+   },
+   "form": {
+    "addr": "0x103C05",
+    "type": "u8",
+    "note": "shape of the hero, 1 Magician Lord, 13 Shinobi, 9 Waterman, 14 Samurai, 5 Dragon Warrior, 10 Poseidon, 15 Raijin (FinalBurn Neo cheats, Select Character PL1)"
+   },
+   "credits": {
+    "addr": "0xD00034",
+    "type": "bcd",
+    "bytes": 1,
+    "mame_only": true,
+    "note": "MVS credits (backup RAM), readable in MAME only"
+   },
+   "p1_mode": {
+    "addr": "0x10FDB6",
+    "type": "u8",
+    "note": "BIOS: player 1, 0 never played, 1 playing, 2 continue, 3 game over"
+   },
+   "p2_mode": {
+    "addr": "0x10FDB7",
+    "type": "u8",
+    "note": "BIOS: player 2, same values"
+   }
+  }
+ },
+ "hd": {
+  "scene": "maglord"
+ },
+ "demo": {
+  "attract": true,
+  "credits": 0,
+  "p1_mode": 1,
+  "p2_mode": 0,
+  "lives": 3,
+  "energy": 5,
+  "power": 0,
+  "form": 1,
+  "score": 0,
+  "sim": {
+   "energy": {
+    "cycle": [
+     5,
+     5,
+     4,
+     4,
+     3,
+     5
+    ],
+    "every": 3.0,
+    "start": 4.0
+   },
+   "power": {
+    "cycle": [
+     0,
+     0,
+     1,
+     1,
+     2,
+     2
+    ],
+    "every": 4.0,
+    "start": 3.0
+   },
+   "form": {
+    "cycle": [
+     1,
+     1,
+     13,
+     13,
+     5,
+     5,
+     15,
+     15,
+     1
+    ],
+    "every": 6.0,
+    "start": 6.0
+   },
+   "lives": {
+    "cycle": [
+     3,
+     3,
+     3,
+     2,
+     2,
+     3
+    ],
+    "every": 7.0,
+    "start": 10.0
+   }
+  }
+ },
+ "scene": {
+  "layers": [
+   {
+    "type": "rect",
+    "x": 0,
+    "y": 26,
+    "w": 128,
+    "h": 6,
+    "color": "#5a3c1c",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 4,
+    "y": 26,
+    "w": 1,
+    "h": 2,
+    "color": "#2a1a0a",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 12,
+    "y": 26,
+    "w": 1,
+    "h": 2,
+    "color": "#2a1a0a",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 20,
+    "y": 26,
+    "w": 1,
+    "h": 2,
+    "color": "#2a1a0a",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 28,
+    "y": 26,
+    "w": 1,
+    "h": 2,
+    "color": "#2a1a0a",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 36,
+    "y": 26,
+    "w": 1,
+    "h": 2,
+    "color": "#2a1a0a",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 44,
+    "y": 26,
+    "w": 1,
+    "h": 2,
+    "color": "#2a1a0a",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 52,
+    "y": 26,
+    "w": 1,
+    "h": 2,
+    "color": "#2a1a0a",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 60,
+    "y": 26,
+    "w": 1,
+    "h": 2,
+    "color": "#2a1a0a",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 68,
+    "y": 26,
+    "w": 1,
+    "h": 2,
+    "color": "#2a1a0a",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 76,
+    "y": 26,
+    "w": 1,
+    "h": 2,
+    "color": "#2a1a0a",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 84,
+    "y": 26,
+    "w": 1,
+    "h": 2,
+    "color": "#2a1a0a",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 92,
+    "y": 26,
+    "w": 1,
+    "h": 2,
+    "color": "#2a1a0a",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 100,
+    "y": 26,
+    "w": 1,
+    "h": 2,
+    "color": "#2a1a0a",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 108,
+    "y": 26,
+    "w": 1,
+    "h": 2,
+    "color": "#2a1a0a",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 116,
+    "y": 26,
+    "w": 1,
+    "h": 2,
+    "color": "#2a1a0a",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 124,
+    "y": 26,
+    "w": 1,
+    "h": 2,
+    "color": "#2a1a0a",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 14,
+    "y": 14,
+    "w": 6,
+    "h": 12,
+    "color": "#3a2a14",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 54,
+    "y": 14,
+    "w": 6,
+    "h": 12,
+    "color": "#3a2a14",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 98,
+    "y": 14,
+    "w": 6,
+    "h": 12,
+    "color": "#3a2a14",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "sprite",
+    "image": [
+     "sprites/ship.png"
+    ],
+    "frames": 2,
+    "fps": 6,
+    "mode": "pingpong",
+    "x0": 4,
+    "x1": 40,
+    "speed": 4,
+    "face": "right",
+    "y": 20,
+    "bob": 0.4,
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    },
+    "shoot": {
+     "on": [
+      "score",
+      "power",
+      "energy"
+     ],
+     "dx": 10,
+     "dy": 2,
+     "speed": 120,
+     "color": "#80e0ff",
+     "gap": 0.2
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 1,
+    "y": 1,
+    "align": "left",
+    "segments": [
+     {
+      "text": "{score}",
+      "color": "#ffa830"
+     }
+    ],
+    "when": {
+     "has": "score"
+    },
+    "flash": {
+     "on": "score",
+     "color": "#ffffff",
+     "ms": 120
+    }
+   },
+   {
+    "type": "marquee",
+    "font": "6x10",
+    "y": 1,
+    "x": 0,
+    "w": 70,
+    "speed": 12,
+    "gap": 40,
+    "upper": true,
+    "segments": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#40c0ff"
+     }
+    ],
+    "when": {
+     "not": {
+      "has": "score"
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "segments": [
+     {
+      "text": "{score_p2}",
+      "color": "#ffa830"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "var": "p2_mode",
+       "in": [
+        1,
+        2
+       ]
+      },
+      {
+       "has": "score_p2"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "text": "INSERT COIN",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "credits",
+        "gt": 0
+       }
+      }
+     ]
+    },
+    "blink_period": 1.0
+   },
+   {
+    "type": "cycle",
+    "period": 1.5,
+    "when": {
+     "all": [
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "var": "credits",
+       "gt": 0
+      }
+     ]
+    },
+    "pages": [
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "CREDITS {credits}",
+        "color": "#ffa830"
+       }
+      ]
+     },
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "PRESS START",
+        "color": "#ffa830"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "icons",
+    "var": "energy",
+    "x": 1,
+    "y": 12,
+    "max": 5,
+    "gap": 1,
+    "pattern": [
+     "##",
+     "##",
+     "##"
+    ],
+    "colors": {
+     "#": "#3aa0ff"
+    },
+    "empty": "#102030",
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "energy"
+      }
+     ]
+    },
+    "flash": {
+     "on": "energy",
+     "color": "#ff4040",
+     "ms": 500
+    }
+   },
+   {
+    "type": "icons",
+    "var": "lives",
+    "x": 127,
+    "y": 12,
+    "max": 6,
+    "gap": 1,
+    "align": "right",
+    "pattern": [
+     ".#.",
+     "###",
+     "#.#"
+    ],
+    "colors": {
+     "#": "#40c0ff"
+    },
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "lives"
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    },
+    "flash": {
+     "on": "lives",
+     "color": "#ff4040",
+     "ms": 600
+    }
+   },
+   {
+    "type": "text",
+    "font": "4x6",
+    "x": 64,
+    "y": 12,
+    "align": "center",
+    "segments": [
+     {
+      "text": "{form_name}",
+      "color": "#ffd060"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "form_name"
+      },
+      {
+       "not": {
+        "var": "form",
+        "eq": 1
+       }
+      }
+     ]
+    }
+   },
+   {
+    "type": "coinop",
+    "when": {
+     "all": [
+      {
+       "has": "p1_mode"
+      },
+      {
+       "not": {
+        "var": "p1_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    },
+    "title": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#40c0ff"
+     }
+    ],
+    "idle_image": [
+     "sprites/insert_coin.gif",
+     "sprites/insert_coin.png"
+    ]
+   }
+  ]
+ },
+ "derived": {
+  "form_name": {
+   "value": "form",
+   "names": {
+    "1": "MAGICIAN LORD",
+    "13": "SHINOBI",
+    "9": "WATERMAN",
+    "14": "SAMURAI",
+    "5": "DRAGON WARRIOR",
+    "10": "POSEIDON",
+    "15": "RAIJIN"
+   }
+  }
+ }
+}

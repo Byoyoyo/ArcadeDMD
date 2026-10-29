@@ -1,0 +1,497 @@
+{
+ "title": "Baseball Stars Professional",
+ "match": [
+  {
+   "system": [
+    "bstars",
+    "bstarsh"
+   ]
+  }
+ ],
+ "retroarch": {
+  "content": [
+   "bstars",
+   "bstarsh"
+  ],
+  "ram_base": "0x100000",
+  "ram_size": "0x10000",
+  "swap16": true,
+  "note": "FinalBurn Neo core: Neo Geo 68000 RAM seen from 0x100000, bytes swapped within 16-bit words"
+ },
+ "memory": {
+  "cpu": ":maincpu",
+  "values": {
+   "balls": {
+    "addr": "0x10107D",
+    "type": "u8",
+    "note": "balls of the count (FinalBurn Neo cheats and MAME 2003-Plus cheats, Set Balls Now!)"
+   },
+   "strikes": {
+    "addr": "0x10107E",
+    "type": "u8",
+    "note": "strikes of the count (FinalBurn Neo cheats and MAME 2003-Plus cheats, Set Strikes Now!)"
+   },
+   "outs": {
+    "addr": "0x10107C",
+    "type": "u8",
+    "note": "outs of the inning (FinalBurn Neo cheats and MAME 2003-Plus cheats, Set Outs Now!)"
+   },
+   "inning": {
+    "addr": "0x101083",
+    "type": "u8",
+    "note": "inning (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Innings)"
+   },
+   "time": {
+    "addr": "0x10004A",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "seconds of the clock (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Time, to be confirmed in game)"
+   },
+   "credits": {
+    "addr": "0xD00034",
+    "type": "bcd",
+    "bytes": 1,
+    "mame_only": true,
+    "note": "MVS credits (backup RAM), readable in MAME only"
+   },
+   "p1_mode": {
+    "addr": "0x10FDB6",
+    "type": "u8",
+    "note": "BIOS: player 1, 0 never played, 1 playing, 2 continue, 3 game over"
+   },
+   "p2_mode": {
+    "addr": "0x10FDB7",
+    "type": "u8",
+    "note": "BIOS: player 2, same values"
+   }
+  }
+ },
+ "hd": {
+  "scene": "bstars"
+ },
+ "demo": {
+  "attract": true,
+  "credits": 0,
+  "p1_mode": 1,
+  "p2_mode": 0,
+  "balls": 0,
+  "strikes": 0,
+  "outs": 0,
+  "inning": 1,
+  "time": 59,
+  "sim": {
+   "balls": {
+    "cycle": [
+     0,
+     1,
+     1,
+     2,
+     0,
+     0,
+     1
+    ],
+    "every": 2.0,
+    "start": 2.0
+   },
+   "strikes": {
+    "cycle": [
+     0,
+     0,
+     1,
+     1,
+     2,
+     0
+    ],
+    "every": 2.5,
+    "start": 3.0
+   },
+   "outs": {
+    "cycle": [
+     0,
+     0,
+     1,
+     1,
+     2,
+     0
+    ],
+    "every": 6.0,
+    "start": 6.0
+   },
+   "inning": {
+    "count": [
+     1,
+     9,
+     1
+    ],
+    "every": 20.0,
+    "start": 20.0
+   },
+   "time": {
+    "count": [
+     0,
+     59,
+     -1
+    ],
+    "every": 1.0,
+    "start": 1.0
+   }
+  }
+ },
+ "scene": {
+  "layers": [
+   {
+    "type": "rect",
+    "x": 0,
+    "y": 12,
+    "w": 128,
+    "h": 20,
+    "color": "#2a7a2a",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 63,
+    "y": 12,
+    "w": 1,
+    "h": 20,
+    "color": "#d0e0d0",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "marquee",
+    "font": "6x10",
+    "y": 1,
+    "x": 0,
+    "w": 70,
+    "speed": 12,
+    "gap": 40,
+    "upper": true,
+    "segments": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#ffa030"
+     }
+    ],
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "icons",
+    "var": "balls",
+    "x": 40,
+    "y": 16,
+    "max": 3,
+    "gap": 1,
+    "pattern": [
+     "##",
+     "##"
+    ],
+    "colors": {
+     "#": "#40e060"
+    },
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "balls"
+      }
+     ]
+    }
+   },
+   {
+    "type": "icons",
+    "var": "strikes",
+    "x": 58,
+    "y": 16,
+    "max": 2,
+    "gap": 1,
+    "pattern": [
+     "##",
+     "##"
+    ],
+    "colors": {
+     "#": "#ffd040"
+    },
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "strikes"
+      }
+     ]
+    }
+   },
+   {
+    "type": "icons",
+    "var": "outs",
+    "x": 76,
+    "y": 16,
+    "max": 2,
+    "gap": 1,
+    "pattern": [
+     "##",
+     "##"
+    ],
+    "colors": {
+     "#": "#ff5040"
+    },
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "outs"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 1,
+    "y": 13,
+    "align": "left",
+    "segments": [
+     {
+      "text": "{inning}",
+      "color": "#ffffff"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "inning"
+      }
+     ]
+    }
+   },
+   {
+    "type": "coinop",
+    "when": {
+     "all": [
+      {
+       "has": "p1_mode"
+      },
+      {
+       "not": {
+        "var": "p1_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    },
+    "title": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#ffa030"
+     }
+    ],
+    "idle_image": [
+     "sprites/insert_coin.gif",
+     "sprites/insert_coin.png"
+    ]
+   }
+  ]
+ }
+}

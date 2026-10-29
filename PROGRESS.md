@@ -94,11 +94,11 @@ Scène de combat commune sur la dalle, avec l'écran des pièces depuis la 1.16.
 | World Heroes 2 Jet | ✅ | ✅ | ✅ | ⬜ | ⬜ |
 | World Heroes Perfect | ✅ | ✅ | ✅ | ⬜ | ✅ |
 
-### The other Neo Geo games / Les autres jeux Neo Geo (10 / 97)
+### The other Neo Geo games / Les autres jeux Neo Geo (97 / 97)
 
-The best-known games first. Until its turn, each game keeps the shared scene of its genre. 🟡 in Values means the score still has to be learned with `learn.bat`.
+The best-known games came first, and now every game of the list has a panel scene and an HD scene of its own. 🟡 in Values means the score still has to be learned with `learn.bat`, ⬜ that no value of the game is known yet.
 
-Les plus connus d'abord. En attendant son tour, chaque jeu garde la scène commune de son genre. 🟡 dans Valeurs veut dire que le score reste à apprendre avec `learn.bat`.
+Les plus connus sont passés d'abord, et maintenant chaque jeu de la liste a sa scène de dalle et sa scène HD. 🟡 dans Valeurs veut dire que le score reste à apprendre avec `learn.bat`, ⬜ qu'aucune valeur du jeu n'est encore connue.
 
 | # | Game / Jeu | Genre | Values / Valeurs | Panel / Dalle | HD | Version |
 |---|---|---|---|---|---|---|
@@ -112,93 +112,93 @@ Les plus connus d'abord. En attendant son tour, chaque jeu garde la scène commu
 | 8 | Super Sidekicks 3 | Sport (soccer) / Sport (football) | ✅ | ✅ | ✅ | 1.18 |
 | 9 | The Ultimate 11 | Sport (soccer) / Sport (football) | ✅ | ✅ | ✅ | 1.18 |
 | 10 | Sengoku 3 | Beat'em up | 🟡 | ✅ | ✅ | 1.18 |
-| 11 | Top Hunter | Action | ⬜ | ⬜ | ⬜ |  |
-| 12 | Baseball Stars 2 | Sport (baseball) | ⬜ | ⬜ | ⬜ |  |
-| 13 | Last Resort | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
-| 14 | Aero Fighters 2 | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
-| 15 | Aero Fighters 3 | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
-| 16 | Twinkle Star Sprites | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
-| 17 | Strikers 1945 Plus | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
-| 18 | Neo Bomberman | Action | ⬜ | ⬜ | ⬜ |  |
-| 19 | Super Dodge Ball | Sport | ⬜ | ⬜ | ⬜ |  |
-| 20 | Street Hoop | Sport (basketball) / Sport (basket) | ⬜ | ⬜ | ⬜ |  |
-| 21 | League Bowling | Sport (bowling) | ⬜ | ⬜ | ⬜ |  |
-| 22 | Neo Drift Out | Racing / Course | ⬜ | ⬜ | ⬜ |  |
-| 23 | Riding Hero | Racing / Course | ⬜ | ⬜ | ⬜ |  |
-| 24 | Thrash Rally | Racing / Course | ⬜ | ⬜ | ⬜ |  |
-| 25 | Magician Lord | Action | ⬜ | ⬜ | ⬜ |  |
-| 26 | NAM-1975 | Action | ⬜ | ⬜ | ⬜ |  |
-| 27 | Cyber-Lip | Action | ⬜ | ⬜ | ⬜ |  |
-| 28 | Ghost Pilots | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
-| 29 | Alpha Mission II | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
-| 30 | Viewpoint | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
-| 31 | Zed Blade | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
-| 32 | Prehistoric Isle 2 | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
-| 33 | Shock Troopers 2nd Squad | Action | ⬜ | ⬜ | ⬜ |  |
-| 34 | Robo Army | Beat'em up | ⬜ | ⬜ | ⬜ |  |
-| 35 | Burning Fight | Beat'em up | ⬜ | ⬜ | ⬜ |  |
-| 36 | Mutation Nation | Beat'em up | ⬜ | ⬜ | ⬜ |  |
-| 37 | Sengoku | Beat'em up | ⬜ | ⬜ | ⬜ |  |
-| 38 | Sengoku 2 | Beat'em up | ⬜ | ⬜ | ⬜ |  |
-| 39 | Ninja Combat | Beat'em up | ⬜ | ⬜ | ⬜ |  |
-| 40 | Ninja Commando | Action | ⬜ | ⬜ | ⬜ |  |
-| 41 | Blue's Journey | Action | ⬜ | ⬜ | ⬜ |  |
-| 42 | Puzzle Bobble 2 | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
-| 43 | Magical Drop II | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
-| 44 | Money Puzzle Exchanger | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
-| 45 | Puzzle De Pon! | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
-| 46 | Puzzle De Pon! R! | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
-| 47 | Panic Bomber | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
-| 48 | Pop 'n Bounce | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
-| 49 | Super Bubble Pop | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
-| 50 | Spin Master | Action | ⬜ | ⬜ | ⬜ |  |
-| 51 | Ganryu | Action | ⬜ | ⬜ | ⬜ |  |
-| 52 | Zupapa! | Action | ⬜ | ⬜ | ⬜ |  |
-| 53 | Neo Mr. Do! | Action | ⬜ | ⬜ | ⬜ |  |
-| 54 | Super Sidekicks | Sport (soccer) / Sport (football) | ⬜ | ⬜ | ⬜ |  |
-| 55 | Super Sidekicks 2 | Sport (soccer) / Sport (football) | ⬜ | ⬜ | ⬜ |  |
-| 56 | Tecmo World Soccer '96 | Sport (soccer) / Sport (football) | ⬜ | ⬜ | ⬜ |  |
-| 57 | Goal! Goal! Goal! | Sport (soccer) / Sport (football) | ⬜ | ⬜ | ⬜ |  |
-| 58 | Neo-Geo Cup '98 | Sport (soccer) / Sport (football) | ⬜ | ⬜ | ⬜ |  |
-| 59 | Soccer Brawl | Sport (soccer) / Sport (football) | ⬜ | ⬜ | ⬜ |  |
-| 60 | Football Frenzy | Sport (football) / Sport (football US) | ⬜ | ⬜ | ⬜ |  |
-| 61 | Pleasure Goal | Sport (futsal) | ⬜ | ⬜ | ⬜ |  |
-| 62 | Baseball Stars Professional | Sport (baseball) | ⬜ | ⬜ | ⬜ |  |
-| 63 | 2020 Super Baseball | Sport (baseball) | ⬜ | ⬜ | ⬜ |  |
-| 64 | Top Player's Golf | Sport (golf) | ⬜ | ⬜ | ⬜ |  |
-| 65 | Power Spikes II | Sport (volleyball) / Sport (volley) | ⬜ | ⬜ | ⬜ |  |
-| 66 | Bang Bead | Sport | ⬜ | ⬜ | ⬜ |  |
-| 67 | Battle Flip Shot | Sport | ⬜ | ⬜ | ⬜ |  |
-| 68 | Over Top | Racing / Course | ⬜ | ⬜ | ⬜ |  |
-| 69 | Stakes Winner | Racing (horses) / Course (chevaux) | ⬜ | ⬜ | ⬜ |  |
-| 70 | Stakes Winner 2 | Racing (horses) / Course (chevaux) | ⬜ | ⬜ | ⬜ |  |
-| 71 | Jockey Grand Prix | Racing (horses) / Course (chevaux) | ⬜ | ⬜ | ⬜ |  |
-| 72 | Gururin | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
-| 73 | Ghostlop | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
-| 74 | Pochi and Nyaa | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
-| 75 | Puzzled | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
-| 76 | Zintrick | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
-| 77 | Digger Man | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
-| 78 | The Irritating Maze | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
-| 79 | Andro Dunos | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
-| 80 | Captain Tomaday | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
-| 81 | Choutetsu Brikin'ger | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
-| 82 | Last Hope | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
-| 83 | Bang Bang Busters | Action | ⬜ | ⬜ | ⬜ |  |
-| 84 | Crossed Swords | Action | ⬜ | ⬜ | ⬜ |  |
-| 85 | Eight Man | Action | ⬜ | ⬜ | ⬜ |  |
-| 86 | Nightmare in the Dark | Action | ⬜ | ⬜ | ⬜ |  |
-| 87 | The Super Spy | Action | ⬜ | ⬜ | ⬜ |  |
-| 88 | Quiz King of Fighters | Quiz | ⬜ | ⬜ | ⬜ |  |
-| 89 | Quiz Daisousa Sen | Quiz | ⬜ | ⬜ | ⬜ |  |
-| 90 | Quiz Meitantei Neo & Geo | Quiz | ⬜ | ⬜ | ⬜ |  |
-| 91 | Chibi Maruko-chan: Maruko Deluxe Quiz | Quiz | ⬜ | ⬜ | ⬜ |  |
-| 92 | Minasan no Okagesamadesu! Dai Sugoroku Taikai | Board game / Jeu de plateau | ⬜ | ⬜ | ⬜ |  |
-| 93 | Mahjong Kyo Retsuden | Mahjong | ⬜ | ⬜ | ⬜ |  |
-| 94 | Janshin Densetsu | Mahjong | ⬜ | ⬜ | ⬜ |  |
-| 95 | Bakatonosama Mahjong Manyuuki | Mahjong | ⬜ | ⬜ | ⬜ |  |
-| 96 | Idol Mahjong Final Romance 2 | Mahjong | ⬜ | ⬜ | ⬜ |  |
-| 97 | Shougi no Tatsujin | Shogi | ⬜ | ⬜ | ⬜ |  |
+| 11 | Top Hunter | Action | 🟡 | ✅ | ✅ | 1.19 |
+| 12 | Baseball Stars 2 | Sport (baseball) | ✅ | ✅ | ✅ | 1.19 |
+| 13 | Last Resort | Shoot'em up | 🟡 | ✅ | ✅ | 1.19 |
+| 14 | Aero Fighters 2 | Shoot'em up | 🟡 | ✅ | ✅ | 1.19 |
+| 15 | Aero Fighters 3 | Shoot'em up | 🟡 | ✅ | ✅ | 1.19 |
+| 16 | Twinkle Star Sprites | Shoot'em up | 🟡 | ✅ | ✅ | 1.20 |
+| 17 | Strikers 1945 Plus | Shoot'em up | 🟡 | ✅ | ✅ | 1.20 |
+| 18 | Neo Bomberman | Action | 🟡 | ✅ | ✅ | 1.20 |
+| 19 | Super Dodge Ball | Sport | 🟡 | ✅ | ✅ | 1.20 |
+| 20 | Street Hoop | Sport (basketball) / Sport (basket) | ✅ | ✅ | ✅ | 1.20 |
+| 21 | League Bowling | Sport (bowling) | 🟡 | ✅ | ✅ | 1.20 |
+| 22 | Neo Drift Out | Racing / Course | ✅ | ✅ | ✅ | 1.20 |
+| 23 | Riding Hero | Racing / Course | ✅ | ✅ | ✅ | 1.20 |
+| 24 | Thrash Rally | Racing / Course | ✅ | ✅ | ✅ | 1.20 |
+| 25 | Magician Lord | Action | 🟡 | ✅ | ✅ | 1.20 |
+| 26 | NAM-1975 | Action | 🟡 | ✅ | ✅ | 1.21 |
+| 27 | Cyber-Lip | Action | 🟡 | ✅ | ✅ | 1.21 |
+| 28 | Ghost Pilots | Shoot'em up | 🟡 | ✅ | ✅ | 1.21 |
+| 29 | Alpha Mission II | Shoot'em up | 🟡 | ✅ | ✅ | 1.21 |
+| 30 | Viewpoint | Shoot'em up | 🟡 | ✅ | ✅ | 1.21 |
+| 31 | Zed Blade | Shoot'em up | 🟡 | ✅ | ✅ | 1.21 |
+| 32 | Prehistoric Isle 2 | Shoot'em up | 🟡 | ✅ | ✅ | 1.21 |
+| 33 | Shock Troopers 2nd Squad | Action | 🟡 | ✅ | ✅ | 1.21 |
+| 34 | Robo Army | Beat'em up | 🟡 | ✅ | ✅ | 1.21 |
+| 35 | Burning Fight | Beat'em up | 🟡 | ✅ | ✅ | 1.21 |
+| 36 | Mutation Nation | Beat'em up | 🟡 | ✅ | ✅ | 1.22 |
+| 37 | Sengoku | Beat'em up | 🟡 | ✅ | ✅ | 1.22 |
+| 38 | Sengoku 2 | Beat'em up | 🟡 | ✅ | ✅ | 1.22 |
+| 39 | Ninja Combat | Beat'em up | 🟡 | ✅ | ✅ | 1.22 |
+| 40 | Ninja Commando | Action | 🟡 | ✅ | ✅ | 1.22 |
+| 41 | Blue's Journey | Action | 🟡 | ✅ | ✅ | 1.22 |
+| 42 | Puzzle Bobble 2 | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.22 |
+| 43 | Magical Drop II | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.22 |
+| 44 | Money Puzzle Exchanger | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.22 |
+| 45 | Puzzle De Pon! | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.22 |
+| 46 | Puzzle De Pon! R! | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.23 |
+| 47 | Panic Bomber | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.23 |
+| 48 | Pop 'n Bounce | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.23 |
+| 49 | Super Bubble Pop | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.23 |
+| 50 | Spin Master | Action | 🟡 | ✅ | ✅ | 1.23 |
+| 51 | Ganryu | Action | 🟡 | ✅ | ✅ | 1.23 |
+| 52 | Zupapa! | Action | 🟡 | ✅ | ✅ | 1.23 |
+| 53 | Neo Mr. Do! | Action | 🟡 | ✅ | ✅ | 1.23 |
+| 54 | Super Sidekicks | Sport (soccer) / Sport (football) | ✅ | ✅ | ✅ | 1.23 |
+| 55 | Super Sidekicks 2 | Sport (soccer) / Sport (football) | ✅ | ✅ | ✅ | 1.23 |
+| 56 | Tecmo World Soccer '96 | Sport (soccer) / Sport (football) | ⬜ | ✅ | ✅ | 1.24 |
+| 57 | Goal! Goal! Goal! | Sport (soccer) / Sport (football) | ✅ | ✅ | ✅ | 1.24 |
+| 58 | Neo-Geo Cup '98 | Sport (soccer) / Sport (football) | ✅ | ✅ | ✅ | 1.24 |
+| 59 | Soccer Brawl | Sport (soccer) / Sport (football) | ✅ | ✅ | ✅ | 1.24 |
+| 60 | Football Frenzy | Sport (football) / Sport (football US) | ✅ | ✅ | ✅ | 1.24 |
+| 61 | Pleasure Goal | Sport (futsal) | ✅ | ✅ | ✅ | 1.24 |
+| 62 | Baseball Stars Professional | Sport (baseball) | ✅ | ✅ | ✅ | 1.24 |
+| 63 | 2020 Super Baseball | Sport (baseball) | ✅ | ✅ | ✅ | 1.24 |
+| 64 | Top Player's Golf | Sport (golf) | ✅ | ✅ | ✅ | 1.24 |
+| 65 | Power Spikes II | Sport (volleyball) / Sport (volley) | ✅ | ✅ | ✅ | 1.24 |
+| 66 | Bang Bead | Sport | 🟡 | ✅ | ✅ | 1.25 |
+| 67 | Battle Flip Shot | Sport | 🟡 | ✅ | ✅ | 1.25 |
+| 68 | Over Top | Racing / Course | ✅ | ✅ | ✅ | 1.25 |
+| 69 | Stakes Winner | Racing (horses) / Course (chevaux) | ✅ | ✅ | ✅ | 1.25 |
+| 70 | Stakes Winner 2 | Racing (horses) / Course (chevaux) | ✅ | ✅ | ✅ | 1.25 |
+| 71 | Jockey Grand Prix | Racing (horses) / Course (chevaux) | ⬜ | ✅ | ✅ | 1.25 |
+| 72 | Gururin | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.25 |
+| 73 | Ghostlop | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.25 |
+| 74 | Pochi and Nyaa | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.25 |
+| 75 | Puzzled | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.25 |
+| 76 | Zintrick | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.26 |
+| 77 | Digger Man | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.26 |
+| 78 | The Irritating Maze | Puzzle / Réflexion | ✅ | ✅ | ✅ | 1.26 |
+| 79 | Andro Dunos | Shoot'em up | 🟡 | ✅ | ✅ | 1.26 |
+| 80 | Captain Tomaday | Shoot'em up | 🟡 | ✅ | ✅ | 1.26 |
+| 81 | Choutetsu Brikin'ger | Shoot'em up | 🟡 | ✅ | ✅ | 1.26 |
+| 82 | Last Hope | Shoot'em up | 🟡 | ✅ | ✅ | 1.26 |
+| 83 | Bang Bang Busters | Action | 🟡 | ✅ | ✅ | 1.26 |
+| 84 | Crossed Swords | Action | 🟡 | ✅ | ✅ | 1.26 |
+| 85 | Eight Man | Action | 🟡 | ✅ | ✅ | 1.26 |
+| 86 | Nightmare in the Dark | Action | 🟡 | ✅ | ✅ | 1.27 |
+| 87 | The Super Spy | Action | 🟡 | ✅ | ✅ | 1.27 |
+| 88 | Quiz King of Fighters | Quiz | 🟡 | ✅ | ✅ | 1.27 |
+| 89 | Quiz Daisousa Sen | Quiz | 🟡 | ✅ | ✅ | 1.27 |
+| 90 | Quiz Meitantei Neo & Geo | Quiz | 🟡 | ✅ | ✅ | 1.27 |
+| 91 | Chibi Maruko-chan: Maruko Deluxe Quiz | Quiz | 🟡 | ✅ | ✅ | 1.27 |
+| 92 | Minasan no Okagesamadesu! Dai Sugoroku Taikai | Board game / Jeu de plateau | ✅ | ✅ | ✅ | 1.27 |
+| 93 | Mahjong Kyo Retsuden | Mahjong | ✅ | ✅ | ✅ | 1.27 |
+| 94 | Janshin Densetsu | Mahjong | ✅ | ✅ | ✅ | 1.27 |
+| 95 | Bakatonosama Mahjong Manyuuki | Mahjong | ✅ | ✅ | ✅ | 1.27 |
+| 96 | Idol Mahjong Final Romance 2 | Mahjong | ⬜ | ✅ | ✅ | 1.27 |
+| 97 | Shougi no Tatsujin | Shogi | ⬜ | ✅ | ✅ | 1.27 |
 
 Bootlegs and hacks (Metal Slug 6, KOF 10th Anniversary, Crouching Tiger Hidden Dragon...) follow the game they come from.
 

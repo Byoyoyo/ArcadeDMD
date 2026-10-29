@@ -1,0 +1,802 @@
+{
+ "title": "Quiz Daisousa Sen",
+ "match": [
+  {
+   "system": [
+    "quizdais",
+    "quizdaisk"
+   ]
+  }
+ ],
+ "retroarch": {
+  "content": [
+   "quizdais",
+   "quizdaisk"
+  ],
+  "ram_base": "0x100000",
+  "ram_size": "0x10000",
+  "swap16": true,
+  "note": "FinalBurn Neo core: Neo Geo 68000 RAM seen from 0x100000, bytes swapped within 16-bit words"
+ },
+ "memory": {
+  "cpu": ":maincpu",
+  "values": {
+   "score": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+   },
+   "score_p2": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+   },
+   "p1_input": {
+    "addr": "0x10FD96",
+    "type": "u8",
+    "note": "BIOS_P1CURRENT: player 1 stick and buttons, 1 up, 2 down, 4 left, 8 right, 16 A, 32 B, 64 C, 128 D (HD scene)"
+   },
+   "p2_input": {
+    "addr": "0x10FD9C",
+    "type": "u8",
+    "note": "BIOS_P2CURRENT: player 2 stick and buttons, same bits (HD scene)"
+   },
+   "lives": {
+    "addr": "0x1022B3",
+    "type": "u8",
+    "note": "player 1 lives (FinalBurn Neo cheats, Infinite Lives PL1)"
+   },
+   "lives_p2": {
+    "addr": "0x1023B3",
+    "type": "u8",
+    "note": "player 2 lives (FinalBurn Neo cheats, Infinite Lives PL2)"
+   },
+   "credits": {
+    "addr": "0xD00034",
+    "type": "bcd",
+    "bytes": 1,
+    "mame_only": true,
+    "note": "MVS credits (backup RAM), readable in MAME only"
+   },
+   "p1_mode": {
+    "addr": "0x10FDB6",
+    "type": "u8",
+    "note": "BIOS: player 1, 0 never played, 1 playing, 2 continue, 3 game over"
+   },
+   "p2_mode": {
+    "addr": "0x10FDB7",
+    "type": "u8",
+    "note": "BIOS: player 2, same values"
+   }
+  }
+ },
+ "hd": {
+  "scene": "quizdais"
+ },
+ "demo": {
+  "attract": true,
+  "credits": 0,
+  "p1_mode": 1,
+  "p2_mode": 0,
+  "score": 0,
+  "lives": 4,
+  "sim": {
+   "lives": {
+    "cycle": [
+     4,
+     4,
+     3,
+     3,
+     4
+    ],
+    "every": 7.0,
+    "start": 9.0
+   }
+  }
+ },
+ "scene": {
+  "layers": [
+   {
+    "type": "rect",
+    "x": 0,
+    "y": 11,
+    "w": 128,
+    "h": 21,
+    "color": "#2840c0",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 2,
+    "y": 12,
+    "align": "left",
+    "segments": [
+     {
+      "text": "Q",
+      "color": "#ffe040"
+     },
+     {
+      "text": " ? ? ?",
+      "color": "#ffffff"
+     }
+    ],
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "cycle",
+    "period": 0.6,
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    },
+    "pages": [
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 4,
+        "y": 22,
+        "align": "left",
+        "segments": [
+         {
+          "text": "A",
+          "color": "#ffe040"
+         }
+        ],
+        "when": {
+         "not": {
+          "all": [
+           {
+            "has": "p1_mode"
+           },
+           {
+            "not": {
+             "var": "p1_mode",
+             "in": [
+              1,
+              2
+             ]
+            }
+           },
+           {
+            "not": {
+             "var": "p2_mode",
+             "in": [
+              1,
+              2
+             ]
+            }
+           }
+          ]
+         }
+        }
+       }
+      ]
+     },
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 34,
+        "y": 22,
+        "align": "left",
+        "segments": [
+         {
+          "text": "B",
+          "color": "#ffe040"
+         }
+        ],
+        "when": {
+         "not": {
+          "all": [
+           {
+            "has": "p1_mode"
+           },
+           {
+            "not": {
+             "var": "p1_mode",
+             "in": [
+              1,
+              2
+             ]
+            }
+           },
+           {
+            "not": {
+             "var": "p2_mode",
+             "in": [
+              1,
+              2
+             ]
+            }
+           }
+          ]
+         }
+        }
+       }
+      ]
+     },
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 64,
+        "y": 22,
+        "align": "left",
+        "segments": [
+         {
+          "text": "C",
+          "color": "#ffe040"
+         }
+        ],
+        "when": {
+         "not": {
+          "all": [
+           {
+            "has": "p1_mode"
+           },
+           {
+            "not": {
+             "var": "p1_mode",
+             "in": [
+              1,
+              2
+             ]
+            }
+           },
+           {
+            "not": {
+             "var": "p2_mode",
+             "in": [
+              1,
+              2
+             ]
+            }
+           }
+          ]
+         }
+        }
+       }
+      ]
+     },
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 94,
+        "y": 22,
+        "align": "left",
+        "segments": [
+         {
+          "text": "D",
+          "color": "#ffe040"
+         }
+        ],
+        "when": {
+         "not": {
+          "all": [
+           {
+            "has": "p1_mode"
+           },
+           {
+            "not": {
+             "var": "p1_mode",
+             "in": [
+              1,
+              2
+             ]
+            }
+           },
+           {
+            "not": {
+             "var": "p2_mode",
+             "in": [
+              1,
+              2
+             ]
+            }
+           }
+          ]
+         }
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 4,
+    "y": 22,
+    "align": "left",
+    "segments": [
+     {
+      "text": "A",
+      "color": "#8090ff"
+     }
+    ],
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 34,
+    "y": 22,
+    "align": "left",
+    "segments": [
+     {
+      "text": "B",
+      "color": "#8090ff"
+     }
+    ],
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 64,
+    "y": 22,
+    "align": "left",
+    "segments": [
+     {
+      "text": "C",
+      "color": "#8090ff"
+     }
+    ],
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 94,
+    "y": 22,
+    "align": "left",
+    "segments": [
+     {
+      "text": "D",
+      "color": "#8090ff"
+     }
+    ],
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 1,
+    "y": 1,
+    "align": "left",
+    "segments": [
+     {
+      "text": "{score}",
+      "color": "#ffa830"
+     }
+    ],
+    "when": {
+     "has": "score"
+    },
+    "flash": {
+     "on": "score",
+     "color": "#ffffff",
+     "ms": 120
+    }
+   },
+   {
+    "type": "marquee",
+    "font": "6x10",
+    "y": 1,
+    "x": 0,
+    "w": 70,
+    "speed": 12,
+    "gap": 40,
+    "upper": true,
+    "segments": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#40c0ff"
+     }
+    ],
+    "when": {
+     "not": {
+      "has": "score"
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "segments": [
+     {
+      "text": "{score_p2}",
+      "color": "#ffa830"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "var": "p2_mode",
+       "in": [
+        1,
+        2
+       ]
+      },
+      {
+       "has": "score_p2"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "text": "INSERT COIN",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "credits",
+        "gt": 0
+       }
+      }
+     ]
+    },
+    "blink_period": 1.0
+   },
+   {
+    "type": "cycle",
+    "period": 1.5,
+    "when": {
+     "all": [
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "var": "credits",
+       "gt": 0
+      }
+     ]
+    },
+    "pages": [
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "CREDITS {credits}",
+        "color": "#ffa830"
+       }
+      ]
+     },
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "PRESS START",
+        "color": "#ffa830"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "icons",
+    "var": "lives",
+    "x": 126,
+    "y": 13,
+    "max": 6,
+    "gap": 2,
+    "pattern": [
+     ".#.#.",
+     "#####",
+     "#####",
+     ".###.",
+     "..#.."
+    ],
+    "colors": {
+     "#": "#ff4060"
+    },
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "lives"
+      }
+     ]
+    },
+    "flash": {
+     "on": "lives",
+     "color": "#ff4040",
+     "ms": 600
+    },
+    "align": "right"
+   },
+   {
+    "type": "coinop",
+    "when": {
+     "all": [
+      {
+       "has": "p1_mode"
+      },
+      {
+       "not": {
+        "var": "p1_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    },
+    "title": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#40c0ff"
+     }
+    ],
+    "idle_image": [
+     "sprites/insert_coin.gif",
+     "sprites/insert_coin.png"
+    ]
+   }
+  ]
+ }
+}

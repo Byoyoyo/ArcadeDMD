@@ -25,7 +25,7 @@ from .memvalues import derive, game_values
 from .textfiles import TextFiles
 from .i18n import tr
 
-VERSION = "1.18.0"
+VERSION = "1.28.0"
 
 DEFAULT_CONFIG = {
     "language": "auto",
@@ -444,8 +444,8 @@ class Simulator:
             elif "weapon" in ln or "arme" in ln:
                 order = [4, 3, 2, 1, 0]
                 v = order[(order.index(v) + 1) % len(order)] if v in order else 4
-                for k in self.names:
-                    if "ammo" in k.lower() or "munition" in k.lower():
+                for k in self.names:                    # the ammo of the same player, unless the game drives it itself
+                    if ("ammo" in k.lower() or "munition" in k.lower()) and k not in self.sim and k.endswith("_p2") == n.endswith("_p2"):
                         self.values[k] = {4: 200, 3: 30, 2: 30, 1: 30}.get(v, 0)
                         self.state.update(k, self.values[k], t)
                 self.next[n] = t + 7.0

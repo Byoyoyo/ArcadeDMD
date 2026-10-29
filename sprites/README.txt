@@ -11,6 +11,9 @@ ship.png    small ship (2 frames of 9x5) for Neo Geo shoot'em ups
 ball.png    ball (3x3) for Neo Geo sports games
 blocks.png  colored blocks (6 frames of 128x5) for Neo Geo puzzle games
 disc.png    flying disc (4 frames of 20x3) for Windjammers
+car.png     rally car seen from above (2 frames of 10x5) for Neo Geo racing games
+runner.png  running fighter (2 frames of 8x10) for Neo Geo action games and beat'em ups
+horse.png  galloping race horse and its jockey (2 frames of 14x11) for the Neo Geo horse races
 
 To replace the ring with your own character, drop sonic.gif
 (or sonic.png as a strip of 6 frames) into this folder.
@@ -38,6 +41,14 @@ ship.png    petit vaisseau (2 images de 9x5) pour les shoot'em up Neo Geo
 ball.png    ballon (3x3) pour les jeux de sport Neo Geo
 blocks.png  blocs de couleur (6 images de 128x5) pour les jeux de reflexion Neo Geo
 disc.png    palet (4 images de 20x3) pour Windjammers
+car.png     voiture de rallye vue du dessus (2 images de 10x5) pour les jeux de course Neo Geo
+runner.png  combattant qui court (2 images de 8x10) pour les jeux d action et beat'em up Neo Geo
+horse.png  cheval de course au galop et son jockey (2 images de 14x11) pour les courses de chevaux Neo Geo
+fx_pop.png     petite explosion (6 images de 16x16)
+fx_fire.png    boule de feu (8 images de 32x32) pour un gros ennemi ou une bombe
+fx_shock.png   eclair et ondes de choc (8 images de 32x32) pour une bombe ou un super tir
+fx_star.png    etoile et debris (6 images de 32x32) quand un ennemi est detruit
+fx_plasma.png  explosion de plasma bleu (5 images de 32x32) dans l espace et pour un super tir
 
 Pour remplacer l anneau par ton propre personnage, depose sonic.gif
 (ou sonic.png en bande de 6 images) dans ce dossier.
@@ -50,3 +61,17 @@ Pour l ecran des pieces des jeux de combat Neo Geo (personne ne joue),
 insert_coin.gif (ou insert_coin.png), 128x32, remplace la piece et
 INSERT COIN tant qu il n y a pas de credit. Un GIF de la Pixelcade convient.
 La piece tombe et les credits roulent toujours quand tu en mets une.
+
+Tes propres animations pour la dalle (un GIF de DOFLinx ou de la Pixelcade
+par exemple) vont dans le dossier artwork, a cote d arcadedmd.py. Il n est
+jamais publie et une mise a jour n y touche pas.
+artwork/boom.gif      explosion d un ennemi, a chaque point marque (shoot'em up)
+artwork/boom_big.gif  grosse explosion, pour un gros gain d un coup
+artwork/bomb.gif      explosions d une bombe
+artwork/shock.gif     onde de choc d une bombe
+artwork/super.gif     super tir de Strikers 1945 Plus
+artwork/charge.gif    tir charge de Pulstar
+Pour un seul jeu, mets-les dans artwork/<jeu>/ (artwork/s1945p/boom.gif par
+exemple). Un GIF de 128x32 se joue sur toute la dalle, son noir laisse
+voir la scene. Si son dessin tient au milieu (les explosions de DOFLinx),
+il est recadre et part a l endroit de l action.

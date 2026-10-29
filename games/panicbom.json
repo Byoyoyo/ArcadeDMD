@@ -1,0 +1,520 @@
+{
+ "title": "Panic Bomber",
+ "match": [
+  {
+   "system": [
+    "panicbom"
+   ]
+  }
+ ],
+ "retroarch": {
+  "content": [
+   "panicbom"
+  ],
+  "ram_base": "0x100000",
+  "ram_size": "0x10000",
+  "swap16": true,
+  "note": "FinalBurn Neo core: Neo Geo 68000 RAM seen from 0x100000, bytes swapped within 16-bit words"
+ },
+ "memory": {
+  "cpu": ":maincpu",
+  "values": {
+   "score": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+   },
+   "score_p2": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+   },
+   "p1_input": {
+    "addr": "0x10FD96",
+    "type": "u8",
+    "note": "BIOS_P1CURRENT: player 1 stick and buttons, 1 up, 2 down, 4 left, 8 right, 16 A, 32 B, 64 C, 128 D (HD scene)"
+   },
+   "p2_input": {
+    "addr": "0x10FD9C",
+    "type": "u8",
+    "note": "BIOS_P2CURRENT: player 2 stick and buttons, same bits (HD scene)"
+   },
+   "power": {
+    "addr": "0x1038CD",
+    "type": "u8",
+    "max": 8,
+    "note": "player 1 power, 0 to 8 (FinalBurn Neo cheats and MAME 2003-Plus cheats, Always Maximum Power Up PL1)"
+   },
+   "power_p2": {
+    "addr": "0x103B6F",
+    "type": "u8",
+    "max": 8,
+    "note": "player 2 power (FinalBurn Neo cheats and MAME 2003-Plus cheats, Always Maximum Power Up PL2)"
+   },
+   "level": {
+    "addr": "0x103941",
+    "type": "u8",
+    "note": "player 1 level (FinalBurn Neo cheats and MAME 2003-Plus cheats, No more level gain PL1, to be confirmed in game)"
+   },
+   "level_p2": {
+    "addr": "0x103BE3",
+    "type": "u8",
+    "note": "player 2 level (FinalBurn Neo cheats and MAME 2003-Plus cheats, No more level gain PL2)"
+   },
+   "credits": {
+    "addr": "0xD00034",
+    "type": "bcd",
+    "bytes": 1,
+    "mame_only": true,
+    "note": "MVS credits (backup RAM), readable in MAME only"
+   },
+   "p1_mode": {
+    "addr": "0x10FDB6",
+    "type": "u8",
+    "note": "BIOS: player 1, 0 never played, 1 playing, 2 continue, 3 game over"
+   },
+   "p2_mode": {
+    "addr": "0x10FDB7",
+    "type": "u8",
+    "note": "BIOS: player 2, same values"
+   }
+  }
+ },
+ "hd": {
+  "scene": "panicbom"
+ },
+ "demo": {
+  "attract": true,
+  "credits": 0,
+  "p1_mode": 1,
+  "p2_mode": 0,
+  "power": 0,
+  "level": 1,
+  "score": 0,
+  "sim": {
+   "power": {
+    "cycle": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     0
+    ],
+    "every": 2.5,
+    "start": 3.0
+   },
+   "level": {
+    "count": [
+     1,
+     20,
+     1
+    ],
+    "every": 8.0,
+    "start": 8.0
+   }
+  }
+ },
+ "scene": {
+  "layers": [
+   {
+    "type": "sprite",
+    "image": [
+     "sprites/blocks.png"
+    ],
+    "frames": 6,
+    "fps": 3,
+    "mode": "fixed",
+    "x": 0,
+    "y": 27,
+    "dim": 0.55,
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 1,
+    "y": 1,
+    "align": "left",
+    "segments": [
+     {
+      "text": "{score}",
+      "color": "#ffa830"
+     }
+    ],
+    "when": {
+     "has": "score"
+    },
+    "flash": {
+     "on": "score",
+     "color": "#ffffff",
+     "ms": 120
+    }
+   },
+   {
+    "type": "marquee",
+    "font": "6x10",
+    "y": 1,
+    "x": 0,
+    "w": 70,
+    "speed": 12,
+    "gap": 40,
+    "upper": true,
+    "segments": [
+     {
+      "text": "HUDSON",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#40e060"
+     }
+    ],
+    "when": {
+     "not": {
+      "has": "score"
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "segments": [
+     {
+      "text": "{score_p2}",
+      "color": "#ffa830"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "var": "p2_mode",
+       "in": [
+        1,
+        2
+       ]
+      },
+      {
+       "has": "score_p2"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "text": "INSERT COIN",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "credits",
+        "gt": 0
+       }
+      }
+     ]
+    },
+    "blink_period": 1.0
+   },
+   {
+    "type": "cycle",
+    "period": 1.5,
+    "when": {
+     "all": [
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "var": "credits",
+       "gt": 0
+      }
+     ]
+    },
+    "pages": [
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "CREDITS {credits}",
+        "color": "#ffa830"
+       }
+      ]
+     },
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "PRESS START",
+        "color": "#ffa830"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "gauge",
+    "var": "power",
+    "max": 8,
+    "x": 1,
+    "y": 13,
+    "w": 40,
+    "h": 4,
+    "color": "#ff9020",
+    "low": "#ff9020",
+    "back": "#302010",
+    "bevel": "#ffe0a0",
+    "shade": false,
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "power"
+      }
+     ]
+    },
+    "flash": {
+     "on": "power",
+     "color": "#ffffff",
+     "ms": 300
+    }
+   },
+   {
+    "type": "gauge",
+    "var": "power_p2",
+    "max": 8,
+    "x": 87,
+    "y": 13,
+    "w": 40,
+    "h": 4,
+    "anchor": "right",
+    "color": "#20a0ff",
+    "low": "#20a0ff",
+    "back": "#102030",
+    "bevel": "#c0e0ff",
+    "shade": false,
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "var": "p2_mode",
+       "in": [
+        1,
+        2
+       ]
+      },
+      {
+       "has": "power_p2"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "5x8",
+    "x": 64,
+    "y": 11,
+    "align": "center",
+    "segments": [
+     {
+      "text": "LV ",
+      "color": "#80c080"
+     },
+     {
+      "text": "{level}",
+      "color": "#ececec"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "level"
+      }
+     ]
+    }
+   },
+   {
+    "type": "coinop",
+    "when": {
+     "all": [
+      {
+       "has": "p1_mode"
+      },
+      {
+       "not": {
+        "var": "p1_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    },
+    "title": [
+     {
+      "text": "HUDSON",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#40e060"
+     }
+    ],
+    "idle_image": [
+     "sprites/insert_coin.gif",
+     "sprites/insert_coin.png"
+    ]
+   }
+  ]
+ }
+}

@@ -1,0 +1,668 @@
+{
+ "title": "Gururin",
+ "match": [
+  {
+   "system": [
+    "gururin"
+   ]
+  }
+ ],
+ "retroarch": {
+  "content": [
+   "gururin"
+  ],
+  "ram_base": "0x100000",
+  "ram_size": "0x10000",
+  "swap16": true,
+  "note": "FinalBurn Neo core: Neo Geo 68000 RAM seen from 0x100000, bytes swapped within 16-bit words"
+ },
+ "memory": {
+  "cpu": ":maincpu",
+  "values": {
+   "score": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+   },
+   "score_p2": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+   },
+   "p1_input": {
+    "addr": "0x10FD96",
+    "type": "u8",
+    "note": "BIOS_P1CURRENT: player 1 stick and buttons, 1 up, 2 down, 4 left, 8 right, 16 A, 32 B, 64 C, 128 D (HD scene)"
+   },
+   "p2_input": {
+    "addr": "0x10FD9C",
+    "type": "u8",
+    "note": "BIOS_P2CURRENT: player 2 stick and buttons, same bits (HD scene)"
+   },
+   "level": {
+    "addr": "0x101C5D",
+    "type": "u8",
+    "note": "level (FinalBurn Neo cheats and MAME 2003-Plus cheats, No more level gain)"
+   },
+   "cur_l": {
+    "addr": "0x101D03",
+    "type": "u8",
+    "note": "player 1 current piece, left: 1 pink, 2 yellow, 3 purple, 4 red, 5 grey, 6 green, 7 blue (FinalBurn Neo cheats and MAME 2003-Plus cheats)"
+   },
+   "cur_l_p2": {
+    "addr": "0x101F03",
+    "type": "u8",
+    "note": "player 2 current piece, left (FinalBurn Neo cheats and MAME 2003-Plus cheats)"
+   },
+   "cur_c": {
+    "addr": "0x101D23",
+    "type": "u8",
+    "note": "player 1 current piece, centre: 1 pink, 2 yellow, 3 purple, 4 red, 5 grey, 6 green, 7 blue (FinalBurn Neo cheats and MAME 2003-Plus cheats)"
+   },
+   "cur_c_p2": {
+    "addr": "0x101F23",
+    "type": "u8",
+    "note": "player 2 current piece, centre (FinalBurn Neo cheats and MAME 2003-Plus cheats)"
+   },
+   "cur_r": {
+    "addr": "0x101D43",
+    "type": "u8",
+    "note": "player 1 current piece, right: 1 pink, 2 yellow, 3 purple, 4 red, 5 grey, 6 green, 7 blue (FinalBurn Neo cheats and MAME 2003-Plus cheats)"
+   },
+   "cur_r_p2": {
+    "addr": "0x101F43",
+    "type": "u8",
+    "note": "player 2 current piece, right (FinalBurn Neo cheats and MAME 2003-Plus cheats)"
+   },
+   "next_l": {
+    "addr": "0x101D63",
+    "type": "u8",
+    "note": "player 1 next piece, left: 1 pink, 2 yellow, 3 purple, 4 red, 5 grey, 6 green, 7 blue (FinalBurn Neo cheats and MAME 2003-Plus cheats)"
+   },
+   "next_l_p2": {
+    "addr": "0x101F63",
+    "type": "u8",
+    "note": "player 2 next piece, left (FinalBurn Neo cheats and MAME 2003-Plus cheats)"
+   },
+   "next_c": {
+    "addr": "0x101D83",
+    "type": "u8",
+    "note": "player 1 next piece, centre: 1 pink, 2 yellow, 3 purple, 4 red, 5 grey, 6 green, 7 blue (FinalBurn Neo cheats and MAME 2003-Plus cheats)"
+   },
+   "next_c_p2": {
+    "addr": "0x101F83",
+    "type": "u8",
+    "note": "player 2 next piece, centre (FinalBurn Neo cheats and MAME 2003-Plus cheats)"
+   },
+   "next_r": {
+    "addr": "0x101DA3",
+    "type": "u8",
+    "note": "player 1 next piece, right: 1 pink, 2 yellow, 3 purple, 4 red, 5 grey, 6 green, 7 blue (FinalBurn Neo cheats and MAME 2003-Plus cheats)"
+   },
+   "next_r_p2": {
+    "addr": "0x101FA3",
+    "type": "u8",
+    "note": "player 2 next piece, right (FinalBurn Neo cheats and MAME 2003-Plus cheats)"
+   },
+   "credits": {
+    "addr": "0xD00034",
+    "type": "bcd",
+    "bytes": 1,
+    "mame_only": true,
+    "note": "MVS credits (backup RAM), readable in MAME only"
+   },
+   "p1_mode": {
+    "addr": "0x10FDB6",
+    "type": "u8",
+    "note": "BIOS: player 1, 0 never played, 1 playing, 2 continue, 3 game over"
+   },
+   "p2_mode": {
+    "addr": "0x10FDB7",
+    "type": "u8",
+    "note": "BIOS: player 2, same values"
+   }
+  }
+ },
+ "hd": {
+  "scene": "gururin"
+ },
+ "demo": {
+  "attract": true,
+  "credits": 0,
+  "p1_mode": 1,
+  "p2_mode": 0,
+  "score": 0,
+  "level": 1,
+  "cur_l": 1,
+  "cur_c": 2,
+  "cur_r": 4,
+  "next_l": 6,
+  "next_c": 7,
+  "next_r": 3,
+  "sim": {
+   "cur_l": {
+    "cycle": [
+     1,
+     6,
+     3,
+     2,
+     7,
+     4
+    ],
+    "every": 2.2,
+    "start": 2.0
+   },
+   "cur_c": {
+    "cycle": [
+     2,
+     7,
+     2,
+     5,
+     1,
+     6
+    ],
+    "every": 2.2,
+    "start": 2.0
+   },
+   "cur_r": {
+    "cycle": [
+     4,
+     3,
+     1,
+     6,
+     2,
+     7
+    ],
+    "every": 2.2,
+    "start": 2.0
+   },
+   "next_l": {
+    "cycle": [
+     6,
+     3,
+     2,
+     7,
+     4,
+     1
+    ],
+    "every": 2.2,
+    "start": 2.0
+   },
+   "next_c": {
+    "cycle": [
+     7,
+     2,
+     5,
+     1,
+     6,
+     2
+    ],
+    "every": 2.2,
+    "start": 2.0
+   },
+   "next_r": {
+    "cycle": [
+     3,
+     1,
+     6,
+     2,
+     7,
+     4
+    ],
+    "every": 2.2,
+    "start": 2.0
+   },
+   "level": {
+    "count": [
+     1,
+     20,
+     1
+    ],
+    "every": 12.0,
+    "start": 12.0
+   }
+  }
+ },
+ "scene": {
+  "layers": [
+   {
+    "type": "sprite",
+    "image": [
+     "sprites/blocks.png"
+    ],
+    "frames": 6,
+    "fps": 3,
+    "mode": "fixed",
+    "x": 0,
+    "y": 27,
+    "dim": 0.55,
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 1,
+    "y": 1,
+    "align": "left",
+    "segments": [
+     {
+      "text": "{score}",
+      "color": "#ffa830"
+     }
+    ],
+    "when": {
+     "has": "score"
+    },
+    "flash": {
+     "on": "score",
+     "color": "#ffffff",
+     "ms": 120
+    }
+   },
+   {
+    "type": "marquee",
+    "font": "6x10",
+    "y": 1,
+    "x": 0,
+    "w": 70,
+    "speed": 12,
+    "gap": 40,
+    "upper": true,
+    "segments": [
+     {
+      "text": "FACE",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#ff90c0"
+     }
+    ],
+    "when": {
+     "not": {
+      "has": "score"
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "segments": [
+     {
+      "text": "{score_p2}",
+      "color": "#ffa830"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "var": "p2_mode",
+       "in": [
+        1,
+        2
+       ]
+      },
+      {
+       "has": "score_p2"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "text": "INSERT COIN",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "credits",
+        "gt": 0
+       }
+      }
+     ]
+    },
+    "blink_period": 1.0
+   },
+   {
+    "type": "cycle",
+    "period": 1.5,
+    "when": {
+     "all": [
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "var": "credits",
+       "gt": 0
+      }
+     ]
+    },
+    "pages": [
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "CREDITS {credits}",
+        "color": "#ffa830"
+       }
+      ]
+     },
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "PRESS START",
+        "color": "#ffa830"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "dot",
+    "var": "next_l",
+    "x": 54,
+    "y": 17,
+    "r": 3.0,
+    "colors": [
+     "#2a2440",
+     "#fa96be",
+     "#fadc3c",
+     "#aa64e6",
+     "#f0463c",
+     "#aaaab4",
+     "#50c85a",
+     "#4682f0"
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "next_l"
+      }
+     ]
+    }
+   },
+   {
+    "type": "dot",
+    "var": "next_c",
+    "x": 61,
+    "y": 17,
+    "r": 3.0,
+    "colors": [
+     "#2a2440",
+     "#fa96be",
+     "#fadc3c",
+     "#aa64e6",
+     "#f0463c",
+     "#aaaab4",
+     "#50c85a",
+     "#4682f0"
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "next_c"
+      }
+     ]
+    }
+   },
+   {
+    "type": "dot",
+    "var": "next_r",
+    "x": 68,
+    "y": 17,
+    "r": 3.0,
+    "colors": [
+     "#2a2440",
+     "#fa96be",
+     "#fadc3c",
+     "#aa64e6",
+     "#f0463c",
+     "#aaaab4",
+     "#50c85a",
+     "#4682f0"
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "next_r"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "5x8",
+    "x": 64,
+    "y": 22,
+    "align": "center",
+    "segments": [
+     {
+      "text": "LV ",
+      "color": "#c0a0ff"
+     },
+     {
+      "text": "{level}",
+      "color": "#ececec"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "level"
+      }
+     ]
+    }
+   },
+   {
+    "type": "coinop",
+    "when": {
+     "all": [
+      {
+       "has": "p1_mode"
+      },
+      {
+       "not": {
+        "var": "p1_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    },
+    "title": [
+     {
+      "text": "FACE",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#ff90c0"
+     }
+    ],
+    "idle_image": [
+     "sprites/insert_coin.gif",
+     "sprites/insert_coin.png"
+    ]
+   }
+  ]
+ }
+}

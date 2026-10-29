@@ -1,0 +1,661 @@
+{
+ "title": "Riding Hero",
+ "match": [
+  {
+   "system": [
+    "ridhero",
+    "ridheroh"
+   ]
+  }
+ ],
+ "retroarch": {
+  "content": [
+   "ridhero",
+   "ridheroh"
+  ],
+  "ram_base": "0x100000",
+  "ram_size": "0x10000",
+  "swap16": true,
+  "note": "FinalBurn Neo core: Neo Geo 68000 RAM seen from 0x100000, bytes swapped within 16-bit words"
+ },
+ "memory": {
+  "cpu": ":maincpu",
+  "values": {
+   "time": {
+    "addr": "0x1000F8",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "time left in the race, World Grand Prix (MAME 2003-Plus cheats, Infinite Time - W.G.P)"
+   },
+   "turbo": {
+    "addr": "0x100F79",
+    "type": "u8",
+    "max": 4,
+    "note": "turbos left, 4 at most (MAME 2003-Plus cheats, Infinite Turbos)"
+   },
+   "rank": {
+    "addr": "0x100F89",
+    "type": "u8",
+    "note": "position in the race, 1 for the first (MAME 2003-Plus cheats, Win every race (as 1st))"
+   },
+   "speed": {
+    "addr": "0x100F52",
+    "type": "bcd",
+    "bytes": 2,
+    "max": 199,
+    "note": "speed of the bike, 199 at most (MAME 2003-Plus cheats, Always ride at Maximum Speed)"
+   },
+   "credits": {
+    "addr": "0xD00034",
+    "type": "bcd",
+    "bytes": 1,
+    "mame_only": true,
+    "note": "MVS credits (backup RAM), readable in MAME only"
+   },
+   "p1_mode": {
+    "addr": "0x10FDB6",
+    "type": "u8",
+    "note": "BIOS: player 1, 0 never played, 1 playing, 2 continue, 3 game over"
+   },
+   "p2_mode": {
+    "addr": "0x10FDB7",
+    "type": "u8",
+    "note": "BIOS: player 2, same values"
+   }
+  }
+ },
+ "hd": {
+  "scene": "ridhero"
+ },
+ "demo": {
+  "attract": true,
+  "credits": 0,
+  "p1_mode": 1,
+  "p2_mode": 0,
+  "time": 50,
+  "turbo": 4,
+  "rank": 8,
+  "speed": 0,
+  "sim": {
+   "time": {
+    "count": [
+     20,
+     50,
+     -1
+    ],
+    "every": 1.0,
+    "start": 1.0
+   },
+   "speed": {
+    "cycle": [
+     60,
+     120,
+     160,
+     190,
+     199,
+     180,
+     150,
+     199
+    ],
+    "every": 1.2,
+    "start": 1.0
+   },
+   "turbo": {
+    "cycle": [
+     4,
+     4,
+     3,
+     3,
+     2,
+     2,
+     1,
+     4
+    ],
+    "every": 3.0,
+    "start": 3.0
+   },
+   "rank": {
+    "cycle": [
+     8,
+     8,
+     7,
+     7,
+     6,
+     5,
+     5,
+     6,
+     4,
+     3,
+     3,
+     2
+    ],
+    "every": 2.4,
+    "start": 4.0
+   }
+  }
+ },
+ "scene": {
+  "layers": [
+   {
+    "type": "rect",
+    "x": 0,
+    "y": 22,
+    "w": 128,
+    "h": 10,
+    "color": "#2a6a28",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 34,
+    "y": 22,
+    "w": 60,
+    "h": 10,
+    "color": "#5a5c64",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 32,
+    "y": 22,
+    "w": 2,
+    "h": 10,
+    "color": "#e03030",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 94,
+    "y": 22,
+    "w": 2,
+    "h": 10,
+    "color": "#e03030",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "particles",
+    "rate": 9,
+    "color": "#e8e8e8",
+    "trail": 2,
+    "speed": [
+     40,
+     60
+    ],
+    "y": [
+     24,
+     31
+    ],
+    "dir": "down",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "marquee",
+    "font": "6x10",
+    "y": 1,
+    "x": 0,
+    "w": 70,
+    "speed": 12,
+    "gap": 40,
+    "upper": true,
+    "segments": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#ff50c0"
+     }
+    ],
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "text": "INSERT COIN",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "credits",
+        "gt": 0
+       }
+      }
+     ]
+    },
+    "blink_period": 1.0
+   },
+   {
+    "type": "cycle",
+    "period": 1.5,
+    "when": {
+     "all": [
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "var": "credits",
+       "gt": 0
+      }
+     ]
+    },
+    "pages": [
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "CREDITS {credits}",
+        "color": "#ffa830"
+       }
+      ]
+     },
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "PRESS START",
+        "color": "#ffa830"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 1,
+    "y": 12,
+    "align": "left",
+    "segments": [
+     {
+      "text": "{time}",
+      "color": "#ff60d0"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "time"
+      }
+     ]
+    }
+   },
+   {
+    "type": "icons",
+    "var": "turbo",
+    "x": 20,
+    "y": 13,
+    "max": 4,
+    "gap": 1,
+    "pattern": [
+     "###",
+     "###",
+     "###",
+     "###"
+    ],
+    "colors": {
+     "#": "#ff6030"
+    },
+    "empty": "#3a1810",
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "turbo"
+      }
+     ]
+    },
+    "flash": {
+     "on": "turbo",
+     "color": "#ffffff",
+     "ms": 400
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 12,
+    "align": "right",
+    "segments": [
+     {
+      "text": "{rank_name}",
+      "color": "#ff60d0"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "rank_name"
+      }
+     ]
+    },
+    "flash": {
+     "on": "rank",
+     "color": "#ffffff",
+     "ms": 800
+    }
+   },
+   {
+    "type": "coinop",
+    "when": {
+     "all": [
+      {
+       "has": "p1_mode"
+      },
+      {
+       "not": {
+        "var": "p1_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    },
+    "title": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#ff50c0"
+     }
+    ],
+    "idle_image": [
+     "sprites/insert_coin.gif",
+     "sprites/insert_coin.png"
+    ]
+   }
+  ]
+ },
+ "derived": {
+  "rank_name": {
+   "value": "rank",
+   "names": {
+    "1": "1ST",
+    "2": "2ND",
+    "3": "3RD",
+    "4": "4TH",
+    "5": "5TH",
+    "6": "6TH",
+    "7": "7TH",
+    "8": "8TH"
+   }
+  }
+ }
+}

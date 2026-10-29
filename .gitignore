@@ -6,6 +6,7 @@ learned/
 appris/
 appris.old/
 obs/
+artwork/
 libzedmd/*.dll
 libzedmd/*.zip
 sprites/sonic*.gif

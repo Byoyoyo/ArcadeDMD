@@ -1,0 +1,1040 @@
+{
+ "title": "Twinkle Star Sprites",
+ "match": [
+  {
+   "system": [
+    "twinspri"
+   ]
+  }
+ ],
+ "retroarch": {
+  "content": [
+   "twinspri"
+  ],
+  "ram_base": "0x100000",
+  "ram_size": "0x10000",
+  "swap16": true,
+  "note": "FinalBurn Neo core: Neo Geo 68000 RAM seen from 0x100000, bytes swapped within 16-bit words"
+ },
+ "memory": {
+  "cpu": ":maincpu",
+  "values": {
+   "score": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+   },
+   "score_p2": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+   },
+   "p1_input": {
+    "addr": "0x10FD96",
+    "type": "u8",
+    "note": "BIOS_P1CURRENT: player 1 stick and buttons, 1 up, 2 down, 4 left, 8 right, 16 A, 32 B, 64 C, 128 D (HD scene)"
+   },
+   "p2_input": {
+    "addr": "0x10FD9C",
+    "type": "u8",
+    "note": "BIOS_P2CURRENT: player 2 stick and buttons, same bits (HD scene)"
+   },
+   "lives": {
+    "addr": "0x10C005",
+    "type": "u8",
+    "max": 5,
+    "note": "player 1 hearts, 5 at most (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL1)"
+   },
+   "lives_p2": {
+    "addr": "0x10D005",
+    "type": "u8",
+    "max": 5,
+    "note": "player 2 hearts (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL2)"
+   },
+   "bombs": {
+    "addr": "0x10C021",
+    "type": "u8",
+    "note": "player 1 bombs (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Bombs PL1)"
+   },
+   "bombs_p2": {
+    "addr": "0x10D021",
+    "type": "u8",
+    "note": "player 2 bombs (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Bombs PL2)"
+   },
+   "power": {
+    "addr": "0x10C08A",
+    "type": "u16",
+    "max": 12288,
+    "note": "player 1 Pow gauge, 0x1000 level 1, 0x2000 level 2, 0x3000 max (FinalBurn Neo cheats, Infinite Power PL1)"
+   },
+   "power_p2": {
+    "addr": "0x10D08A",
+    "type": "u16",
+    "max": 12288,
+    "note": "player 2 Pow gauge (FinalBurn Neo cheats, Infinite Power PL2)"
+   },
+   "attack": {
+    "addr": "0x10C088",
+    "type": "u8",
+    "note": "attack player 1 sends, 16 level 1, 32 level 2, 48 boss (FinalBurn Neo cheats, Get an Instant Attack Now! PL1)"
+   },
+   "attack_p2": {
+    "addr": "0x10D088",
+    "type": "u8",
+    "note": "attack player 2 sends (FinalBurn Neo cheats, Get an Instant Attack Now! PL2)"
+   },
+   "char": {
+    "addr": "0x10C007",
+    "type": "u8",
+    "note": "player 1 character, 0 Load Ran to 12 Memory (FinalBurn Neo cheats, Select Character PL1)"
+   },
+   "char_p2": {
+    "addr": "0x10D007",
+    "type": "u8",
+    "note": "player 2 character (FinalBurn Neo cheats, Select Character PL2)"
+   },
+   "credits": {
+    "addr": "0xD00034",
+    "type": "bcd",
+    "bytes": 1,
+    "mame_only": true,
+    "note": "MVS credits (backup RAM), readable in MAME only"
+   },
+   "p1_mode": {
+    "addr": "0x10FDB6",
+    "type": "u8",
+    "note": "BIOS: player 1, 0 never played, 1 playing, 2 continue, 3 game over"
+   },
+   "p2_mode": {
+    "addr": "0x10FDB7",
+    "type": "u8",
+    "note": "BIOS: player 2, same values"
+   }
+  }
+ },
+ "hd": {
+  "scene": "twinspri"
+ },
+ "demo": {
+  "attract": true,
+  "credits": 0,
+  "p1_mode": 1,
+  "p2_mode": 0,
+  "lives": 5,
+  "bombs": 2,
+  "power": 0,
+  "attack": 0,
+  "char": 0,
+  "lives_p2": 5,
+  "bombs_p2": 2,
+  "power_p2": 0,
+  "attack_p2": 0,
+  "char_p2": 7,
+  "score": 0,
+  "sim": {
+   "power": {
+    "cycle": [
+     0,
+     2048,
+     4096,
+     6144,
+     8192,
+     10240,
+     12288,
+     12288,
+     0
+    ],
+    "every": 0.9,
+    "start": 2.0
+   },
+   "attack": {
+    "cycle": [
+     0,
+     0,
+     16,
+     0,
+     0,
+     32,
+     0,
+     0,
+     0,
+     48,
+     0,
+     0
+    ],
+    "every": 1.5,
+    "start": 4.0
+   },
+   "attack_p2": {
+    "cycle": [
+     0,
+     0,
+     0,
+     16,
+     0,
+     0,
+     0,
+     32,
+     0,
+     0
+    ],
+    "every": 1.7,
+    "start": 5.0
+   },
+   "lives": {
+    "cycle": [
+     5,
+     5,
+     4,
+     4,
+     4,
+     3,
+     3,
+     5
+    ],
+    "every": 4.0,
+    "start": 8.0
+   },
+   "lives_p2": {
+    "cycle": [
+     5,
+     4,
+     4,
+     3,
+     3,
+     2,
+     5
+    ],
+    "every": 4.4,
+    "start": 6.0
+   },
+   "bombs": {
+    "cycle": [
+     2,
+     2,
+     1,
+     1,
+     0,
+     2
+    ],
+    "every": 5.0,
+    "start": 9.0
+   },
+   "char": {
+    "cycle": [
+     0,
+     5,
+     3,
+     8
+    ],
+    "every": 12.0,
+    "start": 1.0
+   }
+  }
+ },
+ "scene": {
+  "layers": [
+   {
+    "type": "particles",
+    "rate": 6,
+    "color": "#ffe0f0",
+    "trail": 1,
+    "speed": [
+     10,
+     24
+    ],
+    "y": [
+     12,
+     31
+    ],
+    "dir": "down",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 62,
+    "y": 10,
+    "w": 4,
+    "h": 22,
+    "color": "#1e7846",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 63,
+    "y": 13,
+    "w": 2,
+    "h": 2,
+    "color": "#ff3040",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 63,
+    "y": 19,
+    "w": 2,
+    "h": 2,
+    "color": "#ff3040",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 63,
+    "y": 25,
+    "w": 2,
+    "h": 2,
+    "color": "#ff3040",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 1,
+    "y": 1,
+    "align": "left",
+    "segments": [
+     {
+      "text": "{score}",
+      "color": "#ffa830"
+     }
+    ],
+    "when": {
+     "has": "score"
+    },
+    "flash": {
+     "on": "score",
+     "color": "#ffffff",
+     "ms": 120
+    }
+   },
+   {
+    "type": "marquee",
+    "font": "6x10",
+    "y": 1,
+    "x": 0,
+    "w": 70,
+    "speed": 12,
+    "gap": 40,
+    "upper": true,
+    "segments": [
+     {
+      "text": "ADK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#ff70b0"
+     }
+    ],
+    "when": {
+     "not": {
+      "has": "score"
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "segments": [
+     {
+      "text": "{score_p2}",
+      "color": "#ffa830"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "var": "p2_mode",
+       "in": [
+        1,
+        2
+       ]
+      },
+      {
+       "has": "score_p2"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "text": "INSERT COIN",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "credits",
+        "gt": 0
+       }
+      }
+     ]
+    },
+    "blink_period": 1.0
+   },
+   {
+    "type": "cycle",
+    "period": 1.5,
+    "when": {
+     "all": [
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "var": "credits",
+       "gt": 0
+      }
+     ]
+    },
+    "pages": [
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "CREDITS {credits}",
+        "color": "#ffa830"
+       }
+      ]
+     },
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "PRESS START",
+        "color": "#ffa830"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "icons",
+    "var": "lives",
+    "x": 1,
+    "y": 12,
+    "max": 6,
+    "gap": 2,
+    "pattern": [
+     "#.#",
+     "###",
+     ".#."
+    ],
+    "colors": {
+     "#": "#ff4070"
+    },
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "lives"
+      }
+     ]
+    },
+    "flash": {
+     "on": "lives",
+     "color": "#ff4040",
+     "ms": 600
+    }
+   },
+   {
+    "type": "icons",
+    "var": "bombs",
+    "x": 1,
+    "y": 27,
+    "max": 5,
+    "gap": 1,
+    "pattern": [
+     ".#.",
+     "#o#",
+     ".#."
+    ],
+    "colors": {
+     "#": "#4060ff",
+     "o": "#ffffff"
+    },
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "bombs"
+      }
+     ]
+    },
+    "flash": {
+     "on": "bombs",
+     "color": "#ffffff",
+     "ms": 400
+    }
+   },
+   {
+    "type": "gauge",
+    "var": "power",
+    "max": 12288,
+    "x": 20,
+    "y": 28,
+    "w": 38,
+    "h": 3,
+    "color": "#ff4070",
+    "low": "#ff4070",
+    "back": "#301020",
+    "bevel": "#ffc0d0",
+    "shade": false,
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "power"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "4x6",
+    "x": 1,
+    "y": 18,
+    "align": "left",
+    "segments": [
+     {
+      "text": "{name}",
+      "color": "#ffd0e0"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "name"
+      }
+     ]
+    }
+   },
+   {
+    "type": "icons",
+    "var": "lives_p2",
+    "x": 127,
+    "y": 12,
+    "max": 6,
+    "gap": 2,
+    "pattern": [
+     "#.#",
+     "###",
+     ".#."
+    ],
+    "colors": {
+     "#": "#40a0ff"
+    },
+    "when": {
+     "all": [
+      {
+       "all": [
+        {
+         "not": {
+          "all": [
+           {
+            "has": "p1_mode"
+           },
+           {
+            "not": {
+             "var": "p1_mode",
+             "in": [
+              1,
+              2
+             ]
+            }
+           },
+           {
+            "not": {
+             "var": "p2_mode",
+             "in": [
+              1,
+              2
+             ]
+            }
+           }
+          ]
+         }
+        },
+        {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       ]
+      },
+      {
+       "has": "lives_p2"
+      }
+     ]
+    },
+    "flash": {
+     "on": "lives_p2",
+     "color": "#ff4040",
+     "ms": 600
+    },
+    "align": "right"
+   },
+   {
+    "type": "icons",
+    "var": "bombs_p2",
+    "x": 127,
+    "y": 27,
+    "max": 5,
+    "gap": 1,
+    "align": "right",
+    "pattern": [
+     ".#.",
+     "#o#",
+     ".#."
+    ],
+    "colors": {
+     "#": "#4060ff",
+     "o": "#ffffff"
+    },
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "var": "p2_mode",
+       "in": [
+        1,
+        2
+       ]
+      },
+      {
+       "has": "bombs_p2"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "4x6",
+    "x": 127,
+    "y": 18,
+    "align": "right",
+    "segments": [
+     {
+      "text": "{name_p2}",
+      "color": "#c0e0ff"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "var": "p2_mode",
+       "in": [
+        1,
+        2
+       ]
+      },
+      {
+       "has": "name_p2"
+      }
+     ]
+    }
+   },
+   {
+    "type": "coinop",
+    "when": {
+     "all": [
+      {
+       "has": "p1_mode"
+      },
+      {
+       "not": {
+        "var": "p1_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    },
+    "title": [
+     {
+      "text": "ADK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#ff70b0"
+     }
+    ],
+    "idle_image": [
+     "sprites/insert_coin.gif",
+     "sprites/insert_coin.png"
+    ]
+   }
+  ]
+ },
+ "derived": {
+  "name": {
+   "value": "char",
+   "names": [
+    "LOAD RAN",
+    "MACKY & PENTELL",
+    "ARTHUR SCHMIDT",
+    "YAN YANYUNG",
+    "GRIFFON",
+    "REALLY TILL",
+    "TINKER & LINKER",
+    "NANJA MONJA",
+    "KIM",
+    "SPRITES",
+    "DARK RAN",
+    "MEVIOUS",
+    "MEMORY"
+   ]
+  },
+  "name_p2": {
+   "value": "char_p2",
+   "names": [
+    "LOAD RAN",
+    "MACKY & PENTELL",
+    "ARTHUR SCHMIDT",
+    "YAN YANYUNG",
+    "GRIFFON",
+    "REALLY TILL",
+    "TINKER & LINKER",
+    "NANJA MONJA",
+    "KIM",
+    "SPRITES",
+    "DARK RAN",
+    "MEVIOUS",
+    "MEMORY"
+   ]
+  }
+ }
+}

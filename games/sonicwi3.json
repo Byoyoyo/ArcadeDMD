@@ -1,0 +1,1535 @@
+{
+ "title": "Aero Fighters 3",
+ "match": [
+  {
+   "system": [
+    "sonicwi3"
+   ]
+  }
+ ],
+ "retroarch": {
+  "content": [
+   "sonicwi3"
+  ],
+  "ram_base": "0x100000",
+  "ram_size": "0x10000",
+  "swap16": true,
+  "note": "FinalBurn Neo core: Neo Geo 68000 RAM seen from 0x100000, bytes swapped within 16-bit words"
+ },
+ "memory": {
+  "cpu": ":maincpu",
+  "values": {
+   "score": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+   },
+   "score_p2": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+   },
+   "p1_input": {
+    "addr": "0x10FD96",
+    "type": "u8",
+    "note": "BIOS_P1CURRENT: player 1 stick and buttons, 1 up, 2 down, 4 left, 8 right, 16 A, 32 B, 64 C, 128 D (HD scene)"
+   },
+   "p2_input": {
+    "addr": "0x10FD9C",
+    "type": "u8",
+    "note": "BIOS_P2CURRENT: player 2 stick and buttons, same bits (HD scene)"
+   },
+   "lives": {
+    "addr": "0x10E89B",
+    "type": "u8",
+    "note": "player 1 lives in reserve (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL1)"
+   },
+   "lives_p2": {
+    "addr": "0x10E8F1",
+    "type": "u8",
+    "note": "player 2 lives in reserve (FinalBurn Neo cheats, Infinite Lives PL2)"
+   },
+   "bombs": {
+    "addr": "0x10E8BA",
+    "type": "u8",
+    "note": "player 1 bombs (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Bombs PL1)"
+   },
+   "bombs_p2": {
+    "addr": "0x10E910",
+    "type": "u8",
+    "note": "player 2 bombs (FinalBurn Neo cheats, Infinite Bombs PL2)"
+   },
+   "power": {
+    "addr": "0x10E8B0",
+    "type": "u8",
+    "max": 4,
+    "note": "player 1 weapon power (FinalBurn Neo cheats, Maximum Power, 1 to 4 depending on the plane PL1)"
+   },
+   "power_p2": {
+    "addr": "0x10E906",
+    "type": "u8",
+    "max": 4,
+    "note": "player 2 weapon power (FinalBurn Neo cheats, Maximum Power, 1 to 4 depending on the plane PL2)"
+   },
+   "plane": {
+    "addr": "0x1003AB",
+    "type": "u8",
+    "note": "player 1 pilot and plane, 0 Keaton to 11 The Man (FinalBurn Neo cheats, Select Character)"
+   },
+   "credits": {
+    "addr": "0xD00034",
+    "type": "bcd",
+    "bytes": 1,
+    "mame_only": true,
+    "note": "MVS credits (backup RAM), readable in MAME only"
+   },
+   "p1_mode": {
+    "addr": "0x10FDB6",
+    "type": "u8",
+    "note": "BIOS: player 1, 0 never played, 1 playing, 2 continue, 3 game over"
+   },
+   "p2_mode": {
+    "addr": "0x10FDB7",
+    "type": "u8",
+    "note": "BIOS: player 2, same values"
+   }
+  }
+ },
+ "hd": {
+  "scene": "sonicwi3"
+ },
+ "demo": {
+  "attract": true,
+  "credits": 0,
+  "p1_mode": 1,
+  "p2_mode": 0,
+  "lives": 3,
+  "bombs": 2,
+  "power": 0,
+  "plane": 0,
+  "score": 0,
+  "sim": {
+   "bombs": {
+    "cycle": [
+     2,
+     2,
+     1,
+     1,
+     0,
+     2
+    ],
+    "every": 6.0,
+    "start": 6.0
+   },
+   "lives": {
+    "cycle": [
+     3,
+     3,
+     2,
+     2,
+     3,
+     1
+    ],
+    "every": 8.0,
+    "start": 11.0
+   },
+   "power": {
+    "cycle": [
+     0,
+     1,
+     1,
+     2,
+     3,
+     3,
+     0
+    ],
+    "every": 5.0,
+    "start": 3.0
+   },
+   "plane": {
+    "cycle": [
+     0,
+     9,
+     6,
+     1
+    ],
+    "every": 14.0,
+    "start": 13.0
+   }
+  }
+ },
+ "scene": {
+  "layers": [
+   {
+    "type": "rect",
+    "x": 0,
+    "y": 24,
+    "w": 128,
+    "h": 8,
+    "color": "#120e1c",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 0,
+    "y": 25,
+    "w": 9,
+    "h": 3,
+    "color": "#2c2440",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 11,
+    "y": 25,
+    "w": 6,
+    "h": 4,
+    "color": "#2c2440",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 19,
+    "y": 25,
+    "w": 10,
+    "h": 3,
+    "color": "#2c2440",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 31,
+    "y": 25,
+    "w": 7,
+    "h": 4,
+    "color": "#2c2440",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 40,
+    "y": 25,
+    "w": 9,
+    "h": 3,
+    "color": "#2c2440",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 51,
+    "y": 25,
+    "w": 6,
+    "h": 4,
+    "color": "#2c2440",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 59,
+    "y": 25,
+    "w": 11,
+    "h": 3,
+    "color": "#2c2440",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 72,
+    "y": 25,
+    "w": 7,
+    "h": 4,
+    "color": "#2c2440",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 81,
+    "y": 25,
+    "w": 9,
+    "h": 3,
+    "color": "#2c2440",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 92,
+    "y": 25,
+    "w": 6,
+    "h": 4,
+    "color": "#2c2440",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 100,
+    "y": 25,
+    "w": 10,
+    "h": 3,
+    "color": "#2c2440",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 112,
+    "y": 25,
+    "w": 7,
+    "h": 4,
+    "color": "#2c2440",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 121,
+    "y": 25,
+    "w": 7,
+    "h": 3,
+    "color": "#2c2440",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "particles",
+    "rate": 3,
+    "color": "#ffd070",
+    "trail": 1,
+    "speed": [
+     20,
+     40
+    ],
+    "y": [
+     29,
+     31
+    ],
+    "dir": "left",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "sprite",
+    "image": [
+     "sprites/jet.png"
+    ],
+    "frames": 2,
+    "fps": 10,
+    "mode": "pingpong",
+    "x0": 2,
+    "x1": 70,
+    "speed": 7,
+    "face": "right",
+    "y": 25,
+    "bob": 0.6,
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    },
+    "shoot": {
+     "on": [
+      "score",
+      "score_p2",
+      "bombs"
+     ],
+     "dx": 12,
+     "dy": 2,
+     "speed": 150,
+     "color": "#ffe060",
+     "gap": 0.15
+    }
+   },
+   {
+    "type": "anim",
+    "image": [
+     "artwork/{game}/boom.gif",
+     "artwork/boom.gif",
+     "sprites/fx_star.png"
+    ],
+    "on": [
+     "score",
+     "score_p2"
+    ],
+    "change": "up",
+    "ratio": [
+     0,
+     2.5
+    ],
+    "x": [
+     70,
+     112
+    ],
+    "y": 16,
+    "ms": 50,
+    "max": 3,
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "anim",
+    "image": [
+     "artwork/{game}/boom_big.gif",
+     "artwork/boom_big.gif",
+     "sprites/fx_fire.png"
+    ],
+    "on": [
+     "score",
+     "score_p2"
+    ],
+    "change": "up",
+    "ratio": [
+     2.5,
+     1000000
+    ],
+    "x": [
+     78,
+     106
+    ],
+    "y": 16,
+    "ms": 100,
+    "max": 2,
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "anim",
+    "image": [
+     "artwork/{game}/bomb.gif",
+     "artwork/bomb.gif",
+     "sprites/fx_fire.png"
+    ],
+    "on": [
+     "bombs",
+     "bombs_p2"
+    ],
+    "change": "down",
+    "count": 3,
+    "spread": [
+     26,
+     110
+    ],
+    "y": 16,
+    "delay": 0.12,
+    "ms": 100,
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "anim",
+    "image": [
+     "artwork/{game}/shock.gif",
+     "artwork/shock.gif",
+     "sprites/fx_shock.png"
+    ],
+    "on": [
+     "bombs",
+     "bombs_p2"
+    ],
+    "change": "down",
+    "x": 68,
+    "y": 16,
+    "ms": 100,
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 1,
+    "y": 1,
+    "align": "left",
+    "segments": [
+     {
+      "text": "{score}",
+      "color": "#ffa830"
+     }
+    ],
+    "when": {
+     "has": "score"
+    },
+    "flash": {
+     "on": "score",
+     "color": "#ffffff",
+     "ms": 120
+    }
+   },
+   {
+    "type": "marquee",
+    "font": "6x10",
+    "y": 1,
+    "x": 0,
+    "w": 70,
+    "speed": 12,
+    "gap": 40,
+    "upper": true,
+    "segments": [
+     {
+      "text": "VIDEO SYSTEM",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#ffc040"
+     }
+    ],
+    "when": {
+     "not": {
+      "has": "score"
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "segments": [
+     {
+      "text": "{score_p2}",
+      "color": "#ffa830"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "var": "p2_mode",
+       "in": [
+        1,
+        2
+       ]
+      },
+      {
+       "has": "score_p2"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "text": "INSERT COIN",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "credits",
+        "gt": 0
+       }
+      }
+     ]
+    },
+    "blink_period": 1.0
+   },
+   {
+    "type": "cycle",
+    "period": 1.5,
+    "when": {
+     "all": [
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "var": "credits",
+       "gt": 0
+      }
+     ]
+    },
+    "pages": [
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "CREDITS {credits}",
+        "color": "#ffa830"
+       }
+      ]
+     },
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "PRESS START",
+        "color": "#ffa830"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "icons",
+    "var": "lives",
+    "x": 1,
+    "y": 12,
+    "max": 6,
+    "gap": 2,
+    "pattern": [
+     "..#..",
+     ".###.",
+     "#####",
+     "..#..",
+     ".###."
+    ],
+    "colors": {
+     "#": "#ffc040"
+    },
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "lives"
+      }
+     ]
+    },
+    "flash": {
+     "on": "lives",
+     "color": "#ff4040",
+     "ms": 600
+    }
+   },
+   {
+    "type": "icons",
+    "var": "bombs",
+    "x": 40,
+    "y": 12,
+    "max": 6,
+    "gap": 1,
+    "pattern": [
+     ".#.",
+     "###",
+     "###",
+     ".#."
+    ],
+    "colors": {
+     "#": "#ff8a30"
+    },
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "bombs"
+      }
+     ]
+    },
+    "flash": {
+     "on": "bombs",
+     "color": "#ffffff",
+     "ms": 400
+    }
+   },
+   {
+    "type": "icons",
+    "var": "power",
+    "x": 127,
+    "y": 12,
+    "max": 4,
+    "gap": 1,
+    "align": "right",
+    "pattern": [
+     "###",
+     "###",
+     "###",
+     "###"
+    ],
+    "colors": {
+     "#": "#ffd040"
+    },
+    "empty": "#3a3018",
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "power"
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    },
+    "flash": {
+     "on": "power",
+     "color": "#ffffff",
+     "ms": 300
+    }
+   },
+   {
+    "type": "icons",
+    "var": "lives_p2",
+    "x": 127,
+    "y": 12,
+    "max": 6,
+    "gap": 2,
+    "pattern": [
+     "..#..",
+     ".###.",
+     "#####",
+     "..#..",
+     ".###."
+    ],
+    "colors": {
+     "#": "#ff9040"
+    },
+    "when": {
+     "all": [
+      {
+       "all": [
+        {
+         "not": {
+          "all": [
+           {
+            "has": "p1_mode"
+           },
+           {
+            "not": {
+             "var": "p1_mode",
+             "in": [
+              1,
+              2
+             ]
+            }
+           },
+           {
+            "not": {
+             "var": "p2_mode",
+             "in": [
+              1,
+              2
+             ]
+            }
+           }
+          ]
+         }
+        },
+        {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       ]
+      },
+      {
+       "has": "lives_p2"
+      }
+     ]
+    },
+    "flash": {
+     "on": "lives_p2",
+     "color": "#ff4040",
+     "ms": 600
+    },
+    "align": "right"
+   },
+   {
+    "type": "icons",
+    "var": "bombs_p2",
+    "x": 127,
+    "y": 19,
+    "max": 6,
+    "gap": 1,
+    "align": "right",
+    "pattern": [
+     ".#.",
+     "###",
+     "###",
+     ".#."
+    ],
+    "colors": {
+     "#": "#ff8a30"
+    },
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "var": "p2_mode",
+       "in": [
+        1,
+        2
+       ]
+      },
+      {
+       "has": "bombs_p2"
+      }
+     ]
+    },
+    "flash": {
+     "on": "bombs_p2",
+     "color": "#ffffff",
+     "ms": 400
+    }
+   },
+   {
+    "type": "text",
+    "font": "4x6",
+    "x": 1,
+    "y": 19,
+    "align": "left",
+    "segments": [
+     {
+      "text": "{pilot_name}",
+      "color": "#ffc040"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "pilot_name"
+      }
+     ]
+    }
+   },
+   {
+    "type": "coinop",
+    "when": {
+     "all": [
+      {
+       "has": "p1_mode"
+      },
+      {
+       "not": {
+        "var": "p1_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    },
+    "title": [
+     {
+      "text": "VIDEO SYSTEM",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#ffc040"
+     }
+    ],
+    "idle_image": [
+     "sprites/insert_coin.gif",
+     "sprites/insert_coin.png"
+    ]
+   }
+  ]
+ },
+ "derived": {
+  "pilot_name": {
+   "value": "plane",
+   "names": [
+    "KEATON",
+    "BLAZERS",
+    "HIEN",
+    "MAO MAO",
+    "CHAIKA & POOSHKA",
+    "SPANKY",
+    "MALCOLM",
+    "KOWFUL & RIVER",
+    "ALEX & PICTUS",
+    "ELLEN & CINDY",
+    "KOTOMI",
+    "THE MAN"
+   ]
+  },
+  "plane_name": {
+   "value": "plane",
+   "names": [
+    "F4U CORSAIR",
+    "P-61 BLACK WIDOW",
+    "A6M ZERO",
+    "M6A1 SEIRAN",
+    "IL-2 STURMOVIK",
+    "I-16",
+    "DO 335 PFEIL",
+    "JU 87 STUKA",
+    "WHIRLWIND",
+    "SWORDFISH",
+    "RED RABBIT",
+    "DIABLOON"
+   ]
+  }
+ }
+}

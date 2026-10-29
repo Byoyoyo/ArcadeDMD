@@ -10,7 +10,7 @@ import re
 import string
 import time
 
-from .canvas import Font, parse_color, scale_color, load_sprite_frames
+from .canvas import Font, Sprite, parse_color, scale_color, load_sprite_frames
 from .i18n import lang, tr
 
 
@@ -594,7 +594,9 @@ class GaugeEl(Element):
 
 
 class ParticlesEl(Element):
-    """Missiles qui traversent + gerbes d'étincelles quand une valeur augmente."""
+    """Missiles qui traversent + gerbes d'étincelles quand une valeur augmente.
+    "burst": {"on": valeurs, "color", "count", "x": [x0, x1]} : une gerbe à un endroit pris entre x0 et x1 (et dans "y")
+    chaque fois qu'une des valeurs monte, par exemple un ennemi qui explose quand le score monte."""
 
     def __init__(self, spec, root, log):
         super().__init__(spec, root, log)
@@ -611,6 +613,15 @@ class ParticlesEl(Element):
         self.sparks = []
         self.rng = random.Random(7)
         self.last_t = None
+        self.burst_times = []
+
+    def _burst_ok(self, t):
+        """Not too many bursts: at most one every "gap" seconds, none while the value climbs very fast (a bonus that the
+        game counts). / Pas trop de gerbes : rien pendant un décompte rapide de points (un bonus compté par le jeu)."""
+        self.burst_times = [x for x in self.burst_times if t - x < 0.8] + [t]
+        if len(self.burst_times) > 6:
+            return False
+        return len(self.burst_times) < 2 or t - self.burst_times[-2] >= float(self.burst.get("gap", 0.0))
 
     def render(self, ctx):
         cv = ctx.canvas
@@ -631,7 +642,10 @@ class ParticlesEl(Element):
             names = names if isinstance(names, list) else [names]
             for (name, old, new, et) in ctx.state.events:
                 if name in names and isinstance(old, (int, float)) and isinstance(new, (int, float)) and new > old:
-                    cx = self.rng.randint(20, cv.w - 20)
+                    if not self._burst_ok(t):
+                        continue
+                    xr = self.burst.get("x") or [20, cv.w - 20]
+                    cx = self.rng.randint(int(xr[0]), max(int(xr[0]), int(xr[1])))
                     cy = self.rng.randint(self.ymin, self.ymax)
                     col = parse_color(self.burst.get("color"), (255, 200, 60))
                     for _ in range(int(self.burst.get("count", 8))):
@@ -661,6 +675,168 @@ class ParticlesEl(Element):
                 cv.add(int(s[0]), int(s[1]), s[5], k)
                 sparks.append(s)
         self.sparks = sparks
+
+
+class AnimEl(Element):
+    """Une animation jouée une fois quand une valeur du jeu change : une explosion quand le score monte, une onde de choc
+    quand une bombe part. / An animation played once when a value of the game changes.
+
+    "image" : un fichier ou une liste (le premier qui existe est pris, "{game}" devient le nom du jeu). Un GIF animé garde
+      ses propres durées, une bande PNG se découpe en "frames" images de "ms" millisecondes (une image de 128 x 32 ou un GIF
+      fixe reste une seule image, sur toute la dalle si elle en a la taille). Une image de toute la dalle dont le dessin
+      tient au milieu (une explosion de DOFLinx) est recadrée et se joue à l'endroit de l'action, sauf "trim": false.
+      Les fichiers du dossier artwork
+      passent avant les nôtres, par exemple ["artwork/{game}/boom.gif", "artwork/boom.gif", "sprites/fx_star.png"].
+    "on" : valeur(s) surveillée(s), "change" : "up" (défaut), "down" ou "any".
+    "ratio" : [min, max], seulement si le gain est entre min et max fois le gain habituel (petit ennemi, gros ennemi).
+    "x", "y" : le centre, un nombre ou [début, fin] (au hasard dedans). Une image de toute la dalle (128 x 32) se joue
+      toujours sur toute la dalle.
+    "count", "spread", "delay" : plusieurs animations réparties sur [début, fin] de "spread", l'une après l'autre.
+    "black" : "clear" (défaut, le noir de l'image laisse voir la scène) ou "keep" (l'image recouvre tout, comme DOFLinx).
+    "max" : animations en même temps au plus, "gap" : secondes entre deux départs. Rien pendant un décompte rapide de
+      points (un bonus compté par le jeu)."""
+
+    def __init__(self, spec, root, log):
+        super().__init__(spec, root, log)
+        self.frames = None
+        self.durs = []
+        self.full = False
+        self.game = None
+        self.plays = []
+        self.times = []
+        self.gains = []
+        self.last = -9.0
+        self.rng = random.Random(11)
+        self.count = 0                                   # (tests)
+
+    def _load(self, game):
+        from PIL import Image, ImageSequence
+        self.game, self.frames, self.durs = game, [], []
+        images = self.spec.get("image")
+        images = images if isinstance(images, list) else [images]
+        keep_black = self.spec.get("black") == "keep"
+        ms = self.spec.get("ms")
+        for name in images:
+            if not name:
+                continue
+            name = str(name).replace("{game}", game or "_")
+            path = name if os.path.isabs(name) else os.path.join(self.root, name)
+            if not os.path.exists(path):
+                continue
+            try:
+                img = Image.open(path)
+                raw = []
+                if getattr(img, "is_animated", False):                   # a GIF keeps its own timing / un GIF garde son rythme
+                    for fr in ImageSequence.Iterator(img):
+                        raw.append((fr.convert("RGBA").copy(), float(fr.info.get("duration") or ms or 80)))
+                else:
+                    gif = img.format == "GIF"
+                    img = img.convert("RGBA")
+                    w, h = img.size
+                    strip = not gif and h and w % h == 0 and w > h and (w, h) != (128, 32)
+                    n = max(1, int(self.spec.get("frames", 0) or (w // h if strip else 1)))
+                    fw = w // n
+                    d = float((img.info.get("duration") if gif else 0) or ms or 70)
+                    if n == 1:                                         # a still image stays a moment / une image fixe reste un moment
+                        d = float((img.info.get("duration") if gif else 0) or 0) or max(d, 500.0)
+                    raw = [(img.crop((k * fw, 0, (k + 1) * fw, h)), d) for k in range(n)]
+            except Exception as e:  # image illisible
+                self.log(tr(f"animation illisible {path} : {e}", f"unreadable animation {path}: {e}"))
+                continue
+            for im, d in raw:
+                if not keep_black:                           # le noir laisse voir la scène / black shows the scene
+                    px = im.load()
+                    for y in range(im.size[1]):
+                        for x in range(im.size[0]):
+                            r, g, b, a = px[x, y]
+                            if r + g + b < 36:
+                                px[x, y] = (0, 0, 0, 0)
+            box = None
+            if not keep_black and raw and raw[0][0].size == (128, 32) and self.spec.get("trim", True):
+                for im, _ in raw:                            # une explosion au milieu d'une image de toute la dalle
+                    b = im.getbbox()
+                    if b:
+                        box = b if box is None else (min(box[0], b[0]), min(box[1], b[1]), max(box[2], b[2]), max(box[3], b[3]))
+                if box and box[2] - box[0] > 48:
+                    box = None                               # elle occupe la dalle : elle reste entière / it fills the panel
+            for im, d in raw:
+                self.frames.append(Sprite(im.crop(box) if box else im))
+                self.durs.append(max(10.0, d) / 1000.0)
+            self.full = bool(self.frames) and self.frames[0].w >= 128 and self.frames[0].h >= 32
+            return
+
+    def _ratio_ok(self, gain):
+        rr = self.spec.get("ratio")
+        past = sorted(self.gains)
+        self.gains = (self.gains + [gain])[-24:]
+        if not rr:
+            return True
+        ratio = 1.0 if len(past) < 3 else gain / max(1e-6, past[len(past) // 2])
+        return float(rr[0]) <= ratio < float(rr[1])
+
+    def _pick(self, v, cv_size):
+        if isinstance(v, (list, tuple)) and len(v) == 2:
+            return self.rng.uniform(float(v[0]), float(v[1]))
+        return float(v if v is not None else cv_size / 2)
+
+    def render(self, ctx):
+        cv, t = ctx.canvas, ctx.t
+        game = (ctx.state.meta or {}).get("game")
+        if self.frames is None or game != self.game:
+            self._load(game)
+        names = self.spec.get("on") or ["score"]
+        names = names if isinstance(names, list) else [names]
+        change = self.spec.get("change", "up")
+        for (name, old, new, et) in ctx.state.events:
+            if name not in names or not isinstance(old, (int, float)) or not isinstance(new, (int, float)) or new == old:
+                continue
+            if (change == "up" and new < old) or (change == "down" and new > old):
+                continue
+            self.times = [x for x in self.times if t - x < 0.8] + [t]
+            if len(self.times) > 6:                            # un bonus compté par le jeu / a bonus being counted
+                continue
+            if change == "up" and not self._ratio_ok(new - old):
+                continue
+            if not self.frames or t - self.last < float(self.spec.get("gap", 0.08)):
+                continue
+            self.last = t
+            self.count += 1
+            n = 1 if self.full else max(1, int(self.spec.get("count", 1)))
+            spread = self.spec.get("spread")
+            for k in range(n):
+                if self.full:
+                    x, y = cv.w / 2, cv.h / 2
+                elif n > 1 and spread:
+                    x = float(spread[0]) + (float(spread[1]) - float(spread[0])) * (k + 0.5) / n
+                    y = self._pick(self.spec.get("y"), cv.h)
+                else:
+                    x, y = self._pick(self.spec.get("x"), cv.w), self._pick(self.spec.get("y"), cv.h)
+                self.plays.append([t + k * float(self.spec.get("delay", 0.1)), x, y])
+            self.plays = self.plays[-int(self.spec.get("max", 4)) - n:]
+        if not self.frames:
+            return
+        total = sum(self.durs)
+        alive = []
+        for p in self.plays:
+            el = t - p[0]
+            if el < 0:
+                alive.append(p)
+                continue
+            if el >= total:
+                continue
+            alive.append(p)
+            k, acc = 0, 0.0
+            while k < len(self.durs) - 1 and acc + self.durs[k] <= el:
+                acc += self.durs[k]
+                k += 1
+            fr = self.frames[k]
+            if self.full:
+                cv.sprite(fr, 0, 0)
+            else:                                            # inside the panel / dans la dalle
+                x = min(max(p[1], fr.w / 2), cv.w - fr.w / 2)
+                y = min(max(p[2], fr.h / 2), cv.h - fr.h / 2)
+                cv.sprite(fr, int(round(x - fr.w / 2)), int(round(y - fr.h / 2)))
+        self.plays = alive
 
 
 class SpriteEl(Element):
@@ -873,12 +1049,13 @@ class IconsEl(Element):
 class DotEl(Element):
     """A round dot whose color comes from a value: the bubbles of Puzzle Bobble.
     "colors": color of each value (0, 1, 2...), "r": radius, "shine": a light pixel at the top left.
+    Without "var" the dot is always drawn in the first color (a moon, a ball).
 
     Un disque dont la couleur vient d'une valeur : les bulles de Puzzle Bobble."""
 
     def render(self, ctx):
         s = self.spec
-        v = _int_value(ctx, s.get("var", ""))
+        v = _int_value(ctx, s["var"]) if s.get("var") else 0
         cols = s.get("colors") or []
         if v is None or not 0 <= v < len(cols) or not cols[v]:
             return
@@ -1257,7 +1434,7 @@ class Scene:
         kind = spec.get("type", "text")
         cls = {
             "text": TextEl, "marquee": MarqueeEl, "bars": BarsEl, "waves": WavesEl, "mountains": MountainsEl, "gauge": GaugeEl,
-            "particles": ParticlesEl, "sprite": SpriteEl, "clock": ClockEl,
+            "particles": ParticlesEl, "sprite": SpriteEl, "clock": ClockEl, "anim": AnimEl,
             "rect": RectEl, "image": ImageEl, "coinop": CoinOpEl, "icons": IconsEl, "dot": DotEl, "arrow": ArrowEl,
         }.get(kind)
         if kind == "cycle":

@@ -207,6 +207,108 @@
     }
    },
    {
+    "type": "anim",
+    "image": [
+     "artwork/{game}/boom.gif",
+     "artwork/boom.gif",
+     "sprites/fx_star.png"
+    ],
+    "on": [
+     "score",
+     "score_p2"
+    ],
+    "change": "up",
+    "ratio": [
+     0,
+     2.5
+    ],
+    "x": [
+     70,
+     112
+    ],
+    "y": 16,
+    "ms": 50,
+    "max": 3,
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "anim",
+    "image": [
+     "artwork/{game}/boom_big.gif",
+     "artwork/boom_big.gif",
+     "sprites/fx_plasma.png"
+    ],
+    "on": [
+     "score",
+     "score_p2"
+    ],
+    "change": "up",
+    "ratio": [
+     2.5,
+     1000000
+    ],
+    "x": [
+     78,
+     106
+    ],
+    "y": 16,
+    "ms": 100,
+    "max": 2,
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
     "type": "text",
     "font": "6x10",
     "x": 1,
