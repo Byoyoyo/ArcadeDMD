@@ -271,11 +271,15 @@ class Simulator:
         self.rng = rng or random.Random(3)
         self.state = state
         self.names = list(((game or {}).get("memory") or {}).get("values", {}).keys()) or ["score", "credits"]
+        if (game or {}).get("activity") and "p1_mode" not in self.names:   # who plays is guessed (Capcom): shown in the demo too
+            self.names += ["p1_mode", "p2_mode"] + ([] if "credits" in self.names else ["credits"])
         demo = (game or {}).get("demo", {})
         self.values = {n: demo.get(n, self._initial(n)) for n in self.names}
         self.next = {}
         # jeux de combat : des coups au hasard, KO, puis nouveau round
         self.fighters = [n for n in ("health", "health_p2") if n in self.names]
+        specs = ((game or {}).get("memory") or {}).get("values") or {}
+        self.gauges = {n for n in ("power", "power_p2") if isinstance(specs.get(n), dict) and specs[n].get("max") == 100}
         self.fight_next = 1.0
         self.ko_until = None
         self.kos = 0
@@ -320,6 +324,8 @@ class Simulator:
                 self.next[n] = 1.0
             elif n == "mission":
                 self.next[n] = 25.0
+            elif n in self.gauges:
+                self.next[n] = 1.5
             else:
                 self.next[n] = float("inf")
 
@@ -459,6 +465,9 @@ class Simulator:
             elif "time" in ln or "chrono" in ln:
                 v = 60 if v <= 0 else v - 1
                 self.next[n] = t + 1.0
+            elif n in self.gauges:                     # super gauge in %: it fills up, then the super is used
+                v = 0 if v >= 100 else min(100, v + self.rng.choice([8, 12, 16, 25]))
+                self.next[n] = t + (2.5 if v >= 100 else self.rng.uniform(0.8, 2.0))
             elif n == "mission":                       # Metal Slug: next mission, then back to the first one
                 v = v + 1 if v < 6 else 1
                 self.next[n] = t + 25.0
