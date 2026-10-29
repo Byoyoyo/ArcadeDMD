@@ -682,7 +682,8 @@ class AnimEl(Element):
     quand une bombe part. / An animation played once when a value of the game changes.
 
     "image" : un fichier ou une liste (le premier qui existe est pris, "{game}" devient le nom du jeu). Un GIF animé garde
-      ses propres durées, une bande PNG se découpe en "frames" images de "ms" millisecondes. Les fichiers du dossier perso
+      ses propres durées, une bande PNG se découpe en "frames" images de "ms" millisecondes (une image de 128 x 32 ou un GIF
+      fixe reste une seule image, sur toute la dalle si elle en a la taille). Les fichiers du dossier perso
       passent avant les nôtres, par exemple ["perso/{game}/boom.gif", "perso/boom.gif", "sprites/fx_pop.png"].
     "on" : valeur(s) surveillée(s), "change" : "up" (défaut), "down" ou "any".
     "ratio" : [min, max], seulement si le gain est entre min et max fois le gain habituel (petit ennemi, gros ennemi).
@@ -723,15 +724,20 @@ class AnimEl(Element):
             try:
                 img = Image.open(path)
                 raw = []
-                if getattr(img, "is_animated", False):
+                if getattr(img, "is_animated", False):                   # a GIF keeps its own timing / un GIF garde son rythme
                     for fr in ImageSequence.Iterator(img):
-                        raw.append((fr.convert("RGBA").copy(), float(ms or fr.info.get("duration") or 80)))
+                        raw.append((fr.convert("RGBA").copy(), float(fr.info.get("duration") or ms or 80)))
                 else:
+                    gif = img.format == "GIF"
                     img = img.convert("RGBA")
                     w, h = img.size
-                    n = max(1, int(self.spec.get("frames", 0) or (w // h if h and w % h == 0 else 1)))
+                    strip = not gif and h and w % h == 0 and w > h and (w, h) != (128, 32)
+                    n = max(1, int(self.spec.get("frames", 0) or (w // h if strip else 1)))
                     fw = w // n
-                    raw = [(img.crop((k * fw, 0, (k + 1) * fw, h)), float(ms or 70)) for k in range(n)]
+                    d = float((img.info.get("duration") if gif else 0) or ms or 70)
+                    if n == 1:                                         # a still image stays a moment / une image fixe reste un moment
+                        d = float((img.info.get("duration") if gif else 0) or 0) or max(d, 500.0)
+                    raw = [(img.crop((k * fw, 0, (k + 1) * fw, h)), d) for k in range(n)]
             except Exception as e:  # image illisible
                 self.log(tr(f"animation illisible {path} : {e}", f"unreadable animation {path}: {e}"))
                 continue
