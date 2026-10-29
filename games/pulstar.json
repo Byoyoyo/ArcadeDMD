@@ -249,7 +249,7 @@
     "image": [
      "perso/{game}/boom.gif",
      "perso/boom.gif",
-     "sprites/fx_pop.png"
+     "sprites/fx_star.png"
     ],
     "on": [
      "score",
@@ -261,14 +261,11 @@
      2.5
     ],
     "x": [
-     64,
-     118
+     70,
+     112
     ],
-    "y": [
-     18,
-     24
-    ],
-    "ms": 60,
+    "y": 16,
+    "ms": 50,
     "max": 3,
     "when": {
      "not": {
@@ -319,7 +316,7 @@
      106
     ],
     "y": 16,
-    "ms": 80,
+    "ms": 100,
     "max": 2,
     "when": {
      "not": {
@@ -362,7 +359,7 @@
     "change": "down",
     "x": 96,
     "y": 16,
-    "ms": 70,
+    "ms": 100,
     "gap": 0.6,
     "when": {
      "not": {

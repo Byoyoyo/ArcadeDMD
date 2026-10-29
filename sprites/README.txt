@@ -44,11 +44,11 @@ disc.png    palet (4 images de 20x3) pour Windjammers
 car.png     voiture de rallye vue du dessus (2 images de 10x5) pour les jeux de course Neo Geo
 runner.png  combattant qui court (2 images de 8x10) pour les jeux d action et beat'em up Neo Geo
 horse.png  cheval de course au galop et son jockey (2 images de 14x11) pour les courses de chevaux Neo Geo
-fx_pop.png     petite explosion (6 images de 16x16) quand un ennemi est detruit
+fx_pop.png     petite explosion (6 images de 16x16)
 fx_fire.png    boule de feu (8 images de 32x32) pour un gros ennemi ou une bombe
 fx_shock.png   eclair et ondes de choc (8 images de 32x32) pour une bombe ou un super tir
-fx_star.png    etoile et debris (6 images de 32x32)
-fx_plasma.png  explosion de plasma bleu (5 images de 32x32) pour les jeux dans l espace
+fx_star.png    etoile et debris (6 images de 32x32) quand un ennemi est detruit
+fx_plasma.png  explosion de plasma bleu (5 images de 32x32) dans l espace et pour un super tir
 
 Pour remplacer l anneau par ton propre personnage, depose sonic.gif
 (ou sonic.png en bande de 6 images) dans ce dossier.
