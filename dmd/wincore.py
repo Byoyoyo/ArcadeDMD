@@ -42,6 +42,24 @@ CORES = {
     "picodrive_libretro": ("PicoDrive", True),
     "flycast_libretro": ("Flycast", True),
     "flycast_gles2_libretro": ("Flycast GLES2", True),
+    # Super Nintendo: the cores that RetroAchievements supports, and those that describe their memory
+    # Super Nintendo : les cœurs pris en charge par RetroAchievements, et ceux qui décrivent leur mémoire
+    "snes9x_libretro": ("Snes9x", True),
+    "snes9x2010_libretro": ("Snes9x 2010", True),
+    "snes9x2005_libretro": ("Snes9x 2005", True),
+    "snes9x2005_plus_libretro": ("Snes9x 2005 Plus", True),
+    "snes9x2002_libretro": ("Snes9x 2002", True),
+    "mesen-s_libretro": ("Mesen-S", True),
+    "bsnes2014_accuracy_libretro": ("bsnes 2014 Accuracy", True),
+    "bsnes2014_balanced_libretro": ("bsnes 2014 Balanced", True),
+    "bsnes2014_performance_libretro": ("bsnes 2014 Performance", True),
+    "bsnes_mercury_accuracy_libretro": ("bsnes-mercury Accuracy", True),
+    "bsnes_mercury_balanced_libretro": ("bsnes-mercury Balanced", True),
+    "bsnes_mercury_performance_libretro": ("bsnes-mercury Performance", True),
+    "bsnes-jg_libretro": ("bsnes-jg", True),
+    "bsnes_cplusplus98_libretro": ("bsnes C++98", True),
+    "bsnes_libretro": ("bsnes", None),
+    "bsnes_hd_beta_libretro": ("bsnes-hd beta", None),
 }
 
 

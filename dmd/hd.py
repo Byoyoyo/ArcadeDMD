@@ -42,6 +42,7 @@ from .hd_games14 import SCENES as _SCENES_CPS_ACTION
 from .hd_games16 import SCENES as _SCENES_CPS_SMALL
 from .hd_mslug import MetalSlugScene, family
 from . import hd_tagteam
+from .hd_snes import SCENES as _SCENES_SNES
 from .i18n import tr
 
 AMBER, RED, CREAM, LINE = (255, 168, 48), (255, 52, 30), (235, 225, 205), (168, 112, 30)
@@ -59,7 +60,8 @@ GAME_SCENES = dict(_SCENES_117, **_SCENES_118, **_SCENES_119, **_SCENES_120, **_
                    **_SCENES_124, **_SCENES_125, **_SCENES_126,
                    **_SCENES_127,     # Neo Geo games done one by one
                    **_SCENES_CPS_BEAT, **_SCENES_CPS_SHOOT, **_SCENES_CPS_ACTION,
-                   **_SCENES_CPS_SMALL)     # Capcom CPS games done one by one
+                   **_SCENES_CPS_SMALL,     # Capcom CPS games done one by one
+                   **_SCENES_SNES)     # the Super Nintendo games
 MSLUG_WEAPONS = {0: ("PISTOLET", "HANDGUN"), 1: ("FUSIL À POMPE", "SHOTGUN"), 2: ("LANCE-FLAMMES", "FLAMETHROWER"),
                  3: ("LANCE-ROQUETTES", "ROCKET LAUNCHER"), 4: ("MITRAILLETTE", "MACHINE GUN")}
 
