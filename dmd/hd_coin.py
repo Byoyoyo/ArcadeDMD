@@ -39,6 +39,22 @@ def credit_word(n):
     return tr(f"CRÉDIT {n}", f"CREDIT {n}") if n <= 1 else tr(f"CRÉDITS {n}", f"CREDITS {n}")
 
 
+def coin_rates(eng):
+    """Credits of a coin on the left and on the right for the game of the engine, (1, 1) unless it knows better.
+    / Crédits d'une pièce à gauche et à droite pour le jeu du moteur."""
+    fn = getattr(eng, "coin_rates", None)
+    try:
+        r = fn() if callable(fn) else None
+    except Exception:
+        r = None
+    return r if isinstance(r, tuple) and len(r) == 2 else (1, 1)
+
+
+def door_label(n):
+    """What a coin gives, written on its door: 1 CREDIT, 2 CREDITS. / Ce que donne une pièce, écrit sur son monnayeur."""
+    return tr("1 CRÉDIT", "1 CREDIT") if n <= 1 else tr(f"{n} CRÉDITS", f"{n} CREDITS")
+
+
 class CoinDoors:
     HOLD = 2.6                    # CREDITS n stays this long after a coin, then the START buttons
     FALL, FLASH, BACK = 0.35, 0.25, 0.4
@@ -58,6 +74,7 @@ class CoinDoors:
         self.roll = None          # (from, to, moment)
         self.last_land = None
         self.side = 0             # door of the last coin / monnayeur de la dernière pièce
+        self.labels = (door_label(1), door_label(1))     # left, right / gauche, droite
         self.mode = None
         self.mode_t = -99.0
         self.plus = []            # (moment, x): +1 rising above a door
@@ -126,10 +143,11 @@ class CoinDoors:
         img.alpha_composite(face.resize((fw, dd), Image.LANCZOS), (int(round(size / 2 - fw / 2)), int(round(size / 2 - dd / 2))))
         return self.hd._surf(img)
 
-    def _panel(self, glow, flash):
+    def _panel(self, glow, flash, label=None):
         gi = max(0, min(7, int(round((glow - 0.2) / 0.8 * 7))))
         fi = max(0, min(5, int(round(flash * 5))))
-        return self._get(("panel", gi, fi), lambda: self._panel_img(0.2 + 0.8 * gi / 7, fi / 5))
+        label = label or door_label(1)
+        return self._get(("panel", gi, fi, label), lambda: self._panel_img(0.2 + 0.8 * gi / 7, fi / 5, label))
 
     def _panel_parts(self):
         """What never changes on a coin door: the glow's shape, the metal plate, its rim and screws."""
@@ -158,8 +176,8 @@ class CoinDoors:
                     "size": size, "win": win, "ss": ss}
         return self._get("panel_parts", make)
 
-    def _panel_img(self, glow, flash):
-        """Coin door: metal plate, red lit window, slot, arrow and 1 CREDIT."""
+    def _panel_img(self, glow, flash, label):
+        """Coin door: metal plate, red lit window, slot, arrow and what a coin gives (1 CREDIT)."""
         P = self._panel_parts()
         z, w, h, pad, win, ss = P["z"], P["w"], P["h"], P["pad"], P["win"], P["ss"]
         lit = _mix((150, 20, 5), (255, 60, 25), glow)
@@ -176,7 +194,7 @@ class CoinDoors:
         d.rounded_rectangle([sx - 7 * z, pad + 70 * z, sx + 7 * z, pad + h - 66 * z], int(6 * z), fill=(8, 0, 0, 255),
                             outline=(255, 210, 190, 200), width=max(1, int(2 * z)))
         d.polygon([(sx - 14 * z, pad + 50 * z), (sx + 14 * z, pad + 50 * z), (sx, pad + 64 * z)], fill=(255, 235, 220, 230))
-        d.text((sx, pad + h - 46 * z), tr("1 CRÉDIT", "1 CREDIT"), font=self.hd.font("black", max(6, int(19 * z))),
+        d.text((sx, pad + h - 46 * z), label, font=self.hd.font("black", max(6, int(19 * z))),
                fill=(255, 240, 230, 240), anchor="mm")
         return self.hd._surf(img.reduce(ss))
 
@@ -284,8 +302,9 @@ class CoinDoors:
         if self.todo is None:
             sym = self.symbol if symbol is None else symbol
             self.todo = [lambda i=i: self._coin(sym, i) for i in range(self.PHASES)]
-            self.todo += [lambda g=g: self._panel(0.2 + 0.8 * g / 7, 0.0) for g in range(8)]
-            self.todo += [lambda f=f: self._panel(1.0, f / 5) for f in range(1, 6)]
+            for lab in sorted(set(self.labels)):
+                self.todo += [lambda g=g, lab=lab: self._panel(0.2 + 0.8 * g / 7, 0.0, lab) for g in range(8)]
+                self.todo += [lambda f=f, lab=lab: self._panel(1.0, f / 5, lab) for f in range(1, 6)]
             S = self.S
             self.todo += [lambda: self._neon("INSERT COIN", S(74), NEON), lambda: self._neon("+1", S(70), PLUS),
                           lambda: self._neon("PRESS START", S(74), NEON)]
@@ -360,11 +379,15 @@ class CoinDoors:
         return bool(self.drops) or (self.last_land is not None and now - self.last_land < self.HOLD) or self.shown <= 0
 
     # ------------------------------------------------------------ drawing
-    def draw(self, screen, vals, now, fx=None, symbol="€", enter=1.0):
-        """enter < 1: the attract screen arrives after the game's logo (doors coming in from the edges)."""
+    def draw(self, screen, vals, now, fx=None, symbol="€", enter=1.0, rates=None):
+        """enter < 1: the attract screen arrives after the game's logo (doors coming in from the edges). rates: the
+        credits a coin gives on the left and on the right, written on the doors (an MVS gives 2 on the right)."""
         symbol = str(symbol or "").strip()[:2]
         if symbol != self.symbol:
             self.symbol, self.todo = symbol, None
+        labels = tuple(door_label(int(r)) for r in (rates if isinstance(rates, (list, tuple)) and len(rates) == 2 else (1, 1)))
+        if labels != self.labels:
+            self.labels, self.todo = labels, None
         self._track(vals, now, fx)
         doors = self.doors_shown(now)
         mode = "doors" if doors else "buttons"
@@ -409,7 +432,7 @@ class CoinDoors:
                            alpha * min(1.0, q * 1.4))
             elif lt >= self.FALL:
                 flash = 1.0 - (lt - self.FALL) / self.FLASH
-            panel = self._panel(glow, flash)
+            panel = self._panel(glow, flash, self.labels[side])
             self._blit(screen, panel, (cx - panel.get_width() / 2, S(150)), alpha)
             if lt is not None and lt < self.FALL:                    # on its edge, it drops into the slot
                 q = lt / self.FALL

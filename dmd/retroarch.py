@@ -22,6 +22,8 @@ les fichiers games/*.json servent à la fois pour MAME et pour RetroArch :
 swap16 : le cœur range la RAM du 68000 par mots de 16 bits inversés (FBNeo, Genesis Plus GX).
 """
 
+import json
+import os
 import socket
 import threading
 import time
@@ -277,11 +279,30 @@ def ra_rules(game):
     return r if isinstance(r, dict) else None
 
 
-def match_game(games, content, system=""):
-    """(clé, jeu) du fichier games/*.json qui correspond au contenu lancé dans RetroArch."""
-    c = (content or "").lower()
-    if not c:
-        return None, None
+_SETS = None
+
+
+def neogeo_sets():
+    """Every Neo Geo set of FinalBurn Neo with its parent (a version, a bootleg, a hack), or the scene of its genre for a
+    game without a parent ("@neogeo_shoot"), and its title when it differs from the parent's. dmd/neogeo_sets.json,
+    made by tools/neogeo_sets.py. / Chaque set Neo Geo de FinalBurn Neo, son parent ou la scène de son genre."""
+    global _SETS
+    if _SETS is None:
+        try:
+            with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "neogeo_sets.json"), encoding="utf-8") as f:
+                sets = json.load(f).get("sets")
+            _SETS = sets if isinstance(sets, dict) else {}
+        except (OSError, ValueError):
+            _SETS = {}
+    return _SETS
+
+
+def _system_ok(game, system):
+    systems = [x.lower() for x in (ra_rules(game) or {}).get("systems", [])]
+    return not systems or any(x in (system or "").lower() for x in systems)
+
+
+def _direct(games, c, system):
     for fallback in (False, True):          # les modèles (neogeo.json) passent après les fichiers propres à un jeu
         for key, g in games.items():
             if key.startswith("_") or bool(g.get("fallback")) != fallback:
@@ -291,12 +312,51 @@ def match_game(games, content, system=""):
                 continue
             if any(x.lower() in c for x in r.get("content_not", [])):
                 continue
-            systems = [x.lower() for x in r.get("systems", [])]
-            if systems and not any(x in (system or "").lower() for x in systems):
+            if not _system_ok(g, system):
                 continue
             if c in [x.lower() for x in r.get("content", [])] or any(x.lower() in c for x in r.get("content_contains", [])):
                 return key, g
     return None, None
+
+
+def resolve(games, content, system=""):
+    """(key, game, parent, title) of the content started in RetroArch. RetroArch does not give the parent of a set, so a
+    version, a bootleg or a hack of a Neo Geo game that is not listed takes the file of its original game (parent), as
+    with MAME, and a Neo Geo game without a parent nor a file of its own (a homebrew) the scene of its genre. title is
+    the name of that set when it differs from its parent's, otherwise "".
+    / Le fichier du contenu lancé. Une version, un bootleg ou un hack d'un jeu Neo Geo prend le fichier du jeu d'origine,
+    comme avec MAME, et un jeu Neo Geo sans parent ni fichier à lui la scène de son genre."""
+    c = (content or "").lower()
+    if not c:
+        return None, None, "", ""
+    key, g = _direct(games, c, system)
+    if key is not None:
+        return key, g, "", ""
+    sets = neogeo_sets()
+    name, title, seen = c, "", set()
+    while name in sets and name not in seen:
+        seen.add(name)
+        entry = sets[name]
+        if not isinstance(entry, list) or not entry or not isinstance(entry[0], str):
+            break
+        title = title or (entry[1] if len(entry) > 1 and isinstance(entry[1], str) else "")
+        to = entry[0].lower()
+        if to.startswith("@"):                  # a game of its own: the scene of its genre / la scène de son genre
+            g = games.get(to[1:])
+            if g is not None and _system_ok(g, system):
+                return to[1:], g, "", title
+            break
+        key, g = _direct(games, to, system)
+        if key is not None:
+            return key, g, to, title
+        name = to
+    return None, None, "", ""
+
+
+def match_game(games, content, system=""):
+    """(clé, jeu) du fichier games/*.json qui correspond au contenu lancé dans RetroArch."""
+    key, game, _, _ = resolve(games, content, system)
+    return key, game
 
 
 def game_title(game, content):
@@ -446,9 +506,9 @@ class RetroArchSource:
             self.stop_ev.wait(self.poll)
 
     def _begin(self, st):
-        key, game = match_game(self.library.games, st["content"], st["system"])
+        key, game, parent, own = resolve(self.library.games, st["content"], st["system"])
         layout = layout_for(game, st["system"])
-        values = game_values(game, st["content"])
+        values = game_values(game, st["content"], parent)
         defs = {}
         for name, d in values.items():
             if not isinstance(d, dict):
@@ -466,12 +526,19 @@ class RetroArchSource:
                         "defs": defs, "clusters": make_clusters(defs) if defs else [], "last": {},
                         "last_hb": 0.0, "paused": False, "fails": 0, "warned": False, "retry_at": 0.0,
                         "core": core, "mt": getattr(self.library, "mtimes", {}).get(key) if key else None}
-        title = game_title(game, st["content"])
-        self._emit({"t": "start", "game": key or "", "system": st["content"], "description": title,
-                    "media": [], "values": sorted(defs), "source": "retroarch", "core": st["system"]})
+        title = own or game_title(game, parent or st["content"])
+        ev = {"t": "start", "game": key or "", "system": st["content"], "description": title,
+              "media": [], "values": sorted(defs), "source": "retroarch", "core": st["system"]}
+        if parent:
+            ev["parent"] = parent
+        if own:
+            ev["own_title"] = own
+        self._emit(ev)
         where = st["system"] + (tr(f", cœur {core['file']}", f", core {core['file']}") if core else "")
+        how = (tr(f" (version de {parent})", f" (version of {parent})") if parent
+               else tr(" (scène de son genre)", " (scene of its genre)") if own else "")
         self.log(tr(f"RetroArch : {st['content']} ({where}) -> ", f"RetroArch: {st['content']} ({where}) -> ")
-                 + (tr(f"games/{key}.json, {len(defs)} valeur(s)", f"games/{key}.json, {len(defs)} value(s)") if key
+                 + (tr(f"games/{key}.json{how}, {len(defs)} valeur(s)", f"games/{key}.json{how}, {len(defs)} value(s)") if key
                     else tr("pas de fichier dans games", "no file in games")))
 
     def _game_file_changed(self):
