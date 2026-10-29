@@ -46,6 +46,11 @@
         "addr": "0xFF0CA8",
         "type": "u8",
         "note": "lives (FinalBurn Neo cheats, Infinite Lives, to be confirmed in game)"
+      },
+      "pods": {
+        "addr": "0xFF0CE4",
+        "type": "u8",
+        "note": "helper robots (pods) around the ninja, 0 to 2 (FinalBurn Neo cheats, Always Maximum pods, to be confirmed in game)"
       }
     }
   },
@@ -58,7 +63,19 @@
     "score": 0,
     "time": 99,
     "lives": 3,
+    "pods": 0,
     "sim": {
+      "pods": {
+        "cycle": [
+          0,
+          1,
+          2,
+          2,
+          1
+        ],
+        "every": 6.0,
+        "start": 6.0
+      },
       "score": {
         "count": [
           0,

@@ -222,7 +222,9 @@ def build_st_city(W, H, s, seed=1402):
     near = _Pic(tw, H, 2, tw)                                            # le toit où court le ninja
     fy = ST_FLOOR * s
     near.poly([(0, fy), (tw, fy), (tw, H), (0, H)], (70, 40, 44, 255))
-    near.poly([(0, fy), (tw, fy), (tw, fy + 16 * s), (0, fy + 16 * s)], (120, 150, 140, 255), (40, 60, 56, 255), 2 * s)
+    near.poly([(0, fy), (tw, fy), (tw, fy + 16 * s), (0, fy + 16 * s)], (120, 150, 140, 255))
+    for y in (fy, fy + 16 * s):                                         # edges drawn alone: no seam / bords seuls, sans couture
+        near.line([(0, y), (tw, y)], (40, 60, 56, 255), 2 * s)
     for k in range(int(tw / (36 * s))):                                  # les tuiles du toit
         x = k * 36 * s
         near.line([(x, fy + 18 * s), (x - 30 * s, H)], (96, 54, 56, 255), 3 * s)
@@ -235,7 +237,7 @@ def build_st_city(W, H, s, seed=1402):
 
 
 # ============================================================================ Pang! 3 and Mighty! Pang
-PG_FLOOR = 392          # the floor of the balloons games, at s = 1 / le sol des jeux de ballons
+PG_FLOOR = 374          # the floor of the balloons games, at s = 1 / le sol des jeux de ballons
 
 
 def build_pg_temple(W, H, s, seed=1403):
@@ -605,7 +607,9 @@ def build_nm_dream(W, H, s, seed=1409):
     base = NM_FLOOR * s
     span = 150 * s
     top = 150 * s
-    mid.poly([(0, top - 40 * s), (tw, top - 40 * s), (tw, top), (0, top)], (170, 196, 236, 255), (110, 130, 190, 255), 2 * s)
+    mid.poly([(0, top - 40 * s), (tw, top - 40 * s), (tw, top), (0, top)], (170, 196, 236, 255))
+    for y in (top - 40 * s, top):
+        mid.line([(0, y), (tw, y)], (110, 130, 190, 255), 2 * s)
     for k in range(int(tw / span) + 1):
         x0 = k * span
         mid.poly([(x0, top), (x0 + 26 * s, top), (x0 + 26 * s, base), (x0, base)], (226, 236, 255, 255), (120, 140, 200, 255), 2 * s)   # la colonne

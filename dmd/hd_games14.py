@@ -555,6 +555,21 @@ class StriderScene(SideQuestScene):
             return drone_draw(frame)
         return fighter_draw("cyborg", (90, 110, 70), (60, 70, 50), (200, 160, 120), (40, 40, 40), 1 + frame % 2)
 
+    def draw_hero(self, screen, vals, now):
+        """The ninja and his little helper robots (the pods read in the game) that circle around him.
+        / Le ninja et ses petits robots d'appui (les pods lus dans le jeu) qui tournent autour de lui."""
+        super().draw_hero(screen, vals, now)
+        pods = _n(vals.get("pods"))
+        if not pods or not self.p1_in(vals):
+            return
+        S = self.S
+        hx, hy = self.hero_xy(now)
+        img = self.img(("stpod",), S(46), S(40), drone_draw(int(now * 10) % 2), ss=2)
+        for k in range(int(min(pods, 3))):
+            a = now * 2.4 + k * math.tau / max(1, int(pods))
+            x, y = hx + math.cos(a) * S(110), hy - S(120) + math.sin(a) * S(50)
+            screen.blit(img, (int(x - img.get_width() / 2), int(y - img.get_height() / 2)))
+
     def slash_fx(self, hx, hy, now):
         """The crescent of light of the blade. / Le croissant de lumière de la lame."""
         S = self.S
@@ -774,7 +789,7 @@ class BalloonScene(GameScene):
         on the right. / La barre du bas comme dans le jeu : 1P et le score, les vies, LEVEL, le temps."""
         S, W, H, hd = self.S, self.W, self.H, self.hd
         hd.draw_logo(screen, logo, W / 2, S(6), S(400), S(80), now)
-        y = H - S(46)
+        y = H - S(38)
         self.pill(screen, S(12), y - S(30), S(620), S(60), 170, radius=12)
         self.text(screen, "1P", S(30), y, 30, P1C, key="black", valign="middle")
         if _n(vals.get("score")) is not None:
