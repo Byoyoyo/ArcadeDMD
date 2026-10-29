@@ -33,29 +33,11 @@
     }
   },
   "demo": {
-    "attract": true,
     "credits": 0,
     "p1_mode": 1,
     "p2_mode": 0,
     "score": 0,
-    "health": 100,
-    "sim": {
-      "health": {
-        "cycle": [
-          100,
-          100,
-          88,
-          74,
-          74,
-          60,
-          46,
-          30,
-          100
-        ],
-        "every": 2.0,
-        "start": 3.0
-      }
-    }
+    "sim": {}
   },
   "scene": {
     "layers": [
@@ -517,17 +499,13 @@
         "font": "6x10",
         "y": 1,
         "x": 0,
-        "w": 70,
+        "w": 56,
         "speed": 12,
         "gap": 40,
         "upper": true,
         "segments": [
           {
-            "text": "CAPCOM",
-            "color": "#1d5bff"
-          },
-          {
-            "text": " - {title}",
+            "text": "{title}",
             "color": "#ffd030"
           }
         ],
@@ -535,7 +513,8 @@
           "not": {
             "has": "score"
           }
-        }
+        },
+        "static_if_fits": true
       },
       {
         "type": "text",
@@ -832,11 +811,7 @@
         },
         "title": [
           {
-            "text": "CAPCOM",
-            "color": "#1d5bff"
-          },
-          {
-            "text": " - {title}",
+            "text": "{title}",
             "color": "#ffd030"
           }
         ],

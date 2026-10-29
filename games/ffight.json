@@ -586,17 +586,13 @@
         "font": "6x10",
         "y": 1,
         "x": 0,
-        "w": 70,
+        "w": 56,
         "speed": 12,
         "gap": 40,
         "upper": true,
         "segments": [
           {
-            "text": "CAPCOM",
-            "color": "#1d5bff"
-          },
-          {
-            "text": " - {title}",
+            "text": "{title}",
             "color": "#ffd030"
           }
         ],
@@ -604,7 +600,8 @@
           "not": {
             "has": "score"
           }
-        }
+        },
+        "static_if_fits": true
       },
       {
         "type": "text",
@@ -901,11 +898,7 @@
         },
         "title": [
           {
-            "text": "CAPCOM",
-            "color": "#1d5bff"
-          },
-          {
-            "text": " - {title}",
+            "text": "{title}",
             "color": "#ffd030"
           }
         ],

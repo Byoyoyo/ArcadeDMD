@@ -13,9 +13,9 @@ créations du programme dans l'esprit des jeux, aucune image ne vient d'un jeu.
 
 import math
 
-from .hd_games import GOLD, WHITE, _n
+from .hd_games import GOLD, WHITE, _n, chunk_draw, draw_img
 from .hd_games3 import _capsule
-from .hd_games5 import BrawlerScene, _mixc, fighter_draw
+from .hd_games5 import BrawlerScene, _mixc, fighter_draw, slash_draw
 from .hd_themes12 import THEMES
 from .i18n import tr
 
@@ -287,6 +287,83 @@ def beast_draw(look, frame):
     return fn
 
 
+# ============================================================================ things to break and what they leave
+def prop_draw(kind, col):
+    """What the hero breaks on his way, standing on the ground: "drum" (an oil drum), "barrel" (a wooden barrel),
+    "crate" (a wooden box), "chest" (a treasure chest), "capsule" (a capsule of the future). / Ce que le héros casse en
+    chemin : bidon, tonneau, caisse, coffre au trésor, capsule du futur."""
+    def fn(d, W, H):
+        u, cx = H, W * 0.5
+        ow = max(1, int(H * 0.01))
+        c, cd = _c(col), _mixc(col, (0, 0, 0), 0.3)
+        hi = _mixc(col, (255, 255, 255), 0.35)
+        if kind == "drum":
+            d.rounded_rectangle([cx - 0.14 * u, 0.56 * u, cx + 0.14 * u, 0.99 * u], radius=0.02 * u, fill=c, outline=INK, width=ow)
+            for y in (0.66, 0.86):
+                d.line([(cx - 0.14 * u, y * u), (cx + 0.14 * u, y * u)], fill=cd, width=max(2, int(0.02 * u)))
+            d.ellipse([cx - 0.14 * u, 0.53 * u, cx + 0.14 * u, 0.6 * u], fill=hi, outline=INK, width=ow)
+            d.line([(cx - 0.08 * u, 0.62 * u), (cx - 0.08 * u, 0.96 * u)], fill=hi, width=max(1, int(0.015 * u)))
+        elif kind == "barrel":
+            d.ellipse([cx - 0.15 * u, 0.52 * u, cx + 0.15 * u, 1.0 * u], fill=c, outline=INK, width=ow)
+            for k in range(5):
+                x = cx + (k - 2) * 0.055 * u
+                d.line([(x, 0.55 * u), (x, 0.97 * u)], fill=cd, width=max(1, int(0.008 * u)))
+            for y in (0.62, 0.9):
+                d.line([(cx - 0.14 * u, y * u), (cx + 0.14 * u, y * u)], fill=(70, 70, 76, 255), width=max(2, int(0.02 * u)))
+        elif kind == "crate":
+            d.rectangle([cx - 0.15 * u, 0.62 * u, cx + 0.15 * u, 0.99 * u], fill=c, outline=INK, width=ow)
+            d.line([(cx - 0.15 * u, 0.62 * u), (cx + 0.15 * u, 0.99 * u)], fill=cd, width=max(2, int(0.025 * u)))
+            d.line([(cx + 0.15 * u, 0.62 * u), (cx - 0.15 * u, 0.99 * u)], fill=cd, width=max(2, int(0.025 * u)))
+            d.rectangle([cx - 0.15 * u, 0.62 * u, cx + 0.15 * u, 0.99 * u], outline=INK, width=ow * 2)
+        elif kind == "chest":
+            d.rectangle([cx - 0.17 * u, 0.74 * u, cx + 0.17 * u, 0.99 * u], fill=c, outline=INK, width=ow)
+            d.chord([cx - 0.17 * u, 0.6 * u, cx + 0.17 * u, 0.88 * u], 180, 360, fill=hi, outline=INK)
+            for x in (-0.12, 0.1):
+                d.rectangle([cx + x * u, 0.66 * u, cx + (x + 0.03) * u, 0.99 * u], fill=(90, 80, 70, 255))
+            d.rectangle([cx - 0.025 * u, 0.74 * u, cx + 0.025 * u, 0.8 * u], fill=(250, 210, 70, 255), outline=INK)
+        else:                                                             # capsule
+            d.rounded_rectangle([cx - 0.12 * u, 0.5 * u, cx + 0.12 * u, 0.99 * u], radius=0.1 * u, fill=c, outline=INK, width=ow)
+            d.rectangle([cx - 0.12 * u, 0.7 * u, cx + 0.12 * u, 0.76 * u], fill=(250, 250, 255, 255))
+            d.ellipse([cx - 0.05 * u, 0.56 * u, cx + 0.05 * u, 0.64 * u], fill=hi)
+    return fn
+
+
+def loot_draw(kind):
+    """What a broken thing leaves: "food" (a roast leg), "treasure" (gold coins), "parts" (a gear), "coins" (a big gold
+    coin), "medkit" (a white box with a red cross). / Ce que laisse un objet cassé : un gigot, de l'or, un engrenage..."""
+    def fn(d, W, H):
+        ow = max(1, int(W * 0.04))
+        if kind == "food":
+            d.ellipse([W * 0.1, H * 0.2, W * 0.75, H * 0.8], fill=(190, 100, 40, 255), outline=INK, width=ow)
+            d.ellipse([W * 0.2, H * 0.28, W * 0.5, H * 0.45], fill=(230, 150, 80, 255))
+            d.line([(W * 0.65, H * 0.6), (W * 0.92, H * 0.85)], fill=(245, 240, 225, 255), width=max(2, int(W * 0.1)))
+            d.ellipse([W * 0.82, H * 0.76, W * 0.98, H * 0.95], fill=(245, 240, 225, 255), outline=INK)
+        elif kind in ("treasure", "coins"):
+            n = 4 if kind == "treasure" else 1
+            for k in range(n):
+                x0 = W * (0.05 + 0.18 * k) if n > 1 else W * 0.15
+                y0 = H * (0.45 - 0.08 * (k % 2)) if n > 1 else H * 0.15
+                r = W * (0.3 if n > 1 else 0.7)
+                d.ellipse([x0, y0, x0 + r, y0 + r * (0.8 if n > 1 else 1.0)], fill=(250, 210, 60, 255), outline=(150, 100, 20, 255), width=ow)
+                d.ellipse([x0 + r * 0.3, y0 + r * 0.2, x0 + r * 0.5, y0 + r * 0.4], fill=(255, 245, 190, 255))
+        elif kind == "parts":
+            cx, cy, r = W / 2, H / 2, W * 0.32
+            for k in range(8):
+                a = k * math.pi / 4
+                d.line([(cx, cy), (cx + math.cos(a) * r * 1.35, cy + math.sin(a) * r * 1.35)], fill=(170, 176, 190, 255), width=max(2, int(W * 0.14)))
+            d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(190, 196, 210, 255), outline=INK, width=ow)
+            d.ellipse([cx - r * 0.35, cy - r * 0.35, cx + r * 0.35, cy + r * 0.35], fill=(60, 64, 76, 255))
+        else:                                                             # medkit
+            d.rounded_rectangle([W * 0.1, H * 0.2, W * 0.9, H * 0.85], radius=W * 0.08, fill=(245, 245, 245, 255), outline=INK, width=ow)
+            d.rectangle([W * 0.42, H * 0.3, W * 0.58, H * 0.75], fill=(220, 40, 40, 255))
+            d.rectangle([W * 0.25, H * 0.45, W * 0.75, H * 0.6], fill=(220, 40, 40, 255))
+    return fn
+
+
+LOOT_WORDS = {"food": ("MIAM !", "YUM!"), "treasure": ("TRÉSOR !", "TREASURE!"), "parts": ("PIÈCES !", "PARTS!"),
+              "coins": ("PIÈCES !", "COINS!"), "medkit": ("SOINS !", "MEDKIT!")}
+
+
 # ============================================================================ shared scene of the CPS brawlers
 class CapcomBrawler(BrawlerScene):
     """The beat'em ups of Capcom: the hero (the one chosen when the game says it), the foes of the game with their
@@ -300,12 +377,24 @@ class CapcomBrawler(BrawlerScene):
     SPECIAL = None                 # value whose fall is a bomb or a special attack / valeur dont la baisse est une bombe
     SPECIAL_WORD = ("SPÉCIAL !", "SPECIAL!")
     TAG = (255, 230, 120)
+    PROP = ("drum", (80, 110, 150))                # what the hero breaks on his way / ce que le héros casse en chemin
+    LOOT = "food"                                  # what it leaves / ce qu'il laisse
 
     def __init__(self, hd, rng=None):
         super().__init__(hd, rng)
         self.hero0 = self.HERO
         self.tag = None
         self.specials = 0                                                 # (tests)
+        self.broken = 0
+        self.meals = 0
+        self.next_prop = 0.0
+        self.life_lost = -99.0
+        self.loot = []                                                    # (x, y, t0) of the things left / ce qui est laissé
+        S = self.S
+        self.fx.sp.register("loot", draw_img(S(70), S(56), loot_draw(self.LOOT)))
+        col = self.PROP[1]
+        for i in range(3):
+            self.fx.sp.register(f"bit{i}", draw_img(S(16 + 5 * i), S(12 + 4 * i), chunk_draw(_mixc(col, (0, 0, 0), 0.1 * i)[:3])))
         for look in self.HEROES.values():
             if look != self.HERO:
                 self.warm += [(self.fig, (look, f, False)) for f in (0, 3, 5)]
@@ -314,6 +403,8 @@ class CapcomBrawler(BrawlerScene):
 
     def fig(self, look, frame, left):
         S = self.S
+        if look[0] == "prop":
+            return self.img(("cprop", look), S(170), S(250), prop_draw(look[1], look[2]), ss=2)
         k = self.SIZES.get(look[0], 1.0)
         if look[0] in BEASTS:
             w = {"raptor": 300, "bug": 270, "mech": 250}[look[0]]
@@ -373,13 +464,70 @@ class CapcomBrawler(BrawlerScene):
                 h["act"] = (now, 3)
                 if weapon in BLADES:
                     self.slashes.append((h["x"] + h["face"] * S(60), self.ground(h["z"]) - S(150), now, h["face"]))
-        self.tag = (f, now)
+        if f.get("still"):
+            if f["hp"] <= 0:
+                self.smash(f, now)
+        else:
+            self.tag = (f, now)
+
+    def smash(self, f, now):
+        """A drum, a barrel, a crate or a chest breaks: its pieces fly, what it held falls out. / L'objet se brise : ses
+        morceaux volent, ce qu'il contenait tombe."""
+        S, fx, rng = self.S, self.fx, self.rng
+        if f in self.foes:
+            self.foes.remove(f)
+        self.broken += 1
+        y = self.ground(f["z"])
+        for i in range(9):
+            fx.obj(f"bit{i % 3}", f["x"], y - S(50), rng.uniform(-260, 260), rng.uniform(-620, -260), vrot=rng.uniform(-500, 500), life=1.0,
+                   floor=y)
+        fx.sparks(f["x"], y - S(60), 12, (255, 230, 170), (200, 500), (200, 340), (0.2, 0.4), 600, "front", 3, 14)
+        self.loot.append((f["x"], y, now))
+        if self.LOOT != "food":                                           # the treasure is counted at once / le trésor tout de suite
+            self.popup(tr(*LOOT_WORDS[self.LOOT]), f["x"], y - S(170), GOLD, 38)
+
+    def move(self, vals, now, idle):
+        if idle:
+            return 0.15
+        return 0.3 if any(f["hp"] > 0 and not f.get("still") for f in self.foes) else 0.85     # the way is clear: he walks on
+
+    def walk(self, now):
+        S, dt = self.S, self.dt
+        h = self.hero
+        for f in self.foes:
+            if f.get("still"):                                            # it stays on the ground, which slides by
+                if f["down"] is None:
+                    f["x"] -= self.bd.speed * dt
+                continue
+            if f["down"] is not None:
+                f["x"] += f["vx"] * dt
+                f["vx"] *= max(0.0, 1 - dt * 3)
+                continue
+            target = h["x"] + (f["stop"] if f["x"] > h["x"] else -f["stop"])
+            dx = target - f["x"]
+            f["moving"] = abs(dx) > S(6)
+            if f["moving"]:
+                f["x"] += max(-S(170) * dt, min(S(170) * dt, dx))
+            f["z"] += (h["z"] - f["z"]) * min(1.0, dt * 0.3)
+        self.foes = [f for f in self.foes if (f["down"] is None or now - f["down"] < 1.6) and f["x"] > -S(240)]
 
     def update(self, vals, now):
+        S, rng = self.S, self.rng
         for f in self.foes:
             if "name" not in f:
                 f["name"] = self.rng.choice(self.FOE_NAMES)
                 f["hp0"] = f["hp"]
+        if now >= self.next_prop and not any(f.get("still") for f in self.foes):
+            if self.next_prop:
+                self.foes.append({"x": self.W + S(90), "z": rng.uniform(0.15, 0.7), "hp": 1, "hp0": 1, "hurt": -99.0, "down": None, "vx": 0.0,
+                                  "look": ("prop",) + tuple(self.PROP), "ph": 0.0, "punch": -99.0, "stop": 0.0, "still": True, "name": None})
+            self.next_prop = now + rng.uniform(9.0, 15.0)
+        ch = self.changed(vals, "lives")
+        if ch and ch[1] < ch[0]:
+            self.life_lost = now
+        ch = self.changed(vals, "health")
+        if ch and ch[1] >= ch[0] + 5 and now - self.life_lost > 3.0:     # health that comes back: he eats what he found
+            self.eat(now)
         super().update(vals, now)
         for f in self.foes:
             if "name" not in f:
@@ -394,6 +542,19 @@ class CapcomBrawler(BrawlerScene):
             h = self.hero
             self.fx.glow(h["x"], self.ground(h["z"]) - self.S(130), 30, 200, (255, 230, 140), 0.6, "front", 0.9, 0.0)
             self.popup(tr("NIVEAU SUPÉRIEUR !", "LEVEL UP!"), h["x"], self.ground(h["z"]) - self.S(300), GOLD, 42)
+
+    def nearest(self):
+        live = [f for f in self.foes if f["hp"] > 0 and (not f.get("still") or abs(f["x"] - self.hero["x"]) < self.S(330))]
+        return min(live, key=lambda f: abs(f["x"] - self.hero["x"])) if live else None
+
+    def eat(self, now):
+        """The health read in the game comes back: the hero eats or heals. / La vie revient : le héros mange ou se soigne."""
+        S, h = self.S, self.hero
+        self.meals += 1
+        word = LOOT_WORDS["food" if self.LOOT in ("food", "treasure", "coins") else self.LOOT]
+        self.fx.glow(h["x"], self.ground(h["z"]) - S(120), 30, 170, (140, 255, 140), 0.5, "front", 0.8, 0.0)
+        self.popup(tr(*word), h["x"], self.ground(h["z"]) - S(300), (150, 255, 150), 40)
+        self.loot = [lt for lt in self.loot if now - lt[2] > 30.0]       # what lay on the ground was eaten / ce qui traînait est mangé
 
     def special(self, now):
         """A bomb or a special attack: the foes near the hero fly away. / Une bombe ou un coup spécial balaie la rue."""
@@ -412,6 +573,74 @@ class CapcomBrawler(BrawlerScene):
                 self.knocked += 1
         fx.shake(7, 0.3)
         self.popup(tr(*self.SPECIAL_WORD), h["x"], self.ground(h["z"]) - S(300), GOLD, 42)
+
+    def draw_hud(self, screen, eng, vals, logo, now):
+        """The fighters, the things to break and what they left, sorted by depth, then the top bar of the game.
+        / Les combattants, les objets à casser et ce qu'ils ont laissé, triés en profondeur, puis la barre du haut."""
+        S, pg = self.S, self.pg
+        h = self.hero
+        items = []
+        for f in self.foes:
+            if f.get("still"):
+                frame = 0
+            elif f["down"] is not None:
+                k = now - f["down"]
+                frame = 5 if k < 0.35 else 6
+                if k > 1.0 and int(now * 16) % 2:
+                    continue
+            elif now - f["hurt"] < 0.3:
+                frame = 5
+            elif now - f["punch"] < 0.3:
+                frame = 3
+            elif f.get("moving"):
+                frame = 1 + int(now * 6 + f["ph"]) % 2
+            else:
+                frame = 0
+            items.append((f["z"], self.fig(f["look"], frame, f["x"] > h["x"] and not f.get("still")), f["x"], f["z"]))
+        keep = []
+        for x, y, t0 in self.loot:                                       # what fell out lies on the ground and slides by
+            x -= self.bd.speed * self.dt
+            if x > -S(80) and now - t0 < 30.0:
+                keep.append((x, y, t0))
+                pop = min(1.0, (now - t0) / 0.25)
+                img = self.fx.sp.obj("loot", 0)
+                if img is not None:
+                    screen.blit(img, (int(x - img.get_width() / 2), int(y - img.get_height() - S(40) * (1 - pop) * (1 + math.sin(pop * 3)))))
+        self.loot = keep
+        if self.p1_in(vals):
+            walking = self.bd.speed > 70 * self.s and not any(f["hp"] > 0 and not f.get("still") for f in self.foes)
+            if now - h["down"] < 1.2:
+                frame = 6
+            elif now - h["hurt"] < 0.35:
+                frame = 5
+            elif h["act"] is not None and now - h["act"][0] < 0.28:
+                frame = h["act"][1]
+            elif walking:
+                frame = 1 + int(now * 5) % 2
+                h["face"] = 1
+            else:
+                frame = 0
+            if not (now - h["down"] > 1.2 and now - h["down"] < 2.4 and int(now * 14) % 2):
+                items.append((h["z"], self.fig(self.HERO, frame, h["face"] < 0), h["x"], h["z"]))
+        sh = self.imgs.get("brsh")
+        if sh is None:
+            sh = self.imgs["brsh"] = pg.Surface((S(110), S(22)), pg.SRCALPHA)
+            pg.draw.ellipse(sh, (0, 0, 0, 100), sh.get_rect())
+        for z, img, x, zz in sorted(items, key=lambda it: it[0]):
+            y = self.ground(zz)
+            screen.blit(sh, (int(x - sh.get_width() / 2), int(y - sh.get_height() / 2)))
+            screen.blit(img, (int(x - img.get_width() / 2), int(y - img.get_height())))
+        keep = []
+        for sx, sy, t0, face in self.slashes:                           # the trails of the blades / traînées des lames
+            k = (now - t0) / 0.22
+            if k >= 1:
+                continue
+            keep.append((sx, sy, t0, face))
+            img = self.img(("slash", face < 0), S(240), S(240), slash_draw, ss=2, flip=face < 0)
+            img.set_alpha(int(255 * (1 - k)))
+            screen.blit(img, (int(sx - img.get_width() / 2), int(sy - img.get_height() / 2)))
+        self.slashes = keep
+        self.status(screen, eng, vals, logo, now)
 
     # ------------------------------------------------------------ the top bar, as in each game
     def foe_tag(self, screen, x, y, now, color=(255, 70, 60), w=None):
@@ -472,6 +701,8 @@ class CapcomBrawler(BrawlerScene):
         if t is None:
             return
         S, hd = self.S, self.hd
+        if t <= 10 and int(self.fx.now * 4) % 2:                         # little time left: it blinks red / il clignote en rouge
+            num_col = (255, 70, 50)
         self.pill(screen, x - S(80), y, S(160), S(108), 170, radius=14)
         self.text(screen, label, x, y + S(18), 28, label_col, key=key, align="center", valign="middle")
         hd.put_number(screen, f"{int(t):02d}", key, S(size), num_col, x, y + S(66), "center", "middle")
@@ -485,9 +716,11 @@ class FinalFightScene(CapcomBrawler):
     and the gauge of the thug just hit under it. / Le quartier pauvre d'une grande ville de jour ; notre combattant à
     nous affronte le gang qui arrive des deux côtés. Portrait, =vies, score, jauge jaune sur rouge, TIME en violet."""
     THEME = "ff_slum"
+    PROP = ("drum", (80, 110, 150))
+    LOOT = "food"
     HERO = ("brawler", (220, 70, 56), (44, 46, 58), (226, 176, 136), (60, 40, 30))
     FOES = (("thug", (70, 110, 200), (60, 60, 70), (214, 160, 120), (30, 30, 34)),
-            ("jacket", (200, 60, 50), (50, 50, 60), (200, 150, 110), (40, 30, 26)),
+            ("jacket", (60, 140, 96), (50, 50, 60), (200, 150, 110), (40, 30, 26)),
             ("brawler", (240, 200, 60), (90, 70, 50), (190, 140, 100), (200, 60, 40), None, (("band", (240, 70, 60)),)),
             ("thug", (120, 60, 140), (40, 40, 50), (226, 176, 136), (240, 240, 240), "knife"))
     FOE_NAMES = ("SLIM", "BRUNO", "RUSTY", "VINNIE", "TEX", "ROCCO", "DUKE", "MOE")
@@ -508,6 +741,8 @@ class CaptainCommandoScene(CapcomBrawler):
     the name in blue, the green gauge. / Une ville du futur de jour ; le héros choisi dans le jeu (un héros à nous pour
     chacun) contre les voyous et les cyborgs. 1P et le score, le nom en bleu, la jauge verte."""
     THEME = "cc_future"
+    PROP = ("capsule", (90, 200, 220))
+    LOOT = "food"
     HERO = ("jacket", (232, 232, 242), (56, 60, 84), (226, 176, 136), (60, 40, 30), None, (("helmet", (196, 202, 220)), ("visor", (255, 200, 60))))
     HEROES = {0: ("brawler", (222, 208, 172), (204, 190, 156), (214, 200, 166), (204, 190, 156), "knife", (("wrap", (244, 236, 210)),)),
               1: HERO,
@@ -536,6 +771,8 @@ class CadillacsScene(CapcomBrawler):
     the little dinosaurs. =lives and the name, the score, the yellow gauge, the time. / Une ville avalée par la jungle ;
     le héros choisi (un héros à nous pour chacun) contre les braconniers et les petits dinosaures."""
     THEME = "cd_ruins"
+    PROP = ("barrel", (150, 100, 60))
+    LOOT = "food"
     HERO = ("jacket", (214, 184, 124), (60, 80, 124), (226, 176, 136), (110, 70, 40), "gun", (("hat", (124, 84, 44)),))
     HEROES = {0: HERO,
               1: ("jacket", (240, 170, 50), (90, 70, 50), (190, 140, 100), (30, 26, 24), "club", (("band", (40, 120, 200)),)),
@@ -565,6 +802,8 @@ class PunisherScene(CapcomBrawler):
     hall. / Le hall d'une villa de gangster la nuit ; notre justicier à nous, en costume sombre, arme au poing, contre
     les mafieux. Jauge cyan, TIME en jaune, les grenades en bas à gauche : une grenade lancée balaie le hall."""
     THEME = "pn_mansion"
+    PROP = ("crate", (170, 120, 70))
+    LOOT = "food"
     HERO = ("jacket", (44, 48, 60), (36, 38, 48), (226, 176, 136), (40, 30, 26), "gun")
     FOES = (("jacket", (60, 60, 70), (50, 50, 60), (214, 160, 120), (30, 30, 34)),
             ("thug", (150, 40, 40), (40, 40, 50), (226, 176, 136), (20, 20, 24), "knife"),
@@ -606,6 +845,8 @@ class KingOfDragonsScene(CapcomBrawler):
     gauge. / Une forêt d'arbres immenses ; notre chevalier à nous contre les orques, les hommes-chiens, les squelettes.
     EP et l'expérience lue dans le jeu, la classe et le niveau qui monte, la jauge."""
     THEME = "kd_forest"
+    PROP = ("chest", (150, 90, 40))
+    LOOT = "treasure"
     HERO = ("jacket", (170, 170, 186), (90, 90, 104), (226, 176, 136), (220, 190, 90), "sword",
             (("helmet", (200, 205, 216)), ("plume", (230, 40, 40)), ("shield", (40, 80, 170))))
     FOES = (("mutant", (110, 80, 50), (80, 60, 40), (110, 160, 80), (60, 50, 30), "axe", (("tusks", None),)),
@@ -637,6 +878,8 @@ class KnightsScene(CapcomBrawler):
     1P and the score, xlives, the level L-, the red gauge. / Un village de maisons à colombages ; notre chevalier à nous
     contre les soldats, les barbares et les chevaliers noirs. Score, xvies, le niveau L-, la jauge rouge."""
     THEME = "kn_village"
+    PROP = ("barrel", (150, 100, 60))
+    LOOT = "food"
     HERO = ("jacket", (40, 70, 160), (90, 90, 100), (226, 176, 136), (200, 160, 60), "sword", (("armor", (190, 195, 210)), ("cape", (160, 30, 40))))
     FOES = (("jacket", (120, 110, 90), (80, 70, 60), (214, 160, 120), (60, 50, 40), "spear", (("helmet", (150, 150, 160)),)),
             ("brawler", (150, 100, 60), (90, 60, 40), (200, 150, 110), (180, 80, 30), "axe", (("beard", (180, 80, 30)),)),
@@ -662,6 +905,8 @@ class WarriorsOfFateScene(CapcomBrawler):
     the bandits. The portrait, 1P and xlives, the score, the yellow-green gauge, the time. / Une forêt de la Chine
     ancienne ; notre général à nous, armure rouge et hallebarde, contre les soldats et les bandits."""
     THEME = "wf_forest"
+    PROP = ("barrel", (170, 120, 60))
+    LOOT = "food"
     HERO = ("samurai", (200, 40, 40), (90, 60, 40), (226, 176, 136), (230, 190, 60), "halberd")
     FOES = (("jacket", (60, 90, 160), (60, 60, 70), (214, 160, 120), (40, 40, 40), "spear", (("hat", (180, 150, 90)),)),
             ("brawler", (140, 100, 70), (70, 60, 50), (200, 150, 110), (30, 30, 30), "sword", (("band", (200, 40, 40)),)),
@@ -684,6 +929,8 @@ class MystaraScene(CapcomBrawler):
     skeletons. The portrait, 1P, the score, the green gauge. / Un canyon de grès ; notre héros à nous, casque, masse et
     bouclier, contre les gobelins, les hommes-chiens, les trolls et les squelettes."""
     THEME = "ds_canyon"
+    PROP = ("chest", (130, 80, 40))
+    LOOT = "treasure"
     HERO = ("jacket", (60, 90, 170), (120, 100, 70), (226, 176, 136), (110, 70, 40), "mace",
             (("helmet", (190, 190, 200)), ("shield", (170, 140, 60)), ("cape", (40, 50, 120))))
     FOES = (("mutant", (120, 90, 50), (90, 70, 40), (120, 170, 80), (60, 50, 30), "club", (("ears", None),)),
@@ -707,6 +954,8 @@ class TowerOfDoomScene(CapcomBrawler):
     / Des collines vertes dans la lumière dorée ; notre elfe à nous contre les kobolds, les orques et les squelettes.
     Les quatre places des joueurs en bas : la nôtre et sa jauge, JOIN IN! dans les autres."""
     THEME = "dt_hills"
+    PROP = ("chest", (150, 90, 40))
+    LOOT = "treasure"
     SHADE = (90, 110)
     HERO = ("jacket", (60, 130, 70), (110, 90, 60), (236, 196, 156), (230, 210, 120), "sword",
             (("ears", None), ("cape", (40, 90, 50)), ("longhair", (230, 210, 120))))
@@ -750,6 +999,8 @@ class AlienVsPredatorScene(CapcomBrawler):
     sweeps the street. / Une ville industrielle en ruine ; le héros choisi (un héros à nous pour chacun) contre nos
     créatures rampantes. Quand la jauge du coup spécial se vide, le coup balaie la rue."""
     THEME = "av_ruins"
+    PROP = ("crate", (110, 120, 90))
+    LOOT = "medkit"
     HERO = ("cyborg", (120, 110, 90), (90, 80, 60), (226, 176, 136), (255, 60, 40), "claws", (("armor", (150, 140, 110)),))
     HEROES = {0: HERO,
               1: ("jacket", (110, 120, 80), (70, 80, 60), (226, 176, 136), (90, 60, 30), "gun", (("band", (70, 80, 50)),)),
@@ -781,6 +1032,8 @@ class ArmoredWarriorsScene(CapcomBrawler):
     the name and xlives, the gauge. / Le hangar des machines de guerre ; la machine choisie (une à nous pour chacune)
     tire sur les machines ennemies. 1P- et le score, le nom et xvies, la jauge."""
     THEME = "aw_hangar"
+    PROP = ("capsule", (200, 200, 90))
+    LOOT = "parts"
     HERO = ("mech", (200, 60, 50), (255, 220, 80))
     HEROES = {0: HERO, 1: ("mech", (70, 150, 90), (250, 240, 120)), 2: ("mech", (200, 170, 60), (120, 200, 255)),
               3: ("mech", (70, 110, 190), (255, 160, 60))}
@@ -804,6 +1057,8 @@ class BattleCircuitScene(CapcomBrawler):
     The name and xlives, the score, COIN and the money read in the game, the gauge. / Une arène du futur la nuit ; notre
     héros masqué à nous, en jaune et cape, contre les robots et les mutants. COIN et l'argent lu dans le jeu."""
     THEME = "bc_arena"
+    PROP = ("capsule", (230, 120, 220))
+    LOOT = "coins"
     HERO = ("jacket", (250, 210, 40), (40, 40, 50), (226, 176, 136), (40, 40, 50), None, (("visor", (60, 220, 255)), ("cape", (60, 60, 200))))
     FOES = (("robot", (180, 180, 200), (110, 110, 130), (0, 0, 0), (0, 0, 0)),
             ("mutant", (200, 80, 160), (90, 60, 120), (200, 160, 220), (120, 40, 140)),
