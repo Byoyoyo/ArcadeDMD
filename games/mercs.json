@@ -19,7 +19,6 @@
     "mercsj": "Senjou no Ookami II",
     "mercsc": "Senjo no Ookami II"
   },
-  "scene_from": "cps_action",
   "memory": {
     "cpu": ":maincpu",
     "values": {
@@ -46,17 +45,609 @@
         "type": "bcd",
         "bytes": 1,
         "note": "timer (FBNeo cheat database, Infinite Time)"
+      },
+      "bombs": {
+        "addr": "0xFF117C",
+        "type": "bcd",
+        "bytes": 1,
+        "note": "mega crashes of player 1 (FinalBurn Neo cheats, Infinite Missiles PL1 writes 99)"
+      },
+      "score": {
+        "addr": "",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+      },
+      "score_p2": {
+        "addr": "",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
       }
     }
   },
   "activity": {
-    "values": ["time", "health", "health_p2"],
+    "values": ["time", "health", "health_p2", "bombs"],
     "seconds": 10,
     "note": "no BIOS says who plays: player 1 plays while these values move"
   },
+  "hd": {
+    "scene": "mercs"
+  },
   "demo": {
-    "credits": 2,
-    "p1_mode": 1,
-    "p2_mode": 0
+    "bombs": 3,
+    "score": 0,
+    "time": 99,
+    "sim": {
+      "bombs": {
+        "cycle": [
+          3,
+          3,
+          2,
+          2,
+          1,
+          3
+        ],
+        "every": 6.0,
+        "start": 6.0
+      },
+      "time": {
+        "count": [
+          0,
+          99,
+          -1
+        ],
+        "every": 1.0,
+        "start": 1.0
+      }
+    }
+  },
+  "demo_hand": true,
+  "scene": {
+    "layers": [
+      {
+        "type": "rect",
+        "x": 0,
+        "y": 13,
+        "w": 128,
+        "h": 10,
+        "color": "#5a4a2a",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 0,
+        "y": 22,
+        "w": 128,
+        "h": 1,
+        "color": "#c8b478",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "sprite",
+        "image": ["sprites/runner.png"],
+        "frames": 2,
+        "fps": 8,
+        "mode": "pingpong",
+        "x0": 4,
+        "x1": 50,
+        "speed": 8,
+        "face": "right",
+        "y": 13,
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "shoot": {
+          "on": ["score"],
+          "dx": 8,
+          "dy": 3,
+          "speed": 110,
+          "color": "#ffe080",
+          "gap": 0.25
+        }
+      },
+      {
+        "type": "text",
+        "font": "9x15B",
+        "x": 64,
+        "y": 3,
+        "align": "center",
+        "text": "{score}",
+        "color": "#ffa830",
+        "when": {
+          "all": [
+            {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "has": "score"
+            }
+          ]
+        },
+        "flash": {
+          "on": "score",
+          "color": "#ffffff",
+          "ms": 90
+        }
+      },
+      {
+        "type": "text",
+        "font": "6x10",
+        "fit": true,
+        "max_w": 124,
+        "x": 64,
+        "y": 4,
+        "align": "center",
+        "upper": true,
+        "text": "{title}",
+        "color": "#ffd25a",
+        "when": {
+          "all": [
+            {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "not": {
+                "has": "score"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "icons",
+        "var": "health",
+        "x": 2,
+        "y": 25,
+        "max": 1,
+        "gap": 0,
+        "pattern": [".#.#.", "#####", "#####", ".###.", "..#.."],
+        "colors": {
+          "#": "#5adc5a"
+        },
+        "empty": "#402020",
+        "when": {
+          "all": [
+            {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "has": "health"
+            }
+          ]
+        }
+      },
+      {
+        "type": "gauge",
+        "var": "health",
+        "max": 100,
+        "x": 9,
+        "y": 26,
+        "w": 40,
+        "h": 4,
+        "color": "#5adc5a",
+        "low": "#ff3020",
+        "low_at": 0.25,
+        "back": "#301010",
+        "when": {
+          "all": [
+            {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "has": "health"
+            }
+          ]
+        },
+        "flash": {
+          "on": "health",
+          "color": "#ffffff",
+          "ms": 250
+        }
+      },
+      {
+        "type": "text",
+        "font": "5x8",
+        "x": 127,
+        "y": 24,
+        "align": "right",
+        "text": "{time}",
+        "color": "#ffe040",
+        "when": {
+          "all": [
+            {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "has": "time"
+            }
+          ]
+        }
+      },
+      {
+        "type": "counter",
+        "var": "bombs",
+        "pattern": [".#.", "###", "###", ".#."],
+        "colors": {
+          "#": "#ff8a30"
+        },
+        "x": 100,
+        "y": 24,
+        "align": "right",
+        "font": "5x8",
+        "max": 99,
+        "when": {
+          "all": [
+            {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "has": "bombs"
+            }
+          ]
+        },
+        "flash": {
+          "on": "bombs",
+          "color": "#ffffff",
+          "ms": 400
+        }
+      },
+      {
+        "type": "coinop",
+        "when": {
+          "all": [
+            {
+              "has": "p1_mode"
+            },
+            {
+              "not": {
+                "var": "p1_mode",
+                "in": [
+                  1,
+                  2
+                ]
+              }
+            },
+            {
+              "not": {
+                "var": "p2_mode",
+                "in": [
+                  1,
+                  2
+                ]
+              }
+            }
+          ]
+        },
+        "title": [
+          {
+            "text": "CAPCOM",
+            "color": "#1d5bff"
+          },
+          {
+            "text": " - {title}",
+            "color": "#ffd25a"
+          }
+        ],
+        "idle_image": ["sprites/insert_coin.gif", "sprites/insert_coin.png"]
+      },
+      {
+        "type": "events",
+        "events": [
+          {
+            "on": "bombs",
+            "change": "down",
+            "step": 1,
+            "when": {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "text": "MEGA CRASH",
+            "color": "#ffd040",
+            "font": "9x15B",
+            "ms": 1400,
+            "priority": 3,
+            "anim": [
+              {
+                "image": ["artwork/{game}/bomb.gif", "artwork/bomb.gif", "sprites/fx_fire.png"],
+                "count": 4,
+                "spread": [
+                  10,
+                  118
+                ],
+                "y": 16,
+                "delay": 0.07,
+                "ms": 90
+              }
+            ]
+          },
+          {
+            "on": "credits",
+            "change": "up",
+            "when": {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "text": "CREDIT {credits}",
+            "icon": [".###.", "#ooo#", "#o#o#", "#ooo#", ".###."],
+            "colors": {
+              "#": "#c87d0f",
+              "o": "#ffc828"
+            },
+            "icon_scale": 2,
+            "color": "#ffc828",
+            "font": "8x13B",
+            "ms": 1500,
+            "priority": 1.5
+          }
+        ]
+      }
+    ]
   }
 }
