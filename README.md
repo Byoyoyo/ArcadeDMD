@@ -268,6 +268,7 @@ The background changes with the game's stage when the game file knows where to r
 | The King of Fighters '96, '97, '98, '99 and 2000, Rage of the Dragons | `stage` and `backdrop` |
 | The King of Fighters 2002, Garou, Fatal Fury 2, Fatal Fury Special, Real Bout Fatal Fury 2, Real Bout Fatal Fury Special, Samurai Shodown II, III and IV, World Heroes, World Heroes Perfect, SNK vs. Capcom (JAMMA PCB) | `backdrop` |
 | Metal Slug, Metal Slug 2 | `mission` |
+| Street Fighter II, II' Champion Edition, II' Hyper Fighting, Super Street Fighter II and Turbo, Street Fighter Alpha, Alpha 2, Alpha 3, Zero 2 Alpha, Street Fighter III and its 2nd Impact and 3rd Strike, Darkstalkers, Night Warriors, Vampire Savior, Vampire Hunter 2, Vampire Savior 2, X-Men: Children of the Atom, Marvel vs. Capcom, Cyberbots, Super Gem Fighter, Red Earth | `backdrop`, with the place of each stage (`"places"`) |
 
 These addresses come from the cheat databases and still have to be confirmed in game (`test_retroarch.bat` shows them). The other games always get the same background. `demo_fight.bat` changes the stage every two K.O., so you can see it without playing.
 
@@ -288,6 +289,16 @@ Backdrop 0 (Japan, street) gets the city at night, 3 (Mid-East) the desert, 7 (U
 | `fight_desert`, `fight_jungle`, `fight_snow` | desert at dusk, jungle at night, snowy mountain |
 | `arena` | arena with spotlights |
 | `base`, `city_war` | enemy base (beacons, searchlights), city at war (fires, explosions) |
+| `fight_castle` | castle roof in Japan at night, full moon, cherry petals |
+| `fight_market` | Chinese street market, hanging lanterns, steam from the stalls |
+| `fight_factory` | steel factory, furnaces, molten metal and sparks |
+| `fight_gothic` | gothic manor under the moon, bats, lightning |
+| `fight_palace` | Indian palace at sunset, elephants, torches |
+| `fight_thai` | golden temple on its river, sky lanterns, glints on the water |
+| `fight_lab` | laboratory, glowing tanks, screens |
+| `fight_airbase` (or `fight_base`) | air base at dusk, hangars, jets, runway lights |
+
+A Capcom game file can also give the place shown under the stage banner, in French and English, one per backdrop value (`"places": [["CHINE", "CHINA"], ...]`). Without it, the place of the background is shown.
 
 The `fight_` backgrounds and `arena` have a crowd in front. Without the `fight_` prefix (`city`, `temple`, `harbor`, `ruins`, `desert`, `jungle`, `snow`), the same places have no crowd, as in the Metal Slug missions. A Metal Slug file can also have its own `"hd": {"stages": [...]}` list, one background per mission.
 
@@ -672,6 +683,58 @@ Neo Geo games known to MAME (clones included) get a shared scene based on their 
 - The KOF 98 score was found with `learn.bat`. It is stored in each player's data block, and that block is the same from KOF 96 to 2001 (health bar and power gauge at the same addresses). So the score of these games is read from the same place. If the panel does not show the same score as the screen in one of them, learn it with `learn.bat`, and the address found replaces the assumed one.
 - In King of Fighters '96 to 2000, each team is read from the game memory (chosen characters, fighting order, characters already beaten). The name changes by itself when the next character steps in. `test_retroarch.bat` shows both characters read, which is handy for checking.
 - The Neo Geo BIOS tells who is playing. Against the computer, "CPU" shows opposite, with INSERT COIN blinking on its side, or the credits and PRESS START in turn when there are credits left. With two players, both scores are at the top. When nobody is playing, the coin screen just below.
+
+### Capcom CPS1, CPS2 and CPS3 games
+
+Every Capcom CPS1, CPS2 and CPS3 game of FinalBurn Neo is recognized, with MAME as with RetroArch. That makes 88 games and their 942 sets. A version, a bootleg or a hack takes the file of its original game, with its own name when it has one (Street Fighter II' Magic Delta Turbo, for example). The files are made by `tools/cps_games.py` from the list and the cheat database of FinalBurn Neo.
+
+![Four Capcom fighting games on their stages, HD display](docs/images/hd_capcom_stages.jpg)
+
+- **What is read.** Each player's health, the timer, the lives, the bombs, the super gauge, the characters and their names, the stage, and the credits when the game keeps them. The score is not in the cheat databases, learn it with `learn.bat` (Learning the score, below).
+- **Who plays.** The Capcom games have no BIOS that tells it. ArcadeDMD watches the timer, the health and the lives. As long as they move, player 1 plays. After 10 seconds without any change, the coin screen comes back.
+- **RetroArch.** FinalBurn Neo core. CPS1 and CPS2 share 64 KB of RAM from 0xFF0000, CPS3 its 512 KB from 0x2000000, with its bytes reversed in 32-bit words that ArcadeDMD puts back in order. A value outside of this RAM (the credits of some CPS2 games) is read with MAME only.
+- **Fighting games.** On the panel, the health bars, the timer, the names, and on the bottom line the super gauge of each player, blue as it fills up, gold and blinking when it is full. On the HD screen, the fight scene on the game's own stage, with the place under the stage banner (CHINA, INDIA, FEAST OF THE DAMNED...), and the super gauges under the fighters. The fighter of Street Fighter III: New Generation is told by two bytes, a row and a column of the select screen, and the game file joins them (`"join"`).
+- **The other games.** The scene of their genre (`cps_action.json`, `cps_shoot.json`, `cps_reflexion.json`), made from the Neo Geo ones, with the game's title at the top.
+- `demo_capcom.bat` plays the demo of a Capcom game, coin screen first.
+
+| Game | System | File | Health bars | Timer | Character names | Super gauge | Stages (HD) |
+|---|---|---|---|---|---|---|---|
+| Cyberbots: Fullmetal Madness | CPS2 | `cybots.json` | yes | yes | yes (10) | yes | yes |
+| Darkstalkers: The Night Warriors | CPS2 | `dstlk.json` | yes | yes | yes (12) | - | yes |
+| Hyper Street Fighter II: The Anniversary Edition | CPS2 | `hsf2.json` | yes | yes | yes (17) | yes | fixed |
+| JoJo's Bizarre Adventure | CPS3 | `jojoba.json` | yes | yes | yes (25) | yes | fixed |
+| JoJo's Venture | CPS3 | `jojo.json` | yes | yes | - | yes | fixed |
+| Marvel Super Heroes | CPS2 | `msh.json` | yes | yes | yes (13) | yes | fixed |
+| Marvel Super Heroes Vs. Street Fighter | CPS2 | `mshvsf.json` | yes | yes | yes (25) | yes | fixed |
+| Marvel Vs. Capcom: Clash of Super Heroes | CPS2 | `mvsc.json` | yes | yes | yes (22) | yes | yes |
+| Mega Man 2: The Power Fighters | CPS2 | `megaman2.json` | yes | yes | - | - | fixed |
+| Mega Man: The Power Battle | CPS1 | `megaman.json` | yes | yes | - | - | fixed |
+| Muscle Bomber Duo: Ultimate Team Battle | CPS1 | `mbombrd.json` | yes | yes | - | - | fixed |
+| Night Warriors: Darkstalkers' Revenge | CPS2 | `nwarr.json` | yes | yes | yes (14) | - | yes |
+| Red Earth | CPS3 | `redearth.json` | yes | - | - | - | yes |
+| Ring of Destruction: Slammasters II | CPS2 | `ringdest.json` | yes | yes | - | - | fixed |
+| Saturday Night Slam Masters | CPS1 | `slammast.json` | yes | yes | - | - | fixed |
+| Street Fighter Alpha 2 | CPS2 | `sfa2.json` | yes | yes | yes (24) | yes | yes |
+| Street Fighter Alpha 3 | CPS2 | `sfa3.json` | yes | yes | yes (29) | yes | yes |
+| Street Fighter Alpha: Warriors' Dreams | CPS2 | `sfa.json` | yes | yes | yes (13) | yes | yes |
+| Street Fighter II': Champion Edition | CPS1 | `sf2ce.json` | yes | yes | yes (12) | - | yes |
+| Street Fighter II': Hyper Fighting | CPS1 | `sf2hf.json` | yes | yes | yes (12) | - | yes |
+| Street Fighter II: The World Warrior | CPS1 | `sf2.json` | yes | yes | yes (12) | - | yes |
+| Street Fighter III 2nd Impact: Giant Attack | CPS3 | `sfiii2.json` | yes | yes | yes (15) | yes | yes |
+| Street Fighter III 3rd Strike: Fight for the Future | CPS3 | `sfiii3.json` | yes | yes | yes (19) | yes | yes |
+| Street Fighter III: New Generation | CPS3 | `sfiii.json` | yes | yes | yes (11) | yes | yes |
+| Street Fighter Zero | CPS1 | `sfzch.json` | - | - | - | - | fixed |
+| Street Fighter Zero 2 Alpha | CPS2 | `sfz2al.json` | yes | yes | yes (21) | - | yes |
+| Super Gem Fighter: Mini Mix | CPS2 | `sgemf.json` | yes | yes | yes (12) | yes | yes |
+| Super Street Fighter II Turbo | CPS2 | `ssf2t.json` | yes | yes | yes (16) | yes | yes |
+| Super Street Fighter II: The New Challengers | CPS2 | `ssf2.json` | yes | yes | yes (16) | - | yes |
+| Vampire Hunter 2: Darkstalkers Revenge | CPS2 | `vhunt2.json` | yes | yes | yes (21) | yes | yes |
+| Vampire Savior 2: The Lord of Vampire | CPS2 | `vsav2.json` | yes | yes | yes (19) | - | yes |
+| Vampire Savior: The Lord of Vampire | CPS2 | `vsav.json` | yes | yes | yes (18) | - | yes |
+| X-Men Vs. Street Fighter | CPS2 | `xmvsf.json` | yes | yes | yes (19) | yes | fixed |
+| X-Men: Children of the Atom | CPS2 | `xmcota.json` | yes | yes | yes (13) | yes | yes |
+
+The addresses come from the cheat database of FinalBurn Neo and still have to be confirmed in game (`test_retroarch.bat` shows them). "fixed" means the game always gets the same backgrounds, taken from a list that fits it (the ring of the Slam Masters, the laboratory of Mega Man).
 
 ### Coin screen (fighting games)
 
