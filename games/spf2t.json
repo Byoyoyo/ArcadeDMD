@@ -20,7 +20,6 @@
     "spf2xpri": "Super Puzzle Fighter 2 X': Balance Patch",
     "spf2xjd": "Super Puzzle Fighter II X"
   },
-  "scene_from": "cps_reflexion",
   "memory": {
     "cpu": ":maincpu",
     "values": {
@@ -38,6 +37,18 @@
         "addr": "0xFF0C86",
         "type": "u8",
         "note": "player 2 or computer character (FBNeo cheat database, Select Character PL2)"
+      },
+      "score": {
+        "addr": "",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+      },
+      "score_p2": {
+        "addr": "",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
       }
     }
   },
@@ -73,13 +84,664 @@
         "9": "AKUMA",
         "10": "DAN"
       }
+    },
+    "_one": {
+      "value": 1,
+      "note": "always 1: the little pictures of the panel scene"
     }
   },
   "demo": {
     "credits": 2,
+    "score": 0,
+    "_p1_chr": 2,
+    "_p2_chr": 0,
+    "sim": {
+      "score": {
+        "count": [
+          0,
+          999900,
+          300
+        ],
+        "every": [
+          1.0,
+          3.0
+        ],
+        "start": 3.0
+      },
+      "_p1_chr": {
+        "cycle": [
+          2,
+          2,
+          1,
+          7
+        ],
+        "every": 20.0,
+        "start": 20.0
+      },
+      "_p2_chr": {
+        "cycle": [
+          0,
+          6,
+          5,
+          3
+        ],
+        "every": 15.0,
+        "start": 15.0
+      }
+    },
     "p1_mode": 1,
-    "p2_mode": 0,
-    "_p1_chr": 0,
-    "_p2_chr": 1
-  }
+    "p2_mode": 0
+  },
+  "scene": {
+    "layers": [
+      {
+        "type": "rect",
+        "x": 0,
+        "y": 11,
+        "w": 128,
+        "h": 21,
+        "color": "#3c1e14",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 1,
+        "y": 11,
+        "w": 20,
+        "h": 21,
+        "color": "#141028",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 107,
+        "y": 11,
+        "w": 20,
+        "h": 21,
+        "color": "#141028",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 0,
+        "y": 11,
+        "w": 1,
+        "h": 21,
+        "color": "#e6b43c",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 21,
+        "y": 11,
+        "w": 1,
+        "h": 21,
+        "color": "#e6b43c",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 106,
+        "y": 11,
+        "w": 1,
+        "h": 21,
+        "color": "#e6b43c",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 127,
+        "y": 11,
+        "w": 1,
+        "h": 21,
+        "color": "#e6b43c",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "icons",
+        "var": "_one",
+        "x": 2,
+        "y": 16,
+        "max": 1,
+        "pattern": ["r..g..", "rg.gb.", "rgbbby", "yrrgby", "yrggbb"],
+        "colors": {
+          "r": "#e6323c",
+          "g": "#3cc850",
+          "b": "#3c78f0",
+          "y": "#fad232"
+        },
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "icons",
+        "var": "_one",
+        "x": 108,
+        "y": 16,
+        "max": 1,
+        "pattern": [".b..y.", "bb.yy.", "gbryyr", "grrbyr", "ggrbbr"],
+        "colors": {
+          "r": "#e6323c",
+          "g": "#3cc850",
+          "b": "#3c78f0",
+          "y": "#fad232"
+        },
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "text",
+        "font": "5x8",
+        "x": 64,
+        "y": 13,
+        "align": "center",
+        "segments": [
+          {
+            "text": "{p1_char}",
+            "color": "#ff7840"
+          }
+        ],
+        "when": {
+          "all": [
+            {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "has": "p1_char"
+            }
+          ]
+        }
+      },
+      {
+        "type": "text",
+        "font": "5x8",
+        "x": 64,
+        "y": 23,
+        "align": "center",
+        "segments": [
+          {
+            "text": "{p2_char}",
+            "color": "#46aaff"
+          }
+        ],
+        "when": {
+          "all": [
+            {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "has": "p2_char"
+            }
+          ]
+        }
+      },
+      {
+        "type": "text",
+        "font": "6x10",
+        "x": 1,
+        "y": 1,
+        "align": "left",
+        "segments": [
+          {
+            "text": "{score}",
+            "color": "#ffa830"
+          }
+        ],
+        "when": {
+          "has": "score"
+        },
+        "flash": {
+          "on": "score",
+          "color": "#ffffff",
+          "ms": 120
+        }
+      },
+      {
+        "type": "marquee",
+        "font": "6x10",
+        "y": 1,
+        "x": 0,
+        "w": 56,
+        "speed": 12,
+        "gap": 40,
+        "upper": true,
+        "segments": [
+          {
+            "text": "{title}",
+            "color": "#ff60c0"
+          }
+        ],
+        "when": {
+          "not": {
+            "has": "score"
+          }
+        },
+        "static_if_fits": true
+      },
+      {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "segments": [
+          {
+            "text": "{score_p2}",
+            "color": "#ffa830"
+          }
+        ],
+        "when": {
+          "all": [
+            {
+              "var": "p2_mode",
+              "in": [
+                1,
+                2
+              ]
+            },
+            {
+              "has": "score_p2"
+            }
+          ]
+        }
+      },
+      {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "INSERT COIN",
+        "color": "#ffa830",
+        "when": {
+          "all": [
+            {
+              "not": {
+                "var": "p2_mode",
+                "in": [
+                  1,
+                  2
+                ]
+              }
+            },
+            {
+              "not": {
+                "var": "credits",
+                "gt": 0
+              }
+            }
+          ]
+        },
+        "blink_period": 1.0
+      },
+      {
+        "type": "cycle",
+        "period": 1.5,
+        "when": {
+          "all": [
+            {
+              "not": {
+                "var": "p2_mode",
+                "in": [
+                  1,
+                  2
+                ]
+              }
+            },
+            {
+              "var": "credits",
+              "gt": 0
+            }
+          ]
+        },
+        "pages": [
+          {
+            "layers": [
+              {
+                "type": "text",
+                "font": "6x10",
+                "x": 127,
+                "y": 1,
+                "align": "right",
+                "text": "CREDITS {credits}",
+                "color": "#ffa830"
+              }
+            ]
+          },
+          {
+            "layers": [
+              {
+                "type": "text",
+                "font": "6x10",
+                "x": 127,
+                "y": 1,
+                "align": "right",
+                "text": "PRESS START",
+                "color": "#ffa830"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "coinop",
+        "when": {
+          "all": [
+            {
+              "has": "p1_mode"
+            },
+            {
+              "not": {
+                "var": "p1_mode",
+                "in": [
+                  1,
+                  2
+                ]
+              }
+            },
+            {
+              "not": {
+                "var": "p2_mode",
+                "in": [
+                  1,
+                  2
+                ]
+              }
+            }
+          ]
+        },
+        "title": [
+          {
+            "text": "{title}",
+            "color": "#ff60c0"
+          }
+        ],
+        "idle_image": ["sprites/insert_coin.gif", "sprites/insert_coin.png"]
+      }
+    ]
+  },
+  "hd": {
+    "scene": "spf2t"
+  },
+  "demo_hand": true
 }
