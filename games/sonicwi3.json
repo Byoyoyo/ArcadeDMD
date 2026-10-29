@@ -1814,11 +1814,7 @@
     },
     "title": [
      {
-      "text": "VIDEO SYSTEM",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ffc040"
      }
     ],

@@ -57,7 +57,7 @@ class CoinDoors:
         self.shown = 0            # number on the counter
         self.roll = None          # (from, to, moment)
         self.last_land = None
-        self.side = 1             # next coin: right door first, then they take turns
+        self.side = 0             # door of the last coin / monnayeur de la dernière pièce
         self.mode = None
         self.mode_t = -99.0
         self.plus = []            # (moment, x): +1 rising above a door
@@ -301,6 +301,27 @@ class CoinDoors:
     def door_x(self, side):
         return self.S(230) if side == 0 else self.W - self.S(230)
 
+    @staticmethod
+    def door_for(vals):
+        """The coin door of a coin put in, from what the game shows (an MVS under RetroArch does not tell which slot).
+        Player 1's on the left when nobody plays, the door of the player at the CONTINUE, and while one player plays the
+        coin is the other one's, who comes in. "coin_side" (0 left, 1 right) wins when it is known.
+        / Le monnayeur d'une pièce, d'après ce que montre le jeu : à gauche quand personne ne joue, celui du joueur au
+        CONTINUE, et pendant la partie d'un joueur, celui de l'autre qui arrive."""
+        side = _num(vals.get("coin_side"))
+        if side in (0, 1):
+            return int(side)
+        m1, m2 = vals.get("p1_mode"), vals.get("p2_mode")
+        if m1 == 2 and m2 != 2:
+            return 0
+        if m2 == 2 and m1 != 2:
+            return 1
+        if m1 == 1 and m2 not in (1, 2):
+            return 1
+        if m2 == 1 and m1 not in (1, 2):
+            return 0
+        return 0
+
     def _track(self, vals, now, fx):
         c = _num(vals.get("credits"))
         c = int(c) if c is not None else None
@@ -310,9 +331,9 @@ class CoinDoors:
             self.drops, self.roll, self.last_land, self.mode, self.plus = [], None, None, None, []
         elif c > self.credits:
             t = max([now] + [d[0] + 0.3 for d in self.drops])
+            self.side = self.door_for(vals)
             for i in range(min(4, c - self.credits)):
                 self.drops.append([t + 0.3 * i, self.side, False])
-                self.side = 1 - self.side
             self.credits = c
         elif c < self.credits:                                         # a credit used: the game starts
             self.credits = self.shown = c

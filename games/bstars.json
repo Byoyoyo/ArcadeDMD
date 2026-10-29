@@ -241,11 +241,7 @@
     "upper": true,
     "segments": [
      {
-      "text": "SNK",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ffa030"
      }
     ],
@@ -275,7 +271,8 @@
        }
       ]
      }
-    }
+    },
+    "static_if_fits": true
    },
    {
     "type": "icons",
@@ -500,11 +497,7 @@
     },
     "title": [
      {
-      "text": "SNK",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ffa030"
      }
     ],

@@ -276,11 +276,7 @@
     "upper": true,
     "segments": [
      {
-      "text": "VIDEO SYSTEM",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ffe040"
      }
     ],
@@ -310,7 +306,8 @@
        }
       ]
      }
-    }
+    },
+    "static_if_fits": true
    },
    {
     "type": "text",
@@ -481,11 +478,7 @@
     },
     "title": [
      {
-      "text": "VIDEO SYSTEM",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ffe040"
      }
     ],

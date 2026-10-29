@@ -1110,11 +1110,7 @@
     "upper": true,
     "segments": [
      {
-      "text": "AICOM",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#c080ff"
      }
     ],
@@ -1144,7 +1140,8 @@
        }
       ]
      }
-    }
+    },
+    "static_if_fits": true
    },
    {
     "type": "text",
@@ -1226,11 +1223,7 @@
     },
     "title": [
      {
-      "text": "AICOM",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#c080ff"
      }
     ],

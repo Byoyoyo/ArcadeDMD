@@ -1027,11 +1027,7 @@
     "upper": true,
     "segments": [
      {
-      "text": "VIDEO SYSTEM",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ff80a0"
      }
     ],
@@ -1061,7 +1057,8 @@
        }
       ]
      }
-    }
+    },
+    "static_if_fits": true
    },
    {
     "type": "coinop",
@@ -1092,11 +1089,7 @@
     },
     "title": [
      {
-      "text": "VIDEO SYSTEM",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ff80a0"
      }
     ],

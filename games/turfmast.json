@@ -502,11 +502,7 @@
     },
     "title": [
      {
-      "text": "SNK",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#6aff70"
      }
     ],

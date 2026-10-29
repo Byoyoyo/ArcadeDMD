@@ -1180,11 +1180,7 @@
     },
     "title": [
      {
-      "text": "NG:DEV.TEAM",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#60a0ff"
      }
     ],

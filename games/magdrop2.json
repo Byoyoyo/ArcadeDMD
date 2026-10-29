@@ -211,11 +211,7 @@
     "upper": true,
     "segments": [
      {
-      "text": "DATA EAST",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ff8030"
      }
     ],
@@ -223,7 +219,8 @@
      "not": {
       "has": "score"
      }
-    }
+    },
+    "static_if_fits": true
    },
    {
     "type": "text",
@@ -508,11 +505,7 @@
     },
     "title": [
      {
-      "text": "DATA EAST",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ff8030"
      }
     ],

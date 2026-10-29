@@ -1740,11 +1740,7 @@
     },
     "title": [
      {
-      "text": "SNK",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ff8a30"
      }
     ],

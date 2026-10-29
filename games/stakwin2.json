@@ -303,11 +303,7 @@
     "upper": true,
     "segments": [
      {
-      "text": "SAURUS",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ffd040"
      }
     ],
@@ -337,7 +333,8 @@
        }
       ]
      }
-    }
+    },
+    "static_if_fits": true
    },
    {
     "type": "text",
@@ -607,11 +604,7 @@
     },
     "title": [
      {
-      "text": "SAURUS",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ffd040"
      }
     ],

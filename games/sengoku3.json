@@ -304,11 +304,7 @@
     "upper": true,
     "segments": [
      {
-      "text": "SNK",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ff5050"
      }
     ],
@@ -316,7 +312,8 @@
      "not": {
       "has": "score"
      }
-    }
+    },
+    "static_if_fits": true
    },
    {
     "type": "text",
@@ -793,11 +790,7 @@
     },
     "title": [
      {
-      "text": "SNK",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ff5050"
      }
     ],

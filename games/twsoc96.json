@@ -194,11 +194,7 @@
     "upper": true,
     "segments": [
      {
-      "text": "TECMO",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#40a0ff"
      }
     ],
@@ -228,7 +224,8 @@
        }
       ]
      }
-    }
+    },
+    "static_if_fits": true
    },
    {
     "type": "coinop",
@@ -259,11 +256,7 @@
     },
     "title": [
      {
-      "text": "TECMO",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#40a0ff"
      }
     ],

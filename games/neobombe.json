@@ -1043,11 +1043,7 @@
     "upper": true,
     "segments": [
      {
-      "text": "HUDSON",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ff9a30"
      }
     ],
@@ -1055,7 +1051,8 @@
      "not": {
       "has": "score"
      }
-    }
+    },
+    "static_if_fits": true
    },
    {
     "type": "text",
@@ -1431,11 +1428,7 @@
     },
     "title": [
      {
-      "text": "HUDSON",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ff9a30"
      }
     ],

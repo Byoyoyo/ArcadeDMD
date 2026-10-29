@@ -231,11 +231,7 @@
     "upper": true,
     "segments": [
      {
-      "text": "ALPHA DENSHI",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ffa040"
      }
     ],
@@ -243,7 +239,8 @@
      "not": {
       "has": "score"
      }
-    }
+    },
+    "static_if_fits": true
    },
    {
     "type": "text",
@@ -526,11 +523,7 @@
     },
     "title": [
      {
-      "text": "ALPHA DENSHI",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ffa040"
      }
     ],

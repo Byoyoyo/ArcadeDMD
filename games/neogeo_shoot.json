@@ -178,11 +178,7 @@
     "type": "marquee",
     "segments": [
      {
-      "text": "SNK",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#e6e6e6"
      }
     ],
@@ -190,7 +186,8 @@
     "y": 0,
     "speed": 12,
     "gap": 40,
-    "upper": true
+    "upper": true,
+    "static_if_fits": true
    },
    {
     "type": "text",

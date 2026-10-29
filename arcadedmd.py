@@ -33,6 +33,7 @@ Usage :
   python arcadedmd.py setup-pixelcade  choisit le port de la Pixelcade et l'active
   python arcadedmd.py enable-zedmd     active la sortie ZeDMD (désactivée par défaut)
   python arcadedmd.py test-retroarch   vérifie RetroArch, le cœur chargé et la lecture de la mémoire
+  python arcadedmd.py test-coins       note ce que fait le BIOS Neo Geo quand une pièce entre (RetroArch)
   python arcadedmd.py setup-screen     place la fenêtre LED virtuelles sur un écran LCD qui sert de DMD
 """
 
@@ -51,6 +52,7 @@ Usage:
   python arcadedmd.py setup-pixelcade  chooses the Pixelcade port and enables it
   python arcadedmd.py enable-zedmd     enables the ZeDMD output (disabled by default)
   python arcadedmd.py test-retroarch   checks RetroArch, the loaded core and memory reading
+  python arcadedmd.py test-coins       writes down what the Neo Geo BIOS does when a coin goes in (RetroArch)
   python arcadedmd.py setup-screen     puts the virtual LED window on an LCD screen used as a DMD
 """
 
@@ -247,6 +249,11 @@ def main(argv):
         from dmd import radiag
         wait = int(argv[2]) if len(argv) > 2 and argv[2].isdigit() else 180
         return radiag.run(ROOT, cfg, wait=wait)
+
+    if cmd == "test-coins":
+        from dmd import coinwatch
+        seconds = int(argv[2]) if len(argv) > 2 and argv[2].isdigit() else 150
+        return coinwatch.run(ROOT, cfg, seconds=seconds)
 
     demo = None
     use_zedmd = True

@@ -562,11 +562,7 @@
     "type": "marquee",
     "segments": [
      {
-      "text": "SNK",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ffa830"
      }
     ],
@@ -643,7 +639,8 @@
        }
       }
      ]
-    }
+    },
+    "static_if_fits": true
    },
    {
     "type": "text",
@@ -973,11 +970,7 @@
     "type": "marquee",
     "segments": [
      {
-      "text": "SNK",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ffa830"
      }
     ],
@@ -1019,7 +1012,8 @@
        }
       }
      ]
-    }
+    },
+    "static_if_fits": true
    },
    {
     "type": "text",
@@ -1289,7 +1283,7 @@
    },
    {
     "type": "rect",
-    "x": 56,
+    "x": 55,
     "y": 9,
     "w": 1,
     "h": 11,
@@ -1303,7 +1297,7 @@
    },
    {
     "type": "rect",
-    "x": 72,
+    "x": 71,
     "y": 9,
     "w": 1,
     "h": 11,
@@ -1925,11 +1919,7 @@
     },
     "title": [
      {
-      "text": "SNK",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ffa830"
      }
     ],

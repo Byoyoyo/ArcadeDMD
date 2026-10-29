@@ -230,11 +230,7 @@
     "upper": true,
     "segments": [
      {
-      "text": "SUN AMUSEMENT",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#80c0ff"
      }
     ],
@@ -264,7 +260,8 @@
        }
       ]
      }
-    }
+    },
+    "static_if_fits": true
    },
    {
     "type": "text",
@@ -346,11 +343,7 @@
     },
     "title": [
      {
-      "text": "SUN AMUSEMENT",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#80c0ff"
      }
     ],

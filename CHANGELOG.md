@@ -3,6 +3,30 @@
 Newest version first. Each version is in English, then in French.
 La version la plus récente en premier. Chaque version est en anglais, puis en français.
 
+## 1.29.1
+
+### English
+
+**Fixes from the cabinet**
+- Fighting games. The timer sits right between its two lines, with the same gap on each side. The line on the left touched the digits.
+- Only the name of the game on the panel, without the maker (SNK, VIDEO SYSTEM...), on the coin screen and at the top during a game. A title that fits stays still instead of scrolling.
+- With RetroArch, the HD screen no longer drops the coins once on the right, once on the left. RetroArch does not tell which coin slot a coin came through, so the coin drops in player 1's slot when nobody plays, in the slot of the player who comes in during a game, and in the slot of the player at the CONTINUE.
+- `test_coins.bat` writes down what the Neo Geo BIOS does when a coin goes in with RetroArch, to find out on a real cabinet how to see every coin and its side. The result goes to `runtime\test_coins.txt`.
+
+**Updating from 1.29**
+Extract the new zip over the old folder (`config.json`, your learned addresses and your `artwork` folder are kept).
+
+### Français
+
+**Corrections vues sur la borne**
+- Jeux de combat. Le chrono est pile entre ses deux traits, avec le même espace de chaque côté. Le trait de gauche touchait les chiffres.
+- Seulement le nom du jeu sur la dalle, sans le fabricant (SNK, VIDEO SYSTEM...), sur l'écran des pièces et en haut pendant la partie. Un titre qui tient reste fixe au lieu de défiler.
+- Avec RetroArch, l'écran HD ne fait plus tomber les pièces une fois à droite, une fois à gauche. RetroArch ne dit pas par quel monnayeur une pièce est passée, alors la pièce tombe dans le monnayeur du joueur 1 quand personne ne joue, dans celui du joueur qui arrive pendant une partie, et dans celui du joueur au CONTINUE.
+- `test_coins.bat` note ce que fait le BIOS de la Neo Geo quand une pièce entre avec RetroArch, pour trouver sur une vraie borne comment voir chaque pièce et son côté. Le résultat va dans `runtime\test_coins.txt`.
+
+**Mettre à jour depuis la 1.29**
+Décompresse le nouveau zip par-dessus l'ancien dossier (`config.json`, tes adresses apprises et ton dossier `artwork` sont gardés).
+
 ## 1.29.0
 
 ### English

@@ -277,11 +277,7 @@
     "upper": true,
     "segments": [
      {
-      "text": "SAURUS",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#40ff60"
      }
     ],
@@ -311,7 +307,8 @@
        }
       ]
      }
-    }
+    },
+    "static_if_fits": true
    },
    {
     "type": "gauge",
@@ -486,11 +483,7 @@
     },
     "title": [
      {
-      "text": "SAURUS",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#40ff60"
      }
     ],

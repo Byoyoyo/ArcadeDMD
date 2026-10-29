@@ -307,11 +307,7 @@
     "upper": true,
     "segments": [
      {
-      "text": "KYLE HODGETTS",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ff9030"
      }
     ],
@@ -319,7 +315,8 @@
      "not": {
       "has": "score"
      }
-    }
+    },
+    "static_if_fits": true
    },
    {
     "type": "text",
@@ -616,11 +613,7 @@
     },
     "title": [
      {
-      "text": "KYLE HODGETTS",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
+      "text": "{title}",
       "color": "#ff9030"
      }
     ],
