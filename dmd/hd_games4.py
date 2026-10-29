@@ -13,7 +13,8 @@ import threading
 
 from .hd_games import CREAM, GOLD, GREY, RED, WHITE, GameScene, _clamp, _mix, _n, draw_img
 from .hd_games3 import DARK, AeroFightersScene, _capsule, _lerp, _shape, bomb_icon_draw, bomber_draw
-from .hd_themes4 import HOOP_X, NB_COLS, NB_ROWS, dodge_y, hoop_y, nb_grid, ts_fields, ts_forest_tile                      # (and the backdrops of this batch into hd_bg.BUILDERS)
+from .hd_themes4 import (HOOP_X, LB_FAR, ML_FLOOR, NB_COLS, NB_ROWS, RH_HORIZON, dodge_y, hoop_y, lb_xy, nb_grid, rally_road, ts_fields,
+                          ts_forest_tile)                      # (and the backdrops of this batch into hd_bg.BUILDERS)
 from .i18n import tr
 
 
@@ -1887,5 +1888,909 @@ class TwinkleScene(GameScene):
                     self.text(screen, "B", cx, H - S(33), 22, WHITE, key="black", align="center", valign="middle", glow=0)
 
 
+# ============================================================================ Neo Drift Out, Thrash Rally
+def rally_car_draw(body, stripe, number=(255, 255, 255)):
+    """A rally car seen from above, nose to the right: a coupe with its wide wheels, the windscreen, a roof scoop, a
+    spoiler, a livery of stripes and a white number disc. / Une voiture de rallye vue du dessus, nez à droite."""
+    def fn(d, W, H):
+        dark = (24, 24, 30, 255)
+        ow = max(1.0, W * 0.012)
+        for x in (0.22, 0.72):                                         # roues
+            for y in (0.02, 0.8):
+                d.rounded_rectangle([W * (x - 0.08), H * y, W * (x + 0.08), H * (y + 0.18)], radius=H * 0.05, fill=(30, 30, 34, 255))
+        d.rounded_rectangle([W * 0.04, H * 0.12, W * 0.97, H * 0.88], radius=H * 0.24, fill=body + (255,), outline=dark, width=int(ow))
+        d.polygon([(W * 0.1, H * 0.42), (W * 0.9, H * 0.36), (W * 0.9, H * 0.46), (W * 0.1, H * 0.52)], fill=stripe + (255,))
+        d.polygon([(W * 0.1, H * 0.56), (W * 0.9, H * 0.52), (W * 0.9, H * 0.58), (W * 0.1, H * 0.62)], fill=_mix(stripe, (0, 200, 90), 0.6) + (255,))
+        d.rounded_rectangle([W * 0.36, H * 0.2, W * 0.74, H * 0.8], radius=H * 0.12, fill=_mix(body, (255, 255, 255), 0.2) + (255,),
+                            outline=dark, width=int(ow))                # le toit
+        d.polygon([(W * 0.74, H * 0.22), (W * 0.86, H * 0.28), (W * 0.86, H * 0.72), (W * 0.74, H * 0.78)], fill=(60, 90, 120, 255), outline=dark)
+        d.polygon([(W * 0.36, H * 0.24), (W * 0.3, H * 0.3), (W * 0.3, H * 0.7), (W * 0.36, H * 0.76)], fill=(60, 90, 120, 255), outline=dark)
+        d.ellipse([W * 0.48, H * 0.36, W * 0.62, H * 0.64], fill=number + (255,), outline=dark, width=int(ow))
+        d.rectangle([W * 0.02, H * 0.14, W * 0.07, H * 0.86], fill=_mix(body, (0, 0, 0), 0.3) + (255,), outline=dark)    # aileron
+        for y in (0.2, 0.7):                                           # phares
+            d.ellipse([W * 0.9, H * y, W * 0.97, H * (y + 0.1)], fill=(255, 250, 210, 255))
+    return fn
+
+
+class RallyScene(GameScene):
+    """A rally stage seen from the sky, as in the game: the road winds through the countryside, the car drifts in the
+    bends and throws dust or snow, a checkpoint arch goes by when time is added. The time read in the game is shown
+    big, as in the game. / Une spéciale de rallye vue du ciel, comme dans le jeu."""
+    THEME = "nd_dirt"
+    THEMES = ("nd_dirt", "nd_tarmac")
+    SHADE = (70, 70)
+    PILLS = True
+    CARS = {"p1": ((246, 246, 246), (220, 40, 40)), "p2": ((40, 90, 200), (250, 210, 40))}
+    RIVALS = ()
+    DUST, DUSTS, NEW_STAGE = (150, 140, 120), {}, 20.0
+    BANNERS = GameScene.BANNERS + (("CHECKPOINT", GOLD),)
+
+    def __init__(self, hd, rng=None):
+        super().__init__(hd, rng)
+        self.bd.prebuild([n for n in self.THEMES if n != self.THEME])
+        self.road = {}
+        self.cars = {side: {"lat": 0.0 if side == "p1" else 0.5, "in": False, "x": 0.3 if side == "p1" else 0.22} for side in ("p1", "p2")}
+        self.rivals = []
+        self.gate = None                                  # checkpoint arch on the way / arche de contrôle qui arrive
+        self.checkpoints = 0                              # (tests)
+        self.stage_n = 0
+        self.last_secs = None
+        self.warm = [(self.car_img, (side,)) for side in ("p1", "p2")] + self.warm
+
+    def road_fn(self):
+        name = self.bd.theme
+        r = self.road.get(name)
+        if r is None:
+            r = self.road[name] = rally_road(2 * self.W, self.H, self.s, name)
+        return r
+
+    def at(self, x):
+        """Middle of the road and its slope at the screen x. / Milieu de la route et sa pente au x de l'écran."""
+        ry, half = self.road_fn()
+        tw = 2 * self.W
+        wx = (x + self.bd.scroll) % tw
+        y = ry(wx)
+        return y, (ry(wx + 6) - ry(wx - 6)) / 12.0, (ry(wx + 12) - 2 * y + ry(wx - 12)) / 144.0, half
+
+    def car_img(self, side, color=None):
+        S = self.S
+        body, stripe = color or self.CARS[side]
+        return self.img(("rallycar", body, stripe), S(150), S(80), rally_car_draw(body, stripe), ss=2)
+
+    def move(self, vals, now, idle):
+        return 0.6 if idle else 5.2 * self.pace(vals)
+
+    def pace(self, vals):
+        return 1.0
+
+    def secs(self, vals):
+        """Time left, in seconds, or None. / Le temps qui reste, en secondes."""
+        v = _n(vals.get("time"))
+        return None if v is None else float(v)
+
+    def next_stage(self, now):
+        """A new stage: the other kind of road. / Une nouvelle spéciale : l'autre sorte de route."""
+        name = self.THEMES[(self.stage_n + 1) % len(self.THEMES)]
+        if self.bd.warm(name):
+            self.stage_n += 1
+            self.bd.set_theme(name, now)
+            self.DUST = self.DUSTS.get(name, self.DUST)
+
+    def restart(self, vals, now):
+        self.rivals = []
+        self.gate = None
+
+    def update(self, vals, now):
+        S = self.S
+        for side in ("p1", "p2"):
+            C = self.cars[side]
+            C["in"] = self.p1_in(vals) if side == "p1" else self.p2_in(vals)
+            st = self.stick(vals, side)
+            if st is not None:
+                C["lat"] = _clamp(C["lat"] + st[1] * self.dt * 1.2, -0.7, 0.7)
+            else:
+                C["lat"] += (math.sin(now * 0.7 + (0 if side == "p1" else 2)) * 0.45 - C["lat"]) * min(1.0, self.dt)
+        sec = self.secs(vals)
+        old = self.last_secs
+        self.last_secs = sec
+        if sec is not None and old is not None and sec > old + 1.5:   # time added: a checkpoint
+            self.checkpoints += 1
+            if sec > old + self.NEW_STAGE:
+                self.next_stage(now)
+            self.gate = {"x": self.W + S(80)}
+            self.popup(tr("TEMPS EN PLUS", "EXTENDED TIME"), self.W * 0.5, S(200), (120, 230, 255), 44, 1.6, 50, "stencil")
+        if self.RIVALS and len(self.rivals) < 2 and self.rng.random() < self.dt * 0.25:
+            self.rivals.append({"x": self.W + S(100), "lat": self.rng.choice((-0.45, 0.45)), "col": self.rng.choice(self.RIVALS),
+                                "v": self.rng.uniform(0.55, 0.8)})
+
+    def draw_car(self, screen, img, x, lat, now, dust=True):
+        S, pg = self.S, self.pg
+        y, slope, curve, half = self.at(x)
+        y += lat * half
+        slip = _clamp(curve * 900, -24, 24)                            # drifts in the bends / dérape dans les virages
+        ang = -math.degrees(math.atan(slope)) - slip
+        rot = self.rotated(("car", id(img)), img, ang, 3)
+        sh = self.imgs.get(("carsh", img.get_width()))
+        if sh is None:
+            sh = self.imgs[("carsh", img.get_width())] = pg.Surface((img.get_width(), img.get_height()), pg.SRCALPHA)
+            pg.draw.rect(sh, (0, 0, 0, 80), sh.get_rect(), border_radius=S(16))
+        screen.blit(sh, (int(x - sh.get_width() / 2 + S(6)), int(y - sh.get_height() / 2 + S(8))))
+        screen.blit(rot, (int(x - rot.get_width() / 2), int(y - rot.get_height() / 2)))
+        if dust and int(now * 30) % 2 == 0:                            # dust (or snow) behind
+            col = self.DUST
+            self.fx.smoke(x - S(56), y + S(10) * math.sin(now * 9), 1, (8, 16), 2.4, (0.4, 0.8), (0, 10), 14, col, 150, "back")
+
+    def draw_hud(self, screen, eng, vals, logo, now):
+        S, pg = self.S, self.pg
+        g = self.gate
+        if g is not None:                                              # the checkpoint arch
+            g["x"] -= self.bd.speed * self.dt
+            if g["x"] < -S(100):
+                self.gate = None
+            else:
+                y, slope, curve, half = self.at(g["x"])
+                for side in (-1, 1):
+                    pg.draw.circle(screen, (40, 40, 50), (int(g["x"]), int(y + side * (half + S(18)))), S(9))
+                pg.draw.line(screen, (230, 50, 40), (int(g["x"]), int(y - half - S(18))), (int(g["x"]), int(y + half + S(18))), S(14))
+                pg.draw.line(screen, (255, 255, 255), (int(g["x"]), int(y - half - S(18))), (int(g["x"]), int(y + half + S(18))), S(4))
+        keep = []
+        for r in self.rivals:                                          # other cars, overtaken
+            r["x"] -= self.bd.speed * self.dt * (1 - r["v"])
+            if r["x"] > -S(150):
+                keep.append(r)
+                self.draw_car(screen, self.car_img("rival", r["col"]), r["x"], r["lat"], now)
+        self.rivals = keep
+        for side in ("p2", "p1"):
+            C = self.cars[side]
+            if not C["in"]:
+                continue
+            self.draw_car(screen, self.car_img(side), self.W * C["x"], C["lat"], now)
+        self.status(screen, eng, vals, logo, now)
+
+
+class NeoDriftScene(RallyScene):
+    """Neo Drift Out: a dirt road through the woods, a tarmac road in the countryside, the white rally car with its
+    stripes; the TIME in big blue numbers with its hundredths, as in the game. / Le temps en gros chiffres bleus."""
+    THEME = "nd_dirt"
+    THEMES = ("nd_dirt", "nd_tarmac")
+    DUST = (176, 140, 96)
+    DUSTS = {"nd_dirt": (176, 140, 96), "nd_tarmac": (150, 150, 156)}
+    NEW_STAGE = 15.0
+
+    def secs(self, vals):
+        s, cs = _n(vals.get("time_s")), _n(vals.get("time_cs"))
+        return None if s is None else s + (cs or 0) / 100.0
+
+    def status(self, screen, eng, vals, logo, now):
+        S, W, hd = self.S, self.W, self.hd
+        hd.draw_logo(screen, logo, W / 2, S(8), S(480), S(96), now)
+        t = self.secs(vals)
+        if t is not None:                                              # TIME, big blue numbers with the hundredths
+            col = (255, 80, 60) if t < 10 and int(now * 4) % 2 else (70, 120, 255)
+            self.pill(screen, W - S(420), S(10), S(400), S(108), 150, radius=16)
+            self.text(screen, "TIME", W - S(52), S(30), 26, WHITE, key="black", align="right", valign="middle")
+            cs = int(round(t * 100))
+            hd.put_number(screen, f"{cs // 100:02d}.{cs % 100:02d}", "stencil", S(84), col, W - S(52), S(76), "right", "middle")
+        if not self.p2_in(vals):
+            word, colw = self.invite(vals, now)
+            self.label(screen, word, S(30), S(50), 30, colw)
+
+
+class ThrashRallyScene(RallyScene):
+    """Thrash Rally: a dirt track between yellow and black barriers, then a snowy road with red and white kerbs, the
+    red car among its rivals; TIME in yellow, SPEED in red, as in the game. / Le temps en jaune, la vitesse en rouge."""
+    THEME = "tr_dirt"
+    THEMES = ("tr_dirt", "tr_snow")
+    CARS = {"p1": ((220, 40, 40), (250, 250, 250)), "p2": ((40, 150, 220), (250, 250, 250))}
+    RIVALS = (((250, 200, 30), (40, 40, 40)), ((250, 250, 250), (40, 90, 200)), ((60, 160, 70), (250, 250, 250)))
+    DUST = (120, 96, 60)
+    DUSTS = {"tr_dirt": (120, 96, 60), "tr_snow": (240, 244, 250)}
+    NEW_STAGE = 25.0
+
+    def pace(self, vals):
+        v = _n(vals.get("speed"))
+        return 1.0 if v is None else 0.5 + _clamp(v / 1002.0) * 0.8
+
+    def status(self, screen, eng, vals, logo, now):
+        S, W, hd = self.S, self.W, self.hd
+        hd.draw_logo(screen, logo, W / 2, S(8), S(480), S(96), now)
+        t = _n(vals.get("time"))
+        if t is not None:                                              # TIME, big yellow numbers, on the left
+            self.pill(screen, S(16), S(10), S(250), S(108), 150, radius=16)
+            self.text(screen, "TIME", S(36), S(30), 26, (255, 60, 40), key="black", valign="middle")
+            hd.put_number(screen, f"{int(t):02d}", "stencil", S(84), (255, 230, 40) if t >= 10 or int(now * 4) % 2 else (255, 80, 60), S(40),
+                          S(76), "left", "middle")
+        v = _n(vals.get("speed"))
+        if v is not None:                                              # SPEED, in red, on the right
+            self.pill(screen, W - S(330), S(10), S(310), S(84), 150, radius=16)
+            self.text(screen, "SPEED", W - S(310), S(30), 26, (255, 60, 40), key="black", valign="middle")
+            self.bar(screen, W - S(310), S(56), S(270), S(22), _clamp(v / 1002.0), (255, 120, 40))
+        if not self.p2_in(vals):
+            word, colw = self.invite(vals, now)
+            self.label(screen, word, W - S(180), S(130), 28, colw, align="center")
+
+
+# ============================================================================ Riding Hero
+RH_COLORS = (((230, 40, 40), (250, 250, 250)), ((60, 200, 60), (250, 250, 250)), ((250, 200, 30), (40, 40, 40)), ((40, 90, 220), (250, 250, 250)),
+             ((250, 130, 30), (40, 40, 40)), ((150, 60, 200), (250, 250, 250)))
+
+
+def rider_draw(main, second, number):
+    """A road racing bike and its rider seen from behind, as in the game: the wide rear tyre, the tail and its number,
+    the rider in leathers crouched on the tank, the helmet. / Une moto de course et son pilote vus de dos."""
+    def fn(d, W, H):
+        dark = (20, 20, 26, 255)
+        ow = max(1.0, W * 0.02)
+        m, m2, sc = main + (255,), _mix(main, (0, 0, 0), 0.3) + (255,), second + (255,)
+        d.rounded_rectangle([W * 0.38, H * 0.66, W * 0.62, H * 0.99], radius=W * 0.08, fill=(30, 30, 34, 255), outline=dark, width=int(ow))  # pneu
+        d.line([(W * 0.5, H * 0.7), (W * 0.5, H * 0.96)], fill=(70, 70, 80, 255), width=max(1, int(ow)))
+        d.polygon([(W * 0.3, H * 0.62), (W * 0.7, H * 0.62), (W * 0.64, H * 0.74), (W * 0.36, H * 0.74)], fill=m2, outline=dark)    # carénage
+        d.polygon([(W * 0.34, H * 0.48), (W * 0.66, H * 0.48), (W * 0.7, H * 0.64), (W * 0.3, H * 0.64)], fill=m, outline=dark)        # la selle
+        d.rounded_rectangle([W * 0.42, H * 0.5, W * 0.58, H * 0.6], radius=W * 0.02, fill=(250, 250, 250, 255), outline=dark)          # le numéro
+        d.ellipse([W * 0.44, H * 0.665, W * 0.56, H * 0.71], fill=(255, 60, 40, 255))                                                     # feu
+        for sx in (0.14, 0.86):                                        # bras et poignées
+            d.line([(W * 0.5, H * 0.3), (W * sx, H * 0.44)], fill=m, width=max(2, int(W * 0.09)))
+            d.ellipse([W * (sx - 0.05), H * 0.4, W * (sx + 0.05), H * 0.48], fill=(30, 30, 34, 255))
+        for sx in (0.28, 0.72):                                        # jambes repliées
+            d.polygon([(W * 0.5, H * 0.46), (W * sx, H * 0.5), (W * (sx + (0.06 if sx < 0.5 else -0.06)), H * 0.66), (W * 0.5, H * 0.56)],
+                      fill=m2, outline=dark)
+        d.ellipse([W * 0.28, H * 0.22, W * 0.72, H * 0.52], fill=m, outline=dark, width=int(ow))                                         # le dos
+        d.polygon([(W * 0.42, H * 0.26), (W * 0.58, H * 0.26), (W * 0.62, H * 0.48), (W * 0.38, H * 0.48)], fill=sc)
+        d.ellipse([W * 0.36, H * 0.04, W * 0.64, H * 0.3], fill=sc, outline=dark, width=int(ow))                                         # le casque
+        d.chord([W * 0.36, H * 0.04, W * 0.64, H * 0.3], 200, 340, fill=m)
+    return fn
+
+
+class RidingHeroScene(GameScene):
+    """Riding Hero as in the game: the road seen from behind the bike rushes towards the horizon with its red and white
+    kerbs, the bends sweep it left and right and the rider leans into them, the other riders are passed or come back.
+    The rank, the time and the turbos read in the game are shown, a turbo spent is a burst of speed.
+    / La route vue de derrière la moto file vers l'horizon, comme dans le jeu."""
+    THEME = "rh_circuit"
+    STATIC = True
+    SHADE = (60, 70)
+    PILLS = True
+    BANNERS = GameScene.BANNERS + (("TURBO !", GOLD),)
+    ORD = {1: "ST", 2: "ND", 3: "RD"}
+
+    def __init__(self, hd, rng=None):
+        super().__init__(hd, rng)
+        self.hy = int(self.H * RH_HORIZON)
+        n = self.H - self.hy
+        self.rows = [(y, (y - self.hy + 1) / n) for y in range(self.hy, self.H, 2)]
+        self.z = 0.0
+        self.curve, self.tcurve, self.next_bend = 0.0, 0.0, 0.0
+        self.burst = 0.0
+        self.riders = []                                  # rivals: distance ahead, lane, colour / rivaux : distance, voie, couleur
+        self.passes = 0                                   # (tests)
+        self.turbos = 0
+        self.warm = [(self.bike, (k, 0)) for k in range(len(RH_COLORS))] + self.warm
+
+    def bike(self, k, size):
+        """The rider k at a size (0: full size). The far ones are scaled down from the full picture, which is cheap.
+        / Le pilote k à une taille ; ceux de loin sont réduits depuis la grande image."""
+        S = self.S
+        main, second = RH_COLORS[k % len(RH_COLORS)]
+        base = self.img(("rider", k), S(118), S(190), rider_draw(main, second, k + 1), ss=2)
+        if size == 0 or size == 1.0:
+            return base
+        key = ("riders", k, round(size * 20))
+        s = self.imgs.get(key)
+        if s is None:
+            f = max(0.05, round(size * 20) / 20)
+            s = self.imgs[key] = self.pg.transform.smoothscale(base, (max(2, int(base.get_width() * f)), max(2, int(base.get_height() * f))))
+        return s
+
+    def restart(self, vals, now):
+        self.riders = [{"d": self.rng.uniform(3, 30), "lane": self.rng.uniform(-0.6, 0.6), "k": 1 + i, "v": self.rng.uniform(-0.6, 0.4)}
+                       for i in range(3)]
+
+    def speed(self, vals):
+        v = _n(vals.get("speed"))
+        base = 0.7 + 0.5 * _clamp((v or 0) / 199.0) if v is not None else 1.0
+        return base + self.burst
+
+    def update(self, vals, now):
+        dt, rng, S = self.dt, self.rng, self.S
+        if now >= self.next_bend:                                      # the bends of the circuit
+            self.next_bend = now + rng.uniform(2.0, 4.0)
+            self.tcurve = rng.choice((-1.0, -0.6, 0.0, 0.0, 0.6, 1.0))
+        self.curve += (self.tcurve - self.curve) * min(1.0, dt * 0.9)
+        self.burst = max(0.0, self.burst - dt * 0.3)
+        self.z += dt * 40 * self.speed(vals)
+        ch = self.changed(vals, "turbo")
+        if ch and ch[1] < ch[0]:                                       # a turbo spent: a burst of speed
+            self.turbos += 1
+            self.burst = 0.8
+            self.popup("TURBO !", self.W / 2, S(250), GOLD, 54, 1.2, 50, "stencil")
+            self.fx.flash((255, 240, 200), 0.12, 0.25)
+        ch = self.changed(vals, "rank")
+        if ch and ch[1] < ch[0]:                                       # a rider passed
+            self.passes += 1
+            ahead = [r for r in self.riders if 0 < r["d"] < 12]
+            r = min(ahead, key=lambda r: r["d"]) if ahead else {"d": 4.0, "lane": rng.uniform(-0.5, 0.5), "k": rng.randint(1, 5), "v": 0.0}
+            if r not in self.riders:
+                self.riders.append(r)
+            r["v"] = -3.0                                              # it falls back past us
+            self.popup(f"{int(ch[1])}{self.ORD.get(int(ch[1]), 'TH')}", self.W / 2, S(200), (120, 255, 140), 48, 1.2, 40, "stencil")
+        elif ch and ch[1] > ch[0]:                                     # passed by a rider
+            self.riders.append({"d": -2.0, "lane": rng.uniform(-0.5, 0.5), "k": rng.randint(1, 5), "v": 2.5})
+        ch = self.changed(vals, "time")
+        if ch and ch[1] > ch[0] + 5:
+            self.popup(tr("TEMPS EN PLUS", "EXTENDED TIME"), self.W / 2, S(200), (120, 230, 255), 44, 1.6, 50, "stencil")
+        keep = []
+        for r in self.riders:
+            r["d"] += r["v"] * dt
+            if r["v"] < -1 and r["d"] < -1.5:
+                continue
+            if r["v"] > 1 and r["d"] > 8:
+                r["v"] = rng.uniform(-0.3, 0.3)
+            if -2.5 < r["d"] < 40:
+                keep.append(r)
+        self.riders = keep
+        if len(self.riders) < 3 and rng.random() < dt * 0.3:
+            self.riders.append({"d": 38.0, "lane": rng.uniform(-0.6, 0.6), "k": rng.randint(1, 5), "v": rng.uniform(-1.2, -0.4)})
+
+    def road_x(self, k):
+        """Middle of the road at the depth k (0 horizon, 1 bottom). / Le milieu de la route à la profondeur k."""
+        return self.W / 2 + self.curve * self.W * 0.45 * (1 - k) ** 2
+
+    def draw_road(self, screen):
+        S, W, pg = self.S, self.W, self.pg
+        for y, k in self.rows:
+            zrow = 1.0 / max(0.02, k)
+            band = int(zrow * 6 + self.z) % 2
+            cx = self.road_x(k)
+            half = W * 0.27 * k + S(6)
+            pg.draw.rect(screen, (70, 150, 60) if band else (60, 136, 52), (0, y, W, 2))
+            pg.draw.rect(screen, (112, 116, 124) if band else (104, 108, 116), (int(cx - half), y, int(2 * half), 2))
+            kerb = max(1, int(half * 0.09))
+            col = (230, 40, 40) if band else (250, 250, 250)
+            pg.draw.rect(screen, col, (int(cx - half - kerb), y, kerb, 2))
+            pg.draw.rect(screen, col, (int(cx + half), y, kerb, 2))
+            if band:
+                lw = max(1, int(half * 0.025))
+                pg.draw.rect(screen, (236, 236, 236), (int(cx - lw / 2), y, lw, 2))
+
+    def draw_attract(self, screen, eng, vals, logo, now):
+        self.z += self.dt * 20                                         # the road rolls on behind the logo
+        self.draw_road(screen)
+        super().draw_attract(screen, eng, vals, logo, now)
+
+    def draw_hud(self, screen, eng, vals, logo, now):
+        S, pg = self.S, self.pg
+        self.draw_road(screen)
+        for r in sorted(self.riders, key=lambda r: -r["d"]):            # the other riders, far ones first
+            if r["d"] <= 0.2:
+                continue
+            k = 1.0 / (1.0 + r["d"] * 0.35)
+            y = self.hy + k * (self.H - self.hy) * 0.9
+            x = self.road_x(k) + r["lane"] * self.W * 0.27 * k
+            img = self.bike(r["k"], round(k * 20) / 20)
+            lean = -self.curve * 14
+            img = self.rotated(("rr", r["k"], img.get_height()), img, lean, 4)
+            screen.blit(img, (int(x - img.get_width() / 2), int(y - img.get_height())))
+        if self.p1_in(vals):                                            # the player's bike, big, at the bottom
+            img = self.bike(0, 0)
+            lean = -self.curve * 22 + math.sin(now * 3) * 2
+            rot = self.rotated(("rp",), img, lean, 2)
+            x = self.W / 2 - self.curve * S(90)
+            screen.blit(rot, (int(x - rot.get_width() / 2), int(self.H - S(8) - rot.get_height())))
+            if self.burst > 0.1:                                       # the turbo's flame
+                g = self.fx.sp.glow(S(26) + S(10) * math.sin(now * 40), (120, 180, 255), 10, hot=0.8)
+                screen.blit(g, (int(x - g.get_width() / 2), int(self.H - S(20) - g.get_height() / 2)), special_flags=pg.BLEND_RGB_ADD)
+        for r in self.riders:                                           # riders right behind, passing us
+            if -2.5 < r["d"] <= 0.2:
+                k = 1.0
+                img = self.bike(r["k"], 1.1)
+                x = self.road_x(1.0) + r["lane"] * self.W * 0.3
+                screen.blit(img, (int(x - img.get_width() / 2), int(self.H + r["d"] * S(60) - img.get_height() * 0.5)))
+        self.status(screen, eng, vals, logo, now)
+
+    def status(self, screen, eng, vals, logo, now):
+        """As in the game: the speed at the top left, the time, the turbos at the bottom left, the rank at the bottom
+        right. / Comme dans le jeu : la vitesse, le temps, les turbos, le classement."""
+        S, W, H, pg, hd = self.S, self.W, self.H, self.pg, self.hd
+        hd.draw_logo(screen, logo, W / 2, S(8), S(480), S(96), now)
+        v = _n(vals.get("speed"))
+        if v is not None:
+            self.pill(screen, S(16), S(12), S(380), S(56), 150)
+            self.text(screen, "SPEED", S(36), S(40), 28, (255, 230, 80), key="black", valign="middle")
+            self.bar(screen, S(150), S(30), S(230), S(20), _clamp(v / 199.0), (255, 200, 60))
+        t = _n(vals.get("time"))
+        if t is not None:
+            self.pill(screen, W - S(260), S(10), S(240), S(100), 150, radius=14)
+            self.text(screen, "TIME", W - S(140), S(30), 26, (255, 230, 80), key="black", align="center", valign="middle")
+            hd.put_number(screen, f"{int(t):02d}", "stencil", S(64), (255, 90, 200), W - S(140), S(74), "center", "middle")
+        tb = _n(vals.get("turbo"))
+        if tb is not None:
+            self.pill(screen, S(16), H - S(66), S(330), S(56), 150)
+            self.text(screen, "TURBO", S(36), H - S(38), 28, (255, 230, 80), key="black", valign="middle")
+            for i in range(4):
+                on = i < int(tb)
+                pg.draw.rect(screen, (255, 80, 40) if on else (60, 30, 20), (S(160) + i * S(44), H - S(52), S(36), S(28)), border_radius=S(4))
+        rk = _n(vals.get("rank"))
+        if rk is not None and rk >= 1:
+            self.pill(screen, W - S(300), H - S(76), S(280), S(66), 150)
+            self.text(screen, "RANK", W - S(280), H - S(43), 28, (255, 230, 80), key="black", valign="middle")
+            self.text(screen, f"{int(rk)}{self.ORD.get(int(rk), 'TH')}", W - S(40), H - S(43), 52, (255, 90, 200), key="stencil", align="right",
+                      valign="middle")
+        if not self.p2_in(vals):
+            word, col = self.invite(vals, now)
+            self.label(screen, word, S(220), S(110), 26, col, align="center")
+
+
+# ============================================================================ League Bowling
+PIN_SPOTS = [(0, 0)] + [(x, 1) for x in (-6, 6)] + [(x, 2) for x in (-12, 0, 12)] + [(x, 3) for x in (-18, -6, 6, 18)]
+
+
+def pin_draw(d, W, H):
+    """A bowling pin: white, its two red rings at the neck. / Une quille blanche et ses deux anneaux rouges."""
+    dark = (60, 50, 50, 255)
+    d.ellipse([W * 0.08, H * 0.42, W * 0.92, H * 0.98], fill=(250, 250, 248, 255), outline=dark, width=max(1, int(W * 0.05)))
+    d.polygon([(W * 0.3, H * 0.46), (W * 0.36, H * 0.2), (W * 0.64, H * 0.2), (W * 0.7, H * 0.46)], fill=(250, 250, 248, 255))
+    d.ellipse([W * 0.26, H * 0.0, W * 0.74, H * 0.22], fill=(250, 250, 248, 255), outline=dark, width=max(1, int(W * 0.05)))
+    for y in (0.24, 0.3):
+        d.rectangle([W * 0.34, H * y, W * 0.66, H * (y + 0.03)], fill=(220, 40, 40, 255))
+    d.ellipse([W * 0.2, H * 0.52, W * 0.42, H * 0.8], fill=(255, 255, 255, 255))
+
+
+def bowler_draw(shirt, trim, frame):
+    """A bowler of our own seen from behind: a two-tone bowling shirt, dark trousers, a cap, the ball in his right hand.
+    Frames 0 ready, 1 swing back, 2 release, 3 watching. / Un joueur de bowling à nous, vu de dos."""
+    def fn(d, W, H):
+        dark = DARK + (255,)
+        ow = max(1.0, W * 0.018)
+        sk = (232, 186, 150, 255)
+        sh, tr_ = shirt + (255,), trim + (255,)
+        legs = {0: ((0.42, 0.98), (0.58, 0.98)), 1: ((0.4, 0.98), (0.62, 0.9)), 2: ((0.34, 0.98), (0.66, 0.94)), 3: ((0.36, 0.98), (0.64, 0.96))}[frame]
+        for x, y in legs:
+            _capsule(d, (W * 0.5 + (x - 0.5) * W * 0.4, H * 0.6), (W * x, H * y), W * 0.07, W * 0.06, (40, 40, 60, 255), dark, ow)
+            d.ellipse([W * x - W * 0.07, H * y - H * 0.03, W * x + W * 0.07, H * y + H * 0.01], fill=(240, 240, 240, 255), outline=dark)
+        d.rounded_rectangle([W * 0.3, H * 0.28, W * 0.7, H * 0.64], radius=W * 0.08, fill=sh, outline=dark, width=int(ow))   # la chemise
+        d.rectangle([W * 0.3, H * 0.28, W * 0.7, H * 0.36], fill=tr_)
+        d.line([(W * 0.5, H * 0.36), (W * 0.5, H * 0.64)], fill=tr_, width=max(1, int(W * 0.03)))
+        arms = {0: ((0.24, 0.56), (0.74, 0.5)), 1: ((0.22, 0.5), (0.86, 0.66)), 2: ((0.18, 0.42), (0.6, 0.2)), 3: ((0.2, 0.46), (0.66, 0.12))}[frame]
+        ball = None
+        for i, (x, y) in enumerate(arms):
+            sx = 0.32 if i == 0 else 0.68
+            _capsule(d, (W * sx, H * 0.32), (W * x, H * y), W * 0.06, W * 0.05, sh if i == 0 else sh, dark, ow)
+            d.ellipse([W * x - W * 0.04, H * y - W * 0.04, W * x + W * 0.04, H * y + W * 0.04], fill=sk, outline=dark)
+            if i == 1 and frame in (0, 1):
+                ball = (W * x, H * y + W * 0.06)
+        d.ellipse([W * 0.35, H * 0.17, W * 0.4, H * 0.23], fill=sk, outline=dark)                                              # oreilles
+        d.ellipse([W * 0.6, H * 0.17, W * 0.65, H * 0.23], fill=sk, outline=dark)
+        d.ellipse([W * 0.38, H * 0.1, W * 0.62, H * 0.3], fill=(70, 44, 30, 255), outline=dark, width=int(ow))                 # la tête, de dos
+        d.rectangle([W * 0.44, H * 0.27, W * 0.56, H * 0.3], fill=sk)                                                           # la nuque
+        d.chord([W * 0.37, H * 0.08, W * 0.63, H * 0.24], 180, 360, fill=tr_)                                                  # la casquette
+        d.rectangle([W * 0.37, H * 0.16, W * 0.63, H * 0.2], fill=tr_)
+        d.rectangle([W * 0.45, H * 0.2, W * 0.55, H * 0.23], fill=_mix(trim, (0, 0, 0), 0.3) + (255,))
+        if ball is not None:
+            r = W * 0.09
+            d.ellipse([ball[0] - r, ball[1] - r, ball[0] + r, ball[1] + r], fill=(40, 60, 160, 255), outline=dark, width=int(ow))
+            d.ellipse([ball[0] - r * 0.5, ball[1] - r * 0.6, ball[0] - r * 0.1, ball[1] - r * 0.2], fill=(140, 170, 255, 255))
+    return fn
+
+
+class LeagueBowlingScene(GameScene):
+    """League Bowling as in the game: the lane seen from behind the bowler, the pins at the far end, the lanes next door
+    with their own pins. Each time the game's shot clock starts again, the bowler throws: the ball hooks down the lane
+    and the pins fly, STRIKE! or SPARE! now and then. TIME and the score at the top, as in the game.
+    / Le bowling comme dans le jeu : la piste vue de derrière le joueur, les quilles au fond, STRIKE !"""
+    THEME = "lb_lanes"
+    STATIC = True
+    SHADE = (60, 40)
+    PILLS = True
+    BANNERS = GameScene.BANNERS + (("STRIKE !", GOLD), ("SPARE !", GOLD))
+
+    def __init__(self, hd, rng=None):
+        super().__init__(hd, rng)
+        self.pins = [{"x": x * 14.5, "z": LB_FAR - 0.2 + r * 0.06, "up": True, "fly": None} for x, r in PIN_SPOTS]
+        self.throw_t = None
+        self.ball = None
+        self.next = 0.0
+        self.second = False                               # second ball of the frame / deuxième boule
+        self.throws = 0                                   # (tests)
+        self.strikes = 0
+        self.warm = [(self.pin_img, (z,)) for z in (2, 3)] + [(self.bowler, (f,)) for f in range(4)] + self.warm
+
+    def pin_img(self, q):
+        S = self.S
+        return self.img(("pin", q), S(16) * q / 2 + S(6), S(40) * q / 2 + S(14), pin_draw)
+
+    def bowler(self, frame):
+        S = self.S
+        return self.img(("bowler", frame), S(230), S(300), bowler_draw((60, 120, 210), (250, 210, 60), frame), ss=2)
+
+    def xy(self, lane_x, z):
+        return lb_xy(self.W, self.H, self.s, lane_x, z)
+
+    def restart(self, vals, now):
+        self.next = now + 1.5
+        self.reset_pins()
+
+    def reset_pins(self):
+        for p in self.pins:
+            p["up"], p["fly"] = True, None
+        self.second = False
+
+    def update(self, vals, now):
+        ch = self.changed(vals, "time")
+        if ch and ch[1] > ch[0] + 2 and self.throw_t is None:          # the shot clock starts again: a throw
+            self.throw(now)
+        elif self.throw_t is None and now >= self.next and _n(vals.get("time")) is None:
+            self.throw(now)
+        if self.throw_t is not None:
+            k = now - self.throw_t
+            if self.ball is None and k > 0.75:                         # release
+                hook = self.rng.uniform(-0.6, 0.6)
+                self.ball = {"t0": now, "dur": 1.5, "x0": self.rng.uniform(40, 120), "hook": hook}
+            if k > 4.2:
+                self.throw_t = None
+                self.next = now + self.rng.uniform(2.0, 3.5)
+                if self.second or all(not p["up"] for p in self.pins):
+                    self.reset_pins()
+                else:
+                    self.second = True
+        b = self.ball
+        if b is not None and now - b["t0"] >= b["dur"]:
+            self.ball = None
+            self.hit(now, b)
+
+    def throw(self, now):
+        self.throw_t = now
+        self.throws += 1
+
+    def hit(self, now, b):
+        """The ball reaches the pins: some fly, all of them for a strike. / La boule arrive : des quilles volent."""
+        S, rng = self.S, self.rng
+        up = [p for p in self.pins if p["up"]]
+        if not up:
+            return
+        if not self.second:
+            n = len(up) if rng.random() < 0.4 else rng.randint(5, 9)
+        else:
+            n = len(up) if rng.random() < 0.5 else rng.randint(0, len(up) - 1)
+        aim = b["x0"] * 0.2 + b["hook"] * 40
+        for p in sorted(up, key=lambda p: abs(p["x"] - aim))[:n]:
+            p["up"] = False
+            p["fly"] = (now + rng.uniform(0, 0.25), rng.uniform(-1, 1), rng.uniform(0.6, 1.2))
+        x, y = self.xy(aim, LB_FAR - 0.15)
+        self.fx.sparks(x, y, 14, (255, 250, 220), (100, 300), (180, 360), (0.2, 0.5), 400, "front", 2, 12)
+        self.fx.shake(3, 0.2)
+        if all(not p["up"] for p in self.pins):
+            if not self.second:
+                self.strikes += 1
+                self.slam("STRIKE !", GOLD, now + 0.2, 1.6)
+            else:
+                self.slam("SPARE !", GOLD, now + 0.2, 1.4)
+        elif n:
+            self.popup(str(n), x, max(self.S(170), y - S(40)), CREAM, 40)
+
+    def draw_hud(self, screen, eng, vals, logo, now):
+        S, pg = self.S, self.pg
+        for k in (-2, -1, 1, 2):                                       # pins standing on the lanes next door
+            for x, r in PIN_SPOTS:
+                z = LB_FAR - 0.2 + r * 0.06
+                px, py = self.xy(k * 760 + x * 14.5, z)
+                img = self.pin_img(2)
+                screen.blit(img, (int(px - img.get_width() / 2), int(py - img.get_height())))
+        for p in sorted(self.pins, key=lambda p: p["z"], reverse=True):
+            px, py = self.xy(p["x"], p["z"])
+            img = self.pin_img(3)
+            if p["up"]:
+                screen.blit(img, (int(px - img.get_width() / 2), int(py - img.get_height())))
+            elif p["fly"] is not None and now >= p["fly"][0]:
+                k = now - p["fly"][0]
+                if k < 0.9:
+                    rot = self.rotated(("pinr",), img, p["fly"][1] * k * 720, 20)
+                    fx_ = px + p["fly"][1] * S(60) * k
+                    fy_ = py - img.get_height() / 2 - S(90) * p["fly"][2] * math.sin(min(1.0, k / 0.9) * math.pi)
+                    screen.blit(rot, (int(fx_ - rot.get_width() / 2), int(fy_ - rot.get_height() / 2)))
+            elif p["fly"] is not None:
+                screen.blit(img, (int(px - img.get_width() / 2), int(py - img.get_height())))
+        b = self.ball
+        if b is not None:                                              # the ball hooks down the lane
+            k = _clamp((now - b["t0"]) / b["dur"])
+            z = 1.15 + (LB_FAR - 0.3 - 1.15) * k ** 0.8
+            lx = b["x0"] * (1 - k) + b["hook"] * 120 * math.sin(k * math.pi * 0.9)
+            x, y = self.xy(lx, z)
+            r = max(S(4), int(S(46) / z))
+            pg.draw.circle(screen, (20, 14, 10), (int(x + r * 0.2), int(y)), r)
+            pg.draw.circle(screen, (40, 60, 160), (int(x), int(y - r)), r)
+            pg.draw.circle(screen, (140, 170, 255), (int(x - r * 0.35), int(y - r * 1.35)), max(1, r // 3))
+        frame = 0
+        if self.throw_t is not None:
+            k = now - self.throw_t
+            frame = 1 if k < 0.45 else (2 if k < 1.2 else 3)
+        if self.p1_in(vals):
+            img = self.bowler(frame)
+            x = self.W / 2 + S(70) + (S(30) if frame in (1, 2) else 0)
+            screen.blit(img, (int(x - img.get_width() / 2), int(self.H - img.get_height() + S(10))))
+        self.status(screen, eng, vals, logo, now)
+
+    def status(self, screen, eng, vals, logo, now):
+        """As in the game: TIME in its little box at the top left, the score next to it. / TIME et le score en haut."""
+        S, W, hd = self.S, self.W, self.hd
+        hd.draw_logo(screen, logo, W / 2, S(8), S(480), S(80), now)
+        t = _n(vals.get("time"))
+        if t is not None:
+            self.box(screen, S(20), S(10), S(170), S(110), (200, 80, 220), fill=(10, 10, 30, 230), radius=8, width=3)
+            self.text(screen, "TIME", S(105), S(30), 24, (255, 220, 120), key="black", align="center", valign="middle")
+            hd.put_number(screen, f"{int(t):02d}", "stencil", S(64), (255, 220, 60), S(105), S(78), "center", "middle")
+        sc = _n(vals.get("score"))
+        if sc is not None:
+            self.pill(screen, S(210), S(26), S(300), S(70), 150)
+            hd._score(screen, eng, "score", S(490), S(34), "right", S(54))
+        if not self.p2_in(vals):
+            word, col = self.invite(vals, now)
+            self.label(screen, word, W - S(24), S(50), 30, col, align="right")
+
+
+# ============================================================================ Magician Lord
+ML_FORMS = {1: "mage", 13: "ninja", 9: "water", 14: "samurai", 5: "dragon", 10: "sea", 15: "thunder"}
+ML_LOOK = {          # robe, dark, skin, trim / robe, ombre, peau, liseré
+    "mage": ((40, 120, 80), (20, 70, 46), (236, 196, 160), (240, 200, 80)),
+    "ninja": ((40, 40, 50), (20, 20, 26), (236, 196, 160), (200, 40, 40)),
+    "water": ((50, 130, 200), (30, 80, 140), (120, 200, 220), (220, 250, 255)),
+    "samurai": ((190, 40, 40), (110, 20, 20), (236, 196, 160), (240, 200, 80)),
+    "dragon": ((60, 150, 60), (30, 90, 30), (180, 220, 120), (250, 220, 90)),
+    "sea": ((210, 170, 60), (140, 100, 30), (236, 196, 160), (60, 160, 220)),
+    "thunder": ((110, 60, 170), (60, 30, 110), (236, 196, 160), (250, 230, 80)),
+}
+
+
+def hero_draw(form, frame):
+    """The hero of our own and his transformations, seen from the side, facing right: a young mage with a hooded
+    cloak and a staff, or a ninja, a merman, a samurai, a dragon warrior, a sea warrior with a trident, a thunder god
+    with his ring of drums. Frames 0 and 1 walk, 2 cast. / Notre héros et ses transformations, de profil."""
+    def fn(d, W, H):
+        dark = DARK + (255,)
+        ow = max(1.0, W * 0.02)
+        robe, shade, skin, trim = (c + (255,) for c in ML_LOOK.get(form, ML_LOOK["mage"]))
+        u = H
+        cx = W * 0.46
+        step = (0.07, -0.07) if frame == 0 else ((-0.07, 0.07) if frame == 1 else (-0.04, 0.05))
+        for i, dx in enumerate(step):                                  # jambes et bottes
+            f = (cx + dx * u, H * 0.97)
+            _capsule(d, (cx, H * 0.6), f, 0.06 * u, 0.05 * u, shade if i == 0 else robe, dark, ow)
+            d.rounded_rectangle([f[0] - 0.05 * u, f[1] - 0.05 * u, f[0] + 0.07 * u, f[1] + 0.01 * u], radius=0.02 * u, fill=(60, 40, 30, 255),
+                                outline=dark)
+        if form in ("mage", "thunder", "sea"):                         # la cape
+            d.polygon([(cx - 0.02 * u, H * 0.26), (cx - 0.2 * u, H * (0.86 if frame != 2 else 0.8)), (cx + 0.02 * u, H * 0.7)], fill=shade, outline=dark)
+        d.polygon([(cx - 0.1 * u, H * 0.3), (cx + 0.1 * u, H * 0.3), (cx + 0.12 * u, H * 0.66), (cx - 0.12 * u, H * 0.66)], fill=robe, outline=dark)
+        d.line([(cx - 0.11 * u, H * 0.5), (cx + 0.11 * u, H * 0.5)], fill=trim, width=max(2, int(0.025 * u)))
+        if form == "thunder":                                          # l'anneau de tambours
+            d.arc([cx - 0.3 * u, H * 0.02, cx + 0.14 * u, H * 0.46], 100, 300, fill=(150, 100, 40, 255), width=max(2, int(0.03 * u)))
+            for a in (130, 170, 210, 250, 290):
+                rx = cx - 0.08 * u + math.cos(math.radians(a)) * 0.22 * u
+                ry = H * 0.24 + math.sin(math.radians(a)) * 0.22 * u
+                d.ellipse([rx - 0.04 * u, ry - 0.04 * u, rx + 0.04 * u, ry + 0.04 * u], fill=(220, 160, 60, 255), outline=dark)
+        hand = (cx + 0.2 * u, H * (0.36 if frame == 2 else 0.46))
+        _capsule(d, (cx + 0.04 * u, H * 0.34), hand, 0.045 * u, 0.04 * u, robe, dark, ow)
+        d.ellipse([hand[0] - 0.035 * u, hand[1] - 0.035 * u, hand[0] + 0.035 * u, hand[1] + 0.035 * u], fill=skin, outline=dark)
+        weapon = {"mage": "staff", "sea": "trident", "samurai": "sword", "ninja": "sword", "dragon": "sword"}.get(form)
+        if weapon == "staff":
+            d.line([(hand[0], hand[1] + 0.3 * u), (hand[0], hand[1] - 0.28 * u)], fill=(120, 80, 40, 255), width=max(2, int(0.03 * u)))
+            d.ellipse([hand[0] - 0.05 * u, hand[1] - 0.36 * u, hand[0] + 0.05 * u, hand[1] - 0.26 * u], fill=(120, 220, 255, 255), outline=dark)
+        elif weapon == "trident":
+            d.line([(hand[0], hand[1] + 0.3 * u), (hand[0], hand[1] - 0.3 * u)], fill=(230, 200, 80, 255), width=max(2, int(0.025 * u)))
+            for dx in (-0.05, 0, 0.05):
+                d.line([(hand[0] + dx * u, hand[1] - 0.3 * u), (hand[0] + dx * u, hand[1] - 0.4 * u)], fill=(230, 200, 80, 255), width=max(2, int(0.02 * u)))
+        elif weapon == "sword":
+            d.line([(hand[0], hand[1]), (hand[0] + 0.26 * u, hand[1] - 0.2 * u)], fill=(220, 226, 236, 255), width=max(2, int(0.025 * u)))
+        hx, hy = cx + 0.02 * u, H * 0.18                               # la tête
+        r = 0.085 * u
+        d.ellipse([hx - r, hy - r, hx + r, hy + r], fill=skin, outline=dark, width=int(ow))
+        d.ellipse([hx + r * 0.3, hy - r * 0.2, hx + r * 0.6, hy + r * 0.1], fill=dark)
+        if form == "mage":                                             # capuche pointue
+            d.polygon([(hx - r * 1.3, hy + r * 0.4), (hx - r * 0.9, hy - r * 1.4), (hx - r * 0.2, hy - r * 2.6), (hx + r * 0.9, hy - r * 1.0),
+                       (hx + r * 1.0, hy - r * 0.3), (hx - r * 0.4, hy - r * 0.6)], fill=robe, outline=dark)
+        elif form == "ninja":
+            d.rectangle([hx - r, hy - r * 0.2, hx + r, hy + r], fill=robe)
+            d.chord([hx - r, hy - r * 1.05, hx + r, hy + r * 0.2], 180, 360, fill=robe)
+            d.rectangle([hx - r * 1.4, hy - r * 0.45, hx - r * 0.6, hy - r * 0.3], fill=trim)
+        elif form == "samurai":                                        # casque à cornes plates
+            d.chord([hx - r * 1.1, hy - r * 1.2, hx + r * 1.1, hy + r * 0.5], 180, 360, fill=shade, outline=dark)
+            d.polygon([(hx - r * 0.6, hy - r * 1.0), (hx - r * 0.9, hy - r * 2.0), (hx - r * 0.3, hy - r * 1.1)], fill=trim)
+            d.polygon([(hx + r * 0.6, hy - r * 1.0), (hx + r * 0.9, hy - r * 2.0), (hx + r * 0.3, hy - r * 1.1)], fill=trim)
+        elif form == "dragon":                                         # heaume de dragon
+            d.chord([hx - r * 1.1, hy - r * 1.2, hx + r * 1.2, hy + r * 0.5], 180, 360, fill=robe, outline=dark)
+            d.polygon([(hx - r * 0.8, hy - r * 0.9), (hx - r * 1.8, hy - r * 1.8), (hx - r * 0.4, hy - r * 1.1)], fill=trim, outline=dark)
+            d.polygon([(hx + r * 0.9, hy - r * 0.2), (hx + r * 1.7, hy + r * 0.1), (hx + r * 0.9, hy + r * 0.3)], fill=robe, outline=dark)
+        elif form == "water":                                          # crête de nageoire
+            d.polygon([(hx - r * 0.8, hy - r * 0.6), (hx - r * 0.2, hy - r * 1.8), (hx + r * 0.5, hy - r * 0.9)], fill=trim, outline=dark)
+        elif form == "sea":                                            # couronne
+            for k in range(5):
+                bx = hx - r * 0.9 + k * r * 0.45
+                d.polygon([(bx, hy - r * 0.6), (bx + r * 0.2, hy - r * 1.4), (bx + r * 0.4, hy - r * 0.6)], fill=(240, 200, 80, 255), outline=dark)
+        elif form == "thunder":
+            d.chord([hx - r * 1.05, hy - r * 1.1, hx + r, hy + r * 0.2], 180, 360, fill=(240, 240, 240, 255), outline=dark)
+            d.polygon([(hx - r * 0.2, hy - r * 1.0), (hx, hy - r * 1.9), (hx + r * 0.2, hy - r * 1.0)], fill=trim, outline=dark)
+    return fn
+
+
+def skeleton_draw(frame):
+    """An undead warrior walking left: pale blue bones, a rusty blade, red joints. / Un guerrier mort-vivant."""
+    def fn(d, W, H):
+        dark = (20, 24, 40, 255)
+        bone, bone_d = (170, 190, 230, 255), (110, 130, 180, 255)
+        ow = max(1.0, W * 0.025)
+        u = H
+        cx = W * 0.5
+        step = (0.07, -0.06) if frame == 0 else (-0.06, 0.07)
+        for i, dx in enumerate(step):
+            k = (cx + dx * 0.5 * u, H * 0.78)
+            f = (cx + dx * u, H * 0.97)
+            _capsule(d, (cx, H * 0.58), k, 0.03 * u, 0.025 * u, bone_d if i == 0 else bone, dark, ow)
+            _capsule(d, k, f, 0.025 * u, 0.025 * u, bone_d if i == 0 else bone, dark, ow)
+            d.ellipse([k[0] - 0.03 * u, k[1] - 0.03 * u, k[0] + 0.03 * u, k[1] + 0.03 * u], fill=(200, 50, 50, 255))
+        for k in range(4):                                             # les côtes
+            y = H * (0.34 + 0.05 * k)
+            d.arc([cx - 0.11 * u, y - 0.03 * u, cx + 0.11 * u, y + 0.05 * u], 180, 360, fill=bone, width=max(2, int(0.022 * u)))
+        d.line([(cx, H * 0.28), (cx, H * 0.6)], fill=bone, width=max(2, int(0.03 * u)))
+        hand = (cx - 0.2 * u, H * 0.44)
+        _capsule(d, (cx - 0.02 * u, H * 0.32), hand, 0.025 * u, 0.025 * u, bone, dark, ow)
+        d.line([(hand[0], hand[1]), (hand[0] - 0.22 * u, hand[1] - 0.12 * u)], fill=(160, 120, 80, 255), width=max(2, int(0.03 * u)))
+        hx, hy = cx - 0.02 * u, H * 0.18
+        r = 0.09 * u
+        d.ellipse([hx - r, hy - r, hx + r, hy + r * 1.1], fill=bone, outline=dark, width=int(ow))
+        d.ellipse([hx - r * 0.7, hy - r * 0.3, hx - r * 0.2, hy + r * 0.2], fill=(30, 20, 40, 255))
+        d.ellipse([hx - r * 0.55, hy - r * 0.15, hx - r * 0.35, hy + r * 0.05], fill=(255, 60, 40, 255))
+        d.polygon([(hx - r * 0.6, hy + r * 0.6), (hx + r * 0.2, hy + r * 0.6), (hx - r * 0.2, hy + r * 1.05)], fill=bone_d)
+    return fn
+
+
+class MagicianLordScene(GameScene):
+    """Magician Lord as in the game, with a hero of our own: he walks the walkways of the villages in the giant trees,
+    then the temples, throws his magic at the undead that come, takes the shape of the warrior read in the game. HP and
+    POW in their gauges at the bottom, as in the game. / Notre héros parcourt les villages dans les arbres géants."""
+    THEME = "ml_jungle"
+    SHADE = (70, 80)
+    EXPLOSIONS = True
+    BANNERS = GameScene.BANNERS + (("TRANSFORMATION !", GOLD),)
+
+    def __init__(self, hd, rng=None):
+        super().__init__(hd, rng)
+        self.bd.prebuild(["ml_temple"])
+        self.foes = []
+        self.next_foe = 0.0
+        self.cast = -99.0
+        self.hurt = -99.0
+        self.form = "mage"
+        self.transforms = 0                               # (tests)
+        self.kills = 0
+        self.fx.sp.register("mlbolt", draw_img(self.S(40), self.S(22), lambda d, W, H: (
+            d.ellipse([0, H * 0.1, W * 0.8, H * 0.9], fill=(120, 220, 255, 255)), d.ellipse([W * 0.2, H * 0.3, W * 0.7, H * 0.7], fill=(250, 255, 255, 255)))))
+        self.warm = [(self.hero, ("mage", f)) for f in range(3)] + [(self.foe_img, (f,)) for f in range(2)] + self.warm
+
+    def hero(self, form, frame):
+        S = self.S
+        return self.img(("mlhero", form, frame), S(150), S(190), hero_draw(form, frame), ss=2)
+
+    def foe_img(self, frame):
+        S = self.S
+        return self.img(("mlfoe", frame), S(130), S(180), skeleton_draw(frame), ss=2)
+
+    def move(self, vals, now, idle):
+        return 0.4 if idle else 1.4
+
+    def restart(self, vals, now):
+        self.foes = []
+        self.next_foe = now + 1.0
+
+    def floor(self):
+        return self.S(ML_FLOOR) + self.S(4)
+
+    def always(self, vals, now):
+        v = _n(vals.get("form"))
+        form = ML_FORMS.get(int(v), "mage") if v is not None else "mage"
+        if form != self.form:
+            self.form = form
+            self.transforms += 1
+            self.slam("TRANSFORMATION !", GOLD, now, 1.3)
+            x = self.W * 0.3
+            self.fx.glow(x, self.floor() - self.S(90), 40, 200, (255, 240, 160), 0.6, "front", 1.0, 0.0)
+            self.fx.flash((255, 250, 220), 0.2, 0.3)
+
+    def update(self, vals, now):
+        S, rng = self.S, self.rng
+        ch = self.changed(vals, "energy")
+        if ch and ch[1] < ch[0]:                                       # hit
+            self.hurt = now
+            self.popup("-1", self.W * 0.3, self.floor() - S(200), (255, 90, 70), 34)
+        ch = self.changed(vals, "lives")
+        if ch and ch[1] < ch[0]:
+            self.fx.explosion(self.W * 0.3, self.floor() - S(90), 0.8, False)
+            self.popup(tr("-1 VIE", "-1 LIFE"), self.W * 0.3, self.floor() - S(220), (255, 90, 70), 38)
+            self.hurt = now
+        ch = self.changed(vals, "power")
+        if ch and ch[1] > ch[0]:
+            self.popup("POW UP", self.W * 0.3, self.floor() - S(220), GOLD, 38)
+        if now >= self.next_foe:                                       # the undead come from the right
+            self.next_foe = now + rng.uniform(1.4, 2.8)
+            self.foes.append({"x": self.W + S(80), "v": rng.uniform(90, 160) * self.s, "ph": rng.uniform(0, 6), "hp": 4})
+        target = [f for f in self.foes if not f.get("dead") and self.W * 0.36 < f["x"] < self.W * 0.72]
+        if target and now - self.cast > 0.7:                           # magic at the nearest one
+            f = min(target, key=lambda f: f["x"])
+            self.cast = now
+            pw = int(_n(vals.get("power")) or 0)
+            hx, hy = self.W * 0.3 + S(40), self.floor() - S(120)
+            self.fx.tracer(hx, hy, f["x"], self.floor() - S(90), 2200, (120, 220, 255), 8 + 5 * pw, 90, "front", True)
+            f["hp"] -= 1 + pw
+            if f["hp"] <= 0:
+                f["dead"] = now
+                self.kills += 1
+                self.fx.later(0.12, self.fx.explosion, f["x"], self.floor() - S(90), 0.5, False)
+        ch = self.changed(vals, "score")
+        if ch and ch[1] > ch[0]:
+            live = [f for f in self.foes if not f.get("dead")]
+            if live:
+                f = min(live, key=lambda f: f["x"])
+                f["dead"] = now
+                self.kills += 1
+                self.fx.explosion(f["x"], self.floor() - S(90), 0.5, False)
+        theme = "ml_temple" if (int(now / 40) % 2 and self.bd.ready("ml_temple")) else "ml_jungle"
+        if theme != self.bd.theme and self.bd.warm(theme):
+            self.bd.set_theme(theme, now)
+
+    def draw_hud(self, screen, eng, vals, logo, now):
+        S, dt = self.S, self.dt
+        fy = self.floor()
+        keep = []
+        for f in self.foes:
+            if f.get("dead") and now - f["dead"] > 0.3:
+                continue
+            if not f.get("dead") and f["x"] > self.W * 0.3 + S(110):
+                f["x"] -= f["v"] * dt
+            elif not f.get("dead"):
+                f["x"] -= self.bd.speed * dt                           # held at the hero, pushed back by the scroll
+            if f["x"] < -S(100):
+                continue
+            keep.append(f)
+            img = self.foe_img(int(now * 4 + f["ph"]) % 2)
+            if f.get("dead") and int(now * 20) % 2:
+                continue
+            screen.blit(img, (int(f["x"] - img.get_width() / 2), int(fy - img.get_height())))
+        self.foes = keep
+        if self.p1_in(vals):
+            frame = 2 if now - self.cast < 0.25 else int(now * 5) % 2
+            img = self.hero(self.form, frame)
+            if not (now - self.hurt < 0.8 and int(now * 16) % 2):     # blinks when hit
+                screen.blit(img, (int(self.W * 0.3 - img.get_width() / 2), int(fy - img.get_height())))
+        self.status(screen, eng, vals, logo, now)
+
+    def status(self, screen, eng, vals, logo, now):
+        """As in the game: 1UP and the score, the lives at the top; HP and POW at the bottom. / 1UP, vies, HP et POW."""
+        S, W, H, pg, hd = self.S, self.W, self.H, self.pg, self.hd
+        hd.draw_logo(screen, logo, W / 2, S(8), S(480), S(90), now)
+        self.pill(screen, S(16), S(10), S(460), S(64), 150)
+        self.text(screen, "1UP", S(36), S(42), 30, (255, 220, 120), key="black", valign="middle")
+        if _n(vals.get("score")) is not None:
+            hd._score(screen, eng, "score", S(330), S(18), "right", S(48))
+        lives = _n(vals.get("lives"))
+        if lives is not None:
+            self.text(screen, f"x{int(lives)}", S(456), S(42), 30, (120, 200, 255), key="black", align="right", valign="middle")
+        hp = _n(vals.get("energy"))
+        if hp is not None:                                             # HP, blue segments
+            self.pill(screen, S(16), H - S(60), S(360), S(50), 160)
+            self.text(screen, "HP", S(34), H - S(35), 28, (255, 220, 120), key="black", valign="middle")
+            for i in range(5):
+                on = i < int(hp)
+                pg.draw.rect(screen, (60, 160, 255) if on else (24, 40, 70), (S(90) + i * S(54), H - S(48), S(46), S(26)), border_radius=S(4))
+        pw = _n(vals.get("power"))
+        if pw is not None:                                             # POW, green to yellow
+            self.pill(screen, W - S(376), H - S(60), S(360), S(50), 160)
+            self.text(screen, "POW", W - S(356), H - S(35), 28, (255, 220, 120), key="black", valign="middle")
+            for i in range(3):
+                on = i <= int(pw)
+                pg.draw.rect(screen, ((80, 220, 80), (220, 230, 60), (255, 150, 40))[i] if on else (40, 40, 30),
+                             (W - S(270) + i * S(80), H - S(48), S(70), S(26)), border_radius=S(4))
+        if not self.p2_in(vals):
+            word, col = self.invite(vals, now)
+            self.label(screen, word, W - S(24), S(42), 30, col, align="right")
+
+
 SCENES = {"s1945p": StrikersScene, "strhoop": StreetHoopScene, "sdodgeb": DodgeBallScene, "neobombe": NeoBombermanScene,
-          "twinspri": TwinkleScene}
+          "twinspri": TwinkleScene, "neodrift": NeoDriftScene, "trally": ThrashRallyScene, "ridhero": RidingHeroScene,
+          "lbowling": LeagueBowlingScene, "maglord": MagicianLordScene}

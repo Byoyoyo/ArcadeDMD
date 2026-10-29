@@ -15,7 +15,7 @@ from PIL import Image, ImageChops, ImageDraw, ImageFilter
 
 from . import hd_bg
 from .hd_bg import mix, noise_rgb, vgrad
-from .hd_themes3 import _Pic, _clump, _rgba
+from .hd_themes3 import _Pic, _clump, _fit, _rgba
 
 
 # ---------------------------------------------------------------------------- Strikers 1945 Plus
@@ -578,6 +578,363 @@ def ts_forest_tile(w, h, s, seed=66):
     return img.convert("RGB")
 
 
+# ---------------------------------------------------------------------------- Neo Drift Out, Thrash Rally
+RALLY_LOOKS = {          # ground, ground spots, road, road edge, road marks, kind of roadside / sol, route, bords, décor
+    "nd_dirt": ((112, 92, 52), (96, 80, 44), (176, 132, 86), (140, 104, 66), (150, 112, 70), "forest"),
+    "nd_tarmac": ((86, 130, 60), (74, 116, 52), (104, 104, 110), (150, 150, 156), (232, 232, 236), "town"),
+    "tr_dirt": ((92, 74, 44), (80, 64, 38), (116, 94, 60), (96, 78, 48), (104, 84, 54), "barrier"),
+    "tr_snow": ((236, 240, 248), (214, 222, 236), (160, 166, 178), (230, 60, 60), (200, 206, 216), "snow"),
+}
+
+
+def rally_road(tw, H, s, name):
+    """The road of the rally: its middle at each x of the picture, and its half width. The scene uses the same.
+    / La route : son milieu à chaque x de l'image, et sa demi-largeur. La scène utilise la même."""
+    k = sum(ord(c) for c in name)
+    p1, p2 = (k % 7) * 0.9, (k % 5) * 1.3
+    amp = 74 * s if name.startswith("nd") else 54 * s
+
+    def y(x):
+        return H * 0.56 + amp * math.sin(x / tw * math.tau * 2 + p1) + amp * 0.4 * math.sin(x / tw * math.tau * 5 + p2)
+    return y, (64 if name.startswith("nd") else 58) * s
+
+
+def _band(p, pts, a, b, fill):
+    """A band along a curve, between the offsets a and b from it (a polygon: thick lines of Pillow leave spikes at
+    their joints). / Une bande le long d'une courbe, entre deux décalages (un polygone, sans pointes aux jointures)."""
+    left, right = [], []
+    for i, (x, y) in enumerate(pts):
+        x0, y0 = pts[max(0, i - 1)]
+        x1, y1 = pts[min(len(pts) - 1, i + 1)]
+        dx, dy = x1 - x0, y1 - y0
+        n = math.hypot(dx, dy) or 1.0
+        nx, ny = -dy / n, dx / n
+        left.append((x + nx * a, y + ny * a))
+        right.append((x + nx * b, y + ny * b))
+    p.poly(left + right[::-1], fill)
+
+
+def build_rally(W, H, s, name="nd_dirt", seed=67):
+    """The rally stages seen from above, as in Neo Drift Out and Thrash Rally: a winding road of dirt, tarmac or
+    snow, its edges, the marks of the tyres, the roadside (fences and trees, a town with its grass and banners, the
+    yellow and black barriers, the snowy pines and the snowmen). / Les spéciales du rallye vues du ciel."""
+    rng = random.Random(seed + len(name))
+    ground, spots, road, edge, marks, kind = RALLY_LOOKS[name]
+    tw = 2 * W
+    img = Image.new("RGB", (tw, H), ground)
+    p = _Pic(tw, H, 2, tw)
+    ry, half = rally_road(tw, H, s, name)
+    for _ in range(int(tw * H / (700 * s * s))):                        # le sol et ses taches
+        x, y = rng.uniform(0, tw), rng.uniform(0, H)
+        r = rng.uniform(6, 22) * s
+        p.ellipse(x - r, y - r * 0.6, x + r, y + r * 0.6, _rgba(rng.choice((spots, mix(ground, (255, 255, 255), 0.06), mix(ground, (0, 0, 0), 0.06)))))
+    pts = [(x, ry(x)) for x in range(int(-20 * s), int(tw + 20 * s), int(8 * s))]
+    _band(p, pts, -half - 7 * s, half + 7 * s, _rgba(edge))              # le bord
+    _band(p, pts, -half, half, _rgba(road))                              # la route
+    if kind == "town":                                                   # tarmac : lignes blanches, pointillés au milieu
+        p.line([(x, y - half + 6 * s) for x, y in pts], _rgba(marks), 3 * s)
+        p.line([(x, y + half - 6 * s) for x, y in pts], _rgba(marks), 3 * s)
+        for i in range(0, len(pts) - 6, 10):
+            p.line(pts[i:i + 5], _rgba(marks), 4 * s)
+    else:                                                                # terre ou neige : traces de pneus
+        for off in (-22, -12, 12, 22):
+            p.line([(x, y + off * s) for x, y in pts], _rgba(mix(road, (0, 0, 0), 0.12), 150), 3 * s)
+    for _ in range(int(tw / (14 * s))):                                  # gravillons
+        x = rng.uniform(0, tw)
+        y = ry(x) + rng.uniform(-half, half)
+        p.disc(x, y, rng.uniform(1, 2.4) * s, _rgba(mix(road, (255, 255, 255) if kind != "snow" else (90, 90, 100), 0.2)))
+    if kind == "barrier":                                                # barrières jaunes et noires
+        for side in (-1, 1):
+            line = [(x, y + side * (half + 14 * s)) for x, y in pts]
+            _band(p, line, -3.5 * s, 3.5 * s, (30, 26, 20, 255))
+            for i in range(0, len(line) - 2, 4):
+                _band(p, line[i:i + 3], -2.5 * s, 2.5 * s, (240, 200, 40, 255))
+            for i in range(0, len(line), 6):
+                p.disc(line[i][0], line[i][1], 3.2 * s, (60, 60, 70, 255))
+    if kind == "snow":                                                   # bordures rouges et blanches
+        for side in (-1, 1):
+            line = [(x, y + side * (half + 4 * s)) for x, y in pts]
+            for i in range(0, len(line) - 3, 3):
+                _band(p, line[i:i + 4], -4 * s, 4 * s, (230, 50, 50, 255) if (i // 3) % 2 else (250, 250, 250, 255))
+
+    def off_road(x, y, margin):
+        return abs(y - ry(x)) > half + margin
+    n_items = int(tw / (26 * s))
+    for _ in range(n_items):                                             # le bord de la route
+        x, y = rng.uniform(0, tw), rng.uniform(0, H)
+        if not off_road(x, y, 34 * s):
+            continue
+        if kind in ("forest", "town", "barrier"):
+            r = rng.uniform(12, 26) * s
+            p.disc(x + r * 0.5, y + r * 0.4, r, (30, 30, 20, 110))
+            tones = ((44, 86, 36), (66, 116, 48), (110, 160, 70)) if kind != "barrier" else ((30, 70, 30), (44, 96, 40), (70, 130, 60))
+            _clump(p, x, y, r, rng, tones, n=6)
+        else:                                                            # sapins enneigés
+            r = rng.uniform(12, 22) * s
+            p.disc(x + r * 0.4, y + r * 0.4, r, (150, 160, 190, 120))
+            p.disc(x, y, r, (40, 80, 60, 255))
+            p.disc(x - r * 0.2, y - r * 0.2, r * 0.7, (60, 104, 80, 255))
+            for _k in range(4):
+                p.disc(x + rng.uniform(-0.5, 0.5) * r, y + rng.uniform(-0.5, 0.5) * r, r * 0.25, (250, 252, 255, 255))
+    if kind == "forest":                                                 # piquets de clôture le long de la piste
+        for i in range(0, len(pts), 5):
+            x, y = pts[i]
+            for side in (-1, 1):
+                p.disc(x, y + side * (half + 22 * s), 2.6 * s, (90, 66, 40, 255))
+    if kind == "town":                                                   # banderoles au bord de la route
+        for _ in range(int(tw / (600 * s))):
+            x = rng.uniform(0, tw)
+            y = ry(x) - half - 40 * s
+            col = rng.choice(((230, 200, 60), (60, 120, 220), (230, 70, 60)))
+            p.poly([(x, y), (x + 150 * s, y - 6 * s), (x + 150 * s, y + 22 * s), (x, y + 28 * s)], _rgba(col), (30, 30, 30, 255), 1.4 * s)
+            p.line([(x + 14 * s, y + 13 * s), (x + 136 * s, y + 8 * s)], (255, 255, 255, 220), 5 * s)
+    if kind == "snow":                                                   # bonshommes de neige et spectateurs
+        for _ in range(int(tw / (300 * s))):
+            x = rng.uniform(0, tw)
+            y = ry(x) + rng.choice((-1, 1)) * (half + rng.uniform(40, 80) * s)
+            p.disc(x, y + 8 * s, 10 * s, (250, 252, 255, 255), (150, 160, 190, 255), 1.2 * s)
+            p.disc(x, y - 6 * s, 7 * s, (250, 252, 255, 255), (150, 160, 190, 255), 1.2 * s)
+            p.disc(x + 2 * s, y - 7 * s, 1.4 * s, (240, 120, 40, 255))
+    for _ in range(int(tw / (220 * s))):                                 # des spectateurs, de loin
+        x = rng.uniform(0, tw)
+        y = ry(x) + rng.choice((-1, 1)) * (half + rng.uniform(36, 70) * s)
+        for k in range(rng.randint(3, 6)):
+            p.disc(x + k * 9 * s, y + rng.uniform(-3, 3) * s, 4.6 * s,
+                   _rgba(rng.choice(((220, 60, 50), (60, 90, 200), (240, 220, 60), (250, 250, 250), (40, 40, 40)))))
+    over = p.done()
+    img = img.convert("RGBA")
+    img.alpha_composite(over)
+    layers = [{"img": img.convert("RGB"), "y": 0, "f": 1.0, "stage": "far"}]
+    return {"sky": Image.new("RGB", (W, H), ground), "layers": layers, "tw": tw, "amb": {}}
+
+
+# ---------------------------------------------------------------------------- Riding Hero
+RH_HORIZON = 0.5         # the horizon, as a fraction of the height / l'horizon, en fraction de la hauteur
+
+
+def build_rh_circuit(W, H, s, seed=68):
+    """Riding Hero: what is seen above the road, as in the game: a blue sky, a snowy volcano and its range of
+    mountains, the long grandstand full of people with its boards, a blimp. The road itself is drawn by the scene.
+    / Au-dessus de la route, comme dans le jeu : ciel bleu, volcan enneigé, montagnes, la grande tribune, un dirigeable."""
+    rng = random.Random(seed)
+    hy = int(H * RH_HORIZON)
+    sky = vgrad(W, H, [(0.0, (90, 150, 230)), (RH_HORIZON, (190, 220, 246)), (1.0, (60, 130, 50))])
+    p = _Pic(W, H, 2, tw=4 * W)
+    vx = W * 0.22                                                        # le volcan enneigé
+    p.poly([(vx - 330 * s, hy - 40 * s), (vx - 40 * s, hy - 200 * s), (vx + 40 * s, hy - 200 * s), (vx + 330 * s, hy - 40 * s)], (120, 140, 176, 255))
+    p.poly([(vx - 110 * s, hy - 140 * s), (vx - 40 * s, hy - 200 * s), (vx + 40 * s, hy - 200 * s), (vx + 110 * s, hy - 140 * s),
+            (vx + 60 * s, hy - 150 * s), (vx + 20 * s, hy - 130 * s), (vx - 30 * s, hy - 152 * s), (vx - 70 * s, hy - 132 * s)], (246, 248, 255, 255))
+    x = -40 * s                                                          # la chaîne de montagnes
+    while x < W + 40 * s:
+        w = rng.uniform(120, 260) * s
+        h = rng.uniform(50, 110) * s
+        p.poly([(x, hy - 30 * s), (x + w * 0.5, hy - 30 * s - h), (x + w, hy - 30 * s)], (96, 126, 110, 255))
+        p.poly([(x + w * 0.35, hy - 30 * s - h * 0.7), (x + w * 0.5, hy - 30 * s - h), (x + w * 0.65, hy - 30 * s - h * 0.7)], (200, 214, 230, 255))
+        x += w * 0.6
+    p.poly([(0, hy - 40 * s), (W, hy - 40 * s), (W, hy), (0, hy)], (80, 130, 70, 255))
+    gx0, gx1 = W * 0.02, W * 0.62                                        # la grande tribune et son public
+    p.poly([(gx0, hy - 64 * s), (gx1, hy - 64 * s), (gx1, hy - 4 * s), (gx0, hy - 4 * s)], (200, 200, 210, 255), (90, 90, 100, 255), 1.4 * s)
+    p.poly([(gx0 - 6 * s, hy - 74 * s), (gx1 + 6 * s, hy - 74 * s), (gx1 + 6 * s, hy - 64 * s), (gx0 - 6 * s, hy - 64 * s)], (60, 70, 120, 255))
+    for row in range(5):
+        y = hy - 58 * s + row * 9 * s
+        xx = gx0 + 4 * s
+        while xx < gx1 - 4 * s:
+            p.disc(xx, y, 3 * s, _rgba(rng.choice(((230, 60, 60), (60, 90, 220), (250, 220, 60), (250, 250, 250), (40, 40, 40), (60, 170, 80)))))
+            xx += rng.uniform(6, 9) * s
+    for k in range(int((gx1 - gx0) / (90 * s))):                         # les panneaux, sans marque
+        bx = gx0 + k * 90 * s + 6 * s
+        col = rng.choice(((240, 240, 240), (230, 70, 50), (50, 90, 200), (250, 210, 40)))
+        p.poly([(bx, hy - 14 * s), (bx + 80 * s, hy - 14 * s), (bx + 80 * s, hy - 2 * s), (bx, hy - 2 * s)], _rgba(col), (40, 40, 50, 255), 1 * s)
+        p.line([(bx + 10 * s, hy - 8 * s), (bx + 70 * s, hy - 8 * s)], _rgba(mix(col, (0, 0, 0), 0.5)), 3 * s)
+    bx, by = W * 0.55, hy - 120 * s                                      # le dirigeable
+    p.ellipse(bx - 60 * s, by - 18 * s, bx + 60 * s, by + 18 * s, (220, 226, 236, 255), (90, 100, 120, 255), 1.6 * s)
+    p.poly([(bx + 50 * s, by - 6 * s), (bx + 72 * s, by - 20 * s), (bx + 72 * s, by + 20 * s), (bx + 50 * s, by + 6 * s)], (200, 60, 50, 255))
+    p.poly([(bx - 14 * s, by + 16 * s), (bx + 14 * s, by + 16 * s), (bx + 10 * s, by + 26 * s), (bx - 10 * s, by + 26 * s)], (90, 100, 120, 255))
+    p.line([(bx - 40 * s, by), (bx + 36 * s, by)], (230, 70, 50, 255), 6 * s)
+    for k in range(6):                                                   # poteaux et drapeaux au bord du circuit
+        fx = W * (0.66 + 0.06 * k)
+        p.line([(fx, hy - 50 * s), (fx, hy)], (200, 200, 210, 255), 2 * s)
+        p.poly([(fx, hy - 50 * s), (fx + 22 * s, hy - 44 * s), (fx, hy - 38 * s)], _rgba(rng.choice(((230, 60, 60), (60, 90, 220), (250, 210, 40)))))
+    over = p.done()
+    sky.paste(over, (0, 0), over)
+    return {"sky": sky, "layers": [], "tw": W, "amb": {}}
+
+
+# ---------------------------------------------------------------------------- League Bowling
+LB_Y0 = 44               # where the lanes meet, at s = 1 / le point où les pistes se rejoignent
+LB_HALF = 300            # half width of a lane at the foul line, at s = 1 / demi-largeur d'une piste à la ligne de faute
+LB_STEP = 760            # from one lane to the next at the foul line / d'une piste à l'autre à la ligne de faute
+LB_FAR = 4.6             # depth of the pin deck / profondeur du fond de piste
+
+
+def lb_xy(W, H, s, lane_x, z):
+    """Screen point of the lanes at the lateral position lane_x (pixels at the foul line) and the depth z (1 at the
+    foul line, LB_FAR at the pins). The scene uses the same. / Point de l'écran sur les pistes."""
+    y0 = LB_Y0 * s
+    return W / 2 + lane_x * s / z, y0 + (H - y0) / z
+
+
+def build_lb_lanes(W, H, s, seed=69):
+    """League Bowling: the alley seen from behind the bowler, as in the game: the polished wooden lanes running to
+    their pins, the gutters, the lanes next door, the dark back wall with its lit panels, the approach in front.
+    / La salle de bowling vue de derrière le joueur, comme dans le jeu : pistes de bois cirées, rigoles, mur du fond."""
+    rng = random.Random(seed)
+    img = Image.new("RGB", (W, H), (30, 22, 40))
+    p = _Pic(W, H, 2, tw=4 * W)
+    yf = lb_xy(W, H, s, 0, LB_FAR)[1]
+    p.poly([(0, 0), (W, 0), (W, yf + 4 * s), (0, yf + 4 * s)], (40, 30, 56, 255))                       # le mur du fond
+    for k in range(-6, 7):                                               # au-dessus de chaque piste, un panneau éclairé
+        xa, _ = lb_xy(W, H, s, k * LB_STEP - LB_HALF, LB_FAR)
+        xb, _ = lb_xy(W, H, s, k * LB_STEP + LB_HALF, LB_FAR)
+        top = yf - 60 * s / max(1, abs(k) * 0.5 + 1)
+        col = ((70, 40, 120), (40, 70, 140), (120, 40, 80))[k % 3]
+        p.poly([(xa, top), (xb, top), (xb, yf - 6 * s), (xa, yf - 6 * s)], _rgba(col), (240, 200, 90, 255), 1.6 * s)
+        for i in range(3):
+            cx = xa + (xb - xa) * (0.25 + 0.25 * i)
+            p.disc(cx, (top + yf - 6 * s) / 2, (xb - xa) * 0.06, (255, 230, 120, 255))
+    p.poly([(0, yf - 4 * s), (W, yf - 4 * s), (W, yf + 6 * s), (0, yf + 6 * s)], (16, 12, 22, 255))      # la fosse
+    zs = [LB_FAR - i * (LB_FAR - 1.0) / 40 for i in range(41)]
+    for k in range(-6, 7):
+        L = [lb_xy(W, H, s, k * LB_STEP - LB_HALF, z) for z in zs]
+        R = [lb_xy(W, H, s, k * LB_STEP + LB_HALF, z) for z in zs]
+        GL = [lb_xy(W, H, s, k * LB_STEP - LB_HALF - 46, z) for z in zs]
+        GR = [lb_xy(W, H, s, k * LB_STEP + LB_HALF + 46, z) for z in zs]
+        p.poly(GL + L[::-1], (60, 60, 70, 255))                            # les rigoles
+        p.poly(R + GR[::-1], (60, 60, 70, 255))
+        p.poly(L + R[::-1], (222, 170, 110, 255) if k == 0 else (200, 156, 104, 255))           # la piste
+        for b in range(1, 12):                                         # les lattes du bois
+            xb = k * LB_STEP - LB_HALF + b * 2 * LB_HALF / 12
+            p.line([lb_xy(W, H, s, xb, LB_FAR), lb_xy(W, H, s, xb, 1.0)], (180, 130, 80, 140), 1.0 * s)
+        for i in range(7):                                             # les flèches de visée
+            xa = k * LB_STEP - LB_HALF + (i + 2.5) * 2 * LB_HALF / 12
+            tip = lb_xy(W, H, s, xa, 1.95)
+            p.poly([lb_xy(W, H, s, xa - 10, 1.8), tip, lb_xy(W, H, s, xa + 10, 1.8)], (120, 70, 40, 255))
+        p.line([lb_xy(W, H, s, k * LB_STEP - LB_HALF - 46, 1.04), lb_xy(W, H, s, k * LB_STEP + LB_HALF + 46, 1.04)], (40, 30, 30, 255), 3 * s)
+        p.line(L, (250, 230, 190, 120), 1.4 * s)
+        p.line(R, (250, 230, 190, 120), 1.4 * s)
+    yb = lb_xy(W, H, s, 0, 1.0)[1]                                      # l'aire d'élan devant
+    del yb
+    over = p.done()
+    img = img.convert("RGBA")
+    img.alpha_composite(over)
+    del rng
+    return {"sky": img.convert("RGB"), "layers": [], "tw": W, "amb": {}}
+
+
+# ---------------------------------------------------------------------------- Magician Lord
+ML_FLOOR = 372           # top of the walkway the hero walks on, at s = 1 / dessus du chemin où marche le héros
+
+
+def build_ml_jungle(W, H, s, seed=70):
+    """Magician Lord: the first stage of the game, villages of huts high in giant trees: a dim forest behind, huge
+    trunks, vines, thatched huts on their platforms, rope ladders, and the wooden walkway in front.
+    / Le premier niveau du jeu, des villages de huttes dans des arbres géants, le chemin de planches devant."""
+    rng = random.Random(seed)
+    tw = 2 * W
+    sky = vgrad(W, H, [(0.0, (40, 52, 30)), (0.5, (70, 80, 40)), (1.0, (50, 44, 26))])
+    layers = []
+    far = _Pic(tw, H, 2, tw)                                             # la forêt sombre au fond
+    for _ in range(int(tw / (70 * s))):
+        x = rng.uniform(0, tw)
+        w = rng.uniform(30, 70) * s
+        far.poly([(x - w / 2, 0), (x + w / 2, 0), (x + w * 0.6, H), (x - w * 0.6, H)], (52, 58, 34, 255))
+    for _ in range(int(tw / (40 * s))):
+        x, y = rng.uniform(0, tw), rng.uniform(0, H * 0.5)
+        _clump(far, x, y, rng.uniform(40, 80) * s, rng, ((44, 64, 30), (60, 84, 38)), n=6)
+    layers.append({"img": far.done(), "y": 0, "f": 0.25, "stage": "far"})
+    mid = _Pic(tw, H, 2, tw)                                             # troncs géants, huttes, lianes
+    x = rng.uniform(0, 200) * s
+    while x < tw:
+        w = rng.uniform(110, 170) * s
+        mid.poly([(x - w / 2, -10 * s), (x + w / 2, -10 * s), (x + w * 0.56, H), (x - w * 0.56, H)], (96, 72, 40, 255), (50, 36, 20, 255), 2 * s)
+        for k in range(6):                                           # l'écorce
+            bx = x - w / 2 + (k + 0.5) * w / 6
+            mid.line([(bx, 0), (bx + rng.uniform(-6, 6) * s, H)], (76, 56, 30, 255), 3 * s)
+        py = rng.uniform(150, 230) * s                               # une plate-forme et sa hutte
+        mid.poly([(x - w * 1.3, py), (x + w * 1.3, py), (x + w * 1.3, py + 14 * s), (x - w * 1.3, py + 14 * s)], (150, 100, 50, 255),
+                 (60, 40, 20, 255), 1.6 * s)
+        for k in range(int(w * 2.6 / (14 * s))):
+            mid.line([(x - w * 1.3 + k * 14 * s, py), (x - w * 1.3 + k * 14 * s, py + 14 * s)], (100, 66, 34, 255), 1.4 * s)
+        hx = x + rng.choice((-1, 1)) * w * 0.8
+        mid.poly([(hx - 60 * s, py), (hx + 60 * s, py), (hx + 56 * s, py - 50 * s), (hx - 56 * s, py - 50 * s)], (130, 90, 50, 255),
+                 (60, 40, 20, 255), 1.6 * s)
+        mid.poly([(hx - 80 * s, py - 46 * s), (hx, py - 110 * s), (hx + 80 * s, py - 46 * s)], (200, 150, 60, 255), (100, 70, 30, 255), 2 * s)
+        for k in range(8):                                           # le chaume
+            mid.line([(hx - 70 * s + k * 20 * s, py - 50 * s), (hx, py - 106 * s)], (170, 120, 50, 255), 1.4 * s)
+        mid.poly([(hx - 14 * s, py), (hx + 14 * s, py), (hx + 14 * s, py - 34 * s), (hx - 14 * s, py - 34 * s)], (40, 26, 14, 255))
+        lx = x + rng.choice((-1, 1)) * w * 1.1                       # une échelle de corde
+        for side in (-8, 8):
+            mid.line([(lx + side * s, py + 14 * s), (lx + side * s, ML_FLOOR * s)], (190, 170, 110, 255), 2 * s)
+        for k in range(int((ML_FLOOR * s - py) / (16 * s))):
+            yy = py + 20 * s + k * 16 * s
+            mid.line([(lx - 8 * s, yy), (lx + 8 * s, yy)], (190, 170, 110, 255), 2 * s)
+        x += w + rng.uniform(260, 420) * s
+    for _ in range(int(tw / (60 * s))):                                  # lianes
+        x = rng.uniform(0, tw)
+        pts = [(x + math.sin(k * 0.7) * 6 * s, k * 14 * s) for k in range(int(rng.uniform(6, 16)))]
+        mid.line(pts, (60, 110, 40, 255), 3 * s)
+        for px_, py_ in pts[::2]:
+            mid.disc(px_ + 4 * s, py_, 4 * s, (80, 140, 50, 255))
+    layers.append({"img": mid.done(), "y": 0, "f": 0.6, "stage": "mid"})
+    near = _Pic(tw, H, 2, tw)                                            # le chemin de planches
+    fy = ML_FLOOR * s
+    near.poly([(0, fy), (tw, fy), (tw, fy + 20 * s), (0, fy + 20 * s)], (176, 120, 60, 255), (70, 44, 20, 255), 2 * s)
+    for k in range(int(tw / (24 * s))):
+        near.line([(k * 24 * s, fy + 2 * s), (k * 24 * s, fy + 20 * s)], (110, 74, 36, 255), 2 * s)
+    near.poly([(0, fy + 20 * s), (tw, fy + 20 * s), (tw, H), (0, H)], (40, 30, 16, 255))
+    for k in range(int(tw / (120 * s))):                                 # poteaux et croisillons sous le chemin
+        x = k * 120 * s + 30 * s
+        near.poly([(x - 8 * s, fy + 20 * s), (x + 8 * s, fy + 20 * s), (x + 8 * s, H), (x - 8 * s, H)], (100, 70, 36, 255))
+        near.line([(x, fy + 24 * s), (x + 120 * s, H)], (80, 56, 28, 255), 4 * s)
+    layers.append({"img": near.done(), "y": 0, "f": 1.0, "stage": "near"})
+    return {"sky": sky, "layers": _fit(layers), "tw": tw, "amb": {}}
+
+
+def build_ml_temple(W, H, s, seed=71):
+    """Magician Lord: a temple of the game, stone pillars and their carvings, a huge stone face in the wall, torches,
+    a floor of great slabs. / Un temple du jeu : piliers de pierre sculptés, un visage géant dans le mur, des torches."""
+    rng = random.Random(seed)
+    tw = 2 * W
+    sky = vgrad(W, H, [(0.0, (30, 34, 40)), (1.0, (60, 56, 50))])
+    layers = []
+    wall = _Pic(tw, H, 2, tw)
+    for row in range(int(H / (40 * s)) + 1):                             # le mur de blocs
+        off = (row % 2) * 40 * s
+        for k in range(int(tw / (80 * s)) + 2):
+            x, y = k * 80 * s - off, row * 40 * s
+            col = rng.choice(((70, 84, 80), (64, 78, 74), (76, 90, 84)))
+            wall.poly([(x, y), (x + 78 * s, y), (x + 78 * s, y + 38 * s), (x, y + 38 * s)], _rgba(col), (40, 50, 46, 255), 1.4 * s)
+    for k in range(2):                                                   # le visage de pierre géant
+        cx, cy = tw * (0.25 + 0.5 * k), H * 0.42
+        wall.ellipse(cx - 150 * s, cy - 170 * s, cx + 150 * s, cy + 150 * s, (150, 120, 70, 255), (80, 60, 30, 255), 3 * s)
+        for ex in (-60, 60):
+            wall.ellipse(cx + (ex - 34) * s, cy - 50 * s, cx + (ex + 34) * s, cy - 16 * s, (60, 40, 20, 255))
+            wall.disc(cx + ex * s, cy - 33 * s, 9 * s, (250, 120, 60, 255))
+        wall.poly([(cx - 20 * s, cy - 10 * s), (cx + 20 * s, cy - 10 * s), (cx + 30 * s, cy + 40 * s), (cx - 30 * s, cy + 40 * s)], (130, 100, 56, 255))
+        wall.chord(cx - 70 * s, cy + 40 * s, cx + 70 * s, cy + 110 * s, 0, 180, (60, 40, 20, 255))
+        wall.disc(cx, cy - 120 * s, 18 * s, (200, 40, 60, 255), (80, 30, 30, 255), 2 * s)
+    layers.append({"img": wall.done(), "y": 0, "f": 0.4, "stage": "far"})
+    pil = _Pic(tw, H, 2, tw)                                             # piliers sculptés et torches
+    for k in range(int(tw / (360 * s))):
+        x = k * 360 * s + 180 * s
+        pil.poly([(x - 36 * s, 0), (x + 36 * s, 0), (x + 36 * s, ML_FLOOR * s), (x - 36 * s, ML_FLOOR * s)], (110, 130, 120, 255), (50, 60, 56, 255), 2 * s)
+        for yy in range(int(20 * s), int(ML_FLOOR * s), int(60 * s)):
+            pil.poly([(x - 30 * s, yy), (x + 30 * s, yy), (x + 30 * s, yy + 10 * s), (x - 30 * s, yy + 10 * s)], (90, 108, 100, 255))
+        tx = x + 120 * s
+        pil.poly([(tx - 5 * s, 170 * s), (tx + 5 * s, 170 * s), (tx + 4 * s, 220 * s), (tx - 4 * s, 220 * s)], (90, 60, 30, 255))
+    layers.append({"img": pil.done(), "y": 0, "f": 0.7, "stage": "mid", "lights": [(k * 360 * s + 300 * s, 160 * s) for k in range(int(tw / (360 * s)))]})
+    flo = _Pic(tw, H, 2, tw)
+    fy = ML_FLOOR * s
+    for k in range(int(tw / (100 * s)) + 1):
+        x = k * 100 * s
+        flo.poly([(x, fy), (x + 98 * s, fy), (x + 98 * s, H), (x, H)], (100, 116, 108, 255), (50, 60, 56, 255), 2 * s)
+        flo.line([(x + 6 * s, fy + 4 * s), (x + 92 * s, fy + 4 * s)], (140, 156, 148, 255), 2 * s)
+    layers.append({"img": flo.done(), "y": 0, "f": 1.0, "stage": "near"})
+    return {"sky": sky, "layers": _fit(layers), "tw": tw, "amb": {"window": (255, 170, 80)}}
+
+
 hd_bg.BUILDERS.update({"s45_ground": build_s45_ground, "hoop_park": build_hoop_park, "dodge_yard": build_dodge_yard})
 hd_bg.BUILDERS.update({name: (lambda W, H, s, n=name: build_nb_arena(W, H, s, n)) for name in NB_PALETTES})
 hd_bg.BUILDERS.update({"ts_frame": build_ts_frame})
+hd_bg.BUILDERS.update({name: (lambda W, H, s, n=name: build_rally(W, H, s, n)) for name in RALLY_LOOKS})
+hd_bg.BUILDERS.update({"rh_circuit": build_rh_circuit, "lb_lanes": build_lb_lanes, "ml_jungle": build_ml_jungle, "ml_temple": build_ml_temple})

@@ -11,6 +11,7 @@ ship.png    small ship (2 frames of 9x5) for Neo Geo shoot'em ups
 ball.png    ball (3x3) for Neo Geo sports games
 blocks.png  colored blocks (6 frames of 128x5) for Neo Geo puzzle games
 disc.png    flying disc (4 frames of 20x3) for Windjammers
+car.png     rally car seen from above (2 frames of 10x5) for Neo Geo racing games
 
 To replace the ring with your own character, drop sonic.gif
 (or sonic.png as a strip of 6 frames) into this folder.
@@ -38,6 +39,7 @@ ship.png    petit vaisseau (2 images de 9x5) pour les shoot'em up Neo Geo
 ball.png    ballon (3x3) pour les jeux de sport Neo Geo
 blocks.png  blocs de couleur (6 images de 128x5) pour les jeux de reflexion Neo Geo
 disc.png    palet (4 images de 20x3) pour Windjammers
+car.png     voiture de rallye vue du dessus (2 images de 10x5) pour les jeux de course Neo Geo
 
 Pour remplacer l anneau par ton propre personnage, depose sonic.gif
 (ou sonic.png en bande de 6 images) dans ce dossier.
