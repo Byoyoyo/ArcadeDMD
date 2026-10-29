@@ -25,8 +25,8 @@ HANDS = {0: ((0.14, 0.34), (0.2, 0.3)), 1: ((0.12, 0.38), (0.06, 0.42)), 2: ((-0
          4: ((-0.12, 0.34), (0.08, 0.3)), 5: ((-0.14, 0.24), (-0.02, 0.2))}          # same hands as fighter_draw
 LEAN = {3: 0.04, 4: -0.03, 5: -0.07}
 WEAPON_ANGLE = {0: -62, 1: -32, 2: -40, 3: 4, 4: -128, 5: 64}
-LONG = ("sword", "spear", "staff", "halberd")
-BLADES = ("sword", "axe", "spear", "halberd", "knife", "claws")
+LONG = ("sword", "spear", "staff", "halberd", "blade")
+BLADES = ("sword", "axe", "spear", "halberd", "knife", "claws", "blade")
 BEASTS = ("raptor", "bug", "mech")
 
 
@@ -156,6 +156,16 @@ def _weapon(d, weapon, frame, hand, u, ow, metal):
                        (tip[0] - sa * 0.07 * u - ca * 0.06 * u, tip[1] + ca * 0.07 * u - sa * 0.06 * u)], fill=mt, outline=INK)
         else:
             d.ellipse([tip[0] - 0.03 * u, tip[1] - 0.03 * u, tip[0] + 0.03 * u, tip[1] + 0.03 * u], fill=(120, 220, 255, 255), outline=INK)
+        return
+    if weapon == "blade":                                                 # une épée large, la garde, la lame au métal choisi
+        ln = 0.46 * u
+        tip = (hand[0] + ca * ln, hand[1] + sa * ln)
+        base = (hand[0] + ca * 0.05 * u, hand[1] + sa * 0.05 * u)
+        nx, ny = -sa * 0.03 * u, ca * 0.03 * u
+        d.polygon([(base[0] + nx, base[1] + ny), (tip[0] + nx * 0.4, tip[1] + ny * 0.4), (tip[0] + ca * 0.04 * u, tip[1] + sa * 0.04 * u),
+                   (tip[0] - nx * 0.4, tip[1] - ny * 0.4), (base[0] - nx, base[1] - ny)], fill=mt, outline=INK)
+        d.line([(base[0] - nx * 2.2, base[1] - ny * 2.2), (base[0] + nx * 2.2, base[1] + ny * 2.2)], fill=(200, 160, 60, 255), width=max(2, int(0.025 * u)))
+        d.line([hand, (hand[0] - ca * 0.06 * u, hand[1] - sa * 0.06 * u)], fill=(90, 50, 30, 255), width=max(2, int(0.025 * u)))
         return
     ln = {"axe": 0.3, "mace": 0.3, "club": 0.32, "knife": 0.16, "claws": 0.12}[weapon] * u
     tip = (hand[0] + ca * ln, hand[1] + sa * ln)
@@ -360,6 +370,13 @@ def loot_draw(kind):
     return fn
 
 
+def dagger_draw(d, W, H):
+    """A thrown dagger, pointing right. / Une dague lancée, pointe à droite."""
+    d.polygon([(W * 0.3, H * 0.3), (W * 0.98, H * 0.5), (W * 0.3, H * 0.7)], fill=(225, 232, 244, 255), outline=INK)
+    d.rectangle([W * 0.24, H * 0.1, W * 0.3, H * 0.9], fill=(200, 160, 60, 255))
+    d.rectangle([W * 0.02, H * 0.38, W * 0.24, H * 0.62], fill=(110, 60, 40, 255))
+
+
 LOOT_WORDS = {"food": ("MIAM !", "YUM!"), "treasure": ("TRÉSOR !", "TREASURE!"), "parts": ("PIÈCES !", "PARTS!"),
               "coins": ("PIÈCES !", "COINS!"), "medkit": ("SOINS !", "MEDKIT!")}
 
@@ -379,6 +396,7 @@ class CapcomBrawler(BrawlerScene):
     TAG = (255, 230, 120)
     PROP = ("drum", (80, 110, 150))                # what the hero breaks on his way / ce que le héros casse en chemin
     LOOT = "food"                                  # what it leaves / ce qu'il laisse
+    FINDS = ()                                     # weapons that can be found in it: (weapon, French, English)
 
     def __init__(self, hd, rng=None):
         super().__init__(hd, rng)
@@ -390,6 +408,7 @@ class CapcomBrawler(BrawlerScene):
         self.next_prop = 0.0
         self.life_lost = -99.0
         self.loot = []                                                    # (x, y, t0) of the things left / ce qui est laissé
+        self.armed = None                                                 # (weapon, until) found in a broken thing
         S = self.S
         self.fx.sp.register("loot", draw_img(S(70), S(56), loot_draw(self.LOOT)))
         col = self.PROP[1]
@@ -432,7 +451,17 @@ class CapcomBrawler(BrawlerScene):
 
     def always(self, vals, now):
         ch = _n(vals.get("_p1_chr"))
-        self.HERO = self.HEROES.get(int(ch), self.hero0) if ch is not None and self.HEROES else self.hero0
+        self.HERO = self.look(vals) if not self.HEROES or ch is None else self.HEROES.get(int(ch), self.hero0)
+        if self.armed is not None:
+            if now < self.armed[1] and len(self.HERO) >= 5 and self.HERO[0] not in BEASTS:
+                self.HERO = tuple(self.HERO[:5]) + (self.armed[0],) + tuple(self.HERO[6:])
+            elif now >= self.armed[1]:
+                self.armed = None
+
+    def look(self, vals):
+        """The hero's look from the values of the game (the level, the weapon...), the same by default.
+        / L'apparence du héros d'après les valeurs du jeu (niveau, arme...), la même par défaut."""
+        return self.hero0
 
     def strike(self, now, dmg=1):
         """The hero hits the nearest foe: a blade leaves its trail, a gun fires, the foe's name and gauge show.
@@ -482,6 +511,11 @@ class CapcomBrawler(BrawlerScene):
             fx.obj(f"bit{i % 3}", f["x"], y - S(50), rng.uniform(-260, 260), rng.uniform(-620, -260), vrot=rng.uniform(-500, 500), life=1.0,
                    floor=y)
         fx.sparks(f["x"], y - S(60), 12, (255, 230, 170), (200, 500), (200, 340), (0.2, 0.4), 600, "front", 3, 14)
+        if self.FINDS and rng.random() < 0.5:                             # a weapon in it: the hero takes it for a while
+            weapon, fr, en = rng.choice(self.FINDS)
+            self.armed = (weapon, now + 12.0)
+            self.popup(tr(fr, en), f["x"], y - S(170), GOLD, 38)
+            return
         self.loot.append((f["x"], y, now))
         if self.LOOT != "food":                                           # the treasure is counted at once / le trésor tout de suite
             self.popup(tr(*LOOT_WORDS[self.LOOT]), f["x"], y - S(170), GOLD, 38)
@@ -712,7 +746,7 @@ class CapcomBrawler(BrawlerScene):
 class FinalFightScene(CapcomBrawler):
     """Final Fight as in the game: the slum of a big American city by day, its pinkish brick tenements, the iron fire
     escapes and the grey sidewalk; our street fighter of our own in a red tank top faces the gang that comes from both
-    sides. The portrait, the name and =lives, the score, the yellow gauge over red, TIME in big purple numbers, the name
+    sides and breaks the oil drums, where he finds food, a pipe, a knife or a katana. The portrait, the name and =lives, the score, the yellow gauge over red, TIME in big purple numbers, the name
     and the gauge of the thug just hit under it. / Le quartier pauvre d'une grande ville de jour ; notre combattant à
     nous affronte le gang qui arrive des deux côtés. Portrait, =vies, score, jauge jaune sur rouge, TIME en violet."""
     THEME = "ff_slum"
@@ -724,6 +758,7 @@ class FinalFightScene(CapcomBrawler):
             ("brawler", (240, 200, 60), (90, 70, 50), (190, 140, 100), (200, 60, 40), None, (("band", (240, 70, 60)),)),
             ("thug", (120, 60, 140), (40, 40, 50), (226, 176, 136), (240, 240, 240), "knife"))
     FOE_NAMES = ("SLIM", "BRUNO", "RUSTY", "VINNIE", "TEX", "ROCCO", "DUKE", "MOE")
+    FINDS = (("club", "TUYAU !", "PIPE!"), ("knife", "COUTEAU !", "KNIFE!"), ("sword", "KATANA !", "KATANA!"))
 
     def status(self, screen, eng, vals, logo, now):
         """As in the game: the portrait, the name and =lives, the score, the yellow gauge over red, TIME in purple, the
@@ -847,8 +882,27 @@ class KingOfDragonsScene(CapcomBrawler):
     THEME = "kd_forest"
     PROP = ("chest", (150, 90, 40))
     LOOT = "treasure"
-    HERO = ("jacket", (170, 170, 186), (90, 90, 104), (226, 176, 136), (220, 190, 90), "sword",
-            (("helmet", (200, 205, 216)), ("plume", (230, 40, 40)), ("shield", (40, 80, 170))))
+    HERO = ("jacket", (170, 170, 186), (90, 90, 104), (226, 176, 136), (220, 190, 90), "blade",
+            (("helmet", (200, 205, 216)), ("plume", (230, 40, 40)), ("shield", (40, 80, 170)), ("metal", (200, 206, 220))))
+    METALS = ((176, 120, 70), (200, 206, 220), (150, 220, 255), (255, 214, 90))     # bronze, steel, magic, gold
+    SHIELDS = ((150, 100, 60), (40, 80, 170), (170, 40, 50), (240, 200, 70))
+
+    def look(self, vals):
+        w, p = _n(vals.get("weapon")), _n(vals.get("shield"))
+        if w is None and p is None:
+            return self.hero0
+        metal = self.METALS[min(3, int(w or 0) // 2)]
+        shield = self.SHIELDS[min(3, int(p or 0) // 2)]
+        return self.hero0[:6] + ((("helmet", (200, 205, 216)), ("plume", (230, 40, 40)), ("shield", shield), ("metal", metal)),)
+
+    def update(self, vals, now):
+        super().update(vals, now)
+        h = self.hero
+        for name, fr, en in (("weapon", "ÉPÉE +1 !", "SWORD UP!"), ("shield", "BOUCLIER +1 !", "SHIELD UP!")):
+            ch = self.changed(vals, name)
+            if ch and ch[1] > ch[0]:
+                self.fx.glow(h["x"], self.ground(h["z"]) - self.S(140), 20, 160, (255, 240, 170), 0.5, "front", 0.9, 0.0)
+                self.popup(tr(fr, en), h["x"], self.ground(h["z"]) - self.S(260), GOLD, 38)
     FOES = (("mutant", (110, 80, 50), (80, 60, 40), (110, 160, 80), (60, 50, 30), "axe", (("tusks", None),)),
             ("mutant", (150, 110, 60), (90, 70, 40), (170, 130, 80), (110, 80, 40), "spear", (("ears", None),)),
             ("brawler", (232, 226, 212), (222, 216, 202), (236, 232, 216), (236, 232, 216), "sword", (("skull", None),)),
@@ -874,13 +928,26 @@ class KingOfDragonsScene(CapcomBrawler):
 # ============================================================================ Knights of the Round
 class KnightsScene(CapcomBrawler):
     """Knights of the Round as in the game: a village of half-timbered houses with the castle on the hill; our knight
-    of our own in his blue tabard and red cape against the soldiers, the barbarians and the dark knights. The portrait,
+    of our own in his blue tabard and red cape against the soldiers, the barbarians and the dark knights; his armour
+    grows with the level read in the game. The portrait,
     1P and the score, xlives, the level L-, the red gauge. / Un village de maisons à colombages ; notre chevalier à nous
     contre les soldats, les barbares et les chevaliers noirs. Score, xvies, le niveau L-, la jauge rouge."""
     THEME = "kn_village"
     PROP = ("barrel", (150, 100, 60))
     LOOT = "food"
     HERO = ("jacket", (40, 70, 160), (90, 90, 100), (226, 176, 136), (200, 160, 60), "sword", (("armor", (190, 195, 210)), ("cape", (160, 30, 40))))
+    ARMOURS = (("jacket", (40, 70, 160), (90, 90, 100), (226, 176, 136), (200, 160, 60), "sword", (("cape", (160, 30, 40)),)),
+               HERO,
+               ("jacket", (150, 156, 176), (110, 112, 126), (226, 176, 136), (200, 160, 60), "sword",
+                (("armor", (200, 205, 220)), ("cape", (160, 30, 40)), ("helmet", (200, 205, 220)))),
+               ("jacket", (210, 180, 90), (150, 120, 70), (226, 176, 136), (200, 160, 60), "sword",
+                (("armor", (250, 214, 100)), ("cape", (40, 60, 160)), ("helmet", (250, 214, 100)), ("plume", (240, 240, 250)))))
+
+    def look(self, vals):
+        """As in the game, the armour grows with the level: cloth, shoulder pieces, then steel and a helmet, then gold.
+        / Comme dans le jeu, l'armure grandit avec le niveau : tissu, épaulières, puis acier et casque, puis or."""
+        lv = _n(vals.get("level"))
+        return self.hero0 if lv is None else self.ARMOURS[min(3, max(0, (int(lv) - 1) // 2))]
     FOES = (("jacket", (120, 110, 90), (80, 70, 60), (214, 160, 120), (60, 50, 40), "spear", (("helmet", (150, 150, 160)),)),
             ("brawler", (150, 100, 60), (90, 60, 40), (200, 150, 110), (180, 80, 30), "axe", (("beard", (180, 80, 30)),)),
             ("jacket", (60, 60, 70), (60, 60, 70), (214, 160, 120), (30, 30, 34), "sword", (("helmet", (90, 90, 100)), ("shield", (120, 30, 30)))))
@@ -950,7 +1017,7 @@ class MystaraScene(CapcomBrawler):
 class TowerOfDoomScene(CapcomBrawler):
     """Dungeons & Dragons: Tower of Doom as in the game: green hills in the golden light, a walled town far off, a
     signpost and a treasure chest; our elf of our own with her cloak and her sword against the kobolds, the orcs and the
-    skeletons. The four places of the players at the bottom, as in the game: ours with its gauge, JOIN IN! in the others.
+    skeletons, she throws the daggers read in the game. The four places of the players at the bottom, as in the game: ours with its gauge, JOIN IN! in the others.
     / Des collines vertes dans la lumière dorée ; notre elfe à nous contre les kobolds, les orques et les squelettes.
     Les quatre places des joueurs en bas : la nôtre et sa jauge, JOIN IN! dans les autres."""
     THEME = "dt_hills"
@@ -963,6 +1030,34 @@ class TowerOfDoomScene(CapcomBrawler):
             ("mutant", (110, 80, 50), (80, 60, 40), (110, 160, 80), (60, 50, 30), "axe", (("tusks", None),)),
             ("brawler", (232, 226, 212), (222, 216, 202), (236, 232, 216), (236, 232, 216), "sword", (("skull", None),)))
     FOE_NAMES = ("KOBOLD", "ORC", "GNOLL", "HOBGOBLIN", "SKELETON")
+
+    def __init__(self, hd, rng=None):
+        super().__init__(hd, rng)
+        S = self.S
+        self.thrown = 0
+        self.fx.sp.register("dagger", draw_img(S(46), S(12), dagger_draw))
+
+    def update(self, vals, now):
+        super().update(vals, now)
+        ch = self.changed(vals, "daggers")
+        if ch and ch[1] < ch[0]:                                          # a dagger thrown at the nearest foe / une dague lancée
+            S, h = self.S, self.hero
+            f = self.nearest()
+            self.thrown += 1
+            tx = f["x"] if f is not None else h["x"] + h["face"] * S(600)
+            ty = self.ground(f["z"]) - S(150) if f is not None else self.ground(h["z"]) - S(150)
+            h["act"] = (now, 3)
+
+            def hit(x, y, f=f):
+                self.fx.sparks(x, y, 12, (230, 240, 255), (200, 500), (0, 360), (0.15, 0.3), 0, "front", 3, 14)
+                if f is not None and f in self.foes and f["hp"] > 0:
+                    f["hp"] -= 2
+                    f["hurt"] = self.fx.now
+                    if f["hp"] <= 0:
+                        f["down"] = self.fx.now
+                        f["vx"] = h["face"] * S(420)
+                        self.knocked += 1
+            self.fx.projectile("dagger", h["x"] + h["face"] * S(50), self.ground(h["z"]) - S(160), tx, ty, 0.35, 10, hit, spin=0.0)
 
     def status(self, screen, eng, vals, logo, now):
         """As in the game: the foe's name at the top, the four places of the players at the bottom. / Le nom de l'ennemi
@@ -983,6 +1078,10 @@ class TowerOfDoomScene(CapcomBrawler):
                 e = _n(vals.get("health"))
                 if e is not None:
                     self.bar(screen, x + S(76), H - S(34), bw - S(92), S(18), e / 100.0, (80, 220, 90), back=(40, 40, 60))
+                dg = _n(vals.get("daggers"))
+                if dg is not None:                                        # DAGGER x3, as in the game / comme dans le jeu
+                    self.text(screen, tr(f"DAGUE x{int(dg)}", f"DAGGER x{int(dg)}"), x + S(130), H - S(56), 22, (255, 220, 120), key="black",
+                              valign="middle")
             elif k == 1 and self.p2_in(vals):
                 self.text(screen, "2P", x + bw / 2, H - S(43), 30, WHITE, key="black", align="center", valign="middle")
             else:
