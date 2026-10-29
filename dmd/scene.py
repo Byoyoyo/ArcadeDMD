@@ -775,9 +775,33 @@ class AnimEl(Element):
         return float(rr[0]) <= ratio < float(rr[1])
 
     def _pick(self, v, cv_size):
+        """A number, [start, end] (at random inside), or a list of [start, end] (one of them, at random inside)."""
+        if isinstance(v, (list, tuple)) and v and all(isinstance(r, (list, tuple)) and len(r) == 2 for r in v):
+            v = v[self.rng.randrange(len(v))]
         if isinstance(v, (list, tuple)) and len(v) == 2:
             return self.rng.uniform(float(v[0]), float(v[1]))
         return float(v if v is not None else cv_size / 2)
+
+    def fire(self, t, w=128, h=32, game=None):
+        """Plays the animation now, whatever the values (an event of the "events" layer). / La joue tout de suite."""
+        if self.frames is None or (game is not None and game != self.game):
+            self._load(game)
+        if not self.frames:
+            return
+        self.last = t
+        self.count += 1
+        n = 1 if self.full else max(1, int(self.spec.get("count", 1)))
+        spread = self.spec.get("spread")
+        for k in range(n):
+            if self.full:
+                x, y = w / 2, h / 2
+            elif n > 1 and spread:
+                x = float(spread[0]) + (float(spread[1]) - float(spread[0])) * (k + 0.5) / n
+                y = self._pick(self.spec.get("y"), h)
+            else:
+                x, y = self._pick(self.spec.get("x"), w), self._pick(self.spec.get("y"), h)
+            self.plays.append([t + k * float(self.spec.get("delay", 0.1)), x, y])
+        self.plays = self.plays[-int(self.spec.get("max", 4)) - n:]
 
     def render(self, ctx):
         cv, t = ctx.canvas, ctx.t
@@ -787,7 +811,7 @@ class AnimEl(Element):
         names = self.spec.get("on") or ["score"]
         names = names if isinstance(names, list) else [names]
         change = self.spec.get("change", "up")
-        for (name, old, new, et) in ctx.state.events:
+        for (name, old, new, et) in ([] if self.spec.get("manual") else ctx.state.events):
             if name not in names or not isinstance(old, (int, float)) or not isinstance(new, (int, float)) or new == old:
                 continue
             if (change == "up" and new < old) or (change == "down" and new > old):
@@ -799,20 +823,10 @@ class AnimEl(Element):
                 continue
             if not self.frames or t - self.last < float(self.spec.get("gap", 0.08)):
                 continue
-            self.last = t
-            self.count += 1
-            n = 1 if self.full else max(1, int(self.spec.get("count", 1)))
-            spread = self.spec.get("spread")
-            for k in range(n):
-                if self.full:
-                    x, y = cv.w / 2, cv.h / 2
-                elif n > 1 and spread:
-                    x = float(spread[0]) + (float(spread[1]) - float(spread[0])) * (k + 0.5) / n
-                    y = self._pick(self.spec.get("y"), cv.h)
-                else:
-                    x, y = self._pick(self.spec.get("x"), cv.w), self._pick(self.spec.get("y"), cv.h)
-                self.plays.append([t + k * float(self.spec.get("delay", 0.1)), x, y])
-            self.plays = self.plays[-int(self.spec.get("max", 4)) - n:]
+            self.fire(t, cv.w, cv.h)
+        self.draw(cv, t)
+
+    def draw(self, cv, t):
         if not self.frames:
             return
         total = sum(self.durs)
@@ -837,6 +851,183 @@ class AnimEl(Element):
                 y = min(max(p[2], fr.h / 2), cv.h - fr.h / 2)
                 cv.sprite(fr, int(round(x - fr.w / 2)), int(round(y - fr.h / 2)))
         self.plays = alive
+
+
+POP_FONTS = ("4x6", "5x8", "6x10", "8x13B", "9x15B")
+
+
+def shiny_text(cv, font, text, x, y, color, t=0.0, k=1.0, flash=0.0, outline=(0, 0, 0)):
+    """Big text, lighter at the top, a light sweeping across, a black outline that keeps it readable over an explosion.
+    / Gros texte plus clair en haut, un reflet qui passe, un contour noir pour le lire par-dessus une explosion."""
+    top = _mix(color, WHITE, 0.55)
+    sx = -20 + ((t % 1.8) / 1.8) * 170
+    oy = y - font.cap_top
+    pts = []
+    cx = x
+    for ch in text:
+        for (px, py) in font.glyph_points(ch):
+            pts.append((cx + px, oy + py, py - font.cap_top))
+        cx += font.w
+    if outline is not None:
+        for (px, py, _) in pts:
+            for dx, dy in ((-1, 0), (1, 0), (0, -1), (0, 1), (1, 1)):
+                cv.set(px + dx, py + dy, outline)
+    span = max(1.0, float(font.cap_h - 1))
+    for (px, py, r) in pts:
+        col = _mix(top, color, max(0.0, min(1.0, r / span)))
+        dd = abs((px - sx) - r * 0.5)
+        if dd < 4.0:
+            col = _mix(col, WHITE, (1 - dd / 4.0) * 0.7)
+        if flash:
+            col = _mix(col, WHITE, flash)
+        cv.set(px, py, scale_color(col, k))
+    return cx - x
+
+
+class EventsEl(Element):
+    """Short events that take the panel for a moment, one at a time, the way a pinball shows them: BOMB and its
+    explosions when a bomb goes, POWER UP, the plane that blows up and the lives left, 1UP, GAME OVER...
+
+    "events": a list of events, each with
+      "on": the value(s) watched, "change": "up", "down" or "any" (default), "step": the size of the change (1 for a
+        life lost, so that a value set at the start of a game does not count), "from" / "to": the values before and after,
+        "when": a condition on the values once changed,
+      "text": the big text (with {lives}... fields), "color", "font": its biggest size (it grows up to it), "y": its
+        middle line, "text_delay": seconds before it shows (after the explosion),
+      "icon": a small drawing at the left of the text (rows of characters, as in "icons"), "colors", "icon_scale",
+      "anim": an animation played at the start, or a list of them (same keys as the "anim" layer, without "on"),
+      "ms": how long it lasts (1400), "clear": true (black panel, default) or false (over the scene),
+      "priority": a more important event replaces the one playing (GAME OVER over a life lost), a less important one waits.
+
+    Événements courts qui prennent la dalle un instant, un à la fois, comme sur un flipper : BOMB et ses explosions,
+    POWER UP, l'avion qui explose et les vies qui restent, 1UP, GAME OVER... Rien pendant un décompte rapide de points."""
+
+    def __init__(self, spec, root, log):
+        super().__init__(spec, root, log)
+        self.defs = []
+        for d in spec.get("events") or []:
+            if not isinstance(d, dict):
+                continue
+            anims = []
+            for a in d.get("anim") if isinstance(d.get("anim"), list) else [d.get("anim")]:
+                if isinstance(a, dict):
+                    anims.append(AnimEl(dict(a, manual=True), root, log))
+            icon = None
+            if d.get("icon"):
+                rows = d["icon"]
+                base = parse_color(d.get("color"), (255, 255, 255))
+                cmap = {ch: parse_color(c, base) for ch, c in (d.get("colors") or {}).items()}
+                pts = [(x, y, cmap.get(ch, base)) for y, row in enumerate(rows) for x, ch in enumerate(row) if ch not in ". "]
+                icon = (pts, max(len(r) for r in rows), len(rows))
+            self.defs.append({"spec": d, "anims": anims, "icon": icon, "prio": float(d.get("priority", 1))})
+        self.play = None
+        self.waiting = None
+        self.times = {}
+        self.count = 0                                   # (tests)
+        self.shown = []                                  # texts shown, for the tests / textes montrés (tests)
+
+    def restart(self):
+        super().restart()
+        self.play = None
+        self.waiting = None
+
+    def _match(self, d, name, old, new, ctx):
+        s = d["spec"]
+        names = s.get("on")
+        names = names if isinstance(names, list) else [names]
+        if name not in names:
+            return False
+        num = all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in (old, new))
+        change = s.get("change", "any")
+        if num:
+            if (change == "up" and new <= old) or (change == "down" and new >= old):
+                return False
+            step = s.get("step")
+            if step is not None and abs(new - old) not in (step if isinstance(step, list) else [step]):
+                return False
+        elif change in ("up", "down"):
+            return False
+        if "from" in s and old not in (s["from"] if isinstance(s["from"], list) else [s["from"]]):
+            return False
+        if "to" in s and new not in (s["to"] if isinstance(s["to"], list) else [s["to"]]):
+            return False
+        return check_when(s.get("when"), ctx.state, ctx.t)
+
+    def _trigger(self, d, ctx):
+        t = ctx.t
+        snap = {"d": d, "t0": t, "map": ctx.state.mapping(), "fired": False}
+        if self.play is None or d["prio"] >= self.play["d"]["prio"]:
+            self.play = snap
+        elif self.waiting is None or d["prio"] >= self.waiting["d"]["prio"]:
+            self.waiting = snap
+
+    def render(self, ctx):
+        cv, t = ctx.canvas, ctx.t
+        for (name, old, new, et) in ctx.state.events:
+            if old is None:
+                continue
+            seen = self.times.setdefault(name, [])
+            seen[:] = [x for x in seen if t - x < 0.8] + [t]
+            if len(seen) > 6:                            # a bonus being counted / un bonus compté par le jeu
+                continue
+            for d in self.defs:
+                if self._match(d, name, old, new, ctx):
+                    self._trigger(d, ctx)
+        p = self.play
+        if p is not None and t - p["t0"] >= float(p["d"]["spec"].get("ms", 1400)) / 1000.0:
+            p = self.play = None
+        if p is None and self.waiting is not None:
+            w, self.waiting = self.waiting, None
+            if t - w["t0"] < 1.5:                        # still worth showing / encore d'actualité
+                w["t0"] = t
+                p = self.play = w
+        if p is None:
+            return
+        d, s = p["d"], p["d"]["spec"]
+        if not p["fired"]:
+            p["fired"] = True
+            self.count += 1
+            for a in d["anims"]:
+                a.fire(t, cv.w, cv.h, (ctx.state.meta or {}).get("game"))
+        el = t - p["t0"]
+        dur = float(s.get("ms", 1400)) / 1000.0
+        if s.get("clear", True):
+            cv.clear((0, 0, 0))
+        for a in d["anims"]:
+            a.draw(cv, t)
+        text = render_template(panel_text(s.get("text", "")), p["map"], "")
+        lt = el - float(s.get("text_delay", 0.0))
+        if lt < 0 or not (text or d["icon"]):
+            return
+        if not self.shown or self.shown[-1] != text:
+            self.shown = (self.shown + [text])[-20:]
+        color = parse_color(s.get("color"), (255, 200, 60))
+        target = s.get("font", "9x15B")
+        ladder = [f for f in POP_FONTS[:POP_FONTS.index(target) + 1]] if target in POP_FONTS else [target]
+        scale = max(1, int(s.get("icon_scale", 1)))
+        iw = d["icon"][1] * scale + 3 if d["icon"] else 0
+
+        def width(f):
+            return iw + Font.get(f).width(text)
+        while len(ladder) > 1 and width(ladder[-1]) > cv.w - 4:
+            ladder.pop()
+        pop = 0.16
+        font = Font.get(ladder[min(len(ladder) - 1, int(lt / pop * len(ladder)))] if lt < pop else ladder[-1])
+        fade = max(0.0, min(1.0, (dur - el) / 0.25))
+        flash = max(0.0, 1.0 - lt / 0.25) * 0.8
+        w = iw + font.width(text)
+        x = int(round(float(s.get("x", cv.w / 2)) - w / 2))
+        cy = float(s.get("y", cv.h / 2))
+        if d["icon"]:
+            pts, _, ih = d["icon"]
+            iy = int(round(cy - ih * scale / 2))
+            for (px, py, c) in pts:
+                c = scale_color(_mix(c, WHITE, flash), fade)
+                for sy in range(scale):
+                    for sx in range(scale):
+                        cv.set(x + px * scale + sx, iy + py * scale + sy, c)
+        if text:
+            shiny_text(cv, font, text, x + iw, int(round(cy - font.cap_h / 2)), color, lt, fade, flash)
 
 
 class SpriteEl(Element):
@@ -1044,6 +1235,43 @@ class IconsEl(Element):
                 if i < n and flash is not None:
                     col = flash
                 cv.set(ox + px, y0 + py, col)
+
+
+class CounterEl(Element):
+    """A small drawing followed by a number: a plane and x3 for the lives, a bomb and x2.
+    "var": the value, "pattern" and "colors" as in "icons", "font", "color" of the number, "prefix" ("x" by default),
+    "align": "left" (x is the left edge) or "right" (x is the right edge), "max": above it the value is not shown (a value
+    not set yet at the start of a game). / Un petit dessin suivi d'un nombre : un avion et x3 pour les vies."""
+
+    def __init__(self, spec, root, log):
+        super().__init__(spec, root, log)
+        rows = spec.get("pattern") or ["#"]
+        base = parse_color(spec.get("icon_color"), (255, 255, 255))
+        cmap = {k: parse_color(v, base) for k, v in (spec.get("colors") or {}).items()}
+        self.points = [(x, y, cmap.get(ch, base)) for y, row in enumerate(rows) for x, ch in enumerate(row) if ch not in ". "]
+        self.iw = max((len(r) for r in rows), default=1)
+        self.ih = len(rows)
+        self.font = Font.get(spec.get("font", "5x8"))
+        self.color = parse_color(spec.get("color"), (216, 216, 224))
+
+    def render(self, ctx):
+        s = self.spec
+        n = _int_value(ctx, s.get("var", "lives"))
+        if n is None or n < 0 or n > int(s.get("max", 99)):
+            return
+        text = f"{s.get('prefix', 'x')}{n}"
+        gap = int(s.get("gap", 2))
+        w = self.iw + gap + self.font.width(text)
+        x = int(s.get("x", 0))
+        if s.get("align") == "right":
+            x = x - w + 1
+        y = int(s.get("y", 0))
+        flash = _flash_color(s, ctx, None)
+        cv = ctx.canvas
+        for (px, py, c) in self.points:
+            cv.set(x + px, y + py, flash or c)
+        ty = y + (self.ih - self.font.cap_h + 1) // 2
+        cv.text(self.font, text, x + self.iw + gap, ty, flash or self.color)
 
 
 class DotEl(Element):
@@ -1434,8 +1662,8 @@ class Scene:
         kind = spec.get("type", "text")
         cls = {
             "text": TextEl, "marquee": MarqueeEl, "bars": BarsEl, "waves": WavesEl, "mountains": MountainsEl, "gauge": GaugeEl,
-            "particles": ParticlesEl, "sprite": SpriteEl, "clock": ClockEl, "anim": AnimEl,
-            "rect": RectEl, "image": ImageEl, "coinop": CoinOpEl, "icons": IconsEl, "dot": DotEl, "arrow": ArrowEl,
+            "particles": ParticlesEl, "sprite": SpriteEl, "clock": ClockEl, "anim": AnimEl, "events": EventsEl,
+            "rect": RectEl, "image": ImageEl, "coinop": CoinOpEl, "icons": IconsEl, "counter": CounterEl, "dot": DotEl, "arrow": ArrowEl,
         }.get(kind)
         if kind == "cycle":
             return CycleEl(spec, self.root, self.log, self._make)

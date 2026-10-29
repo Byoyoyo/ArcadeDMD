@@ -86,6 +86,22 @@
     "addr": "0x10FDB7",
     "type": "u8",
     "note": "BIOS: player 2, same values"
+   },
+   "bios_request": {
+    "addr": "0x10FDAE",
+    "type": "u8",
+    "note": "BIOS_USER_REQUEST: 2 demo, 3 title screen (asked by the BIOS when a coin goes in on an MVS)"
+   },
+   "bios_mode": {
+    "addr": "0x10FDAF",
+    "type": "u8",
+    "note": "BIOS_USER_MODE: 1 title or demo, 2 game"
+   },
+   "bios_timer": {
+    "addr": "0x10FDDA",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "BIOS_COMPULSION_TIMER: seconds left on the title screen before the game starts by itself"
    }
   }
  },
@@ -435,7 +451,7 @@
     "font": "6x10",
     "y": 1,
     "x": 0,
-    "w": 70,
+    "w": 56,
     "speed": 12,
     "gap": 40,
     "upper": true,

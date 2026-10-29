@@ -81,6 +81,19 @@ def rgb888_to_v1_planes(frame, rbg=False):
     return out
 
 
+def gamma_table(gamma):
+    """256 bytes for bytes.translate: the colors drawn for a screen made right for the LEDs, which light in proportion to
+    the value (a dark gray would glow). None for 1.0. / Les couleurs pensées pour un écran remises à l'échelle des LED,
+    qui éclairent en proportion de la valeur (un gris sombre brillerait)."""
+    try:
+        g = float(gamma)
+    except (TypeError, ValueError):
+        g = 2.2
+    if g <= 0 or abs(g - 1.0) < 1e-3:
+        return None
+    return bytes(int(round(255 * (v / 255.0) ** g)) for v in range(256))
+
+
 def swap_green_blue(frame):
     out = bytearray(frame)
     out[1::3] = frame[2::3]
@@ -390,6 +403,7 @@ class PixelcadeOutput:
         self.last_sent = 0.0
         self.failed = False
         self.min_interval = 1.0 / max(5.0, float(cfg.get("max_fps", 30)))
+        self.gamma = gamma_table(cfg.get("gamma", 2.2))
         self.last_game = []          # jeu en cours (romset, parent) : son marquee revient après la partie
         self.art_dir = guess_pixelcade_dir(root, cfg)
         if importlib.util.find_spec("serial") is None:
@@ -438,7 +452,7 @@ class PixelcadeOutput:
             if dev is None:
                 return
             try:
-                dev.send(frame)
+                dev.send(frame.translate(self.gamma) if self.gamma else frame)
                 self.last_sent = now
             except Exception as e:
                 self.log(tr(f"Pixelcade : envoi interrompu ({e})", f"Pixelcade: sending interrupted ({e})"))

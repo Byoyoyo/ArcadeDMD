@@ -3,6 +3,50 @@
 Newest version first. Each version is in English, then in French.
 La version la plus récente en premier. Chaque version est en anglais, puis en français.
 
+## 1.29.0
+
+### English
+
+**A simpler panel for the shoot'em ups**
+- During a game, the panel of the fifteen Neo Geo shoot'em ups only shows the score in big digits in the middle (or the title of the game as long as the score has not been learned), your lives at the bottom left (a plane and x2) and your bombs at the bottom right. The title no longer scrolls during a game, the credits and INSERT COIN are gone, as are the power gauge and the scenery.
+- Everything else takes the panel for a moment, one thing at a time, as on a pinball. BOMB! and its explosions, POWER UP then MAX POWER, the plane that blows up and the lives left, LAST LIFE, 1UP, ROUND 2 or STAGE 2, SPEED UP, the SUPER SHOT of Strikers 1945 Plus, CONTINUE?, GAME OVER, PLAYER 1 and PLAYER 2, and CREDIT 1 when a coin goes in during a game. A more important event replaces the one playing (GAME OVER over a life lost), a less important one waits its turn.
+- Each enemy destroyed in the game is a small explosion beside the score, a big one for a big enemy. Your own animations in the `artwork` folder still come first.
+- A value that the game has not set yet (the lives during the choice of the plane) is not shown.
+- Two new panel layers, `events` (short events, one at a time) and `counter` (a small drawing followed by a number).
+
+**The panel looks like the preview**
+- LEDs light up in proportion to the value they get, so the dark grays of the scenes glowed on the Pixelcade and made them look busy. ArcadeDMD now corrects the colors it sends to the Pixelcade (`"gamma": 2.2` in the `pixelcade` section, `1.0` sends them as they are).
+
+**The coin drops with RetroArch too**
+- The FinalBurn Neo core of RetroArch does not share the memory where an MVS keeps its credits, so the coin never dropped. ArcadeDMD now guesses the credits from the Neo Geo BIOS. A coin put in while nobody plays drops on the panel and the HD screen, PRESS START follows, and each player who starts takes a credit. A coin put in during a game is not seen. With MAME, the real credits are still read.
+
+**Fixes**
+- In the Neo Geo games whose score has not been learned, the title that scrolls at the top no longer runs into INSERT COIN.
+
+**Updating from 1.28**
+Extract the new zip over the old folder (`config.json`, your learned addresses and your `artwork` folder are kept), then run `install.bat` once to update the MAME plugin.
+
+### Français
+
+**Une dalle plus simple pour les shoot'em up**
+- Pendant la partie, la dalle des quinze shoot'em up Neo Geo ne montre plus que le score en gros au milieu (ou le titre du jeu tant que le score n'est pas appris), tes vies en bas à gauche (un avion et x2) et tes bombes en bas à droite. Le titre ne défile plus pendant la partie, les crédits et INSERT COIN disparaissent, comme la jauge de puissance et le décor.
+- Tout le reste prend la dalle un instant, une chose à la fois, comme sur un flipper. BOMBE! et ses explosions, POWER UP puis MAX POWER, l'avion qui explose et les vies qui restent, LAST LIFE, 1UP, ROUND 2 ou STAGE 2, SPEED UP, le SUPER SHOT de Strikers 1945 Plus, CONTINUE?, GAME OVER, PLAYER 1 et PLAYER 2, et CRÉDIT 1 quand une pièce entre en pleine partie. Un événement plus important remplace celui en cours (GAME OVER par-dessus une vie perdue), un moins important attend son tour.
+- Chaque ennemi détruit dans le jeu fait une petite explosion à côté du score, une grosse pour un gros ennemi. Tes propres animations du dossier `artwork` passent toujours en premier.
+- Une valeur que le jeu n'a pas encore posée (les vies pendant le choix de l'avion) ne s'affiche pas.
+- Deux nouvelles couches de dalle, `events` (des événements courts, un à la fois) et `counter` (un petit dessin suivi d'un nombre).
+
+**La dalle ressemble à l'aperçu**
+- Les LED éclairent en proportion de la valeur reçue, donc les gris sombres des scènes brillaient sur la Pixelcade et les rendaient chargées. ArcadeDMD corrige maintenant les couleurs qu'il envoie à la Pixelcade (`"gamma": 2.2` dans la section `pixelcade`, `1.0` les envoie telles quelles).
+
+**La pièce tombe aussi avec RetroArch**
+- Le cœur FinalBurn Neo de RetroArch ne partage pas la mémoire où la MVS range ses crédits, donc la pièce ne tombait jamais. ArcadeDMD devine maintenant les crédits d'après le BIOS de la Neo Geo. Une pièce mise quand personne ne joue tombe sur la dalle et sur l'écran HD, PRESS START suit, et chaque joueur qui commence prend un crédit. Une pièce mise en pleine partie ne se voit pas. Avec MAME, les vrais crédits sont toujours lus.
+
+**Corrections**
+- Dans les jeux Neo Geo dont le score n'est pas appris, le titre qui défile en haut ne chevauche plus INSERT COIN.
+
+**Mettre à jour depuis la 1.28**
+Décompresse le nouveau zip par-dessus l'ancien dossier (`config.json`, tes adresses apprises et ton dossier `artwork` sont gardés), puis lance `install.bat` une fois pour mettre à jour le plugin MAME.
+
 ## 1.28.0
 
 ### English
