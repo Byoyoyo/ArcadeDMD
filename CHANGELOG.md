@@ -3,6 +3,90 @@
 Newest version first. Each version is in English, then in French.
 La version la plus récente en premier. Chaque version est en anglais, puis en français.
 
+## 1.30.0
+
+### English
+
+**Every Capcom CPS1, CPS2 and CPS3 game**
+- Every Capcom CPS1, CPS2 and CPS3 game of FinalBurn Neo is recognized, with MAME as with RetroArch. That makes 88 games and their 942 sets. A version, a bootleg or a hack takes the file of its original game, with its own name when it has one.
+- The values of the cheat database of FinalBurn Neo are read, each player's health, the timer, the lives, the bombs, the super gauge, the characters and their names, the stage, and the credits when the game keeps them. The RAM of the CPS3, whose bytes are reversed in 32-bit words, is put back in order.
+- The Capcom games have no BIOS that tells who plays. ArcadeDMD watches the timer, the score once it is learned, and the health in the fighting games. As long as they move, player 1 plays, and after 10 seconds without any change the coin screen comes back. Without them, the game stays on its game scene.
+- `demo_capcom.bat` plays the demo of a Capcom game, most of them with the coin screen first.
+
+**The Capcom fighting games**
+- 22 fighting games read their stage. The HD screen shows it, with the place under the stage banner (CHINA, INDIA, FEAST OF THE DAMNED...).
+- Eight new fight stages drawn by the program. A castle roof in Japan at night, a Chinese street market, a steel factory, a gothic manor under the moon, an Indian palace at sunset, a golden temple on its river, a laboratory and an air base at dusk.
+- The super gauges, on the bottom line of the panel and under the fighters on the HD screen. Blue as they fill up, gold with MAX when they are full.
+- Street Fighter III: New Generation names its fighters.
+
+**The Capcom games done one by one**
+- Fifty-three Capcom games get a panel scene and an animated HD scene of their own, drawn by the program with heroes and foes of our own.
+- The beat'em ups (Final Fight, Captain Commando, Cadillacs and Dinosaurs, The Punisher, The King of Dragons, Knights of the Round, Warriors of Fate, the two Dungeons & Dragons, Alien vs. Predator, Armored Warriors, Battle Circuit). The hero chosen in the game, things to break that leave food or treasure, the name and gauge of the foe just hit, and player 2 who joins at the hero's side with his own box.
+- The shoot'em ups (1944, 19XX, 1941, Varth, U.N. Squadron, Carrier Air Wing, Forgotten Worlds, Giga Wing, Progear, Mars Matrix, Dimahoo, Eco Fighters, Mercs). Once the score is learned, the enemies blow up when the game scores points, a bomb sweeps the screen, the weapon picked up and the plane chosen are named, and on the panel the plane of the game flies and fires.
+- The action games, platformers, puzzle games and quizzes (Ghouls'n Ghosts, Strider, Pang! 3, Mighty! Pang, Super Puzzle Fighter II Turbo, Mega Twins, Magic Sword, Willow, Nemo, Three Wonders, Dynasty Wars, Puzz Loop 2, Capcom Sports Club, Quiz & Dragons, Adventure Quiz Capcom World 2). The hero throws what the game says he holds, his armour and his partner follow the game.
+- Quiz Tonosama no Yabou 2, Quiz Nanairo Dreams, Jyangokushi, Janpai Puzzle Choukou, Gulun.Pa!, Pnickies, Frog Feast, Pokonyan! Balloon, Magical Pumpkin and Ganbare! Marine Kun get theirs too.
+- Final Fight Anniversary Edition, Final Fight EX and Tenchi wo Kurau II CPS Changer take the scene of their game.
+
+**Marvel vs. Capcom 2 on the Dreamcast**
+- ArcadeDMD reads Dreamcast games in RetroArch, with the Flycast core. The first one is Marvel vs. Capcom 2 (US disc).
+- On the panel, the two characters on point with their health bars and the timer, the hyper combo gauges, and the three characters of each team. Events take the panel one at a time, a character KO, HYPER COMBO, the character who comes in, TIME OVER, and P1 WINS or P2 WINS.
+- On the HD screen, the fighting scene with a background for each stage, the three characters of each team and the hyper combo gauges. WIN and the confetti wait until a whole team is down.
+
+**Super Mario World and A Link to the Past on the Super Nintendo**
+- Two Super Nintendo games have their own panel and HD scenes, recognized by their usual names (USA, Europe, Japan...). Use the Snes9x core with the network commands on.
+- Super Mario World shows the score, the lives, the coins, the time, the big coins, the bonus stars, the power, the reserve item and the world on the map. A Link to the Past shows the hearts, the magic, the rupees, the bombs, the arrows, the keys, the item on Y, the dungeon or the world, the pendants and the crystals.
+- The panel shows each event big, one at a time, with explosions (1UP, CAPE, STAR POWER, COURSE CLEAR, the item found, VICTORY, BOMBOS, DARK WORLD...).
+- The HD screen is drawn our own way. A little hero runs and jumps with the game's speed and controller, a young adventurer swings his sword, drops bombs and shoots arrows, and the backdrop follows the level, the world or the dungeon.
+- `demo_consoles.bat` plays their demos and the one of Marvel vs. Capcom 2.
+- The Super Nintendo cores are known to `test_retroarch.bat` and the log.
+
+**Also**
+- The HD screen gave the Metal Slug scene to Marvel Super Heroes and Magic Sword, their names start like Metal Slug's. Only the Metal Slug games get it now.
+
+**Updating from 1.29.3**
+Extract the new zip over the old folder (`config.json`, your learned addresses and your `artwork` folder are kept).
+
+### Français
+
+**Tous les jeux Capcom CPS1, CPS2 et CPS3**
+- Chaque jeu Capcom CPS1, CPS2 et CPS3 de FinalBurn Neo est reconnu, avec MAME comme avec RetroArch. Ça fait 88 jeux et leurs 942 sets. Une version, un bootleg ou un hack prend le fichier de son jeu d'origine, avec son propre nom quand il en a un.
+- Ce qu'écrit la base de codes de triche de FinalBurn Neo est lu. La vie de chaque joueur, le chrono, les vies, les bombes, la jauge de super, les personnages et leur nom, le décor, et les crédits quand le jeu les garde. La RAM du CPS3, dont les octets sont inversés par mots de 32 bits, est remise dans l'ordre.
+- Les jeux Capcom n'ont pas de BIOS qui dit qui joue. ArcadeDMD surveille le chrono, le score une fois appris, et la vie dans les jeux de combat. Tant qu'ils bougent, le joueur 1 joue, et au bout de 10 secondes sans le moindre changement l'écran des pièces revient. Sans eux, le jeu reste sur sa scène de jeu.
+- `demo_capcom.bat` lance la démo d'un jeu Capcom, la plupart avec l'écran des pièces d'abord.
+
+**Les jeux de combat Capcom**
+- 22 jeux de combat lisent leur décor. L'écran HD le montre, avec le lieu sous le bandeau du décor (CHINE, INDE, FEAST OF THE DAMNED...).
+- Huit nouveaux décors de combat dessinés par le programme. Un toit de château au Japon la nuit, un marché chinois, une aciérie, un manoir gothique sous la lune, un palais indien au couchant, un temple d'or au bord de son fleuve, un laboratoire et une base aérienne au crépuscule.
+- Les jauges de super, sur la ligne du bas de la dalle et sous les combattants sur l'écran HD. Bleues quand elles se remplissent, dorées avec MAX quand elles sont pleines.
+- Street Fighter III: New Generation donne le nom de ses combattants.
+
+**Les jeux Capcom faits un par un**
+- Cinquante-trois jeux Capcom ont une scène de dalle et une scène HD animée à leur image, dessinées par le programme avec des héros et des ennemis à nous.
+- Les beat'em up (Final Fight, Captain Commando, Cadillacs and Dinosaurs, The Punisher, The King of Dragons, Knights of the Round, Warriors of Fate, les deux Dungeons & Dragons, Alien vs. Predator, Armored Warriors, Battle Circuit). Le héros choisi dans le jeu, des objets à casser qui laissent de la nourriture ou un trésor, le nom et la jauge de l'ennemi qu'on vient de frapper, et le joueur 2 qui arrive aux côtés du héros avec son encadré à lui.
+- Les shoot'em up (1944, 19XX, 1941, Varth, U.N. Squadron, Carrier Air Wing, Forgotten Worlds, Giga Wing, Progear, Mars Matrix, Dimahoo, Eco Fighters, Mercs). Une fois le score appris, les ennemis explosent quand le jeu marque des points, une bombe balaie l'écran, l'arme ramassée et l'avion choisi sont nommés, et sur la dalle l'avion du jeu vole et tire.
+- Les jeux d'action, de plateformes, de réflexion et les quiz (Ghouls'n Ghosts, Strider, Pang! 3, Mighty! Pang, Super Puzzle Fighter II Turbo, Mega Twins, Magic Sword, Willow, Nemo, Three Wonders, Dynasty Wars, Puzz Loop 2, Capcom Sports Club, Quiz & Dragons, Adventure Quiz Capcom World 2). Le héros lance ce que le jeu dit qu'il tient, son armure et son compagnon suivent le jeu.
+- Quiz Tonosama no Yabou 2, Quiz Nanairo Dreams, Jyangokushi, Janpai Puzzle Choukou, Gulun.Pa!, Pnickies, Frog Feast, Pokonyan! Balloon, Magical Pumpkin et Ganbare! Marine Kun ont aussi les leurs.
+- Final Fight Anniversary Edition, Final Fight EX et Tenchi wo Kurau II CPS Changer prennent la scène de leur jeu.
+
+**Marvel vs. Capcom 2 sur Dreamcast**
+- ArcadeDMD lit les jeux Dreamcast dans RetroArch, avec le cœur Flycast. Le premier est Marvel vs. Capcom 2 (disque américain).
+- Sur la dalle, les deux personnages au point avec leurs barres de vie et le chrono, les jauges d'hyper combo, et les trois personnages de chaque équipe. Les événements prennent la dalle un à la fois, le KO d'un personnage, HYPER COMBO, le personnage qui entre, TIME OVER, et P1 WINS ou P2 WINS.
+- Sur l'écran HD, la scène de combat avec un décor pour chaque stage, les trois personnages de chaque équipe et les jauges d'hyper combo. WIN et les confettis attendent qu'une équipe entière soit à terre.
+
+**Super Mario World et A Link to the Past sur Super Nintendo**
+- Deux jeux Super Nintendo ont leurs propres scènes sur la dalle et sur l'écran HD, reconnus sous leurs noms habituels (USA, Europe, Japon...). Prends le cœur Snes9x avec les commandes réseau actives.
+- Super Mario World affiche le score, les vies, les pièces, le temps, les grosses pièces, les étoiles bonus, la puissance, l'objet en réserve et le monde sur la carte. A Link to the Past affiche les cœurs, la magie, les rubis, les bombes, les flèches, les clés, l'objet sur Y, le donjon ou le monde, les pendentifs et les cristaux.
+- La dalle montre chaque événement en grand, un à la fois, avec des explosions (1UP, CAPE, INVINCIBLE, NIVEAU RÉUSSI, l'objet trouvé, VICTOIRE, BOMBOS, MONDE DES TÉNÈBRES...).
+- L'écran HD est dessiné à notre façon. Un petit héros court et saute avec la vitesse et la manette du jeu, un jeune aventurier frappe de son épée, pose des bombes et tire des flèches, et le décor suit le niveau, le monde ou le donjon.
+- `demo_consoles.bat` lance leurs démos et celle de Marvel vs. Capcom 2.
+- `test_retroarch.bat` et le journal connaissent les cœurs Super Nintendo.
+
+**Aussi**
+- L'écran HD donnait la scène de Metal Slug à Marvel Super Heroes et à Magic Sword, leur nom commence comme celui de Metal Slug. Seuls les Metal Slug l'ont maintenant.
+
+**Mettre à jour depuis la 1.29.3**
+Décompresse le nouveau zip par-dessus l'ancien dossier (`config.json`, tes adresses apprises et ton dossier `artwork` sont gardés).
+
 ## 1.29.3
 
 ### English
