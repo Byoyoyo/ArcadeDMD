@@ -3,6 +3,46 @@
 Newest version first. Each version is in English, then in French.
 La version la plus récente en premier. Chaque version est en anglais, puis en français.
 
+## 1.21.0
+
+### English
+
+**Neo Geo games done one by one, fifth batch**
+- NAM-1975, Cyber-Lip, Ghost Pilots, Alpha Mission II, Viewpoint, Zed Blade, Prehistoric Isle 2, Shock Troopers 2nd Squad, Robo Army and Burning Fight now have a file of their own, with a panel scene and an animated HD scene made for each game after screenshots of the game. That makes thirty-five games done one by one. `PROGRESS.md` shows what comes next.
+- NAM-1975. Our soldier seen from behind shoots into the burning city, then the jungle. The bullets, the grenades and the weapon read in the game are shown, a grenade blows up where the crosshair is.
+- Cyber-Lip. Our hero runs down the city at night and shoots the walking robots and the drones. The weapon whose ammo goes down in the game is the one he fires. TIME in blue, the weapon in the blue bar at the bottom.
+- Ghost Pilots and Alpha Mission II. Seen from the sky, the earth and the sea, then a fortress in space. A fighter with a big radial engine, a space fighter, enemy planes, bombers and saucers. The planes left, the bombs, the stars, the gold and the power where each game puts them.
+- Viewpoint. The floor of tiles seen at an angle, our hover-ship and its shadow. The bomb carried in the game sweeps the screen in its colour when it is spent.
+- Zed Blade and Prehistoric Isle 2. Seen from the side, a valley at dawn with its helicopters, the sea by the island with its flying reptiles. A bomb spent blows up the screen.
+- Shock Troopers 2nd Squad. The city street seen from above, our commando goes up the road and shoots the soldiers, the jeeps and the tanks. The weapon read in the game is the one he fires, a grenade spent is thrown. TIME in big yellow numbers, the weapon box and LV as in the game.
+- Robo Army and Burning Fight. Beat'em ups seen from the side, the edge of a town at dusk, a street of small shops at night. A cyborg and a street fighter of our own face the robots and the thugs that come from both sides. The points are blows that land, the health that goes down a blow taken.
+- The score of these ten games is in no database. Learn it with `learn.bat`.
+- New panel sprite `sprites/runner.png`, a small running fighter.
+- `demo_neogeo.bat` now lists the thirty-five games.
+- Demo mode. A game that drives the ammo of its weapon itself keeps it when the weapon changes.
+
+**Updating from 1.20**
+Extract the new zip over the old folder (`config.json` and your learned addresses are kept), then run `install.bat` once to update the MAME plugin.
+
+### Français
+
+**Jeux Neo Geo faits un par un, cinquième lot**
+- NAM-1975, Cyber-Lip, Ghost Pilots, Alpha Mission II, Viewpoint, Zed Blade, Prehistoric Isle 2, Shock Troopers 2nd Squad, Robo Army et Burning Fight ont maintenant un fichier à eux, avec une scène de dalle et une scène HD animée faites pour chaque jeu d'après des captures du jeu. Ça fait trente-cinq jeux faits un par un. `PROGRESS.md` montre ce qui vient ensuite.
+- NAM-1975. Notre soldat vu de dos tire dans la ville en feu, puis la jungle. Les balles, les grenades et l'arme lues dans le jeu s'affichent, une grenade saute là où est le viseur.
+- Cyber-Lip. Notre héros parcourt la ville la nuit et tire sur les robots marcheurs et les drones. L'arme dont les munitions baissent dans le jeu est celle qu'il tire. TIME en bleu, l'arme dans la barre bleue en bas.
+- Ghost Pilots et Alpha Mission II. Vus du ciel, la terre et la mer, puis une forteresse dans l'espace. Un chasseur à gros moteur en étoile, un chasseur spatial, des avions ennemis, des bombardiers et des soucoupes. Les avions qui restent, les bombes, les étoiles, l'or et la puissance là où chaque jeu les met.
+- Viewpoint. Le sol de dalles vu de biais, notre vaisseau et son ombre. La bombe portée dans le jeu balaie l'écran dans sa couleur quand elle part.
+- Zed Blade et Prehistoric Isle 2. De profil, une vallée à l'aube et ses hélicoptères, la mer au bord de l'île et ses reptiles volants. Une bombe dépensée fait sauter l'écran.
+- Shock Troopers 2nd Squad. La rue de la ville vue du dessus, notre commando remonte la route et tire sur les soldats, les jeeps et les chars. L'arme lue dans le jeu est celle qu'il tire, une grenade dépensée est lancée. TIME en gros chiffres jaunes, le cadre de l'arme et LV comme dans le jeu.
+- Robo Army et Burning Fight. Des beat'em up de profil, le bord d'une ville au soir, une rue de petites boutiques la nuit. Un cyborg et un combattant à nous affrontent les robots et les voyous qui arrivent des deux côtés. Les points sont des coups portés, la vie qui baisse un coup reçu.
+- Le score de ces dix jeux n'est dans aucune base. Apprends-le avec `learn.bat`.
+- Nouveau sprite de dalle `sprites/runner.png`, un petit combattant qui court.
+- `demo_neogeo.bat` propose maintenant les trente-cinq jeux.
+- Mode démo. Un jeu qui gère lui-même les munitions de son arme les garde quand l'arme change.
+
+**Mettre à jour depuis la 1.20**
+Décompresse le nouveau zip par-dessus l'ancien dossier (`config.json` et tes adresses apprises sont gardés), puis lance `install.bat` une fois pour mettre à jour le plugin MAME.
+
 ## 1.20.0
 
 ### English

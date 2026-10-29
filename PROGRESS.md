@@ -94,7 +94,7 @@ Scène de combat commune sur la dalle, avec l'écran des pièces depuis la 1.16.
 | World Heroes 2 Jet | ✅ | ✅ | ✅ | ⬜ | ⬜ |
 | World Heroes Perfect | ✅ | ✅ | ✅ | ⬜ | ✅ |
 
-### The other Neo Geo games / Les autres jeux Neo Geo (25 / 97)
+### The other Neo Geo games / Les autres jeux Neo Geo (35 / 97)
 
 The best-known games first. Until its turn, each game keeps the shared scene of its genre. 🟡 in Values means the score still has to be learned with `learn.bat`.
 
@@ -127,16 +127,16 @@ Les plus connus d'abord. En attendant son tour, chaque jeu garde la scène commu
 | 23 | Riding Hero | Racing / Course | ✅ | ✅ | ✅ | 1.20 |
 | 24 | Thrash Rally | Racing / Course | ✅ | ✅ | ✅ | 1.20 |
 | 25 | Magician Lord | Action | 🟡 | ✅ | ✅ | 1.20 |
-| 26 | NAM-1975 | Action | ⬜ | ⬜ | ⬜ |  |
-| 27 | Cyber-Lip | Action | ⬜ | ⬜ | ⬜ |  |
-| 28 | Ghost Pilots | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
-| 29 | Alpha Mission II | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
-| 30 | Viewpoint | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
-| 31 | Zed Blade | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
-| 32 | Prehistoric Isle 2 | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
-| 33 | Shock Troopers 2nd Squad | Action | ⬜ | ⬜ | ⬜ |  |
-| 34 | Robo Army | Beat'em up | ⬜ | ⬜ | ⬜ |  |
-| 35 | Burning Fight | Beat'em up | ⬜ | ⬜ | ⬜ |  |
+| 26 | NAM-1975 | Action | 🟡 | ✅ | ✅ | 1.21 |
+| 27 | Cyber-Lip | Action | 🟡 | ✅ | ✅ | 1.21 |
+| 28 | Ghost Pilots | Shoot'em up | 🟡 | ✅ | ✅ | 1.21 |
+| 29 | Alpha Mission II | Shoot'em up | 🟡 | ✅ | ✅ | 1.21 |
+| 30 | Viewpoint | Shoot'em up | 🟡 | ✅ | ✅ | 1.21 |
+| 31 | Zed Blade | Shoot'em up | 🟡 | ✅ | ✅ | 1.21 |
+| 32 | Prehistoric Isle 2 | Shoot'em up | 🟡 | ✅ | ✅ | 1.21 |
+| 33 | Shock Troopers 2nd Squad | Action | 🟡 | ✅ | ✅ | 1.21 |
+| 34 | Robo Army | Beat'em up | 🟡 | ✅ | ✅ | 1.21 |
+| 35 | Burning Fight | Beat'em up | 🟡 | ✅ | ✅ | 1.21 |
 | 36 | Mutation Nation | Beat'em up | ⬜ | ⬜ | ⬜ |  |
 | 37 | Sengoku | Beat'em up | ⬜ | ⬜ | ⬜ |  |
 | 38 | Sengoku 2 | Beat'em up | ⬜ | ⬜ | ⬜ |  |

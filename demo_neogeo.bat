@@ -35,9 +35,19 @@ echo  22  Neo Drift Out
 echo  23  Riding Hero
 echo  24  Thrash Rally
 echo  25  Magician Lord
+echo  26  NAM-1975
+echo  27  Cyber-Lip
+echo  28  Ghost Pilots
+echo  29  Alpha Mission II
+echo  30  Viewpoint
+echo  31  Zed Blade
+echo  32  Prehistoric Isle 2
+echo  33  Shock Troopers 2nd Squad
+echo  34  Robo Army
+echo  35  Burning Fight
 echo.
 set N=
-if "%L%"=="fr" (set /p N=Quel jeu, 1 a 25 ? ) else (set /p N=Which game, 1 to 25? )
+if "%L%"=="fr" (set /p N=Quel jeu, 1 a 35 ? ) else (set /p N=Which game, 1 to 35? )
 set G=blazstar
 if "%N%"=="2" set G=pbobblen
 if "%N%"=="3" set G=wjammers
@@ -63,6 +73,16 @@ if "%N%"=="22" set G=neodrift
 if "%N%"=="23" set G=ridhero
 if "%N%"=="24" set G=trally
 if "%N%"=="25" set G=maglord
+if "%N%"=="26" set G=nam1975
+if "%N%"=="27" set G=cyberlip
+if "%N%"=="28" set G=gpilots
+if "%N%"=="29" set G=alpham2
+if "%N%"=="30" set G=viewpoin
+if "%N%"=="31" set G=zedblade
+if "%N%"=="32" set G=preisle2
+if "%N%"=="33" set G=shocktr2
+if "%N%"=="34" set G=roboarmy
+if "%N%"=="35" set G=burningf
 :play
 if "%L%"=="fr" (echo Demo %G%, avec des valeurs simulees. Echap ou ferme la fenetre pour quitter.) else (echo %G% demo, with simulated values. Press Esc or close the window to quit.)
 %PY% arcadedmd.py demo %G%
