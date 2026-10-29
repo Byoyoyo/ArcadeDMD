@@ -386,6 +386,16 @@ def dump(path, d):
         f.write(text + "\n")
 
 
+# the super gauges on the bottom line of the panel, blue, gold and blinking when full / les jauges de super en bas de la dalle
+SUPER_LAYERS = [
+    {"type": "gauge", "var": "power", "max": 100, "x": 0, "y": 30, "w": 63, "h": 2, "anchor": "left", "color": "#3c96ff", "low": "#3c96ff",
+     "low_at": 0, "back": "#2a1c08", "shade": False, "when": {"has": "power"}},
+    {"type": "rect", "x": 0, "y": 30, "w": 63, "h": 2, "color": "#ffd040", "blink_period": 0.5, "when": {"var": "power", "gt": 99.5}},
+    {"type": "gauge", "var": "power_p2", "max": 100, "x": 65, "y": 30, "w": 63, "h": 2, "anchor": "right", "color": "#3c96ff",
+     "low": "#3c96ff", "low_at": 0, "back": "#2a1c08", "shade": False, "when": {"has": "power_p2"}},
+    {"type": "rect", "x": 65, "y": 30, "w": 63, "h": 2, "color": "#ffd040", "blink_period": 0.5, "when": {"var": "power_p2", "gt": 99.5}}]
+
+
 def make_templates(games_dir):
     """games/cps_*.json: the shared scenes, the Neo Geo ones with the title where they said NEO GEO."""
     for key, src in TEMPLATES.items():
@@ -402,6 +412,8 @@ def make_templates(games_dir):
                 if ly["when"] is None:
                     ly.pop("when")
             out.append(ly)
+        if key == "cps_combat":
+            out[1:1] = SUPER_LAYERS
         dump(os.path.join(games_dir, key + ".json"), {
             "note": f"Shared scene of the Capcom CPS games ({key.split('_')[-1] if '_' in key else 'action'}), made by {TOOL} "
                     f"from games/{src}.json. The games take it with scene_from.",

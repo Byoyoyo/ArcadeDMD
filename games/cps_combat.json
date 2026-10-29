@@ -12,6 +12,68 @@
         "color": "#a8701e"
       },
       {
+        "type": "gauge",
+        "var": "power",
+        "max": 100,
+        "x": 0,
+        "y": 30,
+        "w": 63,
+        "h": 2,
+        "anchor": "left",
+        "color": "#3c96ff",
+        "low": "#3c96ff",
+        "low_at": 0,
+        "back": "#2a1c08",
+        "shade": false,
+        "when": {
+          "has": "power"
+        }
+      },
+      {
+        "type": "rect",
+        "x": 0,
+        "y": 30,
+        "w": 63,
+        "h": 2,
+        "color": "#ffd040",
+        "blink_period": 0.5,
+        "when": {
+          "var": "power",
+          "gt": 99.5
+        }
+      },
+      {
+        "type": "gauge",
+        "var": "power_p2",
+        "max": 100,
+        "x": 65,
+        "y": 30,
+        "w": 63,
+        "h": 2,
+        "anchor": "right",
+        "color": "#3c96ff",
+        "low": "#3c96ff",
+        "low_at": 0,
+        "back": "#2a1c08",
+        "shade": false,
+        "when": {
+          "has": "power_p2"
+        }
+      },
+      {
+        "type": "rect",
+        "x": 65,
+        "y": 30,
+        "w": 63,
+        "h": 2,
+        "color": "#ffd040",
+        "blink_period": 0.5,
+        "when": {
+          "var": "power_p2",
+          "gt": 99.5
+        }
+      },
+      {
         "type": "text",
         "font": "6x10",
         "x": 1,
