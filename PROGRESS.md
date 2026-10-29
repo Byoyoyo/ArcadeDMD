@@ -4,6 +4,8 @@ Game by game, what ArcadeDMD already knows how to show, and what comes next. Upd
 
 Jeu par jeu, ce qu'ArcadeDMD sait déjà afficher, et ce qui vient ensuite. Mis à jour à chaque version.
 
+Up to date with version 1.29.3. / À jour de la version 1.29.3.
+
 For each game / Pour chaque jeu
 - **Values / Valeurs.** What is read from the game's memory, such as each player's score, lives, bombs, level or health. / Ce qui est lu dans la mémoire du jeu, comme le score de chaque joueur, les vies, les bombes, le niveau ou la vie.
 - **Panel / Dalle.** A 128 x 32 LED scene of its own (Pixelcade, ZeDMD). / Une scène LED 128 x 32 à son image.
@@ -99,6 +101,10 @@ Scène de combat commune sur la dalle, avec l'écran des pièces depuis la 1.16.
 The best-known games came first, and now every game of the list has a panel scene and an HD scene of its own. 🟡 in Values means the score still has to be learned with `learn.bat`, ⬜ that no value of the game is known yet.
 
 Les plus connus sont passés d'abord, et maintenant chaque jeu de la liste a sa scène de dalle et sa scène HD. 🟡 dans Valeurs veut dire que le score reste à apprendre avec `learn.bat`, ⬜ qu'aucune valeur du jeu n'est encore connue.
+
+Since 1.28 and 1.29, the fifteen shoot'em ups (Blazing Star, Pulstar, Last Resort, Aero Fighters 2 and 3, Strikers 1945 Plus, Ghost Pilots, Alpha Mission II, Viewpoint, Zed Blade, Prehistoric Isle 2, Andro Dunos, Captain Tomaday, Choutetsu Brikin'ger, Last Hope) have a simpler panel. The score in big digits, the ship that follows the stick and fires, the lives and the bombs, and the events of the game one at a time (BOMB!, POWER UP, 1UP...), with explosions drawn pixel by pixel. On the HD screen, their enemies blow up when the game scores points.
+
+Depuis la 1.28 et la 1.29, les quinze shoot'em up (Blazing Star, Pulstar, Last Resort, Aero Fighters 2 et 3, Strikers 1945 Plus, Ghost Pilots, Alpha Mission II, Viewpoint, Zed Blade, Prehistoric Isle 2, Andro Dunos, Captain Tomaday, Choutetsu Brikin'ger, Last Hope) ont une dalle plus simple. Le score en gros, le vaisseau qui suit le stick et tire, les vies et les bombes, et les événements du jeu un par un (BOMBE!, POWER UP, 1UP...), avec des explosions dessinées pixel par pixel. Sur l'écran HD, leurs ennemis explosent quand le jeu marque des points.
 
 | # | Game / Jeu | Genre | Values / Valeurs | Panel / Dalle | HD | Version |
 |---|---|---|---|---|---|---|
@@ -200,9 +206,29 @@ Les plus connus sont passés d'abord, et maintenant chaque jeu de la liste a sa 
 | 96 | Idol Mahjong Final Romance 2 | Mahjong | ⬜ | ✅ | ✅ | 1.27 |
 | 97 | Shougi no Tatsujin | Shogi | ⬜ | ✅ | ✅ | 1.27 |
 
-Bootlegs and hacks (Metal Slug 6, KOF 10th Anniversary, Crouching Tiger Hidden Dragon...) follow the game they come from.
+### Every Neo Geo set / Tous les sets Neo Geo (693 / 693)
 
-Les bootlegs et les hacks (Metal Slug 6, KOF 10th Anniversary, Crouching Tiger Hidden Dragon...) suivent le jeu d'origine.
+With MAME, a version of a game always took the file of its original game. Since 1.29.3 it is the same with RetroArch, for every Neo Geo set of FinalBurn Neo (`dmd/neogeo_sets.json`).
+
+Avec MAME, une version d'un jeu prenait déjà le fichier de son jeu d'origine. Depuis la 1.29.3 c'est pareil avec RetroArch, pour chaque set Neo Geo de FinalBurn Neo (`dmd/neogeo_sets.json`).
+
+| Sets | Recognized / Reconnus | Scene / Scène |
+|---|---|---|
+| Official games / Jeux officiels | 153 / 153 | their own, or the one of their genre for Treasure of the Caribbean / la leur, ou celle de leur genre pour Treasure of the Caribbean |
+| Versions | 100 / 100 | the one of the original game (Metal Slug 3 Fully Decrypted, KOF 96 bug fix...) / celle du jeu d'origine |
+| Bootlegs | 55 / 55 | the one of the original game, with their own name when they have one / celle du jeu d'origine, avec leur propre nom quand ils en ont un |
+| Hacks | 273 / 273 | the one of the original game, with their own name (KOF 2002 Magic Plus...) / celle du jeu d'origine, avec leur propre nom |
+| Prototypes | 14 / 14 | the one of the original game / celle du jeu d'origine |
+| Homebrew | 67 / 67 | the one of their genre (Xeno Crisis, Neo Thunder, Columns...) / celle de leur genre |
+| Demos / Démos | 31 / 31 | the one of their genre / celle de leur genre |
+
+The BIOS, the boards and the test programs are left out. / Le BIOS, les cartes et les programmes de test sont laissés de côté.
+
+### Coins with RetroArch / Les pièces avec RetroArch ✅
+
+The credits of an MVS are guessed from its BIOS since 1.29. Since 1.29.2, `coin_buttons.bat` lets ArcadeDMD read the two coin buttons itself, so every coin is seen with its side, during a game too, and counted like the MVS (1 credit on the left, 2 on the right). Since 1.29.3 the coin doors of the HD screen say it.
+
+Les crédits d'une MVS sont devinés d'après son BIOS depuis la 1.29. Depuis la 1.29.2, `coin_buttons.bat` permet à ArcadeDMD de lire lui-même les deux boutons des pièces. Chaque pièce est vue avec son côté, même en pleine partie, et comptée comme sur la MVS (1 crédit à gauche, 2 à droite). Depuis la 1.29.3 les monnayeurs de l'écran HD l'affichent.
 
 ## What comes next / La suite
 
