@@ -1,0 +1,659 @@
+{
+ "title": "Battle Flip Shot",
+ "match": [
+  {
+   "system": [
+    "flipshot"
+   ]
+  }
+ ],
+ "retroarch": {
+  "content": [
+   "flipshot"
+  ],
+  "ram_base": "0x100000",
+  "ram_size": "0x10000",
+  "swap16": true,
+  "note": "FinalBurn Neo core: Neo Geo 68000 RAM seen from 0x100000, bytes swapped within 16-bit words"
+ },
+ "memory": {
+  "cpu": ":maincpu",
+  "values": {
+   "score": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+   },
+   "score_p2": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+   },
+   "p1_input": {
+    "addr": "0x10FD96",
+    "type": "u8",
+    "note": "BIOS_P1CURRENT: player 1 stick and buttons, 1 up, 2 down, 4 left, 8 right, 16 A, 32 B, 64 C, 128 D (HD scene)"
+   },
+   "p2_input": {
+    "addr": "0x10FD9C",
+    "type": "u8",
+    "note": "BIOS_P2CURRENT: player 2 stick and buttons, same bits (HD scene)"
+   },
+   "time": {
+    "addr": "0x1037AE",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "TIME of the round (MAME 2003-Plus cheats, Infinite Time, Finish this Round Now!, to be confirmed in game)"
+   },
+   "target1": {
+    "addr": "0x1034B7",
+    "type": "u8",
+    "note": "player 1 target 1 (MAME 2003-Plus cheats, Never Lose Targets PL1, to be confirmed in game)"
+   },
+   "target1_p2": {
+    "addr": "0x103547",
+    "type": "u8",
+    "note": "player 2 target 1 (MAME 2003-Plus cheats, Never Lose Targets PL2, to be confirmed in game)"
+   },
+   "target2": {
+    "addr": "0x1034CF",
+    "type": "u8",
+    "note": "player 1 target 2 (MAME 2003-Plus cheats, Never Lose Targets PL1, to be confirmed in game)"
+   },
+   "target2_p2": {
+    "addr": "0x10355F",
+    "type": "u8",
+    "note": "player 2 target 2 (MAME 2003-Plus cheats, Never Lose Targets PL2, to be confirmed in game)"
+   },
+   "target3": {
+    "addr": "0x1034E7",
+    "type": "u8",
+    "note": "player 1 target 3 (MAME 2003-Plus cheats, Never Lose Targets PL1, to be confirmed in game)"
+   },
+   "target3_p2": {
+    "addr": "0x103577",
+    "type": "u8",
+    "note": "player 2 target 3 (MAME 2003-Plus cheats, Never Lose Targets PL2, to be confirmed in game)"
+   },
+   "target4": {
+    "addr": "0x1034FF",
+    "type": "u8",
+    "note": "player 1 target 4 (MAME 2003-Plus cheats, Never Lose Targets PL1, to be confirmed in game)"
+   },
+   "target4_p2": {
+    "addr": "0x10358F",
+    "type": "u8",
+    "note": "player 2 target 4 (MAME 2003-Plus cheats, Never Lose Targets PL2, to be confirmed in game)"
+   },
+   "target5": {
+    "addr": "0x103517",
+    "type": "u8",
+    "note": "player 1 target 5 (MAME 2003-Plus cheats, Never Lose Targets PL1, to be confirmed in game)"
+   },
+   "target5_p2": {
+    "addr": "0x1035A7",
+    "type": "u8",
+    "note": "player 2 target 5 (MAME 2003-Plus cheats, Never Lose Targets PL2, to be confirmed in game)"
+   },
+   "target6": {
+    "addr": "0x10352F",
+    "type": "u8",
+    "note": "player 1 target 6 (MAME 2003-Plus cheats, Never Lose Targets PL1, to be confirmed in game)"
+   },
+   "target6_p2": {
+    "addr": "0x1035BF",
+    "type": "u8",
+    "note": "player 2 target 6 (MAME 2003-Plus cheats, Never Lose Targets PL2, to be confirmed in game)"
+   },
+   "credits": {
+    "addr": "0xD00034",
+    "type": "bcd",
+    "bytes": 1,
+    "mame_only": true,
+    "note": "MVS credits (backup RAM), readable in MAME only"
+   },
+   "p1_mode": {
+    "addr": "0x10FDB6",
+    "type": "u8",
+    "note": "BIOS: player 1, 0 never played, 1 playing, 2 continue, 3 game over"
+   },
+   "p2_mode": {
+    "addr": "0x10FDB7",
+    "type": "u8",
+    "note": "BIOS: player 2, same values"
+   }
+  }
+ },
+ "hd": {
+  "scene": "flipshot"
+ },
+ "demo": {
+  "attract": true,
+  "credits": 0,
+  "p1_mode": 1,
+  "p2_mode": 0,
+  "score": 0,
+  "time": 99,
+  "target1": 4,
+  "target2": 4,
+  "target3": 4,
+  "target4": 4,
+  "target5": 4,
+  "target6": 4,
+  "target1_p2": 4,
+  "target2_p2": 4,
+  "target3_p2": 4,
+  "target4_p2": 4,
+  "target5_p2": 4,
+  "target6_p2": 4,
+  "sim": {
+   "time": {
+    "count": [
+     0,
+     99,
+     -1
+    ],
+    "every": 1.0,
+    "start": 1.0
+   },
+   "target2_p2": {
+    "cycle": [
+     4,
+     3,
+     2,
+     1,
+     0
+    ],
+    "every": 5.0,
+    "start": 4.0
+   },
+   "target5_p2": {
+    "cycle": [
+     4,
+     3,
+     2,
+     1,
+     0
+    ],
+    "every": 7.0,
+    "start": 9.0
+   },
+   "target3": {
+    "cycle": [
+     4,
+     3,
+     2,
+     1,
+     0
+    ],
+    "every": 8.0,
+    "start": 11.0
+   }
+  }
+ },
+ "scene": {
+  "layers": [
+   {
+    "type": "rect",
+    "x": 0,
+    "y": 11,
+    "w": 128,
+    "h": 21,
+    "color": "#205868",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "dot",
+    "x": 64,
+    "y": 21,
+    "r": 6.0,
+    "colors": [
+     "#e08a20"
+    ],
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "dot",
+    "x": 64,
+    "y": 21,
+    "r": 3.5,
+    "colors": [
+     "#205868"
+    ],
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 0,
+    "y": 11,
+    "w": 2,
+    "h": 21,
+    "color": "#b060e0",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 126,
+    "y": 11,
+    "w": 2,
+    "h": 21,
+    "color": "#f09030",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "sprite",
+    "image": [
+     "sprites/ball.png"
+    ],
+    "frames": 1,
+    "fps": 1,
+    "mode": "pingpong",
+    "x0": 6,
+    "x1": 118,
+    "speed": 70,
+    "face": "right",
+    "y": 16,
+    "bob": 4.0,
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 1,
+    "y": 1,
+    "align": "left",
+    "segments": [
+     {
+      "text": "{score}",
+      "color": "#ffa830"
+     }
+    ],
+    "when": {
+     "has": "score"
+    },
+    "flash": {
+     "on": "score",
+     "color": "#ffffff",
+     "ms": 120
+    }
+   },
+   {
+    "type": "marquee",
+    "font": "6x10",
+    "y": 1,
+    "x": 0,
+    "w": 70,
+    "speed": 12,
+    "gap": 40,
+    "upper": true,
+    "segments": [
+     {
+      "text": "VISCO",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#40e0ff"
+     }
+    ],
+    "when": {
+     "not": {
+      "has": "score"
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "segments": [
+     {
+      "text": "{score_p2}",
+      "color": "#ffa830"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "var": "p2_mode",
+       "in": [
+        1,
+        2
+       ]
+      },
+      {
+       "has": "score_p2"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "text": "INSERT COIN",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "credits",
+        "gt": 0
+       }
+      }
+     ]
+    },
+    "blink_period": 1.0
+   },
+   {
+    "type": "cycle",
+    "period": 1.5,
+    "when": {
+     "all": [
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "var": "credits",
+       "gt": 0
+      }
+     ]
+    },
+    "pages": [
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "CREDITS {credits}",
+        "color": "#ffa830"
+       }
+      ]
+     },
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "PRESS START",
+        "color": "#ffa830"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 64,
+    "y": 22,
+    "align": "center",
+    "segments": [
+     {
+      "text": "{time}",
+      "color": "#ffe040"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "time"
+      }
+     ]
+    }
+   },
+   {
+    "type": "coinop",
+    "when": {
+     "all": [
+      {
+       "has": "p1_mode"
+      },
+      {
+       "not": {
+        "var": "p1_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    },
+    "title": [
+     {
+      "text": "VISCO",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#40e0ff"
+     }
+    ],
+    "idle_image": [
+     "sprites/insert_coin.gif",
+     "sprites/insert_coin.png"
+    ]
+   }
+  ]
+ }
+}

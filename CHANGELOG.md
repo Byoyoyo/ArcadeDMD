@@ -3,6 +3,38 @@
 Newest version first. Each version is in English, then in French.
 La version la plus récente en premier. Chaque version est en anglais, puis en français.
 
+## 1.25.0
+
+### English
+
+**Neo Geo games done one by one, ninth batch**
+- Bang Bead, Battle Flip Shot, Over Top, Stakes Winner, Stakes Winner 2, Jockey Grand Prix, Gururin, Ghostlop, Pochi and Nyaa and Puzzled now have a file of their own, with a panel scene and an animated HD scene made for each game after screenshots of the game. That makes seventy-five games done one by one. `PROGRESS.md` shows what comes next.
+- Bang Bead and Battle Flip Shot. Two players face to face on a court seen from above, the street with its parked cars, the arena of teal metal and its targets. A 'Miracle' power spent is a shot on fire, a target hit in the game cracks.
+- Over Top. The stages seen from the sky, the pine forest and the grey road, the map in its little television, the time, RANK, the speedometer and the lap time.
+- Stakes Winner, Stakes Winner 2 and Jockey Grand Prix. Horse races seen from the side, a Japanese racecourse, Longchamp and its windmill, a dirt track with its odds board. The horse's qualities and POWER read in the game.
+- Gururin, Ghostlop, Pochi and Nyaa and Puzzled. A board that turns a quarter, little ghosts shot up in a street at night, soft blocks with faces of cats and dogs, brick towers whose full lines leave until the balloon floats away. The next pieces read in the game where they are known.
+- The score of Bang Bead, Battle Flip Shot, Gururin, Ghostlop, Pochi and Nyaa and Puzzled is in no database. Learn it with `learn.bat`. No value of Jockey Grand Prix is known yet, its races run by themselves.
+- A new panel sprite, a galloping horse and its jockey.
+- `demo_neogeo.bat` now offers the seventy-five games.
+
+**Updating from 1.24**
+Extract the new zip over the old folder (`config.json` and your learned addresses are kept), then run `install.bat` once to update the MAME plugin.
+
+### Français
+
+**Jeux Neo Geo faits un par un, neuvième lot**
+- Bang Bead, Battle Flip Shot, Over Top, Stakes Winner, Stakes Winner 2, Jockey Grand Prix, Gururin, Ghostlop, Pochi and Nyaa et Puzzled ont maintenant un fichier à eux, avec une scène de dalle et une scène HD animée faites pour chaque jeu d'après des captures du jeu. Ça fait soixante-quinze jeux faits un par un. `PROGRESS.md` montre ce qui vient ensuite.
+- Bang Bead et Battle Flip Shot. Deux joueurs face à face sur un terrain vu du dessus, la rue et ses voitures garées, l'arène de métal bleu-vert et ses cibles. Un pouvoir 'Miracle' dépensé est un tir en feu, une cible touchée dans le jeu se fissure.
+- Over Top. Les étapes vues du ciel, la forêt de pins et la route grise, la carte dans sa petite télévision, le temps, RANK, le compteur et le temps du tour.
+- Stakes Winner, Stakes Winner 2 et Jockey Grand Prix. Des courses de chevaux vues de côté, un hippodrome japonais, Longchamp et son moulin, une piste en terre et son tableau des cotes. Les qualités du cheval et POWER lus dans le jeu.
+- Gururin, Ghostlop, Pochi and Nyaa et Puzzled. Un plateau qui tourne d'un quart, de petits fantômes tirés dans une rue la nuit, des blocs tout doux aux têtes de chats et de chiens, des tours de briques dont les lignes pleines partent jusqu'à ce que le ballon s'envole. Les pièces suivantes lues dans le jeu quand elles sont connues.
+- Le score de Bang Bead, Battle Flip Shot, Gururin, Ghostlop, Pochi and Nyaa et Puzzled n'est dans aucune base. Apprends-le avec `learn.bat`. Aucune valeur de Jockey Grand Prix n'est encore connue, ses courses vont toutes seules.
+- Un nouveau sprite pour la dalle, un cheval au galop et son jockey.
+- `demo_neogeo.bat` propose maintenant les soixante-quinze jeux.
+
+**Mettre à jour depuis la 1.24**
+Décompresse le nouveau zip par-dessus l'ancien dossier (`config.json` et tes adresses apprises sont gardés), puis lance `install.bat` une fois pour mettre à jour le plugin MAME.
+
 ## 1.24.0
 
 ### English

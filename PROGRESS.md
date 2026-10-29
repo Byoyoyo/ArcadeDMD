@@ -94,7 +94,7 @@ Scène de combat commune sur la dalle, avec l'écran des pièces depuis la 1.16.
 | World Heroes 2 Jet | ✅ | ✅ | ✅ | ⬜ | ⬜ |
 | World Heroes Perfect | ✅ | ✅ | ✅ | ⬜ | ✅ |
 
-### The other Neo Geo games / Les autres jeux Neo Geo (65 / 97)
+### The other Neo Geo games / Les autres jeux Neo Geo (75 / 97)
 
 The best-known games first. Until its turn, each game keeps the shared scene of its genre. 🟡 in Values means the score still has to be learned with `learn.bat`.
 
@@ -167,16 +167,16 @@ Les plus connus d'abord. En attendant son tour, chaque jeu garde la scène commu
 | 63 | 2020 Super Baseball | Sport (baseball) | ✅ | ✅ | ✅ | 1.24 |
 | 64 | Top Player's Golf | Sport (golf) | ✅ | ✅ | ✅ | 1.24 |
 | 65 | Power Spikes II | Sport (volleyball) / Sport (volley) | ✅ | ✅ | ✅ | 1.24 |
-| 66 | Bang Bead | Sport | ⬜ | ⬜ | ⬜ |  |
-| 67 | Battle Flip Shot | Sport | ⬜ | ⬜ | ⬜ |  |
-| 68 | Over Top | Racing / Course | ⬜ | ⬜ | ⬜ |  |
-| 69 | Stakes Winner | Racing (horses) / Course (chevaux) | ⬜ | ⬜ | ⬜ |  |
-| 70 | Stakes Winner 2 | Racing (horses) / Course (chevaux) | ⬜ | ⬜ | ⬜ |  |
-| 71 | Jockey Grand Prix | Racing (horses) / Course (chevaux) | ⬜ | ⬜ | ⬜ |  |
-| 72 | Gururin | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
-| 73 | Ghostlop | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
-| 74 | Pochi and Nyaa | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
-| 75 | Puzzled | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
+| 66 | Bang Bead | Sport | 🟡 | ✅ | ✅ | 1.25 |
+| 67 | Battle Flip Shot | Sport | 🟡 | ✅ | ✅ | 1.25 |
+| 68 | Over Top | Racing / Course | ✅ | ✅ | ✅ | 1.25 |
+| 69 | Stakes Winner | Racing (horses) / Course (chevaux) | ✅ | ✅ | ✅ | 1.25 |
+| 70 | Stakes Winner 2 | Racing (horses) / Course (chevaux) | ✅ | ✅ | ✅ | 1.25 |
+| 71 | Jockey Grand Prix | Racing (horses) / Course (chevaux) | ⬜ | ✅ | ✅ | 1.25 |
+| 72 | Gururin | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.25 |
+| 73 | Ghostlop | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.25 |
+| 74 | Pochi and Nyaa | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.25 |
+| 75 | Puzzled | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.25 |
 | 76 | Zintrick | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
 | 77 | Digger Man | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
 | 78 | The Irritating Maze | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |

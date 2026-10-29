@@ -75,9 +75,19 @@ echo  62  Baseball Stars Professional
 echo  63  2020 Super Baseball
 echo  64  Top Player's Golf
 echo  65  Power Spikes II
+echo  66  Bang Bead
+echo  67  Battle Flip Shot
+echo  68  Over Top
+echo  69  Stakes Winner
+echo  70  Stakes Winner 2
+echo  71  Jockey Grand Prix
+echo  72  Gururin
+echo  73  Ghostlop
+echo  74  Pochi and Nyaa
+echo  75  Puzzled
 echo.
 set N=
-if "%L%"=="fr" (set /p N=Quel jeu, 1 a 65 ? ) else (set /p N=Which game, 1 to 65? )
+if "%L%"=="fr" (set /p N=Quel jeu, 1 a 75 ? ) else (set /p N=Which game, 1 to 75? )
 set G=blazstar
 if "%N%"=="2" set G=pbobblen
 if "%N%"=="3" set G=wjammers
@@ -143,6 +153,16 @@ if "%N%"=="62" set G=bstars
 if "%N%"=="63" set G=2020bb
 if "%N%"=="64" set G=tpgolf
 if "%N%"=="65" set G=pspikes2
+if "%N%"=="66" set G=bangbead
+if "%N%"=="67" set G=flipshot
+if "%N%"=="68" set G=overtop
+if "%N%"=="69" set G=stakwin
+if "%N%"=="70" set G=stakwin2
+if "%N%"=="71" set G=jockeygp
+if "%N%"=="72" set G=gururin
+if "%N%"=="73" set G=ghostlop
+if "%N%"=="74" set G=pnyaa
+if "%N%"=="75" set G=joyjoy
 :play
 if "%L%"=="fr" (echo Demo %G%, avec des valeurs simulees. Echap ou ferme la fenetre pour quitter.) else (echo %G% demo, with simulated values. Press Esc or close the window to quit.)
 %PY% arcadedmd.py demo %G%
