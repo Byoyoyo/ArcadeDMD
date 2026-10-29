@@ -528,6 +528,8 @@ class Engine:
         self.retroarch = None
         self.derived = None
         self.coin_guess = None        # crédits d'une Neo Geo devinés d'après le BIOS (RetroArch)
+        self.activity = None          # who plays, guessed from the values that move (CPS) / qui joue, d'après ce qui bouge
+        self.active_at = -1e9
         # the coin buttons read on the controllers (coin_buttons.bat) / les boutons des pièces lus sur les manettes
         self.coin_buttons = CoinButtons.from_config(config, log) if not demo_game else None
         self.hold_zero = {}           # score qui passe à 0 un instant (combattant recréé entre deux rounds)
@@ -621,6 +623,15 @@ class Engine:
         # credits of a Neo Geo that cannot be read (RetroArch): guessed from its BIOS / crédits devinés d'après le BIOS
         self.coin_guess = NeoCoins(mvs_rates(self.cfg)) if (source in ("plugin", "retroarch") and "credits" not in names
                                                             and "bios_request" in names) else None
+        # a game without a BIOS that says who plays (CPS): player 1 plays while its values move (timer, health...)
+        # un jeu sans BIOS qui dit qui joue (CPS) : le joueur 1 joue tant que ses valeurs bougent (chrono, vie...)
+        act = g.get("activity") if isinstance(g.get("activity"), dict) else None
+        self.activity = None
+        if act and source in ("plugin", "retroarch") and "p1_mode" not in names:
+            watch = [v for v in act.get("values", []) if isinstance(v, str) and (v in names or not names)]
+            if watch:
+                self.activity = {"values": set(watch), "seconds": float(act.get("seconds", 10))}
+        self.active_at = -1e9
         vals = game_values(g, meta.get("system") or "", meta.get("parent") or "") if g else {}
         self.hold_zero = {k: float(d["hold_zero"]) for k, d in vals.items()
                           if isinstance(d, dict) and isinstance(d.get("hold_zero"), (int, float)) and d["hold_zero"] > 0}
@@ -720,6 +731,14 @@ class Engine:
             self.state.paused = False
         elif t == "capture":
             self.message(f"CAPTURE {ev.get('n', '')}", 1.5, "#ffdd33")
+
+    def _activity(self, now):
+        """p1_mode 1 while a watched value changes (not its first reading), 0 after "seconds" without a change: the coin
+        screen when nobody plays, the game's layout during a game or its demo. / p1_mode d'après les valeurs qui bougent."""
+        a = self.activity
+        if any(e[0] in a["values"] for e in self.state.events):
+            self.active_at = now
+        self.state.update("p1_mode", 1 if now - self.active_at < a["seconds"] else 0, now)
 
     def coin_rates(self):
         """Credits a coin gives on the left and on the right, written on the coin doors of the HD screen. A Neo Geo in
@@ -918,6 +937,8 @@ class Engine:
             self.log(tr(f"plus de nouvelles de {src} : retour à l'écran d'attente",
                         f"no news from {src}: back to the idle screen"))
             self.go_idle()
+        if self.activity is not None:
+            self._activity(now)
         if self.texts is not None:     # fichiers texte pour OBS, séries de victoires en match VS
             try:
                 self.texts.update(self.state, self.mode == "game" and self.source != "demo",

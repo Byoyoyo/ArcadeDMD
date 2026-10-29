@@ -1,0 +1,67 @@
+{
+  "title": "1944: The Loop Master",
+  "note": "Capcom CPS2 shoot'em up: health, health_p2, credits, bombs (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS2",
+  "match": [
+    {
+      "system": ["1944", "1944ad", "1944d", "1944j", "1944u"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xFF0000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["1944", "1944ad", "1944d", "1944j", "1944u"]
+  },
+  "scene_from": "cps_shoot",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "health": {
+        "addr": "0x9226A5",
+        "type": "u8",
+        "note": "player 1 health in %, full = 0x4B (FBNeo cheat database, Infinite Energy PL1)",
+        "mame_only": true,
+        "mult": 1.333333,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "health_p2": {
+        "addr": "0x9227A5",
+        "type": "u8",
+        "note": "player 2 health in %, full = 0x4B (FBNeo cheat database, Infinite Energy PL2)",
+        "mame_only": true,
+        "mult": 1.333333,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "credits": {
+        "addr": "0x921D51",
+        "type": "u8",
+        "note": "credits (FBNeo cheat database, Infinite Credits)",
+        "mame_only": true
+      },
+      "bombs": {
+        "addr": "0x922405",
+        "type": "u8",
+        "note": "bombs (FBNeo cheat database, Infinite Bombs PL1)",
+        "mame_only": true
+      }
+    }
+  },
+  "activity": {
+    "values": ["health", "health_p2", "bombs"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "bombs": 3
+  }
+}

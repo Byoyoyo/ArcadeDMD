@@ -563,7 +563,7 @@ class HDRenderer:
             self.game_scene[1].render(screen, eng, now, self.logo_for(meta, title))
             return
         self.FPS = HDRenderer.FPS
-        fight = (g.get("scene_from") or key) == "neogeo_combat" or ("health" in vals and "health_p2" in vals)
+        fight = (g.get("scene_from") or key) in ("neogeo_combat", "cps_combat") or ("health" in vals and "health_p2" in vals)
         logo = self.logo_for(meta, title)
         if fight and self.themed:                             # combat : salle de tournoi, étincelles, combos, K.O.
             if self.fight is None:

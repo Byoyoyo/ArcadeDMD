@@ -118,6 +118,9 @@ def decode(d, getb, big_endian=True):
     mult = d.get("mult", 1)
     add = d.get("add", 0)
     v = v * mult + add
+    digits = d.get("round")
+    if isinstance(digits, int) and not isinstance(digits, bool):
+        v = round(v, digits)                    # a percentage of a full bar / un pourcentage de barre pleine
     lo, hi = d.get("min"), d.get("max")
     if isinstance(lo, (int, float)) and v < lo:
         v = lo

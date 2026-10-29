@@ -1,0 +1,66 @@
+{
+  "title": "Red Earth",
+  "note": "Capcom CPS3 fighting game: health, health_p2, credits (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS3",
+  "match": [
+    {
+      "system": ["redearth", "redearthn", "redearthnr1", "redearthr1", "warzard", "warzardr1"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0x2000000",
+    "ram_size": "0x80000",
+    "swap32": true,
+    "note": "FinalBurn Neo core: CPS3 main RAM from 0x2000000 (512 KB), bytes reversed within 32-bit words",
+    "content": ["redearth", "redearthn", "redearthnr1", "redearthr1", "warzard", "warzardr1"]
+  },
+  "titles": {
+    "warzard": "Warzard",
+    "warzardr1": "Warzard"
+  },
+  "scene_from": "cps_combat",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "health": {
+        "addr": "0x206A840",
+        "type": "be",
+        "bytes": 2,
+        "note": "player 1 health in %, full = 0x128 (FBNeo cheat database, Select Infinite Energy PL1)",
+        "mult": 0.337838,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "health_p2": {
+        "addr": "0x206AAC0",
+        "type": "be",
+        "bytes": 2,
+        "note": "player 2 health in %, full = 0x128 (FBNeo cheat database, Select Infinite Energy PL2)",
+        "mult": 0.337838,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "credits": {
+        "addr": "0x2000A10",
+        "type": "u8",
+        "note": "credits (FBNeo cheat database, Infinite Credits)"
+      }
+    }
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "health": 100,
+    "health_p2": 100,
+    "time": 99
+  },
+  "activity": {
+    "values": ["health", "health_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move"
+  }
+}

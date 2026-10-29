@@ -1,0 +1,129 @@
+{
+  "title": "Marvel Super Heroes",
+  "note": "Capcom CPS2 fighting game: health, health_p2, time, power, power_p2, 13 characters (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS2",
+  "match": [
+    {
+      "system": ["msh", "msha", "mshb", "mshbh", "mshbr1", "mshh", "mshj", "mshjr1", "mshtag", "mshu", "mshud"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xFF0000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["msh", "msha", "mshb", "mshbh", "mshbr1", "mshh", "mshj", "mshjr1", "mshtag", "mshu", "mshud"]
+  },
+  "scene_from": "cps_combat",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "health": {
+        "addr": "0xFF4191",
+        "type": "u8",
+        "note": "player 1 health in %, full = 0x90 (FBNeo cheat database, Infinite Energy PL1)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "health_p2": {
+        "addr": "0xFF4591",
+        "type": "u8",
+        "note": "player 2 health in %, full = 0x90 (FBNeo cheat database, Infinite Energy PL2)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "time": {
+        "addr": "0xFF4808",
+        "type": "bcd",
+        "bytes": 1,
+        "note": "timer (FBNeo cheat database, Infinite Time)"
+      },
+      "power": {
+        "addr": "0xFF4198",
+        "type": "u8",
+        "note": "super gauge of player 1 in %, full = 0x3 (FBNeo cheat database)",
+        "mult": 33.333333,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "power_p2": {
+        "addr": "0xFF4598",
+        "type": "u8",
+        "note": "super gauge of player 2 in %, full = 0x3 (FBNeo cheat database)",
+        "mult": 33.333333,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "_p1_chr": {
+        "addr": "0xFF4051",
+        "type": "u8",
+        "note": "player 1 character (FBNeo cheat database, Select Character PL1)"
+      },
+      "_p2_chr": {
+        "addr": "0xFF4451",
+        "type": "u8",
+        "note": "player 2 or computer character (FBNeo cheat database, Select Character PL2)"
+      }
+    }
+  },
+  "derived": {
+    "p1_char": {
+      "value": "_p1_chr",
+      "names": {
+        "0": "SPIDERMAN",
+        "2": "C.AMERICA",
+        "4": "HULK",
+        "6": "IRON MAN",
+        "8": "WOLVERINE",
+        "10": "PSYLOCKE",
+        "12": "BLACKHEART",
+        "14": "S.GORATH",
+        "16": "JUGGERNAUT",
+        "18": "MAGNETO",
+        "20": "DOC DOOM",
+        "22": "THANOS",
+        "24": "ANITA"
+      }
+    },
+    "p2_char": {
+      "value": "_p2_chr",
+      "names": {
+        "0": "SPIDERMAN",
+        "2": "C.AMERICA",
+        "4": "HULK",
+        "6": "IRON MAN",
+        "8": "WOLVERINE",
+        "10": "PSYLOCKE",
+        "12": "BLACKHEART",
+        "14": "S.GORATH",
+        "16": "JUGGERNAUT",
+        "18": "MAGNETO",
+        "20": "DOC DOOM",
+        "22": "THANOS",
+        "24": "ANITA"
+      }
+    }
+  },
+  "activity": {
+    "values": ["time", "health", "health_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "health": 100,
+    "health_p2": 100,
+    "time": 99,
+    "_p1_chr": 0,
+    "_p2_chr": 2
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "title": "Cyberbots: Fullmetal Madness",
+  "note": "Capcom CPS2 fighting game: health, health_p2, time, credits, power, power_p2, 10 characters (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS2",
+  "match": [
+    {
+      "system": ["cybots", "cybotsam", "cybotsj", "cybotsjd", "cybotsu", "cybotsud"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xFF0000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["cybots", "cybotsam", "cybotsj", "cybotsjd", "cybotsu", "cybotsud"]
+  },
+  "scene_from": "cps_combat",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "health": {
+        "addr": "0xFF81E5",
+        "type": "u8",
+        "note": "player 1 health in %, full = 0x98 (FBNeo cheat database, Infinite Energy PL1)",
+        "mult": 0.657895,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "health_p2": {
+        "addr": "0xFF85E5",
+        "type": "u8",
+        "note": "player 2 health in %, full = 0x98 (FBNeo cheat database, Infinite Energy PL2)",
+        "mult": 0.657895,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "time": {
+        "addr": "0xFFEBA0",
+        "type": "bcd",
+        "bytes": 1,
+        "note": "timer (FBNeo cheat database, Infinite Time)"
+      },
+      "credits": {
+        "addr": "0xFF80B6",
+        "type": "u8",
+        "note": "credits (FBNeo cheat database, Infinite Credits)"
+      },
+      "power": {
+        "addr": "0xFF8534",
+        "type": "u8",
+        "note": "super gauge of player 1 in %, full = 0x3F (FBNeo cheat database)",
+        "mult": 1.587302,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "power_p2": {
+        "addr": "0xFF8934",
+        "type": "u8",
+        "note": "super gauge of player 2 in %, full = 0x3F (FBNeo cheat database)",
+        "mult": 1.587302,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "_p1_chr": {
+        "addr": "0xFF8510",
+        "type": "u8",
+        "note": "player 1 character (FBNeo cheat database, Select Character PL1)"
+      }
+    }
+  },
+  "derived": {
+    "p1_char": {
+      "value": "_p1_chr",
+      "names": {
+        "0": "JIN",
+        "1": "SANTANA",
+        "2": "MARY",
+        "3": "ARIETA",
+        "4": "GAWAINE",
+        "5": "BAO + MAO",
+        "6": "DEVILOTTE",
+        "7": "C.+.TESSAN",
+        "8": "SHADE",
+        "9": "G. O. D."
+      }
+    }
+  },
+  "activity": {
+    "values": ["time", "health", "health_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "health": 100,
+    "health_p2": 100,
+    "time": 99,
+    "_p1_chr": 0
+  }
+}

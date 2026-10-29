@@ -1,0 +1,62 @@
+{
+  "title": "Ghouls'n Ghosts",
+  "note": "Capcom CPS1 action game: time, lives, lives_p2 (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS1",
+  "match": [
+    {
+      "system": ["ghouls", "daimakai", "daimakaib", "daimakaiknight", "daimakaimaiden", "daimakair", "ghoulsknight", "ghoulsmaiden", "ghoulsu", "ghoulsuknight", "ghoulsumaiden"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xFF0000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["ghouls", "daimakai", "daimakaib", "daimakaiknight", "daimakaimaiden", "daimakair", "ghoulsknight", "ghoulsmaiden", "ghoulsu", "ghoulsuknight", "ghoulsumaiden"]
+  },
+  "titles": {
+    "daimakai": "Daimakaimura",
+    "daimakair": "Daimakaimura",
+    "daimakaib": "Daimakaimura",
+    "ghoulsmaiden": "Ghouls'n Ghosts - Maiden Artoria Edition",
+    "ghoulsknight": "Ghouls'n Ghosts - Knight Artoria Edition",
+    "ghoulsumaiden": "Ghouls'n Ghosts - Maiden Artoria Edition",
+    "ghoulsuknight": "Ghouls'n Ghosts - Knight Artoria Edition",
+    "daimakaimaiden": "Daimakaimura - Maiden Artoria Edition",
+    "daimakaiknight": "Daimakaimura - Knight Artoria Edition"
+  },
+  "scene_from": "cps_action",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "time": {
+        "addr": "0xFF06D3",
+        "type": "bcd",
+        "bytes": 1,
+        "note": "timer (FBNeo cheat database, Infinite Time)"
+      },
+      "lives": {
+        "addr": "0xFF07AD",
+        "type": "u8",
+        "note": "lives (FBNeo cheat database, Infinite Lives PL1)"
+      },
+      "lives_p2": {
+        "addr": "0xFF080D",
+        "type": "u8",
+        "note": "lives of player 2 (FBNeo cheat database, Infinite Lives PL2)"
+      }
+    }
+  },
+  "activity": {
+    "values": ["time", "lives", "lives_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "lives": 3
+  }
+}

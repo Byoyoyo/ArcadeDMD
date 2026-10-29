@@ -1,0 +1,58 @@
+{
+  "title": "Dynasty Wars",
+  "note": "Capcom CPS1 action game: health, health_p2 (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS1",
+  "match": [
+    {
+      "system": ["dynwar", "dynwara", "dynwarj", "dynwarjr"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xFF0000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["dynwar", "dynwara", "dynwarj", "dynwarjr"]
+  },
+  "titles": {
+    "dynwarj": "Tenchi wo Kurau",
+    "dynwarjr": "Tenchi wo Kurau"
+  },
+  "scene_from": "cps_action",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "health": {
+        "addr": "0xFF8288",
+        "type": "be",
+        "bytes": 2,
+        "note": "player 1 health in %, full = 0x999 (FBNeo cheat database, Infinite Energy PL1)",
+        "mult": 0.0407,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "health_p2": {
+        "addr": "0xFF8328",
+        "type": "be",
+        "bytes": 2,
+        "note": "player 2 health in %, full = 0x999 (FBNeo cheat database, Infinite Energy PL2)",
+        "mult": 0.0407,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      }
+    }
+  },
+  "activity": {
+    "values": ["health", "health_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0
+  }
+}

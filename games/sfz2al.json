@@ -1,0 +1,136 @@
+{
+  "title": "Street Fighter Zero 2 Alpha",
+  "note": "Capcom CPS2 fighting game: health, health_p2, time, 21 characters (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS2",
+  "match": [
+    {
+      "system": ["sfz2al", "sfa2ds", "sfa2ex", "sfa2gl", "sfz2adl", "sfz2alb", "sfz2ald", "sfz2aldash", "sfz2alh", "sfz2alj", "sfz2alr1", "sfz2alre", "sfz2dsa", "sfz2dsj", "sfz2exj"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xFF0000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["sfz2al", "sfa2ds", "sfa2ex", "sfa2gl", "sfz2adl", "sfz2alb", "sfz2ald", "sfz2aldash", "sfz2alh", "sfz2alj", "sfz2alr1", "sfz2alre", "sfz2dsa", "sfz2dsj", "sfz2exj"]
+  },
+  "titles": {
+    "sfz2adl": "Street Fighter Zero 2 Alpha: Dragon Level",
+    "sfz2aldash": "Street Fighter Zero 2 Alpha Dash",
+    "sfa2ds": "Street Fighter Alpha 2 Dash",
+    "sfa2gl": "Street Fighter Alpha 2 Gold",
+    "sfz2dsa": "Street Fighter Zero 2 Dash",
+    "sfz2dsj": "Street Fighter Zero 2 Dash",
+    "sfa2ex": "Street Fighter Alpha 2 EX",
+    "sfz2exj": "Street Fighter Zero 2 EX"
+  },
+  "scene_from": "cps_combat",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "health": {
+        "addr": "0xFF8451",
+        "type": "u8",
+        "note": "player 1 health in %, full = 0x90 (FBNeo cheat database, Infinite Energy PL1)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "health_p2": {
+        "addr": "0xFF8851",
+        "type": "u8",
+        "note": "player 2 health in %, full = 0x90 (FBNeo cheat database, Infinite Energy PL2)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "time": {
+        "addr": "0xFF8109",
+        "type": "u8",
+        "note": "timer (FBNeo cheat database, Infinite Time)"
+      },
+      "_p1_chr": {
+        "addr": "0xFF8482",
+        "type": "u8",
+        "note": "player 1 character (FBNeo cheat database, Select Character PL1)"
+      },
+      "_p2_chr": {
+        "addr": "0xFF8882",
+        "type": "u8",
+        "note": "player 2 or computer character (FBNeo cheat database, Select Character PL2)"
+      }
+    }
+  },
+  "derived": {
+    "p1_char": {
+      "value": "_p1_chr",
+      "names": {
+        "0": "RYU",
+        "1": "KEN",
+        "2": "AKUMA",
+        "3": "CHARLIE",
+        "4": "CHUN-LI",
+        "5": "ADON",
+        "6": "SODOM",
+        "7": "GUY",
+        "8": "BIRDIE",
+        "9": "ROSE",
+        "10": "M. BISON",
+        "11": "SAGAT",
+        "12": "DAN",
+        "13": "SAKURA",
+        "14": "ROLENTO",
+        "15": "DHALSIM",
+        "16": "ZANGIEF",
+        "17": "GEN",
+        "18": "CHUN-LI",
+        "20": "AKUMA",
+        "23": "EVIL RYU"
+      }
+    },
+    "p2_char": {
+      "value": "_p2_chr",
+      "names": {
+        "0": "RYU",
+        "1": "KEN",
+        "2": "AKUMA",
+        "3": "CHARLIE",
+        "4": "CHUN-LI",
+        "5": "ADON",
+        "6": "SODOM",
+        "7": "GUY",
+        "8": "BIRDIE",
+        "9": "ROSE",
+        "10": "M. BISON",
+        "11": "SAGAT",
+        "12": "DAN",
+        "13": "SAKURA",
+        "14": "ROLENTO",
+        "15": "DHALSIM",
+        "16": "ZANGIEF",
+        "17": "GEN",
+        "18": "CHUN-LI",
+        "20": "AKUMA",
+        "23": "EVIL RYU"
+      }
+    }
+  },
+  "activity": {
+    "values": ["time", "health", "health_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "health": 100,
+    "health_p2": 100,
+    "time": 99,
+    "_p1_chr": 0,
+    "_p2_chr": 1
+  }
+}

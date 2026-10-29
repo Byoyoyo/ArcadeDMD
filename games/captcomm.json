@@ -1,0 +1,103 @@
+{
+  "title": "Captain Commando",
+  "note": "Capcom CPS1 action game: health, health_p2, credits, lives, lives_p2, 4 characters (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS1",
+  "match": [
+    {
+      "system": ["captcomm", "captc1v4", "captcm2y", "captcmcr", "captcmdw", "captcmjy", "captcmjyb", "captcmmy", "captcmsc", "captcmsh", "captcmwx", "captcmzs", "captcmzt", "captcommb", "captcommb2", "captcommb3", "captcommc", "captcommj", "captcommjr1", "captcommr1", "captcommu", "captre"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xFF0000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["captcomm", "captc1v4", "captcm2y", "captcmcr", "captcmdw", "captcmjy", "captcmjyb", "captcmmy", "captcmsc", "captcmsh", "captcmwx", "captcmzs", "captcmzt", "captcommb", "captcommb2", "captcommb3", "captcommc", "captcommj", "captcommjr1", "captcommr1", "captcommu", "captre"]
+  },
+  "titles": {
+    "captre": "Captain Commando Readjusted"
+  },
+  "scene_from": "cps_action",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "health": {
+        "addr": "0xFFA9D1",
+        "type": "u8",
+        "note": "player 1 health in %, full = 0x48 (FBNeo cheat database, Infinite Energy PL1)",
+        "mult": 1.388889,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "health_p2": {
+        "addr": "0xFFAAD1",
+        "type": "u8",
+        "note": "player 2 health in %, full = 0x48 (FBNeo cheat database, Infinite Energy PL2)",
+        "mult": 1.388889,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "credits": {
+        "addr": "0xFFA850",
+        "type": "u8",
+        "note": "credits (FBNeo cheat database, Infinite Credits)"
+      },
+      "lives": {
+        "addr": "0xFFAA7C",
+        "type": "u8",
+        "note": "lives (FBNeo cheat database, Infinite Lives PL1)"
+      },
+      "lives_p2": {
+        "addr": "0xFFAB7C",
+        "type": "u8",
+        "note": "lives of player 2 (FBNeo cheat database, Infinite Lives PL2)"
+      },
+      "_p1_chr": {
+        "addr": "0xFFAA34",
+        "type": "u8",
+        "note": "player 1 character (FBNeo cheat database, Select Character PL1)"
+      },
+      "_p2_chr": {
+        "addr": "0xFFAB34",
+        "type": "u8",
+        "note": "player 2 or computer character (FBNeo cheat database, Select Character PL2)"
+      }
+    }
+  },
+  "derived": {
+    "p1_char": {
+      "value": "_p1_chr",
+      "names": {
+        "0": "M.COMMANDO",
+        "1": "C.COMMANDO",
+        "2": "N.COMMANDO",
+        "3": "B.COMMANDO"
+      }
+    },
+    "p2_char": {
+      "value": "_p2_chr",
+      "names": {
+        "0": "M.COMMANDO",
+        "1": "C.COMMANDO",
+        "2": "N.COMMANDO",
+        "3": "B.COMMANDO"
+      }
+    }
+  },
+  "activity": {
+    "values": ["health", "health_p2", "lives", "lives_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "lives": 3,
+    "_p1_chr": 0,
+    "_p2_chr": 1
+  }
+}

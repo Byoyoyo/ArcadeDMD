@@ -1,0 +1,65 @@
+{
+  "title": "Mega Man 2: The Power Fighters",
+  "note": "Capcom CPS2 fighting game: health, health_p2, time (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS2",
+  "match": [
+    {
+      "system": ["megaman2", "gigaman2", "megaman2a", "megaman2h", "megamn2d", "rockman2j"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xFF0000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["megaman2", "gigaman2", "megaman2a", "megaman2h", "megamn2d", "rockman2j"]
+  },
+  "titles": {
+    "rockman2j": "Rockman 2: The Power Fighters",
+    "gigaman2": "Giga Man 2: The Power Fighters"
+  },
+  "scene_from": "cps_combat",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "health": {
+        "addr": "0xFF8351",
+        "type": "u8",
+        "note": "player 1 health in %, full = 0x20 (FBNeo cheat database, Infinite Energy PL1)",
+        "mult": 3.125,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "health_p2": {
+        "addr": "0xFF8751",
+        "type": "u8",
+        "note": "player 2 health in %, full = 0x20 (FBNeo cheat database, Infinite Energy PL2)",
+        "mult": 3.125,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "time": {
+        "addr": "0xFF8119",
+        "type": "bcd",
+        "bytes": 1,
+        "note": "timer (FBNeo cheat database, Infinite Time)"
+      }
+    }
+  },
+  "activity": {
+    "values": ["time", "health", "health_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "health": 100,
+    "health_p2": 100,
+    "time": 99
+  }
+}

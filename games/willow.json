@@ -1,0 +1,45 @@
+{
+  "title": "Willow",
+  "note": "Capcom CPS1 action game: time, credits (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS1",
+  "match": [
+    {
+      "system": ["willow", "willowbr", "willowj", "willowu", "willowuo"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xFF0000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["willow", "willowbr", "willowj", "willowu", "willowuo"]
+  },
+  "scene_from": "cps_action",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "time": {
+        "addr": "0xFF83C7",
+        "type": "bcd",
+        "bytes": 1,
+        "note": "timer (FBNeo cheat database, Infinite Time)"
+      },
+      "credits": {
+        "addr": "0xFF82A2",
+        "type": "u8",
+        "note": "credits (FBNeo cheat database, Infinite Credits)"
+      }
+    }
+  },
+  "activity": {
+    "values": ["time"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0
+  }
+}

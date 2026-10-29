@@ -1,0 +1,68 @@
+{
+  "title": "The King of Dragons",
+  "note": "Capcom CPS1 action game: health, health_p2, time, lives, lives_p2 (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS1",
+  "match": [
+    {
+      "system": ["kod", "kod1v3", "kodb", "kodbs", "kodda", "koddw", "kodh", "kodj", "kodja", "kodly", "kodlys", "kodr1", "kodr2", "kodsr", "kodu", "kodyh"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xFF0000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["kod", "kod1v3", "kodb", "kodbs", "kodda", "koddw", "kodh", "kodj", "kodja", "kodly", "kodlys", "kodr1", "kodr2", "kodsr", "kodu", "kodyh"]
+  },
+  "scene_from": "cps_action",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "health": {
+        "addr": "0xFF129B",
+        "type": "u8",
+        "note": "player 1 health in %, full = 0x63 (FBNeo cheat database, Infinite Energy PL1)",
+        "mult": 1.010101,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "health_p2": {
+        "addr": "0xFF139B",
+        "type": "u8",
+        "note": "player 2 health in %, full = 0x63 (FBNeo cheat database, Infinite Energy PL2)",
+        "mult": 1.010101,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "time": {
+        "addr": "0xFFE084",
+        "type": "u8",
+        "note": "timer (FBNeo cheat database, Infinite Time)"
+      },
+      "lives": {
+        "addr": "0xFF125D",
+        "type": "u8",
+        "note": "lives (FBNeo cheat database, Infinite Lives PL1)"
+      },
+      "lives_p2": {
+        "addr": "0xFF135D",
+        "type": "u8",
+        "note": "lives of player 2 (FBNeo cheat database, Infinite Lives PL2)"
+      }
+    }
+  },
+  "activity": {
+    "values": ["time", "health", "health_p2", "lives", "lives_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "lives": 3
+  }
+}

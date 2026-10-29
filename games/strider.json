@@ -1,0 +1,46 @@
+{
+  "title": "Strider",
+  "note": "Capcom CPS1 action game: time (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS1",
+  "match": [
+    {
+      "system": ["strider", "striderfix", "striderj", "striderjr", "striderjs01", "striderua", "strideruc", "striderus01"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xFF0000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["strider", "striderfix", "striderj", "striderjr", "striderjs01", "striderua", "strideruc", "striderus01"]
+  },
+  "titles": {
+    "striderjr": "Strider Hiryu",
+    "striderus01": "Strider EX",
+    "striderjs01": "Strider Hiryu EX",
+    "striderj": "Strider Hiryu"
+  },
+  "scene_from": "cps_action",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "time": {
+        "addr": "0xFF0F6A",
+        "type": "bcd",
+        "bytes": 1,
+        "note": "timer (FBNeo cheat database, Infinite Time)"
+      }
+    }
+  },
+  "activity": {
+    "values": ["time"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0
+  }
+}

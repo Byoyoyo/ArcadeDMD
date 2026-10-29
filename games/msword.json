@@ -1,0 +1,60 @@
+{
+  "title": "Magic Sword: Heroic Fantasy",
+  "note": "Capcom CPS1 action game: time, power, power_p2 (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS1",
+  "match": [
+    {
+      "system": ["msword", "mswordj", "mswordr1", "mswordu"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xFF0000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["msword", "mswordj", "mswordr1", "mswordu"]
+  },
+  "scene_from": "cps_action",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "time": {
+        "addr": "0xFFFF4B",
+        "type": "bcd",
+        "bytes": 1,
+        "note": "timer (FBNeo cheat database, Infinite Time)"
+      },
+      "power": {
+        "addr": "0xFFA9CA",
+        "type": "be",
+        "bytes": 2,
+        "note": "super gauge of player 1 in %, full = 0x6060 (FBNeo cheat database)",
+        "mult": 0.004053,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "power_p2": {
+        "addr": "0xFFAA8A",
+        "type": "be",
+        "bytes": 2,
+        "note": "super gauge of player 2 in %, full = 0x6060 (FBNeo cheat database)",
+        "mult": 0.004053,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      }
+    }
+  },
+  "activity": {
+    "values": ["time"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0
+  }
+}

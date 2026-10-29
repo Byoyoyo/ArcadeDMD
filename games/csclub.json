@@ -1,0 +1,45 @@
+{
+  "title": "Capcom Sports Club",
+  "note": "Capcom CPS2 action game: time, credits (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS2",
+  "match": [
+    {
+      "system": ["csclub", "csclub1", "csclub1d", "cscluba", "csclubh", "csclubj", "csclubjy"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xFF0000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["csclub", "csclub1", "csclub1d", "cscluba", "csclubh", "csclubj", "csclubjy"]
+  },
+  "scene_from": "cps_action",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "time": {
+        "addr": "0xFF8C92",
+        "type": "bcd",
+        "bytes": 1,
+        "note": "timer (FBNeo cheat database, Infinite Time)"
+      },
+      "credits": {
+        "addr": "0xFF8AE9",
+        "type": "u8",
+        "note": "credits (FBNeo cheat database, Infinite Credits)"
+      }
+    }
+  },
+  "activity": {
+    "values": ["time"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0
+  }
+}

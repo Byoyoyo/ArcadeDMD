@@ -61,6 +61,14 @@ def swap16(data):
     return bytes(b)
 
 
+def swap32(data):
+    """Bytes reversed in each 32-bit word: the SH-2 of the CPS3 in FinalBurn Neo (RamMain[addr ^ 3]).
+    / Octets inversés dans chaque mot de 32 bits, le SH-2 du CPS3 dans FinalBurn Neo."""
+    b = bytearray(data)
+    b[0::4], b[1::4], b[2::4], b[3::4] = data[3::4], data[2::4], data[1::4], data[0::4]
+    return bytes(b)
+
+
 class RetroArchClient:
     def __init__(self, host="127.0.0.1", port=DEFAULT_PORT, timeout=0.3):
         self.addr = (host, int(port))
@@ -216,11 +224,16 @@ def find_core(content=""):
 class Layout:
     """Fenêtre de RAM vue par RetroArch, et sa correspondance avec les adresses du processeur."""
 
-    def __init__(self, base=0, size=0x10000, swap=False, big_endian=None):
+    def __init__(self, base=0, size=0x10000, swap=False, big_endian=None, swap32=False):
         self.base = int(base)
         self.size = int(size)
-        self.swap = bool(swap)
-        self.big_endian = self.swap if big_endian is None else bool(big_endian)
+        self.swap32 = bool(swap32)
+        self.swap = bool(swap) and not self.swap32
+        self.align = 4 if self.swap32 else 2 if self.swap else 1
+        self.big_endian = (self.swap or self.swap32) if big_endian is None else bool(big_endian)
+
+    def _unswap(self, data):
+        return swap32(data) if self.swap32 else swap16(data) if self.swap else data
 
     def contains(self, start, end):
         return self.base <= start and end < self.base + self.size
@@ -228,9 +241,9 @@ class Layout:
     def read_cpu(self, client, start, end):
         """(adresse du 1er octet, octets) pour [start..end] en adresses processeur, ou None."""
         lo, hi = start - self.base, end - self.base
-        if self.swap:
-            lo &= ~1
-            hi |= 1
+        if self.align > 1:
+            lo &= ~(self.align - 1)
+            hi |= self.align - 1
         if lo < 0 or hi >= self.size:
             return None
         out = bytearray()
@@ -242,8 +255,7 @@ class Layout:
                 return None
             out += data
             pos += n
-        data = swap16(bytes(out)) if self.swap else bytes(out)
-        return self.base + lo, data
+        return self.base + lo, self._unswap(bytes(out))
 
     def readable_size(self, client):
         """Taille réellement lisible (sondage octet par octet, sans jamais lire hors de la RAM)."""
@@ -258,7 +270,7 @@ class Layout:
                 lo = mid
             else:
                 hi = mid
-        return (lo + 1) & ~1 if self.swap else lo + 1
+        return (lo + 1) & ~(self.align - 1)
 
     def capture(self, client):
         """Toute la RAM lisible, dans l'ordre du processeur, ou None."""
@@ -271,7 +283,7 @@ class Layout:
             if data is None:
                 return None
             out += data
-        return swap16(bytes(out)) if self.swap else bytes(out)
+        return self._unswap(bytes(out))
 
 
 def ra_rules(game):
@@ -367,9 +379,9 @@ def game_title(game, content):
 
 def layout_for(game, system=""):
     r = ra_rules(game) or {}
-    if any(k in r for k in ("ram_base", "ram_size", "swap16")):
+    if any(k in r for k in ("ram_base", "ram_size", "swap16", "swap32")):
         return Layout(parse_addr(r.get("ram_base")) or 0, parse_addr(r.get("ram_size")) or 0x10000,
-                      bool(r.get("swap16")), r.get("big_endian"))
+                      bool(r.get("swap16")), r.get("big_endian"), bool(r.get("swap32")))
     s = (system or "").lower()
     for sub, base, size, sw in SYSTEM_DEFAULTS:
         if sub in s:

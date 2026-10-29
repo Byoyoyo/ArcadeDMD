@@ -1,0 +1,58 @@
+{
+  "title": "Dungeons & Dragons: Shadow over Mystara",
+  "note": "Capcom CPS2 action game: health, health_p2, time (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS2",
+  "match": [
+    {
+      "system": ["ddsom", "ddsom1v4", "ddsoma", "ddsomar1", "ddsomb", "ddsomcfs", "ddsomh", "ddsomj", "ddsomjc", "ddsomjr1", "ddsomjr2", "ddsomr1", "ddsomr2", "ddsomr3", "ddsomu", "ddsomud", "ddsomudp", "ddsomur1"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xFF0000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["ddsom", "ddsom1v4", "ddsoma", "ddsomar1", "ddsomb", "ddsomcfs", "ddsomh", "ddsomj", "ddsomjc", "ddsomjr1", "ddsomjr2", "ddsomr1", "ddsomr2", "ddsomr3", "ddsomu", "ddsomud", "ddsomudp", "ddsomur1"]
+  },
+  "scene_from": "cps_action",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "health": {
+        "addr": "0xFF8641",
+        "type": "u8",
+        "note": "player 1 health in %, full = 0x9A (FBNeo cheat database, Infinite Energy PL1)",
+        "mult": 0.649351,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "health_p2": {
+        "addr": "0xFF8841",
+        "type": "u8",
+        "note": "player 2 health in %, full = 0x9A (FBNeo cheat database, Infinite Energy PL2)",
+        "mult": 0.649351,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "time": {
+        "addr": "0xFFCAB2",
+        "type": "bcd",
+        "bytes": 1,
+        "note": "timer (FBNeo cheat database, Infinite Time)"
+      }
+    }
+  },
+  "activity": {
+    "values": ["time", "health", "health_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0
+  }
+}

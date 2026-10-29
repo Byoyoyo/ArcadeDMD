@@ -1,0 +1,53 @@
+{
+  "title": "Eco Fighters",
+  "note": "Capcom CPS2 shoot'em up: credits, lives, lives_p2 (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS2",
+  "match": [
+    {
+      "system": ["ecofghtr", "ecofghtra", "ecofghtrd", "ecofghtrh", "ecofghtru", "ecofghtru1", "uecology"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xFF0000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["ecofghtr", "ecofghtra", "ecofghtrd", "ecofghtrh", "ecofghtru", "ecofghtru1", "uecology"]
+  },
+  "titles": {
+    "uecology": "Ultimate Ecology"
+  },
+  "scene_from": "cps_shoot",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "credits": {
+        "addr": "0xFF02E8",
+        "type": "u8",
+        "note": "credits (FBNeo cheat database, Infinite Credits)"
+      },
+      "lives": {
+        "addr": "0xFFF5F2",
+        "type": "u8",
+        "note": "lives (FBNeo cheat database, Infinite Lives PL1)"
+      },
+      "lives_p2": {
+        "addr": "0xFFF5F3",
+        "type": "u8",
+        "note": "lives of player 2 (FBNeo cheat database, Infinite Lives PL2)"
+      }
+    }
+  },
+  "activity": {
+    "values": ["lives", "lives_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "lives": 3
+  }
+}
