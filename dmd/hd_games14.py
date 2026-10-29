@@ -13,8 +13,12 @@ import math
 
 from .hd_games import AMBER, GOLD, P1C, P2C, WHITE, GameScene, _clamp, _mix, _n, draw_img
 from .hd_games3 import _capsule
+from .hd_games2 import SoccerScene
 from .hd_games5 import fighter_draw
-from .hd_themes14 import DW_FLOOR, GG_FLOOR, MS_FLOOR, MT_FLOOR, NM_FLOOR, PG_FLOOR, SPF_CELL, SPF_COLS, SPF_ROWS, SPF_TOP, ST_FLOOR, TW_FLOOR, WL_FLOOR
+from .hd_games7 import flag_draw
+from .hd_games8 import kits
+from .hd_games11 import QuizScene
+from .hd_themes14 import DW_FLOOR, GG_FLOOR, MS_FLOOR, MT_FLOOR, NM_FLOOR, PG_FLOOR, SPF_CELL, SPF_COLS, SPF_ROWS, SPF_TOP, ST_FLOOR, TW_FLOOR, WL_FLOOR, pl_path
 from .i18n import tr
 
 DARKLINE = (24, 20, 26, 255)
@@ -1800,7 +1804,210 @@ class DynastyWarsScene(SideQuestScene):
             self.invite_right(screen, vals, now, S(110))
 
 
+# ============================================================================ Puzz Loop 2
+PL_COLORS = ((230, 60, 60), (60, 120, 240), (250, 210, 50), (60, 190, 90), (190, 80, 220))
+
+
+class PuzzLoopScene(GameScene):
+    """Puzz Loop 2 as in the game: the sky of purple clouds, the carved track; a chain of coloured balls rolls toward
+    the hole, the launcher in the middle turns and fires a ball into the chain, three of a colour together burst and the
+    chain closes up. The points read in the game burst a group; the chain that reaches the hole starts again. BALLS and
+    the score. / Le ciel de nuages violets, le chemin sculpté ; une chaîne de boules roule vers le trou, le lanceur au
+    milieu tourne et tire une boule dans la chaîne, trois de la même couleur ensemble éclatent et la chaîne se resserre."""
+    THEME = "pl_cosmos"
+    STATIC = True
+    SHADE = (60, 20)
+    R = 22                          # radius of a ball / rayon d'une boule
+
+    def __init__(self, hd, rng=None):
+        super().__init__(hd, rng)
+        pts = pl_path(self.W, self.H, self.s)
+        self.path, self.cum = pts, [0.0]
+        for a, b in zip(pts, pts[1:]):
+            self.cum.append(self.cum[-1] + math.hypot(b[0] - a[0], b[1] - a[1]))
+        self.length = self.cum[-1]
+        self.center = (self.W / 2, self.S((168 + 340) / 2))
+        self.chain = []                                                # colours, head first / couleurs, la tête d'abord
+        self.head = 0.0
+        self.shot = None
+        self.aim = 0.0
+        self.next_shot = 0.0
+        self.balls_n = 0
+        self.pops_n = 0                                                # (tests)
+        self.resets = 0
+        self.fill(0.0)
+        self.warm = [(self.ball_img, (c,)) for c in range(len(PL_COLORS))] + self.warm
+
+    def ball_img(self, col):
+        r = self.S(self.R)
+        return self.img(("plball", col), 2 * r, 2 * r, balloon_draw(PL_COLORS[col]), ss=2)
+
+    def fill(self, now):
+        """A new chain whose head is halfway to the hole, its tail at the start of the track. / Une nouvelle chaîne."""
+        self.head = self.length * 0.6
+        self.chain = [self.rng.randrange(4) for _ in range(int(self.head / (self.S(self.R) * 2)) + 2)]
+
+    def at(self, d):
+        """The point of the track at distance d. / Le point du chemin à la distance d."""
+        if d <= 0:
+            return self.path[0]
+        lo, hi = 0, len(self.cum) - 1
+        while lo < hi - 1:
+            mid = (lo + hi) // 2
+            if self.cum[mid] <= d:
+                lo = mid
+            else:
+                hi = mid
+        a, b = self.path[lo], self.path[hi]
+        k = (d - self.cum[lo]) / max(1e-6, self.cum[hi] - self.cum[lo])
+        return a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k
+
+    def burst_at(self, i, now, need=3):
+        """Bursts the run of one colour around i if it is long enough. / Fait éclater la suite d'une couleur autour de i."""
+        if not 0 <= i < len(self.chain):
+            return 0
+        c = self.chain[i]
+        a = b = i
+        while a > 0 and self.chain[a - 1] == c:
+            a -= 1
+        while b < len(self.chain) - 1 and self.chain[b + 1] == c:
+            b += 1
+        n = b - a + 1
+        if n < need:
+            return 0
+        sp = self.S(self.R) * 2
+        for k in range(a, b + 1):
+            x, y = self.at(self.head - k * sp)
+            self.fx.sparks(x, y, 6, _mix(PL_COLORS[c], WHITE, 0.4), (150, 450), (0, 360), (0.2, 0.4), 300, "front", 3, 12)
+        x, y = self.at(self.head - (a + b) / 2 * sp)
+        self.fx.glow(x, y, 20, 90, (255, 240, 200), 0.3, "front", 0.9, 0.0)
+        del self.chain[a:b + 1]
+        self.head -= n * sp * 0.5                                      # the chain closes up / la chaîne se resserre
+        self.pops_n += 1
+        self.balls_n += n
+        return n
+
+    def update(self, vals, now):
+        ch = self.changed(vals, "score")
+        if ch and ch[1] > ch[0] and self.chain:                        # points: a group bursts / des points : un groupe éclate
+            i = self.rng.randrange(len(self.chain))
+            if not self.burst_at(i, now, 2):
+                self.chain[i + 1:i + 1] = [self.chain[i]] * 2
+                self.burst_at(i, now)
+            self.popup(str(int(ch[1] - ch[0])) if ch[1] - ch[0] < 100000 else "BURST", self.center[0], self.center[1] - self.S(90), GOLD, 30)
+
+    def always(self, vals, now):
+        S, rng, dt = self.S, self.rng, self.dt
+        sp = S(self.R) * 2
+        self.head += S(30) * dt
+        if self.head >= self.length:                                   # the chain reaches the hole: it starts again
+            self.resets += 1
+            self.fx.flash((200, 120, 255), 0.3, 0.3)
+            self.fill(now)
+        while len(self.chain) < 90 and self.head - len(self.chain) * sp > -sp:      # the chain keeps coming in / elle continue d'entrer
+            self.chain.append(rng.randrange(4))
+        if self.shot is None and now >= self.next_shot and self.chain:
+            vis = [k for k in range(len(self.chain)) if self.head - k * sp > 0]
+            if vis:
+                k = rng.choice(vis)
+                tx, ty = self.at(self.head - k * sp)
+                col = self.chain[k] if rng.random() < 0.7 else rng.randrange(4)
+                self.aim = math.atan2(ty - self.center[1], tx - self.center[0])
+                self.shot = {"x": self.center[0], "y": self.center[1], "k": k, "col": col, "t0": now, "tx": tx, "ty": ty}
+        if self.shot is not None:
+            sh = self.shot
+            dist = math.hypot(sh["tx"] - sh["x"], sh["ty"] - sh["y"])
+            step = S(1400) * dt
+            if dist <= step:                                           # in the chain / dans la chaîne
+                k = min(sh["k"], len(self.chain))
+                self.chain.insert(k, sh["col"])
+                self.burst_at(k, now)
+                self.shot = None
+                self.next_shot = now + rng.uniform(0.4, 0.9)
+            else:
+                sh["x"] += (sh["tx"] - sh["x"]) / dist * step
+                sh["y"] += (sh["ty"] - sh["y"]) / dist * step
+
+    def draw_hud(self, screen, eng, vals, logo, now):
+        S, pg = self.S, self.pg
+        sp = S(self.R) * 2
+        for k, c in enumerate(self.chain):
+            d = self.head - k * sp
+            if d < 0:
+                break
+            img = self.ball_img(c)
+            x, y = self.at(d)
+            screen.blit(img, (int(x - img.get_width() / 2), int(y - img.get_height() / 2)))
+        cx, cy = self.center                                           # the launcher turns / le lanceur tourne
+        ex, ey = cx + math.cos(self.aim) * S(60), cy + math.sin(self.aim) * S(60)
+        pg.draw.line(screen, (240, 220, 140), (int(cx), int(cy)), (int(ex), int(ey)), max(3, S(14)))
+        pg.draw.circle(screen, (120, 80, 170), (int(cx), int(cy)), S(34))
+        pg.draw.circle(screen, (240, 220, 140), (int(cx), int(cy)), S(34), max(2, S(4)))
+        if self.shot is not None:
+            img = self.ball_img(self.shot["col"])
+            screen.blit(img, (int(self.shot["x"] - img.get_width() / 2), int(self.shot["y"] - img.get_height() / 2)))
+        self.status(screen, eng, vals, logo, now)
+
+    def status(self, screen, eng, vals, logo, now):
+        """As in the game: the count of the balls burst at the top left, the score at the top right. / Le compte des
+        boules éclatées en haut à gauche, le score en haut à droite."""
+        S, W, hd = self.S, self.W, self.hd
+        hd.draw_logo(screen, logo, W / 2, S(6), S(420), S(80), now)
+        self.pill(screen, S(14), S(8), S(300), S(70), 170, radius=12)
+        self.text(screen, "BALLS", S(32), S(43), 24, (255, 200, 120), key="black", valign="middle")
+        hd.put_number(screen, f"{self.balls_n:04d}", "black", S(40), WHITE, S(300), S(43), "right", "middle")
+        if _n(vals.get("score")) is not None:
+            self.pill(screen, W - S(334), S(8), S(320), S(70), 170, radius=12)
+            self.text(screen, "SCORE", W - S(316), S(43), 24, (255, 200, 120), key="black", valign="middle")
+            hd._score(screen, eng, "score", W - S(30), S(16), "right", S(40))
+        elif not self.p2_in(vals):
+            word, col = self.invite(vals, now)
+            self.label(screen, word, W - S(24), S(40), 28, col, align="right")
+
+
+# ============================================================================ Capcom Sports Club
+class SportsClubScene(SoccerScene):
+    """Capcom Sports Club as in the game: the football match in the stadium in the late afternoon, the flags on the roof;
+    the two flags of the teams of our own at the top and the time of the match between them, as in the game.
+    / Le match de football dans le stade en fin d'après-midi, les drapeaux sur le toit ; les deux drapeaux des
+    équipes à nous en haut et le temps du match entre eux, comme dans le jeu."""
+    THEME = "cs_pitch"
+    KITS = kits(((60, 120, 230), (250, 250, 250)), ((250, 250, 250), (40, 60, 160)))
+
+    def scoreboard(self, screen, vals, now):
+        S = self.S
+        for side, x, kit in (("p1", S(30), self.KITS[0]), ("p2", S(330), self.KITS[1])):
+            self.pill(screen, x - S(10), S(10), S(130), S(70), 160, radius=12)
+            screen.blit(self.img(("csflag", side), S(90), S(52), flag_draw(kit), ss=1), (x + S(10), S(19)))
+        t = _n(vals.get("time"))
+        if t is not None:
+            t = int(t)
+            self.label(screen, f"{t // 60}'{t % 60:02d}\"" if t >= 60 else f"{t:02d}\"", S(270), S(45), 32, WHITE, key="black", align="center")
+
+
+# ============================================================================ the quizzes / les quiz
+class QuizDragonsScene(QuizScene):
+    """Quiz & Dragons as in the game: the hall of the dungeon and its red dragon painted on the wall, a knight and a
+    wizard of our own, the green panel and its four answers; a good answer is a big circle, a wrong one a big cross
+    and a life lost. The questions are our own. / La salle du donjon et son dragon rouge peint au mur, un chevalier et
+    un magicien à nous, le panneau vert et ses quatre réponses. Les questions sont à nous."""
+    THEME = "qd_dungeon"
+    PANEL = (30, 110, 60)
+    FACES = (((230, 190, 150), (90, 60, 40), None, (150, 156, 170), (70, 70, 90)), ((236, 200, 170), (230, 230, 230), None, (110, 60, 160),
+                                                                                    (60, 40, 90)))
+
+
+class CapcomWorldScene(QuizScene):
+    """Capcom World 2 as in the game: the board of the adventure, its lands, its sea and its path of squares, two little
+    adventurers of our own, the blue panel and its four answers. The questions are our own. / Le plateau de
+    l'aventure, ses terres, sa mer et son chemin de cases, deux petits aventuriers à nous, le panneau bleu."""
+    THEME = "cw_board"
+    PANEL = (40, 60, 190)
+    FACES = (((250, 210, 180), (220, 80, 40), (250, 220, 60), None, (250, 140, 60)), ((250, 214, 180), (40, 40, 60), None, (60, 160, 90), (90, 180, 240)))
+
+
 SCENES = {"ghouls": GhoulsScene, "strider": StriderScene, "pang3": Pang3Scene, "mpang": MightyPangScene, "spf2t": PuzzleFighterScene, "mtwins": MegaTwinsScene, "msword": MagicSwordScene, "willow": WillowScene, "nemo": NemoScene,
-          "3wonders": ThreeWondersScene, "dynwar": DynastyWarsScene}
+          "3wonders": ThreeWondersScene, "dynwar": DynastyWarsScene, "pzloop2": PuzzLoopScene, "csclub": SportsClubScene, "qad": QuizDragonsScene,
+          "cworld2j": CapcomWorldScene}
 __all__ = ["SCENES", "SideQuestScene"]
 _KEEP = (AMBER, P1C, P2C, draw_img)

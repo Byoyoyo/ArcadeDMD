@@ -743,7 +743,156 @@ def build_dw_field(W, H, s, seed=1411):
     return {"sky": sky, "layers": _fit(layers), "tw": tw, "amb": {"dust": (230, 200, 150)}}
 
 
+# ============================================================================ Puzz Loop 2
+def pl_path(W, H, s):
+    """The track of the balls: in from the left at the top, a turn at the right, back to the left in the bottom row,
+    into the hole. Points of the line, at the screen size. / Le chemin des boules : entre à gauche en haut, tourne à
+    droite, revient à gauche en bas, jusqu'au trou."""
+    y0, y1, xr, xl = 168 * s, 340 * s, W - 150 * s, 360 * s
+    r = (y1 - y0) / 2
+    pts = [(0.0, y0)]
+    pts += [(x, y0) for x in [W * k / 40 for k in range(1, 41)] if x < xr]
+    for k in range(25):                                                  # le virage / the turn
+        a = -math.pi / 2 + math.pi * k / 24
+        pts.append((xr + math.cos(a) * r, y0 + r + math.sin(a) * r))
+    x = xr
+    while x > xl:
+        x -= W / 40
+        pts.append((max(x, xl), y1))
+    return pts
+
+
+def build_pl_cosmos(W, H, s, seed=1412):
+    """Puzz Loop 2: the sky of purple clouds of the game, its stars, the carved groove of the track where the balls roll,
+    and the hole they must not reach. / Le ciel de nuages violets du jeu, ses étoiles, la rainure sculptée du chemin des
+    boules et le trou qu'elles ne doivent pas atteindre."""
+    rng = random.Random(seed)
+    sky = vgrad(W, H, [(0.0, (40, 20, 70)), (0.5, (90, 50, 130)), (1.0, (50, 30, 80))])
+    sky = _stars(sky, W, H, s, rng, 140, H, ((255, 240, 255), (220, 200, 255)))
+    p = _Pic(W, H, 2)
+    for _ in range(26):                                                  # les nuages violets
+        x, y = rng.uniform(0, W), rng.uniform(0, H)
+        for k in range(4):
+            p.disc(x + rng.uniform(-60, 60) * s, y + rng.uniform(-20, 20) * s, rng.uniform(30, 60) * s, (150, 100, 190, 60))
+    pts = pl_path(W, H, s)
+    p.line(pts, (60, 30, 80, 255), 64 * s)                               # la rainure / the groove
+    p.line(pts, (180, 140, 90, 255), 52 * s)
+    p.line(pts, (110, 70, 50, 255), 40 * s)
+    hx, hy = pts[-1]                                                     # le trou et sa tête de mort à nous / the hole
+    p.disc(hx, hy, 48 * s, (40, 20, 30, 255), (220, 180, 90, 255), 5 * s)
+    p.disc(hx, hy - 6 * s, 26 * s, (236, 230, 220, 255))
+    p.poly([(hx - 14 * s, hy + 12 * s), (hx + 14 * s, hy + 12 * s), (hx + 10 * s, hy + 26 * s), (hx - 10 * s, hy + 26 * s)], (236, 230, 220, 255))
+    for ex in (-9, 9):
+        p.disc(hx + ex * s, hy - 8 * s, 7 * s, (40, 20, 30, 255))
+    cx, cy = W / 2, (168 + 340) / 2 * s                                  # le socle du lanceur / the launcher's base
+    p.disc(cx, cy, 58 * s, (90, 60, 140, 255), (230, 200, 120, 255), 5 * s)
+    for k in range(8):
+        a = k * math.pi / 4
+        p.disc(cx + math.cos(a) * 46 * s, cy + math.sin(a) * 46 * s, 5 * s, (250, 220, 130, 255))
+    sky = sky.convert("RGBA")
+    sky.alpha_composite(p.done())
+    return {"sky": sky.convert("RGB"), "layers": [], "tw": W, "amb": {}}
+
+
+# ============================================================================ Capcom Sports Club
+def build_cs_pitch(W, H, s, seed=None):
+    """Capcom Sports Club: the football match of the game, in a stadium in the late afternoon: the warm sky above the
+    roof and its flags of our own, the stands, the boards, the striped pitch. / Le match de football du jeu dans un
+    stade en fin d'après-midi : le ciel chaud au-dessus du toit et ses drapeaux à nous, les tribunes, la pelouse rayée."""
+    from .hd_themes2 import build_stadium                                # the pitch of the football games / le terrain
+    raw = build_stadium(False)(W, H, s)
+    sky = raw["sky"].convert("RGBA")
+    warm = vgrad(W, int(40 * s) + 1, [(0.0, (250, 170, 90)), (1.0, (255, 210, 140))]).convert("RGBA")
+    sky.paste(warm, (0, 0))
+    p = _Pic(W, int(60 * s), 2)
+    cols = ((230, 60, 50), (40, 100, 220), (250, 210, 60), (40, 170, 90), (250, 250, 250))
+    for k in range(12):                                                  # les drapeaux sur le toit
+        x = (k + 0.5) * W / 12
+        p.line([(x, 34 * s), (x, 4 * s)], (60, 60, 70, 255), 3 * s)
+        c = cols[k % len(cols)]
+        p.poly([(x, 4 * s), (x + 34 * s, 9 * s), (x, 16 * s)], _rgba(c))
+    sky.alpha_composite(p.done(), (0, 0))
+    raw["sky"] = sky.convert("RGB")
+    return raw
+
+
+# ============================================================================ the quizzes / les quiz
+QZ_TOP = 270            # top of the question panel of the quizzes (as hd_themes11.QZ_PANEL) / le haut du panneau
+
+
+def build_qd_dungeon(W, H, s, seed=1413):
+    """Quiz & Dragons: the hall of the dungeon of the game: walls of great dark stones, torches, a red dragon of our own
+    painted on the wall at the back, the green panel of the questions below. / La salle du donjon : grands murs de
+    pierre sombre, torches, un dragon rouge à nous peint au mur du fond, le panneau vert des questions en bas."""
+    rng = random.Random(seed)
+    sky = vgrad(W, H, [(0.0, (30, 30, 40)), (1.0, (50, 46, 56))])
+    p = _Pic(W, H, 2)
+    for row in range(int(QZ_TOP / 40) + 1):
+        off = (row % 2) * 50 * s
+        for k in range(int(W / (100 * s)) + 2):
+            x0 = k * 100 * s - off
+            y0 = row * 40 * s
+            p.poly([(x0, y0), (x0 + 98 * s, y0), (x0 + 98 * s, y0 + 38 * s), (x0, y0 + 38 * s)],
+                   _rgba(rng.choice(((70, 70, 84), (60, 60, 74), (80, 78, 92)))), (36, 36, 46, 255), 1.5 * s)
+    cx, cy = W / 2, 150 * s                                              # le dragon peint / the painted dragon
+    red, dark = (200, 50, 40, 255), (110, 20, 20, 255)
+    p.poly([(cx - 260 * s, cy + 60 * s), (cx - 120 * s, cy - 10 * s), (cx + 40 * s, cy - 20 * s), (cx + 150 * s, cy + 30 * s), (cx + 40 * s, cy + 70 * s),
+            (cx - 120 * s, cy + 80 * s)], red, dark, 3 * s)                                                     # le corps
+    p.poly([(cx + 120 * s, cy + 20 * s), (cx + 200 * s, cy - 70 * s), (cx + 250 * s, cy - 60 * s), (cx + 190 * s, cy + 30 * s)], red, dark, 3 * s)  # le cou
+    p.poly([(cx + 190 * s, cy - 80 * s), (cx + 290 * s, cy - 70 * s), (cx + 300 * s, cy - 50 * s), (cx + 240 * s, cy - 40 * s)], red, dark, 3 * s)  # la tête
+    p.disc(cx + 255 * s, cy - 66 * s, 6 * s, (255, 230, 80, 255))
+    for side in (-1, 1):                                                 # les ailes
+        p.poly([(cx - 40 * s, cy), (cx - 160 * s + side * 30 * s, cy - 130 * s), (cx - 60 * s + side * 40 * s, cy - 110 * s), (cx + 40 * s, cy - 10 * s)],
+               (170, 40, 36, 255), dark, 3 * s)
+    p.line([(cx - 250 * s, cy + 60 * s), (cx - 330 * s, cy + 20 * s), (cx - 360 * s, cy + 40 * s)], red, 14 * s)            # la queue
+    for side in (0, 1):                                                  # les torches
+        tx = W * (0.25 if side == 0 else 0.75)
+        p.poly([(tx - 8 * s, 150 * s), (tx + 8 * s, 150 * s), (tx + 5 * s, 210 * s), (tx - 5 * s, 210 * s)], (110, 70, 40, 255))
+        p.ellipse(tx - 18 * s, 100 * s, tx + 18 * s, 156 * s, (255, 130, 40, 255))
+        p.ellipse(tx - 9 * s, 118 * s, tx + 9 * s, 152 * s, (255, 230, 120, 255))
+    p.poly([(0, QZ_TOP * s), (W, QZ_TOP * s), (W, H), (0, H)], (20, 50, 30, 255))
+    p.line([(0, QZ_TOP * s), (W, QZ_TOP * s)], (220, 180, 80, 255), 5 * s)
+    sky = sky.convert("RGBA")
+    sky.alpha_composite(p.done())
+    return {"sky": sky.convert("RGB"), "layers": [], "tw": W, "amb": {"fireflies": True}}
+
+
+def build_cw_board(W, H, s, seed=1414):
+    """Capcom World 2: the board of the adventure of the game: the green lands and the blue sea, the dotted path from
+    square to square, little castles, trees and mountains of our own, the blue panel of the questions below.
+    / Le plateau de l'aventure : terres vertes, mer bleue, chemin de cases, petits châteaux, arbres et montagnes à nous."""
+    rng = random.Random(seed)
+    sky = vgrad(W, H, [(0.0, (90, 170, 230)), (1.0, (60, 140, 210))])
+    p = _Pic(W, H, 2)
+    for _ in range(6):                                                   # les terres / the lands
+        x, y = rng.uniform(100, W - 100), rng.uniform(60, 220) * s
+        for k in range(7):
+            p.disc(x + rng.uniform(-170, 170) * s, y + rng.uniform(-50, 50) * s, rng.uniform(50, 90) * s, (110, 190, 90, 255))
+    pts = [(60 * s + k * (W - 120 * s) / 16, (150 + 70 * math.sin(k * 0.9)) * s) for k in range(17)]
+    p.line(pts, (240, 230, 200, 255), 10 * s)                            # le chemin de cases / the path
+    for k, (x, y) in enumerate(pts):
+        p.disc(x, y, 16 * s, _rgba(((250, 90, 90), (250, 210, 60), (90, 140, 250), (250, 250, 250))[k % 4]), (60, 50, 40, 255), 3 * s)
+    for _ in range(8):                                                   # châteaux, arbres, montagnes / castles, trees, mountains
+        x, y = rng.uniform(80, W - 80), rng.uniform(70, 240) * s
+        kind = rng.randrange(3)
+        if kind == 0:
+            p.poly([(x - 20 * s, y), (x + 20 * s, y), (x + 20 * s, y - 30 * s), (x - 20 * s, y - 30 * s)], (220, 220, 230, 255), (80, 80, 100, 255), 2 * s)
+            p.poly([(x - 24 * s, y - 30 * s), (x + 24 * s, y - 30 * s), (x, y - 56 * s)], (220, 60, 60, 255))
+        elif kind == 1:
+            p.disc(x, y - 22 * s, 18 * s, (40, 130, 60, 255))
+            p.poly([(x - 4 * s, y), (x + 4 * s, y), (x + 4 * s, y - 10 * s), (x - 4 * s, y - 10 * s)], (120, 80, 40, 255))
+        else:
+            p.poly([(x - 34 * s, y), (x + 34 * s, y), (x, y - 50 * s)], (150, 130, 110, 255), (90, 70, 60, 255), 2 * s)
+            p.poly([(x - 10 * s, y - 36 * s), (x + 10 * s, y - 36 * s), (x, y - 50 * s)], (250, 250, 255, 255))
+    p.poly([(0, QZ_TOP * s), (W, QZ_TOP * s), (W, H), (0, H)], (20, 30, 90, 255))
+    p.line([(0, QZ_TOP * s), (W, QZ_TOP * s)], (250, 220, 90, 255), 5 * s)
+    sky = sky.convert("RGBA")
+    sky.alpha_composite(p.done())
+    return {"sky": sky.convert("RGB"), "layers": [], "tw": W, "amb": {}}
+
+
 BUILDERS = {"gg_grave": build_gg_grave, "st_city": build_st_city, "pg_temple": build_pg_temple, "pg_peak": build_pg_peak, "spf_hall": build_spf_hall, "mt_forest": build_mt_forest, "ms_tower": build_ms_tower, "wl_village": build_wl_village, "nm_dream": build_nm_dream,
-            "tw_woods": build_tw_woods, "dw_field": build_dw_field}
+            "tw_woods": build_tw_woods, "dw_field": build_dw_field,
+            "pl_cosmos": build_pl_cosmos, "cs_pitch": build_cs_pitch, "qd_dungeon": build_qd_dungeon, "cw_board": build_cw_board}
 hd_bg.BUILDERS.update(BUILDERS)
 THEMES = tuple(BUILDERS)                 # names of the backdrops of this batch / noms des décors de ce lot
