@@ -3,6 +3,50 @@
 Newest version first. Each version is in English, then in French.
 La version la plus récente en premier. Chaque version est en anglais, puis en français.
 
+## 1.20.0
+
+### English
+
+**Neo Geo games done one by one, fourth batch**
+- Strikers 1945 Plus, Street Hoop, Super Dodge Ball, Neo Bomberman, Twinkle Star Sprites, League Bowling, Neo Drift Out, Riding Hero, Thrash Rally and Magician Lord now have a file of their own, with a panel scene and an animated HD scene made for each game after screenshots of the game. That makes twenty-five games done one by one. `PROGRESS.md` shows what comes next.
+- Strikers 1945 Plus. On the HD screen, the game's two side panels (SCORE, the planes left, BOMB, the SUPER SHOT gauge) around war-torn ground seen from the sky, villages with broken tiled roofs, a railway and its train, a river and its bridges. The plane chosen by the player, drawn after the real one (P-38, F5U, Spitfire, Ta 152, Zero, Fiat G.56, XP-55). The full gauge that empties is the super shot, a bomb brings a formation of bombers.
+- Street Hoop. A half court in a park, three against three. The points read in the game are shots from far, jump shots or dunks, the full SUPER SHOT gauge that empties is a shot on fire. The points in big red and blue letters at the top, the clock in its orange box at the bottom.
+- Super Dodge Ball. A cobbled lot, two teams of three players of our own. A player whose health goes down takes the ball full in the face, at zero he is out, the full POW gauge that empties is a power shot on fire. The health bars of both teams with the names, TIME in the middle.
+- Neo Bomberman. The maze seen from above, one look per world, little miner robots of our own. The bombs dropped in the game are dropped here and blow up in a cross, blocks break and come back.
+- Twinkle Star Sprites. Two fields side by side and the ornate column between them, a forest that scrolls down, little witches of our own. The attacks read in the game cross over to the other field, a heart lost makes the witch spin, a bomb clears her field. Pow 1 2 Max and the bombs at the bottom.
+- League Bowling. The alley seen from behind the bowler. Each time the game's shot clock starts again, the bowler throws, the ball hooks down the lane and the pins fly, STRIKE! or SPARE! now and then.
+- Neo Drift Out and Thrash Rally. The rally stages seen from the sky, dirt, tarmac or snow, the car drifts in the bends, a checkpoint arch goes by when time is added. TIME as in each game, and the speed in Thrash Rally.
+- Riding Hero. The road seen from behind the bike rushes to the horizon, the rider leans into the bends, the others are passed or come back, a turbo spent is a burst of speed. SPEED, TIME, TURBO and RANK where the game puts them.
+- Magician Lord. The villages in the giant trees, then a temple. A hero of our own throws his magic at the undead and takes the shape read in the game. HP and POW at the bottom.
+- The score of Strikers 1945 Plus, Super Dodge Ball, Neo Bomberman, Twinkle Star Sprites, League Bowling and Magician Lord is in no database. Learn it with `learn.bat`.
+- When the stick and the buttons can be read (Neo Geo BIOS), the planes of Strikers 1945 Plus and the witches of Twinkle Star Sprites follow them.
+- New panel sprite `sprites/car.png`, a rally car seen from above.
+- `demo_neogeo.bat` now lists the twenty-five games.
+
+**Updating from 1.19**
+Extract the new zip over the old folder (`config.json` and your learned addresses are kept), then run `install.bat` once to update the MAME plugin.
+
+### Français
+
+**Jeux Neo Geo faits un par un, quatrième lot**
+- Strikers 1945 Plus, Street Hoop, Super Dodge Ball, Neo Bomberman, Twinkle Star Sprites, League Bowling, Neo Drift Out, Riding Hero, Thrash Rally et Magician Lord ont maintenant un fichier à eux, avec une scène de dalle et une scène HD animée faites pour chaque jeu d'après des captures du jeu. Ça fait vingt-cinq jeux faits un par un. `PROGRESS.md` montre ce qui vient ensuite.
+- Strikers 1945 Plus. Sur l'écran HD, les deux panneaux de côté du jeu (SCORE, les avions qui restent, BOMB, la jauge SUPER SHOT) autour d'un sol ravagé vu du ciel, des villages aux toits de tuiles crevés, une voie ferrée et son train, une rivière et ses ponts. L'avion choisi par le joueur, dessiné d'après le vrai (P-38, F5U, Spitfire, Ta 152, Zero, Fiat G.56, XP-55). La jauge pleine qui se vide est le super tir, une bombe amène une formation de bombardiers.
+- Street Hoop. Un demi-terrain dans un parc, trois contre trois. Les points lus dans le jeu sont des tirs de loin, des tirs en suspension ou des smashs, la jauge SUPER SHOT pleine qui se vide donne un tir enflammé. Les points en grosses lettres rouges et bleues en haut, l'horloge dans son cadre orange en bas.
+- Super Dodge Ball. Un terrain vague pavé, deux équipes de trois joueurs à nous. Un joueur dont la vie baisse prend la balle en pleine figure, à zéro il est éliminé, la jauge POW pleine qui se vide donne un tir enflammé. Les barres de vie des deux équipes avec les noms, TIME au milieu.
+- Neo Bomberman. Le labyrinthe vu de haut, un style par monde, de petits robots mineurs à nous. Les bombes posées dans le jeu sont posées ici et sautent en croix, les blocs cassent et reviennent.
+- Twinkle Star Sprites. Deux terrains côte à côte et la colonne ornée entre les deux, une forêt qui défile vers le bas, de petites sorcières à nous. Les attaques lues dans le jeu passent de l'autre côté, un cœur perdu fait tourner la sorcière, une bombe nettoie son terrain. Pow 1 2 Max et les bombes en bas.
+- League Bowling. La salle vue de derrière le joueur. Chaque fois que le chrono du jeu repart, le joueur lance, la boule file en courbe et les quilles volent, STRIKE ! ou SPARE ! de temps en temps.
+- Neo Drift Out et Thrash Rally. Les spéciales vues du ciel, terre, goudron ou neige, la voiture dérape dans les virages, une arche de contrôle passe quand du temps s'ajoute. TIME comme dans chaque jeu, et la vitesse dans Thrash Rally.
+- Riding Hero. La route vue de derrière la moto file vers l'horizon, le pilote se penche dans les virages, les autres sont dépassés ou reviennent, un turbo dépensé donne un coup d'accélérateur. SPEED, TIME, TURBO et RANK là où le jeu les met.
+- Magician Lord. Les villages dans les arbres géants, puis un temple. Un héros à nous lance sa magie sur les morts-vivants et prend la forme lue dans le jeu. HP et POW en bas.
+- Le score de Strikers 1945 Plus, Super Dodge Ball, Neo Bomberman, Twinkle Star Sprites, League Bowling et Magician Lord n'est dans aucune base. Apprends-le avec `learn.bat`.
+- Quand le stick et les boutons se lisent (BIOS Neo Geo), les avions de Strikers 1945 Plus et les sorcières de Twinkle Star Sprites les suivent.
+- Nouveau sprite de dalle `sprites/car.png`, une voiture de rallye vue du dessus.
+- `demo_neogeo.bat` propose maintenant les vingt-cinq jeux.
+
+**Mettre à jour depuis la 1.19**
+Décompresse le nouveau zip par-dessus l'ancien dossier (`config.json` et tes adresses apprises sont gardés), puis lance `install.bat` une fois pour mettre à jour le plugin MAME.
+
 ## 1.19.0
 
 ### English

@@ -94,7 +94,7 @@ Scène de combat commune sur la dalle, avec l'écran des pièces depuis la 1.16.
 | World Heroes 2 Jet | ✅ | ✅ | ✅ | ⬜ | ⬜ |
 | World Heroes Perfect | ✅ | ✅ | ✅ | ⬜ | ✅ |
 
-### The other Neo Geo games / Les autres jeux Neo Geo (15 / 97)
+### The other Neo Geo games / Les autres jeux Neo Geo (25 / 97)
 
 The best-known games first. Until its turn, each game keeps the shared scene of its genre. 🟡 in Values means the score still has to be learned with `learn.bat`.
 
@@ -117,16 +117,16 @@ Les plus connus d'abord. En attendant son tour, chaque jeu garde la scène commu
 | 13 | Last Resort | Shoot'em up | 🟡 | ✅ | ✅ | 1.19 |
 | 14 | Aero Fighters 2 | Shoot'em up | 🟡 | ✅ | ✅ | 1.19 |
 | 15 | Aero Fighters 3 | Shoot'em up | 🟡 | ✅ | ✅ | 1.19 |
-| 16 | Twinkle Star Sprites | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
-| 17 | Strikers 1945 Plus | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
-| 18 | Neo Bomberman | Action | ⬜ | ⬜ | ⬜ |  |
-| 19 | Super Dodge Ball | Sport | ⬜ | ⬜ | ⬜ |  |
-| 20 | Street Hoop | Sport (basketball) / Sport (basket) | ⬜ | ⬜ | ⬜ |  |
-| 21 | League Bowling | Sport (bowling) | ⬜ | ⬜ | ⬜ |  |
-| 22 | Neo Drift Out | Racing / Course | ⬜ | ⬜ | ⬜ |  |
-| 23 | Riding Hero | Racing / Course | ⬜ | ⬜ | ⬜ |  |
-| 24 | Thrash Rally | Racing / Course | ⬜ | ⬜ | ⬜ |  |
-| 25 | Magician Lord | Action | ⬜ | ⬜ | ⬜ |  |
+| 16 | Twinkle Star Sprites | Shoot'em up | 🟡 | ✅ | ✅ | 1.20 |
+| 17 | Strikers 1945 Plus | Shoot'em up | 🟡 | ✅ | ✅ | 1.20 |
+| 18 | Neo Bomberman | Action | 🟡 | ✅ | ✅ | 1.20 |
+| 19 | Super Dodge Ball | Sport | 🟡 | ✅ | ✅ | 1.20 |
+| 20 | Street Hoop | Sport (basketball) / Sport (basket) | ✅ | ✅ | ✅ | 1.20 |
+| 21 | League Bowling | Sport (bowling) | 🟡 | ✅ | ✅ | 1.20 |
+| 22 | Neo Drift Out | Racing / Course | ✅ | ✅ | ✅ | 1.20 |
+| 23 | Riding Hero | Racing / Course | ✅ | ✅ | ✅ | 1.20 |
+| 24 | Thrash Rally | Racing / Course | ✅ | ✅ | ✅ | 1.20 |
+| 25 | Magician Lord | Action | 🟡 | ✅ | ✅ | 1.20 |
 | 26 | NAM-1975 | Action | ⬜ | ⬜ | ⬜ |  |
 | 27 | Cyber-Lip | Action | ⬜ | ⬜ | ⬜ |  |
 | 28 | Ghost Pilots | Shoot'em up | ⬜ | ⬜ | ⬜ |  |

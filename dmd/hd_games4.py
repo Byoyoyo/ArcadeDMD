@@ -127,6 +127,8 @@ class StrikersScene(AeroFightersScene):
     PROP = True
     ACC = {"p1": (250, 220, 120), "p2": (250, 250, 250)}
     BODY = {"p1": (170, 62, 50), "p2": (60, 104, 190)}
+    PAINT = {1: (176, 182, 192), 2: (62, 84, 136), 3: (118, 128, 96), 4: (136, 142, 148), 5: (186, 186, 166), 6: (184, 164, 120),
+             7: (170, 178, 190)}                      # each plane in its real colours / chaque avion dans ses vraies couleurs
     SHOT = {"p1": (255, 236, 130), "p2": (170, 226, 255)}
     SHOT_SIZE = ((6, 64), (9, 90))
     BOMB = ((200, 60, 50), (200, 160, 90))
@@ -144,7 +146,20 @@ class StrikersScene(AeroFightersScene):
         return int(v) if v is not None and 1 <= v <= 7 else 1
 
     def plane_fn(self, side, kind):
-        return s45_plane_draw(kind, self.BODY[side], self.ACC[side])
+        body = self.PAINT.get(kind, self.BODY[side])
+        return s45_plane_draw(kind, body if side == "p1" else _mix(body, (60, 104, 190), 0.35), self.ACC[side] if side == "p1" else (255, 120, 60))
+
+    def plane_surf(self, side, kind, shadow=False):
+        """The planes a little bigger than in Aero Fighters, as in the game. / Les avions un peu plus grands."""
+        S = self.S
+        key = ("plane", side, kind, shadow)
+        s = self.imgs.get(key)
+        if s is None:
+            s = self.img(("planeimg", side, kind), S(186), S(168), self.plane_fn(side, kind))
+            if shadow:
+                s = self.shadow_of(self.pg, s, 80)
+            self.imgs[key] = s
+        return s
 
     def pos(self, side, now):
         P, S = self.ships[side], self.S
@@ -1060,6 +1075,8 @@ class DodgeBallScene(GameScene):
             tag = ("1P" if team == 0 else ("2P" if self.p2_in(vals) else "CPU"))
             self.text(screen, tag, x0 + (S(4) if team == 0 else bw - S(4)), S(26), 30, (255, 90, 70) if team == 0 else (90, 150, 255), key="black",
                       align="left" if team == 0 else "right", valign="middle", glow=0.3)
+            if _n(vals.get("score" + suf)) is not None:                # the score next to the tag, as in the game
+                hd._score(screen, eng, "score" + suf, x0 + S(200) if team == 0 else x0 + bw - S(80), S(10), "right", S(34))
             seg = (bw - S(12)) / 3
             for k in range(3):                                         # three players, three colours
                 v = vals_hp[k] if vals_hp[k] is not None else 0
@@ -1969,12 +1986,16 @@ class RallyScene(GameScene):
         return None if v is None else float(v)
 
     def next_stage(self, now):
-        """A new stage: the other kind of road. / Une nouvelle spéciale : l'autre sorte de route."""
-        name = self.THEMES[(self.stage_n + 1) % len(self.THEMES)]
-        if self.bd.warm(name):
-            self.stage_n += 1
-            self.bd.set_theme(name, now)
-            self.DUST = self.DUSTS.get(name, self.DUST)
+        """A new stage: the other kind of road, shown once ready. / Une nouvelle spéciale : l'autre sorte de route."""
+        self.stage_n += 1
+        self.want = self.THEMES[self.stage_n % len(self.THEMES)]
+
+    def always(self, vals, now):
+        want = getattr(self, "want", None)
+        if want and want != self.bd.theme and self.bd.ready(want) and self.bd.warm(want):
+            self.bd.set_theme(want, now)
+            self.DUST = self.DUSTS.get(want, self.DUST)
+            self.want = None
 
     def restart(self, vals, now):
         self.rivals = []
@@ -2709,8 +2730,8 @@ class MagicianLordScene(GameScene):
             self.popup("POW UP", self.W * 0.3, self.floor() - S(220), GOLD, 38)
         if now >= self.next_foe:                                       # the undead come from the right
             self.next_foe = now + rng.uniform(1.4, 2.8)
-            self.foes.append({"x": self.W + S(80), "v": rng.uniform(90, 160) * self.s, "ph": rng.uniform(0, 6), "hp": 4})
-        target = [f for f in self.foes if not f.get("dead") and self.W * 0.36 < f["x"] < self.W * 0.72]
+            self.foes.append({"x": self.W + S(40), "v": rng.uniform(110, 170) * self.s, "ph": rng.uniform(0, 6), "hp": 3})
+        target = [f for f in self.foes if not f.get("dead") and self.W * 0.36 < f["x"] < self.W * 0.8]
         if target and now - self.cast > 0.7:                           # magic at the nearest one
             f = min(target, key=lambda f: f["x"])
             self.cast = now
@@ -2723,8 +2744,8 @@ class MagicianLordScene(GameScene):
                 self.kills += 1
                 self.fx.later(0.12, self.fx.explosion, f["x"], self.floor() - S(90), 0.5, False)
         ch = self.changed(vals, "score")
-        if ch and ch[1] > ch[0]:
-            live = [f for f in self.foes if not f.get("dead")]
+        if ch and ch[1] > ch[0]:                                       # points: the nearest undead on screen falls
+            live = [f for f in self.foes if not f.get("dead") and f["x"] < self.W * 0.9]
             if live:
                 f = min(live, key=lambda f: f["x"])
                 f["dead"] = now

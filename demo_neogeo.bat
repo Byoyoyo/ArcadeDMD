@@ -25,9 +25,19 @@ echo  12  Baseball Stars 2
 echo  13  Last Resort
 echo  14  Aero Fighters 2
 echo  15  Aero Fighters 3
+echo  16  Strikers 1945 Plus
+echo  17  Street Hoop
+echo  18  Super Dodge Ball
+echo  19  Neo Bomberman
+echo  20  Twinkle Star Sprites
+echo  21  League Bowling
+echo  22  Neo Drift Out
+echo  23  Riding Hero
+echo  24  Thrash Rally
+echo  25  Magician Lord
 echo.
 set N=
-if "%L%"=="fr" (set /p N=Quel jeu, 1 a 15 ? ) else (set /p N=Which game, 1 to 15? )
+if "%L%"=="fr" (set /p N=Quel jeu, 1 a 25 ? ) else (set /p N=Which game, 1 to 25? )
 set G=blazstar
 if "%N%"=="2" set G=pbobblen
 if "%N%"=="3" set G=wjammers
@@ -43,6 +53,16 @@ if "%N%"=="12" set G=bstars2
 if "%N%"=="13" set G=lresort
 if "%N%"=="14" set G=sonicwi2
 if "%N%"=="15" set G=sonicwi3
+if "%N%"=="16" set G=s1945p
+if "%N%"=="17" set G=strhoop
+if "%N%"=="18" set G=sdodgeb
+if "%N%"=="19" set G=neobombe
+if "%N%"=="20" set G=twinspri
+if "%N%"=="21" set G=lbowling
+if "%N%"=="22" set G=neodrift
+if "%N%"=="23" set G=ridhero
+if "%N%"=="24" set G=trally
+if "%N%"=="25" set G=maglord
 :play
 if "%L%"=="fr" (echo Demo %G%, avec des valeurs simulees. Echap ou ferme la fenetre pour quitter.) else (echo %G% demo, with simulated values. Press Esc or close the window to quit.)
 %PY% arcadedmd.py demo %G%
