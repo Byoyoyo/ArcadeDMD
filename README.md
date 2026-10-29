@@ -396,6 +396,8 @@ Not every core gives RetroArch access to the game memory. With the wrong core, t
 |---|---|---|
 | Arcade, Neo Geo (Metal Slug...) | Arcade (FinalBurn Neo), up to date | FB Alpha 2012 in all its forms (Neo Geo, CPS-1...), MAME 2003, MAME 2003-Plus, MAME 2010, MAME |
 | Mega Drive (Sonic) | Genesis Plus GX, or PicoDrive | |
+| Super Nintendo (Super Mario World, Zelda) | Snes9x, or Mesen-S, bsnes-mercury, bsnes 2014 | bsnes and bsnes-hd beta not checked |
+| Dreamcast (Marvel vs. Capcom 2) | Sega - Dreamcast/Naomi (Flycast) | |
 
 Installing FinalBurn Neo
 1. In RetroArch, go to Main Menu > Online Updater > Core Downloader, then choose "Arcade (FinalBurn Neo)". If Online Updater does not appear, turn it on in Settings > User Interface > Menu Item Visibility > Main Menu.
@@ -417,7 +419,10 @@ To see which core is running, press F1 during the game, then go to Information >
 | Blazing Star (`blazstar`), Puzzle Bobble (`pbobblen`), Shock Troopers (`shocktro`), Pulstar (`pulstar`), Magical Drop III (`magdrop3`), Sengoku 3 (`sengoku3`), Top Hunter (`tophuntr`), Last Resort (`lresort`), Aero Fighters 2 (`sonicwi2`), Aero Fighters 3 (`sonicwi3`), Strikers 1945 Plus (`s1945p`), Super Dodge Ball (`sdodgeb`), Neo Bomberman (`neobombe`), Twinkle Star Sprites (`twinspri`), League Bowling (`lbowling`), Magician Lord (`maglord`), NAM-1975 (`nam1975`), Cyber-Lip (`cyberlip`), Ghost Pilots (`gpilots`), Alpha Mission II (`alpham2`), Viewpoint (`viewpoin`), Zed Blade (`zedblade`), Prehistoric Isle 2 (`preisle2`), Shock Troopers 2nd Squad (`shocktr2`), Robo Army (`roboarmy`), Burning Fight (`burningf`), Mutation Nation (`mutnat`), Sengoku (`sengoku`), Sengoku 2 (`sengoku2`), Ninja Combat (`ncombat`), Ninja Commando (`ncommand`), Blue's Journey (`bjourney`), Puzzle Bobble 2 (`pbobbl2n`), Magical Drop II (`magdrop2`), Money Puzzle Exchanger (`miexchng`), Puzzle De Pon! (`puzzledp`), Puzzle De Pon! R! (`puzzldpr`), Panic Bomber (`panicbom`), Pop 'n Bounce (`popbounc`), Super Bubble Pop (`sbp`), Spin Master (`spinmast`), Ganryu (`ganryu`), Zupapa! (`zupapa`), Neo Mr. Do! (`neomrdo`), Bang Bead (`bangbead`), Battle Flip Shot (`flipshot`), Gururin (`gururin`), Ghostlop (`ghostlop`), Pochi and Nyaa (`pnyaa`), Puzzled (`joyjoy`), Zintrick (`zintrckb`), Digger Man (`diggerma`), Andro Dunos (`androdun`), Captain Tomaday (`ctomaday`), Choutetsu Brikin'ger (`ironclad`), Last Hope (`lasthope`), Bang Bang Busters (`b2b`), Crossed Swords (`crsword`), Eight Man (`eightman`), Nightmare in the Dark (`nitd`), The Super Spy (`superspy`), Quiz King of Fighters (`quizkof`), Quiz Daisousa Sen (`quizdais`), Quiz Meitantei Neo & Geo (`quizdai2`), Chibi Maruko-chan Deluxe Quiz (`marukodq`) | FinalBurn Neo | see Neo Geo games done one by one | score |
 | Windjammers (`wjammers`), Neo Turf Masters (`turfmast`), Super Sidekicks 3 (`ssideki3`), The Ultimate 11 (`ssideki4`), Baseball Stars 2 (`bstars2`), Street Hoop (`strhoop`), Neo Drift Out (`neodrift`), Riding Hero (`ridhero`), Thrash Rally (`trally`), Super Sidekicks (`ssideki`), Super Sidekicks 2 (`ssideki2`), Tecmo World Soccer '96 (`twsoc96`), Goal! Goal! Goal! (`goalx3`), Neo-Geo Cup '98 (`neocup98`), Soccer Brawl (`socbrawl`), Football Frenzy (`fbfrenzy`), Pleasure Goal (`pgoal`), Baseball Stars Professional (`bstars`), 2020 Super Baseball (`2020bb`), Top Player's Golf (`tpgolf`), Power Spikes II (`pspikes2`), Over Top (`overtop`), Stakes Winner (`stakwin`), Stakes Winner 2 (`stakwin2`), Jockey Grand Prix (`jockeygp`), The Irritating Maze (`irrmaze`), Minasan no Okagesamadesu! (`minasan`), Mahjong Kyo Retsuden (`mahretsu`), Janshin Densetsu (`janshin`), Bakatonosama Mahjong Manyuuki (`bakatono`), Idol Mahjong Final Romance 2 (`froman2b`), Shougi no Tatsujin (`moshougi`) | FinalBurn Neo | see Neo Geo games done one by one | nothing |
 | All other Neo Geo games | FinalBurn Neo | scene by genre (credits with MAME) | score, and credits if the game keeps a copy of them |
+| Every Capcom CPS1, CPS2 and CPS3 game | FinalBurn Neo | see Capcom CPS1, CPS2 and CPS3 games | score |
 | Sonic 1 and Sonic 2 | Genesis Plus GX | score, rings, lives | nothing |
+| Super Mario World (`smw`), The Legend of Zelda: A Link to the Past (`zelda3`) | Snes9x | see Super Nintendo below | nothing |
+| Marvel vs. Capcom 2, US Dreamcast disc | Flycast | the three characters of each team with their health, the timer, the hyper combo gauges, the stage | nothing |
 
 The lives, bombs and ammo addresses come from the MAME 2003-Plus cheat database. Sonic's are the same as in MAME. Metal Slug lives follow the on-screen "1UP". Metal Slug 1 also counts the current life, so ArcadeDMD subtracts 1 (verified). Metal Slug 3 does not count it (verified). For 2 and X, ArcadeDMD does as for 1, and for 4 and 5 as for 3. If one of these games shows one life fewer than the screen, remove the `"add"` and `"min"` lines from its lives entry in its `games\mslugX.json` file. If it shows one more, add `"add": -1, "min": 0`.
 
@@ -735,6 +740,37 @@ Every Capcom CPS1, CPS2 and CPS3 game of FinalBurn Neo is recognized, with MAME 
 | X-Men: Children of the Atom | CPS2 | `xmcota.json` | yes | yes | yes (13) | yes | yes |
 
 The addresses come from the cheat database of FinalBurn Neo and still have to be confirmed in game (`test_retroarch.bat` shows them). "fixed" means the game always gets the same backgrounds, taken from a list that fits it (the ring of the Slam Masters, the laboratory of Mega Man).
+
+### Marvel vs. Capcom 2 (Dreamcast)
+
+ArcadeDMD reads Marvel vs. Capcom 2 on the Dreamcast, in RetroArch with the Flycast core. It is the US disc. The Japanese and European discs and the Naomi arcade version (`mvsc2`) are not covered yet, because their addresses are not known.
+
+1. In RetroArch, go to Main Menu > Online Updater > Core Downloader, then choose "Sega - Dreamcast/Naomi (Flycast)".
+2. Name the disc after the game, for example `Marvel vs. Capcom 2 (USA).chd`. ArcadeDMD recognizes the game by its file name. A `disc.gdi` in a folder is not recognized, so rename the `.gdi` file (its track files keep their names).
+3. Network Commands stay on, port 55355, as for the other games. Nothing else to set.
+
+On the panel, the two characters on point are at the top, with their health bars and the timer between them. Under each bar is the hyper combo gauge (5 levels). At the bottom, P1 and P2 with their three characters, white on point, green waiting, dark once KO. Events take the panel one at a time. They are a character KO, HYPER COMBO when a gauge is spent, the character who comes in (CYCLOPS IN), TIME OVER, and P1 WINS or P2 WINS when a whole team is down. Out of a match, the title and 3 VS 3 are shown.
+
+On the HD screen, the fighting scene has a background for each stage of the game. Under each name are the three characters of the team, the one on point lit, those KO struck out. Under each health bar is the hyper combo gauge. A character KO does not end the match. WIN and the confetti wait until a whole team is down. Out of a match, the game logo and 3 VS 3 are shown.
+
+The health and gauge addresses come from the libretro cheat database and from the Flycast Dojo training script, which agree. The timer, the stage, the characters and the match state come from the Flycast Dojo script. A snapback or a variable counter also spends a gauge level, so it shows HYPER COMBO too. When something does not match the screen, run `test_retroarch.bat` during a match and post the result in a GitHub issue.
+
+### Super Nintendo (Super Mario World, A Link to the Past)
+
+Two Super Nintendo games have their own panel and HD scenes under RetroArch, with nothing to learn: Super Mario World and The Legend of Zelda: A Link to the Past. They are recognized by their usual names (No-Intro and GoodSNES, USA, Europe, Japan, France, Germany, Canada...), for example `Super Mario World (USA).sfc` or `Legend of Zelda, The - A Link to the Past (USA).sfc`. Yoshi's Island, the All-Stars compilations and the Game Boy Advance version are not taken for them.
+
+The core to take is Snes9x. In RetroArch, go to Main Menu > Online Updater > Core Downloader, then choose "Nintendo - SNES / SFC (Snes9x - Current)". Mesen-S, bsnes-mercury, bsnes 2014 and the older Snes9x (2010, 2005, 2002) share their memory too. bsnes and bsnes-hd beta were not checked. If `test_retroarch.bat` says the memory cannot be read, take Snes9x. Network Commands must be on, as for the other games (see One-time setup in RetroArch).
+
+| Game | Shown |
+|---|---|
+| Super Mario World (`smw`) | score (Mario's or Luigi's, the one playing), lives, coins, time, the five big coins of the level, bonus stars, the power (super, cape, fire), the reserve item, on the map the world, the exits found and the switch palaces pressed |
+| The Legend of Zelda: A Link to the Past (`zelda3`) | hearts (halves too) and heart pieces, magic, rupees, bombs, arrows, small keys in a dungeon, the item on Y, the dungeon or the world (light, dark), pendants and crystals |
+
+On the panel, the essentials at all times, and each event big, one at a time, like a pinball, with explosions. Super Mario World: 1UP, SUPER, CAPE, FIRE, OUCH, STAR POWER, YOSHI, DRAGON COIN 3/5, MIDWAY, P-SWITCH, HURRY UP, BONUS GAME, COURSE CLEAR, SECRET EXIT, the blocks of a switch palace, TOO BAD, GAME OVER, TIME UP. A Link to the Past: the name of each item found (BOW, PEGASUS BOOTS, MASTER SWORD...), +1 HEART, HEART PIECE 2/4, PENDANT 1/3, CRYSTAL 4/7, VICTORY, the dungeon entered, LIGHT WORLD and DARK WORLD, BOMBOS, ETHER and QUAKE, BOOM for each bomb, KEY, BUNNY, +100 RUPEES, DEFEATED, FAIRY, GAME OVER. On the title screen and the file select, the title and PRESS START.
+
+On the HD screen, both games are drawn our own way, no character, item or logo comes from them. In Super Mario World, a little hero in a teal hood runs, jumps, spins, flies with a cape and rides a hover board, following the speed, the jumps and the controller read in the game. The coins fly to the counter, the points pop up, and the backdrop follows the level (hills, sky, forest, cave, castle and its lava, ghost house, under the water, the map seen from above). In A Link to the Past, a young adventurer with a red headband walks, swings his sword, spins, dashes, swims and holds up what he finds. The bombs blow up, the arrows fly, the rods shoot fire or ice, the medallions shake the whole screen, and the backdrop follows the light world, the dark world, the dungeons and the houses. Each event is a big banner, and nobody playing shows the game's logo and PRESS START.
+
+The addresses come from the source code of the two games rebuilt by the snesrev projects (`smw`, `zelda3`), checked against the RetroArch cheat files. They are those of the USA versions. The Europe and Japan versions are recognized too and should be the same, but were not checked in game.
 
 ### Coin screen (fighting games)
 
