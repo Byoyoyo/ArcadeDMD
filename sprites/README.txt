@@ -15,6 +15,22 @@ car.png     rally car seen from above (2 frames of 10x5) for Neo Geo racing game
 runner.png  running fighter (2 frames of 8x10) for Neo Geo action games and beat'em ups
 horse.png  galloping race horse and its jockey (2 frames of 14x11) for the Neo Geo horse races
 snes_hero.png  little hero in a teal hood (2 frames of 8x10), our own character, for Super Mario World
+cps_prop.png   propeller fighter of the war (2 frames of 12x6) for 1941, 1944 and 19XX
+cps_jet.png    jet fighter (2 frames of 14x5) for Varth, U.N. Squadron, Carrier Air Wing and Giga Wing
+cps_flyer.png  flying soldier (2 frames of 12x5) for Forgotten Worlds
+cps_steam.png  steam age fighter (2 frames of 13x6) for Progear
+cps_dragon.png wizard on his flying beast (2 frames of 13x6) for Dimahoo
+cps_eco.png    little pod and its gun arm (2 frames of 11x6) for Eco Fighters
+cps_mech.png   mech fighter (2 frames of 12x6) for Mars Matrix
+cps_frog.png   frog sitting or leaping (2 frames of 7x5) for Frog Feast
+cps_balloon.png  striped hot-air balloon (7x10) for Pokonyan! Balloon
+cps_pumpkin.png  pumpkin carriage (2 frames of 9x8) for Magical Pumpkin
+cps_sight.png  red sight (7x7) for Ganbare! Marine Kun
+fx_pop.png     small explosion (6 frames of 16x16)
+fx_fire.png    fireball (8 frames of 32x32) for a big enemy or a bomb
+fx_shock.png   lightning and shock waves (8 frames of 32x32) for a bomb or a super shot
+fx_star.png    star and debris (6 frames of 32x32) when an enemy is destroyed
+fx_plasma.png  blue plasma explosion (5 frames of 32x32) in space and for a super shot
 
 To replace the ring with your own character, drop sonic.gif
 (or sonic.png as a strip of 6 frames) into this folder.
@@ -46,6 +62,17 @@ car.png     voiture de rallye vue du dessus (2 images de 10x5) pour les jeux de 
 runner.png  combattant qui court (2 images de 8x10) pour les jeux d action et beat'em up Neo Geo
 horse.png  cheval de course au galop et son jockey (2 images de 14x11) pour les courses de chevaux Neo Geo
 snes_hero.png  petit heros a capuche turquoise (2 images de 8x10), notre personnage, pour Super Mario World
+cps_prop.png   chasseur a helice de la guerre (2 images de 12x6) pour 1941, 1944 et 19XX
+cps_jet.png    chasseur a reaction (2 images de 14x5) pour Varth, U.N. Squadron, Carrier Air Wing et Giga Wing
+cps_flyer.png  soldat volant (2 images de 12x5) pour Forgotten Worlds
+cps_steam.png  chasseur de l age de la vapeur (2 images de 13x6) pour Progear
+cps_dragon.png magicien sur sa bete volante (2 images de 13x6) pour Dimahoo
+cps_eco.png    petite capsule et son bras-canon (2 images de 11x6) pour Eco Fighters
+cps_mech.png   chasseur mecanique (2 images de 12x6) pour Mars Matrix
+cps_frog.png   grenouille assise ou en saut (2 images de 7x5) pour Frog Feast
+cps_balloon.png  montgolfiere rayee (7x10) pour Pokonyan! Balloon
+cps_pumpkin.png  carrosse citrouille (2 images de 9x8) pour Magical Pumpkin
+cps_sight.png  viseur rouge (7x7) pour Ganbare! Marine Kun
 fx_pop.png     petite explosion (6 images de 16x16)
 fx_fire.png    boule de feu (8 images de 32x32) pour un gros ennemi ou une bombe
 fx_shock.png   eclair et ondes de choc (8 images de 32x32) pour une bombe ou un super tir
