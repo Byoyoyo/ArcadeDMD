@@ -1522,6 +1522,79 @@
    },
    {
     "type": "text",
+    "font": "4x6",
+    "x": 64,
+    "y": 25,
+    "align": "center",
+    "text": "{pilot_name}",
+    "color": "#ffc040",
+    "when": {
+     "all": [
+      {
+       "all": [
+        {
+         "all": [
+          {
+           "not": {
+            "all": [
+             {
+              "has": "p1_mode"
+             },
+             {
+              "not": {
+               "var": "p1_mode",
+               "in": [
+                1,
+                2
+               ]
+              }
+             },
+             {
+              "not": {
+               "var": "p2_mode",
+               "in": [
+                1,
+                2
+               ]
+              }
+             }
+            ]
+           }
+          },
+          {
+           "not": {
+            "var": "p2_mode",
+            "in": [
+             1,
+             2
+            ]
+           }
+          },
+          {
+           "not": {
+            "var": "p1_mode",
+            "eq": 2
+           }
+          }
+         ]
+        },
+        {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       ]
+      },
+      {
+       "has": "pilot_name"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
     "font": "8x13B",
     "x": 64,
     "y": 4,
