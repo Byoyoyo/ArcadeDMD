@@ -15,7 +15,6 @@
     "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
     "content": ["choko", "chokop"]
   },
-  "scene_from": "cps_reflexion",
   "memory": {
     "cpu": ":maincpu",
     "values": {
@@ -38,8 +37,1603 @@
     "note": "no BIOS says who plays: player 1 plays while these values move"
   },
   "demo": {
-    "credits": 2,
+    "attract": true,
+    "credits": 0,
     "p1_mode": 1,
-    "p2_mode": 0
-  }
+    "p2_mode": 0,
+    "time": 60,
+    "sim": {
+      "time": {
+        "count": [
+          0,
+          60,
+          -1
+        ],
+        "every": 1.0,
+        "start": 1.0
+      }
+    }
+  },
+  "scene": {
+    "layers": [
+      {
+        "type": "rect",
+        "x": 0,
+        "y": 11,
+        "w": 128,
+        "h": 21,
+        "color": "#961818",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 19,
+        "y": 12,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 28,
+        "y": 12,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 37,
+        "y": 12,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 46,
+        "y": 12,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 55,
+        "y": 12,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 64,
+        "y": 12,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 82,
+        "y": 12,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 91,
+        "y": 12,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 100,
+        "y": 12,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 10,
+        "y": 18,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 19,
+        "y": 18,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 28,
+        "y": 18,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 46,
+        "y": 18,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 55,
+        "y": 18,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 64,
+        "y": 18,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 73,
+        "y": 18,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 82,
+        "y": 18,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 91,
+        "y": 18,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 10,
+        "y": 24,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 19,
+        "y": 24,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 28,
+        "y": 24,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 37,
+        "y": 24,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 46,
+        "y": 24,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 55,
+        "y": 24,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 73,
+        "y": 24,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 82,
+        "y": 24,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 91,
+        "y": 24,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 100,
+        "y": 24,
+        "w": 8,
+        "h": 5,
+        "color": "#f4f0e0",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "cycle",
+        "period": 0.8,
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "pages": [
+          {
+            "layers": [
+              {
+                "type": "rect",
+                "x": 14,
+                "y": 15,
+                "w": 19,
+                "h": 1,
+                "color": "#ffd040",
+                "when": {
+                  "not": {
+                    "all": [
+                      {
+                        "has": "p1_mode"
+                      },
+                      {
+                        "not": {
+                          "var": "p1_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        }
+                      },
+                      {
+                        "not": {
+                          "var": "p2_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "rect",
+                "x": 14,
+                "y": 15,
+                "w": 1,
+                "h": 8,
+                "color": "#ffd040",
+                "when": {
+                  "not": {
+                    "all": [
+                      {
+                        "has": "p1_mode"
+                      },
+                      {
+                        "not": {
+                          "var": "p1_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        }
+                      },
+                      {
+                        "not": {
+                          "var": "p2_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "layers": [
+              {
+                "type": "rect",
+                "x": 32,
+                "y": 15,
+                "w": 19,
+                "h": 1,
+                "color": "#ffd040",
+                "when": {
+                  "not": {
+                    "all": [
+                      {
+                        "has": "p1_mode"
+                      },
+                      {
+                        "not": {
+                          "var": "p1_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        }
+                      },
+                      {
+                        "not": {
+                          "var": "p2_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "rect",
+                "x": 32,
+                "y": 15,
+                "w": 1,
+                "h": 8,
+                "color": "#ffd040",
+                "when": {
+                  "not": {
+                    "all": [
+                      {
+                        "has": "p1_mode"
+                      },
+                      {
+                        "not": {
+                          "var": "p1_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        }
+                      },
+                      {
+                        "not": {
+                          "var": "p2_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "layers": [
+              {
+                "type": "rect",
+                "x": 50,
+                "y": 15,
+                "w": 19,
+                "h": 1,
+                "color": "#ffd040",
+                "when": {
+                  "not": {
+                    "all": [
+                      {
+                        "has": "p1_mode"
+                      },
+                      {
+                        "not": {
+                          "var": "p1_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        }
+                      },
+                      {
+                        "not": {
+                          "var": "p2_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "rect",
+                "x": 50,
+                "y": 15,
+                "w": 1,
+                "h": 8,
+                "color": "#ffd040",
+                "when": {
+                  "not": {
+                    "all": [
+                      {
+                        "has": "p1_mode"
+                      },
+                      {
+                        "not": {
+                          "var": "p1_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        }
+                      },
+                      {
+                        "not": {
+                          "var": "p2_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "layers": [
+              {
+                "type": "rect",
+                "x": 68,
+                "y": 15,
+                "w": 19,
+                "h": 1,
+                "color": "#ffd040",
+                "when": {
+                  "not": {
+                    "all": [
+                      {
+                        "has": "p1_mode"
+                      },
+                      {
+                        "not": {
+                          "var": "p1_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        }
+                      },
+                      {
+                        "not": {
+                          "var": "p2_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "rect",
+                "x": 68,
+                "y": 15,
+                "w": 1,
+                "h": 8,
+                "color": "#ffd040",
+                "when": {
+                  "not": {
+                    "all": [
+                      {
+                        "has": "p1_mode"
+                      },
+                      {
+                        "not": {
+                          "var": "p1_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        }
+                      },
+                      {
+                        "not": {
+                          "var": "p2_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "font": "6x10",
+        "x": 1,
+        "y": 1,
+        "align": "left",
+        "segments": [
+          {
+            "text": "{score}",
+            "color": "#ffa830"
+          }
+        ],
+        "when": {
+          "has": "score"
+        },
+        "flash": {
+          "on": "score",
+          "color": "#ffffff",
+          "ms": 120
+        }
+      },
+      {
+        "type": "marquee",
+        "font": "6x10",
+        "y": 1,
+        "x": 0,
+        "w": 56,
+        "speed": 12,
+        "gap": 40,
+        "upper": true,
+        "segments": [
+          {
+            "text": "{title}",
+            "color": "#ffd040"
+          }
+        ],
+        "when": {
+          "not": {
+            "has": "score"
+          }
+        },
+        "static_if_fits": true
+      },
+      {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "segments": [
+          {
+            "text": "{score_p2}",
+            "color": "#ffa830"
+          }
+        ],
+        "when": {
+          "all": [
+            {
+              "var": "p2_mode",
+              "in": [
+                1,
+                2
+              ]
+            },
+            {
+              "has": "score_p2"
+            }
+          ]
+        }
+      },
+      {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "INSERT COIN",
+        "color": "#ffa830",
+        "when": {
+          "all": [
+            {
+              "not": {
+                "var": "p2_mode",
+                "in": [
+                  1,
+                  2
+                ]
+              }
+            },
+            {
+              "not": {
+                "var": "credits",
+                "gt": 0
+              }
+            }
+          ]
+        },
+        "blink_period": 1.0
+      },
+      {
+        "type": "cycle",
+        "period": 1.5,
+        "when": {
+          "all": [
+            {
+              "not": {
+                "var": "p2_mode",
+                "in": [
+                  1,
+                  2
+                ]
+              }
+            },
+            {
+              "var": "credits",
+              "gt": 0
+            }
+          ]
+        },
+        "pages": [
+          {
+            "layers": [
+              {
+                "type": "text",
+                "font": "6x10",
+                "x": 127,
+                "y": 1,
+                "align": "right",
+                "text": "CREDITS {credits}",
+                "color": "#ffa830"
+              }
+            ]
+          },
+          {
+            "layers": [
+              {
+                "type": "text",
+                "font": "6x10",
+                "x": 127,
+                "y": 1,
+                "align": "right",
+                "text": "PRESS START",
+                "color": "#ffa830"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "font": "5x8",
+        "x": 126,
+        "y": 22,
+        "align": "right",
+        "segments": [
+          {
+            "text": "{time}",
+            "color": "#ffe040"
+          }
+        ],
+        "when": {
+          "all": [
+            {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "has": "time"
+            }
+          ]
+        }
+      },
+      {
+        "type": "coinop",
+        "when": {
+          "all": [
+            {
+              "has": "p1_mode"
+            },
+            {
+              "not": {
+                "var": "p1_mode",
+                "in": [
+                  1,
+                  2
+                ]
+              }
+            },
+            {
+              "not": {
+                "var": "p2_mode",
+                "in": [
+                  1,
+                  2
+                ]
+              }
+            }
+          ]
+        },
+        "title": [
+          {
+            "text": "{title}",
+            "color": "#ffd040"
+          }
+        ],
+        "idle_image": ["sprites/insert_coin.gif", "sprites/insert_coin.png"]
+      }
+    ]
+  },
+  "hd": {
+    "scene": "choko"
+  },
+  "demo_hand": true
 }
