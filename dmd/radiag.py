@@ -15,7 +15,7 @@ from . import wincore
 from .i18n import tr
 from .learn import load_games
 from .memvalues import derive, game_values, value_span
-from .retroarch import (RetroArchClient, core_label, explain_failure, find_core, layout_for, match_game,
+from .retroarch import (RetroArchClient, core_label, explain_failure, find_core, layout_for, resolve,
                         read_values, too_old)
 
 # (français, anglais) : traduit à l'affichage par label()
@@ -134,9 +134,12 @@ def report(root, client, st, port, say):
     elif sys.platform == "win32":
         say(tr("Je n'arrive pas à voir quel cœur est chargé.", "I can't tell which core is loaded."))
     games = load_games(root)
-    key, game = match_game(games, st["content"], st["system"])
+    key, game, parent, own = resolve(games, st["content"], st["system"])
     template = bool(game and game.get("fallback"))
-    if template:
+    if parent:
+        say(tr(f"Version de {parent} dans la liste de FinalBurn Neo, elle prend son fichier games/{key}.json.",
+               f"Version of {parent} in the list of FinalBurn Neo, it takes its file games/{key}.json."))
+    elif template:
         say(tr(f"Pas de fichier propre à ce jeu, scène commune games/{key}.json.",
                f"No file of its own for this game, shared scene games/{key}.json."))
     else:
@@ -157,7 +160,7 @@ def report(root, client, st, port, say):
     size = layout.readable_size(client)          # lit la mémoire : une seule fois, hors de tr()
     say(tr(f"La mémoire se lit ({size} octets visibles).", f"Memory is readable ({size} bytes visible)."))
     if game:
-        values = game_values(game, st["content"])
+        values = game_values(game, st["content"], parent)
         defs, outside, todo = {}, [], []
         for name, d in values.items():
             if not isinstance(d, dict):

@@ -3,6 +3,28 @@
 Newest version first. Each version is in English, then in French.
 La version la plus récente en premier. Chaque version est en anglais, puis en français.
 
+## 1.29.3
+
+### English
+
+**Every Neo Geo game with RetroArch**
+- Every Neo Geo set of FinalBurn Neo is recognized (693 of them). A version, a bootleg or a hack takes the file of its original game, as with MAME. Metal Slug 3 Fully Decrypted plays like Metal Slug 3, and KOF 2002 Magic Plus like KOF 2002 with its own name at the top. A homebrew game gets the scene of its genre, and so does Treasure of the Caribbean, the last official game that was missing. Only the BIOS and the test programs are left out.
+- `test_retroarch.bat` tells which game a version takes the file of.
+- On the HD screen, each coin door says what a coin gives. On a Neo Geo MVS, the right one says 2 CREDITS, like the machine.
+
+**Updating from 1.29.2**
+Extract the new zip over the old folder (`config.json`, your learned addresses and your `artwork` folder are kept).
+
+### Français
+
+**Tous les jeux Neo Geo avec RetroArch**
+- Chaque set Neo Geo de FinalBurn Neo est reconnu (693 en tout). Une version, un bootleg ou un hack prend le fichier de son jeu d'origine, comme avec MAME. Metal Slug 3 Fully Decrypted se joue comme Metal Slug 3, et KOF 2002 Magic Plus comme KOF 2002 avec son propre nom en haut. Un jeu amateur (homebrew) a la scène de son genre, tout comme Treasure of the Caribbean, le dernier jeu officiel qui manquait. Seuls le BIOS et les programmes de test sont laissés de côté.
+- `test_retroarch.bat` dit de quel jeu une version prend le fichier.
+- Sur l'écran HD, chaque monnayeur dit ce que donne une pièce. Sur une Neo Geo MVS, celui de droite affiche 2 CRÉDITS, comme la machine.
+
+**Mettre à jour depuis la 1.29.2**
+Décompresse le nouveau zip par-dessus l'ancien dossier (`config.json`, tes adresses apprises et ton dossier `artwork` sont gardés).
+
 ## 1.29.2
 
 ### English

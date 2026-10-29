@@ -17,7 +17,7 @@ from PIL import Image, ImageDraw
 
 from . import hd_themes
 from .hd_bg import Backdrop
-from .hd_coin import CoinDoors
+from .hd_coin import CoinDoors, coin_rates
 from .hd_fx import FIRE, FIRE_HOT, FX
 from .i18n import tr
 
@@ -342,7 +342,8 @@ class GameScene:
         if hd.coins_on:
             if hd.coins is None:
                 hd.coins = CoinDoors(hd)
-            hd.coins.draw(screen, vals, now, self.fx, (getattr(eng, "cfg", None) or {}).get("coin_symbol", "€"), hd.enter)
+            hd.coins.draw(screen, vals, now, self.fx, (getattr(eng, "cfg", None) or {}).get("coin_symbol", "€"), hd.enter,
+                          coin_rates(eng))
         else:
             word, col = self.invite(vals, now)
             self.label(screen, word, W / 2, S(372), 56, col, align="center")

@@ -23,7 +23,7 @@ from collections import OrderedDict
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
-from .hd_coin import CoinDoors
+from .hd_coin import CoinDoors, coin_rates
 from .hd_fight import FightFX
 from .hd_games import SCENES as _SCENES_117
 from .hd_games2 import SCENES as _SCENES_118
@@ -621,7 +621,8 @@ class HDRenderer:
                 if self.coins is None:
                     self.coins = CoinDoors(self)
                 fx = self.fight.fx if self.fight is not None else None
-                self.coins.draw(screen, vals, now, fx, (getattr(eng, "cfg", None) or {}).get("coin_symbol", "€"), self.enter)
+                self.coins.draw(screen, vals, now, fx, (getattr(eng, "cfg", None) or {}).get("coin_symbol", "€"), self.enter,
+                                coin_rates(eng))
                 return
             word, col = self._invite(vals, now)
             credits = _num(vals.get("credits"))

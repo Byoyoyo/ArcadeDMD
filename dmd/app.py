@@ -27,7 +27,7 @@ from .neocoins import NeoCoins
 from .textfiles import TextFiles
 from .i18n import tr
 
-VERSION = "1.29.2"
+VERSION = "1.29.3"
 
 DEFAULT_CONFIG = {
     "language": "auto",
@@ -602,8 +602,9 @@ class Engine:
             key = self.library.match(meta) or ""
         g = self.library.get(key) or {}
         titles = g.get("titles") if isinstance(g.get("titles"), dict) else {}
-        title = (titles.get(meta.get("system") or "") or titles.get(meta.get("parent") or "") or g.get("title")
-                 or clean_title(meta.get("description")) or meta.get("system", ""))
+        # own_title: the name of a version, a bootleg or a homebrew under RetroArch / le nom d'une version sous RetroArch
+        title = (titles.get(meta.get("system") or "") or meta.get("own_title") or titles.get(meta.get("parent") or "")
+                 or g.get("title") or clean_title(meta.get("description")) or meta.get("system", ""))
         meta = dict(meta)
         meta["title"] = title
         meta["game"] = key
@@ -719,6 +720,12 @@ class Engine:
             self.state.paused = False
         elif t == "capture":
             self.message(f"CAPTURE {ev.get('n', '')}", 1.5, "#ffdd33")
+
+    def coin_rates(self):
+        """Credits a coin gives on the left and on the right, written on the coin doors of the HD screen. A Neo Geo in
+        MVS mode gives 2 for a coin in its second slot unless its settings were changed ("mvs_credits").
+        / Crédits d'une pièce à gauche et à droite, écrits sur les monnayeurs de l'écran HD."""
+        return mvs_rates(self.cfg) if self.state.values.get("bios_mvs") == 0x80 else (1, 1)
 
     def coin_in(self, side, now):
         """A coin button pressed on the cabinet (0 left, 1 right): the side of the coin, and the credits of a Neo Geo

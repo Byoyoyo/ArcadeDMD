@@ -700,11 +700,11 @@ def safe_key(text):
 def run_live_retroarch(root, client, st, game=None, inputs=None):
     """Captures prises au moment où l'on tape les valeurs vues à l'écran."""
     _migrate_learned(root)
-    from .retroarch import game_title, layout_for, match_game
+    from .retroarch import game_title, layout_for, resolve
     games = load_games(root)
-    key, spec = match_game(games, st["content"], st["system"])
+    key, spec, parent, own = resolve(games, st["content"], st["system"])
     if game and game in games:
-        key, spec = game, games[game]
+        key, spec, parent, own = game, games[game], "", ""
     tkey = None
     if spec is not None and spec.get("fallback"):      # jeu couvert par neogeo.json : fichier à lui
         tkey, key, spec = key, None, None
@@ -722,7 +722,7 @@ def run_live_retroarch(root, client, st, game=None, inputs=None):
                 os.replace(p, os.path.join(arch, os.path.basename(p)))
             except OSError:
                 pass
-    title = game_title(spec or games.get(tkey), st["content"])
+    title = own or game_title(spec or games.get(tkey), parent or st["content"])
     from .retroarch import explain_failure, find_core, too_old
     version = client.version()
     if too_old(version):
@@ -748,7 +748,7 @@ def run_live_retroarch(root, client, st, game=None, inputs=None):
     known = dict(((spec or {}).get("memory") or {}).get("values") or {})
     if not spec and tkey:
         from .memvalues import game_values
-        known = game_values(games.get(tkey) or {}, st["content"])
+        known = game_values(games.get(tkey) or {}, st["content"], parent)
     objects = object_pointers(known)
     if objects:
         print(tr("Dans ce jeu, les combattants changent de place en mémoire à chaque combat.",
