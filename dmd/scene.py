@@ -223,6 +223,7 @@ class Ctx:
         self.dt = 0.0
         self.state = None
         self.cfg = {}                 # config.json (coin symbol of the attract screen...)
+        self.anchors = {}             # where a ship is, for the explosions ahead of it / où est un vaisseau
 
 
 class Element:
@@ -782,8 +783,9 @@ class AnimEl(Element):
             return self.rng.uniform(float(v[0]), float(v[1]))
         return float(v if v is not None else cv_size / 2)
 
-    def fire(self, t, w=128, h=32, game=None):
-        """Plays the animation now, whatever the values (an event of the "events" layer). / La joue tout de suite."""
+    def fire(self, t, w=128, h=32, game=None, near=None, back=False):
+        """Plays the animation now, whatever the values (an event of the "events" layer). "near": (x, y) of a ship, the
+        animation then goes off ahead of it ("ahead": [from, to] pixels). / La joue tout de suite, devant le vaisseau."""
         if self.frames is None or (game is not None and game != self.game):
             self._load(game)
         if not self.frames:
@@ -795,6 +797,10 @@ class AnimEl(Element):
         for k in range(n):
             if self.full:
                 x, y = w / 2, h / 2
+            elif near is not None:
+                ahead = self.spec.get("ahead") or [18, 48]
+                x = near[0] + self.rng.uniform(float(ahead[0]), float(ahead[1])) * (-1 if back else 1)
+                y = near[1] + self.rng.uniform(-2.0, 2.0)
             elif n > 1 and spread:
                 x = float(spread[0]) + (float(spread[1]) - float(spread[0])) * (k + 0.5) / n
                 y = self._pick(self.spec.get("y"), h)
@@ -823,7 +829,9 @@ class AnimEl(Element):
                 continue
             if not self.frames or t - self.last < float(self.spec.get("gap", 0.08)):
                 continue
-            self.fire(t, cv.w, cv.h)
+            a = (getattr(ctx, "anchors", None) or {}).get(self.spec.get("near")) if self.spec.get("near") else None
+            fresh = a is not None and t - a[2] < 0.2
+            self.fire(t, cv.w, cv.h, near=a[:2] if fresh else None, back=bool(fresh and len(a) > 3 and a[3]))
         self.draw(cv, t)
 
     def draw(self, cv, t):
@@ -1132,6 +1140,142 @@ class SpriteEl(Element):
         cv.sprite(fr, int(round(x)), y, flip=flip, alpha=self.alpha)
         if self.shoot:
             self._shots(ctx, int(round(x)), y, fr, moving_right)
+
+
+class ShipEl(Element):
+    """The player's ship or plane, flying in an area of the panel. It follows the stick and fires while button A is held
+    (the Neo Geo BIOS keeps them), otherwise it flies by itself and fires in bursts. It also fires when the score goes up.
+    While the score is not known, an enemy blows up ahead of it now and then as it fires.
+
+    "image" (a list, the first file found, "{game}" for the game), "frames", "fps": as "sprite". "face": "right" (default) or
+    "left" (player 2 on the right of the panel, facing player 1), the way it flies and fires.
+    "area": [x0, y0, x1, y1], where it flies. "input": the value with the stick and buttons ("p1_input": 1 up, 2 down,
+    4 left, 8 right, 16 A). "speed": pixels per second with the stick. "fire": {"color", "speed", "rate" (shots per second
+    while A is held), "dy", "len"}. "shoot_on": values whose rise fires a shot (the score). "anchor": a name, so that an
+    "anim" layer with "near" goes off ahead of it. "hit": an animation (keys of "anim") ahead of the ship now and then while
+    it fires, as long as the value "unless" (the score) is not known.
+
+    Le vaisseau ou l'avion du joueur dans une zone de la dalle. Il suit le stick et tire tant que le bouton A est tenu
+    (le BIOS de la Neo Geo les garde), sinon il vole tout seul et tire par rafales. Il tire aussi quand le score monte.
+    Tant que le score n'est pas connu, un ennemi explose devant lui de temps en temps pendant qu'il tire."""
+
+    UP, DOWN, LEFT, RIGHT, BTN_A = 0x01, 0x02, 0x04, 0x08, 0x10
+
+    def __init__(self, spec, root, log):
+        super().__init__(spec, root, log)
+        self.frames = None
+        self.game = None
+        a = spec.get("area") or [2, 12, 124, 22]
+        self.area = [float(v) for v in a]
+        self.fire_spec = spec.get("fire") or {}
+        self.hit = AnimEl(dict(spec["hit"], manual=True), root, log) if isinstance(spec.get("hit"), dict) else None
+        self.rng = random.Random(5)
+        self.count = 0                                   # shots fired (tests) / tirs (tests)
+        self.restart()
+
+    def restart(self):
+        super().restart()
+        self.x = self.y = None
+        self.touched = False
+        self.shells = []
+        self.last_t = None
+        self.last_shot = -9.0
+        self.muzzle_until = 0.0
+        self.next_target = 0.0
+        self.tx = self.ty = None
+        self.next_hit = 0.0
+
+    def _load(self, game):
+        self.game, self.frames = game, []
+        images = self.spec.get("image")
+        for img in images if isinstance(images, list) else [images]:
+            if not img:
+                continue
+            name = str(img).replace("{game}", game or "_")
+            path = name if os.path.isabs(name) else os.path.join(self.root, name)
+            if os.path.exists(path):
+                try:
+                    self.frames = load_sprite_frames(path, self.spec.get("frame_w", 0), self.spec.get("frames", 0))
+                    return
+                except Exception as e:  # image illisible
+                    self.log(tr(f"vaisseau illisible {path} : {e}", f"unreadable ship {path}: {e}"))
+
+    def _shot(self, t, x, y):
+        self.last_shot = t
+        self.count += 1
+        self.shells.append([float(x), y, float(self.fire_spec.get("speed", 150))])
+        self.muzzle_until = t + 0.06
+
+    def render(self, ctx):
+        cv, t = ctx.canvas, ctx.t
+        game = (ctx.state.meta or {}).get("game")
+        if self.frames is None or game != self.game:
+            self._load(game)
+        if not self.frames:
+            return
+        dt = 0.0 if self.last_t is None else max(0.0, min(0.1, t - self.last_t))
+        self.last_t = t
+        lt = self.local_time(ctx)
+        fr = self.frames[int(lt * float(self.spec.get("fps", 10))) % len(self.frames)]
+        x0, y0, x1, y1 = self.area
+        xmax, ymax = max(x0, x1 - fr.w), max(y0, y1 - fr.h)
+        left = self.spec.get("face") == "left"
+        if self.x is None:
+            self.x, self.y = x0 + (xmax - x0) * (0.75 if left else 0.25), (y0 + ymax) / 2
+        v = _int_value(ctx, self.spec.get("input", "p1_input"))
+        if v:
+            self.touched = True
+        bob = 0
+        if self.touched and v is not None:                # the player's stick / le stick du joueur
+            sp = float(self.spec.get("speed", 45))
+            dx = (1 if v & self.RIGHT else 0) - (1 if v & self.LEFT else 0)
+            dy = (1 if v & self.DOWN else 0) - (1 if v & self.UP else 0)
+            self.x += dx * sp * dt
+            self.y += dy * sp * 0.6 * dt
+            firing = bool(v & self.BTN_A)
+        else:                                             # flies by itself / pilote automatique
+            if t >= self.next_target or self.tx is None:
+                self.tx = self.rng.uniform(x0 + (xmax - x0) * (0.4 if left else 0.0), x0 + (xmax - x0) * (1.0 if left else 0.6))
+                self.ty = self.rng.uniform(y0, ymax)
+                self.next_target = t + self.rng.uniform(1.2, 2.6)
+            self.x += (self.tx - self.x) * min(1.0, dt * 1.2)
+            self.y += (self.ty - self.y) * min(1.0, dt * 1.5)
+            firing = (lt % 2.4) < 1.2
+            bob = int(round(math.sin(lt * 6.0) * 0.6))
+        self.x = min(max(self.x, x0), xmax)
+        self.y = min(max(self.y, y0), ymax)
+        x, y = int(round(self.x)), int(round(self.y)) + bob
+        nose = (x - 1 if left else x + fr.w, y + int(self.fire_spec.get("dy", fr.h // 2)))
+        rate = float(self.fire_spec.get("rate", 8))
+        if firing and t - self.last_shot >= 1.0 / max(0.5, rate):
+            self._shot(t, nose[0], nose[1])
+        names = self.spec.get("shoot_on") or []
+        for (name, old, new, et) in ctx.state.events:
+            if (name in names and isinstance(old, (int, float)) and isinstance(new, (int, float)) and new > old
+                    and t - self.last_shot >= 0.08):
+                self._shot(t, nose[0], nose[1])
+        if self.spec.get("anchor"):
+            ctx.anchors[self.spec["anchor"]] = (nose[0], nose[1], t, left)
+        unless = self.spec.get("unless")
+        if self.hit is not None and firing and t >= self.next_hit and (not unless or ctx.state.values.get(unless) is None):
+            if self.next_hit:
+                self.hit.fire(t, cv.w, cv.h, game, near=nose, back=left)
+            self.next_hit = t + self.rng.uniform(0.7, 1.6)
+        cv.sprite(fr, x, y, flip=left)
+        col = parse_color(self.fire_spec.get("color"), (255, 224, 96))
+        n = int(self.fire_spec.get("len", 2))
+        alive = []
+        for s in self.shells:
+            s[0] += s[2] * dt * (-1 if left else 1)
+            if -n <= s[0] <= cv.w + n:
+                alive.append(s)
+                for k in range(n):
+                    cv.set(int(s[0]) + (k if left else -k), s[1], col if k == 0 else scale_color(col, 0.5))
+        self.shells = alive[-24:]
+        if t < self.muzzle_until:
+            cv.set(nose[0], nose[1], (255, 250, 210))
+        if self.hit is not None:
+            self.hit.draw(cv, t)
 
 
 class ClockEl(Element):
@@ -1662,7 +1806,7 @@ class Scene:
         kind = spec.get("type", "text")
         cls = {
             "text": TextEl, "marquee": MarqueeEl, "bars": BarsEl, "waves": WavesEl, "mountains": MountainsEl, "gauge": GaugeEl,
-            "particles": ParticlesEl, "sprite": SpriteEl, "clock": ClockEl, "anim": AnimEl, "events": EventsEl,
+            "particles": ParticlesEl, "sprite": SpriteEl, "ship": ShipEl, "clock": ClockEl, "anim": AnimEl, "events": EventsEl,
             "rect": RectEl, "image": ImageEl, "coinop": CoinOpEl, "icons": IconsEl, "counter": CounterEl, "dot": DotEl, "arrow": ArrowEl,
         }.get(kind)
         if kind == "cycle":

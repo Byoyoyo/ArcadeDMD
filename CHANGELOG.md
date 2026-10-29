@@ -9,10 +9,11 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 
 **A simpler panel for the shoot'em ups**
 - During a game, the panel of the fifteen Neo Geo shoot'em ups only shows the score in big digits in the middle (or the title of the game as long as the score has not been learned), your lives at the bottom left (a plane and x2) and your bombs at the bottom right. The title no longer scrolls during a game, the credits and INSERT COIN are gone, as are the power gauge and the scenery.
+- Between them flies your ship. It follows your stick and fires while you hold the fire button, read in the Neo Geo BIOS with MAME as with RetroArch, and flies by itself until you touch them. With two players, both ships face to face.
 - Everything else takes the panel for a moment, one thing at a time, as on a pinball. BOMB! and its explosions, POWER UP then MAX POWER, the plane that blows up and the lives left, LAST LIFE, 1UP, ROUND 2 or STAGE 2, SPEED UP, the SUPER SHOT of Strikers 1945 Plus, CONTINUE?, GAME OVER, PLAYER 1 and PLAYER 2, and CREDIT 1 when a coin goes in during a game. A more important event replaces the one playing (GAME OVER over a life lost), a less important one waits its turn.
-- Each enemy destroyed in the game is a small explosion beside the score, a big one for a big enemy. Your own animations in the `artwork` folder still come first.
+- Each enemy destroyed in the game blows up ahead of your ship, a big one for a big enemy. As long as the score has not been learned, an enemy blows up ahead of it now and then while it fires, as on the HD screen. Your own animations in the `artwork` folder still come first, and `artwork\ship.gif` (or `artwork\<game>\ship.gif`) replaces the ship.
 - A value that the game has not set yet (the lives during the choice of the plane) is not shown.
-- Two new panel layers, `events` (short events, one at a time) and `counter` (a small drawing followed by a number).
+- Three new panel layers, `events` (short events, one at a time), `counter` (a small drawing followed by a number) and `ship` (the ship that follows the stick).
 
 **The panel looks like the preview**
 - LEDs light up in proportion to the value they get, so the dark grays of the scenes glowed on the Pixelcade and made them look busy. ArcadeDMD now corrects the colors it sends to the Pixelcade (`"gamma": 2.2` in the `pixelcade` section, `1.0` sends them as they are).
@@ -30,10 +31,11 @@ Extract the new zip over the old folder (`config.json`, your learned addresses a
 
 **Une dalle plus simple pour les shoot'em up**
 - Pendant la partie, la dalle des quinze shoot'em up Neo Geo ne montre plus que le score en gros au milieu (ou le titre du jeu tant que le score n'est pas appris), tes vies en bas à gauche (un avion et x2) et tes bombes en bas à droite. Le titre ne défile plus pendant la partie, les crédits et INSERT COIN disparaissent, comme la jauge de puissance et le décor.
+- Entre les deux vole ton vaisseau. Il suit ton stick et tire tant que tu tiens le bouton de tir, lus dans le BIOS de la Neo Geo avec MAME comme avec RetroArch, et vole tout seul tant que tu n'y as pas touché. À deux, les deux vaisseaux face à face.
 - Tout le reste prend la dalle un instant, une chose à la fois, comme sur un flipper. BOMBE! et ses explosions, POWER UP puis MAX POWER, l'avion qui explose et les vies qui restent, LAST LIFE, 1UP, ROUND 2 ou STAGE 2, SPEED UP, le SUPER SHOT de Strikers 1945 Plus, CONTINUE?, GAME OVER, PLAYER 1 et PLAYER 2, et CRÉDIT 1 quand une pièce entre en pleine partie. Un événement plus important remplace celui en cours (GAME OVER par-dessus une vie perdue), un moins important attend son tour.
-- Chaque ennemi détruit dans le jeu fait une petite explosion à côté du score, une grosse pour un gros ennemi. Tes propres animations du dossier `artwork` passent toujours en premier.
+- Chaque ennemi détruit dans le jeu explose devant ton vaisseau, une grosse explosion pour un gros ennemi. Tant que le score n'est pas appris, un ennemi explose devant lui de temps en temps pendant qu'il tire, comme sur l'écran HD. Tes propres animations du dossier `artwork` passent toujours en premier, et `artwork\ship.gif` (ou `artwork\<jeu>\ship.gif`) remplace le vaisseau.
 - Une valeur que le jeu n'a pas encore posée (les vies pendant le choix de l'avion) ne s'affiche pas.
-- Deux nouvelles couches de dalle, `events` (des événements courts, un à la fois) et `counter` (un petit dessin suivi d'un nombre).
+- Trois nouvelles couches de dalle, `events` (des événements courts, un à la fois), `counter` (un petit dessin suivi d'un nombre) et `ship` (le vaisseau qui suit le stick).
 
 **La dalle ressemble à l'aperçu**
 - Les LED éclairent en proportion de la valeur reçue, donc les gris sombres des scènes brillaient sur la Pixelcade et les rendaient chargées. ArcadeDMD corrige maintenant les couleurs qu'il envoie à la Pixelcade (`"gamma": 2.2` dans la section `pixelcade`, `1.0` les envoie telles quelles).
