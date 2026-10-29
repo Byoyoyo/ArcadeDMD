@@ -608,11 +608,12 @@ class BlazingStarScene(GameScene):
             k = now - T["last"]
             if T["total"] <= 0 or k > 1.4:
                 continue
+            if now - T.get("shown_at", -9.0) > 0.2 or k > 0.3:            # the counter moves five times a second / cinq fois par seconde
+                T["shown"], T["shown_at"] = T["total"], now
             x = self.W * ((0.3 if side == "p1" else 0.7) if both else 0.5)
             fade = 1.0 if k < 1.0 else max(0.0, (1.4 - k) / 0.4)
-            pop = 1.0 + 0.12 * max(0.0, 1 - k / 0.08)
-            self.label(screen, f"BONUS +{int(T['total'])}", x, self.S(212), 54, GOLD, key="black", align="center", glow=0.6, alpha=190,
-                       scale=round(pop * 20) / 20, fade=fade)
+            self.label(screen, f"BONUS +{int(T['shown'])}", x, self.S(212), 54, GOLD, key="black", align="center", glow=0.6, alpha=190,
+                       fade=fade)
 
     def play_band(self):
         """Where the enemies can be seen, between the side panels of the game if it has some.
