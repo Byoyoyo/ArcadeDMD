@@ -94,11 +94,11 @@ Scène de combat commune sur la dalle, avec l'écran des pièces depuis la 1.16.
 | World Heroes 2 Jet | ✅ | ✅ | ✅ | ⬜ | ⬜ |
 | World Heroes Perfect | ✅ | ✅ | ✅ | ⬜ | ✅ |
 
-### The other Neo Geo games / Les autres jeux Neo Geo (85 / 97)
+### The other Neo Geo games / Les autres jeux Neo Geo (97 / 97)
 
-The best-known games first. Until its turn, each game keeps the shared scene of its genre. 🟡 in Values means the score still has to be learned with `learn.bat`.
+The best-known games came first, and now every game of the list has a panel scene and an HD scene of its own. 🟡 in Values means the score still has to be learned with `learn.bat`, ⬜ that no value of the game is known yet.
 
-Les plus connus d'abord. En attendant son tour, chaque jeu garde la scène commune de son genre. 🟡 dans Valeurs veut dire que le score reste à apprendre avec `learn.bat`.
+Les plus connus sont passés d'abord, et maintenant chaque jeu de la liste a sa scène de dalle et sa scène HD. 🟡 dans Valeurs veut dire que le score reste à apprendre avec `learn.bat`, ⬜ qu'aucune valeur du jeu n'est encore connue.
 
 | # | Game / Jeu | Genre | Values / Valeurs | Panel / Dalle | HD | Version |
 |---|---|---|---|---|---|---|
@@ -187,18 +187,18 @@ Les plus connus d'abord. En attendant son tour, chaque jeu garde la scène commu
 | 83 | Bang Bang Busters | Action | 🟡 | ✅ | ✅ | 1.26 |
 | 84 | Crossed Swords | Action | 🟡 | ✅ | ✅ | 1.26 |
 | 85 | Eight Man | Action | 🟡 | ✅ | ✅ | 1.26 |
-| 86 | Nightmare in the Dark | Action | ⬜ | ⬜ | ⬜ |  |
-| 87 | The Super Spy | Action | ⬜ | ⬜ | ⬜ |  |
-| 88 | Quiz King of Fighters | Quiz | ⬜ | ⬜ | ⬜ |  |
-| 89 | Quiz Daisousa Sen | Quiz | ⬜ | ⬜ | ⬜ |  |
-| 90 | Quiz Meitantei Neo & Geo | Quiz | ⬜ | ⬜ | ⬜ |  |
-| 91 | Chibi Maruko-chan: Maruko Deluxe Quiz | Quiz | ⬜ | ⬜ | ⬜ |  |
-| 92 | Minasan no Okagesamadesu! Dai Sugoroku Taikai | Board game / Jeu de plateau | ⬜ | ⬜ | ⬜ |  |
-| 93 | Mahjong Kyo Retsuden | Mahjong | ⬜ | ⬜ | ⬜ |  |
-| 94 | Janshin Densetsu | Mahjong | ⬜ | ⬜ | ⬜ |  |
-| 95 | Bakatonosama Mahjong Manyuuki | Mahjong | ⬜ | ⬜ | ⬜ |  |
-| 96 | Idol Mahjong Final Romance 2 | Mahjong | ⬜ | ⬜ | ⬜ |  |
-| 97 | Shougi no Tatsujin | Shogi | ⬜ | ⬜ | ⬜ |  |
+| 86 | Nightmare in the Dark | Action | 🟡 | ✅ | ✅ | 1.27 |
+| 87 | The Super Spy | Action | 🟡 | ✅ | ✅ | 1.27 |
+| 88 | Quiz King of Fighters | Quiz | 🟡 | ✅ | ✅ | 1.27 |
+| 89 | Quiz Daisousa Sen | Quiz | 🟡 | ✅ | ✅ | 1.27 |
+| 90 | Quiz Meitantei Neo & Geo | Quiz | 🟡 | ✅ | ✅ | 1.27 |
+| 91 | Chibi Maruko-chan: Maruko Deluxe Quiz | Quiz | 🟡 | ✅ | ✅ | 1.27 |
+| 92 | Minasan no Okagesamadesu! Dai Sugoroku Taikai | Board game / Jeu de plateau | ✅ | ✅ | ✅ | 1.27 |
+| 93 | Mahjong Kyo Retsuden | Mahjong | ✅ | ✅ | ✅ | 1.27 |
+| 94 | Janshin Densetsu | Mahjong | ✅ | ✅ | ✅ | 1.27 |
+| 95 | Bakatonosama Mahjong Manyuuki | Mahjong | ✅ | ✅ | ✅ | 1.27 |
+| 96 | Idol Mahjong Final Romance 2 | Mahjong | ⬜ | ✅ | ✅ | 1.27 |
+| 97 | Shougi no Tatsujin | Shogi | ⬜ | ✅ | ✅ | 1.27 |
 
 Bootlegs and hacks (Metal Slug 6, KOF 10th Anniversary, Crouching Tiger Hidden Dragon...) follow the game they come from.
 

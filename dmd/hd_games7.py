@@ -353,6 +353,7 @@ class BombField:
         self.grid = [[None] * self.ROWS for _ in range(self.COLS)]           # [col][row from the bottom]
         self.piece = None
         self.next = self.new_piece()
+        self.landed = 0                                                      # (tests)
         for c in range(self.COLS):                                           # a few heads already there
             for r in range(self.rng.randint(1, 3)):
                 self.grid[c][r] = self.rng.choice((0, 1, 2, 3, 3, BOMB_KIND))
@@ -382,6 +383,7 @@ class BombField:
                 if r < self.ROWS:
                     self.grid[p["c"]][r] = k
             self.piece = None
+            self.landed += 1
             self.resolve(now)
             if max(self.height(c) for c in range(self.COLS)) >= self.ROWS - 1:
                 self.clear()

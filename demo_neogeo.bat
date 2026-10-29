@@ -95,9 +95,21 @@ echo  82  Last Hope
 echo  83  Bang Bang Busters
 echo  84  Crossed Swords
 echo  85  Eight Man
+echo  86  Nightmare in the Dark
+echo  87  The Super Spy
+echo  88  Quiz King of Fighters
+echo  89  Quiz Daisousa Sen
+echo  90  Quiz Meitantei Neo & Geo
+echo  91  Chibi Maruko-chan Deluxe Quiz
+echo  92  Minasan no Okagesamadesu!
+echo  93  Mahjong Kyo Retsuden
+echo  94  Janshin Densetsu
+echo  95  Bakatonosama Mahjong Manyuuki
+echo  96  Idol Mahjong Final Romance 2
+echo  97  Shougi no Tatsujin
 echo.
 set N=
-if "%L%"=="fr" (set /p N=Quel jeu, 1 a 85 ? ) else (set /p N=Which game, 1 to 85? )
+if "%L%"=="fr" (set /p N=Quel jeu, 1 a 97 ? ) else (set /p N=Which game, 1 to 97? )
 set G=blazstar
 if "%N%"=="2" set G=pbobblen
 if "%N%"=="3" set G=wjammers
@@ -183,6 +195,18 @@ if "%N%"=="82" set G=lasthope
 if "%N%"=="83" set G=b2b
 if "%N%"=="84" set G=crsword
 if "%N%"=="85" set G=eightman
+if "%N%"=="86" set G=nitd
+if "%N%"=="87" set G=superspy
+if "%N%"=="88" set G=quizkof
+if "%N%"=="89" set G=quizdais
+if "%N%"=="90" set G=quizdai2
+if "%N%"=="91" set G=marukodq
+if "%N%"=="92" set G=minasan
+if "%N%"=="93" set G=mahretsu
+if "%N%"=="94" set G=janshin
+if "%N%"=="95" set G=bakatono
+if "%N%"=="96" set G=froman2b
+if "%N%"=="97" set G=moshougi
 :play
 if "%L%"=="fr" (echo Demo %G%, avec des valeurs simulees. Echap ou ferme la fenetre pour quitter.) else (echo %G% demo, with simulated values. Press Esc or close the window to quit.)
 %PY% arcadedmd.py demo %G%

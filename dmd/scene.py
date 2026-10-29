@@ -873,12 +873,13 @@ class IconsEl(Element):
 class DotEl(Element):
     """A round dot whose color comes from a value: the bubbles of Puzzle Bobble.
     "colors": color of each value (0, 1, 2...), "r": radius, "shine": a light pixel at the top left.
+    Without "var" the dot is always drawn in the first color (a moon, a ball).
 
     Un disque dont la couleur vient d'une valeur : les bulles de Puzzle Bobble."""
 
     def render(self, ctx):
         s = self.spec
-        v = _int_value(ctx, s.get("var", ""))
+        v = _int_value(ctx, s["var"]) if s.get("var") else 0
         cols = s.get("colors") or []
         if v is None or not 0 <= v < len(cols) or not cols[v]:
             return

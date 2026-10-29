@@ -3,6 +3,36 @@
 Newest version first. Each version is in English, then in French.
 La version la plus récente en premier. Chaque version est en anglais, puis en français.
 
+## 1.27.0
+
+### English
+
+**Neo Geo games done one by one, eleventh and last batch**
+- Nightmare in the Dark, The Super Spy, Quiz King of Fighters, Quiz Daisousa Sen, Quiz Meitantei Neo & Geo, Chibi Maruko-chan Deluxe Quiz, Minasan no Okagesamadesu!, Mahjong Kyo Retsuden, Janshin Densetsu, Bakatonosama Mahjong Manyuuki, Idol Mahjong Final Romance 2 and Shougi no Tatsujin now have a file of their own, with a panel scene and an animated HD scene made for each game after screenshots of the game. That makes ninety-seven games done one by one, every game of `PROGRESS.md`.
+- Nightmare in the Dark and The Super Spy. The graveyard under a huge full moon where the monsters burn, the corridor of the building where a masked fighter faces our fists.
+- The four quizzes. Their sets as in the games, the question panel and its four answers, a big circle for a right answer and a big cross for a wrong one, read from the score and the lives. The questions are our own.
+- The five mahjong games and Shougi no Tatsujin. Each felt and its tile backs, our hand of thirteen tiles, RON and TSUMO, the HP of Janshin Densetsu, the die of Minasan no Okagesamadesu!, then the wooden board by the sea where each piece taken goes onto a stand.
+- Fixed. A round dot of a panel scene that follows no value is now drawn (the full moon of Nightmare in the Dark, the centre circle of Battle Flip Shot around the time).
+- The score of Nightmare in the Dark, The Super Spy and the four quizzes is in no database. Learn it with `learn.bat`.
+- `demo_neogeo.bat` now offers the ninety-seven games.
+
+**Updating from 1.26**
+Extract the new zip over the old folder (`config.json` and your learned addresses are kept), then run `install.bat` once to update the MAME plugin.
+
+### Français
+
+**Jeux Neo Geo faits un par un, onzième et dernier lot**
+- Nightmare in the Dark, The Super Spy, Quiz King of Fighters, Quiz Daisousa Sen, Quiz Meitantei Neo & Geo, Chibi Maruko-chan Deluxe Quiz, Minasan no Okagesamadesu!, Mahjong Kyo Retsuden, Janshin Densetsu, Bakatonosama Mahjong Manyuuki, Idol Mahjong Final Romance 2 et Shougi no Tatsujin ont maintenant un fichier à eux, avec une scène de dalle et une scène HD animée faites pour chaque jeu d'après des captures du jeu. Ça fait quatre-vingt-dix-sept jeux faits un par un, tous les jeux de `PROGRESS.md`.
+- Nightmare in the Dark et The Super Spy. Le cimetière sous une énorme pleine lune où les monstres brûlent, le couloir de l'immeuble où un combattant masqué fait face à nos poings.
+- Les quatre quiz. Leurs décors comme dans les jeux, le panneau de la question et ses quatre réponses, un grand rond pour une bonne réponse et une grande croix pour une mauvaise, lus dans le score et les vies. Les questions sont à nous.
+- Les cinq jeux de mahjong et Shougi no Tatsujin. Chaque tapis et ses dos de tuiles, notre main de treize tuiles, RON et TSUMO, les HP de Janshin Densetsu, le dé de Minasan no Okagesamadesu!, puis le plateau de bois au bord de la mer où chaque pièce prise va sur un support.
+- Corrigé. Un disque d'une scène de dalle qui ne suit aucune valeur est maintenant dessiné (la pleine lune de Nightmare in the Dark, le cercle central de Battle Flip Shot autour du temps).
+- Le score de Nightmare in the Dark, The Super Spy et des quatre quiz n'est dans aucune base. Apprends-le avec `learn.bat`.
+- `demo_neogeo.bat` propose maintenant les quatre-vingt-dix-sept jeux.
+
+**Mettre à jour depuis la 1.26**
+Décompresse le nouveau zip par-dessus l'ancien dossier (`config.json` et tes adresses apprises sont gardés), puis lance `install.bat` une fois pour mettre à jour le plugin MAME.
+
 ## 1.26.0
 
 ### English
