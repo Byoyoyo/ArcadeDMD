@@ -94,6 +94,10 @@
     "scene": "gigawing"
   },
   "demo": {
+    "attract": true,
+    "credits": 0,
+    "p1_mode": 1,
+    "p2_mode": 0,
     "lives": 3,
     "bombs": 3,
     "power": 0,

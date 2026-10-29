@@ -80,10 +80,13 @@
     "scene": "1944"
   },
   "demo": {
+    "attract": true,
+    "credits": 0,
+    "p1_mode": 1,
+    "p2_mode": 0,
     "bombs": 3,
     "power": 0,
     "score": 0,
-    "credits": 2,
     "sim": {
       "bombs": {
         "cycle": [
