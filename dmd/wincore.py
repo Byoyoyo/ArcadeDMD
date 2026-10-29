@@ -40,6 +40,8 @@ CORES = {
     "genesis_plus_gx_libretro": ("Genesis Plus GX", True),
     "genesis_plus_gx_wide_libretro": ("Genesis Plus GX Wide", True),
     "picodrive_libretro": ("PicoDrive", True),
+    "flycast_libretro": ("Flycast", True),
+    "flycast_gles2_libretro": ("Flycast GLES2", True),
 }
 
 
