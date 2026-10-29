@@ -27,7 +27,7 @@ from .neocoins import NeoCoins
 from .textfiles import TextFiles
 from .i18n import tr
 
-VERSION = "1.29.3"
+VERSION = "1.30.0"
 
 DEFAULT_CONFIG = {
     "language": "auto",
