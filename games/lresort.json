@@ -91,6 +91,27 @@
     "addr": "0x10FDB7",
     "type": "u8",
     "note": "BIOS: player 2, same values"
+   },
+   "bios_request": {
+    "addr": "0x10FDAE",
+    "type": "u8",
+    "note": "BIOS_USER_REQUEST: 2 demo, 3 title screen (asked by the BIOS when a coin goes in on an MVS)"
+   },
+   "bios_mode": {
+    "addr": "0x10FDAF",
+    "type": "u8",
+    "note": "BIOS_USER_MODE: 1 title or demo, 2 game"
+   },
+   "bios_timer": {
+    "addr": "0x10FDDA",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "BIOS_COMPULSION_TIMER: seconds left on the title screen before the game starts by itself"
+   },
+   "bios_mvs": {
+    "addr": "0x10FD82",
+    "type": "u8",
+    "note": "BIOS_MVS_FLAG: 0 home console (AES, no coins), otherwise arcade (MVS)"
    }
   }
  },
@@ -149,4134 +170,247 @@
  "scene": {
   "layers": [
    {
-    "type": "particles",
-    "rate": 7,
-    "color": "#5a2418",
-    "trail": 2,
-    "speed": [
-     30,
-     70
-    ],
-    "y": [
-     14,
-     24
-    ],
-    "dir": "left"
-   },
-   {
-    "type": "rect",
-    "x": 0,
-    "y": 22,
-    "w": 7,
-    "h": 10,
-    "color": "#5a160c",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 9,
-    "y": 20,
-    "w": 6,
-    "h": 12,
-    "color": "#5a160c",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 17,
-    "y": 23,
-    "w": 8,
-    "h": 9,
-    "color": "#5a160c",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 27,
-    "y": 20,
-    "w": 6,
-    "h": 12,
-    "color": "#5a160c",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 35,
-    "y": 22,
-    "w": 7,
-    "h": 10,
-    "color": "#5a160c",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 44,
-    "y": 20,
-    "w": 8,
-    "h": 12,
-    "color": "#5a160c",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 54,
-    "y": 23,
-    "w": 6,
-    "h": 9,
-    "color": "#5a160c",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 62,
-    "y": 20,
-    "w": 7,
-    "h": 12,
-    "color": "#5a160c",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 71,
-    "y": 22,
-    "w": 8,
-    "h": 10,
-    "color": "#5a160c",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 81,
-    "y": 20,
-    "w": 6,
-    "h": 12,
-    "color": "#5a160c",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 89,
-    "y": 23,
-    "w": 7,
-    "h": 9,
-    "color": "#5a160c",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 98,
-    "y": 20,
-    "w": 8,
-    "h": 12,
-    "color": "#5a160c",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 108,
-    "y": 22,
-    "w": 6,
-    "h": 10,
-    "color": "#5a160c",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 116,
-    "y": 20,
-    "w": 8,
-    "h": 12,
-    "color": "#5a160c",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 1,
-    "y": 25,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 3,
-    "y": 23,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 3,
-    "y": 25,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 5,
-    "y": 23,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 10,
-    "y": 23,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 12,
-    "y": 21,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 12,
-    "y": 23,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 14,
-    "y": 21,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 18,
-    "y": 24,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 20,
-    "y": 26,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 22,
-    "y": 24,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 22,
-    "y": 26,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 24,
-    "y": 24,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 28,
-    "y": 23,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 30,
-    "y": 21,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 30,
-    "y": 23,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 32,
-    "y": 21,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 36,
-    "y": 23,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 38,
-    "y": 25,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 40,
-    "y": 23,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 40,
-    "y": 25,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 45,
-    "y": 21,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 47,
-    "y": 23,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 49,
-    "y": 21,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 49,
-    "y": 23,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 51,
-    "y": 21,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 55,
-    "y": 26,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 57,
-    "y": 24,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 57,
-    "y": 26,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 59,
-    "y": 24,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 63,
-    "y": 21,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 65,
-    "y": 23,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 67,
-    "y": 21,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 67,
-    "y": 23,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 72,
-    "y": 23,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 74,
-    "y": 25,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 76,
-    "y": 23,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 76,
-    "y": 25,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 78,
-    "y": 23,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 82,
-    "y": 23,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 84,
-    "y": 21,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 84,
-    "y": 23,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 86,
-    "y": 21,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 90,
-    "y": 24,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 92,
-    "y": 26,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 94,
-    "y": 24,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 94,
-    "y": 26,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 99,
-    "y": 21,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 101,
-    "y": 23,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 103,
-    "y": 21,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 103,
-    "y": 23,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 105,
-    "y": 21,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 109,
-    "y": 25,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 111,
-    "y": 23,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 111,
-    "y": 25,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 113,
-    "y": 23,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 117,
-    "y": 21,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 119,
-    "y": 23,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 121,
-    "y": 21,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 121,
-    "y": 23,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 123,
-    "y": 21,
-    "w": 1,
-    "h": 1,
-    "color": "#ff9a30",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 0,
-    "y": 27,
-    "w": 4,
-    "h": 5,
-    "color": "#3a1236",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 6,
-    "y": 29,
-    "w": 3,
-    "h": 3,
-    "color": "#3a1236",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 11,
-    "y": 26,
-    "w": 2,
-    "h": 6,
-    "color": "#3a1236",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 14,
-    "y": 28,
-    "w": 6,
-    "h": 4,
-    "color": "#3a1236",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 22,
-    "y": 30,
-    "w": 3,
-    "h": 2,
-    "color": "#3a1236",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 27,
-    "y": 27,
-    "w": 5,
-    "h": 5,
-    "color": "#3a1236",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 34,
-    "y": 29,
-    "w": 2,
-    "h": 3,
-    "color": "#3a1236",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 38,
-    "y": 26,
-    "w": 4,
-    "h": 6,
-    "color": "#3a1236",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 44,
-    "y": 29,
-    "w": 7,
-    "h": 3,
-    "color": "#3a1236",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 53,
-    "y": 27,
-    "w": 3,
-    "h": 5,
-    "color": "#3a1236",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 58,
-    "y": 30,
-    "w": 2,
-    "h": 2,
-    "color": "#3a1236",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 62,
-    "y": 28,
-    "w": 5,
-    "h": 4,
-    "color": "#3a1236",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 69,
-    "y": 26,
-    "w": 3,
-    "h": 6,
-    "color": "#3a1236",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 74,
-    "y": 29,
-    "w": 4,
-    "h": 3,
-    "color": "#3a1236",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 80,
-    "y": 27,
-    "w": 6,
-    "h": 5,
-    "color": "#3a1236",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 88,
-    "y": 30,
-    "w": 2,
-    "h": 2,
-    "color": "#3a1236",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 92,
-    "y": 28,
-    "w": 4,
-    "h": 4,
-    "color": "#3a1236",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 98,
-    "y": 26,
-    "w": 3,
-    "h": 6,
-    "color": "#3a1236",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 103,
-    "y": 29,
-    "w": 5,
-    "h": 3,
-    "color": "#3a1236",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 110,
-    "y": 27,
-    "w": 3,
-    "h": 5,
-    "color": "#3a1236",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 115,
-    "y": 30,
-    "w": 6,
-    "h": 2,
-    "color": "#3a1236",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 123,
-    "y": 28,
-    "w": 5,
-    "h": 4,
-    "color": "#3a1236",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 1,
-    "y": 28,
-    "w": 1,
-    "h": 1,
-    "color": "#ff70c0",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 7,
-    "y": 30,
-    "w": 1,
-    "h": 1,
-    "color": "#ff70c0",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 12,
-    "y": 27,
-    "w": 1,
-    "h": 1,
-    "color": "#ff70c0",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 15,
-    "y": 29,
-    "w": 1,
-    "h": 1,
-    "color": "#ff70c0",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 28,
-    "y": 28,
-    "w": 1,
-    "h": 1,
-    "color": "#ff70c0",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 35,
-    "y": 30,
-    "w": 1,
-    "h": 1,
-    "color": "#ff70c0",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 39,
-    "y": 27,
-    "w": 1,
-    "h": 1,
-    "color": "#ff70c0",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 45,
-    "y": 30,
-    "w": 1,
-    "h": 1,
-    "color": "#ff70c0",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 54,
-    "y": 28,
-    "w": 1,
-    "h": 1,
-    "color": "#ff70c0",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 63,
-    "y": 29,
-    "w": 1,
-    "h": 1,
-    "color": "#ff70c0",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 70,
-    "y": 27,
-    "w": 1,
-    "h": 1,
-    "color": "#ff70c0",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 75,
-    "y": 30,
-    "w": 1,
-    "h": 1,
-    "color": "#ff70c0",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 81,
-    "y": 28,
-    "w": 1,
-    "h": 1,
-    "color": "#ff70c0",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 93,
-    "y": 29,
-    "w": 1,
-    "h": 1,
-    "color": "#ff70c0",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 99,
-    "y": 27,
-    "w": 1,
-    "h": 1,
-    "color": "#ff70c0",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 104,
-    "y": 30,
-    "w": 1,
-    "h": 1,
-    "color": "#ff70c0",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 111,
-    "y": 28,
-    "w": 1,
-    "h": 1,
-    "color": "#ff70c0",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 124,
-    "y": 29,
-    "w": 1,
-    "h": 1,
-    "color": "#ff70c0",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "rect",
-    "x": 0,
-    "y": 31,
-    "w": 128,
-    "h": 1,
-    "color": "#2a1c3a",
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    }
-   },
-   {
-    "type": "sprite",
+    "type": "ship",
     "image": [
+     "artwork/{game}/ship.gif",
+     "artwork/ship.gif",
      "sprites/neogeo_ship.gif",
      "sprites/neogeo_ship.png",
      "sprites/ship.png"
     ],
     "frames": 2,
     "fps": 10,
-    "mode": "pingpong",
-    "x0": 2,
-    "x1": 60,
-    "speed": 6,
     "face": "right",
-    "y": 20,
-    "bob": 0.6,
-    "when": {
-     "not": {
-      "all": [
-       {
-        "has": "p1_mode"
-       },
-       {
-        "not": {
-         "var": "p1_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       },
-       {
-        "not": {
-         "var": "p2_mode",
-         "in": [
-          1,
-          2
-         ]
-        }
-       }
-      ]
-     }
-    },
-    "shoot": {
-     "on": [
-      "score",
-      "score_p2",
-      "power"
-     ],
-     "dx": 8,
-     "dy": 2,
-     "speed": 140,
+    "area": [
+     2,
+     13,
+     74,
+     23
+    ],
+    "input": "p1_input",
+    "speed": 45,
+    "anchor": "p1",
+    "shoot_on": [
+     "score"
+    ],
+    "fire": {
      "color": "#ff9050",
-     "gap": 0.15
+     "speed": 150,
+     "rate": 8,
+     "len": 2
+    },
+    "hit": {
+     "image": [
+      "artwork/{game}/boom.gif",
+      "artwork/boom.gif",
+      "sprites/fx_star.png"
+     ],
+     "ms": 50,
+     "ahead": [
+      20,
+      52
+     ],
+     "max": 2
+    },
+    "unless": "score",
+    "when": {
+     "all": [
+      {
+       "var": "p1_mode",
+       "eq": 1
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    }
+   },
+   {
+    "type": "ship",
+    "image": [
+     "artwork/{game}/ship.gif",
+     "artwork/ship.gif",
+     "sprites/neogeo_ship.gif",
+     "sprites/neogeo_ship.png",
+     "sprites/ship.png"
+    ],
+    "frames": 2,
+    "fps": 10,
+    "face": "right",
+    "area": [
+     2,
+     11,
+     60,
+     23
+    ],
+    "input": "p1_input",
+    "speed": 45,
+    "anchor": "p1",
+    "shoot_on": [
+     "score"
+    ],
+    "fire": {
+     "color": "#ff9050",
+     "speed": 150,
+     "rate": 8,
+     "len": 2
+    },
+    "hit": {
+     "image": [
+      "artwork/{game}/boom.gif",
+      "artwork/boom.gif",
+      "sprites/fx_star.png"
+     ],
+     "ms": 50,
+     "ahead": [
+      20,
+      52
+     ],
+     "max": 2
+    },
+    "unless": "score",
+    "when": {
+     "all": [
+      {
+       "var": "p1_mode",
+       "eq": 1
+      },
+      {
+       "var": "p2_mode",
+       "in": [
+        1,
+        2
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "type": "ship",
+    "image": [
+     "artwork/{game}/ship.gif",
+     "artwork/ship.gif",
+     "sprites/neogeo_ship.gif",
+     "sprites/neogeo_ship.png",
+     "sprites/ship.png"
+    ],
+    "frames": 2,
+    "fps": 10,
+    "face": "right",
+    "area": [
+     2,
+     13,
+     74,
+     23
+    ],
+    "input": "p2_input",
+    "speed": 45,
+    "anchor": "p2",
+    "shoot_on": [
+     "score_p2"
+    ],
+    "fire": {
+     "color": "#ff9040",
+     "speed": 150,
+     "rate": 8,
+     "len": 2
+    },
+    "hit": {
+     "image": [
+      "artwork/{game}/boom.gif",
+      "artwork/boom.gif",
+      "sprites/fx_star.png"
+     ],
+     "ms": 50,
+     "ahead": [
+      20,
+      52
+     ],
+     "max": 2
+    },
+    "unless": "score_p2",
+    "when": {
+     "all": [
+      {
+       "var": "p2_mode",
+       "eq": 1
+      },
+      {
+       "not": {
+        "var": "p1_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    }
+   },
+   {
+    "type": "ship",
+    "image": [
+     "artwork/{game}/ship.gif",
+     "artwork/ship.gif",
+     "sprites/neogeo_ship.gif",
+     "sprites/neogeo_ship.png",
+     "sprites/ship.png"
+    ],
+    "frames": 2,
+    "fps": 10,
+    "face": "left",
+    "area": [
+     68,
+     11,
+     126,
+     23
+    ],
+    "input": "p2_input",
+    "speed": 45,
+    "anchor": "p2",
+    "shoot_on": [
+     "score_p2"
+    ],
+    "fire": {
+     "color": "#ff9040",
+     "speed": 150,
+     "rate": 8,
+     "len": 2
+    },
+    "hit": {
+     "image": [
+      "artwork/{game}/boom.gif",
+      "artwork/boom.gif",
+      "sprites/fx_star.png"
+     ],
+     "ms": 50,
+     "ahead": [
+      20,
+      52
+     ],
+     "max": 2
+    },
+    "unless": "score_p2",
+    "when": {
+     "all": [
+      {
+       "var": "p2_mode",
+       "eq": 1
+      },
+      {
+       "var": "p1_mode",
+       "in": [
+        1,
+        2
+       ]
+      }
+     ]
     }
    },
    {
@@ -4287,19 +421,32 @@
      "sprites/fx_star.png"
     ],
     "on": [
-     "score",
-     "score_p2"
+     "score"
     ],
     "change": "up",
     "ratio": [
      0,
      2.5
     ],
-    "x": [
-     70,
-     112
+    "near": "p1",
+    "ahead": [
+     20,
+     52
     ],
-    "y": 16,
+    "x": [
+     [
+      8,
+      26
+     ],
+     [
+      102,
+      120
+     ]
+    ],
+    "y": [
+     9,
+     15
+    ],
     "ms": 50,
     "max": 3,
     "when": {
@@ -4338,7 +485,131 @@
      "sprites/fx_fire.png"
     ],
     "on": [
-     "score",
+     "score"
+    ],
+    "change": "up",
+    "ratio": [
+     2.5,
+     1000000
+    ],
+    "near": "p1",
+    "ahead": [
+     26,
+     52
+    ],
+    "x": [
+     [
+      8,
+      26
+     ],
+     [
+      102,
+      120
+     ]
+    ],
+    "y": 13,
+    "ms": 100,
+    "max": 2,
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "anim",
+    "image": [
+     "artwork/{game}/boom.gif",
+     "artwork/boom.gif",
+     "sprites/fx_star.png"
+    ],
+    "on": [
+     "score_p2"
+    ],
+    "change": "up",
+    "ratio": [
+     0,
+     2.5
+    ],
+    "near": "p2",
+    "ahead": [
+     20,
+     52
+    ],
+    "x": [
+     [
+      8,
+      26
+     ],
+     [
+      102,
+      120
+     ]
+    ],
+    "y": [
+     9,
+     15
+    ],
+    "ms": 50,
+    "max": 3,
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "anim",
+    "image": [
+     "artwork/{game}/boom_big.gif",
+     "artwork/boom_big.gif",
+     "sprites/fx_fire.png"
+    ],
+    "on": [
      "score_p2"
     ],
     "change": "up",
@@ -4346,11 +617,22 @@
      2.5,
      1000000
     ],
-    "x": [
-     78,
-     106
+    "near": "p2",
+    "ahead": [
+     26,
+     52
     ],
-    "y": 16,
+    "x": [
+     [
+      8,
+      26
+     ],
+     [
+      102,
+      120
+     ]
+    ],
+    "y": 13,
     "ms": 100,
     "max": 2,
     "when": {
@@ -4383,348 +665,12 @@
    },
    {
     "type": "text",
-    "font": "6x10",
-    "x": 1,
-    "y": 1,
-    "align": "left",
-    "segments": [
-     {
-      "text": "{score}",
-      "color": "#ffa830"
-     }
-    ],
-    "when": {
-     "has": "score"
-    },
-    "flash": {
-     "on": "score",
-     "color": "#ffffff",
-     "ms": 120
-    }
-   },
-   {
-    "type": "marquee",
-    "font": "6x10",
-    "y": 1,
-    "x": 0,
-    "w": 70,
-    "speed": 12,
-    "gap": 40,
-    "upper": true,
-    "segments": [
-     {
-      "text": "SNK",
-      "color": "#1d5bff"
-     },
-     {
-      "text": " - {title}",
-      "color": "#ff5a40"
-     }
-    ],
-    "when": {
-     "not": {
-      "has": "score"
-     }
-    }
-   },
-   {
-    "type": "text",
-    "font": "6x10",
-    "x": 127,
-    "y": 1,
-    "align": "right",
-    "segments": [
-     {
-      "text": "{score_p2}",
-      "color": "#ffa830"
-     }
-    ],
-    "when": {
-     "all": [
-      {
-       "var": "p2_mode",
-       "in": [
-        1,
-        2
-       ]
-      },
-      {
-       "has": "score_p2"
-      }
-     ]
-    }
-   },
-   {
-    "type": "text",
-    "font": "6x10",
-    "x": 127,
-    "y": 1,
-    "align": "right",
-    "text": "INSERT COIN",
+    "font": "9x15B",
+    "x": 64,
+    "y": 3,
+    "align": "center",
+    "text": "{score}",
     "color": "#ffa830",
-    "when": {
-     "all": [
-      {
-       "not": {
-        "var": "p2_mode",
-        "in": [
-         1,
-         2
-        ]
-       }
-      },
-      {
-       "not": {
-        "var": "credits",
-        "gt": 0
-       }
-      }
-     ]
-    },
-    "blink_period": 1.0
-   },
-   {
-    "type": "cycle",
-    "period": 1.5,
-    "when": {
-     "all": [
-      {
-       "not": {
-        "var": "p2_mode",
-        "in": [
-         1,
-         2
-        ]
-       }
-      },
-      {
-       "var": "credits",
-       "gt": 0
-      }
-     ]
-    },
-    "pages": [
-     {
-      "layers": [
-       {
-        "type": "text",
-        "font": "6x10",
-        "x": 127,
-        "y": 1,
-        "align": "right",
-        "text": "CREDITS {credits}",
-        "color": "#ffa830"
-       }
-      ]
-     },
-     {
-      "layers": [
-       {
-        "type": "text",
-        "font": "6x10",
-        "x": 127,
-        "y": 1,
-        "align": "right",
-        "text": "PRESS START",
-        "color": "#ffa830"
-       }
-      ]
-     }
-    ]
-   },
-   {
-    "type": "icons",
-    "var": "lives",
-    "x": 1,
-    "y": 13,
-    "max": 6,
-    "gap": 2,
-    "pattern": [
-     "##....",
-     ".###..",
-     "######",
-     ".###..",
-     "##...."
-    ],
-    "colors": {
-     "#": "#ff5a40"
-    },
-    "when": {
-     "all": [
-      {
-       "not": {
-        "all": [
-         {
-          "has": "p1_mode"
-         },
-         {
-          "not": {
-           "var": "p1_mode",
-           "in": [
-            1,
-            2
-           ]
-          }
-         },
-         {
-          "not": {
-           "var": "p2_mode",
-           "in": [
-            1,
-            2
-           ]
-          }
-         }
-        ]
-       }
-      },
-      {
-       "has": "lives"
-      }
-     ]
-    },
-    "flash": {
-     "on": "lives",
-     "color": "#ff4040",
-     "ms": 600
-    }
-   },
-   {
-    "type": "icons",
-    "var": "speed",
-    "x": 52,
-    "y": 13,
-    "max": 5,
-    "gap": 1,
-    "pattern": [
-     "#",
-     "#",
-     "#",
-     "#"
-    ],
-    "colors": {
-     "#": "#40c0ff"
-    },
-    "empty": "#102838",
-    "when": {
-     "all": [
-      {
-       "not": {
-        "all": [
-         {
-          "has": "p1_mode"
-         },
-         {
-          "not": {
-           "var": "p1_mode",
-           "in": [
-            1,
-            2
-           ]
-          }
-         },
-         {
-          "not": {
-           "var": "p2_mode",
-           "in": [
-            1,
-            2
-           ]
-          }
-         }
-        ]
-       }
-      },
-      {
-       "has": "speed"
-      }
-     ]
-    }
-   },
-   {
-    "type": "icons",
-    "var": "power",
-    "x": 127,
-    "y": 13,
-    "max": 4,
-    "gap": 1,
-    "align": "right",
-    "pattern": [
-     "###",
-     "###",
-     "###",
-     "###"
-    ],
-    "colors": {
-     "#": "#ffc830"
-    },
-    "empty": "#3a3018",
-    "when": {
-     "all": [
-      {
-       "not": {
-        "all": [
-         {
-          "has": "p1_mode"
-         },
-         {
-          "not": {
-           "var": "p1_mode",
-           "in": [
-            1,
-            2
-           ]
-          }
-         },
-         {
-          "not": {
-           "var": "p2_mode",
-           "in": [
-            1,
-            2
-           ]
-          }
-         }
-        ]
-       }
-      },
-      {
-       "has": "power"
-      },
-      {
-       "not": {
-        "var": "p2_mode",
-        "in": [
-         1,
-         2
-        ]
-       }
-      }
-     ]
-    },
-    "flash": {
-     "on": "power",
-     "color": "#ffffff",
-     "ms": 300
-    }
-   },
-   {
-    "type": "icons",
-    "var": "lives_p2",
-    "x": 127,
-    "y": 13,
-    "max": 6,
-    "gap": 2,
-    "pattern": [
-     "##....",
-     ".###..",
-     "######",
-     ".###..",
-     "##...."
-    ],
-    "colors": {
-     "#": "#40c8ff"
-    },
     "when": {
      "all": [
       {
@@ -4757,6 +703,235 @@
          }
         },
         {
+         "not": {
+          "var": "p2_mode",
+          "in": [
+           1,
+           2
+          ]
+         }
+        },
+        {
+         "not": {
+          "var": "p1_mode",
+          "eq": 2
+         }
+        }
+       ]
+      },
+      {
+       "var": "p1_mode",
+       "in": [
+        1,
+        2
+       ]
+      },
+      {
+       "has": "score"
+      }
+     ]
+    },
+    "flash": {
+     "on": "score",
+     "color": "#ffffff",
+     "ms": 90
+    }
+   },
+   {
+    "type": "text",
+    "font": "9x15B",
+    "x": 64,
+    "y": 3,
+    "align": "center",
+    "text": "{score_p2}",
+    "color": "#ff9040",
+    "when": {
+     "all": [
+      {
+       "all": [
+        {
+         "not": {
+          "all": [
+           {
+            "has": "p1_mode"
+           },
+           {
+            "not": {
+             "var": "p1_mode",
+             "in": [
+              1,
+              2
+             ]
+            }
+           },
+           {
+            "not": {
+             "var": "p2_mode",
+             "in": [
+              1,
+              2
+             ]
+            }
+           }
+          ]
+         }
+        },
+        {
+         "not": {
+          "var": "p2_mode",
+          "in": [
+           1,
+           2
+          ]
+         }
+        },
+        {
+         "not": {
+          "var": "p1_mode",
+          "eq": 2
+         }
+        }
+       ]
+      },
+      {
+       "not": {
+        "var": "p1_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "has": "score_p2"
+      }
+     ]
+    },
+    "flash": {
+     "on": "score_p2",
+     "color": "#ffffff",
+     "ms": 90
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "fit": true,
+    "max_w": 124,
+    "x": 64,
+    "y": 4,
+    "align": "center",
+    "upper": true,
+    "text": "{title}",
+    "color": "#ff5a40",
+    "when": {
+     "all": [
+      {
+       "all": [
+        {
+         "not": {
+          "all": [
+           {
+            "has": "p1_mode"
+           },
+           {
+            "not": {
+             "var": "p1_mode",
+             "in": [
+              1,
+              2
+             ]
+            }
+           },
+           {
+            "not": {
+             "var": "p2_mode",
+             "in": [
+              1,
+              2
+             ]
+            }
+           }
+          ]
+         }
+        },
+        {
+         "not": {
+          "var": "p2_mode",
+          "in": [
+           1,
+           2
+          ]
+         }
+        },
+        {
+         "not": {
+          "var": "p1_mode",
+          "eq": 2
+         }
+        }
+       ]
+      },
+      {
+       "any": [
+        {
+         "all": [
+          {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          },
+          {
+           "not": {
+            "has": "score"
+           }
+          }
+         ]
+        },
+        {
+         "all": [
+          {
+           "not": {
+            "var": "p1_mode",
+            "in": [
+             1,
+             2
+            ]
+           }
+          },
+          {
+           "not": {
+            "has": "score_p2"
+           }
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 1,
+    "y": 1,
+    "text": "{score}",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "all": [
+        {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        },
+        {
          "var": "p2_mode",
          "in": [
           1,
@@ -4766,16 +941,518 @@
        ]
       },
       {
-       "has": "lives_p2"
+       "has": "score"
+      }
+     ]
+    },
+    "flash": {
+     "on": "score",
+     "color": "#ffffff",
+     "ms": 90
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "text": "{score_p2}",
+    "color": "#ff9040",
+    "when": {
+     "all": [
+      {
+       "all": [
+        {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        },
+        {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       ]
+      },
+      {
+       "has": "score_p2"
+      }
+     ]
+    },
+    "flash": {
+     "on": "score_p2",
+     "color": "#ffffff",
+     "ms": 90
+    }
+   },
+   {
+    "type": "text",
+    "font": "5x8",
+    "fit": true,
+    "max_w": 124,
+    "x": 64,
+    "y": 2,
+    "align": "center",
+    "upper": true,
+    "text": "{title}",
+    "color": "#ff5a40",
+    "when": {
+     "all": [
+      {
+       "all": [
+        {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        },
+        {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       ]
+      },
+      {
+       "not": {
+        "has": "score"
+       }
+      },
+      {
+       "not": {
+        "has": "score_p2"
+       }
+      }
+     ]
+    }
+   },
+   {
+    "type": "counter",
+    "var": "lives",
+    "pattern": [
+     "##....",
+     ".###..",
+     "######",
+     ".###..",
+     "##...."
+    ],
+    "colors": {
+     "#": "#ff5a40"
+    },
+    "x": 2,
+    "y": 24,
+    "align": "left",
+    "font": "5x8",
+    "max": 5,
+    "when": {
+     "any": [
+      {
+       "all": [
+        {
+         "all": [
+          {
+           "not": {
+            "all": [
+             {
+              "has": "p1_mode"
+             },
+             {
+              "not": {
+               "var": "p1_mode",
+               "in": [
+                1,
+                2
+               ]
+              }
+             },
+             {
+              "not": {
+               "var": "p2_mode",
+               "in": [
+                1,
+                2
+               ]
+              }
+             }
+            ]
+           }
+          },
+          {
+           "not": {
+            "var": "p2_mode",
+            "in": [
+             1,
+             2
+            ]
+           }
+          },
+          {
+           "not": {
+            "var": "p1_mode",
+            "eq": 2
+           }
+          }
+         ]
+        },
+        {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       ]
+      },
+      {
+       "all": [
+        {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        },
+        {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    "flash": {
+     "on": "lives",
+     "color": "#ffffff",
+     "ms": 400
+    }
+   },
+   {
+    "type": "counter",
+    "var": "lives_p2",
+    "pattern": [
+     "##....",
+     ".###..",
+     "######",
+     ".###..",
+     "##...."
+    ],
+    "colors": {
+     "#": "#40c8ff"
+    },
+    "x": 2,
+    "y": 24,
+    "align": "left",
+    "font": "5x8",
+    "max": 5,
+    "when": {
+     "all": [
+      {
+       "all": [
+        {
+         "not": {
+          "all": [
+           {
+            "has": "p1_mode"
+           },
+           {
+            "not": {
+             "var": "p1_mode",
+             "in": [
+              1,
+              2
+             ]
+            }
+           },
+           {
+            "not": {
+             "var": "p2_mode",
+             "in": [
+              1,
+              2
+             ]
+            }
+           }
+          ]
+         }
+        },
+        {
+         "not": {
+          "var": "p2_mode",
+          "in": [
+           1,
+           2
+          ]
+         }
+        },
+        {
+         "not": {
+          "var": "p1_mode",
+          "eq": 2
+         }
+        }
+       ]
+      },
+      {
+       "not": {
+        "var": "p1_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
       }
      ]
     },
     "flash": {
      "on": "lives_p2",
-     "color": "#ff4040",
-     "ms": 600
+     "color": "#ffffff",
+     "ms": 400
+    }
+   },
+   {
+    "type": "counter",
+    "var": "lives_p2",
+    "pattern": [
+     "##....",
+     ".###..",
+     "######",
+     ".###..",
+     "##...."
+    ],
+    "colors": {
+     "#": "#40c8ff"
     },
-    "align": "right"
+    "x": 127,
+    "y": 24,
+    "align": "right",
+    "font": "5x8",
+    "max": 5,
+    "when": {
+     "all": [
+      {
+       "var": "p1_mode",
+       "in": [
+        1,
+        2
+       ]
+      },
+      {
+       "var": "p2_mode",
+       "in": [
+        1,
+        2
+       ]
+      }
+     ]
+    },
+    "flash": {
+     "on": "lives_p2",
+     "color": "#ffffff",
+     "ms": 400
+    }
+   },
+   {
+    "type": "text",
+    "font": "8x13B",
+    "x": 64,
+    "y": 4,
+    "align": "center",
+    "text": "CONTINUE?",
+    "color": "#ffd040",
+    "when": {
+     "all": [
+      {
+       "var": "p1_mode",
+       "eq": 2
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    },
+    "blink_period": 0.8,
+    "blink_on": 0.7
+   },
+   {
+    "type": "text",
+    "font": "5x8",
+    "x": 64,
+    "y": 22,
+    "align": "center",
+    "text": "INSERT COIN",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "all": [
+        {
+         "var": "p1_mode",
+         "eq": 2
+        },
+        {
+         "not": {
+          "var": "p2_mode",
+          "in": [
+           1,
+           2
+          ]
+         }
+        }
+       ]
+      },
+      {
+       "var": "credits",
+       "eq": 0
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "5x8",
+    "x": 64,
+    "y": 22,
+    "align": "center",
+    "text": "PRESS START",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "all": [
+        {
+         "var": "p1_mode",
+         "eq": 2
+        },
+        {
+         "not": {
+          "var": "p2_mode",
+          "in": [
+           1,
+           2
+          ]
+         }
+        }
+       ]
+      },
+      {
+       "var": "credits",
+       "gt": 0
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "8x13B",
+    "x": 64,
+    "y": 4,
+    "align": "center",
+    "text": "CONTINUE?",
+    "color": "#ffd040",
+    "when": {
+     "all": [
+      {
+       "var": "p2_mode",
+       "eq": 2
+      },
+      {
+       "not": {
+        "var": "p1_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    },
+    "blink_period": 0.8,
+    "blink_on": 0.7
+   },
+   {
+    "type": "text",
+    "font": "5x8",
+    "x": 64,
+    "y": 22,
+    "align": "center",
+    "text": "INSERT COIN",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "all": [
+        {
+         "var": "p2_mode",
+         "eq": 2
+        },
+        {
+         "not": {
+          "var": "p1_mode",
+          "in": [
+           1,
+           2
+          ]
+         }
+        }
+       ]
+      },
+      {
+       "var": "credits",
+       "eq": 0
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "5x8",
+    "x": 64,
+    "y": 22,
+    "align": "center",
+    "text": "PRESS START",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "all": [
+        {
+         "var": "p2_mode",
+         "eq": 2
+        },
+        {
+         "not": {
+          "var": "p1_mode",
+          "in": [
+           1,
+           2
+          ]
+         }
+        }
+       ]
+      },
+      {
+       "var": "credits",
+       "gt": 0
+      }
+     ]
+    }
    },
    {
     "type": "coinop",
@@ -4817,6 +1494,467 @@
     "idle_image": [
      "sprites/insert_coin.gif",
      "sprites/insert_coin.png"
+    ]
+   },
+   {
+    "type": "events",
+    "events": [
+     {
+      "on": "power",
+      "change": "up",
+      "when": {
+       "var": "p1_mode",
+       "eq": 1
+      },
+      "text": "POWER UP",
+      "color": "#ffd040",
+      "font": "9x15B",
+      "ms": 1100,
+      "priority": 2,
+      "to": [
+       1,
+       2,
+       3,
+       4
+      ]
+     },
+     {
+      "on": "power",
+      "change": "up",
+      "to": [
+       4
+      ],
+      "when": {
+       "var": "p1_mode",
+       "eq": 1
+      },
+      "text": "MAX POWER",
+      "color": "#ffe060",
+      "font": "9x15B",
+      "ms": 1300,
+      "priority": 2.5
+     },
+     {
+      "on": "speed",
+      "change": "up",
+      "step": 1,
+      "when": {
+       "var": "p1_mode",
+       "eq": 1
+      },
+      "text": "SPEED UP",
+      "color": "#60e0ff",
+      "font": "9x15B",
+      "ms": 1100,
+      "priority": 2,
+      "to": [
+       1,
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     {
+      "on": "lives",
+      "change": "down",
+      "step": 1,
+      "when": {
+       "var": "p1_mode",
+       "eq": 1
+      },
+      "text": "x{lives}",
+      "icon": [
+       "##....",
+       ".###..",
+       "######",
+       ".###..",
+       "##...."
+      ],
+      "colors": {
+       "#": "#ff5a40"
+      },
+      "icon_scale": 2,
+      "color": "#e8e8f0",
+      "font": "9x15B",
+      "text_delay": 0.45,
+      "ms": 2000,
+      "priority": 5,
+      "anim": [
+       {
+        "image": [
+         "artwork/{game}/boom_big.gif",
+         "artwork/boom_big.gif",
+         "sprites/fx_fire.png"
+        ],
+        "x": 64,
+        "y": 16,
+        "ms": 100
+       },
+       {
+        "image": [
+         "artwork/{game}/boom.gif",
+         "artwork/boom.gif",
+         "sprites/fx_star.png"
+        ],
+        "count": 2,
+        "spread": [
+         30,
+         98
+        ],
+        "y": 16,
+        "delay": 0.15,
+        "ms": 60
+       }
+      ]
+     },
+     {
+      "on": "lives",
+      "change": "down",
+      "step": 1,
+      "to": [
+       0
+      ],
+      "when": {
+       "var": "p1_mode",
+       "eq": 1
+      },
+      "text": "LAST LIFE",
+      "color": "#ff5040",
+      "font": "9x15B",
+      "text_delay": 0.45,
+      "ms": 2000,
+      "priority": 5.5,
+      "anim": [
+       {
+        "image": [
+         "artwork/{game}/boom_big.gif",
+         "artwork/boom_big.gif",
+         "sprites/fx_fire.png"
+        ],
+        "x": 64,
+        "y": 16,
+        "ms": 100
+       }
+      ]
+     },
+     {
+      "on": "lives",
+      "change": "up",
+      "step": 1,
+      "when": {
+       "var": "p1_mode",
+       "eq": 1
+      },
+      "text": "1UP",
+      "icon": [
+       "##....",
+       ".###..",
+       "######",
+       ".###..",
+       "##...."
+      ],
+      "colors": {
+       "#": "#ff5a40"
+      },
+      "icon_scale": 2,
+      "color": "#60ff70",
+      "font": "9x15B",
+      "ms": 1500,
+      "priority": 4
+     },
+     {
+      "on": "power_p2",
+      "change": "up",
+      "when": {
+       "var": "p2_mode",
+       "eq": 1
+      },
+      "text": "POWER UP",
+      "color": "#ffd040",
+      "font": "9x15B",
+      "ms": 1100,
+      "priority": 2,
+      "to": [
+       1,
+       2,
+       3,
+       4
+      ]
+     },
+     {
+      "on": "power_p2",
+      "change": "up",
+      "to": [
+       4
+      ],
+      "when": {
+       "var": "p2_mode",
+       "eq": 1
+      },
+      "text": "MAX POWER",
+      "color": "#ffe060",
+      "font": "9x15B",
+      "ms": 1300,
+      "priority": 2.5
+     },
+     {
+      "on": "speed_p2",
+      "change": "up",
+      "step": 1,
+      "when": {
+       "var": "p2_mode",
+       "eq": 1
+      },
+      "text": "SPEED UP",
+      "color": "#60e0ff",
+      "font": "9x15B",
+      "ms": 1100,
+      "priority": 2,
+      "to": [
+       1,
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     {
+      "on": "lives_p2",
+      "change": "down",
+      "step": 1,
+      "when": {
+       "var": "p2_mode",
+       "eq": 1
+      },
+      "text": "x{lives_p2}",
+      "icon": [
+       "##....",
+       ".###..",
+       "######",
+       ".###..",
+       "##...."
+      ],
+      "colors": {
+       "#": "#40c8ff"
+      },
+      "icon_scale": 2,
+      "color": "#e8e8f0",
+      "font": "9x15B",
+      "text_delay": 0.45,
+      "ms": 2000,
+      "priority": 5,
+      "anim": [
+       {
+        "image": [
+         "artwork/{game}/boom_big.gif",
+         "artwork/boom_big.gif",
+         "sprites/fx_fire.png"
+        ],
+        "x": 64,
+        "y": 16,
+        "ms": 100
+       },
+       {
+        "image": [
+         "artwork/{game}/boom.gif",
+         "artwork/boom.gif",
+         "sprites/fx_star.png"
+        ],
+        "count": 2,
+        "spread": [
+         30,
+         98
+        ],
+        "y": 16,
+        "delay": 0.15,
+        "ms": 60
+       }
+      ]
+     },
+     {
+      "on": "lives_p2",
+      "change": "down",
+      "step": 1,
+      "to": [
+       0
+      ],
+      "when": {
+       "var": "p2_mode",
+       "eq": 1
+      },
+      "text": "LAST LIFE",
+      "color": "#ff5040",
+      "font": "9x15B",
+      "text_delay": 0.45,
+      "ms": 2000,
+      "priority": 5.5,
+      "anim": [
+       {
+        "image": [
+         "artwork/{game}/boom_big.gif",
+         "artwork/boom_big.gif",
+         "sprites/fx_fire.png"
+        ],
+        "x": 64,
+        "y": 16,
+        "ms": 100
+       }
+      ]
+     },
+     {
+      "on": "lives_p2",
+      "change": "up",
+      "step": 1,
+      "when": {
+       "var": "p2_mode",
+       "eq": 1
+      },
+      "text": "1UP",
+      "icon": [
+       "##....",
+       ".###..",
+       "######",
+       ".###..",
+       "##...."
+      ],
+      "colors": {
+       "#": "#40c8ff"
+      },
+      "icon_scale": 2,
+      "color": "#60ff70",
+      "font": "9x15B",
+      "ms": 1500,
+      "priority": 4
+     },
+     {
+      "on": "p1_mode",
+      "from": [
+       0,
+       3
+      ],
+      "to": [
+       1
+      ],
+      "text": "PLAYER 1",
+      "color": "#40c8ff",
+      "font": "9x15B",
+      "ms": 1200,
+      "priority": 1
+     },
+     {
+      "on": "p2_mode",
+      "from": [
+       0,
+       3
+      ],
+      "to": [
+       1
+      ],
+      "text": "PLAYER 2",
+      "color": "#ff9040",
+      "font": "9x15B",
+      "ms": 1200,
+      "priority": 1
+     },
+     {
+      "on": "p1_mode",
+      "from": [
+       1,
+       2
+      ],
+      "to": [
+       0,
+       3
+      ],
+      "when": {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      "text": "GAME OVER",
+      "color": "#ff5040",
+      "font": "9x15B",
+      "ms": 2600,
+      "priority": 9
+     },
+     {
+      "on": "p2_mode",
+      "from": [
+       1,
+       2
+      ],
+      "to": [
+       0,
+       3
+      ],
+      "when": {
+       "not": {
+        "var": "p1_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      "text": "GAME OVER",
+      "color": "#ff5040",
+      "font": "9x15B",
+      "ms": 2600,
+      "priority": 9
+     },
+     {
+      "on": "credits",
+      "change": "up",
+      "when": {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      "text": "CREDIT {credits}",
+      "icon": [
+       ".###.",
+       "#ooo#",
+       "#o#o#",
+       "#ooo#",
+       ".###."
+      ],
+      "colors": {
+       "#": "#c87d0f",
+       "o": "#ffc828"
+      },
+      "icon_scale": 2,
+      "color": "#ffc828",
+      "font": "8x13B",
+      "ms": 1500,
+      "priority": 1.5
+     }
     ]
    }
   ]

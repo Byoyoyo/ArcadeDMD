@@ -22,10 +22,11 @@ from .outputs import ZeDMDOutput, PreviewOutput, GifRecorder, NullOutput
 from .pixelcade import PixelcadeOutput, guess_pixelcade_dir, list_ports
 from .retroarch import RetroArchSource
 from .memvalues import derive, game_values
+from .neocoins import NeoCoins
 from .textfiles import TextFiles
 from .i18n import tr
 
-VERSION = "1.28.0"
+VERSION = "1.29.0"
 
 DEFAULT_CONFIG = {
     "language": "auto",
@@ -40,7 +41,7 @@ DEFAULT_CONFIG = {
         "preview": {"enabled": True, "x": 100, "y": 100, "width": 1024, "height": 256,
                     "borderless": False, "topmost": False, "brightness": 1.0},
         "pixelcade": {"enabled": False, "device": "", "color_order": "auto", "mode": "games",
-                      "takeover": "known", "max_fps": 30, "pixelweb_url": "http://127.0.0.1:8080",
+                      "takeover": "known", "max_fps": 30, "gamma": 2.2, "pixelweb_url": "http://127.0.0.1:8080",
                       "pixelweb_exe": "", "art_dir": ""},
     },
     "doflinx_bridge": {"enabled": False, "host": "127.0.0.1", "port": 8081},
@@ -525,6 +526,7 @@ class Engine:
         self.last_start = None
         self.retroarch = None
         self.derived = None
+        self.coin_guess = None        # crédits d'une Neo Geo devinés d'après le BIOS (RetroArch)
         self.hold_zero = {}           # score qui passe à 0 un instant (combattant recréé entre deux rounds)
         self.zero_since = {}
         self.demo_request = os.path.join(root, "runtime", "demo_request.json")
@@ -611,6 +613,10 @@ class Engine:
             meta["pixelcade"] = self.pixelcade_dir
         self.state.reset(meta)
         self.derived = g.get("derived") if isinstance(g.get("derived"), dict) else None
+        names = meta.get("values") if isinstance(meta.get("values"), list) else []
+        # credits of a Neo Geo that cannot be read (RetroArch): guessed from its BIOS / crédits devinés d'après le BIOS
+        self.coin_guess = NeoCoins() if (source in ("plugin", "retroarch") and "credits" not in names
+                                         and "bios_request" in names) else None
         vals = game_values(g, meta.get("system") or "", meta.get("parent") or "") if g else {}
         self.hold_zero = {k: float(d["hold_zero"]) for k, d in vals.items()
                           if isinstance(d, dict) and isinstance(d.get("hold_zero"), (int, float)) and d["hold_zero"] > 0}
@@ -690,6 +696,15 @@ class Engine:
             if self.derived:      # valeurs calculées (nom du personnage en train de se battre...)
                 for k, v in derive(self.derived, self.state.values).items():
                     self.state.update(k, v, now, quiet=(t == "hb"))
+            if self.coin_guess is not None:
+                old = self.state.values.get("credits")
+                c = self.coin_guess.update(self.state.values, now)
+                for fr, en in self.coin_guess.notes:
+                    self.log(tr(fr, en))
+                self.coin_guess.notes.clear()
+                if c is not None and c != old:
+                    self.state.update("credits", c, now)
+                    self.log(tr(f"crédits devinés d'après le BIOS : {c}", f"credits guessed from the BIOS: {c}"))
         elif t == "stop":
             if self.source == source or self.mode != "game":
                 self.go_idle()

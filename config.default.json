@@ -42,6 +42,7 @@
       "mode": "games",
       "takeover": "known",
       "max_fps": 30,
+      "gamma": 2.2,
       "pixelweb_url": "http://127.0.0.1:8080",
       "pixelweb_exe": "",
       "art_dir": ""

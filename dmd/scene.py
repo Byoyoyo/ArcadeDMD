@@ -223,6 +223,7 @@ class Ctx:
         self.dt = 0.0
         self.state = None
         self.cfg = {}                 # config.json (coin symbol of the attract screen...)
+        self.anchors = {}             # where a ship is, for the explosions ahead of it / où est un vaisseau
 
 
 class Element:
@@ -775,9 +776,38 @@ class AnimEl(Element):
         return float(rr[0]) <= ratio < float(rr[1])
 
     def _pick(self, v, cv_size):
+        """A number, [start, end] (at random inside), or a list of [start, end] (one of them, at random inside)."""
+        if isinstance(v, (list, tuple)) and v and all(isinstance(r, (list, tuple)) and len(r) == 2 for r in v):
+            v = v[self.rng.randrange(len(v))]
         if isinstance(v, (list, tuple)) and len(v) == 2:
             return self.rng.uniform(float(v[0]), float(v[1]))
         return float(v if v is not None else cv_size / 2)
+
+    def fire(self, t, w=128, h=32, game=None, near=None, back=False):
+        """Plays the animation now, whatever the values (an event of the "events" layer). "near": (x, y) of a ship, the
+        animation then goes off ahead of it ("ahead": [from, to] pixels). / La joue tout de suite, devant le vaisseau."""
+        if self.frames is None or (game is not None and game != self.game):
+            self._load(game)
+        if not self.frames:
+            return
+        self.last = t
+        self.count += 1
+        n = 1 if self.full else max(1, int(self.spec.get("count", 1)))
+        spread = self.spec.get("spread")
+        for k in range(n):
+            if self.full:
+                x, y = w / 2, h / 2
+            elif near is not None:
+                ahead = self.spec.get("ahead") or [18, 48]
+                x = near[0] + self.rng.uniform(float(ahead[0]), float(ahead[1])) * (-1 if back else 1)
+                y = near[1] + self.rng.uniform(-2.0, 2.0)
+            elif n > 1 and spread:
+                x = float(spread[0]) + (float(spread[1]) - float(spread[0])) * (k + 0.5) / n
+                y = self._pick(self.spec.get("y"), h)
+            else:
+                x, y = self._pick(self.spec.get("x"), w), self._pick(self.spec.get("y"), h)
+            self.plays.append([t + k * float(self.spec.get("delay", 0.1)), x, y])
+        self.plays = self.plays[-int(self.spec.get("max", 4)) - n:]
 
     def render(self, ctx):
         cv, t = ctx.canvas, ctx.t
@@ -787,7 +817,7 @@ class AnimEl(Element):
         names = self.spec.get("on") or ["score"]
         names = names if isinstance(names, list) else [names]
         change = self.spec.get("change", "up")
-        for (name, old, new, et) in ctx.state.events:
+        for (name, old, new, et) in ([] if self.spec.get("manual") else ctx.state.events):
             if name not in names or not isinstance(old, (int, float)) or not isinstance(new, (int, float)) or new == old:
                 continue
             if (change == "up" and new < old) or (change == "down" and new > old):
@@ -799,20 +829,12 @@ class AnimEl(Element):
                 continue
             if not self.frames or t - self.last < float(self.spec.get("gap", 0.08)):
                 continue
-            self.last = t
-            self.count += 1
-            n = 1 if self.full else max(1, int(self.spec.get("count", 1)))
-            spread = self.spec.get("spread")
-            for k in range(n):
-                if self.full:
-                    x, y = cv.w / 2, cv.h / 2
-                elif n > 1 and spread:
-                    x = float(spread[0]) + (float(spread[1]) - float(spread[0])) * (k + 0.5) / n
-                    y = self._pick(self.spec.get("y"), cv.h)
-                else:
-                    x, y = self._pick(self.spec.get("x"), cv.w), self._pick(self.spec.get("y"), cv.h)
-                self.plays.append([t + k * float(self.spec.get("delay", 0.1)), x, y])
-            self.plays = self.plays[-int(self.spec.get("max", 4)) - n:]
+            a = (getattr(ctx, "anchors", None) or {}).get(self.spec.get("near")) if self.spec.get("near") else None
+            fresh = a is not None and t - a[2] < 0.2
+            self.fire(t, cv.w, cv.h, near=a[:2] if fresh else None, back=bool(fresh and len(a) > 3 and a[3]))
+        self.draw(cv, t)
+
+    def draw(self, cv, t):
         if not self.frames:
             return
         total = sum(self.durs)
@@ -837,6 +859,183 @@ class AnimEl(Element):
                 y = min(max(p[2], fr.h / 2), cv.h - fr.h / 2)
                 cv.sprite(fr, int(round(x - fr.w / 2)), int(round(y - fr.h / 2)))
         self.plays = alive
+
+
+POP_FONTS = ("4x6", "5x8", "6x10", "8x13B", "9x15B")
+
+
+def shiny_text(cv, font, text, x, y, color, t=0.0, k=1.0, flash=0.0, outline=(0, 0, 0)):
+    """Big text, lighter at the top, a light sweeping across, a black outline that keeps it readable over an explosion.
+    / Gros texte plus clair en haut, un reflet qui passe, un contour noir pour le lire par-dessus une explosion."""
+    top = _mix(color, WHITE, 0.55)
+    sx = -20 + ((t % 1.8) / 1.8) * 170
+    oy = y - font.cap_top
+    pts = []
+    cx = x
+    for ch in text:
+        for (px, py) in font.glyph_points(ch):
+            pts.append((cx + px, oy + py, py - font.cap_top))
+        cx += font.w
+    if outline is not None:
+        for (px, py, _) in pts:
+            for dx, dy in ((-1, 0), (1, 0), (0, -1), (0, 1), (1, 1)):
+                cv.set(px + dx, py + dy, outline)
+    span = max(1.0, float(font.cap_h - 1))
+    for (px, py, r) in pts:
+        col = _mix(top, color, max(0.0, min(1.0, r / span)))
+        dd = abs((px - sx) - r * 0.5)
+        if dd < 4.0:
+            col = _mix(col, WHITE, (1 - dd / 4.0) * 0.7)
+        if flash:
+            col = _mix(col, WHITE, flash)
+        cv.set(px, py, scale_color(col, k))
+    return cx - x
+
+
+class EventsEl(Element):
+    """Short events that take the panel for a moment, one at a time, the way a pinball shows them: BOMB and its
+    explosions when a bomb goes, POWER UP, the plane that blows up and the lives left, 1UP, GAME OVER...
+
+    "events": a list of events, each with
+      "on": the value(s) watched, "change": "up", "down" or "any" (default), "step": the size of the change (1 for a
+        life lost, so that a value set at the start of a game does not count), "from" / "to": the values before and after,
+        "when": a condition on the values once changed,
+      "text": the big text (with {lives}... fields), "color", "font": its biggest size (it grows up to it), "y": its
+        middle line, "text_delay": seconds before it shows (after the explosion),
+      "icon": a small drawing at the left of the text (rows of characters, as in "icons"), "colors", "icon_scale",
+      "anim": an animation played at the start, or a list of them (same keys as the "anim" layer, without "on"),
+      "ms": how long it lasts (1400), "clear": true (black panel, default) or false (over the scene),
+      "priority": a more important event replaces the one playing (GAME OVER over a life lost), a less important one waits.
+
+    Événements courts qui prennent la dalle un instant, un à la fois, comme sur un flipper : BOMB et ses explosions,
+    POWER UP, l'avion qui explose et les vies qui restent, 1UP, GAME OVER... Rien pendant un décompte rapide de points."""
+
+    def __init__(self, spec, root, log):
+        super().__init__(spec, root, log)
+        self.defs = []
+        for d in spec.get("events") or []:
+            if not isinstance(d, dict):
+                continue
+            anims = []
+            for a in d.get("anim") if isinstance(d.get("anim"), list) else [d.get("anim")]:
+                if isinstance(a, dict):
+                    anims.append(AnimEl(dict(a, manual=True), root, log))
+            icon = None
+            if d.get("icon"):
+                rows = d["icon"]
+                base = parse_color(d.get("color"), (255, 255, 255))
+                cmap = {ch: parse_color(c, base) for ch, c in (d.get("colors") or {}).items()}
+                pts = [(x, y, cmap.get(ch, base)) for y, row in enumerate(rows) for x, ch in enumerate(row) if ch not in ". "]
+                icon = (pts, max(len(r) for r in rows), len(rows))
+            self.defs.append({"spec": d, "anims": anims, "icon": icon, "prio": float(d.get("priority", 1))})
+        self.play = None
+        self.waiting = None
+        self.times = {}
+        self.count = 0                                   # (tests)
+        self.shown = []                                  # texts shown, for the tests / textes montrés (tests)
+
+    def restart(self):
+        super().restart()
+        self.play = None
+        self.waiting = None
+
+    def _match(self, d, name, old, new, ctx):
+        s = d["spec"]
+        names = s.get("on")
+        names = names if isinstance(names, list) else [names]
+        if name not in names:
+            return False
+        num = all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in (old, new))
+        change = s.get("change", "any")
+        if num:
+            if (change == "up" and new <= old) or (change == "down" and new >= old):
+                return False
+            step = s.get("step")
+            if step is not None and abs(new - old) not in (step if isinstance(step, list) else [step]):
+                return False
+        elif change in ("up", "down"):
+            return False
+        if "from" in s and old not in (s["from"] if isinstance(s["from"], list) else [s["from"]]):
+            return False
+        if "to" in s and new not in (s["to"] if isinstance(s["to"], list) else [s["to"]]):
+            return False
+        return check_when(s.get("when"), ctx.state, ctx.t)
+
+    def _trigger(self, d, ctx):
+        t = ctx.t
+        snap = {"d": d, "t0": t, "map": ctx.state.mapping(), "fired": False}
+        if self.play is None or d["prio"] >= self.play["d"]["prio"]:
+            self.play = snap
+        elif self.waiting is None or d["prio"] >= self.waiting["d"]["prio"]:
+            self.waiting = snap
+
+    def render(self, ctx):
+        cv, t = ctx.canvas, ctx.t
+        for (name, old, new, et) in ctx.state.events:
+            if old is None:
+                continue
+            seen = self.times.setdefault(name, [])
+            seen[:] = [x for x in seen if t - x < 0.8] + [t]
+            if len(seen) > 6:                            # a bonus being counted / un bonus compté par le jeu
+                continue
+            for d in self.defs:
+                if self._match(d, name, old, new, ctx):
+                    self._trigger(d, ctx)
+        p = self.play
+        if p is not None and t - p["t0"] >= float(p["d"]["spec"].get("ms", 1400)) / 1000.0:
+            p = self.play = None
+        if p is None and self.waiting is not None:
+            w, self.waiting = self.waiting, None
+            if t - w["t0"] < 1.5:                        # still worth showing / encore d'actualité
+                w["t0"] = t
+                p = self.play = w
+        if p is None:
+            return
+        d, s = p["d"], p["d"]["spec"]
+        if not p["fired"]:
+            p["fired"] = True
+            self.count += 1
+            for a in d["anims"]:
+                a.fire(t, cv.w, cv.h, (ctx.state.meta or {}).get("game"))
+        el = t - p["t0"]
+        dur = float(s.get("ms", 1400)) / 1000.0
+        if s.get("clear", True):
+            cv.clear((0, 0, 0))
+        for a in d["anims"]:
+            a.draw(cv, t)
+        text = render_template(panel_text(s.get("text", "")), p["map"], "")
+        lt = el - float(s.get("text_delay", 0.0))
+        if lt < 0 or not (text or d["icon"]):
+            return
+        if not self.shown or self.shown[-1] != text:
+            self.shown = (self.shown + [text])[-20:]
+        color = parse_color(s.get("color"), (255, 200, 60))
+        target = s.get("font", "9x15B")
+        ladder = [f for f in POP_FONTS[:POP_FONTS.index(target) + 1]] if target in POP_FONTS else [target]
+        scale = max(1, int(s.get("icon_scale", 1)))
+        iw = d["icon"][1] * scale + 3 if d["icon"] else 0
+
+        def width(f):
+            return iw + Font.get(f).width(text)
+        while len(ladder) > 1 and width(ladder[-1]) > cv.w - 4:
+            ladder.pop()
+        pop = 0.16
+        font = Font.get(ladder[min(len(ladder) - 1, int(lt / pop * len(ladder)))] if lt < pop else ladder[-1])
+        fade = max(0.0, min(1.0, (dur - el) / 0.25))
+        flash = max(0.0, 1.0 - lt / 0.25) * 0.8
+        w = iw + font.width(text)
+        x = int(round(float(s.get("x", cv.w / 2)) - w / 2))
+        cy = float(s.get("y", cv.h / 2))
+        if d["icon"]:
+            pts, _, ih = d["icon"]
+            iy = int(round(cy - ih * scale / 2))
+            for (px, py, c) in pts:
+                c = scale_color(_mix(c, WHITE, flash), fade)
+                for sy in range(scale):
+                    for sx in range(scale):
+                        cv.set(x + px * scale + sx, iy + py * scale + sy, c)
+        if text:
+            shiny_text(cv, font, text, x + iw, int(round(cy - font.cap_h / 2)), color, lt, fade, flash)
 
 
 class SpriteEl(Element):
@@ -943,6 +1142,142 @@ class SpriteEl(Element):
             self._shots(ctx, int(round(x)), y, fr, moving_right)
 
 
+class ShipEl(Element):
+    """The player's ship or plane, flying in an area of the panel. It follows the stick and fires while button A is held
+    (the Neo Geo BIOS keeps them), otherwise it flies by itself and fires in bursts. It also fires when the score goes up.
+    While the score is not known, an enemy blows up ahead of it now and then as it fires.
+
+    "image" (a list, the first file found, "{game}" for the game), "frames", "fps": as "sprite". "face": "right" (default) or
+    "left" (player 2 on the right of the panel, facing player 1), the way it flies and fires.
+    "area": [x0, y0, x1, y1], where it flies. "input": the value with the stick and buttons ("p1_input": 1 up, 2 down,
+    4 left, 8 right, 16 A). "speed": pixels per second with the stick. "fire": {"color", "speed", "rate" (shots per second
+    while A is held), "dy", "len"}. "shoot_on": values whose rise fires a shot (the score). "anchor": a name, so that an
+    "anim" layer with "near" goes off ahead of it. "hit": an animation (keys of "anim") ahead of the ship now and then while
+    it fires, as long as the value "unless" (the score) is not known.
+
+    Le vaisseau ou l'avion du joueur dans une zone de la dalle. Il suit le stick et tire tant que le bouton A est tenu
+    (le BIOS de la Neo Geo les garde), sinon il vole tout seul et tire par rafales. Il tire aussi quand le score monte.
+    Tant que le score n'est pas connu, un ennemi explose devant lui de temps en temps pendant qu'il tire."""
+
+    UP, DOWN, LEFT, RIGHT, BTN_A = 0x01, 0x02, 0x04, 0x08, 0x10
+
+    def __init__(self, spec, root, log):
+        super().__init__(spec, root, log)
+        self.frames = None
+        self.game = None
+        a = spec.get("area") or [2, 12, 124, 22]
+        self.area = [float(v) for v in a]
+        self.fire_spec = spec.get("fire") or {}
+        self.hit = AnimEl(dict(spec["hit"], manual=True), root, log) if isinstance(spec.get("hit"), dict) else None
+        self.rng = random.Random(5)
+        self.count = 0                                   # shots fired (tests) / tirs (tests)
+        self.restart()
+
+    def restart(self):
+        super().restart()
+        self.x = self.y = None
+        self.touched = False
+        self.shells = []
+        self.last_t = None
+        self.last_shot = -9.0
+        self.muzzle_until = 0.0
+        self.next_target = 0.0
+        self.tx = self.ty = None
+        self.next_hit = 0.0
+
+    def _load(self, game):
+        self.game, self.frames = game, []
+        images = self.spec.get("image")
+        for img in images if isinstance(images, list) else [images]:
+            if not img:
+                continue
+            name = str(img).replace("{game}", game or "_")
+            path = name if os.path.isabs(name) else os.path.join(self.root, name)
+            if os.path.exists(path):
+                try:
+                    self.frames = load_sprite_frames(path, self.spec.get("frame_w", 0), self.spec.get("frames", 0))
+                    return
+                except Exception as e:  # image illisible
+                    self.log(tr(f"vaisseau illisible {path} : {e}", f"unreadable ship {path}: {e}"))
+
+    def _shot(self, t, x, y):
+        self.last_shot = t
+        self.count += 1
+        self.shells.append([float(x), y, float(self.fire_spec.get("speed", 150))])
+        self.muzzle_until = t + 0.06
+
+    def render(self, ctx):
+        cv, t = ctx.canvas, ctx.t
+        game = (ctx.state.meta or {}).get("game")
+        if self.frames is None or game != self.game:
+            self._load(game)
+        if not self.frames:
+            return
+        dt = 0.0 if self.last_t is None else max(0.0, min(0.1, t - self.last_t))
+        self.last_t = t
+        lt = self.local_time(ctx)
+        fr = self.frames[int(lt * float(self.spec.get("fps", 10))) % len(self.frames)]
+        x0, y0, x1, y1 = self.area
+        xmax, ymax = max(x0, x1 - fr.w), max(y0, y1 - fr.h)
+        left = self.spec.get("face") == "left"
+        if self.x is None:
+            self.x, self.y = x0 + (xmax - x0) * (0.75 if left else 0.25), (y0 + ymax) / 2
+        v = _int_value(ctx, self.spec.get("input", "p1_input"))
+        if v:
+            self.touched = True
+        bob = 0
+        if self.touched and v is not None:                # the player's stick / le stick du joueur
+            sp = float(self.spec.get("speed", 45))
+            dx = (1 if v & self.RIGHT else 0) - (1 if v & self.LEFT else 0)
+            dy = (1 if v & self.DOWN else 0) - (1 if v & self.UP else 0)
+            self.x += dx * sp * dt
+            self.y += dy * sp * 0.6 * dt
+            firing = bool(v & self.BTN_A)
+        else:                                             # flies by itself / pilote automatique
+            if t >= self.next_target or self.tx is None:
+                self.tx = self.rng.uniform(x0 + (xmax - x0) * (0.4 if left else 0.0), x0 + (xmax - x0) * (1.0 if left else 0.6))
+                self.ty = self.rng.uniform(y0, ymax)
+                self.next_target = t + self.rng.uniform(1.2, 2.6)
+            self.x += (self.tx - self.x) * min(1.0, dt * 1.2)
+            self.y += (self.ty - self.y) * min(1.0, dt * 1.5)
+            firing = (lt % 2.4) < 1.2
+            bob = int(round(math.sin(lt * 6.0) * 0.6))
+        self.x = min(max(self.x, x0), xmax)
+        self.y = min(max(self.y, y0), ymax)
+        x, y = int(round(self.x)), int(round(self.y)) + bob
+        nose = (x - 1 if left else x + fr.w, y + int(self.fire_spec.get("dy", fr.h // 2)))
+        rate = float(self.fire_spec.get("rate", 8))
+        if firing and t - self.last_shot >= 1.0 / max(0.5, rate):
+            self._shot(t, nose[0], nose[1])
+        names = self.spec.get("shoot_on") or []
+        for (name, old, new, et) in ctx.state.events:
+            if (name in names and isinstance(old, (int, float)) and isinstance(new, (int, float)) and new > old
+                    and t - self.last_shot >= 0.08):
+                self._shot(t, nose[0], nose[1])
+        if self.spec.get("anchor"):
+            ctx.anchors[self.spec["anchor"]] = (nose[0], nose[1], t, left)
+        unless = self.spec.get("unless")
+        if self.hit is not None and firing and t >= self.next_hit and (not unless or ctx.state.values.get(unless) is None):
+            if self.next_hit:
+                self.hit.fire(t, cv.w, cv.h, game, near=nose, back=left)
+            self.next_hit = t + self.rng.uniform(0.7, 1.6)
+        cv.sprite(fr, x, y, flip=left)
+        col = parse_color(self.fire_spec.get("color"), (255, 224, 96))
+        n = int(self.fire_spec.get("len", 2))
+        alive = []
+        for s in self.shells:
+            s[0] += s[2] * dt * (-1 if left else 1)
+            if -n <= s[0] <= cv.w + n:
+                alive.append(s)
+                for k in range(n):
+                    cv.set(int(s[0]) + (k if left else -k), s[1], col if k == 0 else scale_color(col, 0.5))
+        self.shells = alive[-24:]
+        if t < self.muzzle_until:
+            cv.set(nose[0], nose[1], (255, 250, 210))
+        if self.hit is not None:
+            self.hit.draw(cv, t)
+
+
 class ClockEl(Element):
     def __init__(self, spec, root, log):
         super().__init__(spec, root, log)
@@ -1044,6 +1379,43 @@ class IconsEl(Element):
                 if i < n and flash is not None:
                     col = flash
                 cv.set(ox + px, y0 + py, col)
+
+
+class CounterEl(Element):
+    """A small drawing followed by a number: a plane and x3 for the lives, a bomb and x2.
+    "var": the value, "pattern" and "colors" as in "icons", "font", "color" of the number, "prefix" ("x" by default),
+    "align": "left" (x is the left edge) or "right" (x is the right edge), "max": above it the value is not shown (a value
+    not set yet at the start of a game). / Un petit dessin suivi d'un nombre : un avion et x3 pour les vies."""
+
+    def __init__(self, spec, root, log):
+        super().__init__(spec, root, log)
+        rows = spec.get("pattern") or ["#"]
+        base = parse_color(spec.get("icon_color"), (255, 255, 255))
+        cmap = {k: parse_color(v, base) for k, v in (spec.get("colors") or {}).items()}
+        self.points = [(x, y, cmap.get(ch, base)) for y, row in enumerate(rows) for x, ch in enumerate(row) if ch not in ". "]
+        self.iw = max((len(r) for r in rows), default=1)
+        self.ih = len(rows)
+        self.font = Font.get(spec.get("font", "5x8"))
+        self.color = parse_color(spec.get("color"), (216, 216, 224))
+
+    def render(self, ctx):
+        s = self.spec
+        n = _int_value(ctx, s.get("var", "lives"))
+        if n is None or n < 0 or n > int(s.get("max", 99)):
+            return
+        text = f"{s.get('prefix', 'x')}{n}"
+        gap = int(s.get("gap", 2))
+        w = self.iw + gap + self.font.width(text)
+        x = int(s.get("x", 0))
+        if s.get("align") == "right":
+            x = x - w + 1
+        y = int(s.get("y", 0))
+        flash = _flash_color(s, ctx, None)
+        cv = ctx.canvas
+        for (px, py, c) in self.points:
+            cv.set(x + px, y + py, flash or c)
+        ty = y + (self.ih - self.font.cap_h + 1) // 2
+        cv.text(self.font, text, x + self.iw + gap, ty, flash or self.color)
 
 
 class DotEl(Element):
@@ -1434,8 +1806,8 @@ class Scene:
         kind = spec.get("type", "text")
         cls = {
             "text": TextEl, "marquee": MarqueeEl, "bars": BarsEl, "waves": WavesEl, "mountains": MountainsEl, "gauge": GaugeEl,
-            "particles": ParticlesEl, "sprite": SpriteEl, "clock": ClockEl, "anim": AnimEl,
-            "rect": RectEl, "image": ImageEl, "coinop": CoinOpEl, "icons": IconsEl, "dot": DotEl, "arrow": ArrowEl,
+            "particles": ParticlesEl, "sprite": SpriteEl, "ship": ShipEl, "clock": ClockEl, "anim": AnimEl, "events": EventsEl,
+            "rect": RectEl, "image": ImageEl, "coinop": CoinOpEl, "icons": IconsEl, "counter": CounterEl, "dot": DotEl, "arrow": ArrowEl,
         }.get(kind)
         if kind == "cycle":
             return CycleEl(spec, self.root, self.log, self._make)
