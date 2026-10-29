@@ -231,8 +231,8 @@
    {
     "type": "anim",
     "image": [
-     "perso/{game}/boom.gif",
-     "perso/boom.gif",
+     "artwork/{game}/boom.gif",
+     "artwork/boom.gif",
      "sprites/fx_star.png"
     ],
     "on": [
@@ -282,8 +282,8 @@
    {
     "type": "anim",
     "image": [
-     "perso/{game}/boom_big.gif",
-     "perso/boom_big.gif",
+     "artwork/{game}/boom_big.gif",
+     "artwork/boom_big.gif",
      "sprites/fx_fire.png"
     ],
     "on": [

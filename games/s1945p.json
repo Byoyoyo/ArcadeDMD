@@ -1736,8 +1736,8 @@
    {
     "type": "anim",
     "image": [
-     "perso/{game}/boom.gif",
-     "perso/boom.gif",
+     "artwork/{game}/boom.gif",
+     "artwork/boom.gif",
      "sprites/fx_star.png"
     ],
     "on": [
@@ -1787,8 +1787,8 @@
    {
     "type": "anim",
     "image": [
-     "perso/{game}/boom_big.gif",
-     "perso/boom_big.gif",
+     "artwork/{game}/boom_big.gif",
+     "artwork/boom_big.gif",
      "sprites/fx_fire.png"
     ],
     "on": [
@@ -1838,8 +1838,8 @@
    {
     "type": "anim",
     "image": [
-     "perso/{game}/bomb.gif",
-     "perso/bomb.gif",
+     "artwork/{game}/bomb.gif",
+     "artwork/bomb.gif",
      "sprites/fx_fire.png"
     ],
     "on": [
@@ -1886,8 +1886,8 @@
    {
     "type": "anim",
     "image": [
-     "perso/{game}/shock.gif",
-     "perso/shock.gif",
+     "artwork/{game}/shock.gif",
+     "artwork/shock.gif",
      "sprites/fx_shock.png"
     ],
     "on": [
@@ -1929,8 +1929,8 @@
    {
     "type": "anim",
     "image": [
-     "perso/{game}/super.gif",
-     "perso/super.gif",
+     "artwork/{game}/super.gif",
+     "artwork/super.gif",
      "sprites/fx_plasma.png"
     ],
     "on": [

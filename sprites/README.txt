@@ -63,15 +63,15 @@ INSERT COIN tant qu il n y a pas de credit. Un GIF de la Pixelcade convient.
 La piece tombe et les credits roulent toujours quand tu en mets une.
 
 Tes propres animations pour la dalle (un GIF de DOFLinx ou de la Pixelcade
-par exemple) vont dans le dossier perso, a cote d arcadedmd.py. Il n est
+par exemple) vont dans le dossier artwork, a cote d arcadedmd.py. Il n est
 jamais publie et une mise a jour n y touche pas.
-perso/boom.gif      petite explosion, a chaque point marque (shoot'em up)
-perso/boom_big.gif  grosse explosion, pour un gros gain d un coup
-perso/bomb.gif      explosions d une bombe
-perso/shock.gif     onde de choc d une bombe
-perso/super.gif     super tir de Strikers 1945 Plus
-perso/charge.gif    tir charge de Pulstar
-Pour un seul jeu, mets-les dans perso/<jeu>/ (perso/s1945p/boom.gif par
+artwork/boom.gif      explosion d un ennemi, a chaque point marque (shoot'em up)
+artwork/boom_big.gif  grosse explosion, pour un gros gain d un coup
+artwork/bomb.gif      explosions d une bombe
+artwork/shock.gif     onde de choc d une bombe
+artwork/super.gif     super tir de Strikers 1945 Plus
+artwork/charge.gif    tir charge de Pulstar
+Pour un seul jeu, mets-les dans artwork/<jeu>/ (artwork/s1945p/boom.gif par
 exemple). Un GIF de 128x32 se joue sur toute la dalle, son noir laisse
 voir la scene. Si son dessin tient au milieu (les explosions de DOFLinx),
 il est recadre et part a l endroit de l action.

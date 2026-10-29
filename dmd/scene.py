@@ -685,8 +685,8 @@ class AnimEl(Element):
       ses propres durées, une bande PNG se découpe en "frames" images de "ms" millisecondes (une image de 128 x 32 ou un GIF
       fixe reste une seule image, sur toute la dalle si elle en a la taille). Une image de toute la dalle dont le dessin
       tient au milieu (une explosion de DOFLinx) est recadrée et se joue à l'endroit de l'action, sauf "trim": false.
-      Les fichiers du dossier perso
-      passent avant les nôtres, par exemple ["perso/{game}/boom.gif", "perso/boom.gif", "sprites/fx_pop.png"].
+      Les fichiers du dossier artwork
+      passent avant les nôtres, par exemple ["artwork/{game}/boom.gif", "artwork/boom.gif", "sprites/fx_star.png"].
     "on" : valeur(s) surveillée(s), "change" : "up" (défaut), "down" ou "any".
     "ratio" : [min, max], seulement si le gain est entre min et max fois le gain habituel (petit ennemi, gros ennemi).
     "x", "y" : le centre, un nombre ou [début, fin] (au hasard dedans). Une image de toute la dalle (128 x 32) se joue
