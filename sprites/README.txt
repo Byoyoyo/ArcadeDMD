@@ -73,4 +73,5 @@ perso/super.gif     super tir de Strikers 1945 Plus
 perso/charge.gif    tir charge de Pulstar
 Pour un seul jeu, mets-les dans perso/<jeu>/ (perso/s1945p/boom.gif par
 exemple). Un GIF de 128x32 se joue sur toute la dalle, son noir laisse
-voir la scene.
+voir la scene. Si son dessin tient au milieu (les explosions de DOFLinx),
+il est recadre et part a l endroit de l action.
