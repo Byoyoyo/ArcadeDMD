@@ -529,10 +529,12 @@ def build(fbneo, cheats_dir, games_dir):
                     hd = {"stages": STAGE_LISTS[name], "note": f"HD themes of the fights (one per game, no stage value known), made by {TOOL}"}
                 if hd:
                     d["hd"] = hd
-        watch = [k for k in ("time", "health", "health_p2", "lives", "lives_p2", "bombs") if k in merged]
-        if watch:
-            d["activity"] = {"values": watch, "seconds": 10,
-                             "note": "no BIOS says who plays: player 1 plays while these values move"}
+        watch = [k for k in ("time", "health", "health_p2", "lives", "lives_p2", "bombs", "score", "score_p2") if k in merged]
+        moving = [k for k in ("time", "score", "score_p2") + (("health", "health_p2") if scene == "cps_combat" else ()) if k in merged]
+        if moving:                                   # the timer, the score once learned, the health of a fight
+            d["activity"] = {"values": watch, "moving": moving, "seconds": 10,
+                             "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of "
+                                     "the moving ones is read (lives or bombs alone change too seldom)"}
         else:
             d.pop("activity", None)
         demo = {"credits": 2, "p1_mode": 1, "p2_mode": 0}

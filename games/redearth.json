@@ -65,8 +65,9 @@
   },
   "activity": {
     "values": ["health", "health_p2"],
+    "moving": ["health", "health_p2"],
     "seconds": 10,
-    "note": "no BIOS says who plays: player 1 plays while these values move"
+    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
   },
   "hd": {
     "stages": ["fight_desert", "fight_temple", "pul_water", "th_wind", "nd_grave", "ml_temple", "fight_castle", "pul_nebula", "arena", "arena"],

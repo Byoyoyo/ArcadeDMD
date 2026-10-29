@@ -73,9 +73,10 @@
     }
   },
   "activity": {
-    "values": ["lives", "lives_p2"],
+    "values": ["lives", "lives_p2", "score", "score_p2"],
+    "moving": ["score", "score_p2"],
     "seconds": 10,
-    "note": "no BIOS says who plays: player 1 plays while these values move"
+    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
   },
   "hd": {
     "scene": "ecofghtr"

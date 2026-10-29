@@ -637,8 +637,12 @@ class Engine:
         act = g.get("activity") if isinstance(g.get("activity"), dict) else None
         self.activity = None
         if act and source in ("plugin", "retroarch") and "p1_mode" not in names:
-            watch = [v for v in act.get("values", []) if isinstance(v, str) and (v in names or not names)]
-            if watch:
+            watch = [v for v in act.get("values", []) if isinstance(v, str) and v in names]     # nothing read: no guess
+            # "moving": at least one of these must be read, values that move all through a game (the timer, the
+            # score). Lives or bombs alone change too seldom: without them the game scene simply stays.
+            # "moving" : au moins une de ces valeurs doit être lue, sinon la scène du jeu reste affichée.
+            moving = act.get("moving")
+            if watch and (not isinstance(moving, list) or any(v in watch for v in moving)):
                 self.activity = {"values": set(watch), "seconds": float(act.get("seconds", 10))}
         self.active_at = -1e9
         vals = game_values(g, meta.get("system") or "", meta.get("parent") or "") if g else {}

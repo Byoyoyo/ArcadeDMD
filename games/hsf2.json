@@ -132,8 +132,9 @@
   },
   "activity": {
     "values": ["time", "health", "health_p2"],
+    "moving": ["time", "health", "health_p2"],
     "seconds": 10,
-    "note": "no BIOS says who plays: player 1 plays while these values move"
+    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
   },
   "demo": {
     "credits": 2,
