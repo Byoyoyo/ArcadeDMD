@@ -110,6 +110,19 @@ def hero_draw(look, frame):
             col = _c(extras["hat"])
             d.ellipse([hx - r * 1.6, hy - r * 0.75, hx + r * 1.7, hy - r * 0.35], fill=col, outline=INK)
             d.chord([hx - r * 0.9, hy - r * 1.55, hx + r * 0.95, hy - r * 0.2], 180, 360, fill=col, outline=INK)
+        if "cone" in extras:                                              # chapeau conique de paille
+            col = _c(extras["cone"])
+            d.polygon([(hx - r * 1.9, hy - r * 0.35), (hx + r * 1.9, hy - r * 0.35), (hx + r * 0.05, hy - r * 1.6)], fill=col, outline=INK)
+            d.line([(hx - r * 1.2, hy - r * 0.6), (hx + r * 1.2, hy - r * 0.6)], fill=_c(_mixc(extras["cone"], (0, 0, 0), 0.3)), width=max(1, int(ow)))
+        if "emblem" in extras:                                            # un emblème sur la poitrine
+            col = _c(extras["emblem"])
+            cx0, cy0 = P(0.0, 0.36)
+            pts = []
+            for k in range(10):
+                a2 = -math.pi / 2 + k * math.pi / 5
+                rr = 0.045 * u if k % 2 == 0 else 0.019 * u
+                pts.append((cx0 + math.cos(a2) * rr, cy0 + math.sin(a2) * rr))
+            d.polygon(pts, fill=col, outline=INK)
         if "pointy" in extras:                                            # chapeau pointu de magicien
             col = _c(extras["pointy"])
             d.polygon([(hx - r * 1.2, hy - r * 0.5), (hx + r * 1.2, hy - r * 0.5), (hx - r * 0.6, hy - r * 2.6)], fill=col, outline=INK)
@@ -149,11 +162,20 @@ def _weapon(d, weapon, frame, hand, u, ow, metal):
         d.line([butt, tip], fill=INK, width=max(3, int(0.028 * u)))
         d.line([butt, tip], fill=wood, width=max(2, int(0.018 * u)))
         if weapon == "spear":
-            d.polygon([(tip[0] + ca * 0.09 * u, tip[1] + sa * 0.09 * u), (tip[0] - sa * 0.025 * u, tip[1] + ca * 0.025 * u),
-                       (tip[0] + sa * 0.025 * u, tip[1] - ca * 0.025 * u)], fill=mt, outline=INK)
-        elif weapon == "halberd":
-            d.polygon([(tip[0] + ca * 0.08 * u, tip[1] + sa * 0.08 * u), (tip[0] - sa * 0.09 * u + ca * 0.02 * u, tip[1] + ca * 0.09 * u + sa * 0.02 * u),
-                       (tip[0] - sa * 0.07 * u - ca * 0.06 * u, tip[1] + ca * 0.07 * u - sa * 0.06 * u)], fill=mt, outline=INK)
+            d.polygon([(tip[0] + ca * 0.13 * u, tip[1] + sa * 0.13 * u), (tip[0] - sa * 0.035 * u, tip[1] + ca * 0.035 * u),
+                       (tip[0] + sa * 0.035 * u, tip[1] - ca * 0.035 * u)], fill=mt, outline=INK)
+            d.line([(tip[0] - sa * 0.03 * u, tip[1] + ca * 0.03 * u), (tip[0] - sa * 0.05 * u - ca * 0.05 * u, tip[1] + ca * 0.05 * u - sa * 0.05 * u)],
+                   fill=(200, 40, 40, 255), width=max(2, int(0.015 * u)))                # le pompon rouge
+        elif weapon == "halberd":                                         # une large lame courbe au bout de la hampe
+            nx, ny = -sa, ca
+            pts = [(tip[0] - ca * 0.04 * u, tip[1] - sa * 0.04 * u)]
+            for k in range(7):
+                a2 = math.pi * k / 6
+                rr = 0.075 * u
+                pts.append((tip[0] + ca * (0.05 * u + math.sin(a2) * 0.08 * u) + nx * (math.cos(a2) * rr - 0.01 * u),
+                            tip[1] + sa * (0.05 * u + math.sin(a2) * 0.08 * u) + ny * (math.cos(a2) * rr - 0.01 * u)))
+            pts.append((tip[0] + ca * 0.16 * u, tip[1] + sa * 0.16 * u))
+            d.polygon(pts, fill=mt, outline=INK)
         else:
             d.ellipse([tip[0] - 0.03 * u, tip[1] - 0.03 * u, tip[0] + 0.03 * u, tip[1] + 0.03 * u], fill=(120, 220, 255, 255), outline=INK)
         return
@@ -778,7 +800,8 @@ class CaptainCommandoScene(CapcomBrawler):
     THEME = "cc_future"
     PROP = ("capsule", (90, 200, 220))
     LOOT = "food"
-    HERO = ("jacket", (232, 232, 242), (56, 60, 84), (226, 176, 136), (60, 40, 30), None, (("helmet", (196, 202, 220)), ("visor", (255, 200, 60))))
+    HERO = ("jacket", (232, 232, 242), (56, 60, 84), (226, 176, 136), (60, 40, 30), None,
+            (("helmet", (196, 202, 220)), ("visor", (255, 200, 60)), ("emblem", (255, 200, 60))))
     HEROES = {0: ("brawler", (222, 208, 172), (204, 190, 156), (214, 200, 166), (204, 190, 156), "knife", (("wrap", (244, 236, 210)),)),
               1: HERO,
               2: ("ninja", (60, 62, 84), (50, 52, 70), (226, 176, 136), (0, 0, 0), "sword"),
@@ -975,7 +998,7 @@ class WarriorsOfFateScene(CapcomBrawler):
     PROP = ("barrel", (170, 120, 60))
     LOOT = "food"
     HERO = ("samurai", (200, 40, 40), (90, 60, 40), (226, 176, 136), (230, 190, 60), "halberd")
-    FOES = (("jacket", (60, 90, 160), (60, 60, 70), (214, 160, 120), (40, 40, 40), "spear", (("hat", (180, 150, 90)),)),
+    FOES = (("jacket", (60, 90, 160), (60, 60, 70), (214, 160, 120), (40, 40, 40), "spear", (("cone", (200, 170, 100)),)),
             ("brawler", (140, 100, 70), (70, 60, 50), (200, 150, 110), (30, 30, 30), "sword", (("band", (200, 40, 40)),)),
             ("jacket", (90, 120, 80), (60, 60, 50), (214, 160, 120), (40, 40, 40), "spear", (("helmet", (110, 100, 80)),)))
     FOE_NAMES = ("SOLDIER", "BANDIT", "SPEARMAN", "ARCHER", "CAPTAIN")
@@ -1158,7 +1181,8 @@ class BattleCircuitScene(CapcomBrawler):
     THEME = "bc_arena"
     PROP = ("capsule", (230, 120, 220))
     LOOT = "coins"
-    HERO = ("jacket", (250, 210, 40), (40, 40, 50), (226, 176, 136), (40, 40, 50), None, (("visor", (60, 220, 255)), ("cape", (60, 60, 200))))
+    HERO = ("jacket", (250, 210, 40), (40, 40, 50), (226, 176, 136), (40, 40, 50), None,
+            (("visor", (60, 220, 255)), ("cape", (60, 60, 200)), ("emblem", (220, 40, 60))))
     FOES = (("robot", (180, 180, 200), (110, 110, 130), (0, 0, 0), (0, 0, 0)),
             ("mutant", (200, 80, 160), (90, 60, 120), (200, 160, 220), (120, 40, 140)),
             ("thug", (60, 200, 120), (40, 40, 60), (214, 160, 120), (240, 240, 240), "club"))
