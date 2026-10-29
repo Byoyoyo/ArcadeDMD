@@ -94,7 +94,7 @@ Scène de combat commune sur la dalle, avec l'écran des pièces depuis la 1.16.
 | World Heroes 2 Jet | ✅ | ✅ | ✅ | ⬜ | ⬜ |
 | World Heroes Perfect | ✅ | ✅ | ✅ | ⬜ | ✅ |
 
-### The other Neo Geo games / Les autres jeux Neo Geo (75 / 97)
+### The other Neo Geo games / Les autres jeux Neo Geo (85 / 97)
 
 The best-known games first. Until its turn, each game keeps the shared scene of its genre. 🟡 in Values means the score still has to be learned with `learn.bat`.
 
@@ -177,16 +177,16 @@ Les plus connus d'abord. En attendant son tour, chaque jeu garde la scène commu
 | 73 | Ghostlop | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.25 |
 | 74 | Pochi and Nyaa | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.25 |
 | 75 | Puzzled | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.25 |
-| 76 | Zintrick | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
-| 77 | Digger Man | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
-| 78 | The Irritating Maze | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
-| 79 | Andro Dunos | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
-| 80 | Captain Tomaday | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
-| 81 | Choutetsu Brikin'ger | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
-| 82 | Last Hope | Shoot'em up | ⬜ | ⬜ | ⬜ |  |
-| 83 | Bang Bang Busters | Action | ⬜ | ⬜ | ⬜ |  |
-| 84 | Crossed Swords | Action | ⬜ | ⬜ | ⬜ |  |
-| 85 | Eight Man | Action | ⬜ | ⬜ | ⬜ |  |
+| 76 | Zintrick | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.26 |
+| 77 | Digger Man | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.26 |
+| 78 | The Irritating Maze | Puzzle / Réflexion | ✅ | ✅ | ✅ | 1.26 |
+| 79 | Andro Dunos | Shoot'em up | 🟡 | ✅ | ✅ | 1.26 |
+| 80 | Captain Tomaday | Shoot'em up | 🟡 | ✅ | ✅ | 1.26 |
+| 81 | Choutetsu Brikin'ger | Shoot'em up | 🟡 | ✅ | ✅ | 1.26 |
+| 82 | Last Hope | Shoot'em up | 🟡 | ✅ | ✅ | 1.26 |
+| 83 | Bang Bang Busters | Action | 🟡 | ✅ | ✅ | 1.26 |
+| 84 | Crossed Swords | Action | 🟡 | ✅ | ✅ | 1.26 |
+| 85 | Eight Man | Action | 🟡 | ✅ | ✅ | 1.26 |
 | 86 | Nightmare in the Dark | Action | ⬜ | ⬜ | ⬜ |  |
 | 87 | The Super Spy | Action | ⬜ | ⬜ | ⬜ |  |
 | 88 | Quiz King of Fighters | Quiz | ⬜ | ⬜ | ⬜ |  |

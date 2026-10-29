@@ -3,6 +3,34 @@
 Newest version first. Each version is in English, then in French.
 La version la plus récente en premier. Chaque version est en anglais, puis en français.
 
+## 1.26.0
+
+### English
+
+**Neo Geo games done one by one, tenth batch**
+- Zintrick, Digger Man, The Irritating Maze, Andro Dunos, Captain Tomaday, Choutetsu Brikin'ger, Last Hope, Bang Bang Busters, Crossed Swords and Eight Man now have a file of their own, with a panel scene and an animated HD scene made for each game after screenshots of the game. That makes eighty-five games done one by one. `PROGRESS.md` shows what comes next.
+- Zintrick, Digger Man and The Irritating Maze. Jewels shaped like drops thrown up their columns, a mine where our little digger digs to each jewel while the rocks fall, a corridor of the maze where a life lost in the game is an electric shock.
+- Andro Dunos, Captain Tomaday, Choutetsu Brikin'ger and Last Hope. Space over a planet with the four weapons in their colours, the forest and its steam train seen from the sky, the sea at dusk and its iron warships, deep space and its nebulas.
+- Bang Bang Busters, Crossed Swords and Eight Man. The ice world where the enemies are trapped in bubbles, a duel of knights in the forest at night with the gold and the magic read in the game, the ruined city at sunset where our fast cyborg leaves a trail of copies.
+- The score of these games except The Irritating Maze is in no database. Learn it with `learn.bat`.
+- `demo_neogeo.bat` now offers the eighty-five games.
+
+**Updating from 1.25**
+Extract the new zip over the old folder (`config.json` and your learned addresses are kept), then run `install.bat` once to update the MAME plugin.
+
+### Français
+
+**Jeux Neo Geo faits un par un, dixième lot**
+- Zintrick, Digger Man, The Irritating Maze, Andro Dunos, Captain Tomaday, Choutetsu Brikin'ger, Last Hope, Bang Bang Busters, Crossed Swords et Eight Man ont maintenant un fichier à eux, avec une scène de dalle et une scène HD animée faites pour chaque jeu d'après des captures du jeu. Ça fait quatre-vingt-cinq jeux faits un par un. `PROGRESS.md` montre ce qui vient ensuite.
+- Zintrick, Digger Man et The Irritating Maze. Des joyaux en gouttes lancés dans leurs colonnes, une mine où notre petit mineur creuse jusqu'à chaque joyau pendant que les rochers tombent, un couloir du labyrinthe où une vie perdue dans le jeu est une décharge électrique.
+- Andro Dunos, Captain Tomaday, Choutetsu Brikin'ger et Last Hope. L'espace au-dessus d'une planète avec les quatre armes dans leurs couleurs, la forêt et son train à vapeur vus du ciel, la mer au crépuscule et ses cuirassés, l'espace profond et ses nébuleuses.
+- Bang Bang Busters, Crossed Swords et Eight Man. Le monde de glace où les ennemis sont pris dans des bulles, un duel de chevaliers dans la forêt la nuit avec l'or et la magie lus dans le jeu, la ville en ruine au coucher du soleil où notre cyborg rapide laisse une traînée de copies.
+- Le score de ces jeux, sauf The Irritating Maze, n'est dans aucune base. Apprends-le avec `learn.bat`.
+- `demo_neogeo.bat` propose maintenant les quatre-vingt-cinq jeux.
+
+**Mettre à jour depuis la 1.25**
+Décompresse le nouveau zip par-dessus l'ancien dossier (`config.json` et tes adresses apprises sont gardés), puis lance `install.bat` une fois pour mettre à jour le plugin MAME.
+
 ## 1.25.0
 
 ### English

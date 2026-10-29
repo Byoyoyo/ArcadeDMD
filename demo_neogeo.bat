@@ -85,9 +85,19 @@ echo  72  Gururin
 echo  73  Ghostlop
 echo  74  Pochi and Nyaa
 echo  75  Puzzled
+echo  76  Zintrick
+echo  77  Digger Man
+echo  78  The Irritating Maze
+echo  79  Andro Dunos
+echo  80  Captain Tomaday
+echo  81  Choutetsu Brikin'ger
+echo  82  Last Hope
+echo  83  Bang Bang Busters
+echo  84  Crossed Swords
+echo  85  Eight Man
 echo.
 set N=
-if "%L%"=="fr" (set /p N=Quel jeu, 1 a 75 ? ) else (set /p N=Which game, 1 to 75? )
+if "%L%"=="fr" (set /p N=Quel jeu, 1 a 85 ? ) else (set /p N=Which game, 1 to 85? )
 set G=blazstar
 if "%N%"=="2" set G=pbobblen
 if "%N%"=="3" set G=wjammers
@@ -163,6 +173,16 @@ if "%N%"=="72" set G=gururin
 if "%N%"=="73" set G=ghostlop
 if "%N%"=="74" set G=pnyaa
 if "%N%"=="75" set G=joyjoy
+if "%N%"=="76" set G=zintrckb
+if "%N%"=="77" set G=diggerma
+if "%N%"=="78" set G=irrmaze
+if "%N%"=="79" set G=androdun
+if "%N%"=="80" set G=ctomaday
+if "%N%"=="81" set G=ironclad
+if "%N%"=="82" set G=lasthope
+if "%N%"=="83" set G=b2b
+if "%N%"=="84" set G=crsword
+if "%N%"=="85" set G=eightman
 :play
 if "%L%"=="fr" (echo Demo %G%, avec des valeurs simulees. Echap ou ferme la fenetre pour quitter.) else (echo %G% demo, with simulated values. Press Esc or close the window to quit.)
 %PY% arcadedmd.py demo %G%
