@@ -40,6 +40,7 @@ from .hd_games12 import SCENES as _SCENES_CPS_BEAT
 from .hd_games13 import SCENES as _SCENES_CPS_SHOOT
 from .hd_games14 import SCENES as _SCENES_CPS_ACTION
 from .hd_mslug import MetalSlugScene, family
+from . import hd_tagteam
 from .i18n import tr
 
 AMBER, RED, CREAM, LINE = (255, 168, 48), (255, 52, 30), (235, 225, 205), (168, 112, 30)
@@ -100,6 +101,7 @@ class HDRenderer:
         self.themed = (cfg or {}).get("themes", True)
         self.mslug = None
         self.fight = None
+        self.tagteam = hd_tagteam.TagTeam()     # tag team fights (Marvel vs. Capcom 2)
         self.game_scene = None        # (key, scene) of the game played, games done one by one (hd_games)
         self.coins_on = (cfg or {}).get("coins", True)   # fighting games: coin doors on the attract screen
         self.coins = None
@@ -570,11 +572,15 @@ class HDRenderer:
         self.FPS = HDRenderer.FPS
         fight = (g.get("scene_from") or key) in ("neogeo_combat", "cps_combat") or ("health" in vals and "health_p2" in vals)
         logo = self.logo_for(meta, title)
+        tt = hd_tagteam.spec_of(g)                            # tag team (Marvel vs. Capcom 2): the fight scene from the start
+        fight = fight or tt is not None
         if fight and self.themed:                             # combat : salle de tournoi, étincelles, combos, K.O.
             if self.fight is None:
                 self.fight = FightFX(self)
             self.FPS = MetalSlugScene.FPS
             self.fight.update(vals, now, key, g, idle=self._nobody(vals))
+            if tt is not None:                                # three characters a team: KO is not the match
+                self.tagteam.update(self.fight, vals, tt, now, key)
             target = self.fight.begin(screen, now)
             self.draw_fight(target, eng, vals, logo, now)
             self.fight.end(screen, target, now)
@@ -616,6 +622,10 @@ class HDRenderer:
     # ------------------------------------------------------------ jeux de combat
     def draw_fight(self, screen, eng, vals, logo, now):
         W, S = self.W, self.S
+        tt = hd_tagteam.spec_of(eng.library.get(eng.state.meta.get("game") or "") or {})
+        if tt is not None and not hd_tagteam.in_match(vals, tt):    # tag team game out of a match: its logo
+            hd_tagteam.draw_idle(self, screen, logo, now)
+            return
         p1m, p2m = vals.get("p1_mode"), vals.get("p2_mode")
         known = p1m is not None
         p1_in = p1m in (1, 2) or not known
@@ -658,6 +668,8 @@ class HDRenderer:
             f1, f2 = h1 / 100.0, h2 / 100.0
             self.draw_bar(screen, S(40), S(176), bw, S(50), f1, self.trail("p1", f1, now), "left")
             self.draw_bar(screen, int(cx + S(160)), S(176), bw, S(50), f2, self.trail("p2", f2, now), "right")
+        if tt is not None:
+            hd_tagteam.draw_levels(self, screen, vals, tt, now)
         screen.blit(self.badge, (int(cx - self.badge.get_width() / 2), S(140)))
         ko = h1 is not None and h2 is not None and (h1 <= 0 or h2 <= 0)
         t = _num(vals.get("time"))
@@ -735,6 +747,9 @@ class HDRenderer:
     def team(self, eng, side):
         """Équipe King of Fighters dans l'ordre de passage : [(nom, état)], état « done », « now » ou « next »."""
         vals = eng.state.values
+        tt = hd_tagteam.spec_of(eng.library.get(eng.state.meta.get("game") or "") or {})
+        if tt is not None:                                    # tag team: the three characters, one on point
+            return hd_tagteam.team(vals, tt, side)
         names = ((eng.derived or {}).get(side + "_char") or {}).get("names")
         if not isinstance(names, dict):
             return None

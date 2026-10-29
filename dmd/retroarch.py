@@ -1,7 +1,7 @@
 """Games running in RetroArch: reads the game memory through RetroArch's network commands.
 
 Needs RetroArch 1.19 or newer with Network Commands enabled (UDP port 55355) and a core that shares
-its memory (FinalBurn Neo, Genesis Plus GX). Addresses are mapped back to the CPU addresses.
+its memory (FinalBurn Neo, Genesis Plus GX, Flycast). Addresses are mapped back to the CPU addresses.
 
 Jeux lancés dans RetroArch : lecture de la mémoire par les commandes réseau.
 
@@ -10,8 +10,8 @@ RetroArch (1.19 ou plus récent) répond en UDP sur le port 55355 quand le régl
   GET_STATUS             -> GET_STATUS PLAYING fb_alpha,mslug,crc32=1234abcd
   READ_CORE_RAM 377 2    -> READ_CORE_RAM 377 03 00   (ou « -1 » si illisible)
 
-« -1 » veut dire que le cœur ne donne pas sa mémoire à RetroArch : FinalBurn Neo et
-Genesis Plus GX la donnent, FB Alpha 2012 et les cœurs MAME jamais. GET_STATUS ne dit
+« -1 » veut dire que le cœur ne donne pas sa mémoire à RetroArch : FinalBurn Neo,
+Genesis Plus GX et Flycast la donnent, FB Alpha 2012 et les cœurs MAME jamais. GET_STATUS ne dit
 pas quel cœur tourne (« fb_alpha » vaut pour FinalBurn Neo comme pour FB Alpha 2012),
 wincore.py le retrouve d'après les DLL chargées par retroarch.exe.
 
@@ -40,6 +40,8 @@ SYSTEM_DEFAULTS = (
     ("mega_drive", 0xFF0000, 0x10000, True),
     ("megadrive", 0xFF0000, 0x10000, True),
     ("genesis", 0xFF0000, 0x10000, True),
+    # Flycast: Dreamcast system RAM, 16 MB from 0x0C000000, SH-4 little-endian, no swap (RetroAchievements memory map)
+    ("dreamcast", 0x0C000000, 0x1000000, False),
 )
 
 

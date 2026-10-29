@@ -115,6 +115,7 @@ PANEL_WORDS = (                  # (French, English)
     ("BOMBES", "BOMBS"),
     ("BOMBE", "BOMB"),
     ("CANON", "CANNON"),
+    ("TIME OVER", "TIME OVER"),     # the game's words, kept as K.O. is / les mots du jeu, gardés comme K.O.
     ("TEMPS", "TIME"),
     ("VIES", "LIVES"),
     ("ARME", "ARMS"),
