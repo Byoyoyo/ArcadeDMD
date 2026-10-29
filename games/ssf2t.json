@@ -86,6 +86,11 @@
         "addr": "0xFF8BDF",
         "type": "u8",
         "note": "player 2 or computer character (FBNeo cheat database, Select Character PL2)"
+      },
+      "backdrop": {
+        "addr": "0xFFE18B",
+        "type": "u8",
+        "note": "stage backdrop, picks the HD theme in hd.stages (FBNeo cheat database, Select Background)"
       }
     }
   },
@@ -147,5 +152,27 @@
     "time": 99,
     "_p1_chr": 0,
     "_p2_chr": 1
+  },
+  "hd": {
+    "stages": ["fight_castle", "fight_temple", "fight_jungle", "fight_base", "fight_harbor", "fight_market", "fight_factory", "fight_palace", "fight_thai", "fight_thai", "fight_city", "fight_city", "fight_gothic", "fight_desert", "fight_market", "fight_harbor"],
+    "places": [
+      ["JAPON", "JAPAN"],
+      ["JAPON", "JAPAN"],
+      ["BRÉSIL", "BRAZIL"],
+      ["ÉTATS-UNIS", "USA"],
+      ["ÉTATS-UNIS", "USA"],
+      ["CHINE", "CHINA"],
+      ["URSS", "USSR"],
+      ["INDE", "INDIA"],
+      ["THAÏLANDE", "THAILAND"],
+      ["THAÏLANDE", "THAILAND"],
+      ["ÉTATS-UNIS", "USA"],
+      ["ESPAGNE", "SPAIN"],
+      ["ANGLETERRE", "ENGLAND"],
+      ["MEXIQUE", "MEXICO"],
+      ["HONG KONG", "HONG KONG"],
+      ["JAMAÏQUE", "JAMAICA"]
+    ],
+    "note": "HD theme and place shown for each backdrop value (index = value), made by tools/cps_games.py from the stages of the cheat database, see README, HD themes"
   }
 }

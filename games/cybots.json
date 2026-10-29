@@ -70,6 +70,11 @@
         "addr": "0xFF8510",
         "type": "u8",
         "note": "player 1 character (FBNeo cheat database, Select Character PL1)"
+      },
+      "backdrop": {
+        "addr": "0xFFEA2D",
+        "type": "u8",
+        "note": "stage backdrop, picks the HD theme in hd.stages (FBNeo cheat database, Select Background)"
       }
     }
   },
@@ -103,5 +108,27 @@
     "health_p2": 100,
     "time": 99,
     "_p1_chr": 0
+  },
+  "hd": {
+    "stages": ["fight_city", "arena", "pul_station", "mn_city", "cs_forest", "ic_sea", "pul_water", "fight_base", "th_fire", "pul_nebula", "pul_nebula", "pul_nebula", "arena", "pul_water", "fight_base", "fight_city"],
+    "places": [
+      ["VILLE", "CITY"],
+      ["ARÈNE", "ARENA"],
+      ["STATION ORBITALE", "ORBITAL STATION"],
+      ["TOWN-3", "TOWN-3"],
+      ["FORÊT", "FOREST"],
+      ["CUIRASSÉ", "WARSHIP"],
+      ["FOND MARIN", "SEAFLOOR"],
+      ["AÉRODROME", "AIRFIELD"],
+      ["VOLCAN", "VOLCANO"],
+      ["CERVEAU", "BRAIN"],
+      ["CERVEAU", "BRAIN"],
+      ["CERVEAU", "BRAIN"],
+      ["ARÈNE", "ARENA"],
+      ["FOND MARIN", "SEAFLOOR"],
+      ["AÉRODROME", "AIRFIELD"],
+      ["VILLE", "CITY"]
+    ],
+    "note": "HD theme and place shown for each backdrop value (index = value), made by tools/cps_games.py from the stages of the cheat database, see README, HD themes"
   }
 }

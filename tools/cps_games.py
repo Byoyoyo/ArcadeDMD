@@ -50,6 +50,7 @@ PATTERNS = {
     "_p2_chr": rf"^select (?:1st )?char(?:acter)?(?: \(active char\))?(?: now!)? {PL}2$",
 }
 PATTERNS = {k: re.compile(v, re.I) for k, v in PATTERNS.items()}
+BACKDROP = re.compile(r"^(?:select (?:permanent )?(?:background|backdrop)(?: now!?)?|background always =|select next stage now!?)$", re.I)
 
 
 # ------------------------------------------------------------------ FinalBurn Neo list
@@ -233,6 +234,140 @@ def values_from_cheats(cs, fam, name=""):
     return vals, derived, got
 
 
+# ------------------------------------------------------------------ stages of the fighting games / décors des jeux de combat
+COUNTRIES = {"japan": ("JAPON", "JAPAN"), "usa": ("ÉTATS-UNIS", "USA"), "china": ("CHINE", "CHINA"), "hong kong": ("HONG KONG", "HONG KONG"),
+             "thailand": ("THAÏLANDE", "THAILAND"), "india": ("INDE", "INDIA"), "ussr": ("URSS", "USSR"), "russia": ("RUSSIE", "RUSSIA"),
+             "brazil": ("BRÉSIL", "BRAZIL"), "england": ("ANGLETERRE", "ENGLAND"), "italy": ("ITALIE", "ITALY"), "spain": ("ESPAGNE", "SPAIN"),
+             "mexico": ("MEXIQUE", "MEXICO"), "jamaica": ("JAMAÏQUE", "JAMAICA"), "greece": ("GRÈCE", "GREECE"),
+             "australia": ("AUSTRALIE", "AUSTRALIA"), "venezuela": ("VENEZUELA", "VENEZUELA"), "kenya": ("KENYA", "KENYA"),
+             "france": ("FRANCE", "FRANCE"), "egypt": ("ÉGYPTE", "EGYPT"), "canada": ("CANADA", "CANADA"), "scotland": ("ÉCOSSE", "SCOTLAND"),
+             "germany": ("ALLEMAGNE", "GERMANY"), "romania": ("ROUMANIE", "ROMANIA")}
+# (country, words of the detail, HD theme): the first that fits / le premier qui convient
+PLACE_THEMES = [("japan", r"winter|snow", "fight_snow"), ("japan", r"cave|gokuentou|akuma", "fight_ruins"), ("japan", r"market", "fight_market"),
+                ("japan", r"seaside", "fight_harbor"), ("japan", r"bath|sumo|house|swings", "fight_temple"), ("japan", "", "fight_castle"),
+                ("usa", r"air ?base|plane|hangar|military|prison", "fight_base"), ("usa", r"truck", "fight_desert"),
+                ("usa", r"pier|boat|party|yard", "fight_harbor"), ("usa", "", "fight_city"), ("china", "", "fight_market"),
+                ("hong kong", "", "fight_market"), ("thailand", "", "fight_thai"), ("india", "", "fight_palace"), ("ussr", "", "fight_factory"),
+                ("russia", "", "fight_factory"), ("brazil", "", "fight_jungle"), ("venezuela", "", "fight_jungle"), ("jamaica", "", "fight_harbor"),
+                ("england", "", "fight_gothic"), ("scotland", "", "fight_gothic"), ("romania", "", "fight_gothic"), ("italy", "", "fight_harbor"),
+                ("spain", "", "fight_city"), ("mexico", "", "fight_desert"), ("greece", "", "fight_ruins"), ("australia", "", "fight_desert"),
+                ("kenya", "", "fight_desert"), ("egypt", "", "fight_desert"), ("canada", "", "fight_snow"), ("germany", "", "fight_lab"),
+                ("france", "", "fight_city")]
+# stages named after a fighter: the country of the stage (and its detail) / décors au nom d'un combattant : leur pays
+CHAR_PLACES = {"ryu": "japan (castle)", "e.honda": "japan (bath house)", "blanka": "brazil", "guile": "usa (air base)", "ken": "usa (pier)",
+               "chun li": "china", "chun-li": "china", "zangief": "ussr", "dhalsim": "india", "dictator": "thailand (temple)",
+               "m.bison": "thailand (temple)", "sagat": "thailand (statue)", "boxer": "usa (las vegas)", "claw": "spain", "cammy": "england",
+               "t.hawk": "mexico", "fei long": "hong kong", "dee jay": "jamaica", "charlie": "usa (air base)", "adon": "thailand",
+               "sodom": "usa (japanese)", "guy": "usa (metro city)", "birdie": "england", "rose": "italy", "dan": "hong kong",
+               "akuma": "japan (cave)", "shin akuma": "japan (cave)", "gouki": "japan (cave)", "alex": "usa (city)", "yun": "hong kong",
+               "yang": "hong kong", "dudley": "england", "q": "england", "necro": "russia", "ibuki": "japan (house)", "elena": "kenya",
+               "oro": "brazil", "sean": "brazil", "makoto": "japan (house)", "remy": "france", "demitri": "romania", "jon talbain": "england",
+               "victor": "germany", "morrigan": "scotland", "anakaris": "egypt", "felicia": "usa (city)", "bishamon": "japan (house)",
+               "rikuo": "brazil", "sasquatch": "canada", "hsien-ko": "china"}
+# stages with no country, by name / décors sans pays, par leur nom : (thème, nom français, nom anglais)
+NAMED = {"city": ("fight_city", "VILLE", "CITY"), "arena": ("arena", "ARÈNE", "ARENA"),
+         "orbital station": ("pul_station", "STATION ORBITALE", "ORBITAL STATION"), "town-3": ("mn_city", "TOWN-3", "TOWN-3"),
+         "forest": ("cs_forest", "FORÊT", "FOREST"), "warship": ("ic_sea", "CUIRASSÉ", "WARSHIP"), "seafloor": ("pul_water", "FOND MARIN", "SEAFLOOR"),
+         "airfield": ("fight_base", "AÉRODROME", "AIRFIELD"), "volcano": ("th_fire", "VOLCAN", "VOLCANO"), "brain": ("pul_nebula", "CERVEAU", "BRAIN"),
+         "capcom cafe": ("fight_city", "CAPCOM CAFÉ", "CAPCOM CAFE"), "shopping center": ("lr_city", "CENTRE COMMERCIAL", "SHOPPING CENTER"),
+         "slopes": ("fight_snow", "PISTES DE SKI", "SKI SLOPES"), "dock": ("fight_harbor", "DOCKS", "DOCK"),
+         "chinatown": ("fight_market", "CHINATOWN", "CHINATOWN"), "fireplace": ("fight_temple", "AU COIN DU FEU", "FIREPLACE"),
+         "morrigan's castle": ("fight_gothic", "CHÂTEAU DE MORRIGAN", "MORRIGAN'S CASTLE"),
+         "demitri's castle": ("fight_gothic", "CHÂTEAU DE DEMITRI", "DEMITRI'S CASTLE"), "bonus stage": ("arena", "BONUS", "BONUS"),
+         "point 48106": ("fight_base", "POINT 48106", "POINT 48106")}
+# stages named after a fighter or a boss with no place to show: the theme only / le thème seul
+THEME_ONLY = {"urien": "fight_lab", "gill": "pul_nebula", "twelve": "fight_lab", "hugo": "fight_harbor", "pyron": "space", "donovan": "nd_grave",
+              "lord raptor": "arena", "huitzil": "fight_ruins", "wolverine": "cs_forest", "psylocke": "fight_temple", "colossus": "fight_snow",
+              "cyclops/gouki": "fight_city", "storm": "fight_desert", "iceman": "fight_snow", "spiral": "fight_lab",
+              "silver samurai": "fight_castle", "omega red": "fight_factory", "sentinel": "fight_lab", "juggernaut": "fight_ruins",
+              "magneto": "space", "hauzer": "fight_desert", "tanuma": "fight_temple", "hydron": "pul_water", "lavia": "th_wind",
+              "ravange": "nd_grave", "gi gi": "ml_temple", "blade": "fight_castle", "scion": "pul_nebula"}
+# the numbered stages of Vampire Savior and Vampire Hunter 2 / les décors numérotés
+NUMBERED = ["fight_gothic", "fight_ruins", "fight_gothic", "nd_grave", "fight_gothic", "fight_temple", "fight_city", "fight_ruins", "th_fire",
+            "fight_jungle", "fight_factory", "pul_nebula", "fight_snow"]
+# a game whose stages have no name (Marvel vs. Capcom) and the games with no stage value: their themes / leurs thèmes
+CYCLE = ["fight_city", "fight_lab", "fight_harbor", "fight_market", "fight_jungle", "fight_desert", "fight_snow", "space", "fight_castle",
+         "fight_ruins"]
+SF2_LOOK = ["fight_castle", "fight_temple", "fight_jungle", "fight_base", "fight_harbor", "fight_market", "fight_factory", "fight_palace",
+            "fight_city", "fight_thai"]
+MARVEL_LOOK = ["fight_lab", "fight_city", "space", "fight_ruins", "fight_snow", "fight_factory", "fight_harbor", "fight_desert"]
+STAGE_LISTS = {"hsf2": SF2_LOOK, "sfzch": SF2_LOOK, "msh": MARVEL_LOOK, "xmvsf": MARVEL_LOOK, "mshvsf": MARVEL_LOOK,
+               "megaman": ["fight_lab", "fight_city", "fight_factory", "space"], "megaman2": ["fight_lab", "fight_city", "fight_factory", "space"],
+               "slammast": ["arena"], "mbombrd": ["arena"], "ringdest": ["arena"],
+               "jojo": ["fight_city", "fight_desert", "fight_harbor", "fight_gothic", "fight_ruins"],
+               "jojoba": ["fight_city", "fight_desert", "fight_harbor", "fight_gothic", "fight_ruins"]}
+
+
+def backdrop_of(c):
+    """(address, [(value, label)...]) of a Select Background cheat: the write that changes from one stage to the next.
+    / L'écriture dont la valeur change d'un décor à l'autre."""
+    opts = [o for o in c["options"] if o["n"] != 0 and o["triples"]]
+    if len(opts) < 2:
+        return None, None
+    for i in range(min(len(o["triples"]) for o in opts)):
+        addrs = [o["triples"][i][1] for o in opts]
+        addr = max(set(addrs), key=addrs.count)
+        same = [o for o in opts if o["triples"][i][1] == addr]
+        vals = [o["triples"][i][2] for o in same]
+        if len(same) < len(opts) * 0.8 or len(set(vals)) < len(same) * 0.8:
+            continue
+        return addr, [(o["triples"][i][2], o["label"]) for o in same]
+    return None, None
+
+
+def stage_look(label):
+    """(HD theme, [french, english] place or "") of a stage of the cheat database. / Thème HD et lieu d'un décor."""
+    t = label.strip().lstrip("#").strip()
+    m = re.match(r"^(\d+)\s*-\s*(.+)$", t)
+    if m:                                                    # 01 - FEAST OF THE DAMNED
+        name = m.group(2).strip().upper()
+        return NUMBERED[(int(m.group(1)) - 1) % len(NUMBERED)], [name, name]
+    low = re.sub(r"\s+ii$", "", t.lower())
+    if re.match(r"^\d+$", low):                             # stages with no name / décors sans nom
+        return CYCLE[(int(low) - 1) % len(CYCLE)], ""
+    low = re.sub(r"\s*\(=.*\)$", "", low)
+    if low in THEME_ONLY:
+        return THEME_ONLY[low], ""
+    for key, (theme, fr, en) in NAMED.items():
+        if low == key or low.startswith(key + " "):
+            return theme, [fr, en]
+    low = CHAR_PLACES.get(low, low)
+    m = re.match(r"^([a-z .'-]+?)\s*(?:\((.*)\))?$", low)
+    country, detail = (m.group(1).strip(), m.group(2) or "") if m else (low, "")
+    if country in COUNTRIES:
+        for c, words, theme in PLACE_THEMES:
+            if c == country and (not words or re.search(words, detail)):
+                return theme, list(COUNTRIES[country])
+    return "", ""
+
+
+def stages_from_cheats(cs, fam):
+    """The "backdrop" value and the "hd" stages of a fighting game. / La valeur "backdrop" et les décors HD."""
+    for c in cs:
+        if BACKDROP.match(c["name"]):
+            addr, opts = backdrop_of(c)
+            if addr is None:
+                continue
+            looks = {}
+            for v, label in opts:
+                theme, place = stage_look(label)
+                if theme and v not in looks:
+                    looks[v] = (theme, place)
+            if len(looks) < 2:
+                continue
+            stages, places = [], []
+            for v in range(max(looks) + 1):               # indexed by the value read / rangés par valeur lue
+                theme, place = looks.get(v) or ((stages[-1], places[-1]) if stages else looks[min(looks)])
+                stages.append(theme)
+                places.append(place)
+            val = value(addr, 1, fam, "u8", f"stage backdrop, picks the HD theme in hd.stages (FBNeo cheat database, {c['name']})")
+            hd = {"stages": stages, "places": places,
+                  "note": f"HD theme and place shown for each backdrop value (index = value), made by {TOOL} from the stages of the "
+                          "cheat database, see README, HD themes"}
+            return val, hd
+    return None, None
+
+
 # ------------------------------------------------------------------ files
 def load(path):
     try:
@@ -341,6 +476,17 @@ def build(fbneo, cheats_dir, games_dir):
             dv = d.get("derived") if isinstance(d.get("derived"), dict) else {}
             dv.update(derived)
             d["derived"] = dv
+        if scene == "cps_combat":
+            hd_old = d.get("hd") if isinstance(d.get("hd"), dict) else {}
+            if not hd_old.get("scene") and not hd_old.get("hand"):
+                bval, hd = stages_from_cheats(cs, fam)
+                if bval is not None:
+                    merged.setdefault("backdrop", bval)
+                    got.append("stages")
+                elif name in STAGE_LISTS:
+                    hd = {"stages": STAGE_LISTS[name], "note": f"HD themes of the fights (one per game, no stage value known), made by {TOOL}"}
+                if hd:
+                    d["hd"] = hd
         watch = [k for k in ("time", "health", "health_p2", "lives", "lives_p2", "bombs") if k in merged]
         if watch:
             d["activity"] = {"values": watch, "seconds": 10,

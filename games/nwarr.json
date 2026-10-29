@@ -63,6 +63,11 @@
         "addr": "0xFF8D29",
         "type": "u8",
         "note": "player 2 or computer character (FBNeo cheat database, Select Character Now! PL2)"
+      },
+      "backdrop": {
+        "addr": "0xFF8D89",
+        "type": "u8",
+        "note": "stage backdrop, picks the HD theme in hd.stages (FBNeo cheat database, Select Background)"
       }
     }
   },
@@ -120,5 +125,25 @@
         "14": "DONOVAN"
       }
     }
+  },
+  "hd": {
+    "stages": ["fight_gothic", "fight_gothic", "fight_lab", "arena", "fight_gothic", "fight_desert", "fight_city", "fight_temple", "fight_jungle", "fight_snow", "fight_ruins", "space", "fight_market", "nd_grave"],
+    "places": [
+      ["ROUMANIE", "ROMANIA"],
+      ["ANGLETERRE", "ENGLAND"],
+      ["ALLEMAGNE", "GERMANY"],
+      "",
+      ["ÉCOSSE", "SCOTLAND"],
+      ["ÉGYPTE", "EGYPT"],
+      ["ÉTATS-UNIS", "USA"],
+      ["JAPON", "JAPAN"],
+      ["BRÉSIL", "BRAZIL"],
+      ["CANADA", "CANADA"],
+      "",
+      "",
+      ["CHINE", "CHINA"],
+      ""
+    ],
+    "note": "HD theme and place shown for each backdrop value (index = value), made by tools/cps_games.py from the stages of the cheat database, see README, HD themes"
   }
 }

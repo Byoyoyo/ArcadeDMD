@@ -68,5 +68,9 @@
     "health": 100,
     "health_p2": 100,
     "time": 99
+  },
+  "hd": {
+    "stages": ["arena"],
+    "note": "HD themes of the fights (one per game, no stage value known), made by tools/cps_games.py"
   }
 }

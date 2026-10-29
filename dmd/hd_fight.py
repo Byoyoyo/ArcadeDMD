@@ -26,6 +26,7 @@ from PIL import Image, ImageDraw, ImageFilter
 from . import hd_stages
 from .hd_bg import Backdrop
 from .hd_fx import FX, Particle
+from .hd_themes15 import CPS_STAGES
 from .i18n import tr
 
 GOLD = (255, 214, 120)
@@ -38,7 +39,9 @@ CONFETTI = ((255, 80, 80), (255, 210, 60), (80, 220, 255), (120, 255, 140), (255
 STAGE_NAMES = {"arena": ("ARÈNE", "ARENA"), "city": ("VILLE", "CITY"), "temple": ("TEMPLE", "TEMPLE"),
                "harbor": ("PORT", "HARBOR"), "ruins": ("RUINES", "RUINS"), "desert": ("DÉSERT", "DESERT"),
                "snow": ("MONTAGNE", "MOUNTAIN"), "jungle": ("JUNGLE", "JUNGLE"), "base": ("BASE", "BASE"),
-               "city_war": ("CHAMP DE BATAILLE", "BATTLEFIELD")}
+               "city_war": ("CHAMP DE BATAILLE", "BATTLEFIELD"), "castle": ("CHÂTEAU", "CASTLE"), "market": ("MARCHÉ", "MARKET"),
+               "factory": ("ACIÉRIE", "STEEL MILL"), "gothic": ("MANOIR", "MANOR"), "palace": ("PALAIS", "PALACE"),
+               "thai": ("TEMPLE D'OR", "GOLDEN TEMPLE"), "lab": ("LABORATOIRE", "LABORATORY")}
 
 
 def stage_name(theme):
@@ -147,8 +150,25 @@ class FightFX:
         self.prev_time = None
 
     def stages(self, game):
+        """Themes of the game's stages, indexed by the "backdrop" value; an unknown theme becomes the arena, so that the
+        places keep their index. / Thèmes des décors du jeu ; un thème inconnu devient l'arène."""
         lst = ((game or {}).get("hd") or {}).get("stages")
-        return [s for s in lst if s in hd_stages.hd_bg.BUILDERS] if lst else list(hd_stages.FIGHT_STAGES)
+        if lst:
+            return [s if s in hd_stages.hd_bg.BUILDERS else "arena" for s in lst]
+        return list(hd_stages.FIGHT_STAGES) + (list(CPS_STAGES) if (game or {}).get("cps") else [])   # Capcom: their stages too
+
+    @staticmethod
+    def place(game, pick, theme):
+        """Place shown under STAGE n: the game's own ("hd" "places", [french, english] by backdrop value, the countries of
+        Street Fighter II for example), else the theme's. / Le lieu du jeu (pays de Street Fighter II...), sinon celui du thème."""
+        places = ((game or {}).get("hd") or {}).get("places")
+        if isinstance(places, list) and places:
+            p = places[int(pick) % len(places)]
+            if isinstance(p, list) and len(p) == 2 and all(isinstance(x, str) for x in p):
+                return tr(p[0], p[1])
+            if isinstance(p, str):
+                return p
+        return stage_name(theme)
 
     def geom(self):
         """Place des barres de vie, comme dans HDRenderer.draw_fight."""
@@ -180,7 +200,7 @@ class FightFX:
         sig = (stage, back)
         if pick is not None and sig != self.stage_v:
             theme = stages[int(pick) % len(stages)]
-            place = stage_name(theme)
+            place = self.place(game, pick, theme)
             label = (f"STAGE {int(stage) + 1}", place) if stage is not None else (place, "")
             changed = {i for i in (0, 1) if self.stage_v is None or sig[i] != self.stage_v[i]}
             if self.stage_v is None:

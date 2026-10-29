@@ -66,5 +66,9 @@
     "health": 100,
     "health_p2": 100,
     "time": 99
+  },
+  "hd": {
+    "stages": ["fight_city", "fight_desert", "fight_harbor", "fight_gothic", "fight_ruins"],
+    "note": "HD themes of the fights (one per game, no stage value known), made by tools/cps_games.py"
   }
 }

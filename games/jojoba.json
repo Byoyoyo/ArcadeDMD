@@ -162,5 +162,9 @@
     "time": 99,
     "_p1_chr": 0,
     "_p2_chr": 1
+  },
+  "hd": {
+    "stages": ["fight_city", "fight_desert", "fight_harbor", "fight_gothic", "fight_ruins"],
+    "note": "HD themes of the fights (one per game, no stage value known), made by tools/cps_games.py"
   }
 }

@@ -30,5 +30,9 @@
     "health": 100,
     "health_p2": 100,
     "time": 99
+  },
+  "hd": {
+    "stages": ["fight_castle", "fight_temple", "fight_jungle", "fight_base", "fight_harbor", "fight_market", "fight_factory", "fight_palace", "fight_city", "fight_thai"],
+    "note": "HD themes of the fights (one per game, no stage value known), made by tools/cps_games.py"
   }
 }

@@ -125,5 +125,9 @@
         "36": "#.CHUN-LI"
       }
     }
+  },
+  "hd": {
+    "stages": ["fight_lab", "fight_city", "space", "fight_ruins", "fight_snow", "fight_factory", "fight_harbor", "fight_desert"],
+    "note": "HD themes of the fights (one per game, no stage value known), made by tools/cps_games.py"
   }
 }

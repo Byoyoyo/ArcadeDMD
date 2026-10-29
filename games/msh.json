@@ -125,5 +125,9 @@
     "time": 99,
     "_p1_chr": 0,
     "_p2_chr": 2
+  },
+  "hd": {
+    "stages": ["fight_lab", "fight_city", "space", "fight_ruins", "fight_snow", "fight_factory", "fight_harbor", "fight_desert"],
+    "note": "HD themes of the fights (one per game, no stage value known), made by tools/cps_games.py"
   }
 }
