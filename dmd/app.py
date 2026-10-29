@@ -22,11 +22,12 @@ from .outputs import ZeDMDOutput, PreviewOutput, GifRecorder, NullOutput
 from .pixelcade import PixelcadeOutput, guess_pixelcade_dir, list_ports
 from .retroarch import RetroArchSource
 from .memvalues import derive, game_values
+from .coinbuttons import CoinButtons, mvs_rates, side_word
 from .neocoins import NeoCoins
 from .textfiles import TextFiles
 from .i18n import tr
 
-VERSION = "1.29.1"
+VERSION = "1.29.2"
 
 DEFAULT_CONFIG = {
     "language": "auto",
@@ -527,6 +528,8 @@ class Engine:
         self.retroarch = None
         self.derived = None
         self.coin_guess = None        # crédits d'une Neo Geo devinés d'après le BIOS (RetroArch)
+        # the coin buttons read on the controllers (coin_buttons.bat) / les boutons des pièces lus sur les manettes
+        self.coin_buttons = CoinButtons.from_config(config, log) if not demo_game else None
         self.hold_zero = {}           # score qui passe à 0 un instant (combattant recréé entre deux rounds)
         self.zero_since = {}
         self.demo_request = os.path.join(root, "runtime", "demo_request.json")
@@ -615,8 +618,8 @@ class Engine:
         self.derived = g.get("derived") if isinstance(g.get("derived"), dict) else None
         names = meta.get("values") if isinstance(meta.get("values"), list) else []
         # credits of a Neo Geo that cannot be read (RetroArch): guessed from its BIOS / crédits devinés d'après le BIOS
-        self.coin_guess = NeoCoins() if (source in ("plugin", "retroarch") and "credits" not in names
-                                         and "bios_request" in names) else None
+        self.coin_guess = NeoCoins(mvs_rates(self.cfg)) if (source in ("plugin", "retroarch") and "credits" not in names
+                                                            and "bios_request" in names) else None
         vals = game_values(g, meta.get("system") or "", meta.get("parent") or "") if g else {}
         self.hold_zero = {k: float(d["hold_zero"]) for k, d in vals.items()
                           if isinstance(d, dict) and isinstance(d.get("hold_zero"), (int, float)) and d["hold_zero"] > 0}
@@ -703,6 +706,8 @@ class Engine:
                     self.log(tr(fr, en))
                 self.coin_guess.notes.clear()
                 if c is not None and c != old:
+                    if isinstance(old, int) and c > old:
+                        self.state.update("coin_side", None, now)      # seen by the BIOS only: side unknown / côté inconnu
                     self.state.update("credits", c, now)
                     self.log(tr(f"crédits devinés d'après le BIOS : {c}", f"credits guessed from the BIOS: {c}"))
         elif t == "stop":
@@ -714,6 +719,23 @@ class Engine:
             self.state.paused = False
         elif t == "capture":
             self.message(f"CAPTURE {ev.get('n', '')}", 1.5, "#ffdd33")
+
+    def coin_in(self, side, now):
+        """A coin button pressed on the cabinet (0 left, 1 right): the side of the coin, and the credits of a Neo Geo
+        under RetroArch. Nothing outside a game, nor while RetroArch shows its menu (the button moves in the menu).
+        / Un bouton des pièces : le côté de la pièce, et les crédits d'une Neo Geo sous RetroArch."""
+        if self.mode != "game" or self.source not in ("plugin", "retroarch") or self.state.paused:
+            return
+        self.state.update("coin_side", side, now)
+        where = side_word(side)
+        if self.coin_guess is None:
+            self.log(tr(f"pièce à {where}", f"coin on the {where}"))
+            return
+        old = self.state.values.get("credits")
+        c = self.coin_guess.add(side, now)
+        if c is not None and c != old:
+            self.state.update("credits", c, now)
+        self.log(tr(f"pièce à {where}, crédits devinés {c}", f"coin on the {where}, credits guessed {c}"))
 
     def _hold_zero(self, k, v, now):
         """Score lu à 0 en pleine partie (l'objet du combattant n'est pas encore recréé entre deux rounds
@@ -849,6 +871,10 @@ class Engine:
         if self.library.reload():
             if self.scene_key:
                 self.set_scene(self.scene_key)
+        if self.coin_buttons is not None:
+            # before what the game shows of that same coin / avant ce que le jeu montre de cette même pièce
+            for side in self.coin_buttons.poll(now):
+                self.coin_in(side, now)
         if self.tail:
             for ev in self.tail.poll():
                 self.handle_event(ev, now)
@@ -932,6 +958,8 @@ class Engine:
                 self.bridge.close()
             if self.retroarch:
                 self.retroarch.close()
+            if self.coin_buttons:
+                self.coin_buttons.close()
         return "restart" if self.restart else None
 
 

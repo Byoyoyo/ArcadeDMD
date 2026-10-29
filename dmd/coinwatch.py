@@ -17,6 +17,7 @@ import os
 import sys
 import time
 
+from .coinbuttons import CoinButtons, mvs_rates, side_word
 from .i18n import tr
 from .learn import load_games
 from .neocoins import NeoCoins
@@ -39,7 +40,7 @@ def playing(st):
     return bool(st) and st.get("state") in ("PLAYING", "PAUSED")
 
 
-def run(root, cfg, seconds=150, out=print, poll=0.05, client=None):
+def run(root, cfg, seconds=150, out=print, poll=0.05, client=None, buttons=None):
     ra = cfg.get("retroarch", {}) or {}
     client = client or RetroArchClient(ra.get("host", "127.0.0.1"), int(ra.get("port", 55355)), timeout=0.5)
     lines = []
@@ -82,7 +83,9 @@ def run(root, cfg, seconds=150, out=print, poll=0.05, client=None):
     say(tr("Le test s'arrête tout seul. Envoie ensuite runtime\\test_coins.txt.",
            "The test stops by itself. Then send runtime\\test_coins.txt."))
     say("")
-    guess = NeoCoins()
+    guess = NeoCoins(mvs_rates(cfg))
+    if buttons is None:                                  # coin_buttons.bat done: each press is written down too
+        buttons = CoinButtons.from_config(cfg, say)
     prev = None
     changes = {}                                       # address: recent times / adresse : moments récents
     loud = set()
@@ -120,6 +123,9 @@ def run(root, cfg, seconds=150, out=print, poll=0.05, client=None):
                 "bios_timer": _bcd(data[0x10FDDA - base]), "bios_mvs": data[0x10FD82 - base],
                 "p1_mode": data[0x10FDB6 - base], "p2_mode": data[0x10FDB7 - base]}
         before = guess.coins
+        for side in (buttons.poll() if buttons is not None else []):
+            say(tr(f"{now:7.2f} s  bouton des pièces à {side_word(side)}", f"{now:7.2f} s  coin button on the {side_word(side)}"))
+            guess.add(side, now)
         c = guess.update(vals, now)
         for fr, en in guess.notes:
             say(f"{now:7.2f} s  " + tr(fr, en))
@@ -129,6 +135,8 @@ def run(root, cfg, seconds=150, out=print, poll=0.05, client=None):
                    f"{now:7.2f} s  ArcadeDMD sees a coin, credits guessed {c}"))
         prev = data
         time.sleep(poll)
+    if buttons is not None:
+        buttons.close()
     say("")
     say(tr("Fin du test.", "End of the test."))
     return _save(root, lines, out, 0)

@@ -37,6 +37,7 @@ What's in the folder
 | `demo_neogeo.bat` | demo of a Neo Geo game done one by one (Blazing Star, Puzzle Bobble, Windjammers, Shock Troopers, Neo Turf Masters, Pulstar, Magical Drop III, Super Sidekicks 3, The Ultimate 11, Sengoku 3, Top Hunter, Baseball Stars 2, Last Resort, Aero Fighters 2, Aero Fighters 3, Strikers 1945 Plus, Street Hoop, Super Dodge Ball, Neo Bomberman, Twinkle Star Sprites, League Bowling, Neo Drift Out, Riding Hero, Thrash Rally, Magician Lord, NAM-1975, Cyber-Lip, Ghost Pilots, Alpha Mission II, Viewpoint, Zed Blade, Prehistoric Isle 2, Shock Troopers 2nd Squad, Robo Army, Burning Fight, Mutation Nation, Sengoku, Sengoku 2, Ninja Combat, Ninja Commando, Blue's Journey, Puzzle Bobble 2, Magical Drop II, Money Puzzle Exchanger, Puzzle De Pon!, Puzzle De Pon! R!, Panic Bomber, Pop 'n Bounce, Super Bubble Pop, Spin Master, Ganryu, Zupapa!, Neo Mr. Do!, Super Sidekicks, Super Sidekicks 2, Tecmo World Soccer '96, Goal! Goal! Goal!, Neo-Geo Cup '98, Soccer Brawl, Football Frenzy, Pleasure Goal, Baseball Stars Professional, 2020 Super Baseball, Top Player's Golf, Power Spikes II, Bang Bead, Battle Flip Shot, Over Top, Stakes Winner, Stakes Winner 2, Jockey Grand Prix, Gururin, Ghostlop, Pochi and Nyaa, Puzzled, Zintrick, Digger Man, The Irritating Maze, Andro Dunos, Captain Tomaday, Choutetsu Brikin'ger, Last Hope, Bang Bang Busters, Crossed Swords, Eight Man, Nightmare in the Dark, The Super Spy, Quiz King of Fighters, Quiz Daisousa Sen, Quiz Meitantei Neo & Geo, Chibi Maruko-chan Deluxe Quiz, Minasan no Okagesamadesu!, Mahjong Kyo Retsuden, Janshin Densetsu, Bakatonosama Mahjong Manyuuki, Idol Mahjong Final Romance 2, Shougi no Tatsujin) with simulated values |
 | `test_retroarch.bat` | checks RetroArch, the loaded core and memory reading (section 7) |
 | `test_coins.bat` | writes down what the Neo Geo BIOS does when a coin goes in with RetroArch, to send if a coin does not drop (section 7) |
+| `coin_buttons.bat` | shows ArcadeDMD your two coin buttons, so that it sees every coin and its side with RetroArch (section 7) |
 | `ports.bat` | lists the COM ports, to find the Pixelcade's port |
 | `test_panel.bat` | test pattern on a ZeDMD panel |
 | `config.json` | your settings (Pixelcade, RetroArch, virtual LED window...), created by the installer from `config.default.json`. A new version of ArcadeDMD never overwrites it |
@@ -661,7 +662,7 @@ Neo Geo games known to MAME (clones included) get a shared scene based on their 
 | Action, platformers, beat'em ups and everything else (Ninja Combat, Sengoku 2, Cyber-Lip...) | `neogeo.json` | blue hills, and both players' health bars when they are known |
 
 - With RetroArch, the scene shows "NEO GEO" in the middle as long as nothing is known for that game. With MAME, the credits are shown as well.
-- The credits of a Neo Geo MVS are stored in the cabinet's backup memory. MAME reads it. RetroArch's FinalBurn Neo core only shares the game's work RAM, so not the credits. ArcadeDMD then guesses them from the Neo Geo BIOS, which leaves traces in the work RAM. A coin put in while nobody plays drops on the panel and the HD screen, PRESS START follows, and each player who starts takes a credit. A coin put in during a game is not seen. FinalBurn Neo must be in MVS mode (core option Neo-Geo mode), the AES mode of the home console takes no coins. RetroArch does not tell which coin slot a coin came through either, so on the HD screen the coin drops in player 1's slot when nobody plays, in the other player's slot during a game (the one who comes in), and in the slot of the player at the CONTINUE. `runtime\arcadedmd.log` tells what the BIOS did, and `test_coins.bat` writes down in detail what changes in its memory while you put coins in on the left and on the right. Some games keep a copy of the credits in their work RAM. To find out, learn them with `learn.bat` (same method as for the score) by typing `credits=2`, then insert another coin and type `credits=3`, and once more. If the tool finds an address, the credits are shown. If it answers "Nothing found", that game does not keep a copy.
+- The credits of a Neo Geo MVS are stored in the cabinet's backup memory. MAME reads it. RetroArch's FinalBurn Neo core only shares the game's work RAM, so not the credits. ArcadeDMD then guesses them from the Neo Geo BIOS, which leaves traces in the work RAM. A coin put in while nobody plays drops on the panel and the HD screen, PRESS START follows, and each player who starts takes a credit. During a game, the BIOS only shows the first coin. For every coin to be seen with its side, run `coin_buttons.bat` once (Coin buttons, below). FinalBurn Neo must be in MVS mode (core option Neo-Geo mode), the AES mode of the home console takes no coins. `runtime\arcadedmd.log` tells what the BIOS did, and `test_coins.bat` writes down in detail what changes in its memory while you put coins in on the left and on the right. Some games keep a copy of the credits in their work RAM. To find out, learn them with `learn.bat` (same method as for the score) by typing `credits=2`, then insert another coin and type `credits=3`, and once more. If the tool finds an address, the credits are shown. If it answers "Nothing found", that game does not keep a copy.
 - The health bars and the timer come from the MAME 2003-Plus cheat database. They work with RetroArch as well as with MAME.
 - Learn a game's score with `learn.bat` (same method as just below). The tool then creates `games\<game>.json`, for example `games\kof98.json`. It keeps the genre scene and its health bars, and adds the score. The shared files are never modified.
 - A game that has its own file (the Metal Slug games, or the games done one by one just above) always takes priority over the shared scene.
@@ -671,7 +672,7 @@ Neo Geo games known to MAME (clones included) get a shared scene based on their 
 
 ### Coin screen (fighting games)
 
-When nobody is playing, the Neo Geo fighting games wait for a coin, on the panel and on the HD screen. The coin drops only when the credits really go up, so the credits have to be known. MAME reads them for every Neo Geo game. With RetroArch, learn them first (see above).
+When nobody is playing, the Neo Geo fighting games wait for a coin, on the panel and on the HD screen. The coin drops only when the credits really go up, so the credits have to be known. MAME reads them for every Neo Geo game. With RetroArch, ArcadeDMD guesses them from the BIOS (see above), and `coin_buttons.bat` makes it see every coin (just below).
 
 ![START buttons once the coins are in, HD display](docs/images/hd_start_buttons.jpg)
 
@@ -682,6 +683,18 @@ When nobody is playing, the Neo Geo fighting games wait for a coin, on the panel
 - Your own INSERT COIN animation for the panel (a Pixelcade GIF, for example) goes in `sprites\insert_coin.gif` (or `.png`), 128 x 32. It replaces the coin screen as long as there is no credit, and the coin still drops when you insert one.
 - In the `preview` section, `"coins": false` brings back the plain INSERT COIN on the HD screen.
 - `demo_fight.bat` now starts on this screen. Two coins go in, START is pressed, then the fight begins. In a game file, `"demo": {"attract": false}` goes straight to the fight.
+
+### Coin buttons (`coin_buttons.bat`)
+
+RetroArch tells neither when a coin goes in nor through which coin slot. ArcadeDMD can read your two coin buttons itself, on the controllers or the keyboard, at the same time as RetroArch and without taking them from it. It then sees every coin and its side, during a game too.
+
+- Run `coin_buttons.bat`. Press the coin button on the left, then the one on the right. The tool tells what it saw ("controller 1, button 9") and writes it into `config.json`, section `coin_buttons`. Press either of them again to check, it tells the side. If ArcadeDMD is running, it picks up this setting by itself.
+- On the HD screen, the coin drops in the slot on the side where you put it. Without this setting, it drops in player 1's slot when nobody plays, in the other player's slot during a game (the one who comes in), and in the slot of the player at the CONTINUE.
+- An MVS gives 2 credits for a coin in its second slot, as long as its settings were not changed. ArcadeDMD counts the same way, 1 credit on the left and 2 on the right. If you change that setting in the MVS menu, put the same in the `coin_buttons` section of `config.json`, for example `"mvs_credits": [1, 1]`.
+- While the RetroArch menu is open, the button moves in the menu, and ArcadeDMD counts no coin.
+- If you plug your controllers into other USB ports, run `coin_buttons.bat` again. Windows may have changed their number.
+- With MAME, the credits are already read in the game. The button then only gives the side of the coin on the HD screen.
+- Windows only.
 
 ### Learning the score
 
