@@ -1,0 +1,570 @@
+{
+ "title": "Football Frenzy",
+ "match": [
+  {
+   "system": [
+    "fbfrenzy"
+   ]
+  }
+ ],
+ "retroarch": {
+  "content": [
+   "fbfrenzy"
+  ],
+  "ram_base": "0x100000",
+  "ram_size": "0x10000",
+  "swap16": true,
+  "note": "FinalBurn Neo core: Neo Geo 68000 RAM seen from 0x100000, bytes swapped within 16-bit words"
+ },
+ "memory": {
+  "cpu": ":maincpu",
+  "values": {
+   "score": {
+    "addr": "0x104368",
+    "type": "bcd",
+    "bytes": 2,
+    "note": "points of player 1's team (FinalBurn Neo cheats, Score always PL1)"
+   },
+   "score_p2": {
+    "addr": "0x104468",
+    "type": "bcd",
+    "bytes": 2,
+    "note": "points of the other team (FinalBurn Neo cheats, Score always PL2)"
+   },
+   "time_min": {
+    "addr": "0x100AD8",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "minutes of the quarter (FinalBurn Neo cheats, Infinite Time, to be confirmed in game)"
+   },
+   "time_sec": {
+    "addr": "0x100AD9",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "seconds of the quarter (FinalBurn Neo cheats, Infinite Time, to be confirmed in game)"
+   },
+   "credits": {
+    "addr": "0xD00034",
+    "type": "bcd",
+    "bytes": 1,
+    "mame_only": true,
+    "note": "MVS credits (backup RAM), readable in MAME only"
+   },
+   "p1_mode": {
+    "addr": "0x10FDB6",
+    "type": "u8",
+    "note": "BIOS: player 1, 0 never played, 1 playing, 2 continue, 3 game over"
+   },
+   "p2_mode": {
+    "addr": "0x10FDB7",
+    "type": "u8",
+    "note": "BIOS: player 2, same values"
+   }
+  }
+ },
+ "hd": {
+  "scene": "fbfrenzy"
+ },
+ "demo": {
+  "attract": true,
+  "credits": 0,
+  "p1_mode": 1,
+  "p2_mode": 0,
+  "score": 0,
+  "score_p2": 0,
+  "time_min": 1,
+  "time_sec": 12,
+  "sim": {
+   "score": {
+    "cycle": [
+     0,
+     0,
+     7,
+     7,
+     14
+    ],
+    "every": 8.0,
+    "start": 8.0
+   },
+   "score_p2": {
+    "cycle": [
+     0,
+     0,
+     0,
+     7,
+     7
+    ],
+    "every": 10.0,
+    "start": 10.0
+   },
+   "time_sec": {
+    "count": [
+     0,
+     59,
+     -1
+    ],
+    "every": 1.0,
+    "start": 1.0
+   },
+   "time_min": {
+    "cycle": [
+     1,
+     0
+    ],
+    "every": 60.0,
+    "start": 13.0
+   }
+  }
+ },
+ "scene": {
+  "layers": [
+   {
+    "type": "rect",
+    "x": 0,
+    "y": 12,
+    "w": 128,
+    "h": 20,
+    "color": "#1c6a2a",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 63,
+    "y": 12,
+    "w": 1,
+    "h": 20,
+    "color": "#d0e0d0",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "marquee",
+    "font": "6x10",
+    "y": 1,
+    "x": 0,
+    "w": 70,
+    "speed": 12,
+    "gap": 40,
+    "upper": true,
+    "segments": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#ff4040"
+     }
+    ],
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "9x15B",
+    "x": 36,
+    "y": 13,
+    "align": "center",
+    "segments": [
+     {
+      "text": "{score}",
+      "color": "#ff6040"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "score"
+      }
+     ]
+    },
+    "flash": {
+     "on": "score",
+     "color": "#ffffff",
+     "ms": 800
+    }
+   },
+   {
+    "type": "text",
+    "font": "9x15B",
+    "x": 92,
+    "y": 13,
+    "align": "center",
+    "segments": [
+     {
+      "text": "{score_p2}",
+      "color": "#40a0ff"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "score_p2"
+      }
+     ]
+    },
+    "flash": {
+     "on": "score_p2",
+     "color": "#ffffff",
+     "ms": 800
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "segments": [
+     {
+      "text": "{time_min}:{time_sec}",
+      "color": "#ffe040"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      }
+     ]
+    }
+   },
+   {
+    "type": "rect",
+    "x": 13,
+    "y": 12,
+    "w": 1,
+    "h": 20,
+    "color": "#e0f0e0",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 38,
+    "y": 12,
+    "w": 1,
+    "h": 20,
+    "color": "#e0f0e0",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 88,
+    "y": 12,
+    "w": 1,
+    "h": 20,
+    "color": "#e0f0e0",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "rect",
+    "x": 113,
+    "y": 12,
+    "w": 1,
+    "h": 20,
+    "color": "#e0f0e0",
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "coinop",
+    "when": {
+     "all": [
+      {
+       "has": "p1_mode"
+      },
+      {
+       "not": {
+        "var": "p1_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    },
+    "title": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#ff4040"
+     }
+    ],
+    "idle_image": [
+     "sprites/insert_coin.gif",
+     "sprites/insert_coin.png"
+    ]
+   }
+  ]
+ }
+}

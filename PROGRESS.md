@@ -94,7 +94,7 @@ Scène de combat commune sur la dalle, avec l'écran des pièces depuis la 1.16.
 | World Heroes 2 Jet | ✅ | ✅ | ✅ | ⬜ | ⬜ |
 | World Heroes Perfect | ✅ | ✅ | ✅ | ⬜ | ✅ |
 
-### The other Neo Geo games / Les autres jeux Neo Geo (55 / 97)
+### The other Neo Geo games / Les autres jeux Neo Geo (65 / 97)
 
 The best-known games first. Until its turn, each game keeps the shared scene of its genre. 🟡 in Values means the score still has to be learned with `learn.bat`.
 
@@ -157,16 +157,16 @@ Les plus connus d'abord. En attendant son tour, chaque jeu garde la scène commu
 | 53 | Neo Mr. Do! | Action | 🟡 | ✅ | ✅ | 1.23 |
 | 54 | Super Sidekicks | Sport (soccer) / Sport (football) | ✅ | ✅ | ✅ | 1.23 |
 | 55 | Super Sidekicks 2 | Sport (soccer) / Sport (football) | ✅ | ✅ | ✅ | 1.23 |
-| 56 | Tecmo World Soccer '96 | Sport (soccer) / Sport (football) | ⬜ | ⬜ | ⬜ |  |
-| 57 | Goal! Goal! Goal! | Sport (soccer) / Sport (football) | ⬜ | ⬜ | ⬜ |  |
-| 58 | Neo-Geo Cup '98 | Sport (soccer) / Sport (football) | ⬜ | ⬜ | ⬜ |  |
-| 59 | Soccer Brawl | Sport (soccer) / Sport (football) | ⬜ | ⬜ | ⬜ |  |
-| 60 | Football Frenzy | Sport (football) / Sport (football US) | ⬜ | ⬜ | ⬜ |  |
-| 61 | Pleasure Goal | Sport (futsal) | ⬜ | ⬜ | ⬜ |  |
-| 62 | Baseball Stars Professional | Sport (baseball) | ⬜ | ⬜ | ⬜ |  |
-| 63 | 2020 Super Baseball | Sport (baseball) | ⬜ | ⬜ | ⬜ |  |
-| 64 | Top Player's Golf | Sport (golf) | ⬜ | ⬜ | ⬜ |  |
-| 65 | Power Spikes II | Sport (volleyball) / Sport (volley) | ⬜ | ⬜ | ⬜ |  |
+| 56 | Tecmo World Soccer '96 | Sport (soccer) / Sport (football) | ⬜ | ✅ | ✅ | 1.24 |
+| 57 | Goal! Goal! Goal! | Sport (soccer) / Sport (football) | ✅ | ✅ | ✅ | 1.24 |
+| 58 | Neo-Geo Cup '98 | Sport (soccer) / Sport (football) | ✅ | ✅ | ✅ | 1.24 |
+| 59 | Soccer Brawl | Sport (soccer) / Sport (football) | ✅ | ✅ | ✅ | 1.24 |
+| 60 | Football Frenzy | Sport (football) / Sport (football US) | ✅ | ✅ | ✅ | 1.24 |
+| 61 | Pleasure Goal | Sport (futsal) | ✅ | ✅ | ✅ | 1.24 |
+| 62 | Baseball Stars Professional | Sport (baseball) | ✅ | ✅ | ✅ | 1.24 |
+| 63 | 2020 Super Baseball | Sport (baseball) | ✅ | ✅ | ✅ | 1.24 |
+| 64 | Top Player's Golf | Sport (golf) | ✅ | ✅ | ✅ | 1.24 |
+| 65 | Power Spikes II | Sport (volleyball) / Sport (volley) | ✅ | ✅ | ✅ | 1.24 |
 | 66 | Bang Bead | Sport | ⬜ | ⬜ | ⬜ |  |
 | 67 | Battle Flip Shot | Sport | ⬜ | ⬜ | ⬜ |  |
 | 68 | Over Top | Racing / Course | ⬜ | ⬜ | ⬜ |  |

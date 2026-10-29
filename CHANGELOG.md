@@ -3,6 +3,38 @@
 Newest version first. Each version is in English, then in French.
 La version la plus récente en premier. Chaque version est en anglais, puis en français.
 
+## 1.24.0
+
+### English
+
+**Neo Geo games done one by one, eighth batch**
+- Tecmo World Soccer '96, Goal! Goal! Goal!, Neo-Geo Cup '98, Soccer Brawl, Football Frenzy, Pleasure Goal, Baseball Stars Professional, 2020 Super Baseball, Top Player's Golf and Power Spikes II now have a file of their own, with a panel scene and an animated HD scene made for each game after screenshots of the game. That makes sixty-five games done one by one. `PROGRESS.md` shows what comes next.
+- Tecmo World Soccer '96, Goal! Goal! Goal!, Neo-Geo Cup '98 and Pleasure Goal. The match in the stadium with the scoreboard of each game, the round clock, the yellow numbers and the moon, the blue band, the faces of futsal. The goals and the time read in the game.
+- Soccer Brawl. Football of the future at night, the players in armour, the POWER METER of each team.
+- Football Frenzy. The field seen from above, two teams line up, the runner breaks through until he is tackled, the points read in the game are touchdowns.
+- Baseball Stars Professional and 2020 Super Baseball. The field seen from behind home plate, the count B S O in lights, the box of the inning, the outs counted in the game.
+- Top Player's Golf and Power Spikes II. The course where the ball flies to the flag at each stroke, the indoor arena where three players on each side jump and spike, a super shot is a spike on fire.
+- Nothing to learn in these ten games. No value of Tecmo World Soccer '96 is known yet, its match plays by itself.
+- `demo_neogeo.bat` now offers the sixty-five games.
+
+**Updating from 1.23**
+Extract the new zip over the old folder (`config.json` and your learned addresses are kept), then run `install.bat` once to update the MAME plugin.
+
+### Français
+
+**Jeux Neo Geo faits un par un, huitième lot**
+- Tecmo World Soccer '96, Goal! Goal! Goal!, Neo-Geo Cup '98, Soccer Brawl, Football Frenzy, Pleasure Goal, Baseball Stars Professional, 2020 Super Baseball, Top Player's Golf et Power Spikes II ont maintenant un fichier à eux, avec une scène de dalle et une scène HD animée faites pour chaque jeu d'après des captures du jeu. Ça fait soixante-cinq jeux faits un par un. `PROGRESS.md` montre ce qui vient ensuite.
+- Tecmo World Soccer '96, Goal! Goal! Goal!, Neo-Geo Cup '98 et Pleasure Goal. Le match dans le stade avec le tableau de score de chaque jeu, l'horloge ronde, les chiffres jaunes et la lune, le bandeau bleu, les visages du futsal. Les buts et le temps lus dans le jeu.
+- Soccer Brawl. Le football du futur la nuit, les joueurs en armure, le POWER METER de chaque équipe.
+- Football Frenzy. Le terrain vu de haut, deux équipes s'alignent, le porteur file jusqu'au plaquage, les points lus dans le jeu sont des touchdowns.
+- Baseball Stars Professional et 2020 Super Baseball. Le terrain vu de derrière le marbre, le compte B S O en voyants, la boîte de la manche, les retraits comptés dans le jeu.
+- Top Player's Golf et Power Spikes II. Le parcours où la balle vole vers le drapeau à chaque coup, la salle où trois joueurs de chaque côté sautent et smashent, un super coup est un smash en feu.
+- Rien à apprendre dans ces dix jeux. Aucune valeur de Tecmo World Soccer '96 n'est encore connue, son match se joue tout seul.
+- `demo_neogeo.bat` propose maintenant les soixante-cinq jeux.
+
+**Mettre à jour depuis la 1.23**
+Décompresse le nouveau zip par-dessus l'ancien dossier (`config.json` et tes adresses apprises sont gardés), puis lance `install.bat` une fois pour mettre à jour le plugin MAME.
+
 ## 1.23.0
 
 ### English

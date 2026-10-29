@@ -65,9 +65,19 @@ echo  52  Zupapa!
 echo  53  Neo Mr. Do!
 echo  54  Super Sidekicks
 echo  55  Super Sidekicks 2
+echo  56  Tecmo World Soccer '96
+echo  57  Goal! Goal! Goal!
+echo  58  Neo-Geo Cup '98
+echo  59  Soccer Brawl
+echo  60  Football Frenzy
+echo  61  Pleasure Goal
+echo  62  Baseball Stars Professional
+echo  63  2020 Super Baseball
+echo  64  Top Player's Golf
+echo  65  Power Spikes II
 echo.
 set N=
-if "%L%"=="fr" (set /p N=Quel jeu, 1 a 55 ? ) else (set /p N=Which game, 1 to 55? )
+if "%L%"=="fr" (set /p N=Quel jeu, 1 a 65 ? ) else (set /p N=Which game, 1 to 65? )
 set G=blazstar
 if "%N%"=="2" set G=pbobblen
 if "%N%"=="3" set G=wjammers
@@ -123,6 +133,16 @@ if "%N%"=="52" set G=zupapa
 if "%N%"=="53" set G=neomrdo
 if "%N%"=="54" set G=ssideki
 if "%N%"=="55" set G=ssideki2
+if "%N%"=="56" set G=twsoc96
+if "%N%"=="57" set G=goalx3
+if "%N%"=="58" set G=neocup98
+if "%N%"=="59" set G=socbrawl
+if "%N%"=="60" set G=fbfrenzy
+if "%N%"=="61" set G=pgoal
+if "%N%"=="62" set G=bstars
+if "%N%"=="63" set G=2020bb
+if "%N%"=="64" set G=tpgolf
+if "%N%"=="65" set G=pspikes2
 :play
 if "%L%"=="fr" (echo Demo %G%, avec des valeurs simulees. Echap ou ferme la fenetre pour quitter.) else (echo %G% demo, with simulated values. Press Esc or close the window to quit.)
 %PY% arcadedmd.py demo %G%

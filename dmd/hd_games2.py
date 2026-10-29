@@ -888,6 +888,7 @@ class SoccerScene(GameScene):
     BANNERS = GameScene.BANNERS + (("GOAL!", GOLD), ("BUT !", GOLD))
     FORM = (("gk", 0.03, 0.46), ("def", 0.2, 0.3), ("mid", 0.33, 0.6), ("fwd", 0.44, 0.42))
     MOUTH = (0.37, 0.55)                                       # the goal mouth, in depth / l'entrée du but
+    KITS = TEAMS                                               # the two teams, then their keepers / les deux équipes, puis leurs gardiens
     STEPS = (0.74, 0.8, 0.87, 0.93, 1.0)
 
     def __init__(self, hd, rng=None):
@@ -934,7 +935,7 @@ class SoccerScene(GameScene):
     def player_img(self, kit, frame, step, flip, skin=SKIN[0], hair=HAIR[0]):
         S = self.S
         sc = self.STEPS[step]
-        return self.img(("pl", kit, frame, step, skin, hair), S(54 * sc), S(100 * sc), footballer_draw(TEAMS[kit], skin, hair, frame), flip=flip)
+        return self.img(("pl", kit, frame, step, skin, hair), S(54 * sc), S(100 * sc), footballer_draw(self.KITS[kit], skin, hair, frame), flip=flip)
 
     def ball_img(self, step, angle):
         S, sc = self.S, self.STEPS[step]
