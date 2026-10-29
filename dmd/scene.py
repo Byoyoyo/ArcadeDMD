@@ -832,8 +832,10 @@ class AnimEl(Element):
             fr = self.frames[k]
             if self.full:
                 cv.sprite(fr, 0, 0)
-            else:
-                cv.sprite(fr, int(round(p[1] - fr.w / 2)), int(round(p[2] - fr.h / 2)))
+            else:                                            # inside the panel / dans la dalle
+                x = min(max(p[1], fr.w / 2), cv.w - fr.w / 2)
+                y = min(max(p[2], fr.h / 2), cv.h - fr.h / 2)
+                cv.sprite(fr, int(round(x - fr.w / 2)), int(round(y - fr.h / 2)))
         self.plays = alive
 
 
