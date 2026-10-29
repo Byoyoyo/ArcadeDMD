@@ -334,51 +334,250 @@ def build_hoop_park(W, H, s, seed=62):
 DODGE_FLOOR = 250        # top of the court in the picture, at s = 1 / haut du terrain dans l'image
 
 
+def dodge_y(z, H, s):
+    """y of the court at the depth z, 0 far, 1 near: the scene uses the same. / Le sol à la profondeur z."""
+    return (DODGE_FLOOR + 22) * s + z * (H - (DODGE_FLOOR + 36) * s)
+
+
 def build_dodge_yard(W, H, s, seed=63):
-    """Super Dodge Ball: a schoolyard court at the end of the afternoon, as in the game: a wooden fence and the school
-    behind, spectators, a ground of gravel with cans lying about, the white lines and the middle line.
-    / Une cour d'école en fin d'après-midi, comme dans le jeu : palissade, spectateurs, gravier, boîtes de conserve."""
+    """Super Dodge Ball: a vacant lot at the end of the afternoon, as in the game: a wooden fence with posters and
+    people looking over it, a ground of big round cobbles, cans and bottles lying about, the white lines of the court
+    and its middle line. / Un terrain vague en fin d'après-midi, comme dans le jeu : palissade et affiches, des gens
+    qui regardent par-dessus, gros galets, boîtes de conserve et bouteilles, lignes blanches du terrain."""
     rng = random.Random(seed)
-    sky = vgrad(W, H, [(0.0, (240, 170, 100)), (0.3, (250, 200, 130)), (1.0, (250, 210, 150))])
-    p = _Pic(W, H, 2)
-    p.poly([(0, 40 * s), (W, 40 * s), (W, 150 * s), (0, 150 * s)], (190, 150, 110, 255))        # le mur de l'école
-    for x in range(0, W, int(140 * s)):                                  # fenêtres
-        p.poly([(x + 20 * s, 56 * s), (x + 110 * s, 56 * s), (x + 110 * s, 120 * s), (x + 20 * s, 120 * s)], (120, 150, 170, 255), (90, 70, 50, 255), 2 * s)
-        p.line([(x + 65 * s, 56 * s), (x + 65 * s, 120 * s)], (90, 70, 50, 255), 2 * s)
-        p.line([(x + 20 * s, 88 * s), (x + 110 * s, 88 * s)], (90, 70, 50, 255), 2 * s)
-    p.poly([(0, 30 * s), (W, 30 * s), (W, 44 * s), (0, 44 * s)], (120, 70, 50, 255))
-    for x in range(0, W, int(26 * s)):                                   # la palissade
-        top = 150 * s - (8 * s if (x // int(26 * s)) % 2 else 0)
-        p.poly([(x + 1 * s, top), (x + 24 * s, top), (x + 24 * s, DODGE_FLOOR * s), (x + 1 * s, DODGE_FLOOR * s)], (150, 100, 60, 255), (70, 44, 26, 255), 1.5 * s)
-        p.line([(x + 6 * s, top + 10 * s), (x + 6 * s, DODGE_FLOOR * s - 6 * s)], (176, 124, 80, 255), 1.5 * s)
-    for k in range(int(W / (52 * s))):                                   # spectateurs derrière la palissade
-        cx = 26 * s + k * 52 * s + rng.uniform(-8, 8) * s
-        top = rng.uniform(150, 166) * s
-        shirt = rng.choice(((60, 80, 150), (240, 240, 240), (200, 60, 50), (60, 120, 70), (40, 40, 50)))
-        p.poly([(cx - 18 * s, top + 40 * s), (cx + 18 * s, top + 40 * s), (cx + 16 * s, top + 16 * s), (cx - 16 * s, top + 16 * s)], _rgba(shirt))
-        p.disc(cx, top + 4 * s, 13 * s, _rgba(rng.choice(((236, 190, 150), (214, 160, 120), (190, 140, 100)))), (60, 40, 30, 255), 1.4 * s)
-        p.chord(cx - 13 * s, top - 9 * s, cx + 13 * s, top + 8 * s, 180, 360, _rgba(rng.choice(((30, 26, 24), (60, 40, 26), (20, 20, 24)))))
-    p.poly([(0, 168 * s), (W, 168 * s), (W, 176 * s), (0, 176 * s)], (110, 70, 40, 255))           # la traverse
-    fy = DODGE_FLOOR * s                                                 # le sol de gravier
-    p.poly([(0, fy), (W, fy), (W, H), (0, H)], (176, 156, 124, 255))
-    for _ in range(int(W * (H - fy) / (60 * s * s))):
+    sky = vgrad(W, H, [(0.0, (236, 150, 90)), (0.35, (250, 196, 120)), (1.0, (250, 210, 150))])
+    p = _Pic(W, H, 2, tw=4 * W)                                          # fixed backdrop: nothing repeats / rien ne se répète
+    for x in range(0, W, int(150 * s)):                                  # toits et réservoirs au loin
+        h = rng.uniform(30, 80) * s
+        p.poly([(x, 120 * s - h), (x + 140 * s, 120 * s - h), (x + 140 * s, 130 * s), (x, 130 * s)], (150, 100, 90, 255))
+    p.poly([(0, 110 * s), (W, 110 * s), (W, 140 * s), (0, 140 * s)], (120, 84, 70, 255))
+    skins = ((236, 190, 150), (214, 160, 120), (190, 140, 100))
+    for k in range(int(W / (46 * s))):                                   # des gens qui regardent par-dessus la palissade
+        cx = 23 * s + k * 46 * s + rng.uniform(-8, 8) * s
+        top = rng.uniform(112, 128) * s
+        shirt = rng.choice(((60, 80, 150), (240, 240, 240), (200, 60, 50), (60, 120, 70), (40, 40, 50), (230, 180, 60)))
+        p.poly([(cx - 20 * s, top + 44 * s), (cx + 20 * s, top + 44 * s), (cx + 17 * s, top + 18 * s), (cx - 17 * s, top + 18 * s)], _rgba(shirt))
+        p.disc(cx, top + 4 * s, 14 * s, _rgba(rng.choice(skins)), (60, 40, 30, 255), 1.4 * s)
+        p.chord(cx - 14 * s, top - 11 * s, cx + 14 * s, top + 8 * s, 180, 360, _rgba(rng.choice(((30, 26, 24), (60, 40, 26), (20, 20, 24)))))
+        p.disc(cx + 5 * s, top + 3 * s, 1.8 * s, (30, 24, 20, 255))
+    for x in range(0, W, int(28 * s)):                                   # la palissade de planches
+        top = 150 * s - (10 * s if (x // int(28 * s)) % 3 == 1 else 0)
+        col = rng.choice(((150, 100, 60), (140, 92, 56), (160, 110, 66)))
+        p.poly([(x + 1 * s, top), (x + 27 * s, top), (x + 27 * s, DODGE_FLOOR * s), (x + 1 * s, DODGE_FLOOR * s)], _rgba(col), (70, 44, 26, 255), 1.5 * s)
+        p.line([(x + 7 * s, top + 10 * s), (x + 7 * s, DODGE_FLOOR * s - 6 * s)], _rgba(mix(col, (255, 255, 255), 0.15)), 1.5 * s)
+        p.disc(x + 14 * s, top + 8 * s, 1.6 * s, (60, 50, 40, 255))
+    for y in (172, 226):                                                 # les traverses
+        p.poly([(0, y * s), (W, y * s), (W, (y + 9) * s), (0, (y + 9) * s)], (112, 72, 42, 255), (60, 40, 24, 255), 1.2 * s)
+    for k in range(int(W / (330 * s))):                                  # affiches déchirées
+        x = rng.uniform(0, W - 90 * s)
+        col = rng.choice(((230, 220, 190), (240, 200, 90), (220, 120, 90), (160, 200, 230)))
+        p.poly([(x, 178 * s), (x + 80 * s, 176 * s), (x + 82 * s, 222 * s), (x + 4 * s, 224 * s)], _rgba(col), (90, 70, 50, 255), 1.2 * s)
+        p.poly([(x + 10 * s, 186 * s), (x + 70 * s, 186 * s), (x + 70 * s, 192 * s), (x + 10 * s, 192 * s)], (60, 50, 50, 255))
+        p.poly([(x + 10 * s, 200 * s), (x + 50 * s, 200 * s), (x + 50 * s, 214 * s), (x + 10 * s, 214 * s)], _rgba(mix(col, (0, 0, 0), 0.3)))
+    fy = DODGE_FLOOR * s                                                 # le sol de gros galets
+    p.poly([(0, fy), (W, fy), (W, H), (0, H)], (150, 132, 104, 255))
+    stones = []
+    for _ in range(int(W * (H - fy) / (150 * s * s))):
         x, y = rng.uniform(0, W), rng.uniform(fy, H)
-        r = rng.uniform(1.5, 4) * s
-        p.ellipse(x - r, y - r * 0.7, x + r, y + r * 0.7, _rgba(rng.choice(((150, 132, 104), (196, 178, 146), (130, 116, 92), (210, 196, 166)))))
-    for _ in range(int(W / (90 * s))):                                   # boîtes de conserve qui traînent au bord
+        k = (y - fy) / max(1, H - fy)
+        r = rng.uniform(5, 10) * s * (0.7 + 0.6 * k)
+        stones.append((y, x, r))
+    stones.sort()
+    for y, x, r in stones:
+        base = rng.choice(((176, 160, 130), (196, 182, 150), (160, 146, 120), (206, 196, 170), (150, 140, 124)))
+        p.ellipse(x - r, y - r * 0.62, x + r, y + r * 0.62, _rgba(mix(base, (0, 0, 0), 0.4)))
+        p.ellipse(x - r * 0.9, y - r * 0.66, x + r * 0.86, y + r * 0.42, _rgba(base))
+        p.ellipse(x - r * 0.55, y - r * 0.55, x + r * 0.1, y - r * 0.1, _rgba(mix(base, (255, 255, 255), 0.35)))
+    for _ in range(int(W / (40 * s))):                                   # boîtes de conserve et bouteilles qui traînent
         x = rng.uniform(0, W)
-        y = rng.choice((fy + 6 * s, H - 8 * s))
-        col = rng.choice(((200, 60, 50), (60, 120, 200), (230, 200, 70), (90, 170, 90)))
-        p.poly([(x - 6 * s, y - 4 * s), (x + 6 * s, y - 4 * s), (x + 6 * s, y + 4 * s), (x - 6 * s, y + 4 * s)], _rgba(col), (40, 30, 30, 255), 1 * s)
-    p.line([(W * 0.04, fy + 14 * s), (W * 0.96, fy + 14 * s)], (250, 250, 244, 255), 3 * s)        # les lignes du terrain
-    p.line([(W * 0.02, H - 14 * s), (W * 0.98, H - 14 * s)], (250, 250, 244, 255), 3 * s)
-    p.line([(W * 0.5, fy + 14 * s), (W * 0.5, H - 14 * s)], (250, 250, 244, 255), 4 * s)
+        y = rng.choice((rng.uniform(fy + 2 * s, fy + 14 * s), rng.uniform(H - 16 * s, H - 2 * s), rng.uniform(fy, H)))
+        if rng.random() < 0.7:
+            col = rng.choice(((200, 60, 50), (60, 120, 200), (230, 200, 70), (90, 170, 90), (200, 200, 210)))
+            if rng.random() < 0.5:                                       # couchée
+                p.poly([(x - 8 * s, y - 4 * s), (x + 8 * s, y - 4 * s), (x + 8 * s, y + 4 * s), (x - 8 * s, y + 4 * s)], _rgba(col), (40, 30, 30, 255), 1 * s)
+                p.ellipse(x + 6 * s, y - 4 * s, x + 10 * s, y + 4 * s, (220, 220, 220, 255), (40, 30, 30, 255), 0.8 * s)
+            else:                                                        # debout
+                p.poly([(x - 5 * s, y - 12 * s), (x + 5 * s, y - 12 * s), (x + 5 * s, y), (x - 5 * s, y)], _rgba(col), (40, 30, 30, 255), 1 * s)
+                p.line([(x - 5 * s, y - 9 * s), (x + 5 * s, y - 9 * s)], (230, 230, 230, 255), 1.4 * s)
+        else:
+            col = rng.choice(((60, 140, 80), (130, 80, 40), (200, 220, 230)))
+            p.poly([(x - 4 * s, y - 16 * s), (x + 4 * s, y - 16 * s), (x + 4 * s, y), (x - 4 * s, y)], _rgba(col, 230), (30, 30, 30, 255), 0.8 * s)
+            p.poly([(x - 1.6 * s, y - 24 * s), (x + 1.6 * s, y - 24 * s), (x + 1.6 * s, y - 16 * s), (x - 1.6 * s, y - 16 * s)], _rgba(col, 230))
+    white = (250, 250, 244, 255)
+    y0, y1 = dodge_y(-0.05, H, s), dodge_y(1.05, H, s)                    # les lignes du terrain
+    p.line([(W * 0.04, y0), (W * 0.96, y0)], white, 3 * s)
+    p.line([(W * 0.02, y1), (W * 0.98, y1)], white, 3 * s)
+    p.line([(W * 0.04, y0), (W * 0.02, y1)], white, 3 * s)
+    p.line([(W * 0.96, y0), (W * 0.98, y1)], white, 3 * s)
+    p.line([(W * 0.5, y0), (W * 0.5, y1)], white, 5 * s)
     for side in (-1, 1):
-        x = W * 0.5 + side * W * 0.31
-        p.line([(x, fy + 14 * s), (x + side * 10 * s, H - 14 * s)], (250, 250, 244, 200), 2 * s)
+        x = W * 0.5 + side * W * 0.28
+        p.line([(x, y0), (x + side * 8 * s, y1)], (250, 250, 244, 160), 2 * s)
     yard = p.done()
     sky.paste(yard, (0, 0), yard)
     return {"sky": sky, "layers": [], "tw": W, "amb": {}}
 
 
+# ---------------------------------------------------------------------------- Neo Bomberman
+NB_COLS, NB_ROWS = 35, 7                 # the maze: columns and rows of cells / le labyrinthe : colonnes et rangées
+NB_PALETTES = {                          # floor A, floor B, pillar top, pillar face, frame, frame light, decor
+    "nb_ruins": ((150, 126, 80), (140, 116, 74), (214, 206, 186), (150, 142, 124), (112, 96, 64), (176, 160, 116), (64, 120, 70)),
+    "nb_water": ((130, 160, 170), (120, 150, 162), (230, 236, 244), (150, 170, 196), (70, 110, 150), (140, 190, 220), (60, 150, 210)),
+    "nb_factory": ((120, 124, 132), (110, 114, 122), (200, 204, 214), (120, 126, 140), (70, 74, 86), (150, 156, 170), (230, 170, 40)),
+    "nb_castle": ((156, 150, 160), (146, 140, 150), (226, 214, 190), (160, 140, 120), (130, 50, 50), (210, 110, 90), (240, 200, 80)),
+}
+
+
+def nb_grid(W, H, s):
+    """Where the maze is on the screen: left, top, size of a cell. / Où est le labyrinthe : gauche, haut, taille d'une case."""
+    T = int(52 * s)
+    x0 = (W - NB_COLS * T) // 2
+    y0 = H - int(18 * s) - NB_ROWS * T
+    return x0, y0, T
+
+
+def build_nb_arena(W, H, s, name="nb_ruins", seed=64):
+    """Neo Bomberman: the maze seen from above as in the game, a floor of tiles, stone pillars on every other cell,
+    a thick decorated wall all around; one look per world (ruins, water, factory, castle). / Le labyrinthe vu de
+    haut comme dans le jeu : dalles, piliers une case sur deux, gros mur décoré tout autour, un style par monde."""
+    rng = random.Random(seed)
+    fa, fb, ptop, pface, frame, flight, deco = NB_PALETTES.get(name, NB_PALETTES["nb_ruins"])
+    x0, y0, T = nb_grid(W, H, s)
+    img = Image.new("RGB", (W, H), frame)
+    p = _Pic(W, H, 2, tw=4 * W)
+    for k in range(0, W, int(64 * s)):                                   # le mur du tour, en gros blocs
+        for yy in range(-int(8 * s), y0, int(34 * s)):
+            off = int(32 * s) if (yy // int(34 * s)) % 2 else 0
+            p.poly([(k + off, yy), (k + off + 62 * s, yy), (k + off + 62 * s, yy + 32 * s), (k + off, yy + 32 * s)], _rgba(mix(frame, (255, 255, 255), 0.08)),
+                   _rgba(mix(frame, (0, 0, 0), 0.35)), 1.4 * s)
+    for side in (0, 1):                                                  # les côtés, en colonnes
+        xa = 0 if side == 0 else x0 + NB_COLS * T
+        xb = x0 if side == 0 else W
+        p.poly([(xa, y0 - 6 * s), (xb, y0 - 6 * s), (xb, H), (xa, H)], _rgba(mix(frame, (0, 0, 0), 0.1)))
+        for yy in range(int(y0), H, int(T)):
+            p.poly([(xa + 4 * s, yy + 3 * s), (xb - 4 * s, yy + 3 * s), (xb - 4 * s, yy + T - 3 * s), (xa + 4 * s, yy + T - 3 * s)], _rgba(flight),
+                   _rgba(mix(frame, (0, 0, 0), 0.4)), 1.4 * s)
+            p.disc((xa + xb) / 2, yy + T / 2, T * 0.16, _rgba(deco), _rgba(mix(deco, (0, 0, 0), 0.4)), 1.2 * s)
+    p.poly([(x0 - 4 * s, y0 - 10 * s), (x0 + NB_COLS * T + 4 * s, y0 - 10 * s), (x0 + NB_COLS * T + 4 * s, y0), (x0 - 4 * s, y0)],
+           _rgba(mix(frame, (0, 0, 0), 0.45)))
+    for c in range(NB_COLS):                                             # le sol
+        for r in range(NB_ROWS):
+            x, y = x0 + c * T, y0 + r * T
+            col = fa if (c + r) % 2 == 0 else fb
+            p.poly([(x, y), (x + T, y), (x + T, y + T), (x, y + T)], _rgba(col), _rgba(mix(col, (0, 0, 0), 0.12)), 1.0 * s)
+            if rng.random() < 0.08:                                      # une dalle fêlée
+                p.line([(x + T * 0.2, y + T * 0.3), (x + T * 0.5, y + T * 0.45), (x + T * 0.6, y + T * 0.8)], _rgba(mix(col, (0, 0, 0), 0.3)), 1.2 * s)
+    for c in range(1, NB_COLS, 2):                                       # les piliers, une case sur deux
+        for r in range(1, NB_ROWS, 2):
+            x, y = x0 + c * T, y0 + r * T
+            p.poly([(x + 2 * s, y + T * 0.55), (x + T - 2 * s, y + T * 0.55), (x + T - 2 * s, y + T + 4 * s), (x + 2 * s, y + T + 4 * s)],
+                   (20, 16, 12, 90))                                     # ombre portée
+            p.poly([(x, y + T * 0.3), (x + T, y + T * 0.3), (x + T, y + T), (x, y + T)], _rgba(pface), _rgba(mix(pface, (0, 0, 0), 0.45)), 1.4 * s)
+            p.poly([(x, y - T * 0.12), (x + T, y - T * 0.12), (x + T, y + T * 0.3), (x, y + T * 0.3)], _rgba(ptop), _rgba(mix(pface, (0, 0, 0), 0.45)),
+                   1.4 * s)
+            p.line([(x + T * 0.12, y - T * 0.02), (x + T * 0.88, y - T * 0.02)], _rgba(mix(ptop, (255, 255, 255), 0.5)), 2 * s)
+            p.line([(x + T * 0.5, y + T * 0.3), (x + T * 0.5, y + T)], _rgba(mix(pface, (0, 0, 0), 0.25)), 1.2 * s)
+    over = p.done()
+    img = img.convert("RGBA")
+    img.alpha_composite(over)
+    return {"sky": img.convert("RGB"), "layers": [], "tw": W, "amb": {}}
+
+
+# ---------------------------------------------------------------------------- Twinkle Star Sprites
+TS_COL = 64              # width of the column between the two fields, at s = 1 / largeur de la colonne du milieu
+
+
+def ts_fields(W, s):
+    """The two fields side by side: (left, width) of each. / Les deux terrains côte à côte : (gauche, largeur)."""
+    col = int(TS_COL * s)
+    w = (W - col) // 2
+    return (0, w), (w + col, W - w - col)
+
+
+def build_ts_frame(W, H, s, seed=65):
+    """Twinkle Star Sprites: the ornate column between the two fields, as in the game: green and gold, red stars in
+    their round frames, hearts. The fields themselves are drawn by the scene. / La colonne ornée entre les deux
+    terrains, comme dans le jeu : vert et or, étoiles rouges dans leurs médaillons, cœurs."""
+    img = Image.new("RGB", (W, H), (20, 16, 40))
+    p = _Pic(W, H, 2, tw=4 * W)
+    (lx, lw), (rx, rw) = ts_fields(W, s)
+    c0, c1 = lx + lw, rx
+    cx = (c0 + c1) / 2
+    p.poly([(c0, 0), (c1, 0), (c1, H), (c0, H)], (34, 120, 70, 255))
+    for k in (0.0, 1.0):                                                 # liserés dorés
+        x = c0 + (c1 - c0) * k
+        p.line([(x, 0), (x, H)], (240, 200, 80, 255), 5 * s)
+        p.line([(x + (4 if k == 0 else -4) * s, 0), (x + (4 if k == 0 else -4) * s, H)], (120, 80, 20, 255), 1.6 * s)
+    p.poly([(cx - 9 * s, 0), (cx + 9 * s, 0), (cx + 9 * s, H), (cx - 9 * s, H)], (60, 160, 96, 255), (20, 70, 40, 255), 1.2 * s)
+    for y in range(int(30 * s), H, int(120 * s)):                        # médaillons : étoile rouge, cœur
+        p.disc(cx, y, 24 * s, (180, 30, 40, 255), (240, 200, 80, 255), 3 * s)
+        pts = []
+        for i in range(10):
+            a = -math.pi / 2 + i * math.pi / 5
+            rr = (16 if i % 2 == 0 else 7) * s
+            pts.append((cx + math.cos(a) * rr, y + math.sin(a) * rr))
+        p.poly(pts, (250, 230, 200, 255))
+        hy = y + 60 * s
+        p.disc(cx - 6 * s, hy - 3 * s, 7 * s, (230, 40, 60, 255))
+        p.disc(cx + 6 * s, hy - 3 * s, 7 * s, (230, 40, 60, 255))
+        p.poly([(cx - 13 * s, hy), (cx + 13 * s, hy), (cx, hy + 14 * s)], (230, 40, 60, 255))
+    over = p.done()
+    img = img.convert("RGBA")
+    img.alpha_composite(over)
+    return {"sky": img.convert("RGB"), "layers": [], "tw": W, "amb": {}}
+
+
+def ts_forest_tile(w, h, s, seed=66):
+    """A forest seen from above that repeats from top to bottom, as in the game's first stages: round trees in soft
+    greens, flower beds, a winding path, a pond, mushrooms. / Une forêt vue de haut qui se répète de haut en bas."""
+    rng = random.Random(seed)
+    th = 2 * h
+    img = Image.new("RGB", (w, th), (110, 176, 90))
+    p = _Pic(w, th, 2, tw=4 * w)
+
+    def wrap(y):                                                         # draws again above or below for a seamless loop
+        return [dy for dy in (-th, 0, th) if -80 * s <= y + dy <= th + 80 * s]
+    for _ in range(int(w * th / (900 * s * s))):                         # l'herbe, ses nuances
+        x, y = rng.uniform(0, w), rng.uniform(0, th)
+        r = rng.uniform(10, 30) * s
+        for dy in wrap(y):
+            p.ellipse(x - r, y + dy - r * 0.6, x + r, y + dy + r * 0.6, rng.choice(((100, 168, 82, 255), (122, 186, 96, 255), (106, 160, 80, 255))))
+    path = [(w * 0.5 + math.sin(y / th * math.tau * 2) * w * 0.22 + math.sin(y / th * math.tau * 3 + 1) * w * 0.06, y)
+            for y in range(int(-40 * s), int(th + 40 * s), int(10 * s))]
+    p.line(path, (190, 160, 110, 255), 46 * s)                           # le chemin de terre
+    p.line(path, (214, 188, 136, 255), 34 * s)
+    for _ in range(3):                                                   # massifs de fleurs
+        x, y = rng.uniform(0.1, 0.9) * w, rng.uniform(0, th)
+        for _ in range(26):
+            fx, fy = x + rng.gauss(0, 30) * s, y + rng.gauss(0, 20) * s
+            col = rng.choice(((250, 120, 150, 255), (255, 230, 90, 255), (250, 250, 250, 255), (170, 120, 230, 255)))
+            for dy in wrap(fy):
+                p.disc(fx, fy + dy, 4 * s, col)
+                p.disc(fx, fy + dy, 1.6 * s, (255, 210, 80, 255))
+    px, py = rng.uniform(0.2, 0.8) * w, rng.uniform(0.2, 0.8) * th      # un étang
+    for dy in wrap(py):
+        p.ellipse(px - 70 * s, py + dy - 40 * s, px + 70 * s, py + dy + 40 * s, (90, 150, 200, 255), (60, 110, 70, 255), 4 * s)
+        p.ellipse(px - 40 * s, py + dy - 22 * s, px + 10 * s, py + dy - 6 * s, (150, 200, 240, 255))
+    trees = [(rng.uniform(0, w), rng.uniform(0, th), rng.uniform(26, 52) * s) for _ in range(int(w * th / (5200 * s * s)))]
+    trees = [tr for tr in trees if min(abs(tr[0] - px2) for px2, py2 in path if abs(py2 - tr[1]) < 20 * s) > tr[2] + 18 * s
+             if any(abs(py2 - tr[1]) < 20 * s for px2, py2 in path)]
+    trees.sort(key=lambda tr: tr[1])
+    for x, y, r in trees:                                                # les arbres ronds et leurs ombres
+        for dy in wrap(y):
+            p.ellipse(x - r * 0.9 + r * 0.25, y + dy - r * 0.5 + r * 0.35, x + r * 0.9 + r * 0.25, y + dy + r * 0.7 + r * 0.35, (50, 90, 50, 120))
+            _clump(p, x, y + dy, r, rng, ((50, 122, 60), (86, 164, 76), (150, 214, 110)), n=7)
+    for _ in range(10):                                                  # champignons
+        x, y = rng.uniform(0, w), rng.uniform(0, th)
+        for dy in wrap(y):
+            p.chord(x - 7 * s, y + dy - 6 * s, x + 7 * s, y + dy + 6 * s, 180, 360, (230, 60, 60, 255))
+            p.disc(x - 2 * s, y + dy - 3 * s, 1.4 * s, (255, 255, 255, 255))
+            p.poly([(x - 3 * s, y + dy), (x + 3 * s, y + dy), (x + 3 * s, y + dy + 6 * s), (x - 3 * s, y + dy + 6 * s)], (240, 230, 210, 255))
+    over = p.done()
+    img = img.convert("RGBA")
+    img.alpha_composite(over)
+    return img.convert("RGB")
+
+
 hd_bg.BUILDERS.update({"s45_ground": build_s45_ground, "hoop_park": build_hoop_park, "dodge_yard": build_dodge_yard})
+hd_bg.BUILDERS.update({name: (lambda W, H, s, n=name: build_nb_arena(W, H, s, n)) for name in NB_PALETTES})
+hd_bg.BUILDERS.update({"ts_frame": build_ts_frame})

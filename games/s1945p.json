@@ -2189,53 +2189,6 @@
     "align": "right"
    },
    {
-    "type": "text",
-    "font": "4x6",
-    "x": 1,
-    "y": 19,
-    "align": "left",
-    "segments": [
-     {
-      "text": "{plane_name}",
-      "color": "#ffb030"
-     }
-    ],
-    "when": {
-     "all": [
-      {
-       "not": {
-        "all": [
-         {
-          "has": "p1_mode"
-         },
-         {
-          "not": {
-           "var": "p1_mode",
-           "in": [
-            1,
-            2
-           ]
-          }
-         },
-         {
-          "not": {
-           "var": "p2_mode",
-           "in": [
-            1,
-            2
-           ]
-          }
-         }
-        ]
-       }
-      },
-      {
-       "has": "plane_name"
-      }
-     ]
-    }
-   },
-   {
     "type": "coinop",
     "when": {
      "all": [
