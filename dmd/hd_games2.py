@@ -555,6 +555,7 @@ class MagicalDropScene(GameScene):
     SHADE = (140, 70)
     PILLS = True
     CARD = (150, 236)
+    FIELD_BOX = True
 
     def __init__(self, hd, rng=None):
         super().__init__(hd, rng)
@@ -575,6 +576,10 @@ class MagicalDropScene(GameScene):
     def card(self, idx):
         w, h = self.CARD
         return self.img(("card", int(idx) % 24), self.S(w), self.S(h), card_draw(self.hd, int(idx) % 24, self.s), ss=2)
+
+    def jester(self, side):
+        S = self.S
+        return self.img(("jester", side), S(78), S(70), jester_draw((230, 70, 150) if side == "p1" else (70, 150, 240)))
 
     def right_on(self, vals):
         cpu = _n(vals.get("cpu_p2"))
@@ -701,7 +706,8 @@ class MagicalDropScene(GameScene):
         f, S, pg = self.fields[side], self.S, self.pg
         acc = P1C if side == "p1" else P2C
         w = f.D * f.COLS
-        self.box(screen, f.x0 - S(14), S(98), w + S(28), S(356), acc, fill=(10, 6, 26, 170), radius=16)
+        if self.FIELD_BOX:                                             # (a backdrop of its own may draw the fields itself)
+            self.box(screen, f.x0 - S(14), S(98), w + S(28), S(356), acc, fill=(10, 6, 26, 170), radius=16)
         top_clip = pg.Rect(int(f.x0 - S(10)), S(102), int(w + S(20)), S(348))
         old_clip = screen.get_clip()
         screen.set_clip(top_clip)
@@ -717,7 +723,7 @@ class MagicalDropScene(GameScene):
                 if len(f.cols[c]) >= 6:
                     screen.blit(g, (int(f.x(c) - g.get_width() / 2), int(f.y(6) - g.get_height() / 2)), special_flags=pg.BLEND_RGB_ADD)
         x = f.x0 + f.D * (f.clown + 0.5)
-        jester = self.img(("jester", side), S(78), S(70), jester_draw((230, 70, 150) if side == "p1" else (70, 150, 240)))
+        jester = self.jester(side)
         bob = math.sin(now * 5 + (0 if side == "p1" else 1.5)) * S(3)
         screen.blit(jester, (int(x - jester.get_width() / 2), int(S(414) - jester.get_height() / 2 + bob)))
         for i, k in enumerate(f.held[:4]):                              # the drops in its hands

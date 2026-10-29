@@ -94,7 +94,7 @@ Scène de combat commune sur la dalle, avec l'écran des pièces depuis la 1.16.
 | World Heroes 2 Jet | ✅ | ✅ | ✅ | ⬜ | ⬜ |
 | World Heroes Perfect | ✅ | ✅ | ✅ | ⬜ | ✅ |
 
-### The other Neo Geo games / Les autres jeux Neo Geo (35 / 97)
+### The other Neo Geo games / Les autres jeux Neo Geo (45 / 97)
 
 The best-known games first. Until its turn, each game keeps the shared scene of its genre. 🟡 in Values means the score still has to be learned with `learn.bat`.
 
@@ -137,16 +137,16 @@ Les plus connus d'abord. En attendant son tour, chaque jeu garde la scène commu
 | 33 | Shock Troopers 2nd Squad | Action | 🟡 | ✅ | ✅ | 1.21 |
 | 34 | Robo Army | Beat'em up | 🟡 | ✅ | ✅ | 1.21 |
 | 35 | Burning Fight | Beat'em up | 🟡 | ✅ | ✅ | 1.21 |
-| 36 | Mutation Nation | Beat'em up | ⬜ | ⬜ | ⬜ |  |
-| 37 | Sengoku | Beat'em up | ⬜ | ⬜ | ⬜ |  |
-| 38 | Sengoku 2 | Beat'em up | ⬜ | ⬜ | ⬜ |  |
-| 39 | Ninja Combat | Beat'em up | ⬜ | ⬜ | ⬜ |  |
-| 40 | Ninja Commando | Action | ⬜ | ⬜ | ⬜ |  |
-| 41 | Blue's Journey | Action | ⬜ | ⬜ | ⬜ |  |
-| 42 | Puzzle Bobble 2 | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
-| 43 | Magical Drop II | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
-| 44 | Money Puzzle Exchanger | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
-| 45 | Puzzle De Pon! | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
+| 36 | Mutation Nation | Beat'em up | 🟡 | ✅ | ✅ | 1.22 |
+| 37 | Sengoku | Beat'em up | 🟡 | ✅ | ✅ | 1.22 |
+| 38 | Sengoku 2 | Beat'em up | 🟡 | ✅ | ✅ | 1.22 |
+| 39 | Ninja Combat | Beat'em up | 🟡 | ✅ | ✅ | 1.22 |
+| 40 | Ninja Commando | Action | 🟡 | ✅ | ✅ | 1.22 |
+| 41 | Blue's Journey | Action | 🟡 | ✅ | ✅ | 1.22 |
+| 42 | Puzzle Bobble 2 | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.22 |
+| 43 | Magical Drop II | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.22 |
+| 44 | Money Puzzle Exchanger | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.22 |
+| 45 | Puzzle De Pon! | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.22 |
 | 46 | Puzzle De Pon! R! | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
 | 47 | Panic Bomber | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |
 | 48 | Pop 'n Bounce | Puzzle / Réflexion | ⬜ | ⬜ | ⬜ |  |

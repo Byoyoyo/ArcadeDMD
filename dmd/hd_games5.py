@@ -362,6 +362,10 @@ class CyberLipScene(GameScene):
         S = self.S
         return self.img(("clfoe", frame), S(100), S(120), walker_draw(frame), ss=2)
 
+    def flyer(self, now):
+        S = self.S
+        return self.img("cldrone", S(90), S(60), drone_draw)
+
     def floor(self):
         return self.S(CL_FLOOR) + self.S(30)
 
@@ -444,7 +448,7 @@ class CyberLipScene(GameScene):
                 continue
             keep.append(f)
             if f["fly"]:
-                img = self.img("cldrone", S(90), S(60), drone_draw)
+                img = self.flyer(now)
                 yy = f["y"] + math.sin(now * 3 + f["ph"]) * S(16)
                 screen.blit(img, (int(f["x"] - img.get_width() / 2), int(yy - img.get_height() / 2)))
             else:
@@ -1417,23 +1421,30 @@ class ShockTroopers2Scene(GameScene):
 
 
 # ============================================================================ Brawlers: Robo Army, Burning Fight
-def fighter_draw(style, top, pants, skin, hair, frame):
+SWORD_ANGLE = {0: -62, 1: -32, 2: -40, 3: 4, 4: -128, 5: 64}            # angle of the blade per frame / angle de la lame
+
+
+def fighter_draw(style, top, pants, skin, hair, frame, weapon=None):
     """A street fighter of our own seen from the side, facing right. style: "brawler" (a tank top, jeans), "thug"
-    (a jacket, a cap, dark glasses), "cyborg" (an armoured body, a visor), "robot" (a grey robot, one eye).
-    Frames 0 guard, 1 and 2 walk, 3 punch, 4 kick, 5 hurt, 6 down. / Un combattant de rue à nous, de profil."""
+    (a jacket, a cap, dark glasses), "jacket" (a jacket, short hair), "ninja" (a hood), "samurai" (an armour and a
+    helmet with its crest), "mutant" (a bulky creature), "cyborg" (an armoured body, a visor), "robot" (a grey robot,
+    one eye). weapon: "sword" (a katana in the front hand). Frames 0 guard, 1 and 2 walk, 3 punch or slash, 4 kick,
+    5 hurt, 6 down. / Un combattant de rue à nous, de profil, face à droite, avec ou sans sabre."""
     def fn(d, W, H):
         dark = DARK + (255,)
         ow = max(1.0, H * 0.009)
         metal = style in ("cyborg", "robot")
+        bulk = 1.3 if style == "mutant" else 1.0
         tp, tp_d = top + (255,), _mixc(top, (0, 0, 0), 0.25)
         pt, pt_d = pants + (255,), _mixc(pants, (0, 0, 0), 0.25)
         sk, sk_d = (skin + (255,), _mixc(skin, (0, 0, 0), 0.22)) if not metal else (tp, tp_d)
         u = H
         if frame == 6:                                                 # down, lying on the ground
             y = H * 0.93
-            _capsule(d, (W * 0.24, y - 0.03 * u), (W * 0.62, y - 0.03 * u), 0.07 * u, 0.07 * u, tp, dark, ow)
+            _capsule(d, (W * 0.24, y - 0.03 * u), (W * 0.62, y - 0.03 * u), 0.07 * u * bulk, 0.07 * u * bulk, tp, dark, ow)
             _capsule(d, (W * 0.62, y - 0.02 * u), (W * 0.95, y), 0.05 * u, 0.045 * u, pt, dark, ow)
-            d.ellipse([W * 0.06, y - 0.12 * u, W * 0.24, y + 0.02 * u], fill=sk, outline=dark, width=int(ow))
+            head = tp if style == "ninja" else (hair + (255,) if style == "samurai" else sk)
+            d.ellipse([W * 0.06, y - 0.12 * u, W * 0.24, y + 0.02 * u], fill=head, outline=dark, width=int(ow))
             return
         cx = W * 0.5
         lean = {3: 0.04, 4: -0.03, 5: -0.07}.get(frame, 0.0)
@@ -1446,34 +1457,62 @@ def fighter_draw(style, top, pants, skin, hair, frame):
                 4: ((-0.08, 0.77, -0.12, 0.97), (0.2, 0.52, 0.36, 0.5)), 5: ((-0.1, 0.77, -0.16, 0.97), (0.04, 0.77, 0.02, 0.97))}[frame]
         for i, (kx, ky, fx_, fy_) in enumerate(legs):
             k, f = P(kx, ky), (cx + fx_ * u, fy_ * u)
-            _capsule(d, hip, k, 0.06 * u, 0.05 * u, pt_d if i == 0 else pt, dark, ow)
-            _capsule(d, k, f, 0.05 * u, 0.042 * u, pt_d if i == 0 else pt, dark, ow)
-            shoe = (60, 60, 70, 255) if metal else (40, 32, 28, 255)
+            _capsule(d, hip, k, 0.06 * u * bulk, 0.05 * u * bulk, pt_d if i == 0 else pt, dark, ow)
+            _capsule(d, k, f, 0.05 * u * bulk, 0.042 * u * bulk, pt_d if i == 0 else pt, dark, ow)
+            shoe = (60, 60, 70, 255) if metal else ((30, 30, 36, 255) if style in ("ninja", "samurai") else (40, 32, 28, 255))
             d.rounded_rectangle([f[0] - 0.04 * u, f[1] - 0.035 * u, f[0] + 0.07 * u, f[1] + 0.012 * u], radius=0.015 * u, fill=shoe, outline=dark)
-        d.polygon([P(-0.11, 0.27), P(0.11, 0.27), P(0.1, 0.58), P(-0.1, 0.58)], fill=tp, outline=dark)          # le torse
+        tw = 0.11 * bulk
+        d.polygon([P(-tw, 0.27), P(tw, 0.27), P(0.1, 0.58), P(-0.1, 0.58)], fill=tp, outline=dark)          # le torse
         if style == "brawler":
             d.polygon([P(-0.05, 0.27), P(0.05, 0.27), P(0.04, 0.4), P(-0.04, 0.4)], fill=sk)                     # le débardeur
-        elif style == "thug":
+        elif style in ("thug", "jacket"):
             d.line([P(0.0, 0.27), P(0.0, 0.58)], fill=_mixc(top, (0, 0, 0), 0.5), width=max(1, int(ow * 2)))
+            if style == "jacket":                                      # le col ouvert
+                d.polygon([P(-0.04, 0.27), P(0.05, 0.27), P(0.0, 0.36)], fill=(240, 240, 240, 255))
+        elif style == "samurai":                                       # l'armure à lamelles
+            for k in range(5):
+                y = 0.32 + k * 0.05
+                d.line([P(-0.1, y), P(0.1, y)], fill=_mixc(top, (0, 0, 0), 0.45), width=max(1, int(ow * 1.5)))
+        elif style == "ninja":                                         # la ceinture nouée
+            d.polygon([P(-0.1, 0.5), P(0.1, 0.5), P(0.1, 0.54), P(-0.1, 0.54)], fill=_mixc(top, (255, 255, 255), 0.3))
         elif metal:
             d.polygon([P(-0.08, 0.3), P(0.09, 0.3), P(0.07, 0.44), P(-0.06, 0.44)], fill=_mixc(top, (255, 255, 255), 0.35), outline=dark)
             d.ellipse([P(0.0, 0.33)[0] - 0.03 * u, P(0.0, 0.33)[1], P(0.0, 0.33)[0] + 0.03 * u, P(0.0, 0.33)[1] + 0.06 * u],
                       fill=hair + (255,))
-        d.rectangle([P(-0.1, 0.54)[0], P(-0.1, 0.54)[1], P(0.1, 0.58)[0], P(0.1, 0.58)[1]], fill=(40, 36, 30, 255))             # la ceinture
+        if style != "ninja":
+            d.rectangle([P(-0.1, 0.54)[0], P(-0.1, 0.54)[1], P(0.1, 0.58)[0], P(0.1, 0.58)[1]], fill=(40, 36, 30, 255))         # la ceinture
         hands = {0: ((0.14, 0.34), (0.2, 0.3)), 1: ((0.12, 0.38), (0.06, 0.42)), 2: ((-0.04, 0.42), (0.14, 0.38)),
                  3: ((0.1, 0.36), (0.36, 0.26)), 4: ((-0.12, 0.34), (0.08, 0.3)), 5: ((-0.14, 0.24), (-0.02, 0.2))}[frame]
+        front = None
         for i, (hx, hy) in enumerate(hands):
-            s0 = P(-0.07 if i == 0 else 0.07, 0.3)
+            s0 = P((-0.07 if i == 0 else 0.07) * bulk, 0.3)
             h = (cx + hx * u, hy * u)
             el = ((s0[0] + h[0]) / 2 - 0.02 * u, max(s0[1], h[1]) + 0.05 * u)
-            arm = tp if metal else (sk if style == "brawler" else tp)
-            arm_d = tp_d if metal else (sk_d if style == "brawler" else tp_d)
-            _capsule(d, s0, el, 0.045 * u, 0.04 * u, arm_d if i == 0 else arm, dark, ow)
-            _capsule(d, el, h, 0.04 * u, 0.036 * u, arm_d if i == 0 else arm, dark, ow)
-            d.ellipse([h[0] - 0.035 * u, h[1] - 0.035 * u, h[0] + 0.035 * u, h[1] + 0.035 * u], fill=sk_d if i == 0 else sk, outline=dark,
+            bare = style in ("brawler", "mutant")
+            arm = tp if metal else (sk if bare else tp)
+            arm_d = tp_d if metal else (sk_d if bare else tp_d)
+            _capsule(d, s0, el, 0.045 * u * bulk, 0.04 * u * bulk, arm_d if i == 0 else arm, dark, ow)
+            _capsule(d, el, h, 0.04 * u * bulk, 0.036 * u * bulk, arm_d if i == 0 else arm, dark, ow)
+            if style == "samurai" and i == 1:                          # l'épaulière
+                d.rectangle([s0[0] - 0.06 * u, s0[1] - 0.02 * u, s0[0] + 0.05 * u, s0[1] + 0.07 * u], fill=_mixc(top, (0, 0, 0), 0.2), outline=dark)
+            if i == 1:
+                front = h
+            else:
+                d.ellipse([h[0] - 0.035 * u, h[1] - 0.035 * u, h[0] + 0.035 * u, h[1] + 0.035 * u], fill=sk_d, outline=dark, width=int(ow))
+        if weapon == "sword" and front is not None:                    # le sabre dans la main de devant
+            a = math.radians(SWORD_ANGLE[frame])
+            ln = (0.5 if frame == 3 else 0.42) * u
+            tip = (front[0] + math.cos(a) * ln, front[1] + math.sin(a) * ln)
+            back = (front[0] - math.cos(a) * 0.1 * u, front[1] - math.sin(a) * 0.1 * u)
+            d.line([back, front], fill=(40, 30, 30, 255), width=max(2, int(0.03 * u)))
+            d.line([front, tip], fill=dark, width=max(3, int(0.03 * u)))
+            d.line([front, tip], fill=(226, 232, 240, 255), width=max(2, int(0.018 * u)))
+            d.ellipse([front[0] - 0.022 * u, front[1] - 0.022 * u, front[0] + 0.022 * u, front[1] + 0.022 * u], fill=(200, 170, 60, 255), outline=dark)
+        if front is not None:
+            d.ellipse([front[0] - 0.035 * u, front[1] - 0.035 * u, front[0] + 0.035 * u, front[1] + 0.035 * u], fill=sk, outline=dark,
                       width=int(ow))
         hx, hy = P(0.02, 0.15)
-        r = 0.075 * u
+        r = 0.075 * u * (0.9 if style == "mutant" else 1.0)
         if style == "robot":                                           # tête de robot, un œil
             d.rounded_rectangle([hx - r, hy - r, hx + r, hy + r], radius=r * 0.3, fill=tp, outline=dark, width=int(ow))
             d.rectangle([hx - r * 0.2, hy - r * 0.3, hx + r, hy + r * 0.1], fill=(30, 30, 40, 255))
@@ -1484,6 +1523,12 @@ def fighter_draw(style, top, pants, skin, hair, frame):
             d.chord([hx - r * 1.05, hy - r * 1.1, hx + r * 1.0, hy + r * 0.5], 180, 360, fill=tp, outline=dark)
             d.rectangle([hx, hy - r * 0.3, hx + r * 1.02, hy + r * 0.1], fill=hair + (255,))
             return
+        if style == "ninja":                                           # la cagoule, une fente pour les yeux
+            d.ellipse([hx - r, hy - r, hx + r, hy + r * 1.1], fill=tp, outline=dark, width=int(ow))
+            d.rectangle([hx - r * 0.1, hy - r * 0.3, hx + r * 0.95, hy + r * 0.05], fill=sk)
+            d.ellipse([hx + r * 0.4, hy - r * 0.22, hx + r * 0.62, hy], fill=dark)
+            d.polygon([(hx - r * 0.9, hy - r * 0.2), (hx - r * 1.8, hy - r * 0.5), (hx - r * 1.7, hy + r * 0.1)], fill=tp_d)
+            return
         d.ellipse([hx + r * 0.35, hy - r * 0.2, hx + r * 0.6, hy + r * 0.05], fill=dark)
         if frame == 5:
             d.line([(hx + r * 0.3, hy - r * 0.3), (hx + r * 0.7, hy)], fill=dark, width=max(1, int(ow * 2)))
@@ -1491,9 +1536,25 @@ def fighter_draw(style, top, pants, skin, hair, frame):
             d.chord([hx - r * 1.05, hy - r * 1.1, hx + r * 1.0, hy + r * 0.2], 180, 360, fill=hair + (255,))
             d.rectangle([hx, hy - r * 0.3, hx + r * 1.5, hy - r * 0.12], fill=hair + (255,))
             d.rectangle([hx + r * 0.2, hy - r * 0.15, hx + r * 0.95, hy + r * 0.12], fill=(20, 20, 24, 255))
+        elif style == "samurai":                                       # le casque et son cimier
+            d.chord([hx - r * 1.15, hy - r * 1.2, hx + r * 1.1, hy + r * 0.4], 180, 360, fill=hair + (255,), outline=dark)
+            d.rectangle([hx - r * 1.3, hy - r * 0.45, hx + r * 1.2, hy - r * 0.3], fill=_mixc(hair, (0, 0, 0), 0.3))
+            d.line([(hx, hy - r * 0.9), (hx - r * 0.6, hy - r * 1.9)], fill=(230, 190, 60, 255), width=max(2, int(r * 0.2)))
+            d.line([(hx, hy - r * 0.9), (hx + r * 0.6, hy - r * 1.9)], fill=(230, 190, 60, 255), width=max(2, int(r * 0.2)))
+            d.rectangle([hx + r * 0.1, hy + r * 0.3, hx + r * 0.9, hy + r * 0.8], fill=(60, 40, 40, 255))                 # le masque
+        elif style == "mutant":                                        # des pointes sur le crâne
+            for k in range(4):
+                bx = hx - r * 0.8 + k * r * 0.5
+                d.polygon([(bx, hy - r * 0.7), (bx + r * 0.25, hy - r * 1.6), (bx + r * 0.5, hy - r * 0.7)], fill=hair + (255,), outline=dark)
         else:                                                          # cheveux en brosse
             d.chord([hx - r * 1.04, hy - r * 1.25, hx + r * 0.96, hy + r * 0.3], 160, 360, fill=hair + (255,), outline=dark)
     return fn
+
+
+def slash_draw(d, W, H):
+    """The bright crescent left by a blade. / Le croissant de lumière laissé par une lame."""
+    for k, (col, wd) in enumerate((((90, 170, 255, 150), 0.12), ((190, 230, 255, 220), 0.06), ((255, 255, 255, 255), 0.025))):
+        d.arc([W * 0.1, H * 0.1, W * 0.9, H * 0.9], -70, 70, fill=col, width=max(2, int(W * wd)))
 
 
 class BrawlerScene(GameScene):
@@ -1513,6 +1574,7 @@ class BrawlerScene(GameScene):
         self.foes = []
         self.next_foe = 0.0
         self.next_auto = 0.0
+        self.slashes = []
         self.blows = 0                                    # (tests)
         self.knocked = 0
         self.hits = 0
@@ -1520,8 +1582,10 @@ class BrawlerScene(GameScene):
 
     def fig(self, look, frame, left):
         S = self.S
-        style, top, pants, skin, hair = look
-        return self.img(("brawl", look, frame, left), S(170), S(250), fighter_draw(style, top, pants, skin, hair, frame), ss=2, flip=left)
+        style, top, pants, skin, hair = look[:5]
+        weapon = look[5] if len(look) > 5 else None
+        return self.img(("brawl", look, frame, left), S(420 if weapon else 170), S(250), fighter_draw(style, top, pants, skin, hair, frame, weapon),
+                        ss=2, flip=left)
 
     def ground(self, z):
         return self.S(BRAWL_FLOOR) + self.S(30) + z * (self.H - self.S(BRAWL_FLOOR) - self.S(50))
@@ -1545,8 +1609,11 @@ class BrawlerScene(GameScene):
             return
         h = self.hero
         h["face"] = 1 if f["x"] > h["x"] else -1
-        h["act"] = (now, self.rng.choice((3, 3, 4)))
+        sword = len(self.HERO) > 5 and self.HERO[5] == "sword"
+        h["act"] = (now, 3 if sword else self.rng.choice((3, 3, 4)))
         self.blows += 1
+        if sword:                                                      # the blade leaves a trail of light
+            self.slashes.append((h["x"] + h["face"] * S(60), self.ground(h["z"]) - S(150), now, h["face"]))
         f["hp"] -= dmg
         f["hurt"] = now
         x = (h["x"] + f["x"]) / 2
@@ -1645,6 +1712,16 @@ class BrawlerScene(GameScene):
             y = self.ground(zz)
             screen.blit(sh, (int(x - sh.get_width() / 2), int(y - sh.get_height() / 2)))
             screen.blit(img, (int(x - img.get_width() / 2), int(y - img.get_height())))
+        keep = []
+        for sx, sy, t0, face in self.slashes:                           # sword trails / traînées du sabre
+            k = (now - t0) / 0.22
+            if k >= 1:
+                continue
+            keep.append((sx, sy, t0, face))
+            img = self.img(("slash", face < 0), S(240), S(240), slash_draw, ss=2, flip=face < 0)
+            img.set_alpha(int(255 * (1 - k)))
+            screen.blit(img, (int(sx - img.get_width() / 2), int(sy - img.get_height() / 2)))
+        self.slashes = keep
         self.status(screen, eng, vals, logo, now)
 
 

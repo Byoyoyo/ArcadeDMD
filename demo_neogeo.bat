@@ -45,9 +45,19 @@ echo  32  Prehistoric Isle 2
 echo  33  Shock Troopers 2nd Squad
 echo  34  Robo Army
 echo  35  Burning Fight
+echo  36  Mutation Nation
+echo  37  Sengoku
+echo  38  Sengoku 2
+echo  39  Ninja Combat
+echo  40  Ninja Commando
+echo  41  Blue's Journey
+echo  42  Puzzle Bobble 2
+echo  43  Magical Drop II
+echo  44  Money Puzzle Exchanger
+echo  45  Puzzle De Pon!
 echo.
 set N=
-if "%L%"=="fr" (set /p N=Quel jeu, 1 a 35 ? ) else (set /p N=Which game, 1 to 35? )
+if "%L%"=="fr" (set /p N=Quel jeu, 1 a 45 ? ) else (set /p N=Which game, 1 to 45? )
 set G=blazstar
 if "%N%"=="2" set G=pbobblen
 if "%N%"=="3" set G=wjammers
@@ -83,6 +93,16 @@ if "%N%"=="32" set G=preisle2
 if "%N%"=="33" set G=shocktr2
 if "%N%"=="34" set G=roboarmy
 if "%N%"=="35" set G=burningf
+if "%N%"=="36" set G=mutnat
+if "%N%"=="37" set G=sengoku
+if "%N%"=="38" set G=sengoku2
+if "%N%"=="39" set G=ncombat
+if "%N%"=="40" set G=ncommand
+if "%N%"=="41" set G=bjourney
+if "%N%"=="42" set G=pbobbl2n
+if "%N%"=="43" set G=magdrop2
+if "%N%"=="44" set G=miexchng
+if "%N%"=="45" set G=puzzledp
 :play
 if "%L%"=="fr" (echo Demo %G%, avec des valeurs simulees. Echap ou ferme la fenetre pour quitter.) else (echo %G% demo, with simulated values. Press Esc or close the window to quit.)
 %PY% arcadedmd.py demo %G%

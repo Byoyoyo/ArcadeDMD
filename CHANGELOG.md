@@ -3,6 +3,38 @@
 Newest version first. Each version is in English, then in French.
 La version la plus récente en premier. Chaque version est en anglais, puis en français.
 
+## 1.22.0
+
+### English
+
+**Neo Geo games done one by one, sixth batch**
+- Mutation Nation, Sengoku, Sengoku 2, Ninja Combat, Ninja Commando, Blue's Journey, Puzzle Bobble 2, Magical Drop II, Money Puzzle Exchanger and Puzzle De Pon! now have a file of their own, with a panel scene and an animated HD scene made for each game after screenshots of the game. That makes forty-five games done one by one. `PROGRESS.md` shows what comes next.
+- Mutation Nation, Sengoku, Sengoku 2 and Ninja Combat. Beat'em ups seen from the side, a ruined city, a red sunset with a castle floating in the sky, a great wooden bridge at dusk, a park at night. Fighters of our own, a swordsman whose blade leaves a trail of light, mutants, armoured ghost warriors and ninjas. The points are blows that land, the health that goes down a blow taken, the sphere or the attack item read in the game is shown. The counters where each game puts them.
+- Ninja Commando. The jungle seen from above, our blue ninja runs up the path and throws fire dragons at the enemy ninjas. LIFE and TIME at the bottom as in the game.
+- Blue's Journey. The land of giant plants, our little hero of our own throws leaves at the snails and the bees. 1P=, TIME=, the hearts and the flowers as in the game.
+- Puzzle Bobble 2 and Puzzle De Pon!. The beach, then a sky full of stars, the boards in their frames of metal or bricks, the star dial of Puzzle De Pon! whose hand turns with the time left. The bubbles of Puzzle De Pon! come from the game.
+- Magical Drop II and Money Puzzle Exchanger. The orange brick wall and its marble columns, the pastel diamonds and the coins of 10 to 500 with a little piggy bank of our own. The quota, the level and the chains read in the game pop the drops and the coins.
+- The score of these ten games is in no database. Learn it with `learn.bat`.
+- `demo_neogeo.bat` now offers the forty-five games.
+
+**Updating from 1.21**
+Extract the new zip over the old folder (`config.json` and your learned addresses are kept), then run `install.bat` once to update the MAME plugin.
+
+### Français
+
+**Jeux Neo Geo faits un par un, sixième lot**
+- Mutation Nation, Sengoku, Sengoku 2, Ninja Combat, Ninja Commando, Blue's Journey, Puzzle Bobble 2, Magical Drop II, Money Puzzle Exchanger et Puzzle De Pon! ont maintenant un fichier à eux, avec une scène de dalle et une scène HD animée faites pour chaque jeu d'après des captures du jeu. Ça fait quarante-cinq jeux faits un par un. `PROGRESS.md` montre ce qui vient ensuite.
+- Mutation Nation, Sengoku, Sengoku 2 et Ninja Combat. Des beat'em up de profil, une ville en ruine, un coucher de soleil rouge et un château flottant, un grand pont de bois au crépuscule, un parc la nuit. Des combattants à nous, un sabreur dont la lame laisse une traînée de lumière, des mutants, des guerriers fantômes en armure et des ninjas. Les points sont des coups portés, la vie qui baisse un coup reçu, la sphère ou l'objet d'attaque lu dans le jeu s'affiche. Les compteurs là où chaque jeu les met.
+- Ninja Commando. La jungle vue du dessus, notre ninja bleu remonte le chemin et lance des dragons de feu sur les ninjas ennemis. LIFE et TIME en bas comme dans le jeu.
+- Blue's Journey. Le pays des plantes géantes, notre petit héros à nous lance des feuilles aux escargots et aux abeilles. 1P=, TIME=, les cœurs et les fleurs comme dans le jeu.
+- Puzzle Bobble 2 et Puzzle De Pon!. La plage, puis un ciel plein d'étoiles, les plateaux dans leurs cadres de métal ou de briques, le cadran étoilé de Puzzle De Pon! dont l'aiguille tourne avec le temps qui reste. Les bulles de Puzzle De Pon! viennent du jeu.
+- Magical Drop II et Money Puzzle Exchanger. Le mur de briques orange et ses colonnes de marbre, les losanges pastel et les pièces de 10 à 500 avec une petite tirelire à nous. Le quota, le niveau et les chaînes lus dans le jeu font éclater les gouttes et les pièces.
+- Le score de ces dix jeux n'est dans aucune base. Apprends-le avec `learn.bat`.
+- `demo_neogeo.bat` propose maintenant les quarante-cinq jeux.
+
+**Mettre à jour depuis la 1.21**
+Décompresse le nouveau zip par-dessus l'ancien dossier (`config.json` et tes adresses apprises sont gardés), puis lance `install.bat` une fois pour mettre à jour le plugin MAME.
+
 ## 1.21.0
 
 ### English
