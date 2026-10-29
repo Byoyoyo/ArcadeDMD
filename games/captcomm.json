@@ -104,13 +104,14 @@
     "note": "no BIOS says who plays: player 1 plays while these values move"
   },
   "demo": {
-    "attract": true,
     "credits": 0,
     "p1_mode": 1,
     "p2_mode": 0,
     "score": 0,
     "health": 100,
     "lives": 3,
+    "health_p2": 100,
+    "_p2_chr": 2,
     "_p1_chr": 1,
     "sim": {
       "health": {
@@ -138,6 +139,19 @@
         ],
         "every": 9.0,
         "start": 12.0
+      },
+      "health_p2": {
+        "cycle": [
+          100,
+          100,
+          92,
+          80,
+          80,
+          66,
+          100
+        ],
+        "every": 2.5,
+        "start": 18.0
       },
       "_p1_chr": {
         "cycle": [

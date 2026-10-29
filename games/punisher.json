@@ -79,7 +79,6 @@
     "note": "no BIOS says who plays: player 1 plays while these values move"
   },
   "demo": {
-    "attract": true,
     "credits": 0,
     "p1_mode": 1,
     "p2_mode": 0,
@@ -87,6 +86,7 @@
     "health": 100,
     "time": 99,
     "lives": 3,
+    "health_p2": 100,
     "bombs": 3,
     "sim": {
       "health": {
@@ -123,6 +123,19 @@
         ],
         "every": 9.0,
         "start": 12.0
+      },
+      "health_p2": {
+        "cycle": [
+          100,
+          100,
+          92,
+          80,
+          80,
+          66,
+          100
+        ],
+        "every": 2.5,
+        "start": 18.0
       },
       "bombs": {
         "cycle": [

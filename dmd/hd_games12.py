@@ -419,6 +419,8 @@ class CapcomBrawler(BrawlerScene):
     PROP = ("drum", (80, 110, 150))                # what the hero breaks on his way / ce que le héros casse en chemin
     LOOT = "food"                                  # what it leaves / ce qu'il laisse
     FINDS = ()                                     # weapons that can be found in it: (weapon, French, English)
+    HERO2 = None                                   # player 2's hero when the game does not say which / le héros du joueur 2
+    P2_WAIT = 45.0                                 # player 2 is in while his values moved less than this ago (s)
 
     def __init__(self, hd, rng=None):
         super().__init__(hd, rng)
@@ -431,6 +433,10 @@ class CapcomBrawler(BrawlerScene):
         self.life_lost = -99.0
         self.loot = []                                                    # (x, y, t0) of the things left / ce qui est laissé
         self.armed = None                                                 # (weapon, until) found in a broken thing
+        self.p2 = {"x": self.W * 0.6, "z": 0.85, "face": 1, "act": None, "hurt": -99.0, "down": -99.0, "next": 0.0}
+        self.p2_seen = -99.0                                              # last time player 2's values moved (no BIOS on CPS)
+        self.p2_blows = 0
+        self.HERO_P2 = self.HERO2 or self.HERO
         S = self.S
         self.fx.sp.register("loot", draw_img(S(70), S(56), loot_draw(self.LOOT)))
         col = self.PROP[1]
@@ -479,6 +485,20 @@ class CapcomBrawler(BrawlerScene):
                 self.HERO = tuple(self.HERO[:5]) + (self.armed[0],) + tuple(self.HERO[6:])
             elif now >= self.armed[1]:
                 self.armed = None
+        self.HERO_P2 = self.look2(vals)
+
+    def p2_in(self, vals):
+        """Player 2 plays: the BIOS says so (Neo Geo), or, on a CPS that has no BIOS, his health, lives or score moved
+        not long ago. / Le joueur 2 joue : le BIOS le dit, ou sur un CPS sans BIOS, ses valeurs ont bougé il y a peu."""
+        if vals.get("p2_mode") in (1, 2):
+            return True
+        return self.fx.now - self.p2_seen < self.P2_WAIT
+
+    def look2(self, vals):
+        ch = _n(vals.get("_p2_chr"))
+        if ch is not None and self.HEROES:
+            return self.HEROES.get(int(ch), self.HERO2 or self.hero0)
+        return self.HERO2 or self.hero0
 
     def look(self, vals):
         """The hero's look from the values of the game (the level, the weapon...), the same by default.
@@ -598,6 +618,66 @@ class CapcomBrawler(BrawlerScene):
             h = self.hero
             self.fx.glow(h["x"], self.ground(h["z"]) - self.S(130), 30, 200, (255, 230, 140), 0.6, "front", 0.9, 0.0)
             self.popup(tr("NIVEAU SUPÉRIEUR !", "LEVEL UP!"), h["x"], self.ground(h["z"]) - self.S(300), GOLD, 42)
+        self.player2(vals, now)
+
+    def player2(self, vals, now):
+        """Player 2 at the side of the hero: he joins when his values move, takes his blows, falls, hits back.
+        / Le joueur 2 aux côtés du héros : il arrive quand ses valeurs bougent, encaisse, tombe, frappe."""
+        S, p, rng = self.S, self.p2, self.rng
+        moved = [self.changed(vals, n) for n in ("health_p2", "lives_p2", "score_p2", "_p2_chr")]
+        if any(moved):
+            if not self.p2_in(vals):                                       # he joins: he walks in from the left
+                p["x"] = -self.S(100)
+                self.popup(tr("JOUEUR 2 !", "PLAYER 2!"), self.W * 0.3, self.S(260), (110, 190, 255), 40)
+            self.p2_seen = now
+        if not self.p2_in(vals):
+            return
+        p["x"] += (self.hero["x"] + S(240) - p["x"]) * min(1.0, self.dt * 1.5)
+        ch = moved[0]
+        if ch and ch[1] < ch[0]:                                           # a blow taken / un coup reçu
+            p["hurt"] = now
+            self.fx.shake(4, 0.2)
+            self.fx.sparks(p["x"], self.ground(p["z"]) - S(180), 12, (255, 140, 120), (200, 500), (0, 360), (0.2, 0.4), 0, "front", 3, 18)
+        ch = moved[1]
+        if ch and ch[1] < ch[0]:                                           # a life lost / une vie perdue
+            p["down"] = now
+            self.popup(tr("-1 VIE J2", "-1 LIFE P2"), p["x"], self.ground(p["z"]) - S(300), (255, 90, 70), 36)
+        ch = moved[2]
+        if (ch and ch[1] > ch[0]) or now >= p["next"]:                     # his points are blows that land / ses points, des coups
+            p["next"] = now + rng.uniform(1.0, 2.0)
+            self.strike2(now)
+
+    def strike2(self, now):
+        S, fx, p = self.S, self.fx, self.p2
+        if now - p["down"] < 2.4:
+            return
+        live = [f for f in self.foes if f["hp"] > 0 and abs(f["x"] - p["x"]) < S(600)]
+        if not live:
+            return
+        f = min(live, key=lambda f: abs(f["x"] - p["x"]))
+        p["face"] = 1 if f["x"] > p["x"] else -1
+        look = self.HERO_P2
+        weapon = "gun" if look[0] == "mech" else (look[5] if len(look) > 5 else None)
+        p["act"] = (now, 3 if weapon or self.rng.random() < 0.6 else 4)
+        self.p2_blows += 1
+        x, y = (p["x"] + f["x"]) / 2, self.ground(f["z"]) - S(170)
+        if weapon == "gun":
+            mx = p["x"] + p["face"] * S(75)
+            fx.muzzle(mx, self.ground(p["z"]) - S(160), 0 if p["face"] > 0 else 180, 0.7)
+            fx.tracer(mx, self.ground(p["z"]) - S(160), f["x"], y, color=(255, 240, 180), width=3, length=90)
+        else:
+            fx.sparks(x, y, 14, (200, 230, 255), (300, 700), (0, 360), (0.15, 0.35), 0, "front", 3, 18)
+            if weapon in BLADES:
+                self.slashes.append((p["x"] + p["face"] * S(60), self.ground(p["z"]) - S(150), now, p["face"]))
+        f["hp"] -= 1
+        f["hurt"] = now
+        if f["hp"] <= 0:
+            if f.get("still"):
+                self.smash(f, now)
+            else:
+                self.knocked += 1
+                f["down"] = now
+                f["vx"] = p["face"] * S(420)
 
     def nearest(self):
         live = [f for f in self.foes if f["hp"] > 0 and (not f.get("still") or abs(f["x"] - self.hero["x"]) < self.S(330))]
@@ -678,6 +758,20 @@ class CapcomBrawler(BrawlerScene):
                 frame = 0
             if not (now - h["down"] > 1.2 and now - h["down"] < 2.4 and int(now * 14) % 2):
                 items.append((h["z"], self.fig(self.HERO, frame, h["face"] < 0), h["x"], h["z"]))
+        if self.p2_in(vals):                                               # player 2 at his side / le joueur 2 à ses côtés
+            p = self.p2
+            if now - p["down"] < 1.2:
+                frame = 6
+            elif now - p["hurt"] < 0.35:
+                frame = 5
+            elif p["act"] is not None and now - p["act"][0] < 0.28:
+                frame = p["act"][1]
+            elif abs(p["x"] - h["x"] - S(240)) > S(20):
+                frame = 1 + int(now * 5) % 2
+            else:
+                frame = 0
+            if not (now - p["down"] > 1.2 and now - p["down"] < 2.4 and int(now * 14) % 2):
+                items.append((p["z"], self.fig(self.HERO_P2, frame, p["face"] < 0), p["x"], p["z"]))
         sh = self.imgs.get("brsh")
         if sh is None:
             sh = self.imgs["brsh"] = pg.Surface((S(110), S(22)), pg.SRCALPHA)
@@ -747,10 +841,29 @@ class CapcomBrawler(BrawlerScene):
         self.foe_tag(screen, S(102), S(108), now, foe_col or self.BAR[0], S(300))
         return S(12) + w
 
-    def invite_right(self, screen, vals, now):
+    def invite_right(self, screen, vals, now, eng=None):
+        """INSERT COIN on the right, or the box of player 2 when he plays. / INSERT COIN à droite, ou l'encadré du joueur 2."""
         if not self.p2_in(vals):
             word, col = self.invite(vals, now)
             self.label(screen, word, self.W - self.S(24), self.S(40), 30, col, align="right")
+            return
+        S, W, hd = self.S, self.W, self.hd
+        w = S(self.PILL_W)
+        x0 = W - S(12) - w
+        self.pill(screen, x0, S(6), w, S(96), 160, radius=14)
+        pg = self.pg
+        pg.draw.rect(screen, (10, 12, 24), (int(x0 + S(12)), S(18), S(64), S(64)))
+        screen.blit(self.face(self.HERO_P2, S(58)), (int(x0 + S(15)), S(21)))
+        pg.draw.rect(screen, (110, 190, 255), (int(x0 + S(12)), S(18), S(64), S(64)), max(1, S(3)))
+        lives = _n(vals.get("lives_p2"))
+        name = vals.get("p2_char") if isinstance(vals.get("p2_char"), str) and vals.get("p2_char") else "2P"
+        self.text(screen, name + (self.LIVES.format(int(lives)) if lives is not None and "{" in self.LIVES else ""), x0 + S(90), S(32), 26,
+                  (150, 210, 255), key="black", valign="middle")
+        if eng is not None and _n(vals.get("score_p2")) is not None:
+            hd._score(screen, eng, "score_p2", x0 + w - S(16), S(12), "right", S(36))
+        e = _n(vals.get("health_p2"))
+        if e is not None:
+            self.bar(screen, x0 + S(90), S(58), w - S(106), S(20), e / 100.0, self.BAR[0], back=self.BAR[1])
 
     def time_box(self, screen, vals, x, y, label_col, num_col, key="stencil", size=64, label="TIME"):
         t = _n(vals.get("time"))
@@ -772,6 +885,7 @@ class FinalFightScene(CapcomBrawler):
     and the gauge of the thug just hit under it. / Le quartier pauvre d'une grande ville de jour ; notre combattant à
     nous affronte le gang qui arrive des deux côtés. Portrait, =vies, score, jauge jaune sur rouge, TIME en violet."""
     THEME = "ff_slum"
+    HERO2 = ("brawler", (60, 110, 210), (60, 60, 70), (200, 150, 110), (30, 26, 24), None, (("band", (240, 240, 240)),))
     PROP = ("drum", (80, 110, 150))
     LOOT = "food"
     HERO = ("brawler", (220, 70, 56), (44, 46, 58), (226, 176, 136), (60, 40, 30))
@@ -787,7 +901,7 @@ class FinalFightScene(CapcomBrawler):
         gauge of the foe just hit. / Comme dans le jeu : portrait, nom et =vies, score, jauge jaune sur rouge, TIME."""
         right = self.hud(screen, eng, vals, logo, now)
         self.time_box(screen, vals, right + self.S(96), self.S(8), (170, 120, 255), (190, 150, 255))
-        self.invite_right(screen, vals, now)
+        self.invite_right(screen, vals, now, eng)
 
 
 # ============================================================================ Captain Commando
@@ -818,7 +932,7 @@ class CaptainCommandoScene(CapcomBrawler):
     def status(self, screen, eng, vals, logo, now):
         """As in the game: 1P and the score, the name of the hero in blue, the green gauge. / 1P, le score, le nom en bleu."""
         self.hud(screen, eng, vals, logo, now, name=self.name(vals, "1P"))
-        self.invite_right(screen, vals, now)
+        self.invite_right(screen, vals, now, eng)
 
 
 # ============================================================================ Cadillacs and Dinosaurs
@@ -849,7 +963,7 @@ class CadillacsScene(CapcomBrawler):
         """As in the game: =lives then the name, the score, the yellow gauge, the time. / =vies puis le nom, le score."""
         right = self.hud(screen, eng, dict(vals, lives=None), logo, now, name=self.hud_name(vals))
         self.time_box(screen, vals, right + self.S(96), self.S(8), (255, 220, 120), (255, 240, 200))
-        self.invite_right(screen, vals, now)
+        self.invite_right(screen, vals, now, eng)
 
 
 # ============================================================================ The Punisher
@@ -860,6 +974,7 @@ class PunisherScene(CapcomBrawler):
     hall. / Le hall d'une villa de gangster la nuit ; notre justicier à nous, en costume sombre, arme au poing, contre
     les mafieux. Jauge cyan, TIME en jaune, les grenades en bas à gauche : une grenade lancée balaie le hall."""
     THEME = "pn_mansion"
+    HERO2 = ("jacket", (90, 110, 70), (60, 70, 50), (214, 160, 120), (60, 50, 40), "gun", (("band", (60, 70, 50)),))
     PROP = ("crate", (170, 120, 70))
     LOOT = "food"
     HERO = ("jacket", (44, 48, 60), (36, 38, 48), (226, 176, 136), (40, 30, 26), "gun")
@@ -892,7 +1007,7 @@ class PunisherScene(CapcomBrawler):
             pg.draw.rect(screen, (60, 60, 60), (S(44), H - S(64), S(12), S(9)))
             pg.draw.circle(screen, (20, 30, 20), (S(50), H - S(40)), S(17), max(1, S(2)))
             self.text(screen, f"x{int(b)}", S(80), H - S(40), 32, WHITE, key="black", valign="middle")
-        self.invite_right(screen, vals, now)
+        self.invite_right(screen, vals, now, eng)
 
 
 # ============================================================================ The King of Dragons
@@ -903,6 +1018,7 @@ class KingOfDragonsScene(CapcomBrawler):
     gauge. / Une forêt d'arbres immenses ; notre chevalier à nous contre les orques, les hommes-chiens, les squelettes.
     EP et l'expérience lue dans le jeu, la classe et le niveau qui monte, la jauge."""
     THEME = "kd_forest"
+    HERO2 = ("jacket", (110, 60, 150), (70, 50, 100), (236, 196, 156), (200, 200, 210), "staff", (("pointy", (110, 60, 150)), ("beard", (220, 220, 230))))
     PROP = ("chest", (150, 90, 40))
     LOOT = "treasure"
     HERO = ("jacket", (170, 170, 186), (90, 90, 104), (226, 176, 136), (220, 190, 90), "blade",
@@ -945,7 +1061,7 @@ class KingOfDragonsScene(CapcomBrawler):
             self.pill(screen, x, S(6), S(330), S(64), 160, radius=14)
             self.text(screen, "EP", x + S(18), S(38), 28, (120, 200, 255), key="black", valign="middle")
             self.hd._score(screen, eng, "score", x + S(314), S(14), "right", S(40))
-        self.invite_right(screen, vals, now)
+        self.invite_right(screen, vals, now, eng)
 
 
 # ============================================================================ Knights of the Round
@@ -956,6 +1072,7 @@ class KnightsScene(CapcomBrawler):
     1P and the score, xlives, the level L-, the red gauge. / Un village de maisons à colombages ; notre chevalier à nous
     contre les soldats, les barbares et les chevaliers noirs. Score, xvies, le niveau L-, la jauge rouge."""
     THEME = "kn_village"
+    HERO2 = ("jacket", (40, 130, 70), (90, 90, 100), (226, 176, 136), (120, 70, 40), "axe", (("armor", (190, 195, 210)), ("cape", (220, 180, 40))))
     PROP = ("barrel", (150, 100, 60))
     LOOT = "food"
     HERO = ("jacket", (40, 70, 160), (90, 90, 100), (226, 176, 136), (200, 160, 60), "sword", (("armor", (190, 195, 210)), ("cape", (160, 30, 40))))
@@ -985,7 +1102,7 @@ class KnightsScene(CapcomBrawler):
         lv = _n(vals.get("level"))
         if lv is not None:
             self.label(screen, f"L-{int(lv)}", right + S(70), S(40), 30, (255, 220, 120), align="center")
-        self.invite_right(screen, vals, now)
+        self.invite_right(screen, vals, now, eng)
 
 
 # ============================================================================ Warriors of Fate
@@ -995,6 +1112,7 @@ class WarriorsOfFateScene(CapcomBrawler):
     the bandits. The portrait, 1P and xlives, the score, the yellow-green gauge, the time. / Une forêt de la Chine
     ancienne ; notre général à nous, armure rouge et hallebarde, contre les soldats et les bandits."""
     THEME = "wf_forest"
+    HERO2 = ("samurai", (40, 90, 170), (60, 50, 40), (226, 176, 136), (220, 220, 230), "spear")
     PROP = ("barrel", (170, 120, 60))
     LOOT = "food"
     HERO = ("samurai", (200, 40, 40), (90, 60, 40), (226, 176, 136), (230, 190, 60), "halberd")
@@ -1009,7 +1127,7 @@ class WarriorsOfFateScene(CapcomBrawler):
         """As in the game: 1P and xlives, the score, the yellow-green gauge, the time. / 1P et xvies, le score, la jauge."""
         right = self.hud(screen, eng, vals, logo, now)
         self.time_box(screen, vals, right + self.S(96), self.S(8), (255, 220, 120), (255, 240, 200))
-        self.invite_right(screen, vals, now)
+        self.invite_right(screen, vals, now, eng)
 
 
 # ============================================================================ Dungeons & Dragons: Shadow over Mystara
@@ -1019,6 +1137,7 @@ class MystaraScene(CapcomBrawler):
     skeletons. The portrait, 1P, the score, the green gauge. / Un canyon de grès ; notre héros à nous, casque, masse et
     bouclier, contre les gobelins, les hommes-chiens, les trolls et les squelettes."""
     THEME = "ds_canyon"
+    HERO2 = ("jacket", (60, 130, 70), (110, 90, 60), (236, 196, 156), (230, 210, 120), "staff", (("ears", None), ("cape", (40, 90, 50))))
     PROP = ("chest", (130, 80, 40))
     LOOT = "treasure"
     HERO = ("jacket", (60, 90, 170), (120, 100, 70), (226, 176, 136), (110, 70, 40), "mace",
@@ -1033,7 +1152,7 @@ class MystaraScene(CapcomBrawler):
     def status(self, screen, eng, vals, logo, now):
         """As in the game: the portrait, 1P, the score, the green gauge. / Le portrait, 1P, le score, la jauge verte."""
         self.hud(screen, eng, vals, logo, now)
-        self.invite_right(screen, vals, now)
+        self.invite_right(screen, vals, now, eng)
 
 
 # ============================================================================ Dungeons & Dragons: Tower of Doom
@@ -1044,6 +1163,7 @@ class TowerOfDoomScene(CapcomBrawler):
     / Des collines vertes dans la lumière dorée ; notre elfe à nous contre les kobolds, les orques et les squelettes.
     Les quatre places des joueurs en bas : la nôtre et sa jauge, JOIN IN! dans les autres."""
     THEME = "dt_hills"
+    HERO2 = ("brawler", (150, 90, 50), (90, 70, 50), (226, 176, 136), (160, 80, 30), "axe", (("beard", (160, 80, 30)), ("helmet", (190, 190, 200))))
     PROP = ("chest", (150, 90, 40))
     LOOT = "treasure"
     SHADE = (90, 110)
@@ -1106,7 +1226,13 @@ class TowerOfDoomScene(CapcomBrawler):
                     self.text(screen, tr(f"DAGUE x{int(dg)}", f"DAGGER x{int(dg)}"), x + S(130), H - S(56), 22, (255, 220, 120), key="black",
                               valign="middle")
             elif k == 1 and self.p2_in(vals):
-                self.text(screen, "2P", x + bw / 2, H - S(43), 30, WHITE, key="black", align="center", valign="middle")
+                pg = self.pg
+                pg.draw.rect(screen, (10, 12, 24), (int(x + S(10)), H - S(70), S(54), S(54)))
+                screen.blit(self.face(self.HERO_P2, S(48)), (int(x + S(13)), H - S(67)))
+                self.text(screen, "2P", x + S(76), H - S(56), 26, (150, 210, 255), key="black", valign="middle")
+                e = _n(vals.get("health_p2"))
+                if e is not None:
+                    self.bar(screen, x + S(76), H - S(34), bw - S(92), S(18), e / 100.0, (80, 220, 90), back=(40, 40, 60))
             else:
                 word, col = ("JOIN IN!", (255, 230, 120)) if _n(vals.get("credits")) else self.invite(vals, now)
                 self.text(screen, "JOIN IN!" if k else word, x + bw / 2, H - S(43), 30, col, key="black", align="center", valign="middle")
@@ -1144,7 +1270,7 @@ class AlienVsPredatorScene(CapcomBrawler):
             self.pill(screen, x, S(6), S(260), S(64), 160, radius=14)
             self.text(screen, "SP", x + S(18), S(38), 26, (120, 230, 255), key="black", valign="middle")
             self.bar(screen, x + S(70), S(28), S(170), S(20), pw / 100.0, (90, 210, 255), back=(20, 30, 50))
-        self.invite_right(screen, vals, now)
+        self.invite_right(screen, vals, now, eng)
 
 
 # ============================================================================ Armored Warriors
@@ -1169,7 +1295,7 @@ class ArmoredWarriorsScene(CapcomBrawler):
     def status(self, screen, eng, vals, logo, now):
         """As in the game: 1P- and the score, the name of the machine and xlives, the gauge. / 1P-, le nom, xvies."""
         self.hud(screen, eng, vals, logo, now, name=self.name(vals, "1P-"))
-        self.invite_right(screen, vals, now)
+        self.invite_right(screen, vals, now, eng)
 
 
 # ============================================================================ Battle Circuit
@@ -1179,6 +1305,7 @@ class BattleCircuitScene(CapcomBrawler):
     The name and xlives, the score, COIN and the money read in the game, the gauge. / Une arène du futur la nuit ; notre
     héros masqué à nous, en jaune et cape, contre les robots et les mutants. COIN et l'argent lu dans le jeu."""
     THEME = "bc_arena"
+    HERO2 = ("jacket", (230, 90, 160), (40, 40, 50), (236, 196, 156), (40, 40, 50), "club", (("visor", (255, 220, 60)),))
     PROP = ("capsule", (230, 120, 220))
     LOOT = "coins"
     HERO = ("jacket", (250, 210, 40), (40, 40, 50), (226, 176, 136), (40, 40, 50), None,
@@ -1197,7 +1324,7 @@ class BattleCircuitScene(CapcomBrawler):
         m = _n(vals.get("money"))
         if m is not None:                                                 # COIN and the money, right of the logo
             self.label(screen, f"COIN {int(m)}", self.W / 2 + S(220), S(40), 30, (255, 220, 120))
-        self.invite_right(screen, vals, now)
+        self.invite_right(screen, vals, now, eng)
 
 
 SCENES = {"ffight": FinalFightScene, "captcomm": CaptainCommandoScene, "dino": CadillacsScene, "punisher": PunisherScene,
