@@ -19,7 +19,7 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - LEDs light up in proportion to the value they get, so the dark grays of the scenes glowed on the Pixelcade and made them look busy. ArcadeDMD now corrects the colors it sends to the Pixelcade (`"gamma": 2.2` in the `pixelcade` section, `1.0` sends them as they are).
 
 **The coin drops with RetroArch too**
-- The FinalBurn Neo core of RetroArch does not share the memory where an MVS keeps its credits, so the coin never dropped. ArcadeDMD now guesses the credits from the Neo Geo BIOS. A coin put in while nobody plays drops on the panel and the HD screen, PRESS START follows, and each player who starts takes a credit. A coin put in during a game is not seen. With MAME, the real credits are still read.
+- The FinalBurn Neo core of RetroArch does not share the memory where an MVS keeps its credits, so the coin never dropped. ArcadeDMD now guesses the credits from the Neo Geo BIOS. A coin put in while nobody plays drops on the panel and the HD screen, PRESS START follows, and each player who starts takes a credit. A coin put in during a game is not seen. FinalBurn Neo must be in MVS mode, and `runtime\arcadedmd.log` tells what the BIOS did. With MAME, the real credits are still read.
 
 **Fixes**
 - In the Neo Geo games whose score has not been learned, the title that scrolls at the top no longer runs into INSERT COIN.
@@ -41,7 +41,7 @@ Extract the new zip over the old folder (`config.json`, your learned addresses a
 - Les LED éclairent en proportion de la valeur reçue, donc les gris sombres des scènes brillaient sur la Pixelcade et les rendaient chargées. ArcadeDMD corrige maintenant les couleurs qu'il envoie à la Pixelcade (`"gamma": 2.2` dans la section `pixelcade`, `1.0` les envoie telles quelles).
 
 **La pièce tombe aussi avec RetroArch**
-- Le cœur FinalBurn Neo de RetroArch ne partage pas la mémoire où la MVS range ses crédits, donc la pièce ne tombait jamais. ArcadeDMD devine maintenant les crédits d'après le BIOS de la Neo Geo. Une pièce mise quand personne ne joue tombe sur la dalle et sur l'écran HD, PRESS START suit, et chaque joueur qui commence prend un crédit. Une pièce mise en pleine partie ne se voit pas. Avec MAME, les vrais crédits sont toujours lus.
+- Le cœur FinalBurn Neo de RetroArch ne partage pas la mémoire où la MVS range ses crédits, donc la pièce ne tombait jamais. ArcadeDMD devine maintenant les crédits d'après le BIOS de la Neo Geo. Une pièce mise quand personne ne joue tombe sur la dalle et sur l'écran HD, PRESS START suit, et chaque joueur qui commence prend un crédit. Une pièce mise en pleine partie ne se voit pas. FinalBurn Neo doit être en mode MVS, et `runtime\arcadedmd.log` dit ce que le BIOS a fait. Avec MAME, les vrais crédits sont toujours lus.
 
 **Corrections**
 - Dans les jeux Neo Geo dont le score n'est pas appris, le titre qui défile en haut ne chevauche plus INSERT COIN.

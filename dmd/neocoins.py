@@ -23,6 +23,8 @@ class NeoCoins:
     SETTLE = 1.5            # seconds of title screen before a countdown that starts again counts as a coin
 
     def __init__(self):
+        self.notes = []                                  # (fr, en) for the log / pour le journal
+        self.seen = None
         self.credits = None
         self.req = None
         self.timer = None
@@ -39,6 +41,16 @@ class NeoCoins:
             return self.credits
         if self.credits is None:                         # first look / premier regard
             self.credits = 1 if (req == TITLE and mode != IN_GAME) else 0
+            mvs = values.get("bios_mvs")
+            if mvs == 0:
+                self.notes.append(("BIOS Neo Geo en mode AES (console) : pas de pièces, le jeu démarre avec Start",
+                                   "Neo Geo BIOS in AES mode (home console): no coins, the game starts with Start"))
+            elif isinstance(mvs, int):
+                self.notes.append(("BIOS Neo Geo en mode MVS (arcade) : crédits devinés d'après le BIOS",
+                                   "Neo Geo BIOS in MVS mode (arcade): credits guessed from the BIOS"))
+        if (req, mode) != self.seen:
+            self.notes.append((f"BIOS Neo Geo : demande {req}, mode {mode}", f"Neo Geo BIOS: request {req}, mode {mode}"))
+            self.seen = (req, mode)
         coin = False
         if req == TITLE and mode != IN_GAME:
             if self.req is not None and self.req != TITLE:
@@ -61,6 +73,7 @@ class NeoCoins:
             else:
                 self.credits = min(99, self.credits + 1)
                 self.coins += 1
+                self.notes.append(("pièce vue par le BIOS", "coin seen by the BIOS"))
         if req == DEMO and mode != IN_GAME:
             self.credits = 0                             # back to the demo, no credit left / retour à la démo
         for p in ("p1_mode", "p2_mode"):

@@ -73,6 +73,11 @@
     "type": "bcd",
     "bytes": 1,
     "note": "BIOS_COMPULSION_TIMER: seconds left on the title screen before the game starts by itself"
+   },
+   "bios_mvs": {
+    "addr": "0x10FD82",
+    "type": "u8",
+    "note": "BIOS_MVS_FLAG: 0 home console (AES, no coins), otherwise arcade (MVS)"
    }
   }
  },

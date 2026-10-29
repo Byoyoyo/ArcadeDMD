@@ -699,6 +699,9 @@ class Engine:
             if self.coin_guess is not None:
                 old = self.state.values.get("credits")
                 c = self.coin_guess.update(self.state.values, now)
+                for fr, en in self.coin_guess.notes:
+                    self.log(tr(fr, en))
+                self.coin_guess.notes.clear()
                 if c is not None and c != old:
                     self.state.update("credits", c, now)
                     self.log(tr(f"crédits devinés d'après le BIOS : {c}", f"credits guessed from the BIOS: {c}"))

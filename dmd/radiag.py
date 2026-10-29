@@ -30,7 +30,7 @@ LABELS = {"lives": ("vies", "lives"), "lives_p2": ("vies J2", "P2 lives"), "bomb
 
 
 HIDDEN = {"p1_mode", "p2_mode", "p1_input", "p2_input",     # BIOS : état des joueurs et commandes, utiles à la scène seulement
-          "bios_request", "bios_mode", "bios_timer"}          # BIOS : de quoi deviner les crédits sous RetroArch
+          "bios_request", "bios_mode", "bios_timer", "bios_mvs"}   # BIOS : de quoi deviner les crédits sous RetroArch
 
 
 def label(name):
