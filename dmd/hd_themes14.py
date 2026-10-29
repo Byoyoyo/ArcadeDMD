@@ -11,7 +11,7 @@ import random
 
 from . import hd_bg
 from .hd_bg import mix, periodic, vgrad
-from .hd_themes3 import _fit, _Pic, _rgba
+from .hd_themes3 import _clump, _cumulus, _fit, _Pic, _rgba
 
 GG_FLOOR = 386          # Ghouls'n Ghosts: the ground the knight walks on, at s = 1 / le sol où marche le chevalier
 ST_FLOOR = 372          # Strider: the roof the ninja runs on / le toit où court le ninja
@@ -393,6 +393,120 @@ def build_spf_hall(W, H, s, seed=1405):
     return {"sky": sky.convert("RGB"), "layers": [], "tw": W, "amb": {}}
 
 
-BUILDERS = {"gg_grave": build_gg_grave, "st_city": build_st_city, "pg_temple": build_pg_temple, "pg_peak": build_pg_peak, "spf_hall": build_spf_hall}
+# ============================================================================ Mega Twins
+MT_FLOOR = 384          # the grass the twin walks on / l'herbe où marche le jumeau
+
+
+def build_mt_forest(W, H, s, seed=1406):
+    """Mega Twins: the forest of the first stage, as in the game: a bright blue sky and white clouds, little floating
+    islands far away, big round trees with a kind face of their own, the green grass and its flowers.
+    / La forêt du premier niveau : ciel bleu vif, nuages blancs, petites îles volantes, grands arbres ronds au visage
+    gentil, herbe verte et fleurs."""
+    rng = random.Random(seed)
+    tw = 2 * W
+    sky = vgrad(W, H, [(0.0, (60, 130, 230)), (0.7, (140, 200, 250)), (1.0, (190, 230, 255))])
+    layers = [{"img": _cumulus(tw, int(H * 0.6), s, rng, 9, ((255, 255, 255), (236, 244, 255), (200, 220, 245)), 40 * s, 170 * s), "y": 0, "f": 0.1,
+               "stage": "clouds"}]
+    far = _Pic(tw, H, 2, tw)                                             # les îles volantes au loin
+    for k in range(6):
+        x, y = rng.uniform(0, tw), rng.uniform(140, 230) * s
+        w = rng.uniform(70, 130) * s
+        far.poly([(x - w, y), (x + w, y), (x + w * 0.4, y + w * 0.7), (x, y + w), (x - w * 0.5, y + w * 0.6)], (150, 120, 90, 255))
+        far.ellipse(x - w * 1.05, y - 14 * s, x + w * 1.05, y + 12 * s, (80, 180, 70, 255))
+    layers.append({"img": far.done(), "y": 0, "f": 0.25, "stage": "far"})
+    mid = _Pic(tw, H, 2, tw)                                             # les grands arbres au visage gentil
+    x = 80 * s
+    while x < tw - 60 * s:
+        r = rng.uniform(110, 150) * s
+        base = MT_FLOOR * s
+        tr = rng.uniform(46, 60) * s
+        mid.poly([(x - tr, base), (x + tr, base), (x + tr * 0.8, base - 200 * s), (x - tr * 0.8, base - 200 * s)], (150, 100, 56, 255),
+                 (90, 56, 30, 255), 2.5 * s)
+        for side in (-1, 1):                                          # les racines
+            mid.poly([(x + side * tr, base), (x + side * (tr + 26 * s), base), (x + side * tr * 0.6, base - 40 * s)], (150, 100, 56, 255))
+        fy = base - 120 * s                                           # le visage
+        for ex in (-0.4, 0.4):
+            mid.ellipse(x + ex * tr - 9 * s, fy - 14 * s, x + ex * tr + 9 * s, fy + 14 * s, (255, 255, 255, 255), (60, 36, 20, 255), 2 * s)
+            mid.disc(x + ex * tr + 2 * s, fy + 3 * s, 5 * s, (40, 24, 14, 255))
+        mid.chord(x - 18 * s, fy + 14 * s, x + 18 * s, fy + 40 * s, 0, 180, (110, 40, 30, 255))
+        cy = base - 200 * s - r * 0.55
+        _clump(mid, x, cy, r, rng, ((40, 130, 50), (70, 180, 60), (150, 230, 110)), n=11, spread=(1.1, 0.75))
+        x += r * 2 + rng.uniform(140, 320) * s
+    layers.append({"img": mid.done(), "y": 0, "f": 0.55, "stage": "mid"})
+    near = _Pic(tw, H, 2, tw)                                            # l'herbe et les fleurs
+    fy = MT_FLOOR * s
+    near.poly([(0, fy), (tw, fy), (tw, H), (0, H)], (150, 100, 50, 255))
+    g = periodic(tw, rng, 5, 1.0)
+    near.poly([(0, fy + 20 * s)] + [(x, fy - 6 * s + 3 * s * g(x)) for x in range(0, tw + 8, 8)] + [(tw, fy + 20 * s)], (90, 190, 60, 255))
+    near.line([(x, fy - 6 * s + 3 * s * g(x)) for x in range(0, tw + 8, 8)], (150, 230, 100, 255), 4 * s)
+    for k in range(int(tw / (60 * s))):
+        x = rng.uniform(0, tw)
+        y = fy + rng.uniform(-2, 8) * s
+        col = rng.choice(((255, 90, 120), (255, 230, 80), (255, 255, 255), (120, 160, 255)))
+        for j in range(5):
+            a = j * math.tau / 5
+            near.disc(x + math.cos(a) * 4 * s, y + math.sin(a) * 4 * s, 3.2 * s, _rgba(col))
+        near.disc(x, y, 2.4 * s, (255, 200, 60, 255))
+    for k in range(int(tw / (40 * s))):                                  # cailloux dans la terre
+        near.disc(rng.uniform(0, tw), rng.uniform(fy + 30 * s, H), rng.uniform(3, 6) * s, (120, 80, 40, 255))
+    layers.append({"img": near.done(), "y": 0, "f": 1.0, "stage": "near"})
+    return {"sky": sky, "layers": _fit(layers), "tw": tw, "amb": {}}
+
+
+# ============================================================================ Magic Sword
+MS_FLOOR = 382          # the floor of the tower / le sol de la tour
+
+
+def build_ms_tower(W, H, s, seed=1407):
+    """Magic Sword: a floor of the tower, as in the game: the great wall of grey stones, the arched windows on the night,
+    the statues of monsters in their niches, the torches, the floor of flagstones. / Un étage de la tour : le grand mur
+    de pierres grises, les fenêtres en arc sur la nuit, les statues de monstres dans leurs niches, les torches, le dallage."""
+    rng = random.Random(seed)
+    tw = 2 * W
+    sky = vgrad(W, H, [(0.0, (40, 44, 60)), (1.0, (60, 62, 76))])
+    layers = []
+    wall = _Pic(tw, H, 2, tw)
+    stone = ((100, 104, 120), (88, 92, 108), (112, 116, 130), (80, 84, 98))
+    for row in range(int(MS_FLOOR * s / (36 * s)) + 1):                  # le mur de blocs
+        off = (row % 2) * 40 * s
+        y0 = row * 36 * s
+        for k in range(int(tw / (80 * s)) + 2):
+            x0 = k * 80 * s - off
+            wall.poly([(x0, y0), (x0 + 78 * s, y0), (x0 + 78 * s, y0 + 34 * s), (x0, y0 + 34 * s)], _rgba(rng.choice(stone)), (50, 52, 64, 255), 1.5 * s)
+    for k in range(4):                                                   # fenêtres en arc et niches
+        cx = (k + 0.5) * tw / 4
+        if k % 2 == 0:
+            wall.poly([(cx - 60 * s, 130 * s), (cx + 60 * s, 130 * s), (cx + 60 * s, 300 * s), (cx - 60 * s, 300 * s)], (20, 24, 50, 255))
+            wall.disc(cx, 130 * s, 60 * s, (20, 24, 50, 255))
+            for j in range(6):
+                wall.disc(cx + rng.uniform(-50, 50) * s, rng.uniform(100, 290) * s, 1.6 * s, (230, 230, 255, 255))
+            wall.disc(cx + 24 * s, 150 * s, 16 * s, (240, 236, 200, 255))
+            wall.line([(cx, 70 * s), (cx, 300 * s)], (70, 60, 50, 255), 6 * s)
+            wall.line([(cx - 60 * s, 200 * s), (cx + 60 * s, 200 * s)], (70, 60, 50, 255), 6 * s)
+        else:                                                         # une niche et sa statue de monstre
+            wall.poly([(cx - 70 * s, 110 * s), (cx + 70 * s, 110 * s), (cx + 70 * s, 320 * s), (cx - 70 * s, 320 * s)], (50, 52, 64, 255))
+            wall.disc(cx, 110 * s, 70 * s, (50, 52, 64, 255))
+            st, st_d = (150, 150, 140, 255), (90, 90, 86, 255)
+            wall.poly([(cx - 40 * s, 320 * s), (cx + 40 * s, 320 * s), (cx + 30 * s, 200 * s), (cx - 30 * s, 200 * s)], st, st_d, 2 * s)
+            wall.ellipse(cx - 30 * s, 130 * s, cx + 30 * s, 210 * s, st, st_d, 2 * s)
+            for side in (-1, 1):                                      # cornes et ailes de pierre
+                wall.poly([(cx + side * 20 * s, 140 * s), (cx + side * 44 * s, 96 * s), (cx + side * 30 * s, 150 * s)], st, st_d, 2 * s)
+                wall.poly([(cx + side * 30 * s, 210 * s), (cx + side * 66 * s, 150 * s), (cx + side * 60 * s, 250 * s)], st, st_d, 2 * s)
+            for ex in (-12, 12):
+                wall.disc(cx + ex * s, 168 * s, 6 * s, (255, 60, 40, 255))
+        tx = cx + tw / 8                                              # une torche entre les deux
+        wall.poly([(tx - 8 * s, 200 * s), (tx + 8 * s, 200 * s), (tx + 5 * s, 250 * s), (tx - 5 * s, 250 * s)], (110, 70, 40, 255))
+        wall.ellipse(tx - 16 * s, 160 * s, tx + 16 * s, 206 * s, (255, 130, 40, 255))
+        wall.ellipse(tx - 8 * s, 176 * s, tx + 8 * s, 204 * s, (255, 230, 120, 255))
+    fy = MS_FLOOR * s                                                    # le dallage
+    wall.poly([(0, fy), (tw, fy), (tw, H), (0, H)], (70, 66, 74, 255))
+    for k in range(int(tw / (70 * s)) + 1):
+        wall.line([(k * 70 * s, fy), (k * 70 * s - 30 * s, H)], (50, 46, 54, 255), 3 * s)
+    wall.line([(0, fy), (tw, fy)], (140, 140, 150, 255), 4 * s)
+    layers.append({"img": wall.done(), "y": 0, "f": 1.0, "stage": "wall"})
+    return {"sky": sky, "layers": _fit(layers), "tw": tw, "amb": {"dust": (255, 180, 100)}}
+
+
+BUILDERS = {"gg_grave": build_gg_grave, "st_city": build_st_city, "pg_temple": build_pg_temple, "pg_peak": build_pg_peak, "spf_hall": build_spf_hall, "mt_forest": build_mt_forest, "ms_tower": build_ms_tower}
 hd_bg.BUILDERS.update(BUILDERS)
 THEMES = tuple(BUILDERS)                 # names of the backdrops of this batch / noms des décors de ce lot

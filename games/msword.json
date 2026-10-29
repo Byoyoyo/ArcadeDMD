@@ -15,7 +15,6 @@
     "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
     "content": ["msword", "mswordj", "mswordr1", "mswordu"]
   },
-  "scene_from": "cps_action",
   "memory": {
     "cpu": ":maincpu",
     "values": {
@@ -44,17 +43,751 @@
         "round": 1,
         "min": 0,
         "max": 100
+      },
+      "score": {
+        "addr": "",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+      },
+      "score_p2": {
+        "addr": "",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+      },
+      "health": {
+        "addr": "0xFFA98C",
+        "type": "be",
+        "bytes": 2,
+        "mult": 0.0125,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "note": "player 1 vital in %, full = 0x1F40 (FinalBurn Neo cheats, Infinite Energy (Player) PL1, to be confirmed in game)"
+      },
+      "keys": {
+        "addr": "0xFFA9E9",
+        "type": "u8",
+        "note": "player 1 keys (FinalBurn Neo cheats, Infinite Keys PL1, to be confirmed in game)"
+      },
+      "floor": {
+        "addr": "0xFFA8A6",
+        "type": "u8",
+        "note": "floor of the tower, 0 for the first (FinalBurn Neo cheats, Select Starting Floor, to be confirmed in game)"
+      },
+      "partner": {
+        "addr": "0xFFB7A1",
+        "type": "u8",
+        "note": "partner of player 1: 0 ninja, 2 bigfoot, 4 priest, 6 magician, 8 amazon, 10 knight, 12 thief, 14 lizardman (FinalBurn Neo cheats, Select Partner PL1)"
       }
     }
   },
   "activity": {
-    "values": ["time"],
+    "values": ["time", "health"],
     "seconds": 10,
     "note": "no BIOS says who plays: player 1 plays while these values move"
   },
   "demo": {
-    "credits": 2,
+    "score": 0,
+    "time": 99,
+    "health": 100,
+    "keys": 2,
+    "floor": 0,
+    "partner": 0,
+    "power": 50,
+    "sim": {
+      "score": {
+        "count": [
+          0,
+          999900,
+          200
+        ],
+        "every": [
+          0.7,
+          1.8
+        ],
+        "start": 2.0
+      },
+      "time": {
+        "count": [
+          0,
+          99,
+          -1
+        ],
+        "every": 1.0,
+        "start": 1.0
+      },
+      "health": {
+        "cycle": [
+          100,
+          100,
+          87.5,
+          75,
+          62.5,
+          100
+        ],
+        "every": 4.0,
+        "start": 6.0
+      },
+      "partner": {
+        "cycle": [
+          0,
+          4,
+          10,
+          12,
+          6
+        ],
+        "every": 9.0,
+        "start": 8.0
+      },
+      "floor": {
+        "count": [
+          0,
+          49,
+          1
+        ],
+        "every": 14.0,
+        "start": 14.0
+      },
+      "keys": {
+        "cycle": [
+          2,
+          3,
+          3,
+          2
+        ],
+        "every": 7.0,
+        "start": 7.0
+      }
+    },
+    "credits": 0,
     "p1_mode": 1,
     "p2_mode": 0
-  }
+  },
+  "scene": {
+    "layers": [
+      {
+        "type": "rect",
+        "x": 0,
+        "y": 11,
+        "w": 128,
+        "h": 21,
+        "color": "#5a5e70",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "icons",
+        "var": "_one",
+        "x": 30,
+        "y": 14,
+        "max": 1,
+        "pattern": ["..##..", ".####.", "######", "######", "######", "######"],
+        "colors": {
+          "#": "#141838"
+        },
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "dot",
+        "x": 33,
+        "y": 17,
+        "r": 1.2,
+        "colors": ["#f0ecc8"],
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "icons",
+        "var": "_one",
+        "x": 90,
+        "y": 14,
+        "max": 1,
+        "pattern": ["..##..", ".####.", "######", "######", "######", "######"],
+        "colors": {
+          "#": "#141838"
+        },
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "dot",
+        "x": 62,
+        "y": 18,
+        "r": 1.6,
+        "colors": ["#ff8a28"],
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 62,
+        "y": 19,
+        "w": 1,
+        "h": 4,
+        "color": "#6e4628",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 0,
+        "y": 28,
+        "w": 128,
+        "h": 1,
+        "color": "#8c8c96",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 0,
+        "y": 29,
+        "w": 128,
+        "h": 3,
+        "color": "#46424a",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "sprite",
+        "image": ["sprites/runner.png"],
+        "frames": 2,
+        "fps": 8,
+        "mode": "pingpong",
+        "x0": 4,
+        "x1": 56,
+        "speed": 8,
+        "face": "right",
+        "y": 18,
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "text",
+        "font": "6x10",
+        "x": 1,
+        "y": 1,
+        "align": "left",
+        "segments": [
+          {
+            "text": "{score}",
+            "color": "#ffa830"
+          }
+        ],
+        "when": {
+          "has": "score"
+        },
+        "flash": {
+          "on": "score",
+          "color": "#ffffff",
+          "ms": 120
+        }
+      },
+      {
+        "type": "marquee",
+        "font": "6x10",
+        "y": 1,
+        "x": 0,
+        "w": 70,
+        "speed": 12,
+        "gap": 40,
+        "upper": true,
+        "segments": [
+          {
+            "text": "CAPCOM",
+            "color": "#ffd23c"
+          },
+          {
+            "text": " - {title}",
+            "color": "#ffb040"
+          }
+        ],
+        "when": {
+          "not": {
+            "has": "score"
+          }
+        }
+      },
+      {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "segments": [
+          {
+            "text": "{score_p2}",
+            "color": "#ffa830"
+          }
+        ],
+        "when": {
+          "all": [
+            {
+              "var": "p2_mode",
+              "in": [
+                1,
+                2
+              ]
+            },
+            {
+              "has": "score_p2"
+            }
+          ]
+        }
+      },
+      {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "INSERT COIN",
+        "color": "#ffa830",
+        "when": {
+          "all": [
+            {
+              "not": {
+                "var": "p2_mode",
+                "in": [
+                  1,
+                  2
+                ]
+              }
+            },
+            {
+              "not": {
+                "var": "credits",
+                "gt": 0
+              }
+            }
+          ]
+        },
+        "blink_period": 1.0
+      },
+      {
+        "type": "cycle",
+        "period": 1.5,
+        "when": {
+          "all": [
+            {
+              "not": {
+                "var": "p2_mode",
+                "in": [
+                  1,
+                  2
+                ]
+              }
+            },
+            {
+              "var": "credits",
+              "gt": 0
+            }
+          ]
+        },
+        "pages": [
+          {
+            "layers": [
+              {
+                "type": "text",
+                "font": "6x10",
+                "x": 127,
+                "y": 1,
+                "align": "right",
+                "text": "CREDITS {credits}",
+                "color": "#ffa830"
+              }
+            ]
+          },
+          {
+            "layers": [
+              {
+                "type": "text",
+                "font": "6x10",
+                "x": 127,
+                "y": 1,
+                "align": "right",
+                "text": "PRESS START",
+                "color": "#ffa830"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "gauge",
+        "var": "health",
+        "max": 100,
+        "x": 2,
+        "y": 13,
+        "w": 24,
+        "h": 3,
+        "color": "#fac832",
+        "low": "#ff4030",
+        "back": "#3c321e",
+        "when": {
+          "all": [
+            {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "has": "health"
+            }
+          ]
+        },
+        "flash": {
+          "on": "health",
+          "color": "#ffffff",
+          "ms": 200
+        }
+      },
+      {
+        "type": "text",
+        "font": "6x10",
+        "x": 126,
+        "y": 13,
+        "align": "right",
+        "segments": [
+          {
+            "text": "{time}",
+            "color": "#ffe040"
+          }
+        ],
+        "when": {
+          "all": [
+            {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "has": "time"
+            }
+          ]
+        }
+      },
+      {
+        "type": "coinop",
+        "when": {
+          "all": [
+            {
+              "has": "p1_mode"
+            },
+            {
+              "not": {
+                "var": "p1_mode",
+                "in": [
+                  1,
+                  2
+                ]
+              }
+            },
+            {
+              "not": {
+                "var": "p2_mode",
+                "in": [
+                  1,
+                  2
+                ]
+              }
+            }
+          ]
+        },
+        "title": [
+          {
+            "text": "CAPCOM",
+            "color": "#ffd23c"
+          },
+          {
+            "text": " - {title}",
+            "color": "#ffb040"
+          }
+        ],
+        "idle_image": ["sprites/insert_coin.gif", "sprites/insert_coin.png"]
+      }
+    ]
+  },
+  "hd": {
+    "scene": "msword"
+  },
+  "derived": {
+    "_one": {
+      "value": 1,
+      "note": "always 1: the little pictures of the panel scene"
+    }
+  },
+  "demo_hand": true
 }

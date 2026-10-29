@@ -14,7 +14,7 @@ import math
 from .hd_games import AMBER, GOLD, P1C, P2C, WHITE, GameScene, _clamp, _mix, _n, draw_img
 from .hd_games3 import _capsule
 from .hd_games5 import fighter_draw
-from .hd_themes14 import GG_FLOOR, PG_FLOOR, SPF_CELL, SPF_COLS, SPF_ROWS, SPF_TOP, ST_FLOOR
+from .hd_themes14 import GG_FLOOR, MS_FLOOR, MT_FLOOR, PG_FLOOR, SPF_CELL, SPF_COLS, SPF_ROWS, SPF_TOP, ST_FLOOR
 from .i18n import tr
 
 DARKLINE = (24, 20, 26, 255)
@@ -199,11 +199,9 @@ class SideQuestScene(GameScene):
         for f in self.foes:
             if f.get("dead") and now - f["dead"] > 0.35:
                 continue
-            if not f.get("dead"):
-                if f["x"] > hx + S(120) or f["kind"] == 1:
-                    f["x"] -= f["v"] * dt
-                else:
-                    f["x"] -= self.bd.speed * dt                       # held at the hero / tenu devant le héros
+            if not f.get("dead") and (f["x"] > hx + S(120) or f["kind"] == 1):
+                # it walks and the ground scrolls, at the hero it stands up to him / il marche et le sol défile, puis il fait face au héros
+                f["x"] -= (f["v"] + self.bd.speed * (0.5 if f["kind"] == 1 else 1.0)) * dt
             if f["x"] < -S(150):
                 continue
             keep.append(f)
@@ -1128,6 +1126,246 @@ class PuzzleFighterScene(GameScene):
             self.label(screen, word, W - S(24), S(40), 28, col, align="right")
 
 
-SCENES = {"ghouls": GhoulsScene, "strider": StriderScene, "pang3": Pang3Scene, "mpang": MightyPangScene, "spf2t": PuzzleFighterScene}
+# ============================================================================ Mega Twins
+def twin_draw(frame):
+    """Our own little twin hero: a big head, a green pointed cap and its red feather, a green tunic, a short sword.
+    / Notre petit héros jumeau à nous : grosse tête, bonnet vert pointu et sa plume rouge, tunique verte, épée courte."""
+    base = chibi_draw(SKIN, (230, 150, 60), (60, 170, 80), (50, 90, 50), 1 if frame == 3 else 0, False)
+
+    def fn(d, W, H):
+        base(d, W, H)
+        ow = max(1.0, H * 0.014)
+        hx, hy, r = W * 0.5, H * 0.3, W * 0.25
+        d.polygon([(hx - r * 1.08, hy - r * 0.3), (hx + r * 1.08, hy - r * 0.3), (hx + r * 0.2, hy - r * 1.7), (hx - r * 0.5, hy - r * 1.2)],
+                  fill=(60, 170, 80, 255), outline=DARKLINE)
+        d.polygon([(hx + r * 0.6, hy - r * 0.9), (hx + r * 1.5, hy - r * 1.6), (hx + r * 0.9, hy - r * 0.7)], fill=(230, 50, 50, 255), outline=DARKLINE)
+        hand = (W * 0.92, H * 0.56) if frame == 3 else (W * 0.66, H * 0.7)
+        tip = (hand[0] + W * 0.08, hand[1] - H * 0.3) if frame != 3 else (hand[0] + W * 0.06, hand[1] - H * 0.02)
+        d.line([hand, tip], fill=(230, 236, 250, 255), width=int(ow * 5))
+        d.line([(hand[0] - W * 0.05, hand[1]), (hand[0] + W * 0.05, hand[1])], fill=(220, 180, 60, 255), width=int(ow * 4))
+    return fn
+
+
+def blob_draw(frame, col):
+    """A little round blob of our own that hops, its big eyes. / Une petite boule à nous qui sautille, ses grands yeux."""
+    def fn(d, W, H):
+        sq = 0.08 if frame % 2 else 0.0
+        d.ellipse([W * (0.1 - sq), H * (0.3 + sq), W * (0.9 + sq), H * 0.98], fill=_c(col), outline=DARKLINE, width=max(1, int(H * 0.03)))
+        d.ellipse([W * 0.24, H * (0.4 + sq), W * 0.46, H * (0.6 + sq)], fill=_c(_mix(col, WHITE, 0.5)))
+        for ex in (0.36, 0.6):
+            d.ellipse([W * ex, H * (0.52 + sq), W * (ex + 0.12), H * (0.7 + sq)], fill=(255, 255, 255, 255), outline=DARKLINE)
+            d.ellipse([W * (ex + 0.04), H * (0.58 + sq), W * (ex + 0.09), H * (0.66 + sq)], fill=DARKLINE)
+    return fn
+
+
+def bee_draw(frame):
+    """A big bee of our own, its wings beating. / Une grosse abeille à nous, ses ailes qui battent."""
+    def fn(d, W, H):
+        d.ellipse([W * 0.2, H * 0.36, W * 0.86, H * 0.86], fill=(250, 200, 40, 255), outline=DARKLINE, width=max(1, int(H * 0.03)))
+        for x in (0.42, 0.6):
+            d.line([(W * x, H * 0.38), (W * (x - 0.04), H * 0.84)], fill=DARKLINE, width=max(2, int(W * 0.06)))
+        d.ellipse([W * 0.08, H * 0.4, W * 0.34, H * 0.7], fill=(250, 200, 40, 255), outline=DARKLINE)
+        d.ellipse([W * 0.13, H * 0.48, W * 0.2, H * 0.56], fill=DARKLINE)
+        up = frame % 2 == 0
+        d.ellipse([W * 0.36, H * (0.0 if up else 0.12), W * 0.66, H * (0.42 if up else 0.5)], fill=(230, 245, 255, 200), outline=DARKLINE)
+        d.polygon([(W * 0.86, H * 0.6), (W * 1.0, H * 0.64), (W * 0.86, H * 0.68)], fill=DARKLINE)
+    return fn
+
+
+class MegaTwinsScene(SideQuestScene):
+    """Mega Twins as in the game: the bright forest of the first stage, its big round trees with their kind faces, the
+    floating islands; our little twin hero of our own cuts the hopping blobs and the bees with his short sword. VITAL in
+    its blue gauge, the time, the score and the lives, as in the game. / La forêt du premier niveau, ses grands arbres au
+    visage gentil ; notre petit héros jumeau à nous coupe les boules qui sautillent et les abeilles de son épée courte."""
+    THEME = "mt_forest"
+    FLOOR = MT_FLOOR
+    HERO = (130, 160)
+    FOE = (90, 80)
+    FLYER = (90, 70)
+    FLY_Y = (200, 270)
+    SHOT = "slash"
+    REACH = 0.16
+    PACE = (0.9, 1.9)
+    MOVE = (0.5, 1.6)
+    SHADE = (80, 40)
+    HEALTH_MAX = 100.0
+
+    def hero_draw(self, frame):
+        return twin_draw(frame)
+
+    def foe_draw(self, kind, frame):
+        return bee_draw(frame) if kind == 1 else blob_draw(frame, ((240, 110, 160), (120, 120, 240))[frame // 2 % 2])
+
+    def slash_fx(self, hx, hy, now):
+        S = self.S
+        self.fx.glow(hx + S(90), hy - S(70), 16, 70, (255, 255, 220), 0.2, "front", 1.0, 0.0)
+        self.fx.sparks(hx + S(90), hy - S(70), 6, (255, 250, 200), (150, 400), (-60, 60), (0.12, 0.25), 200, "front", 3, 12)
+
+    def status(self, screen, eng, vals, logo, now):
+        """As in the game: VITAL in its blue gauge and the time at the top, SCORE and the lives at the bottom.
+        / VITAL dans sa jauge bleue et le temps en haut, SCORE et les vies en bas."""
+        S, W, H, hd = self.S, self.W, self.H, self.hd
+        hd.draw_logo(screen, logo, W / 2, S(6), S(440), S(84), now)
+        hp = _n(vals.get("health"))
+        if hp is not None:
+            self.gauge(screen, S(14), S(14), S(300), "VITAL", hp / 100.0, (60, 150, 255), back=(20, 30, 60))
+        t = _n(vals.get("time"))
+        if t is not None:
+            self.label(screen, f"TIME-{int(t)}", W / 2 + S(330), S(40), 30, (255, 255, 255), key="black", align="center")
+        self.pill(screen, S(14), H - S(70), S(420), S(58), 160, radius=12)
+        self.text(screen, "SCORE", S(32), H - S(41), 24, (255, 230, 120), key="black", valign="middle")
+        if _n(vals.get("score")) is not None:
+            hd._score(screen, eng, "score", S(420), H - S(62), "right", S(38))
+        lives = _n(vals.get("lives"))
+        if lives is not None:
+            self.label(screen, f"x{int(lives)}", S(480), H - S(41), 30, (120, 255, 160), align="center")
+        if self.p2_in(vals):
+            hp2 = _n(vals.get("health_p2"))
+            if hp2 is not None:
+                self.gauge(screen, W - S(444), S(14), S(300), "VITAL", hp2 / 100.0, (60, 150, 255), back=(20, 30, 60))
+        else:
+            self.invite_right(screen, vals, now, S(110))
+
+
+# ============================================================================ Magic Sword
+MS_PARTNERS = {0: ("NINJA", "NINJA", "ninja", (60, 60, 80)), 2: ("BIGFOOT", "BIGFOOT", "mutant", (150, 110, 70)),
+               4: ("PRÊTRE", "PRIEST", "jacket", (230, 230, 240)), 6: ("MAGICIEN", "MAGICIAN", "ninja", (120, 60, 160)),
+               8: ("AMAZONE", "AMAZON", "brawler", (60, 140, 80)), 10: ("CHEVALIER", "KNIGHT", "samurai", (170, 176, 190)),
+               12: ("VOLEUR", "THIEF", "thug", (90, 70, 50)), 14: ("HOMME-LÉZARD", "LIZARDMAN", "mutant", (90, 160, 80))}
+
+
+def swordsman_draw(frame):
+    """Our own sword hero of the tower: red hair and a headband, a silver breastplate, a red cape, a great sword held
+    up or swung forward. / Notre héros à l'épée : cheveux roux et bandeau, cuirasse d'argent, cape rouge, grande épée."""
+    def fn(d, W, H):
+        ow = max(1.0, H * 0.012)
+        d.polygon([(W * 0.36, H * 0.34), (W * 0.48, H * 0.34), (W * 0.3, H * 0.86), (W * 0.1, H * 0.8)], fill=(190, 40, 40, 255), outline=DARKLINE)
+        step = {1: 0.06, 2: -0.06}.get(frame, 0.0)
+        for k, sx in ((0, -1), (1, 1)):
+            dx = sx * step * W
+            _capsule(d, (W * (0.44 + 0.06 * k), H * 0.62), (W * (0.42 + 0.06 * k) + dx, H * 0.95), H * 0.07, H * 0.06, (120, 80, 50, 255), DARKLINE, ow)
+            d.rounded_rectangle([W * (0.36 + 0.06 * k) + dx, H * 0.92, W * (0.52 + 0.06 * k) + dx, H * 0.99], radius=H * 0.02, fill=(90, 56, 30, 255),
+                                outline=DARKLINE, width=int(ow))
+        d.rounded_rectangle([W * 0.32, H * 0.34, W * 0.64, H * 0.64], radius=H * 0.05, fill=(196, 202, 216, 255), outline=DARKLINE, width=int(ow))
+        d.rectangle([W * 0.32, H * 0.56, W * 0.64, H * 0.62], fill=(120, 80, 40, 255))
+        hand = (W * 0.86, H * 0.42) if frame == 3 else (W * 0.62, H * 0.5)
+        _capsule(d, (W * 0.5, H * 0.4), hand, H * 0.07, H * 0.06, _c(SKIN), DARKLINE, ow)
+        tip = (hand[0] + W * 0.14, hand[1] + H * 0.02) if frame == 3 else (hand[0] + W * 0.1, hand[1] - H * 0.44)
+        d.line([hand, tip], fill=(236, 240, 252, 255), width=int(ow * 6))
+        d.line([hand, tip], fill=(160, 170, 200, 255), width=int(ow * 2))
+        perp = (tip[1] - hand[1], hand[0] - tip[0])
+        ln = math.hypot(*perp) or 1
+        px, py = perp[0] / ln * W * 0.07, perp[1] / ln * W * 0.07
+        d.line([(hand[0] - px, hand[1] - py), (hand[0] + px, hand[1] + py)], fill=(220, 180, 60, 255), width=int(ow * 4))
+        hx, hy = W * 0.48, H * 0.21
+        d.ellipse([hx - H * 0.1, hy - H * 0.11, hx + H * 0.1, hy + H * 0.11], fill=_c(SKIN), outline=DARKLINE, width=int(ow))
+        d.chord([hx - H * 0.11, hy - H * 0.13, hx + H * 0.1, hy + H * 0.06], 160, 360, fill=(200, 70, 30, 255))
+        d.polygon([(hx - H * 0.11, hy - H * 0.04), (hx - H * 0.2, hy + H * 0.08), (hx - H * 0.08, hy + H * 0.04)], fill=(200, 70, 30, 255))
+        d.line([(hx - H * 0.1, hy - H * 0.04), (hx + H * 0.1, hy - H * 0.04)], fill=(60, 100, 220, 255), width=int(ow * 3))
+        d.ellipse([hx + H * 0.03, hy - H * 0.01, hx + H * 0.06, hy + H * 0.03], fill=DARKLINE)
+    return fn
+
+
+def bat_draw(frame):
+    """A purple bat of our own. / Une chauve-souris violette à nous."""
+    def fn(d, W, H):
+        up = frame % 2 == 0
+        for side in (-1, 1):
+            tipy = H * (0.05 if up else 0.85)
+            d.polygon([(W * 0.5, H * 0.45), (W * (0.5 + side * 0.48), tipy), (W * (0.5 + side * 0.36), H * 0.6), (W * (0.5 + side * 0.2), H * 0.5)],
+                      fill=(110, 60, 140, 255), outline=DARKLINE)
+        d.ellipse([W * 0.38, H * 0.3, W * 0.62, H * 0.72], fill=(90, 50, 120, 255), outline=DARKLINE)
+        for ex in (0.44, 0.53):
+            d.ellipse([W * ex, H * 0.42, W * (ex + 0.05), H * 0.5], fill=(255, 220, 60, 255))
+    return fn
+
+
+class MagicSwordScene(SideQuestScene):
+    """Magic Sword as in the game: a floor of the tower, the grey stones, the windows on the night, the statues of monsters
+    in their niches, the torches; our sword hero of our own and his partner read in the game (ninja, priest, knight,
+    thief...) cut down the orcs and the bats. 1PLAYER and the score, VITAL, the keys and the floor. / Un étage de la tour,
+    les statues de monstres dans leurs niches ; notre héros à l'épée et le compagnon lu dans le jeu abattent les orques
+    et les chauves-souris."""
+    THEME = "ms_tower"
+    FLOOR = MS_FLOOR
+    HERO = (170, 200)
+    FOE = (160, 190)
+    FLYER = (100, 70)
+    SHOT = "slash"
+    REACH = 0.2
+    PACE = (1.0, 2.2)
+    MOVE = (0.3, 1.0)
+    SHADE = (90, 60)
+    BANNERS = GameScene.BANNERS + tuple((f"FLOOR {k}", (255, 220, 120)) for k in range(1, 6))
+
+    def __init__(self, hd, rng=None):
+        self.partner = 0
+        super().__init__(hd, rng)
+        self.floors = 0                                   # (tests)
+
+    def hero_draw(self, frame):
+        return swordsman_draw(frame)
+
+    def foe_draw(self, kind, frame):
+        if kind == 1:
+            return bat_draw(frame)
+        return fighter_draw("mutant", (90, 120, 60), (70, 50, 40), (110, 160, 80), (40, 60, 30), 1 + frame % 2)
+
+    def partner_img(self, frame):
+        S = self.S
+        fr, en, style, col = MS_PARTNERS.get(self.partner, MS_PARTNERS[0])
+        return self.img(("mspartner", self.partner, frame), S(130), S(160), fighter_draw(style, col, _mix(col, (0, 0, 0), 0.4), SKIN, (50, 40, 30),
+                                                                                            frame), ss=2)
+
+    def slash_fx(self, hx, hy, now):
+        S = self.S
+        for i in range(6):
+            a = math.radians(-60 + i * 24)
+            self.fx.later(i * 0.015, self.fx.glow, hx + S(60) + math.cos(a) * S(110), hy - S(110) + math.sin(a) * S(110), 10, 40, (255, 240, 200),
+                          0.18, "front", 1.0, 0.0, 0.0, 0.6)
+
+    def always(self, vals, now):
+        v = _n(vals.get("partner"))
+        if v is not None and int(v) in MS_PARTNERS and int(v) != self.partner:
+            self.partner = int(v)
+            if self.p1_in(vals) and not self.nobody(vals):
+                self.popup(tr(*MS_PARTNERS[self.partner][:2]), self.W * self.HERO_X - self.S(130), self.floor() - self.S(200), (120, 220, 255), 30)
+        ch = self.changed(vals, "floor")
+        if ch and ch[1] > ch[0] and not self.nobody(vals):
+            self.floors += 1
+            self.slam(f"FLOOR {int(ch[1]) + 1}", (255, 220, 120), now, 1.2)
+
+    def draw_hero(self, screen, vals, now):
+        if self.p1_in(vals):
+            img = self.partner_img(1 + int(now * 6 + 1) % 2)
+            hx, hy = self.hero_xy(now)
+            screen.blit(img, (int(hx - self.S(140) - img.get_width() / 2), int(self.floor() - img.get_height())))
+        super().draw_hero(screen, vals, now)
+
+    def status(self, screen, eng, vals, logo, now):
+        """As in the game: 1PLAYER and the score, VITAL in segments, the keys, the floor. / 1PLAYER, VITAL, clés, étage."""
+        S, W, pg, hd = self.S, self.W, self.pg, self.hd
+        hd.draw_logo(screen, logo, W / 2, S(6), S(440), S(84), now)
+        self.side_score(screen, eng, vals, "1PLAYER", S(14), S(6), (255, 255, 255))
+        hp = _n(vals.get("health"))
+        if hp is not None:
+            self.pill(screen, S(14), S(104), S(300), S(44), 160, radius=12)
+            self.text(screen, "VITAL", S(30), S(126), 22, (255, 230, 120), key="black", valign="middle", glow=0)
+            for i in range(8):                                          # VITAL in segments / en segments
+                on = i < int(math.ceil(hp / 12.5))
+                pg.draw.rect(screen, (250, 200, 50) if on else (60, 50, 30), (S(124) + i * S(22), S(114), S(18), S(24)), border_radius=S(3))
+        floor = _n(vals.get("floor"))
+        if floor is not None:
+            self.label(screen, f"FLOOR {int(floor) + 1}", W / 2 + S(330), S(40), 30, (255, 220, 120), key="black", align="center")
+        keys = _n(vals.get("keys"))
+        if keys is not None:
+            self.label(screen, f"KEY x{int(keys)}", W / 2 + S(330), S(100), 26, (250, 210, 80), align="center")
+        if self.p2_in(vals):
+            self.side_score(screen, eng, vals, "2PLAYER", W - S(14), S(6), (255, 255, 255), "score_p2", align="right")
+        else:
+            self.invite_right(screen, vals, now)
+
+
+SCENES = {"ghouls": GhoulsScene, "strider": StriderScene, "pang3": Pang3Scene, "mpang": MightyPangScene, "spf2t": PuzzleFighterScene, "mtwins": MegaTwinsScene, "msword": MagicSwordScene}
 __all__ = ["SCENES", "SideQuestScene"]
 _KEEP = (AMBER, P1C, P2C, draw_img)
