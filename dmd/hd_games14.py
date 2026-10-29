@@ -14,7 +14,7 @@ import math
 from .hd_games import AMBER, GOLD, P1C, P2C, WHITE, GameScene, _clamp, _mix, _n, draw_img
 from .hd_games3 import _capsule
 from .hd_games5 import fighter_draw
-from .hd_themes14 import GG_FLOOR, PG_FLOOR, ST_FLOOR
+from .hd_themes14 import GG_FLOOR, PG_FLOOR, SPF_CELL, SPF_COLS, SPF_ROWS, SPF_TOP, ST_FLOOR
 from .i18n import tr
 
 DARKLINE = (24, 20, 26, 255)
@@ -809,6 +809,325 @@ class MightyPangScene(BalloonScene):
     COLORS = ((230, 40, 40), (40, 120, 240), (40, 190, 80))
 
 
-SCENES = {"ghouls": GhoulsScene, "strider": StriderScene, "pang3": Pang3Scene, "mpang": MightyPangScene}
+# ============================================================================ Super Puzzle Fighter II Turbo
+SPF_COLORS = ((230, 50, 60), (60, 200, 80), (60, 120, 240), (250, 210, 50))
+
+
+def gem_draw(col, kind, n=0):
+    """A gem of our own: a bevelled square, a round crash gem, or a counter gem with its number.
+    / Une gemme à nous : un carré biseauté, une gemme qui fait exploser (ronde), ou une gemme à compteur et son nombre."""
+    def fn(d, W, H):
+        dark, light = _c(_mix(col, (0, 0, 0), 0.45)), _c(_mix(col, WHITE, 0.5))
+        if kind == 1:                                                  # la gemme ronde
+            d.ellipse([W * 0.04, H * 0.04, W * 0.96, H * 0.96], fill=dark)
+            d.ellipse([W * 0.1, H * 0.08, W * 0.9, H * 0.88], fill=_c(col))
+            d.ellipse([W * 0.22, H * 0.18, W * 0.5, H * 0.44], fill=light)
+            d.polygon([(W * 0.5, H * 0.3), (W * 0.58, H * 0.48), (W * 0.76, H * 0.5), (W * 0.58, H * 0.56), (W * 0.5, H * 0.74),
+                       (W * 0.42, H * 0.56), (W * 0.24, H * 0.5), (W * 0.42, H * 0.48)], fill=(255, 255, 255, 230))
+            return
+        d.rectangle([0, 0, W - 1, H - 1], fill=dark)
+        d.polygon([(0, 0), (W, 0), (W * 0.82, H * 0.18), (W * 0.18, H * 0.18)], fill=light)
+        d.polygon([(0, 0), (W * 0.18, H * 0.18), (W * 0.18, H * 0.82), (0, H)], fill=_c(_mix(col, WHITE, 0.25)))
+        d.rectangle([W * 0.18, H * 0.18, W * 0.82, H * 0.82], fill=_c(col if kind == 0 else _mix(col, (0, 0, 0), 0.3)))
+        if kind == 0:
+            d.ellipse([W * 0.26, H * 0.24, W * 0.46, H * 0.42], fill=(255, 255, 255, 200))
+        else:                                                          # le compteur / the counter
+            k = H * 0.1
+            segs = {1: ((0.5, 0.25, 0.5, 0.75),), 2: ((0.32, 0.27, 0.68, 0.27), (0.68, 0.27, 0.68, 0.5), (0.68, 0.5, 0.32, 0.5), (0.32, 0.5, 0.32, 0.73),
+                                                         (0.32, 0.73, 0.68, 0.73)),
+                    3: ((0.32, 0.27, 0.68, 0.27), (0.68, 0.27, 0.68, 0.73), (0.38, 0.5, 0.68, 0.5), (0.32, 0.73, 0.68, 0.73)),
+                    4: ((0.32, 0.27, 0.32, 0.5), (0.32, 0.5, 0.68, 0.5), (0.62, 0.27, 0.62, 0.75)),
+                    5: ((0.68, 0.27, 0.32, 0.27), (0.32, 0.27, 0.32, 0.5), (0.32, 0.5, 0.68, 0.5), (0.68, 0.5, 0.68, 0.73), (0.68, 0.73, 0.32, 0.73))}
+            for x0, y0, x1, y1 in segs.get(max(1, min(5, n)), segs[1]):
+                d.line([(W * x0, H * y0), (W * x1, H * y1)], fill=(255, 255, 255, 255), width=int(k))
+    return fn
+
+
+def chibi_draw(skin, hair, top, pants, frame, girl=False):
+    """A little fighter of our own with a big head: guard, attack (arm and leg forward) or hurt.
+    / Un petit combattant à nous à grosse tête : en garde, attaque ou touché."""
+    def fn(d, W, H):
+        ow = max(1.0, H * 0.014)
+        lean = {1: 0.05, 2: -0.06}.get(frame, 0.0) * W
+        for k, x in enumerate((0.4, 0.56)):
+            fx = W * x + (W * 0.12 if frame == 1 and k == 1 else 0)
+            _capsule(d, (W * x + lean, H * 0.7), (fx, H * 0.95), H * 0.07, H * 0.06, _c(pants), DARKLINE, ow)
+        d.rounded_rectangle([W * 0.32 + lean, H * 0.5, W * 0.66 + lean, H * 0.76], radius=W * 0.08, fill=_c(top), outline=DARKLINE, width=int(ow))
+        arm = (W * 0.92, H * 0.56) if frame == 1 else (W * 0.66 + lean, H * 0.7)
+        _capsule(d, (W * 0.56 + lean, H * 0.56), arm, H * 0.055, H * 0.05, _c(skin), DARKLINE, ow)
+        d.ellipse([arm[0] - H * 0.04, arm[1] - H * 0.04, arm[0] + H * 0.04, arm[1] + H * 0.04], fill=_c(skin), outline=DARKLINE)
+        hx, hy, r = W * 0.5 + lean, H * 0.3, W * 0.25
+        if girl:                                                       # la queue de cheval / ponytail
+            d.ellipse([hx - r * 1.4, hy - r * 0.6, hx - r * 0.5, hy + r * 0.9], fill=_c(hair), outline=DARKLINE, width=int(ow))
+        d.ellipse([hx - r, hy - r, hx + r, hy + r], fill=_c(skin), outline=DARKLINE, width=int(ow))
+        d.chord([hx - r * 1.04, hy - r * 1.08, hx + r * 1.04, hy + r * 0.5], 180, 360, fill=_c(hair), outline=DARKLINE)
+        if not girl:                                                   # des mèches en pointe / spiky hair
+            for k in range(4):
+                bx = hx - r * 0.8 + k * r * 0.5
+                d.polygon([(bx, hy - r * 0.6), (bx + r * 0.25, hy - r * 1.35), (bx + r * 0.5, hy - r * 0.6)], fill=_c(hair), outline=DARKLINE)
+        ey = hy + r * 0.12
+        for ex in (0.32, 0.72):
+            x = hx - r + 2 * r * ex
+            if frame == 2:
+                d.line([(x - r * 0.1, ey - r * 0.08), (x + r * 0.1, ey + r * 0.08)], fill=DARKLINE, width=int(ow * 2))
+                d.line([(x - r * 0.1, ey + r * 0.08), (x + r * 0.1, ey - r * 0.08)], fill=DARKLINE, width=int(ow * 2))
+            else:
+                d.ellipse([x - r * 0.1, ey - r * 0.16, x + r * 0.1, ey + r * 0.16], fill=DARKLINE)
+                d.ellipse([x - r * 0.04, ey - r * 0.12, x + r * 0.03, ey - r * 0.03], fill=(255, 255, 255, 255))
+        d.arc([hx - r * 0.25, hy + r * 0.3, hx + r * 0.25, hy + r * 0.62], 20, 160, fill=DARKLINE, width=int(ow * 1.5))
+    return fn
+
+
+class GemWell:
+    """A well of gems: pairs fall, land, a round gem bursts the gems of its colour that touch it and sends counter gems
+    to the other well. / Un puits de gemmes : des paires tombent, une gemme ronde fait éclater les gemmes de sa couleur
+    qui la touchent et envoie des gemmes à compteur dans l'autre puits."""
+
+    def __init__(self, rng):
+        self.rng = rng
+        self.grid = [[None] * SPF_ROWS for _ in range(SPF_COLS)]       # grid[col][row], row 0 at the bottom
+        self.pair = None
+        self.next = self.new_pair()
+        self.pending = 0
+        self.crashes = 0
+        self.flash = []                                                # (col, row, color, t) gems that burst / qui éclatent
+
+    def new_pair(self):
+        r = self.rng
+        return [(r.randrange(4), 1 if r.random() < 0.25 else 0), (r.randrange(4), 1 if r.random() < 0.12 else 0)]
+
+    def height(self, c):
+        for r in range(SPF_ROWS):
+            if self.grid[c][r] is None:
+                return r
+        return SPF_ROWS
+
+    def drop(self, now):
+        c = self.rng.randrange(SPF_COLS)
+        self.pair = {"col": c, "gems": self.next, "t0": now, "land": self.height(c)}
+        self.next = self.new_pair()
+
+    def land(self, now):
+        p = self.pair
+        self.pair = None
+        c, h = p["col"], self.height(p["col"])
+        for k, g in enumerate(p["gems"]):
+            if h + k < SPF_ROWS:
+                self.grid[c][h + k] = (g[0], g[1], 0)
+        sent = 0
+        for k in range(2):
+            if h + k < SPF_ROWS:
+                sent += self.crash(c, h + k, now)
+        if self.height(c) >= SPF_ROWS - 1 or max(self.height(x) for x in range(SPF_COLS)) >= SPF_ROWS:
+            self.clear(now)
+        return sent
+
+    def crash(self, c, r, now, force=False):
+        """Bursts the gems of the colour of the round gem at (c, r) that touch it. / Fait éclater les gemmes."""
+        g = self.grid[c][r]
+        if g is None or (g[1] != 1 and not force):
+            return 0
+        col = g[0]
+        todo, seen = [(c, r)], set()
+        while todo:
+            x, y = todo.pop()
+            if (x, y) in seen or not (0 <= x < SPF_COLS and 0 <= y < SPF_ROWS):
+                continue
+            q = self.grid[x][y]
+            if q is None or q[0] != col or q[1] == 2:
+                continue
+            seen.add((x, y))
+            todo += [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
+        if len(seen) < 2 and not force:
+            return 0
+        for x, y in seen:
+            self.flash.append((x, y, col, now))
+            self.grid[x][y] = None
+        self.settle()
+        self.crashes += 1
+        return len(seen) // 2
+
+    def settle(self):
+        for c in range(SPF_COLS):
+            col = [g for g in self.grid[c] if g is not None]
+            self.grid[c] = col + [None] * (SPF_ROWS - len(col))
+
+    def receive(self, n):
+        """Counter gems fall on the top of the well. / Des gemmes à compteur tombent en haut du puits."""
+        for _ in range(n):
+            c = self.rng.randrange(SPF_COLS)
+            h = self.height(c)
+            if h < SPF_ROWS:
+                self.grid[c][h] = (self.rng.randrange(4), 2, 5)
+
+    def tick(self):
+        """The counters go down, at 0 the gem is an ordinary gem. / Les compteurs baissent, à 0 la gemme est ordinaire."""
+        for c in range(SPF_COLS):
+            for r in range(SPF_ROWS):
+                g = self.grid[c][r]
+                if g is not None and g[1] == 2:
+                    self.grid[c][r] = (g[0], 2, g[2] - 1) if g[2] > 1 else (g[0], 0, 0)
+
+    def clear(self, now):
+        for c in range(SPF_COLS):
+            for r in range(SPF_ROWS):
+                if self.grid[c][r] is not None:
+                    self.flash.append((c, r, self.grid[c][r][0], now))
+        self.grid = [[None] * SPF_ROWS for _ in range(SPF_COLS)]
+
+
+class PuzzleFighterScene(GameScene):
+    """Super Puzzle Fighter II Turbo as in the game: the hall of the fights, the two wells of gems at the sides; pairs of
+    gems of our own fall, a round gem bursts the gems of its colour and sends counter gems to the other side, the two
+    little fighters of our own in the middle fight with each crash. The names of the characters read in the game,
+    NEXT and the score above the wells. / La salle des combats, les deux puits de gemmes ; des paires de gemmes à nous
+    tombent, une gemme ronde fait éclater celles de sa couleur et envoie des gemmes à compteur de l'autre côté, nos deux
+    petits combattants au milieu se battent à chaque explosion. Les noms des personnages lus dans le jeu."""
+    THEME = "spf_hall"
+    STATIC = True
+    SHADE = (60, 30)
+
+    def __init__(self, hd, rng=None):
+        super().__init__(hd, rng)
+        self.wells = [GemWell(self.rng), GemWell(self.rng)]
+        self.next_drop = [0.0, 0.4]
+        self.next_tick = 0.0
+        self.act = [(-99.0, 0), (-99.0, 0)]                             # (time, frame) of each fighter / de chaque combattant
+        self.attacks = 0                                               # (tests)
+        self.warm = [(self.gem_img, (c, k, n)) for c in range(4) for k, n in ((0, 0), (1, 0), (2, 5))] + [(self.fighter, (i, f)) for i in range(2)
+                                                                                                         for f in range(3)] + self.warm
+
+    def cell(self):
+        return self.S(SPF_CELL)
+
+    def well_x(self, side):
+        return self.S(150) if side == 0 else self.W - self.S(150) - SPF_COLS * self.cell()
+
+    def gem_img(self, col, kind, n):
+        c = self.cell()
+        return self.img(("spfgem", col, kind, n), c, c, gem_draw(SPF_COLORS[col], kind, n), ss=3)
+
+    GIRLS = (0, 1, 4, 6, 7, 8)                                         # the characters that are girls / les personnages filles
+    LOOKS = (((40, 30, 60), (250, 200, 40)), ((60, 40, 30), (60, 110, 220)), ((30, 30, 30), (240, 240, 240)), ((200, 160, 60), (220, 60, 50)),
+             ((30, 30, 60), (150, 80, 200)), ((230, 230, 230), (60, 60, 70)), ((120, 60, 160), (90, 200, 220)), ((90, 50, 30), (250, 140, 180)),
+             ((220, 120, 40), (120, 120, 140)), ((160, 30, 30), (70, 50, 60)), ((60, 40, 30), (250, 150, 180)))
+
+    def fighter(self, side, frame, who=None):
+        """Our own little fighter for the character read in the game: a girl or a boy, colours of our own.
+        / Notre petit combattant pour le personnage lu dans le jeu : fille ou garçon, couleurs à nous."""
+        S = self.S
+        who = (2, 0)[side] if who is None else who
+        hair, top = self.LOOKS[who % len(self.LOOKS)]
+        return self.img(("spfchibi", side, frame, who), S(160), S(200), chibi_draw((240, 196, 160), hair, top, (60, 60, 80), frame, who in self.GIRLS),
+                        ss=2, flip=side == 1)
+
+    def restart(self, vals, now):
+        self.next_drop = [now + 0.3, now + 0.7]
+
+    def attack(self, side, n, now):
+        """A crash: the fighter of that side strikes, counter gems fall on the other side. / Une explosion : il frappe."""
+        self.attacks += 1
+        self.act[side] = (now, 1)
+        self.act[1 - side] = (now + 0.15, 2)
+        self.wells[1 - side].receive(min(6, max(1, n)))
+        S = self.S
+        x = self.W / 2 + (S(100) if side == 0 else -S(100))
+        self.fx.sparks(x, S(300), 14, (255, 240, 160), (300, 700), (0, 360), (0.2, 0.4), 300, "front", 4, 16)
+        self.fx.glow(x, S(300), 20, 90, (255, 220, 140), 0.3, "front", 0.9, 0.0)
+
+    def update(self, vals, now):
+        ch = self.changed(vals, "score")
+        if ch and ch[1] > ch[0]:                                       # points: player 1 bursts a group / des points
+            w = self.wells[0]
+            for c in range(SPF_COLS):
+                h = w.height(c)
+                if h:
+                    n = w.crash(c, h - 1, now, force=True)
+                    self.attack(0, max(1, n), now)
+                    break
+
+    def always(self, vals, now):
+        if now >= self.next_tick:
+            self.next_tick = now + 1.0
+            for w in self.wells:
+                w.tick()
+        for side, w in enumerate(self.wells):
+            if w.pair is None and now >= self.next_drop[side]:
+                w.drop(now)
+            elif w.pair is not None and now - w.pair["t0"] >= 0.55:
+                sent = w.land(now)
+                if sent:
+                    self.attack(side, sent, now)
+                self.next_drop[side] = now + self.rng.uniform(0.2, 0.6)
+
+    def draw_well(self, screen, side, now):
+        w, c = self.wells[side], self.cell()
+        x0, y0 = self.well_x(side), self.S(SPF_TOP)
+        bottom = y0 + SPF_ROWS * c
+        for col in range(SPF_COLS):
+            for row in range(SPF_ROWS):
+                g = w.grid[col][row]
+                if g is not None:
+                    screen.blit(self.gem_img(g[0], g[1], g[2] if g[1] == 2 else 0), (int(x0 + col * c), int(bottom - (row + 1) * c)))
+        if w.pair is not None:                                         # the pair falls / la paire tombe
+            p = w.pair
+            k = _clamp((now - p["t0"]) / 0.55)
+            land_y = bottom - (w.height(p["col"]) + 1) * c
+            y = y0 - c + (land_y - (y0 - c)) * k
+            for i, g in enumerate(p["gems"]):
+                screen.blit(self.gem_img(g[0], g[1], 0), (int(x0 + p["col"] * c), int(y - i * c)))
+        keep = []
+        for col, row, color, t0 in w.flash:                            # the gems that burst / les gemmes qui éclatent
+            k = (now - t0) / 0.35
+            if k >= 1:
+                continue
+            keep.append((col, row, color, t0))
+            r = int(c * (0.5 + k))
+            self.pg.draw.circle(screen, _mix(SPF_COLORS[color], WHITE, 0.6), (int(x0 + (col + 0.5) * c), int(bottom - (row + 0.5) * c)), r,
+                                max(1, int(c * 0.2 * (1 - k))))
+        w.flash = keep
+
+    def draw_hud(self, screen, eng, vals, logo, now):
+        S, W = self.S, self.W
+        for side in (0, 1):
+            self.draw_well(screen, side, now)
+        for side in (0, 1):                                            # the two little fighters / les deux petits combattants
+            t0, f = self.act[side]
+            frame = f if 0 <= now - t0 < 0.4 else 0
+            who = _n(vals.get("_p1_chr" if side == 0 else "_p2_chr"))
+            img = self.fighter(side, frame, int(who) if who is not None else None)
+            bob = math.sin(now * 4 + side) * S(4) if frame == 0 else 0
+            x = W / 2 - S(150) if side == 0 else W / 2 + S(150)
+            screen.blit(img, (int(x - img.get_width() / 2), int(S(430) - img.get_height() + bob)))
+        self.status(screen, eng, vals, logo, now)
+
+    def status(self, screen, eng, vals, logo, now):
+        """NEXT and the score above each well, the names of the characters under the fighters. / NEXT, score et noms."""
+        S, W, hd, c = self.S, self.W, self.hd, self.cell()
+        hd.draw_logo(screen, logo, W / 2, S(6), S(420), S(80), now)
+        for side in (0, 1):
+            x0 = self.well_x(side)
+            nx = x0 - S(110) if side == 0 else x0 + SPF_COLS * c + S(20)
+            self.pill(screen, nx, S(SPF_TOP - 4), S(90), S(124), 170, radius=12)
+            self.text(screen, "NEXT", nx + S(45), S(SPF_TOP + 16), 22, (255, 230, 120), key="black", align="center", valign="middle")
+            for i, g in enumerate(self.wells[side].next):
+                screen.blit(self.gem_img(g[0], g[1], 0), (int(nx + S(30)), int(S(SPF_TOP + 76) - i * c)))
+            name = vals.get("p1_char" if side == 0 else "p2_char")
+            if isinstance(name, str) and name:
+                self.label(screen, name, W / 2 + (-S(150) if side == 0 else S(150)), S(440), 26, P1C if side == 0 else P2C, align="center")
+        self.pill(screen, S(40), S(8), S(330), S(62), 170, radius=12)
+        self.text(screen, "SCORE", S(58), S(39), 22, P1C, key="black", valign="middle")
+        if _n(vals.get("score")) is not None:
+            hd._score(screen, eng, "score", S(356), S(16), "right", S(36))
+        if self.p2_in(vals) and _n(vals.get("score_p2")) is not None:
+            self.pill(screen, W - S(370), S(8), S(330), S(62), 170, radius=12)
+            self.text(screen, "SCORE", W - S(352), S(39), 22, P2C, key="black", valign="middle")
+            hd._score(screen, eng, "score_p2", W - S(54), S(16), "right", S(36))
+        elif not self.p2_in(vals):
+            word, col = self.invite(vals, now)
+            self.label(screen, word, W - S(24), S(40), 28, col, align="right")
+
+
+SCENES = {"ghouls": GhoulsScene, "strider": StriderScene, "pang3": Pang3Scene, "mpang": MightyPangScene, "spf2t": PuzzleFighterScene}
 __all__ = ["SCENES", "SideQuestScene"]
 _KEEP = (AMBER, P1C, P2C, draw_img)

@@ -340,6 +340,59 @@ def build_pg_peak(W, H, s, seed=1404):
     return {"sky": sky.convert("RGB"), "layers": [], "tw": W, "amb": {"snow": True}}
 
 
-BUILDERS = {"gg_grave": build_gg_grave, "st_city": build_st_city, "pg_temple": build_pg_temple, "pg_peak": build_pg_peak}
+# ============================================================================ Super Puzzle Fighter II Turbo
+SPF_CELL = 30           # a gem of the wells / une gemme des puits
+SPF_TOP = 86            # top of the wells / haut des puits
+SPF_ROWS, SPF_COLS = 12, 6
+
+
+def build_spf_hall(W, H, s, seed=1405):
+    """Super Puzzle Fighter II Turbo: the hall of the fights, as in the game: walls of dark wood and their pillars,
+    paper doors lit from behind, red lanterns, the polished floor; the two wells of gems in their golden frames at the
+    sides. / La salle des combats : murs de bois sombre et leurs piliers, portes de papier éclairées par derrière,
+    lanternes rouges, parquet ciré ; les deux puits de gemmes dans leurs cadres dorés sur les côtés."""
+    rng = random.Random(seed)
+    sky = vgrad(W, H, [(0.0, (60, 30, 20)), (1.0, (100, 56, 30))])
+    p = _Pic(W, H, 2)
+    for k in range(int(W / (160 * s)) + 1):                              # les portes de papier entre les piliers
+        x0 = k * 160 * s
+        p.poly([(x0 + 14 * s, 60 * s), (x0 + 146 * s, 60 * s), (x0 + 146 * s, 330 * s), (x0 + 14 * s, 330 * s)], (250, 220, 160, 255))
+        for j in range(1, 4):
+            p.line([(x0 + 14 * s + j * 33 * s, 60 * s), (x0 + 14 * s + j * 33 * s, 330 * s)], (120, 70, 40, 255), 3 * s)
+        for j in range(1, 6):
+            p.line([(x0 + 14 * s, 60 * s + j * 45 * s), (x0 + 146 * s, 60 * s + j * 45 * s)], (120, 70, 40, 255), 3 * s)
+        p.poly([(x0 - 10 * s, 0), (x0 + 14 * s, 0), (x0 + 14 * s, 340 * s), (x0 - 10 * s, 340 * s)], (70, 36, 20, 255), (40, 20, 10, 255), 2 * s)
+    p.poly([(0, 0), (W, 0), (W, 60 * s), (0, 60 * s)], (80, 40, 24, 255), (40, 20, 10, 255), 2 * s)        # la poutre du haut
+    for k in range(int(W / (40 * s)) + 1):
+        p.line([(k * 40 * s, 0), (k * 40 * s, 60 * s)], (60, 30, 18, 255), 2 * s)
+    for k in range(6):                                                   # les lanternes rouges
+        x = (k + 0.5) * W / 6
+        p.line([(x, 60 * s), (x, 90 * s)], (40, 20, 10, 255), 3 * s)
+        p.ellipse(x - 26 * s, 90 * s, x + 26 * s, 150 * s, (220, 50, 40, 255), (120, 20, 20, 255), 2 * s)
+        p.ellipse(x - 14 * s, 100 * s, x + 6 * s, 136 * s, (255, 140, 90, 200))
+        p.poly([(x - 14 * s, 146 * s), (x + 14 * s, 146 * s), (x + 10 * s, 156 * s), (x - 10 * s, 156 * s)], (40, 20, 10, 255))
+    fy = 340 * s                                                         # le parquet
+    p.poly([(0, fy), (W, fy), (W, H), (0, H)], (150, 90, 50, 255))
+    for k in range(8):
+        y = fy + (k + 1) * (H - fy) / 8
+        p.line([(0, y), (W, y)], (120, 70, 36, 255), 2 * s)
+    for k in range(40):
+        x = rng.uniform(0, W)
+        p.line([(x, fy + rng.uniform(0, H - fy)), (x + 60 * s, fy + rng.uniform(0, H - fy))], (170, 110, 64, 255), 2 * s)
+    for side in (0, 1):                                                  # les puits dans leurs cadres dorés
+        x0 = (150 if side == 0 else W / s - 150 - SPF_COLS * SPF_CELL) * s
+        w, h = SPF_COLS * SPF_CELL * s, SPF_ROWS * SPF_CELL * s
+        y0 = SPF_TOP * s
+        p.poly([(x0 - 14 * s, y0 - 14 * s), (x0 + w + 14 * s, y0 - 14 * s), (x0 + w + 14 * s, y0 + h + 10 * s), (x0 - 14 * s, y0 + h + 10 * s)],
+               (230, 180, 60, 255), (120, 80, 20, 255), 3 * s)
+        p.poly([(x0, y0), (x0 + w, y0), (x0 + w, y0 + h), (x0, y0 + h)], (20, 16, 40, 255))
+        for c in range(1, SPF_COLS):
+            p.line([(x0 + c * SPF_CELL * s, y0), (x0 + c * SPF_CELL * s, y0 + h)], (36, 30, 64, 255), 1.5 * s)
+    sky = sky.convert("RGBA")
+    sky.alpha_composite(p.done())
+    return {"sky": sky.convert("RGB"), "layers": [], "tw": W, "amb": {}}
+
+
+BUILDERS = {"gg_grave": build_gg_grave, "st_city": build_st_city, "pg_temple": build_pg_temple, "pg_peak": build_pg_peak, "spf_hall": build_spf_hall}
 hd_bg.BUILDERS.update(BUILDERS)
 THEMES = tuple(BUILDERS)                 # names of the backdrops of this batch / noms des décors de ce lot
