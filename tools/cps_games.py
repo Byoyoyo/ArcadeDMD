@@ -44,8 +44,8 @@ PATTERNS = {
     "lives": rf"^infinite lives {PL}1$",
     "lives_p2": rf"^infinite lives {PL}2$",
     "bombs": rf"^infinite (?:bombs|bomb stock|bomb) {PL}1$",
-    "power": rf"^(?:infinite (?:power|super|super meter|super gauge)|always have max (?:power|super)) {PL}1$",
-    "power_p2": rf"^(?:infinite (?:power|super|super meter|super gauge)|always have max (?:power|super)) {PL}2$",
+    "power": rf"^(?:infinite (?:power|super|super meter|super gauge)|always (?:have )?max(?:imum)? (?:power|super)(?: gauge)?) {PL}1$",
+    "power_p2": rf"^(?:infinite (?:power|super|super meter|super gauge)|always (?:have )?max(?:imum)? (?:power|super)(?: gauge)?) {PL}2$",
     "_p1_chr": rf"^select (?:1st )?char(?:acter)?(?: \(active char\))?(?: now!)? {PL}1$",
     "_p2_chr": rf"^select (?:1st )?char(?:acter)?(?: \(active char\))?(?: now!)? {PL}2$",
 }
@@ -170,6 +170,23 @@ def names_of(c):
     return None, None
 
 
+def pair_names_of(c):
+    """([address, address], {"a,b": NAME}) of a Select Character cheat that writes two bytes, the pair telling the character
+    (a row and a column in Street Fighter III). / Deux octets dont la paire dit le personnage (ligne et colonne)."""
+    opts = [o for o in c["options"] if o["n"] != 0 and len(o["triples"]) == 2]
+    if len(opts) < 4 or len({tuple(t[1] for t in o["triples"]) for o in opts}) != 1:
+        return None, None
+    keys = [",".join(str(t[2]) for t in o["triples"]) for o in opts]
+    if len(set(keys)) < len(keys) * 0.9:
+        return None, None
+    out = {}
+    for o, k in zip(opts, keys):
+        label = short_name(o["label"].strip("#"))
+        if label and k not in out:
+            out[k] = label
+    return [t[1] for t in opts[0]["triples"]], out
+
+
 # full health of a game whose cheats only drain it, from a game of the same series / vie pleine d'un jeu de la même série
 FULL = {"sf2": 0x90, "nwarr": 0x90}
 
@@ -221,11 +238,17 @@ def values_from_cheats(cs, fam, name=""):
             vals[key] = v
     for key, out in (("_p1_chr", "p1_char"), ("_p2_chr", "p2_char")):
         if key in found:
+            who = "player 1" if key == "_p1_chr" else "player 2 or computer"
             addr, names = names_of(found[key])
             if names:
-                vals[key] = value(addr, 1, fam, "u8", f"{'player 1' if key == '_p1_chr' else 'player 2 or computer'} character "
-                                                     f"({src}, {found[key]['name']})")
+                vals[key] = value(addr, 1, fam, "u8", f"{who} character ({src}, {found[key]['name']})")
                 derived[out] = {"value": key, "names": names}
+                continue
+            addrs, names = pair_names_of(found[key])
+            if names:                                # the character told by two bytes / le personnage dit par deux octets
+                vals[key] = value(addrs[0], 1, fam, "u8", f"{who} character, first byte ({src}, {found[key]['name']})")
+                vals[key + "2"] = value(addrs[1], 1, fam, "u8", f"{who} character, second byte ({src}, {found[key]['name']})")
+                derived[out] = {"join": [key, key + "2"], "names": names}
     for k in vals:
         if not k.startswith("_"):
             got.append(k)
@@ -484,10 +507,17 @@ def build(fbneo, cheats_dir, games_dir):
         merged = dict(vals)
         merged.update(hand)                          # learned or set by hand wins / ce qui est appris passe avant
         d["memory"] = {"cpu": ":maincpu", "values": merged}
-        if derived:
-            dv = d.get("derived") if isinstance(d.get("derived"), dict) else {}
-            dv.update(derived)
+        dv = d.get("derived") if isinstance(d.get("derived"), dict) else {}
+        dv.update(derived)
+        for k in list(dv):                           # names of a value no longer read / noms d'une valeur qui n'est plus lue
+            spec = dv[k] if isinstance(dv[k], dict) else {}
+            used = [spec["value"]] if isinstance(spec.get("value"), str) else [x for x in spec.get("join") or [] if isinstance(x, str)]
+            if used and any(u not in merged for u in used):
+                del dv[k]
+        if dv:
             d["derived"] = dv
+        else:
+            d.pop("derived", None)
         if scene == "cps_combat":
             hd_old = d.get("hd") if isinstance(d.get("hd"), dict) else {}
             if not hd_old.get("scene") and not hd_old.get("hand"):
@@ -511,11 +541,13 @@ def build(fbneo, cheats_dir, games_dir):
         for k in ("lives", "bombs"):
             if k in merged:
                 demo[k] = 3
-        if "_p1_chr" in merged and "p1_char" in derived:
-            demo["_p1_chr"] = int(sorted(derived["p1_char"]["names"], key=int)[0])
-        if "_p2_chr" in merged and "p2_char" in derived:
-            keys = sorted(derived["p2_char"]["names"], key=int)
-            demo["_p2_chr"] = int(keys[1] if len(keys) > 1 else keys[0])
+        for side, key, pick in (("p1_char", "_p1_chr", 0), ("p2_char", "_p2_chr", 1)):
+            if key in merged and side in derived:
+                keys = sorted(derived[side]["names"], key=lambda k: [int(x) for x in k.split(",")])
+                parts = [int(x) for x in keys[min(pick, len(keys) - 1)].split(",")]
+                demo[key] = parts[0]
+                if len(parts) > 1:                   # the second byte of the pair / le second octet de la paire
+                    demo[key + "2"] = parts[1]
         if not d.get("demo_hand"):
             d["demo"] = demo
         dump(path, d)

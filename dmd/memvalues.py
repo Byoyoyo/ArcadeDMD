@@ -175,6 +175,11 @@ def _resolve(expr, values, depth=0):
         if not isinstance(lst, list) or isinstance(idx, bool) or not isinstance(idx, int) or not 0 <= idx < len(lst):
             return None
         return _resolve(lst[idx], values, depth + 1)
+    if "join" in expr:                        # several values together, "a,b" (a character given by a row and a column)
+        parts = [_resolve(x, values, depth + 1) for x in expr.get("join") or []]
+        if not parts or any(p is None or isinstance(p, bool) for p in parts):
+            return None
+        return ",".join(str(int(p)) if isinstance(p, float) and p.is_integer() else str(p) for p in parts)
     if "find" in expr:
         lst = expr.get("find")
         target = _resolve(expr.get("eq"), values, depth + 1)

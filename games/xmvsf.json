@@ -1,6 +1,6 @@
 {
   "title": "X-Men Vs. Street Fighter",
-  "note": "Capcom CPS2 fighting game: health, health_p2, time, 19 characters (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "note": "Capcom CPS2 fighting game: health, health_p2, time, power, power_p2, 19 characters (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
   "generated": "tools/cps_games.py",
   "cps": "CPS2",
   "match": [
@@ -48,6 +48,24 @@
         "type": "bcd",
         "bytes": 1,
         "note": "timer (FBNeo cheat database, Infinite Time)"
+      },
+      "power": {
+        "addr": "0xFF4214",
+        "type": "u8",
+        "note": "super gauge of player 1 in %, full = 0x3 (FBNeo cheat database)",
+        "mult": 33.333333,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "power_p2": {
+        "addr": "0xFF4614",
+        "type": "u8",
+        "note": "super gauge of player 2 in %, full = 0x3 (FBNeo cheat database)",
+        "mult": 33.333333,
+        "round": 1,
+        "min": 0,
+        "max": 100
       },
       "_p1_chr": {
         "addr": "0xFF4053",

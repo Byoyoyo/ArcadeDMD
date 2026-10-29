@@ -1,6 +1,6 @@
 {
   "title": "JoJo's Venture",
-  "note": "Capcom CPS3 fighting game: health, health_p2, time, credits (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "note": "Capcom CPS3 fighting game: health, health_p2, time, credits, power, power_p2 (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
   "generated": "tools/cps_games.py",
   "cps": "CPS3",
   "match": [
@@ -51,6 +51,24 @@
         "addr": "0x206B850",
         "type": "u8",
         "note": "credits (FBNeo cheat database, Infinite Credits)"
+      },
+      "power": {
+        "addr": "0x2030443",
+        "type": "u8",
+        "note": "super gauge of player 1 in %, full = 0xA (FBNeo cheat database)",
+        "mult": 10.0,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "power_p2": {
+        "addr": "0x2030467",
+        "type": "u8",
+        "note": "super gauge of player 2 in %, full = 0xA (FBNeo cheat database)",
+        "mult": 10.0,
+        "round": 1,
+        "min": 0,
+        "max": 100
       }
     }
   },
