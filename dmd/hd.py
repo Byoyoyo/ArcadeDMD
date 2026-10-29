@@ -44,6 +44,7 @@ from .i18n import tr
 
 AMBER, RED, CREAM, LINE = (255, 168, 48), (255, 52, 30), (235, 225, 205), (168, 112, 30)
 GREY, DIM = (150, 150, 165), (90, 90, 100)
+MAX_INK = (70, 36, 6)
 BARS = {"g": ((48, 240, 160), (20, 150, 110)), "y": ((255, 214, 60), (190, 130, 20)), "r": ((255, 70, 50), (160, 30, 20))}
 FONT_FILES = {"black": "Inter-Black.otf", "xbold": "Inter-ExtraBold.otf", "bold": "Inter-Bold.otf",
               "logo": "InterDisplay-BlackItalic.otf", "stencil": "BlackOpsOne-Regular.ttf"}
@@ -691,10 +692,45 @@ class HDRenderer:
             team = self.team(eng, side)
             if team:
                 self.draw_team(screen, team, S(44) if side == "p1" else W - S(44), S(372), side, room)
+            else:
+                self.draw_super(screen, vals, side, now, room)
         credits = _num(vals.get("credits"))
         if credits is not None:
             self.put(screen, self.text(tr(f"CRÉDITS {int(credits):02d}", f"CREDITS {int(credits):02d}"), "bold", S(30),
                                        (200, 170, 120), glow=0), cx, S(335), "center", "middle")
+
+    def draw_super(self, screen, vals, side, now, room):
+        """Super gauge of the Capcom fighting games (Alpha, Marvel, Street Fighter III...) under the fighter: it fills up,
+        turns gold and says MAX when full. / Jauge de super sous le combattant : elle se remplit, dorée et MAX quand pleine."""
+        p = _num(vals.get("power" if side == "p1" else "power_p2"))
+        if p is None:
+            return
+        S, pg, W = self.S, self.pg, self.W
+        f = max(0.0, min(1.0, p / 100.0))
+        lab = self.text("SUPER", "black", S(30), (120, 190, 255), glow=0)
+        w, h = int(min(room - lab["w"] - S(60), S(520))), S(24)
+        y = S(380)
+        if side == "p1":
+            lx, x = S(44), S(44) + lab["w"] + S(16)
+        else:
+            lx, x = W - S(44), W - S(44) - lab["w"] - S(16) - w
+        self.put(screen, lab, lx, y + h / 2, "left" if side == "p1" else "right", "middle")
+        pg.draw.rect(screen, (24, 28, 44), (x, y, w, h), border_radius=h // 2)
+        full = f >= 0.999
+        if f > 0:
+            fw = max(h, int(w * f))
+            fx = x if side == "p1" else x + w - fw
+            if full:
+                k = 0.5 + 0.5 * math.sin(now * 8)
+                col = (255, int(190 + 50 * k), int(40 + 80 * k))
+            else:
+                col = (60, 150, 255)
+            pg.draw.rect(screen, col, (fx, y, fw, h), border_radius=h // 2)
+            pg.draw.rect(screen, (200, 230, 255) if not full else (255, 250, 220), (fx + h // 3, y + S(4), max(1, fw - 2 * (h // 3)), S(4)),
+                         border_radius=S(2))
+        pg.draw.rect(screen, (150, 170, 210), (x, y, w, h), max(1, S(2)), border_radius=h // 2)
+        if full:
+            self.put(screen, self.text("MAX", "black", S(26), MAX_INK, glow=0), x + w / 2, y + h / 2, "center", "middle")
 
     def team(self, eng, side):
         """Équipe King of Fighters dans l'ordre de passage : [(nom, état)], état « done », « now » ou « next »."""
