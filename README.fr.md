@@ -11,7 +11,7 @@ Score, vies, crédits et événements des jeux MAME et RetroArch en direct sur l
 ![Metal Slug sur une dalle LED 128x32](docs/images/led_metal_slug.gif)
 
 - Lit la mémoire du jeu en direct, avec un plugin MAME ou par les commandes réseau de RetroArch (FinalBurn Neo, Genesis Plus GX). Rien n'est modifié dans le jeu ni dans l'émulateur.
-- Scènes prêtes pour Metal Slug 1 à 5 et X, les 57 jeux de combat Neo Geo, dix jeux Neo Geo faits un par un (Blazing Star, Puzzle Bobble, Windjammers, Shock Troopers, Neo Turf Masters, Pulstar, Magical Drop III, Super Sidekicks 3, The Ultimate 11, Sengoku 3), tous les autres jeux Neo Geo selon leur genre, After Burner II, Sonic 1 et 2.
+- Scènes prêtes pour Metal Slug 1 à 5 et X, les 57 jeux de combat Neo Geo, quinze jeux Neo Geo faits un par un (Blazing Star, Puzzle Bobble, Windjammers, Shock Troopers, Neo Turf Masters, Pulstar, Magical Drop III, Super Sidekicks 3, The Ultimate 11, Sengoku 3, Top Hunter, Baseball Stars 2, Last Resort, Aero Fighters 2, Aero Fighters 3), tous les autres jeux Neo Geo selon leur genre, After Burner II, Sonic 1 et 2.
 - Scènes HD avec des décors animés qui suivent le stage ou la mission du jeu, et un effet pour chaque événement (coups, combos, K.O., armes, bombes, pièces...).
 - Le logo du jeu au lancement (ton Clear Logo LaunchBox). Quand personne ne joue, les jeux de combat attendent une pièce. Mets-en une, elle tombe dans la fente, les crédits roulent, puis PRESS START.
 - Un outil d'apprentissage trouve les adresses manquantes (score, crédits...) à partir de quelques captures.
@@ -34,7 +34,7 @@ Contenu du dossier
 | `test_pixelcade.bat` | mire de test sur la Pixelcade LED |
 | `screen_setup.bat` | place la scène sur un écran LCD qui sert de DMD, en LED virtuelles ou en HD lisse avec le logo du jeu (section 3) |
 | `demo_fight.bat` | démo d'un jeu de combat (King of Fighters '98) avec des valeurs simulées |
-| `demo_neogeo.bat` | démo d'un jeu Neo Geo fait un par un (Blazing Star, Puzzle Bobble, Windjammers, Shock Troopers, Neo Turf Masters, Pulstar, Magical Drop III, Super Sidekicks 3, The Ultimate 11, Sengoku 3) avec des valeurs simulées |
+| `demo_neogeo.bat` | démo d'un jeu Neo Geo fait un par un (Blazing Star, Puzzle Bobble, Windjammers, Shock Troopers, Neo Turf Masters, Pulstar, Magical Drop III, Super Sidekicks 3, The Ultimate 11, Sengoku 3, Top Hunter, Baseball Stars 2, Last Resort, Aero Fighters 2, Aero Fighters 3) avec des valeurs simulées |
 | `test_retroarch.bat` | vérifie RetroArch, le cœur chargé et la lecture de la mémoire (section 7) |
 | `ports.bat` | liste les ports COM, pour trouver celui de la Pixelcade |
 | `test_panel.bat` | mire de test sur une dalle ZeDMD |
@@ -252,7 +252,7 @@ Avec l'affichage HD lisse, les Metal Slug et les jeux de combat ont une scène c
 
 - **Metal Slug.** Un panneau de soldat par joueur, avec le score, l'arme et sa jauge de munitions, les bombes et les vies. Les tirs suivent l'arme (traçantes et douilles, décharges du fusil à pompe, roquettes, lance-flammes), les bombes volent et explosent dans le décor, une caisse tombe quand on ramasse une arme, le casque tombe quand on perd une vie et DERNIÈRE VIE clignote sur la dernière. Le joueur 2 peut arriver à tout moment. Chaque mission a son décor (jungle, désert, montagne enneigée, ville en guerre, port, base ennemie), avec MISSION COMPLETE et un feu d'artifice entre les deux. Quand personne ne joue, les décors passent à tour de rôle.
 - **Jeux de combat.** Étincelles à chaque coup, compteur de combo, PREMIER COUP, super coups (l'écran s'assombrit), battement de cœur rouge quand la vie est basse, K.O. qui explose, DOUBLE K.O., TIME UP, PERFECT, confettis pour le vainqueur, combattant suivant des King of Fighters, et FIGHT ! au début de chaque round. Le public en bas réagit à l'action.
-- **Jeux Neo Geo faits un par un.** Blazing Star, Puzzle Bobble, Windjammers, Shock Troopers, Neo Turf Masters, Pulstar, Magical Drop III, Super Sidekicks 3, The Ultimate 11 et Sengoku 3 ont chacun une scène à eux, voir la section 7 (Jeux Neo Geo faits un par un).
+- **Jeux Neo Geo faits un par un.** Blazing Star, Puzzle Bobble, Windjammers, Shock Troopers, Neo Turf Masters, Pulstar, Magical Drop III, Super Sidekicks 3, The Ultimate 11, Sengoku 3, Top Hunter, Baseball Stars 2, Last Resort, Aero Fighters 2 et Aero Fighters 3 ont chacun une scène à eux, voir la section 7 (Jeux Neo Geo faits un par un).
 
 #### Des décors qui suivent le stage
 
@@ -400,8 +400,8 @@ Pour savoir quel cœur tourne, appuie sur F1 pendant le jeu, puis Informations, 
 | Metal Slug 3 (`mslug3`) | FinalBurn Neo | score, vies, bombes, arme et munitions | score J2 |
 | Metal Slug 4 (`mslug4`), Metal Slug 5 (`mslug5`) | FinalBurn Neo | vies, bombes, arme et munitions | score |
 | Les 57 jeux de combat Neo Geo (King of Fighters, Samurai Shodown, Fatal Fury, Last Blade, World Heroes...) | FinalBurn Neo | voir le tableau Jeux de combat juste en dessous | le score, sauf KOF 96 à 2002 et Samurai Shodown II |
-| Blazing Star (`blazstar`), Puzzle Bobble (`pbobblen`), Shock Troopers (`shocktro`), Pulstar (`pulstar`), Magical Drop III (`magdrop3`), Sengoku 3 (`sengoku3`) | FinalBurn Neo | voir Jeux Neo Geo faits un par un | score |
-| Windjammers (`wjammers`), Neo Turf Masters (`turfmast`), Super Sidekicks 3 (`ssideki3`), The Ultimate 11 (`ssideki4`) | FinalBurn Neo | voir Jeux Neo Geo faits un par un | rien |
+| Blazing Star (`blazstar`), Puzzle Bobble (`pbobblen`), Shock Troopers (`shocktro`), Pulstar (`pulstar`), Magical Drop III (`magdrop3`), Sengoku 3 (`sengoku3`), Top Hunter (`tophuntr`), Last Resort (`lresort`), Aero Fighters 2 (`sonicwi2`), Aero Fighters 3 (`sonicwi3`) | FinalBurn Neo | voir Jeux Neo Geo faits un par un | score |
+| Windjammers (`wjammers`), Neo Turf Masters (`turfmast`), Super Sidekicks 3 (`ssideki3`), The Ultimate 11 (`ssideki4`), Baseball Stars 2 (`bstars2`) | FinalBurn Neo | voir Jeux Neo Geo faits un par un | rien |
 | Tous les autres jeux Neo Geo | FinalBurn Neo | scène selon le genre (crédits avec MAME) | score, crédits si le jeu en garde une copie |
 | Sonic 1 et Sonic 2 | Genesis Plus GX | score, anneaux, vies | rien |
 
@@ -501,6 +501,8 @@ Jeu après jeu, les jeux Neo Geo reçoivent une scène de dalle et une scène HD
 
 ![Pulstar, Magical Drop III, Super Sidekicks 3, The Ultimate 11 et Sengoku 3 sur un marquee LCD, affichage HD](docs/images/hd_neogeo_games_2.jpg)
 
+![Top Hunter, Baseball Stars 2, Last Resort, Aero Fighters 2 et Aero Fighters 3 sur un marquee LCD, affichage HD](docs/images/hd_neogeo_games_3.jpg)
+
 | Jeu | Fichier | Dalle | Écran HD |
 |---|---|---|---|
 | Blazing Star | `blazstar.json` | les vies en petits vaisseaux, ROUND, la puissance du tir, un vaisseau qui tire quand le score monte | l'espace et une grosse planète. Le vaisseau tire, un ennemi explose quand le score monte, POWER UP, ROUND avec une pointe de vitesse, le vaisseau explose quand une vie est perdue |
@@ -513,9 +515,14 @@ Jeu après jeu, les jeux Neo Geo reçoivent une scène de dalle et une scène HD
 | Super Sidekicks 3 | `ssideki3.json` | les buts des deux équipes, BUT ! quand il y en a un, un ballon qui fait des allers-retours | un stade de jour, le match vu par la caméra de télé. Quand les buts montent, le ballon finit au fond du filet, BUT !, confettis, le public saute |
 | The Ultimate 11 | `ssideki4.json` | les buts et les jauges de puissance des deux joueurs | le même match de nuit sous les projecteurs, avec la jauge de puissance. Quand la jauge pleine se vide, le super tir part en feu |
 | Sengoku 3 | `sengoku3.json` | la vie et la magie des deux joueurs, le chrono, le combattant, l'arme de jet et ce qu'il en reste | un temple sous la lune et des guerriers de l'ombre, un panneau par combattant. Les armes de jet partent (shuriken, kunai, bombe, disque), un guerrier tombe sous le sabre quand le score monte, la magie balaie l'écran, le panneau tremble quand on est touché |
+| Top Hunter | `tophuntr.json` | les vies en petits chasseurs, le chrono, la jauge de puissance en cinq segments, des collines | des chasseurs aussi grands que dans le jeu sur quatre planètes (forêt, glace, vent, feu) avec leurs deux voies, du feuillage, de la glace ou de la roche en haut de l'écran comme dans le jeu. Des robots et des machines à turbines arrivent sur les deux voies, le chasseur saute d'une voie à l'autre et les frappe, les jette ou leur tire dessus quand le score monte, la jauge de puissance pleine qui se vide donne un coup spécial, les chasseurs passent à la planète suivante quand le chrono repart pour un nouveau stage. En haut, la tête du chasseur avec 1UP= et les vies, le score, la puissance, TIME |
+| Baseball Stars 2 | `bstars2.json` | les points des deux équipes, RUN! quand il y en a un, les lampes des balles, des prises et des retraits, les deux jauges POW | le terrain comme dans la vue de frappe du jeu, une herbe vert vif vue de derrière le marbre, le frappeur en grand devant, le lanceur sur le monticule. Chaque balle, prise et retrait lu dans le jeu est un lancer, annoncé en grosses lettres arc-en-ciel, le frappeur frappe et un joueur attrape la balle, les points envoient la balle loin et les coureurs au marbre (feu d'artifice quand elle passe le mur), l'autre équipe passe à la batte après le troisième retrait. Le compte en pastilles de couleur |
+| Last Resort | `lresort.json` | les vies en petits vaisseaux, la vitesse et la puissance, une ville la nuit, un vaisseau qui tire quand le score monte | la ville la nuit du premier stage du jeu, des tours géantes aux fenêtres orange, des immeubles violets, l'autoroute avec ses réverbères et ses voitures. L'unité tourne autour du vaisseau, du côté opposé à sa route, et tire avec lui, de temps en temps elle part droit devant puis revient, un ennemi explose quand le score monte. 1P= et les vies en haut, POW en bas |
+| Aero Fighters 2 | `sonicwi2.json` | les vies en petits avions, les bombes, la puissance, une ville vue du ciel | une ville vue du ciel en plein jour, ses avenues et leurs voitures, des parkings et des parcs. Des avions de chasse dessinés d'après de vrais avions volent avec leur ombre dessous, les avions ennemis, les hélicoptères et les chars explosent quand le score monte, une bombe envoie une salve de missiles qui nettoie l'écran. Les bombes dans leur cadre comme dans le jeu |
+| Aero Fighters 3 | `sonicwi3.json` | la même chose de nuit, avec le nom du pilote du joueur 1 | une ville au bord d'un fleuve à la tombée de la nuit vue du ciel, avec l'avion du pilote choisi par le joueur 1 (douze avions, le biplan Swordfish, le Seiran et ses flotteurs...), de gros bombardiers et des chars sur les avenues. La grosse bombe tombe et tout saute |
 
-- Les valeurs viennent des codes de triche de FinalBurn Neo et de MAME 2003-Plus et doivent encore être confirmées en jeu (`test_retroarch.bat` les affiche). Le score de Blazing Star, Puzzle Bobble, Shock Troopers, Pulstar, Magical Drop III et Sengoku 3 n'est dans aucune base, apprends-le avec `learn.bat` (voir Apprendre le score). En attendant, le titre défile à sa place sur la dalle.
-- Quand le stick et les boutons se lisent (le BIOS de la Neo Geo les garde, avec MAME comme avec RetroArch), les vaisseaux de Blazing Star et de Pulstar, la flèche de Puzzle Bobble et le fou de Magical Drop III les suivent. Le bouton A tire dans Blazing Star, Pulstar et Shock Troopers et frappe dans Sengoku 3. Dans Magical Drop III, le bouton A prend les gouttes et B les relance. Tant que le joueur n'y a pas touché, la scène joue toute seule.
+- Les valeurs viennent des codes de triche de FinalBurn Neo et de MAME 2003-Plus et doivent encore être confirmées en jeu (`test_retroarch.bat` les affiche). Le score de Blazing Star, Puzzle Bobble, Shock Troopers, Pulstar, Magical Drop III, Sengoku 3, Top Hunter, Last Resort et des deux Aero Fighters n'est dans aucune base, apprends-le avec `learn.bat` (voir Apprendre le score). En attendant, le titre défile à sa place sur la dalle.
+- Quand le stick et les boutons se lisent (le BIOS de la Neo Geo les garde, avec MAME comme avec RetroArch), les vaisseaux de Blazing Star, de Pulstar et de Last Resort, les avions des Aero Fighters, les chasseurs de Top Hunter, la flèche de Puzzle Bobble et le fou de Magical Drop III les suivent. Le bouton A tire dans Blazing Star, Pulstar, Last Resort, les Aero Fighters et Shock Troopers, et frappe dans Sengoku 3 et Top Hunter. Dans Top Hunter, haut et bas font sauter d'une voie à l'autre et B fait sauter. Dans Last Resort, le bouton B lance l'unité. Dans Magical Drop III, le bouton A prend les gouttes et B les relance. Tant que le joueur n'y a pas touché, la scène joue toute seule.
 - Quand personne ne joue, l'écran des pièces, comme pour les jeux de combat (voir Écran des pièces).
 - `demo_neogeo.bat` les montre sans jouer. Choisis le jeu dans la liste, ou donne-le directement, `demo_neogeo.bat wjammers` par exemple.
 
@@ -526,10 +533,10 @@ Les jeux Neo Geo connus de MAME (clones compris) ont une scène commune selon le
 | Genre | Fichier | Ce qui s'affiche |
 |---|---|---|
 | Combat (King of Fighters, Samurai Shodown, Fatal Fury, Art of Fighting, World Heroes...) | `neogeo_combat.json` | façon Vera. En haut le score, ou le titre tant qu'il n'est pas appris, et du côté de l'ordinateur INSERT COIN qui clignote, ou les crédits et PRESS START tour à tour. Au milieu les barres de vie vertes et le chrono dans un cadre, « KO » à la fin du combat (52 jeux, voir le tableau Jeux de combat), sinon « VS ». En bas « P1 », et « CPU » ou « P2 » en face. Dans 34 jeux, le nom du personnage en train de se battre s'affiche à côté, en blanc (« P1 RALF » et « LEONA CPU »). Un filet orange tout en bas. Quand personne ne joue, l'écran des pièces (plus bas) |
-| Shoot'em up (Last Resort, Aero Fighters, Zed Blade...) | `neogeo_shoot.json` | un petit vaisseau qui traverse un champ d'étoiles et tire quand le score monte |
+| Shoot'em up (Zed Blade, Viewpoint, Ghost Pilots...) | `neogeo_shoot.json` | un petit vaisseau qui traverse un champ d'étoiles et tire quand le score monte |
 | Sport et course (Neo Drift Out, Riding Hero, Super Sidekicks 2...) | `neogeo_sport.json` | un terrain avec un ballon qui rebondit |
 | Réflexion, quiz, mahjong (Puzzle De Pon, Pop 'n Bounce, Magical Drop II...) | `neogeo_reflexion.json` | une rangée de blocs de couleur qui changent |
-| Action, plates-formes, beat'em up et le reste (Top Hunter, Ninja Combat, Sengoku 2...) | `neogeo.json` | des collines bleues, et les barres de vie des deux joueurs quand elles sont connues |
+| Action, plates-formes, beat'em up et le reste (Ninja Combat, Sengoku 2, Cyber-Lip...) | `neogeo.json` | des collines bleues, et les barres de vie des deux joueurs quand elles sont connues |
 
 - Avec RetroArch, la scène affiche « NEO GEO » au milieu tant que rien n'est connu pour ce jeu. Avec MAME, les crédits s'affichent en plus.
 - Les crédits d'une Neo Geo MVS sont rangés dans la mémoire de sauvegarde de la borne. MAME la lit. Le cœur FinalBurn Neo de RetroArch ne partage que la mémoire de travail du jeu, donc pas les crédits. Certains jeux en gardent une copie dans leur mémoire de travail. Pour le savoir, apprends-les avec `learn.bat` (même méthode que pour le score) en tapant `crédits=2`, puis remets une pièce et tape `crédits=3`, et encore une fois. Si l'outil trouve une adresse, les crédits s'affichent. S'il répond « Rien trouvé », ce jeu n'en garde pas de copie.
@@ -603,7 +610,7 @@ Options communes, `mult` (score stocké divisé par 10, très fréquent), `add`,
 
 Pour une valeur rangée dans un objet qui change de place en mémoire (les combattants de Samurai Shodown à chaque round), `"ptr"` donne l'adresse où lire la position de l'objet (32 bits) et `"addr"` devient le décalage dans l'objet. `"ptr_range"` écarte un pointeur pas encore prêt. `learn.bat` écrit ce genre de valeur tout seul quand les captures montrent que la valeur suit l'objet.
 
-Certains noms de valeurs ont un rôle particulier dans les scènes HD. `stage`, `backdrop` et `mission` changent le décor (section 3), `p1_input` et `p2_input` sont le stick et les boutons lus par le BIOS Neo Geo (tirs au pistolet des Metal Slug, vaisseaux de Blazing Star et de Pulstar, flèche de Puzzle Bobble, fou de Magical Drop III).
+Certains noms de valeurs ont un rôle particulier dans les scènes HD. `stage`, `backdrop` et `mission` changent le décor (section 3), `p1_input` et `p2_input` sont le stick et les boutons lus par le BIOS Neo Geo (tirs au pistolet des Metal Slug, vaisseaux de Blazing Star, de Pulstar et de Last Resort, avions des Aero Fighters, chasseurs de Top Hunter, flèche de Puzzle Bobble, fou de Magical Drop III).
 
 `"derived"` calcule une valeur à partir d'autres, par exemple le nom du personnage. `"value"` reprend une valeur lue, `"pick"` choisit dans une liste selon `"at"`, `"names"` change un numéro en texte. `"names"` peut aussi avoir une liste par langue, `{"en": [...], "fr": [...]}`, comme dans `games\wjammers.json`. Voir `games\samsho2.json` et `games\kof98.json`.
 

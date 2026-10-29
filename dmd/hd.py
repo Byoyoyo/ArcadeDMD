@@ -27,6 +27,7 @@ from .hd_coin import CoinDoors
 from .hd_fight import FightFX
 from .hd_games import SCENES as _SCENES_117
 from .hd_games2 import SCENES as _SCENES_118
+from .hd_games3 import SCENES as _SCENES_119
 from .hd_mslug import MetalSlugScene, family
 from .i18n import tr
 
@@ -40,7 +41,7 @@ FALLBACK_FONTS = ("C:\\Windows\\Fonts\\arialbd.ttf", "/usr/share/fonts/truetype/
 CHIPS = (("lives", ("VIES", "LIVES")), ("lives_p2", ("VIES J2", "LIVES P2")), ("bombs", ("BOMBES", "BOMBS")),
          ("bombs_p2", ("BOMBES J2", "BOMBS P2")), ("prisoners", ("PRISONNIERS", "PRISONERS")), ("rings", ("ANNEAUX", "RINGS")),
          ("time", ("TEMPS", "TIME")), ("record", ("RECORD", "HI-SCORE")), ("credits", ("CRÉDITS", "CREDITS")))
-GAME_SCENES = dict(_SCENES_117, **_SCENES_118)     # Neo Geo games done one by one, first and second batch
+GAME_SCENES = dict(_SCENES_117, **_SCENES_118, **_SCENES_119)     # Neo Geo games done one by one, the three batches
 MSLUG_WEAPONS = {0: ("PISTOLET", "HANDGUN"), 1: ("FUSIL À POMPE", "SHOTGUN"), 2: ("LANCE-FLAMMES", "FLAMETHROWER"),
                  3: ("LANCE-ROQUETTES", "ROCKET LAUNCHER"), 4: ("MITRAILLETTE", "MACHINE GUN")}
 

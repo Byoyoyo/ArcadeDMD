@@ -3,6 +3,44 @@
 Newest version first. Each version is in English, then in French.
 La version la plus récente en premier. Chaque version est en anglais, puis en français.
 
+## 1.19.0
+
+### English
+
+**Neo Geo games done one by one, third batch**
+- Top Hunter, Baseball Stars 2, Last Resort, Aero Fighters 2 and Aero Fighters 3 now have a file of their own, with a panel scene and an animated HD scene made for each game. That makes fifteen games done one by one. `PROGRESS.md` shows what comes next.
+- Top Hunter. On the panel, the lives as small hunters, the timer and the power gauge. On the HD screen, hunters as big as in the game on four planets (forest, ice, wind, fire) with their two lanes, and as in the game leaves, ice or rock across the top of the screen. Robots and walking machines with turbines come on both lanes, the hunter jumps from one lane to the other and punches, throws or shoots them when the score goes up, and the full power gauge that empties is a special move. When the timer starts again for a new stage, the hunters move on to the next planet. At the top, as in the game, the hunter's head with 1UP= and the lives, the score and the power, and TIME next to the logo.
+- Baseball Stars 2. On the panel, the runs of both teams with RUN! when one comes in, the balls, strikes and outs lights, and the POW gauges. On the HD screen, the field as in the game's batting view, bright green grass seen from behind home plate, the batter big in front and the pitcher on the mound. Each ball, strike and out read in the game becomes a pitch, called in big rainbow letters as in the game. The batter hits and a fielder catches the ball, and the runs send the ball far and the runners home, with fireworks when it goes over the wall. After the third out, the other team comes to bat. The count is shown in coloured dots, as in the game.
+- Last Resort. On the panel, the lives, the power and the speed over a city at night. On the HD screen, the city at night of the game's first stage, giant towers lit with orange windows, purple buildings, the highway with its street lamps and its cars. The unit turns around the ship on the side away from where it goes and fires with it, and now and then it flies straight ahead and comes back. At the top 1P= and the score with the lives, POW at the bottom, as in the game.
+- Aero Fighters 2 and 3. On the panel, the lives, the bombs and the power, with the pilot's name in Aero Fighters 3. On the HD screen, seen from the sky as in the games, a city in daylight with its avenues, car parks and parks in Aero Fighters 2, a city by a river at nightfall in Aero Fighters 3. Jets drawn after real fighters, helicopters and tanks in Aero Fighters 2, propeller planes and big bombers in Aero Fighters 3. The planes fly with their shadows below, the enemies blow up when the score goes up, and a bomb clears the screen. The bombs are shown in their frames, as in the games. In Aero Fighters 3, the plane is the one of the pilot chosen by player 1, among twelve.
+- The score of Top Hunter, Last Resort and the two Aero Fighters is in no database. Learn it with `learn.bat`.
+- When the stick and the buttons can be read (Neo Geo BIOS), the hunters of Top Hunter (up and down change lanes), the ships of Last Resort (button B launches the unit) and the planes of the Aero Fighters follow them.
+- `demo_neogeo.bat` now lists the fifteen games.
+
+**HD screen**
+- A background prepared while a game runs now appears without a jolt, its layers are made ready a little at each image.
+
+**Updating from 1.18**
+Extract the new zip over the old folder (`config.json` and your learned addresses are kept), then run `install.bat` once to update the MAME plugin.
+
+### Français
+
+**Jeux Neo Geo faits un par un, troisième lot**
+- Top Hunter, Baseball Stars 2, Last Resort, Aero Fighters 2 et Aero Fighters 3 ont maintenant un fichier à eux, avec une scène de dalle et une scène HD animée faites pour chaque jeu. Ça fait quinze jeux faits un par un. `PROGRESS.md` montre ce qui vient ensuite.
+- Top Hunter. Sur la dalle, les vies en petits chasseurs, le chrono et la jauge de puissance. Sur l'écran HD, des chasseurs aussi grands que dans le jeu sur quatre planètes (forêt, glace, vent, feu) avec leurs deux voies, et comme dans le jeu du feuillage, de la glace ou de la roche en haut de l'écran. Des robots et des machines à turbines arrivent sur les deux voies, le chasseur saute d'une voie à l'autre et les frappe, les jette ou leur tire dessus quand le score monte, et la jauge de puissance pleine qui se vide donne un coup spécial. Quand le chrono repart pour un nouveau stage, les chasseurs passent à la planète suivante. En haut, comme dans le jeu, la tête du chasseur avec 1UP= et les vies, le score et la puissance, et TIME à côté du logo.
+- Baseball Stars 2. Sur la dalle, les points des deux équipes avec RUN! quand il y en a un, les lampes des balles, des prises et des retraits, et les jauges POW. Sur l'écran HD, le terrain comme dans la vue de frappe du jeu, une herbe vert vif vue de derrière le marbre, le frappeur en grand devant et le lanceur sur le monticule. Chaque balle, prise et retrait lu dans le jeu devient un lancer, annoncé en grosses lettres arc-en-ciel comme dans le jeu. Le frappeur frappe et un joueur attrape la balle, et les points envoient la balle loin et les coureurs au marbre, avec un feu d'artifice quand elle passe le mur. Après le troisième retrait, l'autre équipe passe à la batte. Le compte s'affiche en pastilles de couleur, comme dans le jeu.
+- Last Resort. Sur la dalle, les vies, la puissance et la vitesse au-dessus d'une ville la nuit. Sur l'écran HD, la ville la nuit du premier stage du jeu, des tours géantes aux fenêtres orange, des immeubles violets, l'autoroute avec ses réverbères et ses voitures. L'unité tourne autour du vaisseau, du côté opposé à sa route, et tire avec lui, et de temps en temps elle part droit devant puis revient. En haut 1P= et le score avec les vies, POW en bas, comme dans le jeu.
+- Aero Fighters 2 et 3. Sur la dalle, les vies, les bombes et la puissance, avec le nom du pilote dans Aero Fighters 3. Sur l'écran HD, vues du ciel comme dans les jeux, une ville en plein jour avec ses avenues, ses parkings et ses parcs dans Aero Fighters 2, une ville au bord d'un fleuve à la tombée de la nuit dans Aero Fighters 3. Des avions de chasse dessinés d'après de vrais avions, des hélicoptères et des chars dans Aero Fighters 2, des avions à hélice et de gros bombardiers dans Aero Fighters 3. Les avions volent avec leur ombre dessous, les ennemis explosent quand le score monte, et une bombe nettoie l'écran. Les bombes s'affichent dans leur cadre, comme dans les jeux. Dans Aero Fighters 3, l'avion est celui du pilote choisi par le joueur 1, parmi douze.
+- Le score de Top Hunter, Last Resort et des deux Aero Fighters n'est dans aucune base. Apprends-le avec `learn.bat`.
+- Quand le stick et les boutons se lisent (BIOS Neo Geo), les chasseurs de Top Hunter (haut et bas changent de voie), les vaisseaux de Last Resort (le bouton B lance l'unité) et les avions des Aero Fighters les suivent.
+- `demo_neogeo.bat` propose maintenant les quinze jeux.
+
+**Écran HD**
+- Un décor préparé pendant qu'un jeu tourne s'affiche maintenant sans à-coup, ses couches sont prêtes un peu à chaque image.
+
+**Mettre à jour depuis la 1.18**
+Décompresse le nouveau zip par-dessus l'ancien dossier (`config.json` et tes adresses apprises sont gardés), puis lance `install.bat` une fois pour mettre à jour le plugin MAME.
+
 ## 1.18.0
 
 ### English

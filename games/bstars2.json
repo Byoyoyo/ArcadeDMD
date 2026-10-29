@@ -1,0 +1,1177 @@
+{
+ "title": "Baseball Stars 2",
+ "match": [
+  {
+   "system": [
+    "bstars2"
+   ]
+  }
+ ],
+ "retroarch": {
+  "content": [
+   "bstars2"
+  ],
+  "ram_base": "0x100000",
+  "ram_size": "0x10000",
+  "swap16": true,
+  "note": "FinalBurn Neo core: Neo Geo 68000 RAM seen from 0x100000, bytes swapped within 16-bit words"
+ },
+ "memory": {
+  "cpu": ":maincpu",
+  "values": {
+   "runs": {
+    "addr": "0x1043F2",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "player 1 team runs (FinalBurn Neo cheats and MAME 2003-Plus cheats, Select Score PL1)"
+   },
+   "runs_p2": {
+    "addr": "0x1043F3",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "player 2 or computer team runs (FinalBurn Neo cheats, Select Score PL2)"
+   },
+   "balls": {
+    "addr": "0x10442D",
+    "type": "u8",
+    "max": 3,
+    "note": "balls of the batter at the plate, 0 to 3 (FinalBurn Neo cheats, Set Balls to 3 Now!)"
+   },
+   "strikes": {
+    "addr": "0x10442C",
+    "type": "u8",
+    "max": 2,
+    "note": "strikes of the batter at the plate, 0 to 2 (FinalBurn Neo cheats, Set Strikes to 2 Now!)"
+   },
+   "outs": {
+    "addr": "0x10442B",
+    "type": "u8",
+    "max": 3,
+    "note": "outs of the half inning, 0 to 2 (FinalBurn Neo cheats, Set Outs to 2 Now!)"
+   },
+   "pow": {
+    "addr": "0x104422",
+    "type": "u8",
+    "max": 99,
+    "note": "player 1 POW points, 99 at most (FinalBurn Neo cheats, Select POW Points Now! PL1)"
+   },
+   "pow_p2": {
+    "addr": "0x104423",
+    "type": "u8",
+    "max": 99,
+    "note": "player 2 POW points (FinalBurn Neo cheats, Select POW Points Now! PL2)"
+   },
+   "credits": {
+    "addr": "0xD00034",
+    "type": "bcd",
+    "bytes": 1,
+    "mame_only": true,
+    "note": "MVS credits (backup RAM), readable in MAME only"
+   },
+   "p1_mode": {
+    "addr": "0x10FDB6",
+    "type": "u8",
+    "note": "BIOS: player 1, 0 never played, 1 playing, 2 continue, 3 game over"
+   },
+   "p2_mode": {
+    "addr": "0x10FDB7",
+    "type": "u8",
+    "note": "BIOS: player 2, same values"
+   }
+  }
+ },
+ "hd": {
+  "scene": "bstars2"
+ },
+ "demo": {
+  "attract": true,
+  "credits": 0,
+  "p1_mode": 1,
+  "p2_mode": 0,
+  "runs": 0,
+  "runs_p2": 0,
+  "balls": 0,
+  "strikes": 0,
+  "outs": 0,
+  "pow": 10,
+  "pow_p2": 20,
+  "sim": {
+   "balls": {
+    "cycle": [
+     0,
+     1,
+     1,
+     1,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1,
+     2,
+     0,
+     0,
+     0,
+     0,
+     1
+    ],
+    "every": 2.6,
+    "start": 2.0
+   },
+   "strikes": {
+    "cycle": [
+     0,
+     0,
+     1,
+     2,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0
+    ],
+    "every": 2.6,
+    "start": 2.0
+   },
+   "outs": {
+    "cycle": [
+     0,
+     0,
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     2,
+     2,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "every": 2.6,
+    "start": 2.0
+   },
+   "runs": {
+    "cycle": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "every": 2.6,
+    "start": 2.0
+   },
+   "runs_p2": {
+    "cycle": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1,
+     1
+    ],
+    "every": 2.6,
+    "start": 2.0
+   },
+   "pow": {
+    "cycle": [
+     10,
+     30,
+     50,
+     70,
+     90,
+     99,
+     99,
+     40
+    ],
+    "every": 3.0,
+    "start": 1.5
+   },
+   "pow_p2": {
+    "cycle": [
+     20,
+     40,
+     60,
+     80,
+     99,
+     99,
+     30
+    ],
+    "every": 3.4,
+    "start": 2.5
+   }
+  }
+ },
+ "scene": {
+  "layers": [
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 1,
+    "y": 1,
+    "align": "left",
+    "segments": [
+     {
+      "text": "P1",
+      "color": "#ff6040"
+     }
+    ],
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "marquee",
+    "font": "6x10",
+    "y": 1,
+    "x": 16,
+    "w": 92,
+    "speed": 12,
+    "gap": 30,
+    "upper": true,
+    "segments": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#ff5a5a"
+     }
+    ],
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "segments": [
+     {
+      "text": "P2",
+      "color": "#40a0ff"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "var": "p2_mode",
+       "in": [
+        1,
+        2
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "segments": [
+     {
+      "text": "CPU",
+      "color": "#40a0ff"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "9x15B",
+    "x": 52,
+    "y": 10,
+    "align": "right",
+    "segments": [
+     {
+      "text": "{runs}",
+      "color": "#ff6040"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "runs"
+      }
+     ]
+    },
+    "flash": {
+     "on": "runs",
+     "color": "#ffffff",
+     "ms": 1500
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 64,
+    "y": 12,
+    "align": "center",
+    "segments": [
+     {
+      "text": "-",
+      "color": "#8090a0"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "runs"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "9x15B",
+    "x": 76,
+    "y": 10,
+    "align": "left",
+    "segments": [
+     {
+      "text": "{runs_p2}",
+      "color": "#40a0ff"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "runs_p2"
+      }
+     ]
+    },
+    "flash": {
+     "on": "runs_p2",
+     "color": "#ffffff",
+     "ms": 1500
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 20,
+    "y": 14,
+    "align": "center",
+    "segments": [
+     {
+      "text": "RUN!",
+      "color": "#ffe040"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "any": [
+        {
+         "all": [
+          {
+           "changed_within": {
+            "var": "runs",
+            "ms": 3000
+           }
+          },
+          {
+           "var": "runs",
+           "gt": 0
+          }
+         ]
+        },
+        {
+         "all": [
+          {
+           "changed_within": {
+            "var": "runs_p2",
+            "ms": 3000
+           }
+          },
+          {
+           "var": "runs_p2",
+           "gt": 0
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    "blink_period": 0.3
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 108,
+    "y": 14,
+    "align": "center",
+    "segments": [
+     {
+      "text": "RUN!",
+      "color": "#ffe040"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "any": [
+        {
+         "all": [
+          {
+           "changed_within": {
+            "var": "runs",
+            "ms": 3000
+           }
+          },
+          {
+           "var": "runs",
+           "gt": 0
+          }
+         ]
+        },
+        {
+         "all": [
+          {
+           "changed_within": {
+            "var": "runs_p2",
+            "ms": 3000
+           }
+          },
+          {
+           "var": "runs_p2",
+           "gt": 0
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    "blink_period": 0.3
+   },
+   {
+    "type": "text",
+    "font": "4x6",
+    "x": 41,
+    "y": 26,
+    "align": "left",
+    "segments": [
+     {
+      "text": "B",
+      "color": "#80ff90"
+     }
+    ],
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "icons",
+    "var": "balls",
+    "x": 46,
+    "y": 27,
+    "max": 3,
+    "gap": 1,
+    "pattern": [
+     ".#.",
+     "###",
+     ".#."
+    ],
+    "colors": {
+     "#": "#40ff60"
+    },
+    "empty": "#183a20",
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "balls"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "4x6",
+    "x": 61,
+    "y": 26,
+    "align": "left",
+    "segments": [
+     {
+      "text": "S",
+      "color": "#ffe080"
+     }
+    ],
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "icons",
+    "var": "strikes",
+    "x": 66,
+    "y": 27,
+    "max": 2,
+    "gap": 1,
+    "pattern": [
+     ".#.",
+     "###",
+     ".#."
+    ],
+    "colors": {
+     "#": "#ffd030"
+    },
+    "empty": "#3a3010",
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "strikes"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "4x6",
+    "x": 77,
+    "y": 26,
+    "align": "left",
+    "segments": [
+     {
+      "text": "O",
+      "color": "#ff9080"
+     }
+    ],
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "icons",
+    "var": "outs",
+    "x": 82,
+    "y": 27,
+    "max": 2,
+    "gap": 1,
+    "pattern": [
+     ".#.",
+     "###",
+     ".#."
+    ],
+    "colors": {
+     "#": "#ff4030"
+    },
+    "empty": "#3a1410",
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "outs"
+      }
+     ]
+    }
+   },
+   {
+    "type": "gauge",
+    "var": "pow",
+    "max": 99,
+    "x": 1,
+    "y": 28,
+    "w": 30,
+    "h": 3,
+    "color": "#ffd040",
+    "low": "#ffd040",
+    "back": "#302810",
+    "bevel": "#fff0c0",
+    "shade": false,
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "pow"
+      }
+     ]
+    }
+   },
+   {
+    "type": "gauge",
+    "var": "pow_p2",
+    "max": 99,
+    "x": 97,
+    "y": 28,
+    "w": 30,
+    "h": 3,
+    "anchor": "right",
+    "color": "#ffd040",
+    "low": "#ffd040",
+    "back": "#302810",
+    "bevel": "#fff0c0",
+    "shade": false,
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "var": "p2_mode",
+       "in": [
+        1,
+        2
+       ]
+      },
+      {
+       "has": "pow_p2"
+      }
+     ]
+    }
+   },
+   {
+    "type": "coinop",
+    "when": {
+     "all": [
+      {
+       "has": "p1_mode"
+      },
+      {
+       "not": {
+        "var": "p1_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    },
+    "title": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#ff5a5a"
+     }
+    ],
+    "idle_image": [
+     "sprites/insert_coin.gif",
+     "sprites/insert_coin.png"
+    ]
+   }
+  ]
+ }
+}

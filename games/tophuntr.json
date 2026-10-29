@@ -1,0 +1,645 @@
+{
+ "title": "Top Hunter - Roddy & Cathy",
+ "match": [
+  {
+   "system": [
+    "tophuntr",
+    "tophuntrh"
+   ]
+  }
+ ],
+ "retroarch": {
+  "content": [
+   "tophuntr",
+   "tophuntrh"
+  ],
+  "ram_base": "0x100000",
+  "ram_size": "0x10000",
+  "swap16": true,
+  "note": "FinalBurn Neo core: Neo Geo 68000 RAM seen from 0x100000, bytes swapped within 16-bit words"
+ },
+ "memory": {
+  "cpu": ":maincpu",
+  "values": {
+   "score": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+   },
+   "score_p2": {
+    "addr": "",
+    "type": "bcd",
+    "bytes": 4,
+    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+   },
+   "p1_input": {
+    "addr": "0x10FD96",
+    "type": "u8",
+    "note": "BIOS_P1CURRENT: player 1 stick and buttons, 1 up, 2 down, 4 left, 8 right, 16 A, 32 B, 64 C, 128 D (HD scene)"
+   },
+   "p2_input": {
+    "addr": "0x10FD9C",
+    "type": "u8",
+    "note": "BIOS_P2CURRENT: player 2 stick and buttons, same bits (HD scene)"
+   },
+   "lives": {
+    "addr": "0x108D1D",
+    "type": "u8",
+    "note": "player 1 lives in reserve (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL1)"
+   },
+   "lives_p2": {
+    "addr": "0x108D21",
+    "type": "u8",
+    "note": "player 2 lives in reserve (FinalBurn Neo cheats, Infinite Lives PL2)"
+   },
+   "power": {
+    "addr": "0x108D0D",
+    "type": "u8",
+    "max": 5,
+    "note": "player 1 power gauge, 0 to 5 (FinalBurn Neo cheats, Always have Power PL1)"
+   },
+   "power_p2": {
+    "addr": "0x108D11",
+    "type": "u8",
+    "max": 5,
+    "note": "player 2 power gauge, 0 to 5 (FinalBurn Neo cheats, Always have Power PL2)"
+   },
+   "time": {
+    "addr": "0x108CC2",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "stage timer, 99 at most (FinalBurn Neo cheats, Infinite Time)"
+   },
+   "credits": {
+    "addr": "0xD00034",
+    "type": "bcd",
+    "bytes": 1,
+    "mame_only": true,
+    "note": "MVS credits (backup RAM), readable in MAME only"
+   },
+   "p1_mode": {
+    "addr": "0x10FDB6",
+    "type": "u8",
+    "note": "BIOS: player 1, 0 never played, 1 playing, 2 continue, 3 game over"
+   },
+   "p2_mode": {
+    "addr": "0x10FDB7",
+    "type": "u8",
+    "note": "BIOS: player 2, same values"
+   }
+  }
+ },
+ "hd": {
+  "scene": "tophuntr"
+ },
+ "demo": {
+  "attract": true,
+  "credits": 0,
+  "p1_mode": 1,
+  "p2_mode": 0,
+  "lives": 3,
+  "power": 0,
+  "time": 99,
+  "score": 0,
+  "sim": {
+   "power": {
+    "cycle": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     5,
+     5,
+     0
+    ],
+    "every": 1.8,
+    "start": 2.0
+   },
+   "lives": {
+    "cycle": [
+     3,
+     3,
+     2,
+     2,
+     3,
+     1
+    ],
+    "every": 9.0,
+    "start": 13.0
+   },
+   "time": {
+    "count": [
+     70,
+     99,
+     -1
+    ],
+    "every": 1.0,
+    "start": 1.0
+   }
+  }
+ },
+ "scene": {
+  "layers": [
+   {
+    "type": "mountains",
+    "peaks": [
+     [
+      8,
+      5
+     ],
+     [
+      30,
+      8
+     ],
+     [
+      52,
+      4
+     ],
+     [
+      78,
+      9
+     ],
+     [
+      104,
+      5
+     ],
+     [
+      122,
+      7
+     ]
+    ],
+    "floor": 2,
+    "bottom": 31,
+    "color": "#123a22",
+    "edge": "#2a8a3a",
+    "ground": "#4a6a1a",
+    "speed": 4,
+    "when": {
+     "not": {
+      "all": [
+       {
+        "has": "p1_mode"
+       },
+       {
+        "not": {
+         "var": "p1_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       },
+       {
+        "not": {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 1,
+    "y": 1,
+    "align": "left",
+    "segments": [
+     {
+      "text": "{score}",
+      "color": "#ffa830"
+     }
+    ],
+    "when": {
+     "has": "score"
+    },
+    "flash": {
+     "on": "score",
+     "color": "#ffffff",
+     "ms": 120
+    }
+   },
+   {
+    "type": "marquee",
+    "font": "6x10",
+    "y": 1,
+    "x": 0,
+    "w": 70,
+    "speed": 12,
+    "gap": 40,
+    "upper": true,
+    "segments": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#ffb040"
+     }
+    ],
+    "when": {
+     "not": {
+      "has": "score"
+     }
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "segments": [
+     {
+      "text": "{score_p2}",
+      "color": "#ffa830"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "var": "p2_mode",
+       "in": [
+        1,
+        2
+       ]
+      },
+      {
+       "has": "score_p2"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 127,
+    "y": 1,
+    "align": "right",
+    "text": "INSERT COIN",
+    "color": "#ffa830",
+    "when": {
+     "all": [
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "credits",
+        "gt": 0
+       }
+      }
+     ]
+    },
+    "blink_period": 1.0
+   },
+   {
+    "type": "cycle",
+    "period": 1.5,
+    "when": {
+     "all": [
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "var": "credits",
+       "gt": 0
+      }
+     ]
+    },
+    "pages": [
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "CREDITS {credits}",
+        "color": "#ffa830"
+       }
+      ]
+     },
+     {
+      "layers": [
+       {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "PRESS START",
+        "color": "#ffa830"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "icons",
+    "var": "lives",
+    "x": 1,
+    "y": 13,
+    "max": 6,
+    "gap": 2,
+    "pattern": [
+     "..h..",
+     ".bbb.",
+     "b.b.b",
+     "..b..",
+     ".b.b."
+    ],
+    "colors": {
+     "h": "#ffd8a8",
+     "b": "#ffb040"
+    },
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "lives"
+      }
+     ]
+    },
+    "flash": {
+     "on": "lives",
+     "color": "#ff4040",
+     "ms": 600
+    }
+   },
+   {
+    "type": "text",
+    "font": "6x10",
+    "x": 64,
+    "y": 12,
+    "align": "center",
+    "segments": [
+     {
+      "text": "{time}",
+      "color": "#ffd060"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "time"
+      }
+     ]
+    }
+   },
+   {
+    "type": "icons",
+    "var": "power",
+    "x": 127,
+    "y": 13,
+    "max": 5,
+    "gap": 1,
+    "align": "right",
+    "pattern": [
+     "###",
+     "###",
+     "###",
+     "###"
+    ],
+    "colors": {
+     "#": "#ffd040"
+    },
+    "empty": "#3a3018",
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "power"
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    },
+    "flash": {
+     "on": "power",
+     "color": "#ffffff",
+     "ms": 250
+    }
+   },
+   {
+    "type": "icons",
+    "var": "lives_p2",
+    "x": 127,
+    "y": 13,
+    "max": 6,
+    "gap": 2,
+    "pattern": [
+     "..h..",
+     ".bbb.",
+     "b.b.b",
+     "..b..",
+     ".b.b."
+    ],
+    "colors": {
+     "h": "#ffd8a8",
+     "b": "#40c8ff"
+    },
+    "when": {
+     "all": [
+      {
+       "all": [
+        {
+         "not": {
+          "all": [
+           {
+            "has": "p1_mode"
+           },
+           {
+            "not": {
+             "var": "p1_mode",
+             "in": [
+              1,
+              2
+             ]
+            }
+           },
+           {
+            "not": {
+             "var": "p2_mode",
+             "in": [
+              1,
+              2
+             ]
+            }
+           }
+          ]
+         }
+        },
+        {
+         "var": "p2_mode",
+         "in": [
+          1,
+          2
+         ]
+        }
+       ]
+      },
+      {
+       "has": "lives_p2"
+      }
+     ]
+    },
+    "flash": {
+     "on": "lives_p2",
+     "color": "#ff4040",
+     "ms": 600
+    },
+    "align": "right"
+   },
+   {
+    "type": "coinop",
+    "when": {
+     "all": [
+      {
+       "has": "p1_mode"
+      },
+      {
+       "not": {
+        "var": "p1_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    },
+    "title": [
+     {
+      "text": "SNK",
+      "color": "#1d5bff"
+     },
+     {
+      "text": " - {title}",
+      "color": "#ffb040"
+     }
+    ],
+    "idle_image": [
+     "sprites/insert_coin.gif",
+     "sprites/insert_coin.png"
+    ]
+   }
+  ]
+ }
+}

@@ -25,7 +25,7 @@ from .memvalues import derive, game_values
 from .textfiles import TextFiles
 from .i18n import tr
 
-VERSION = "1.18.0"
+VERSION = "1.19.0"
 
 DEFAULT_CONFIG = {
     "language": "auto",

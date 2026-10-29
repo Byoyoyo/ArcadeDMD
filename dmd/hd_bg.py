@@ -16,6 +16,7 @@ les plans glissent à des vitesses différentes (effet de profondeur) et l'ambia
 import math
 import random
 import threading
+import time
 
 from PIL import Image, ImageChops, ImageDraw, ImageFilter
 
@@ -832,6 +833,7 @@ class Backdrop:
         self.fx = FX(hd, random.Random(self.rng.random()))
         self.raw = {}                 # décors dessinés (Pillow), prêts à convertir
         self.built = {}               # décors convertis en surfaces pygame
+        self.parts = {}               # couches déjà converties d'un décor pas encore affiché (1.19)
         self.lock = threading.Lock()
         self.theme = theme
         self.scroll = 0.0
@@ -864,6 +866,43 @@ class Backdrop:
         with self.lock:
             return name in self.raw or name in self.built
 
+    def _layer(self, L):
+        """One layer turned into a surface ready to draw. / Une couche convertie, prête à afficher."""
+        hd = self.hd
+        item = dict(L)
+        if L.get("aurora") is not None:
+            item["surf"] = hd._surf(L["aurora"])
+            item["kind"] = "aurora"
+        else:
+            img = L["img"]
+            item["surf"] = hd._surf(img)
+            item["kind"] = "layer"
+            if img.mode == "RGBA" and img.getchannel("A").histogram()[0] >= 0.65 * img.width * img.height:
+                try:                                      # mostly empty layer (stars...): its empty runs are skipped (1.17)
+                    item["surf"].set_alpha(255, self.pg.RLEACCEL)
+                except (AttributeError, self.pg.error):
+                    pass
+        item["img"] = item["aurora"] = None
+        return item
+
+    def warm(self, name, budget=0.004):
+        """Converts a backdrop built in the background a layer or two per image (1.19): showing it afterwards costs
+        nothing. True once it is ready. / Convertit un décor préparé à côté, une couche ou deux par image."""
+        if name in self.built:
+            return True
+        with self.lock:
+            raw = self.raw.get(name)
+        if raw is None:
+            return False
+        done = self.parts.setdefault(name, [])
+        end = time.perf_counter() + budget
+        while len(done) < len(raw["layers"]):
+            done.append(self._layer(raw["layers"][len(done)]))
+            if time.perf_counter() > end:
+                return False
+        self._get(name)
+        return True
+
     def _get(self, name):
         b = self.built.get(name)
         if b is not None:
@@ -875,23 +914,8 @@ class Backdrop:
             with self.lock:
                 self.raw[name] = raw
         hd = self.hd
-        layers = []
-        for L in raw["layers"]:
-            item = dict(L)
-            if L.get("aurora") is not None:
-                item["surf"] = hd._surf(L["aurora"])
-                item["kind"] = "aurora"
-            else:
-                img = L["img"]
-                item["surf"] = hd._surf(img)
-                item["kind"] = "layer"
-                if img.mode == "RGBA" and img.getchannel("A").histogram()[0] >= 0.65 * img.width * img.height:
-                    try:                                      # mostly empty layer (stars...): its empty runs are skipped (1.17)
-                        item["surf"].set_alpha(255, self.pg.RLEACCEL)
-                    except (AttributeError, self.pg.error):
-                        pass
-            item["img"] = item["aurora"] = None
-            layers.append(item)
+        layers = self.parts.pop(name, [])
+        layers += [self._layer(L) for L in raw["layers"][len(layers):]]
         b = {"sky": hd._surf(raw["sky"]), "layers": layers, "tw": raw["tw"], "amb": raw["amb"],
              "imgs": {k: hd._surf(v) for k, v in (raw["amb"].get("images") or {}).items()}}
         if raw["amb"].get("plane"):

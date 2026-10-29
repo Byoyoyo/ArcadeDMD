@@ -20,9 +20,14 @@ echo   7  Magical Drop III
 echo   8  Super Sidekicks 3
 echo   9  The Ultimate 11
 echo  10  Sengoku 3
+echo  11  Top Hunter
+echo  12  Baseball Stars 2
+echo  13  Last Resort
+echo  14  Aero Fighters 2
+echo  15  Aero Fighters 3
 echo.
 set N=
-if "%L%"=="fr" (set /p N=Quel jeu, 1 a 10 ? ) else (set /p N=Which game, 1 to 10? )
+if "%L%"=="fr" (set /p N=Quel jeu, 1 a 15 ? ) else (set /p N=Which game, 1 to 15? )
 set G=blazstar
 if "%N%"=="2" set G=pbobblen
 if "%N%"=="3" set G=wjammers
@@ -33,6 +38,11 @@ if "%N%"=="7" set G=magdrop3
 if "%N%"=="8" set G=ssideki3
 if "%N%"=="9" set G=ssideki4
 if "%N%"=="10" set G=sengoku3
+if "%N%"=="11" set G=tophuntr
+if "%N%"=="12" set G=bstars2
+if "%N%"=="13" set G=lresort
+if "%N%"=="14" set G=sonicwi2
+if "%N%"=="15" set G=sonicwi3
 :play
 if "%L%"=="fr" (echo Demo %G%, avec des valeurs simulees. Echap ou ferme la fenetre pour quitter.) else (echo %G% demo, with simulated values. Press Esc or close the window to quit.)
 %PY% arcadedmd.py demo %G%
