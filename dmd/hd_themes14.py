@@ -507,6 +507,243 @@ def build_ms_tower(W, H, s, seed=1407):
     return {"sky": sky, "layers": _fit(layers), "tw": tw, "amb": {"dust": (255, 180, 100)}}
 
 
-BUILDERS = {"gg_grave": build_gg_grave, "st_city": build_st_city, "pg_temple": build_pg_temple, "pg_peak": build_pg_peak, "spf_hall": build_spf_hall, "mt_forest": build_mt_forest, "ms_tower": build_ms_tower}
+# ============================================================================ Willow
+WL_FLOOR = 384          # the cobbles of the village / les pavés du village
+
+
+def build_wl_village(W, H, s, seed=1408):
+    """Willow: the village of the first stage, as in the game: the houses of timber and white plaster, their wooden
+    balconies and red roofs, the stone walls below, a great old tree, the cobbled street. / Le village du premier niveau :
+    maisons à colombages, balcons de bois et toits rouges, murs de pierre en bas, un grand vieil arbre, la rue pavée."""
+    rng = random.Random(seed)
+    tw = 2 * W
+    sky = vgrad(W, H, [(0.0, (110, 170, 230)), (1.0, (200, 225, 245))])
+    layers = [{"img": _cumulus(tw, int(H * 0.5), s, rng, 7, ((255, 255, 255), (236, 244, 255), (205, 220, 240)), 40 * s, 140 * s), "y": 0, "f": 0.1,
+               "stage": "clouds"}]
+    mid = _Pic(tw, H, 2, tw)
+    x = 0.0
+    beam, plaster, stone = (96, 60, 34), (236, 226, 196), ((140, 136, 126), (124, 120, 112), (156, 150, 138))
+    while x < tw:
+        w = rng.uniform(260, 380) * s
+        base = WL_FLOOR * s
+        top = base - rng.uniform(230, 300) * s
+        mid.poly([(x, base), (x + w, base), (x + w, base - 90 * s), (x, base - 90 * s)], (130, 126, 118, 255))     # le soubassement de pierre
+        for row in range(3):
+            for k in range(int(w / (44 * s)) + 1):
+                bx = x + k * 44 * s + (row % 2) * 22 * s
+                if bx + 40 * s > x + w:
+                    continue
+                y0 = base - (row + 1) * 30 * s
+                mid.poly([(bx, y0), (bx + 40 * s, y0), (bx + 40 * s, y0 + 28 * s), (bx, y0 + 28 * s)], _rgba(rng.choice(stone)), (80, 76, 70, 255), 1.5 * s)
+        mid.poly([(x, base - 90 * s), (x + w, base - 90 * s), (x + w, top), (x, top)], _rgba(plaster), _rgba(beam), 3 * s)   # le colombage
+        for k in range(int(w / (70 * s)) + 1):
+            mid.line([(x + k * 70 * s, base - 90 * s), (x + k * 70 * s, top)], _rgba(beam), 7 * s)
+        mid.line([(x, (base - 90 * s + top) / 2), (x + w, (base - 90 * s + top) / 2)], _rgba(beam), 7 * s)
+        for k in range(int(w / (140 * s))):
+            cx0 = x + k * 140 * s
+            mid.line([(cx0, base - 90 * s), (cx0 + 70 * s, (base - 90 * s + top) / 2)], _rgba(beam), 5 * s)
+        wy = (base - 90 * s + top) / 2 - 70 * s
+        for k in range(int(w / (110 * s))):                           # les fenêtres et leur balcon
+            wx = x + 40 * s + k * 110 * s
+            mid.poly([(wx, wy), (wx + 46 * s, wy), (wx + 46 * s, wy + 56 * s), (wx, wy + 56 * s)], (60, 50, 50, 255), _rgba(beam), 3 * s)
+            mid.poly([(wx - 14 * s, wy + 56 * s), (wx + 60 * s, wy + 56 * s), (wx + 60 * s, wy + 64 * s), (wx - 14 * s, wy + 64 * s)], (120, 76, 40, 255))
+            for j in range(6):
+                mid.line([(wx - 10 * s + j * 13 * s, wy + 64 * s), (wx - 10 * s + j * 13 * s, wy + 92 * s)], (120, 76, 40, 255), 3 * s)
+            mid.line([(wx - 14 * s, wy + 92 * s), (wx + 60 * s, wy + 92 * s)], (120, 76, 40, 255), 4 * s)
+        mid.poly([(x - 20 * s, top + 4 * s), (x + w + 20 * s, top + 4 * s), (x + w * 0.5, top - 110 * s)], (180, 70, 50, 255), (100, 36, 26, 255), 3 * s)
+        for k in range(8):                                            # les tuiles du toit
+            t = (k + 1) / 9
+            mid.line([(x - 20 * s + (w * 0.5 + 20 * s) * t, top + 4 * s - 114 * s * t), (x + w + 20 * s - (w * 0.5 + 20 * s) * t, top + 4 * s - 114 * s * t)],
+                     (150, 56, 40, 255), 2 * s)
+        x += w + rng.uniform(40, 160) * s
+        if rng.random() < 0.4 and x < tw - 200 * s:                   # un grand vieil arbre entre deux maisons
+            tx = x + 60 * s
+            mid.poly([(tx - 40 * s, base), (tx + 40 * s, base), (tx + 26 * s, base - 260 * s), (tx - 26 * s, base - 260 * s)], (110, 80, 50, 255),
+                     (60, 40, 24, 255), 2 * s)
+            _clump(mid, tx, base - 300 * s, 120 * s, rng, ((50, 110, 50), (80, 150, 60), (140, 200, 90)), n=10)
+            x += 160 * s
+    layers.append({"img": mid.done(), "y": 0, "f": 0.6, "stage": "mid"})
+    near = _Pic(tw, H, 2, tw)                                            # la rue pavée
+    fy = WL_FLOOR * s
+    near.poly([(0, fy), (tw, fy), (tw, H), (0, H)], (120, 110, 100, 255))
+    for row in range(4):
+        y0 = fy + row * 20 * s
+        for k in range(int(tw / (36 * s)) + 1):
+            bx = k * 36 * s + (row % 2) * 18 * s
+            near.ellipse(bx, y0 + 2 * s, bx + 32 * s, y0 + 18 * s, _rgba(rng.choice(((150, 140, 128), (136, 126, 116), (164, 154, 140)))))
+    near.line([(0, fy), (tw, fy)], (90, 84, 76, 255), 4 * s)
+    layers.append({"img": near.done(), "y": 0, "f": 1.0, "stage": "near"})
+    return {"sky": sky, "layers": _fit(layers), "tw": tw, "amb": {}}
+
+
+# ============================================================================ Nemo
+NM_FLOOR = 380          # the floor of the palace of dreams / le sol du palais des rêves
+
+
+def build_nm_dream(W, H, s, seed=1409):
+    """Nemo: the palace of the land of dreams, as in the game: a sky of lilac and stars, a great crescent moon, the long
+    gallery of pale blue arches and their columns, the domes, the striped floor like a sweet. / Le palais du pays des
+    rêves : ciel lilas étoilé, grand croissant de lune, la longue galerie d'arcades bleu pâle, les dômes, le sol rayé."""
+    rng = random.Random(seed)
+    tw = 2 * W
+    sky = vgrad(W, H, [(0.0, (70, 60, 140)), (0.6, (170, 140, 210)), (1.0, (240, 200, 230))])
+    sky = _stars(sky, W, H, s, rng, 120, H * 0.5, ((255, 255, 230), (255, 230, 250)))
+    layers = []
+    far = _Pic(tw, H, 2, tw)
+    for k in range(3):                                                   # la lune et les dômes au loin
+        cx = (k + 0.3) * tw / 3
+        far.disc(cx, 90 * s, 50 * s, (255, 246, 200, 255))
+        far.disc(cx + 22 * s, 80 * s, 46 * s, (0, 0, 0, 0))
+    for k in range(7):
+        cx = rng.uniform(0, tw)
+        r = rng.uniform(40, 70) * s
+        far.poly([(cx - r, 300 * s), (cx + r, 300 * s), (cx + r, 200 * s), (cx - r, 200 * s)], (190, 180, 230, 255))
+        far.chord(cx - r, 200 * s - r, cx + r, 200 * s + r, 180, 360, (210, 200, 245, 255))
+        far.line([(cx, 200 * s - r), (cx, 200 * s - r - 30 * s)], (190, 180, 230, 255), 4 * s)
+    layers.append({"img": far.done(), "y": 0, "f": 0.2, "stage": "far"})
+    mid = _Pic(tw, H, 2, tw)                                             # la galerie d'arcades
+    base = NM_FLOOR * s
+    span = 150 * s
+    top = 150 * s
+    mid.poly([(0, top - 40 * s), (tw, top - 40 * s), (tw, top), (0, top)], (170, 196, 236, 255), (110, 130, 190, 255), 2 * s)
+    for k in range(int(tw / span) + 1):
+        x0 = k * span
+        mid.poly([(x0, top), (x0 + 26 * s, top), (x0 + 26 * s, base), (x0, base)], (226, 236, 255, 255), (120, 140, 200, 255), 2 * s)   # la colonne
+        mid.poly([(x0 - 8 * s, base - 16 * s), (x0 + 34 * s, base - 16 * s), (x0 + 34 * s, base), (x0 - 8 * s, base)], (200, 214, 250, 255))
+        mid.poly([(x0 - 8 * s, top), (x0 + 34 * s, top), (x0 + 34 * s, top + 16 * s), (x0 - 8 * s, top + 16 * s)], (200, 214, 250, 255))
+        mid.chord(x0 + 26 * s, top + 16 * s, x0 + span, top + 16 * s + (span - 26 * s), 180, 360, (170, 196, 236, 255))
+        mid.chord(x0 + 40 * s, top + 30 * s, x0 + span - 14 * s, top + 30 * s + (span - 54 * s), 180, 360, (0, 0, 0, 0))
+        for j in range(5):                                            # les fanions
+            fx = x0 + 30 * s + j * 24 * s
+            mid.poly([(fx, top - 40 * s), (fx + 20 * s, top - 40 * s), (fx + 10 * s, top - 18 * s)], _rgba(((255, 120, 160), (255, 220, 90),
+                                                                                                         (120, 200, 255))[j % 3]))
+    layers.append({"img": mid.done(), "y": 0, "f": 0.6, "stage": "mid"})
+    near = _Pic(tw, H, 2, tw)                                            # le sol rayé comme un bonbon
+    fy = NM_FLOOR * s
+    near.poly([(0, fy), (tw, fy), (tw, H), (0, H)], (250, 240, 250, 255))
+    for k in range(int(tw / (40 * s)) + 1):
+        x0 = k * 40 * s
+        near.poly([(x0, fy), (x0 + 20 * s, fy), (x0 - 10 * s, H), (x0 - 30 * s, H)], (240, 110, 150, 255))
+    near.line([(0, fy), (tw, fy)], (150, 90, 160, 255), 5 * s)
+    layers.append({"img": near.done(), "y": 0, "f": 1.0, "stage": "near"})
+    return {"sky": sky, "layers": _fit(layers), "tw": tw, "amb": {}}
+
+
+# ============================================================================ Three Wonders
+TW_FLOOR = 382          # the grass of the forest / l'herbe de la forêt
+
+
+def build_tw_woods(W, H, s, seed=1410):
+    """Three Wonders (Midnight Wanderers): the forest of the first stage, as in the game: orange rocks and cliffs at the
+    back, tall thin trees, ledges of grass, the mossy ground. / La forêt du premier niveau : rochers et falaises orange
+    au fond, grands arbres minces, corniches d'herbe, sol moussu."""
+    rng = random.Random(seed)
+    tw = 2 * W
+    sky = vgrad(W, H, [(0.0, (60, 30, 30)), (0.5, (140, 70, 40)), (1.0, (90, 50, 30))])
+    layers = []
+    far = _Pic(tw, H, 2, tw)                                             # falaises orange
+    f = periodic(tw, rng, 6, 1.0)
+    far.poly([(0, H)] + [(x, 120 * s + 60 * s * f(x)) for x in range(0, tw + 8, 8)] + [(tw, H)], (180, 96, 46, 255))
+    g = periodic(tw, rng, 6, 1.0)
+    far.poly([(0, H)] + [(x, 220 * s + 40 * s * g(x)) for x in range(0, tw + 8, 8)] + [(tw, H)], (150, 76, 38, 255))
+    for _ in range(40):                                                  # les cassures de la roche
+        x, y = rng.uniform(0, tw), rng.uniform(150, 360) * s
+        far.line([(x, y), (x + rng.uniform(-20, 20) * s, y + rng.uniform(20, 50) * s)], (120, 60, 30, 255), 3 * s)
+    layers.append({"img": far.done(), "y": 0, "f": 0.2, "stage": "far"})
+    mid = _Pic(tw, H, 2, tw)                                             # les grands arbres minces et les corniches
+    for k in range(int(tw / (150 * s))):
+        x = k * 150 * s + rng.uniform(-40, 40) * s
+        w = rng.uniform(16, 26) * s
+        mid.poly([(x - w, TW_FLOOR * s), (x + w, TW_FLOOR * s), (x + w * 0.7, 0), (x - w * 0.7, 0)], (70, 44, 30, 255), (40, 24, 16, 255), 2 * s)
+        mid.line([(x - w * 0.2, TW_FLOOR * s), (x - w * 0.1, 0)], (100, 66, 44, 255), 3 * s)
+        if rng.random() < 0.6:
+            by = rng.uniform(120, 260) * s
+            mid.line([(x, by), (x + rng.choice((-1, 1)) * rng.uniform(40, 80) * s, by - 30 * s)], (70, 44, 30, 255), 6 * s)
+    for _ in range(5):                                                   # corniches d'herbe
+        x, y = rng.uniform(0, tw), rng.uniform(200, 300) * s
+        w = rng.uniform(120, 220) * s
+        mid.poly([(x - w / 2, y), (x + w / 2, y), (x + w / 2 - 20 * s, y + 30 * s), (x - w / 2 + 20 * s, y + 30 * s)], (110, 70, 40, 255))
+        mid.ellipse(x - w / 2 - 6 * s, y - 10 * s, x + w / 2 + 6 * s, y + 10 * s, (60, 150, 60, 255))
+    layers.append({"img": mid.done(), "y": 0, "f": 0.6, "stage": "mid"})
+    near = _Pic(tw, H, 2, tw)
+    fy = TW_FLOOR * s
+    near.poly([(0, fy), (tw, fy), (tw, H), (0, H)], (90, 56, 34, 255))
+    h = periodic(tw, rng, 5, 1.0)
+    near.poly([(0, fy + 16 * s)] + [(x, fy - 4 * s + 4 * s * h(x)) for x in range(0, tw + 8, 8)] + [(tw, fy + 16 * s)], (70, 140, 50, 255))
+    for k in range(int(tw / (16 * s))):
+        x = k * 16 * s
+        near.line([(x, fy + 4 * s), (x + rng.uniform(-6, 6) * s, fy - rng.uniform(8, 16) * s)], (100, 180, 70, 255), 3 * s)
+    for _ in range(int(tw / (120 * s))):                                 # des champignons qui luisent
+        x = rng.uniform(0, tw)
+        near.poly([(x - 3 * s, fy + 2 * s), (x + 3 * s, fy + 2 * s), (x + 3 * s, fy - 12 * s), (x - 3 * s, fy - 12 * s)], (240, 230, 210, 255))
+        near.chord(x - 10 * s, fy - 22 * s, x + 10 * s, fy - 4 * s, 180, 360, (255, 120, 80, 255))
+    layers.append({"img": near.done(), "y": 0, "f": 1.0, "stage": "near"})
+    return {"sky": sky, "layers": _fit(layers), "tw": tw, "amb": {"fireflies": True}}
+
+
+# ============================================================================ Dynasty Wars
+DW_FLOOR = 390          # the plain of the battle / la plaine de la bataille
+
+
+def build_dw_field(W, H, s, seed=1411):
+    """Dynasty Wars: the field of battle of the first round, as in the game: a hazy sky, blue mountains far away, grey
+    and brown cliffs, the dusty plain and its tufts of dry grass, the banners of the armies. / Le champ de bataille du
+    premier niveau : ciel brumeux, montagnes bleues au loin, falaises grises et brunes, plaine poussiéreuse, bannières."""
+    rng = random.Random(seed)
+    tw = 2 * W
+    sky = vgrad(W, H, [(0.0, (150, 170, 190)), (0.6, (210, 200, 170)), (1.0, (200, 180, 140))])
+    layers = []
+    far = _Pic(tw, H, 2, tw)
+    f = periodic(tw, rng, 6, 1.0)
+    far.poly([(0, H)] + [(x, 150 * s + 70 * s * f(x)) for x in range(0, tw + 8, 8)] + [(tw, H)], (140, 156, 184, 255))
+    g = periodic(tw, rng, 7, 1.0)
+    far.poly([(0, H)] + [(x, 220 * s + 40 * s * g(x)) for x in range(0, tw + 8, 8)] + [(tw, H)], (112, 128, 150, 255))
+    layers.append({"img": far.done(), "y": 0, "f": 0.12, "stage": "far"})
+    mid = _Pic(tw, H, 2, tw)                                             # les falaises
+    x = 0.0
+    while x < tw:
+        w = rng.uniform(220, 420) * s
+        h = rng.uniform(150, 250) * s
+        base = DW_FLOOR * s
+        pts = [(x, base)]
+        n = 6
+        for i in range(n + 1):
+            pts.append((x + w * i / n + rng.uniform(-10, 10) * s, base - h * (0.7 + 0.3 * math.sin(i / n * math.pi)) + rng.uniform(-20, 20) * s))
+        pts.append((x + w, base))
+        mid.poly(pts, (130, 116, 96, 255), (80, 70, 56, 255), 2 * s)
+        lit = [pts[0]] + pts[1:4] + [(pts[3][0] - 30 * s, base)]       # la face éclairée / the lit face
+        mid.poly(lit, (160, 146, 120, 255))
+        for px_, py_ in pts[1:-1]:                                    # des pins sur la crête / pines on the ridge
+            if rng.random() < 0.5:
+                mid.poly([(px_ - 14 * s, py_ + 4 * s), (px_ + 14 * s, py_ + 4 * s), (px_, py_ - 40 * s)], (50, 90, 50, 255))
+                mid.poly([(px_ - 10 * s, py_ - 14 * s), (px_ + 10 * s, py_ - 14 * s), (px_, py_ - 52 * s)], (60, 106, 56, 255))
+        for k in range(6):                                            # les strates
+            y = base - h * rng.uniform(0.2, 0.8)
+            mid.line([(x + w * rng.uniform(0.05, 0.3), y), (x + w * rng.uniform(0.6, 0.95), y + rng.uniform(-8, 8) * s)], (104, 92, 76, 255), 3 * s)
+        x += w + rng.uniform(80, 260) * s
+    for k in range(6):                                                   # les bannières
+        bx = rng.uniform(0, tw)
+        b = DW_FLOOR * s
+        mid.line([(bx, b), (bx, b - 220 * s)], (90, 60, 36, 255), 5 * s)
+        col = rng.choice(((200, 50, 40), (240, 200, 60), (60, 90, 170)))
+        mid.poly([(bx, b - 220 * s), (bx + 60 * s, b - 214 * s), (bx + 56 * s, b - 140 * s), (bx, b - 146 * s)], _rgba(col), (60, 30, 20, 255), 2 * s)
+    layers.append({"img": mid.done(), "y": 0, "f": 0.5, "stage": "mid"})
+    near = _Pic(tw, H, 2, tw)                                            # la plaine poussiéreuse
+    fy = DW_FLOOR * s
+    near.poly([(0, fy), (tw, fy), (tw, H), (0, H)], (184, 156, 110, 255))
+    for _ in range(int(tw / (30 * s))):
+        x = rng.uniform(0, tw)
+        y = rng.uniform(fy, H)
+        for j in range(4):
+            near.line([(x, y), (x + rng.uniform(-8, 8) * s, y - rng.uniform(8, 18) * s)], (140, 140, 70, 255), 2 * s)
+    for _ in range(int(tw / (50 * s))):
+        near.disc(rng.uniform(0, tw), rng.uniform(fy + 10 * s, H), rng.uniform(2, 5) * s, (150, 126, 90, 255))
+    near.line([(0, fy), (tw, fy)], (160, 130, 90, 255), 3 * s)
+    layers.append({"img": near.done(), "y": 0, "f": 1.0, "stage": "near"})
+    return {"sky": sky, "layers": _fit(layers), "tw": tw, "amb": {"dust": (230, 200, 150)}}
+
+
+BUILDERS = {"gg_grave": build_gg_grave, "st_city": build_st_city, "pg_temple": build_pg_temple, "pg_peak": build_pg_peak, "spf_hall": build_spf_hall, "mt_forest": build_mt_forest, "ms_tower": build_ms_tower, "wl_village": build_wl_village, "nm_dream": build_nm_dream,
+            "tw_woods": build_tw_woods, "dw_field": build_dw_field}
 hd_bg.BUILDERS.update(BUILDERS)
 THEMES = tuple(BUILDERS)                 # names of the backdrops of this batch / noms des décors de ce lot

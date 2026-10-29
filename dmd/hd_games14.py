@@ -14,7 +14,7 @@ import math
 from .hd_games import AMBER, GOLD, P1C, P2C, WHITE, GameScene, _clamp, _mix, _n, draw_img
 from .hd_games3 import _capsule
 from .hd_games5 import fighter_draw
-from .hd_themes14 import GG_FLOOR, MS_FLOOR, MT_FLOOR, PG_FLOOR, SPF_CELL, SPF_COLS, SPF_ROWS, SPF_TOP, ST_FLOOR
+from .hd_themes14 import DW_FLOOR, GG_FLOOR, MS_FLOOR, MT_FLOOR, NM_FLOOR, PG_FLOOR, SPF_CELL, SPF_COLS, SPF_ROWS, SPF_TOP, ST_FLOOR, TW_FLOOR, WL_FLOOR
 from .i18n import tr
 
 DARKLINE = (24, 20, 26, 255)
@@ -46,6 +46,7 @@ class SideQuestScene(GameScene):
     MOVE = (0.4, 1.4)              # speed of the backdrop: nobody plays, playing / vitesse du décor
     HEALTH = "health"
     HEALTH_MAX = 100.0
+    JUMPS = True                   # the hero jumps over the flying enemies / le héros saute par-dessus les ennemis volants
     POINTS = ("100", "200", "500")
     SHADE = (90, 70)
     EXPLOSIONS = False
@@ -177,7 +178,7 @@ class SideQuestScene(GameScene):
         if target and now - self.strike > 0.75:
             self.attack(min(target, key=lambda f: f["x"]), now)
         flyers = [f for f in self.foes if not f.get("dead") and f["kind"] == 1 and abs(f["x"] - hx) < S(260)]
-        if flyers and self.jump is None and rng.random() < 0.02:
+        if self.JUMPS and flyers and self.jump is None and rng.random() < 0.02:
             self.jump = now
         self.more(vals, now)
 
@@ -1366,6 +1367,440 @@ class MagicSwordScene(SideQuestScene):
             self.invite_right(screen, vals, now)
 
 
-SCENES = {"ghouls": GhoulsScene, "strider": StriderScene, "pang3": Pang3Scene, "mpang": MightyPangScene, "spf2t": PuzzleFighterScene, "mtwins": MegaTwinsScene, "msword": MagicSwordScene}
+# ============================================================================ Willow
+def sorcerer_draw(frame, cloak=(60, 130, 70), tunic=(150, 100, 60)):
+    """Our own little sorcerer: a hooded green cloak, a brown tunic, a staff whose tip glows when he casts.
+    / Notre petit sorcier à nous : cape verte à capuche, tunique brune, bâton dont le bout brille quand il lance un sort."""
+    def fn(d, W, H):
+        ow = max(1.0, H * 0.016)
+        step = {1: 0.05, 2: -0.05}.get(frame, 0.0) * W
+        for x, sg in ((0.38, 1), (0.52, -1)):
+            d.rounded_rectangle([W * x + sg * step, H * 0.74, W * (x + 0.12) + sg * step, H * 0.98], radius=W * 0.04, fill=(90, 60, 40, 255),
+                                outline=DARKLINE, width=int(ow))
+        d.polygon([(W * 0.3, H * 0.42), (W * 0.66, H * 0.42), (W * 0.74, H * 0.8), (W * 0.24, H * 0.8)], fill=_c(cloak), outline=DARKLINE)
+        d.rectangle([W * 0.4, H * 0.46, W * 0.58, H * 0.78], fill=_c(tunic), outline=DARKLINE)
+        hand = (W * 0.84, H * 0.42) if frame == 3 else (W * 0.66, H * 0.56)
+        d.line([(hand[0] - W * 0.02, hand[1] + H * 0.4), (hand[0] + W * 0.04, hand[1] - H * 0.26)], fill=(120, 80, 40, 255), width=int(ow * 4))
+        tip = (hand[0] + W * 0.04, hand[1] - H * 0.28)
+        r = W * (0.09 if frame == 3 else 0.05)
+        d.ellipse([tip[0] - r, tip[1] - r, tip[0] + r, tip[1] + r], fill=(140, 220, 255, 255), outline=(40, 80, 140, 255))
+        _capsule(d, (W * 0.52, H * 0.5), hand, H * 0.06, H * 0.05, _c(cloak), DARKLINE, ow)
+        d.ellipse([W * 0.33, H * 0.18, W * 0.65, H * 0.46], fill=_c(SKIN), outline=DARKLINE, width=int(ow))
+        for ex in (0.47, 0.57):
+            d.ellipse([W * (ex - 0.02), H * 0.29, W * (ex + 0.02), H * 0.34], fill=DARKLINE)
+        d.chord([W * 0.42, H * 0.36, W * 0.62, H * 0.44], 0, 180, fill=(150, 90, 60, 255))
+        d.polygon([(W * 0.28, H * 0.34), (W * 0.36, H * 0.12), (W * 0.5, H * 0.04), (W * 0.64, H * 0.12), (W * 0.7, H * 0.34), (W * 0.62, H * 0.22),
+                   (W * 0.36, H * 0.22)], fill=_c(cloak), outline=DARKLINE)
+    return fn
+
+
+def orb_draw(core, rim):
+    """A ball of magic. / Une boule de magie."""
+    def fn(d, W, H):
+        d.ellipse([0, 0, W - 1, H - 1], fill=_c(rim, 160))
+        d.ellipse([W * 0.2, H * 0.2, W * 0.8, H * 0.8], fill=_c(core))
+        d.ellipse([W * 0.3, H * 0.26, W * 0.5, H * 0.46], fill=(255, 255, 255, 255))
+    return fn
+
+
+class WillowScene(SideQuestScene):
+    """Willow as in the game: the village of the first stage, its houses of timber and their balconies, the cobbled
+    street; our own little sorcerer throws his balls of magic at the soldiers in armour and the bats, or our own
+    swordsman cuts them when the game says the other hero plays. 1UP and the score, VITAL, GOLD, the TIME.
+    / Le village du premier niveau, ses maisons à colombages ; notre petit sorcier à nous lance ses boules de magie sur
+    les soldats en armure et les chauves-souris, ou notre bretteur les coupe quand le jeu dit que l'autre héros joue."""
+    THEME = "wl_village"
+    FLOOR = WL_FLOOR
+    HERO = (130, 170)
+    FOE = (150, 190)
+    FLYER = (100, 70)
+    PACE = (1.0, 2.0)
+    MOVE = (0.4, 1.3)
+    SHADE = (90, 40)
+    HEALTH_MAX = 100.0
+
+    def __init__(self, hd, rng=None):
+        self.sword = False
+        super().__init__(hd, rng)
+
+    def hero_key(self):
+        return self.sword
+
+    def hero_draw(self, frame):
+        return swordsman_draw(frame) if self.sword else sorcerer_draw(frame)
+
+    def foe_draw(self, kind, frame):
+        if kind == 1:
+            return bat_draw(frame)
+        return fighter_draw("cyborg", (90, 90, 104), (60, 60, 70), (200, 160, 120), (40, 40, 40), 1 + frame % 2)
+
+    def shot_size(self):
+        return (54, 54)
+
+    def shot_draw(self):
+        return orb_draw((150, 230, 255), (60, 140, 255))
+
+    def always(self, vals, now):
+        v = _n(vals.get("hero"))
+        sword = v is not None and int(v) == 4
+        if sword != self.sword:
+            self.sword = sword
+            self.SHOT, self.REACH = ("slash", 0.2) if sword else ("throw", 0.62)
+            if self.p1_in(vals) and not self.nobody(vals):
+                hx, hy = self.hero_xy(now)
+                self.fx.glow(hx, hy - self.S(90), 30, 160, (200, 240, 255), 0.5, "front", 1.0, 0.0)
+
+    def status(self, screen, eng, vals, logo, now):
+        """As in the game: 1UP and the score, VITAL in its bar, GOLD, the TIME. / 1UP et le score, VITAL, GOLD, le TIME."""
+        S, W, H, hd = self.S, self.W, self.H, self.hd
+        hd.draw_logo(screen, logo, W / 2, S(6), S(440), S(84), now)
+        self.side_score(screen, eng, vals, "1UP", S(14), S(6), (255, 255, 255))
+        hp = _n(vals.get("health"))
+        if hp is not None:
+            self.gauge(screen, S(14), S(106), S(240), "VITAL", hp / 100.0, (250, 120, 40), back=(50, 30, 20))
+        gold = _n(vals.get("gold"))
+        if gold is not None:
+            self.label(screen, f"GOLD {int(gold)}", W / 2 + S(320), S(40), 28, (255, 220, 80), key="black", align="center")
+        t = _n(vals.get("time"))
+        if t is not None:
+            self.label(screen, f"TIME {int(t)}", W / 2 + S(320), S(96), 28, WHITE, key="black", align="center")
+        lives = _n(vals.get("lives"))
+        if lives is not None:
+            self.label(screen, f"P={int(lives)}", W - S(80), H - S(36), 30, (255, 220, 120), align="center")
+        self.invite_right(screen, vals, now)
+
+
+# ============================================================================ Nemo
+def dreamer_draw(frame):
+    """Our own little dreamer in his striped pyjamas and his long nightcap, a wand with a star.
+    / Notre petit rêveur à nous en pyjama rayé et long bonnet de nuit, une baguette à étoile."""
+    def fn(d, W, H):
+        ow = max(1.0, H * 0.016)
+        step = {1: 0.05, 2: -0.05}.get(frame, 0.0) * W
+        pj, stripe = (240, 240, 255, 255), (120, 150, 240, 255)
+        for x, sg in ((0.38, 1), (0.52, -1)):
+            d.rounded_rectangle([W * x + sg * step, H * 0.66, W * (x + 0.12) + sg * step, H * 0.98], radius=W * 0.04, fill=pj, outline=DARKLINE,
+                                width=int(ow))
+        d.rounded_rectangle([W * 0.32, H * 0.4, W * 0.66, H * 0.72], radius=W * 0.08, fill=pj, outline=DARKLINE, width=int(ow))
+        for k in range(4):
+            y = H * (0.45 + k * 0.07)
+            d.line([(W * 0.33, y), (W * 0.65, y)], fill=stripe, width=int(ow * 2))
+        hand = (W * 0.86, H * 0.42) if frame == 3 else (W * 0.66, H * 0.58)
+        _capsule(d, (W * 0.52, H * 0.46), hand, H * 0.06, H * 0.05, pj, DARKLINE, ow)
+        tip = (hand[0] + W * 0.1, hand[1] - H * 0.12)
+        d.line([hand, tip], fill=(250, 220, 90, 255), width=int(ow * 3))
+        pts = []
+        for i in range(10):
+            a = -math.pi / 2 + i * math.pi / 5
+            r = W * (0.07 if i % 2 == 0 else 0.03)
+            pts.append((tip[0] + math.cos(a) * r, tip[1] + math.sin(a) * r))
+        d.polygon(pts, fill=(255, 230, 80, 255), outline=DARKLINE)
+        d.ellipse([W * 0.34, H * 0.14, W * 0.64, H * 0.42], fill=_c(SKIN), outline=DARKLINE, width=int(ow))
+        d.chord([W * 0.33, H * 0.1, W * 0.65, H * 0.3], 180, 360, fill=(110, 60, 30, 255))
+        for ex in (0.47, 0.56):
+            d.ellipse([W * (ex - 0.02), H * 0.25, W * (ex + 0.02), H * 0.3], fill=DARKLINE)
+        d.polygon([(W * 0.32, H * 0.2), (W * 0.66, H * 0.2), (W * 0.2, H * 0.06), (W * 0.08, H * 0.16)], fill=(240, 120, 160, 255), outline=DARKLINE)
+        d.ellipse([W * 0.02, H * 0.12, W * 0.12, H * 0.22], fill=(255, 255, 255, 255), outline=DARKLINE)
+    return fn
+
+
+def toy_soldier_draw(frame):
+    """A wooden toy soldier of our own: a red coat, a tall black hat, a stiff walk. / Un soldat de bois à nous."""
+    def fn(d, W, H):
+        ow = max(1.0, H * 0.016)
+        lift = 0.03 * (frame % 2)
+        for k, x in enumerate((0.38, 0.52)):
+            d.rectangle([W * x, H * (0.66 - (lift if k else 0)), W * (x + 0.1), H * (0.96 - (lift if k else 0))], fill=(40, 60, 140, 255), outline=DARKLINE)
+        d.rounded_rectangle([W * 0.32, H * 0.36, W * 0.66, H * 0.68], radius=W * 0.04, fill=(210, 40, 50, 255), outline=DARKLINE, width=int(ow))
+        for y in (0.44, 0.52, 0.6):
+            d.ellipse([W * 0.47, H * y, W * 0.51, H * (y + 0.03)], fill=(250, 210, 60, 255))
+        d.line([(W * 0.36, H * 0.38), (W * 0.62, H * 0.66)], fill=(255, 255, 255, 255), width=int(ow * 3))
+        d.ellipse([W * 0.36, H * 0.2, W * 0.62, H * 0.38], fill=(250, 214, 180, 255), outline=DARKLINE, width=int(ow))
+        d.ellipse([W * 0.4, H * 0.28, W * 0.45, H * 0.32], fill=(240, 100, 100, 255))
+        d.rectangle([W * 0.36, H * 0.02, W * 0.62, H * 0.22], fill=(30, 30, 36, 255), outline=DARKLINE)
+        d.rectangle([W * 0.2, H * 0.3, W * 0.26, H * 0.66], fill=(150, 110, 60, 255))
+    return fn
+
+
+def star_imp_draw(frame):
+    """A little star with a face of our own, that flies. / Une petite étoile à nous qui vole, avec un visage."""
+    def fn(d, W, H):
+        cx, cy = W / 2, H / 2
+        pts = []
+        for i in range(10):
+            a = -math.pi / 2 + i * math.pi / 5 + (0.15 if frame % 2 else 0.0)
+            r = min(W, H) * (0.48 if i % 2 == 0 else 0.22)
+            pts.append((cx + math.cos(a) * r, cy + math.sin(a) * r))
+        d.polygon(pts, fill=(255, 200, 60, 255), outline=DARKLINE)
+        for ex in (-0.08, 0.06):
+            d.ellipse([cx + W * ex - W * 0.03, cy - H * 0.05, cx + W * ex + W * 0.03, cy + H * 0.05], fill=DARKLINE)
+    return fn
+
+
+class NemoScene(SideQuestScene):
+    """Nemo as in the game: the palace of the land of dreams, the long gallery of pale blue arches, the lilac sky and
+    its moon, the striped floor like a sweet; our own little dreamer in pyjamas throws the stars of his wand at the
+    wooden toy soldiers and the flying stars. NEMO and the score, VITAL, the lives. / Le palais du pays des rêves, la
+    galerie d'arcades bleu pâle ; notre petit rêveur en pyjama lance les étoiles de sa baguette sur les soldats de bois."""
+    THEME = "nm_dream"
+    FLOOR = NM_FLOOR
+    HERO = (120, 160)
+    FOE = (100, 160)
+    FLYER = (80, 80)
+    PACE = (1.0, 2.0)
+    MOVE = (0.4, 1.2)
+    SHADE = (80, 30)
+    BANNERS = GameScene.BANNERS + (("SUPER !", (255, 230, 80)),)
+
+    def hero_draw(self, frame):
+        return dreamer_draw(frame)
+
+    def foe_draw(self, kind, frame):
+        return star_imp_draw(frame) if kind == 1 else toy_soldier_draw(frame)
+
+    def shot_size(self):
+        return (44, 44)
+
+    def shot_draw(self):
+        return star_imp_draw(0)
+
+    def blit_shot(self, screen, sh, img, now):
+        img = self.rotated("nmstar", img, -(now - sh["t0"]) * 600, 15)
+        screen.blit(img, (int(sh["x"] - img.get_width() / 2), int(sh["y"] - img.get_height() / 2)))
+
+    def more(self, vals, now):
+        ch = self.changed(vals, "bombs")
+        if ch and ch[1] < ch[0]:                                        # a special attack: every enemy falls / tous tombent
+            self.fx.flash((255, 240, 200), 0.3, 0.3)
+            self.slam("SUPER !", (255, 230, 80), now, 1.0)
+            for f in self.foes:
+                if not f.get("dead") and 0 < f["x"] < self.W:
+                    self.kill(f, now)
+
+    def status(self, screen, eng, vals, logo, now):
+        """As in the game: NEMO and the score at the top, VITAL and the lives at the bottom. / NEMO et le score, VITAL."""
+        S, W, H, hd = self.S, self.W, self.H, self.hd
+        hd.draw_logo(screen, logo, W / 2, S(6), S(440), S(84), now)
+        self.side_score(screen, eng, vals, "NEMO", S(14), S(6), (255, 220, 120))
+        lives = _n(vals.get("lives"))
+        if lives is not None:
+            self.label(screen, f"x{int(lives)}", S(80), H - S(36), 30, (255, 220, 120), align="center")
+        b = _n(vals.get("bombs"))
+        if b is not None:
+            self.label(screen, f"SUPER x{int(b)}", S(240), H - S(36), 28, (255, 230, 80), align="center")
+        t = _n(vals.get("time"))
+        if t is not None:
+            self.label(screen, f"TIME {int(t)}", W / 2 + S(320), S(40), 28, WHITE, key="black", align="center")
+        self.invite_right(screen, vals, now)
+
+
+# ============================================================================ Three Wonders
+TW_WEAPONS = {0: ("SUPER BOMBE", "SUPER BOMB", (255, 90, 60)), 1: ("NORMAL", "NORMAL", (255, 255, 200)),
+              2: ("HYPER TIR", "HYPER SHOT", (120, 200, 255)), 3: ("TIR ARRIÈRE", "TAIL SHOT", (180, 255, 140)),
+              4: ("TIR REBOND", "BOUND SHOT", (255, 160, 240))}
+
+
+def elf_draw(frame):
+    """Our own elf wanderer: a green hood, fair hair, pointed ears, a little blaster held forward.
+    / Notre elfe vagabond à nous : capuche verte, cheveux blonds, oreilles pointues, petit lanceur tenu en avant."""
+    def fn(d, W, H):
+        ow = max(1.0, H * 0.016)
+        step = {1: 0.05, 2: -0.05}.get(frame, 0.0) * W
+        for x, sg in ((0.38, 1), (0.52, -1)):
+            d.rounded_rectangle([W * x + sg * step, H * 0.68, W * (x + 0.12) + sg * step, H * 0.98], radius=W * 0.04, fill=(110, 70, 40, 255),
+                                outline=DARKLINE, width=int(ow))
+        d.rounded_rectangle([W * 0.32, H * 0.42, W * 0.66, H * 0.72], radius=W * 0.06, fill=(60, 150, 70, 255), outline=DARKLINE, width=int(ow))
+        d.rectangle([W * 0.32, H * 0.6, W * 0.66, H * 0.64], fill=(140, 90, 40, 255))
+        hand = (W * 0.84, H * 0.5)
+        _capsule(d, (W * 0.52, H * 0.48), hand, H * 0.06, H * 0.05, _c(SKIN), DARKLINE, ow)
+        d.rounded_rectangle([hand[0] - W * 0.04, hand[1] - H * 0.06, hand[0] + W * 0.14, hand[1] + H * 0.02], radius=W * 0.02,
+                            fill=(170, 170, 190, 255), outline=DARKLINE)
+        if frame == 3:
+            d.ellipse([hand[0] + W * 0.12, hand[1] - H * 0.07, hand[0] + W * 0.2, hand[1] + H * 0.03], fill=(255, 240, 160, 255))
+        d.polygon([(W * 0.62, H * 0.28), (W * 0.76, H * 0.22), (W * 0.64, H * 0.34)], fill=_c(SKIN), outline=DARKLINE)       # l'oreille pointue
+        d.ellipse([W * 0.34, H * 0.16, W * 0.66, H * 0.44], fill=_c(SKIN), outline=DARKLINE, width=int(ow))
+        d.chord([W * 0.33, H * 0.12, W * 0.67, H * 0.34], 170, 370, fill=(250, 220, 110, 255))
+        d.polygon([(W * 0.3, H * 0.26), (W * 0.5, H * 0.04), (W * 0.7, H * 0.2), (W * 0.56, H * 0.18), (W * 0.36, H * 0.3)], fill=(60, 150, 70, 255),
+                  outline=DARKLINE)
+        for ex in (0.5, 0.58):
+            d.ellipse([W * (ex - 0.02), H * 0.27, W * (ex + 0.02), H * 0.32], fill=DARKLINE)
+    return fn
+
+
+def goblin_draw(frame):
+    """A little purple goblin of our own with a club. / Un petit gobelin violet à nous et sa massue."""
+    return fighter_draw("mutant", (120, 70, 150), (70, 50, 40), (170, 130, 200), (60, 40, 70), 1 + frame % 2)
+
+
+class ThreeWondersScene(SideQuestScene):
+    """Three Wonders (Midnight Wanderers) as in the game: the forest of the first stage, the orange cliffs, the tall thin
+    trees, the fireflies; our own elf wanderer fires the shot the game says he holds (normal, hyper, tail, bound, super
+    bomb) at the goblins and the bats. SCORE, the TIME and the lives as in the game. / La forêt du premier niveau, les
+    falaises orange, les grands arbres minces ; notre elfe vagabond tire le tir que le jeu dit qu'il a."""
+    THEME = "tw_woods"
+    FLOOR = TW_FLOOR
+    HERO = (130, 170)
+    FOE = (140, 170)
+    FLYER = (100, 70)
+    PACE = (0.9, 1.9)
+    MOVE = (0.4, 1.3)
+    SHADE = (90, 40)
+
+    def __init__(self, hd, rng=None):
+        self.weapon = 1
+        super().__init__(hd, rng)
+
+    def hero_draw(self, frame):
+        return elf_draw(frame)
+
+    def foe_draw(self, kind, frame):
+        return bat_draw(frame) if kind == 1 else goblin_draw(frame)
+
+    def shot_key(self):
+        return self.weapon
+
+    def shot_size(self):
+        return (70, 30) if self.weapon in (1, 3) else (54, 54)
+
+    def shot_draw(self):
+        col = TW_WEAPONS.get(self.weapon, TW_WEAPONS[1])[2]
+        if self.weapon in (1, 3):
+            def fn(d, W, H):
+                d.ellipse([0, H * 0.2, W, H * 0.8], fill=_c(col, 150))
+                d.ellipse([W * 0.3, H * 0.3, W, H * 0.7], fill=(255, 255, 255, 255))
+            return fn
+        return orb_draw(_mix(col, WHITE, 0.4), col)
+
+    def always(self, vals, now):
+        w = _n(vals.get("weapon"))
+        if w is not None and int(w) in TW_WEAPONS and int(w) != self.weapon:
+            self.weapon = int(w)
+            if self.p1_in(vals) and not self.nobody(vals):
+                hx, hy = self.hero_xy(now)
+                fr, en, col = TW_WEAPONS[self.weapon]
+                self.popup(tr(fr, en), hx, hy - self.S(230), col, 32)
+
+    def status(self, screen, eng, vals, logo, now):
+        """As in the game: SCORE, the TIME, the lives. / SCORE, le TIME, les vies."""
+        S, W, H, hd = self.S, self.W, self.H, self.hd
+        hd.draw_logo(screen, logo, W / 2, S(6), S(440), S(84), now)
+        self.side_score(screen, eng, vals, "SCORE", S(14), S(6), (255, 220, 120))
+        t = _n(vals.get("time"))
+        if t is not None:
+            self.label(screen, f"TIME {int(t)}", W / 2 + S(320), S(40), 28, WHITE, key="black", align="center")
+        lives = _n(vals.get("lives"))
+        if lives is not None:
+            self.label(screen, f"x{int(lives)}", S(80), H - S(36), 30, (255, 220, 120), align="center")
+        if self.p2_in(vals):
+            self.side_score(screen, eng, vals, "SCORE", W - S(14), S(6), (255, 220, 120), "score_p2", align="right")
+        else:
+            word, col = self.invite(vals, now)
+            self.label(screen, "JOIN IN" if word == "PRESS START" else word, W - S(24), S(40), 30, col, align="right")
+
+
+# ============================================================================ Dynasty Wars
+def rider_draw(frame, armor, coat, plume=(230, 40, 40), weapon=True):
+    """A general of our own on his horse, seen from the side and going right: the horse gallops (frames 0 to 2), the
+    rider sweeps his halberd forward (frame 3). / Un général à nous sur son cheval, de profil : le cheval galope, le
+    cavalier balaie devant lui de sa hallebarde."""
+    def fn(d, W, H):
+        ow = max(1.0, H * 0.01)
+        cd = _c(_mix(coat, (0, 0, 0), 0.3))
+        g = frame % 3
+        legs = (((0.3, 0.86), (0.36, 0.86), (0.66, 0.86), (0.72, 0.86)), ((0.24, 0.84), (0.4, 0.9), (0.6, 0.9), (0.8, 0.82)),
+                ((0.34, 0.9), (0.28, 0.84), (0.76, 0.84), (0.64, 0.9)))[g]
+        for (lx, ly), hip in zip(legs, ((0.32, 0.62), (0.36, 0.62), (0.66, 0.6), (0.7, 0.6))):     # les jambes du cheval
+            _capsule(d, (W * hip[0], H * hip[1]), (W * lx, H * ly), H * 0.06, H * 0.04, cd, DARKLINE, ow)
+            _capsule(d, (W * lx, H * ly), (W * lx, H * 0.98), H * 0.04, H * 0.035, cd, DARKLINE, ow)
+        d.polygon([(W * 0.16, H * 0.5), (W * 0.06, H * 0.76), (W * 0.12, H * 0.56)], fill=_c(_mix(coat, (0, 0, 0), 0.5)))   # la queue
+        d.ellipse([W * 0.2, H * 0.44, W * 0.8, H * 0.7], fill=_c(coat), outline=DARKLINE, width=int(ow))               # le corps
+        d.polygon([(W * 0.68, H * 0.5), (W * 0.82, H * 0.24), (W * 0.9, H * 0.26), (W * 0.8, H * 0.56)], fill=_c(coat), outline=DARKLINE)  # l'encolure
+        d.polygon([(W * 0.82, H * 0.22), (W * 0.98, H * 0.32), (W * 0.96, H * 0.38), (W * 0.84, H * 0.34)], fill=_c(coat), outline=DARKLINE)  # la tête
+        d.polygon([(W * 0.7, H * 0.46), (W * 0.82, H * 0.2), (W * 0.84, H * 0.26), (W * 0.74, H * 0.5)], fill=_c(_mix(coat, (0, 0, 0), 0.6)))  # la crinière
+        d.ellipse([W * 0.88, H * 0.26, W * 0.9, H * 0.28], fill=DARKLINE)
+        d.rectangle([W * 0.42, H * 0.44, W * 0.58, H * 0.5], fill=(150, 40, 40, 255))                                 # la selle
+        d.rounded_rectangle([W * 0.42, H * 0.2, W * 0.58, H * 0.46], radius=W * 0.03, fill=_c(armor), outline=DARKLINE, width=int(ow))   # le cavalier
+        _capsule(d, (W * 0.5, H * 0.44), (W * 0.54, H * 0.6), H * 0.06, H * 0.05, _c(_mix(armor, (0, 0, 0), 0.3)), DARKLINE, ow)
+        d.ellipse([W * 0.45, H * 0.07, W * 0.57, H * 0.21], fill=_c(SKIN), outline=DARKLINE, width=int(ow))
+        d.chord([W * 0.44, H * 0.04, W * 0.58, H * 0.17], 180, 360, fill=_c(_mix(armor, (0, 0, 0), 0.2)), outline=DARKLINE)
+        d.polygon([(W * 0.5, H * 0.05), (W * 0.44, H * -0.02), (W * 0.47, H * 0.06)], fill=_c(plume))
+        if weapon:                                                     # la hallebarde
+            a, b = ((W * 0.5, H * 0.34), (W * 1.0, H * 0.28)) if frame == 3 else ((W * 0.46, H * 0.5), (W * 0.66, H * -0.02))
+            d.line([a, b], fill=(110, 70, 40, 255), width=int(ow * 3))
+            d.polygon([(b[0], b[1]), (b[0] - W * 0.05, b[1] - H * 0.04), (b[0] - W * 0.06, b[1] + H * 0.05)], fill=(230, 236, 250, 255), outline=DARKLINE)
+            _capsule(d, (W * 0.52, H * 0.28), ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2), H * 0.05, H * 0.04, _c(armor), DARKLINE, ow)
+    return fn
+
+
+class DynastyWarsScene(SideQuestScene):
+    """Dynasty Wars as in the game: the field of battle, the cliffs and their pines, the banners of the armies, the dusty
+    plain; our own general gallops on his horse and sweeps the foot soldiers and the riders with his halberd. VIT and
+    its gauge, the LEVEL, as in the game. / Le champ de bataille, les falaises et leurs pins, les bannières ; notre
+    général à nous galope et balaie fantassins et cavaliers de sa hallebarde. VIT et sa jauge, le LEVEL."""
+    THEME = "dw_field"
+    FLOOR = DW_FLOOR
+    HERO_X = 0.28
+    HERO = (300, 260)
+    FOE = (150, 190)
+    FLYER = (300, 260)
+    FLY_Y = (390, 390)
+    FLYERS = 0.3                    # here the "flyers" are the riders of the other army / ici les cavaliers ennemis
+    JUMPS = False
+    SHOT = "slash"
+    REACH = 0.24
+    PACE = (0.8, 1.6)
+    MOVE = (0.8, 2.6)
+    SHADE = (80, 40)
+
+    def hero_draw(self, frame):
+        return rider_draw(frame if frame == 3 else int(self.fx.now * 8) % 3, (200, 50, 40), (150, 100, 60))
+
+    def hero_img(self, frame):
+        S = self.S
+        f = 3 if frame == 3 else int(self.fx.now * 8) % 3
+        return self.img(("dwhero", f), S(self.HERO[0]), S(self.HERO[1]), rider_draw(f, (200, 50, 40), (150, 100, 60)), ss=2)
+
+    def foe_img(self, kind, frame, left=True):
+        S = self.S
+        if kind == 1:
+            return self.img(("dwrider", frame % 3), S(260), S(225), rider_draw(frame % 3, (60, 90, 160), (90, 70, 60), (240, 220, 80)), ss=2, flip=True)
+        return self.img(("dwfoot", frame), S(150), S(190), fighter_draw("samurai", (90, 110, 160), (60, 60, 80), (210, 170, 130), (40, 40, 40),
+                                                                     1 + frame % 2), ss=2, flip=True)
+
+    def blit_foe(self, screen, f, img, y, now):
+        screen.blit(img, (int(f["x"] - img.get_width() / 2), int(self.floor() - img.get_height())))
+
+    def slash_fx(self, hx, hy, now):
+        S = self.S
+        for i in range(7):
+            a = math.radians(-50 + i * 18)
+            self.fx.later(i * 0.012, self.fx.glow, hx + S(140) + math.cos(a) * S(130), hy - S(160) + math.sin(a) * S(130), 10, 44, (255, 240, 200),
+                          0.18, "front", 1.0, 0.0, 0.0, 0.6)
+        self.fx.smoke(hx + S(200), hy - S(10), 3, (14, 26), 2.0, (0.5, 0.9), (10, 30), 30, (200, 180, 140), 120)
+
+    def status(self, screen, eng, vals, logo, now):
+        """As in the game: VIT and its gauge, the score, the LEVEL. / VIT et sa jauge, le score, le LEVEL."""
+        S, W, hd = self.S, self.W, self.hd
+        hd.draw_logo(screen, logo, W / 2, S(6), S(440), S(84), now)
+        hp = _n(vals.get("health"))
+        if hp is not None:
+            self.gauge(screen, S(14), S(14), S(320), "VIT", hp / 100.0, (90, 200, 90), back=(30, 50, 30))
+        self.pill(screen, S(14), S(66), S(464), S(54), 150, radius=12)
+        self.text(screen, "1P", S(32), S(93), 24, P1C, key="black", valign="middle")
+        if _n(vals.get("score")) is not None:
+            hd._score(screen, eng, "score", S(462), S(72), "right", S(36))
+        lv = _n(vals.get("level"))
+        if lv is not None:
+            self.label(screen, f"LEVEL {int(lv) + 1}", W / 2 + S(330), S(40), 30, (255, 220, 120), key="black", align="center")
+        if self.p2_in(vals):
+            hp2 = _n(vals.get("health_p2"))
+            if hp2 is not None:
+                self.gauge(screen, W - S(464), S(14), S(320), "VIT", hp2 / 100.0, (90, 200, 90), back=(30, 50, 30))
+        else:
+            self.invite_right(screen, vals, now, S(110))
+
+
+SCENES = {"ghouls": GhoulsScene, "strider": StriderScene, "pang3": Pang3Scene, "mpang": MightyPangScene, "spf2t": PuzzleFighterScene, "mtwins": MegaTwinsScene, "msword": MagicSwordScene, "willow": WillowScene, "nemo": NemoScene,
+          "3wonders": ThreeWondersScene, "dynwar": DynastyWarsScene}
 __all__ = ["SCENES", "SideQuestScene"]
 _KEEP = (AMBER, P1C, P2C, draw_img)
