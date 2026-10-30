@@ -812,5 +812,14 @@
         ]
       }
     ]
+  },
+  "per_game": {
+    "ecofghtru": {
+      "credits": {
+        "addr": "0xFF02EA",
+        "type": "u8",
+        "note": "credits (FBNeo cheat database, Infinite Credits)"
+      }
+    }
   }
 }

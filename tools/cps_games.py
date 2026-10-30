@@ -41,8 +41,10 @@ PATTERNS = {
     "health_p2": rf"^(?:select )?infinite (?:energy|health|vitality|life)(?: '?all'?| \((?:1st char(?:acter)?|active char)\))? {PL}2$",
     "_drain": rf"^(?:always have no energy|drain all energy now!?(?: \(active char\))?) {PL}1(?:/cpu)?$",
     "_drain_p2": rf"^(?:always have no energy|drain all energy now!?(?: \(active char\))?) {PL}2(?:/cpu)?$",
-    "rounds": rf"^rounds won always (?:set )?= 0 {PL}1$",
-    "rounds_p2": rf"^rounds won always (?:set )?= 0 {PL}2$",
+    # the counter itself, or the cheat that sets it to win the match with this round (Night Warriors)
+    # le compteur lui-même, ou le code qui le règle pour gagner le match avec ce round
+    "rounds": rf"^(?:rounds won always (?:set )?= 0|win this round to win match now!?) {PL}1$",
+    "rounds_p2": rf"^(?:rounds won always (?:set )?= 0|win this round to win match now!?) {PL}2$",
     "lives": rf"^infinite lives {PL}1$",
     "lives_p2": rf"^infinite lives {PL}2$",
     "bombs": rf"^infinite (?:bombs|bomb stock|bomb) {PL}1$",
@@ -560,6 +562,21 @@ def build(fbneo, cheats_dir, games_dir):
                 if not (isinstance(v, dict) and "FBNeo cheat database" in str(v.get("note", "")))}
         merged = dict(vals)
         merged.update(hand)                          # learned or set by hand wins / ce qui est appris passe avant
+        # versions whose own cheats put a value elsewhere (JoJo's Venture's second revision, Quiz & Dragons in Japan...):
+        # read there for that version, MAME and RetroArch both take "per_game" over the file's values
+        # les versions dont les propres codes de triche mettent une valeur ailleurs : lue là pour cette version
+        per = {}
+        for x in sets[1:]:
+            xc = cheats(os.path.join(cheats_dir, x + ".ini"))
+            if xc:
+                xv = values_from_cheats(xc, fam, name)[0]
+                diff = {k: v for k, v in xv.items() if k in vals and k not in hand and v.get("addr") != vals[k].get("addr")}
+                if diff:
+                    per[x] = diff
+        if per:
+            d["per_game"] = per
+        else:
+            d.pop("per_game", None)
         if "time" in hand:                           # the whole timer found by hand (Mercs) / le chrono entier trouvé à la main
             merged.pop("_time", None)
         d["memory"] = {"cpu": ":maincpu", "values": merged}

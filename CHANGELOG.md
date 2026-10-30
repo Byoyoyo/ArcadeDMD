@@ -3,6 +3,32 @@
 Newest version first. Each version is in English, then in French.
 La version la plus récente en premier. Chaque version est en anglais, puis en français.
 
+## 1.30.1
+
+### English
+
+**The START buttons**
+- `coin_buttons.bat` now also asks for the START button of each player. In a game that does not give its credits (most Capcom games under RetroArch, Mercs, Final Fight, Street Fighter II', the Alpha series...), a player who presses START with a credit begins at once. The game shows from the select screen or the intro on, PRESS START no longer waits until the player has control. Player 2 who presses START takes his credit too, a challenger in a fighting game included. Nothing is counted for START pressed without a credit, during a game or in RetroArch's menu.
+
+**Capcom games**
+- Night Warriors reads the rounds won by each player (cheat database). Gold stars under the bars on the HD screen, gold squares next to the timer on the panel, and the winner of each round from them.
+- The health of Magic Sword, Willow and Tenchi wo Kurau II reads empty when it goes below zero, like in the other Capcom games since 1.30.0.
+
+**Updating from 1.30.0**
+Extract the new zip over the old folder (`config.json`, your learned addresses and your `artwork` folder are kept). Then run `coin_buttons.bat` once more and press the left coin button, the right one, then START for player 1 and START for player 2.
+
+### Français
+
+**Les boutons START**
+- `coin_buttons.bat` demande maintenant aussi le bouton START de chaque joueur. Dans un jeu qui ne donne pas ses crédits (la plupart des jeux Capcom sous RetroArch, Mercs, Final Fight, Street Fighter II', les Alpha...), un joueur qui appuie sur START avec un crédit commence tout de suite. Le jeu s'affiche dès l'écran de sélection ou l'intro, PRESS START n'attend plus que le joueur ait le contrôle. Le joueur 2 qui appuie sur START prend aussi son crédit, un challenger dans un jeu de combat compris. Rien n'est compté pour un START appuyé sans crédit, en pleine partie ou dans le menu de RetroArch.
+
+**Jeux Capcom**
+- Night Warriors lit les rounds gagnés par chaque joueur (base de triche). Des étoiles dorées sous les barres sur l'écran HD, des carrés dorés à côté du chrono sur la dalle, et le vainqueur de chaque round d'après eux.
+- La vie de Magic Sword, Willow et Tenchi wo Kurau II se lit vide quand elle passe sous zéro, comme dans les autres jeux Capcom depuis la 1.30.0.
+
+**Mettre à jour depuis la 1.30.0**
+Décompresse le nouveau zip par-dessus l'ancien dossier (`config.json`, tes adresses apprises et ton dossier `artwork` sont gardés). Relance ensuite une fois `coin_buttons.bat` et appuie sur le bouton des pièces de gauche, celui de droite, puis sur START du joueur 1 et START du joueur 2.
+
 ## 1.30.0
 
 ### English

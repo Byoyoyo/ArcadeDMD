@@ -27,7 +27,7 @@ from .neocoins import NeoCoins
 from .textfiles import TextFiles
 from .i18n import tr
 
-VERSION = "1.30.0"
+VERSION = "1.30.1"
 
 DEFAULT_CONFIG = {
     "language": "auto",
@@ -873,6 +873,29 @@ class Engine:
         self.log(tr(f"joueur {n} commence, crédits comptés {c}", f"player {n} begins, credits counted {c}"))
         return True
 
+    def start_in(self, player, now):
+        """A START button pressed on the cabinet (0 player 1, 1 player 2), in a game whose credits are counted from the
+        coin buttons. A player who presses it with a credit begins: the game shows at once, on the select screen, and he
+        takes the credit. Nothing when he already plays, nor without a credit, nor in RetroArch's menu.
+        / Un bouton START, dans un jeu dont les crédits sont comptés : le joueur qui appuie avec un crédit commence."""
+        if self.mode != "game" or self.source not in ("plugin", "retroarch") or self.state.paused:
+            return
+        if self.coin_count is None or self.activity is None or self.coin_count.credits <= 0:
+            return
+        p = "p1" if player == 0 else "p2"
+        if p == "p1" and self.state.values.get("p1_mode") == 1:
+            return                                     # START during his game / START en pleine partie
+        if p == "p2" and now - self.p2_active_at < P2_WAIT:
+            return
+        if not self._use_credit(p, now):
+            return
+        # his value still at 0 (lives, energy) will come back for this same start / sa valeur encore à 0 reviendra
+        if any(q == p and not self.state.values.get(v) for v, q in self.coin_begin.items()):
+            self.coin_skip[p] = now
+        if self.state.values.get("p1_mode") != 1:      # nobody played: the game begins, on player 2's side too
+            self.start_at = now
+            self.state.update("p1_mode", 1, now)
+
     def coin_rates(self):
         """Credits a coin gives on the left and on the right, written on the coin doors of the HD screen. A Neo Geo in
         MVS mode gives 2 for a coin in its second slot unless its settings were changed ("mvs_credits").
@@ -1039,6 +1062,8 @@ class Engine:
             # before what the game shows of that same coin / avant ce que le jeu montre de cette même pièce
             for side in self.coin_buttons.poll(now):
                 self.coin_in(side, now)
+            for player in self.coin_buttons.poll_starts():
+                self.start_in(player, now)
         if self.tail:
             for ev in self.tail.poll():
                 self.handle_event(ev, now)

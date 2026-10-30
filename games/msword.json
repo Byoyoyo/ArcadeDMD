@@ -64,7 +64,8 @@
         "round": 1,
         "min": 0,
         "max": 100,
-        "note": "player 1 vital in %, full = 0x1F40 (FinalBurn Neo cheats, Infinite Energy (Player) PL1, to be confirmed in game)"
+        "note": "player 1 vital in %, full = 0x1F40 (FinalBurn Neo cheats, Infinite Energy (Player) PL1, to be confirmed in game)",
+        "zero_from": "0x8FA0"
       },
       "keys": {
         "addr": "0xFFA9E9",
