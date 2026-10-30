@@ -690,7 +690,7 @@ Neo Geo games known to MAME (clones included) get a shared scene based on their 
 
 ### Capcom CPS1, CPS2 and CPS3 games
 
-Every Capcom CPS1, CPS2 and CPS3 game of FinalBurn Neo is recognized, with MAME as with RetroArch. That makes 88 games and their 942 sets. A version, a bootleg or a hack takes the file of its original game, with its own name when it has one (Street Fighter II' Magic Delta Turbo, for example). The files are made by `tools/cps_games.py` from the list and the cheat database of FinalBurn Neo.
+Every Capcom CPS1, CPS2 and CPS3 game of FinalBurn Neo is recognized, with MAME as with RetroArch. That makes 88 games and their 942 sets. A version, a bootleg or a hack takes the file of its original game, with its own name when it has one (Street Fighter II' Magic Delta Turbo, for example). A version whose own cheats put a value elsewhere reads it there, in the `"per_game"` section of the file (the second revision of JoJo's Venture, Quiz & Dragons' Japanese resale, the US Eco Fighters). The files are made by `tools/cps_games.py` from the list and the cheat database of FinalBurn Neo.
 
 ![Four Capcom fighting games on their stages, HD display](docs/images/hd_capcom_stages.jpg)
 

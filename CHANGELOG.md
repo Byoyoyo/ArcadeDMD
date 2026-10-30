@@ -13,6 +13,7 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 **Capcom games**
 - Night Warriors reads the rounds won by each player (cheat database). Gold stars under the bars on the HD screen, gold squares next to the timer on the panel, and the winner of each round from them.
 - The health of Magic Sword, Willow and Tenchi wo Kurau II reads empty when it goes below zero, like in the other Capcom games since 1.30.0.
+- A version whose own cheats put its values elsewhere reads them there. The second revision of JoJo's Venture (all its values), Quiz & Dragons' Japanese resale (the lives) and the US Eco Fighters (the credits) read their parent's addresses until now.
 
 **Updating from 1.30.0**
 Extract the new zip over the old folder (`config.json`, your learned addresses and your `artwork` folder are kept). Then run `coin_buttons.bat` once more and press the left coin button, the right one, then START for player 1 and START for player 2.
@@ -25,6 +26,7 @@ Extract the new zip over the old folder (`config.json`, your learned addresses a
 **Jeux Capcom**
 - Night Warriors lit les rounds gagnés par chaque joueur (base de triche). Des étoiles dorées sous les barres sur l'écran HD, des carrés dorés à côté du chrono sur la dalle, et le vainqueur de chaque round d'après eux.
 - La vie de Magic Sword, Willow et Tenchi wo Kurau II se lit vide quand elle passe sous zéro, comme dans les autres jeux Capcom depuis la 1.30.0.
+- Une version dont les propres codes de triche mettent ses valeurs ailleurs les lit là. La deuxième révision de JoJo's Venture (toutes ses valeurs), la réédition japonaise de Quiz & Dragons (les vies) et Eco Fighters américain (les crédits) lisaient jusqu'ici les adresses de leur jeu d'origine.
 
 **Mettre à jour depuis la 1.30.0**
 Décompresse le nouveau zip par-dessus l'ancien dossier (`config.json`, tes adresses apprises et ton dossier `artwork` sont gardés). Relance ensuite une fois `coin_buttons.bat` et appuie sur le bouton des pièces de gauche, celui de droite, puis sur START du joueur 1 et START du joueur 2.
