@@ -482,6 +482,9 @@ class Simulator:
 # moteur
 # --------------------------------------------------------------------------
 
+P2_WAIT = 45.0        # seconds after which player 2, whose values stopped moving, has left / le joueur 2 est parti
+
+
 class CoinCount:
     """Credits counted from the coin buttons, for a game whose credits cannot be read and that has no BIOS to guess them
     (the Capcom games under RetroArch, for example). A coin gives a credit, and a player who starts takes one.
@@ -668,7 +671,9 @@ class Engine:
             # "moving" : au moins une de ces valeurs doit être lue, sinon la scène du jeu reste affichée.
             moving = act.get("moving")
             if watch and (not isinstance(moving, list) or any(v in watch for v in moving)):
-                self.activity = {"values": set(watch), "seconds": float(act.get("seconds", 10))}
+                # a fighting game: the health of player 2 is the one of the computer too / la vie du joueur 2 est aussi celle de l'ordinateur
+                self.activity = {"values": set(watch), "seconds": float(act.get("seconds", 10)),
+                                 "fight": isinstance(moving, list) and "health_p2" in moving}
         # no BIOS and no credits read (Capcom...): the coin buttons count them, the count kept when the same game comes
         # back after a silence (RetroArch menu opened a while), not when it is launched again
         # les boutons des pièces les comptent, gardés quand le même jeu revient après un silence (menu de RetroArch)
@@ -692,6 +697,7 @@ class Engine:
         self.coin_zero = {}
         self.coin_used = {}
         self.coin_skip = {}
+        self.p2_active_at = -1e9
         self.active_at = -1e9
         vals = game_values(g, meta.get("system") or "", meta.get("parent") or "") if g else {}
         self.hold_zero = {k: float(d["hold_zero"]) for k, d in vals.items()
@@ -824,9 +830,27 @@ class Engine:
                 if new >= self.coin_rise and t - self.coin_zero.get(name, -1e9) >= 1.0:
                     self._use_credit(player, now)
 
+    def _p2_activity(self, now):
+        """Player 2 joins in a game without a BIOS: his score goes up, a life or a bomb spent, a hit taken, after
+        P2_WAIT seconds without any of them. With counted credits, he took one. Not a reset of his values.
+        / Le joueur 2 arrive (son score monte, une vie ou une bombe en moins, un coup reçu) : un crédit compté pris."""
+        moved = False
+        for name, old, new, t in self.state.events:
+            if not isinstance(new, (int, float)) or not isinstance(old, (int, float)):
+                continue
+            if (name == "score_p2" and new > old) or (name in ("lives_p2", "bombs_p2") and old - new == 1) \
+                    or (name == "health_p2" and 0 < new < old):
+                moved = True
+        if moved:
+            if now - self.p2_active_at >= P2_WAIT:
+                self._use_credit("p2", now)
+            self.p2_active_at = now
+
     def _use_credit(self, player, now):
         """A counted credit used by a player who begins, once for a same beginning (seen by who plays and by his value).
         True when one was taken. / Un crédit compté pris par un joueur qui commence, une seule fois pour un même départ."""
+        if player == "p2":
+            self.p2_active_at = now                                    # he plays now / il joue maintenant
         if self.coin_count is None or self.coin_count.credits <= 0 or now - self.coin_used.get(player, -1e9) < 5.0:
             return False
         self.coin_used[player] = now
@@ -1040,6 +1064,8 @@ class Engine:
             self.go_idle()
         if self.coin_begin:
             self._coin_begin(now)
+        if self.coin_count is not None and self.activity is not None and not self.activity.get("fight"):
+            self._p2_activity(now)
         if self.activity is not None:
             self._activity(now)
         if self.texts is not None:     # fichiers texte pour OBS, séries de victoires en match VS

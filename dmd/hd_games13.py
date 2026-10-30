@@ -294,6 +294,35 @@ class _CpsShooter:
     hits = 0                                           # (tests)
     named = 0
     swept = 0
+    P2_WAIT = 45.0                                     # seconds player 2 stays after his values stopped moving
+    p2_seen = -99.0
+    p2_joins = 0                                       # (tests)
+
+    def p2_in(self, vals):
+        """Player 2 plays: his mode says so (MAME with a BIOS), or, with no BIOS on a CPS, his values moved not long ago.
+        His score that goes up, a life or a bomb spent, a hit taken. Not a reset, a new game empties or fills them for both
+        players. / Le joueur 2 joue : son score monte, une vie ou une bombe en moins, un coup reçu, il y a peu."""
+        if vals.get("p2_mode") in (1, 2):
+            return True
+        return self.fx.now - self.p2_seen < self.P2_WAIT
+
+    def update(self, vals, now):
+        moved = False
+        ch = self.changed(vals, "score_p2")
+        if ch and ch[1] > ch[0]:
+            moved = True
+        for name in ("lives_p2", "bombs_p2"):
+            ch = self.changed(vals, name)
+            if ch and ch[0] - ch[1] == 1:
+                moved = True
+        ch = self.changed(vals, "health_p2")
+        if ch and 0 < ch[1] < ch[0]:
+            moved = True
+        if moved:
+            if self.fx.now - self.p2_seen >= self.P2_WAIT:
+                self.p2_joins += 1
+            self.p2_seen = now
+        super().update(vals, now)
 
     def energy_hits(self, vals, now):
         for side, suf in (("p1", ""), ("p2", "_p2")):

@@ -60,6 +60,17 @@
         "type": "bcd",
         "bytes": 4,
         "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+      },
+      "bombs_p2": {
+        "addr": "0xFF72E3",
+        "type": "u8",
+        "note": "bombs of player 2 (MAME 2003-Plus cheat.dat, Infinite Bombs PL2)"
+      },
+      "power_p2": {
+        "addr": "0xFF7315",
+        "type": "u8",
+        "max": 3,
+        "note": "fire power of player 2, 3 at most (MAME 2003-Plus cheat.dat, Maximum fire power PL2)"
       }
     }
   },

@@ -28,7 +28,7 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - Final Fight Anniversary Edition, Final Fight EX and Tenchi wo Kurau II CPS Changer take the scene of their game.
 
 **Credits and coins**
-- Under RetroArch most Capcom games do not give their credits. With the coin buttons shown by `coin_buttons.bat`, ArcadeDMD counts them. A coin gives a credit and a player who begins takes one, at the start, at a continue (lives back from 0, or the energy in Mercs) and when player 2 joins in. For an exact count, `learn.bat` can find where the game keeps them.
+- Under RetroArch most Capcom games do not give their credits. With the coin buttons shown by `coin_buttons.bat`, ArcadeDMD counts them. A coin gives a credit and a player who begins takes one, at the start, at a continue (lives back from 0, or the energy in Mercs) and when player 2 joins in (his values start moving). For an exact count, `learn.bat` can find where the game keeps them.
 - 1944 and Dimahoo keep all their values outside of the memory RetroArch shares. The log says so, launch them with MAME to see everything.
 - Super Puzzle Fighter II Turbo no longer draws two little fighters, the counter gems fly across to the other well and the names read in the game show in the middle.
 - 1944 on the HD screen takes the icons of the game. The bombs as B medals, the side fighters in stock in their frame with their number, the gold crystals picked up, POW in yellow. The side fighters fly at our plane's sides, a bomb is a salvo of missiles, and a big WARNING announces the boss once its address is found.
@@ -39,6 +39,7 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - The credits of the fighting games are bigger, on a dark pill.
 
 **Also**
+- Player 2 shows in the Capcom shoot'em ups when his values move, his score that goes up, a life or a bomb spent, a hit taken. He stayed on PRESS START, these games have no BIOS that tells who plays. Giga Wing also reads the bombs and the power of player 2.
 - The HD screen gave the Metal Slug scene to Marvel Super Heroes and Magic Sword, their names start like Metal Slug's. Only the Metal Slug games get it now.
 
 **Updating from 1.29.3**
@@ -67,7 +68,7 @@ Extract the new zip over the old folder (`config.json`, your learned addresses a
 - Final Fight Anniversary Edition, Final Fight EX et Tenchi wo Kurau II CPS Changer prennent la scène de leur jeu.
 
 **Crédits et pièces**
-- Sous RetroArch la plupart des jeux Capcom ne donnent pas leurs crédits. Avec les boutons des pièces montrés par `coin_buttons.bat`, ArcadeDMD les compte. Une pièce donne un crédit et un joueur qui commence en prend un, au départ, à un continue (les vies qui reviennent de 0, ou l'énergie dans Mercs) et quand le joueur 2 arrive. Pour un compte exact, `learn.bat` peut trouver où le jeu les garde.
+- Sous RetroArch la plupart des jeux Capcom ne donnent pas leurs crédits. Avec les boutons des pièces montrés par `coin_buttons.bat`, ArcadeDMD les compte. Une pièce donne un crédit et un joueur qui commence en prend un, au départ, à un continue (les vies qui reviennent de 0, ou l'énergie dans Mercs) et quand le joueur 2 arrive (ses valeurs se mettent à bouger). Pour un compte exact, `learn.bat` peut trouver où le jeu les garde.
 - 1944 et Dimahoo gardent toutes leurs valeurs hors de la mémoire que RetroArch partage. Le journal le dit, lance-les avec MAME pour tout voir.
 - Super Puzzle Fighter II Turbo ne dessine plus deux petits combattants, les gemmes à compteur volent vers l'autre puits et les noms lus dans le jeu s'affichent au milieu.
 - 1944 prend les icônes du jeu sur l'écran HD. Les bombes en médailles B, l'escorte en réserve dans son cadre avec son nombre, les cristaux d'or ramassés, POW en jaune. Les chasseurs d'escorte volent à côté de notre avion, une bombe est une salve de missiles, et un grand WARNING annonce le boss une fois son adresse trouvée.
@@ -78,6 +79,7 @@ Extract the new zip over the old folder (`config.json`, your learned addresses a
 - Les crédits des jeux de combat sont plus gros, sur une pastille sombre.
 
 **Aussi**
+- Le joueur 2 apparaît dans les shoot'em up Capcom quand ses valeurs bougent, son score qui monte, une vie ou une bombe en moins, un coup reçu. Il restait sur PRESS START, ces jeux n'ont pas de BIOS qui dit qui joue. Giga Wing lit aussi les bombes et la puissance du joueur 2.
 - L'écran HD donnait la scène de Metal Slug à Marvel Super Heroes et à Magic Sword, leur nom commence comme celui de Metal Slug. Seuls les Metal Slug l'ont maintenant.
 
 **Mettre à jour depuis la 1.29.3**
