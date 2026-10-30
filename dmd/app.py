@@ -482,6 +482,24 @@ class Simulator:
 # moteur
 # --------------------------------------------------------------------------
 
+class CoinCount:
+    """Credits counted from the coin buttons, for a game whose credits cannot be read and that has no BIOS to guess them
+    (the Capcom games under RetroArch, for example). A coin gives a credit, and a player who starts takes one.
+    / Crédits comptés d'après les boutons des pièces, pour un jeu dont on ne lit pas les crédits et sans BIOS pour les
+    deviner. Une pièce donne un crédit, un joueur qui commence en prend un."""
+
+    def __init__(self):
+        self.credits = 0
+
+    def add(self, side):
+        self.credits = min(99, self.credits + 1)
+        return self.credits
+
+    def use(self):
+        self.credits = max(0, self.credits - 1)
+        return self.credits
+
+
 class Engine:
     def __init__(self, root, config, outputs, log, demo_game=None):
         self.root = root
@@ -537,6 +555,7 @@ class Engine:
         self.retroarch = None
         self.derived = None
         self.coin_guess = None        # crédits d'une Neo Geo devinés d'après le BIOS (RetroArch)
+        self.coin_count = None        # credits counted from the coin buttons (no BIOS, credits not read) / crédits comptés
         self.activity = None          # who plays, guessed from the values that move (CPS) / qui joue, d'après ce qui bouge
         self.active_at = -1e9
         # the coin buttons read on the controllers (coin_buttons.bat) / les boutons des pièces lus sur les manettes
@@ -632,6 +651,9 @@ class Engine:
         # credits of a Neo Geo that cannot be read (RetroArch): guessed from its BIOS / crédits devinés d'après le BIOS
         self.coin_guess = NeoCoins(mvs_rates(self.cfg)) if (source in ("plugin", "retroarch") and "credits" not in names
                                                             and "bios_request" in names) else None
+        # no BIOS and no credits read (Capcom...): the coin buttons count them / les boutons des pièces les comptent
+        self.coin_count = CoinCount() if (self.coin_guess is None and self.coin_buttons is not None and "credits" not in names
+                                          and source in ("plugin", "retroarch")) else None
         # a game without a BIOS that says who plays (CPS): player 1 plays while its values move (timer, health...)
         # un jeu sans BIOS qui dit qui joue (CPS) : le joueur 1 joue tant que ses valeurs bougent (chrono, vie...)
         act = g.get("activity") if isinstance(g.get("activity"), dict) else None
@@ -751,7 +773,10 @@ class Engine:
         a = self.activity
         if any(e[0] in a["values"] for e in self.state.events):
             self.active_at = now
-        self.state.update("p1_mode", 1 if now - self.active_at < a["seconds"] else 0, now)
+        mode = 1 if now - self.active_at < a["seconds"] else 0
+        if mode == 1 and self.state.values.get("p1_mode") == 0 and self.coin_count is not None and self.coin_count.credits > 0:
+            self.state.update("credits", self.coin_count.use(), now)          # the player started: a credit used / un crédit pris
+        self.state.update("p1_mode", mode, now)
 
     def coin_rates(self):
         """Credits a coin gives on the left and on the right, written on the coin doors of the HD screen. A Neo Geo in
@@ -768,6 +793,11 @@ class Engine:
         self.state.update("coin_side", side, now)
         where = side_word(side)
         if self.coin_guess is None:
+            if self.coin_count is not None:                               # counted from the buttons / comptés d'après les boutons
+                c = self.coin_count.add(side)
+                self.state.update("credits", c, now)
+                self.log(tr(f"pièce à {where}, crédits comptés {c}", f"coin on the {where}, credits counted {c}"))
+                return
             self.log(tr(f"pièce à {where}", f"coin on the {where}"))
             return
         old = self.state.values.get("credits")

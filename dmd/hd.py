@@ -36,10 +36,10 @@ from .hd_games8 import SCENES as _SCENES_124
 from .hd_games9 import SCENES as _SCENES_125
 from .hd_games10 import SCENES as _SCENES_126
 from .hd_games11 import SCENES as _SCENES_127
-from .hd_games12 import SCENES as _SCENES_CPS_BEAT
 from .hd_games13 import SCENES as _SCENES_CPS_SHOOT
 from .hd_games14 import SCENES as _SCENES_CPS_ACTION
 from .hd_games16 import SCENES as _SCENES_CPS_SMALL
+from .hd_panels import SCENES as _SCENES_CPS_PANELS
 from .hd_mslug import MetalSlugScene, family
 from .i18n import tr
 
@@ -57,8 +57,9 @@ CHIPS = (("lives", ("VIES", "LIVES")), ("lives_p2", ("VIES J2", "LIVES P2")), ("
 GAME_SCENES = dict(_SCENES_117, **_SCENES_118, **_SCENES_119, **_SCENES_120, **_SCENES_121, **_SCENES_122, **_SCENES_123,
                    **_SCENES_124, **_SCENES_125, **_SCENES_126,
                    **_SCENES_127,     # Neo Geo games done one by one
-                   **_SCENES_CPS_BEAT, **_SCENES_CPS_SHOOT, **_SCENES_CPS_ACTION,
+                   **_SCENES_CPS_SHOOT, **_SCENES_CPS_ACTION,
                    **_SCENES_CPS_SMALL)     # Capcom CPS games done one by one
+GAME_SCENES.update(_SCENES_CPS_PANELS)       # the Capcom games with characters, shown like Metal Slug (1.30)
 MSLUG_WEAPONS = {0: ("PISTOLET", "HANDGUN"), 1: ("FUSIL À POMPE", "SHOTGUN"), 2: ("LANCE-FLAMMES", "FLAMETHROWER"),
                  3: ("LANCE-ROQUETTES", "ROCKET LAUNCHER"), 4: ("MITRAILLETTE", "MACHINE GUN")}
 
@@ -113,8 +114,27 @@ class HDRenderer:
         self.enter = 1.0              # attract screen coming in after the intro
         self.veil = None
         self.flash_glow = None
+        # the backdrops a little darker, so that the information stands out ("dim" in the preview section, 0 to 80 %)
+        # les décors un peu assombris, pour que les infos ressortent (« dim » dans la section preview, de 0 à 80 %)
+        try:
+            self.dim = max(0, min(80, int((cfg or {}).get("dim", 30))))
+        except (TypeError, ValueError):
+            self.dim = 30
+        self.dim_veils = {}
+        self.credit_pills = {}
 
     # ------------------------------------------------------------ outils
+    def dim_veil(self, size):
+        """The dark veil laid on every backdrop, or None. / Le voile sombre posé sur chaque décor, ou None."""
+        if self.dim <= 0:
+            return None
+        v = self.dim_veils.get(size)
+        if v is None:
+            v = self.dim_veils[size] = self.pg.Surface(size).convert()
+            v.fill((0, 0, 0))
+            v.set_alpha(int(self.dim * 255 / 100))
+        return v
+
     def S(self, v):
         return int(round(v * self.s))
 
@@ -697,9 +717,16 @@ class HDRenderer:
             else:
                 self.draw_super(screen, vals, side, now, room)
         credits = _num(vals.get("credits"))
-        if credits is not None:
-            self.put(screen, self.text(tr(f"CRÉDITS {int(credits):02d}", f"CREDITS {int(credits):02d}"), "bold", S(30),
-                                       (200, 170, 120), glow=0), cx, S(335), "center", "middle")
+        if credits is not None:                               # big enough to read, on a dark pill / lisibles, sur une pastille
+            t = self.text(tr(f"CRÉDITS {int(credits):02d}", f"CREDITS {int(credits):02d}"), "xbold", S(44), AMBER, 0.3)
+            w, h = t["w"] + S(56), S(64)
+            pill = self.credit_pills.get((w, h))
+            if pill is None:
+                pill = self.credit_pills[(w, h)] = self.pg.Surface((w, h), self.pg.SRCALPHA)
+                self.pg.draw.rect(pill, (6, 8, 18, 225), pill.get_rect(), border_radius=h // 2)
+                self.pg.draw.rect(pill, (120, 90, 40, 255), pill.get_rect(), max(1, S(3)), border_radius=h // 2)
+            screen.blit(pill, (int(cx - w / 2), S(338) - h // 2))
+            self.put(screen, t, cx, S(338), "center", "middle")
 
     def draw_super(self, screen, vals, side, now, room):
         """Super gauge of the Capcom fighting games (Alpha, Marvel, Street Fighter III...) under the fighter: it fills up,

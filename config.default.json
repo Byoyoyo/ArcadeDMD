@@ -33,7 +33,8 @@
       "takeover": "known",
       "style": "led",
       "launchbox": "",
-      "coins": true
+      "coins": true,
+      "dim": 30
     },
     "pixelcade": {
       "enabled": false,

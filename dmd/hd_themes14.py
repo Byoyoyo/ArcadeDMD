@@ -1,6 +1,6 @@
 """Backdrops of the Capcom CPS action, platform and puzzle games (1.30), drawn by the program after screenshots of the
 games. Everything is drawn by the program, no image comes from a game. The backdrops register in hd_bg.BUILDERS when
-this module is imported (by hd_games14).
+this module is imported (by hd_games14 and hd_panels).
 
 Décors des jeux d'action, de plateforme et de réflexion Capcom CPS (1.30), dessinés par le programme d'après des
 captures des jeux. Tout est dessiné par le programme, aucune image ne vient d'un jeu.

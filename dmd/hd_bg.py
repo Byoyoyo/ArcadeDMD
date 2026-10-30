@@ -958,6 +958,9 @@ class Backdrop:
                 screen.blit(old, (x, 0), area=self.pg.Rect(x, 0, self.W - x, self.H))
                 g = self.fx.sp.streak(int(self.H * 1.1), int(10 * self.s), (255, 200, 120), 90, 12)
                 screen.blit(g, (x - g.get_width() // 2, self.H // 2 - g.get_height() // 2), special_flags=self.pg.BLEND_RGB_ADD)
+        veil = self.hd.dim_veil(screen.get_size()) if hasattr(self.hd, "dim_veil") else None
+        if veil is not None:                                 # a little darker: the information stands out / les infos ressortent
+            screen.blit(veil, (0, 0))
 
     def _layer_x(self, L, tw):
         return -((self.scroll * L["f"]) % tw)

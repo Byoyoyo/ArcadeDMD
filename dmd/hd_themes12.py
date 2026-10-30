@@ -2,7 +2,7 @@
 a big American city, a city of the future, a jungle town among ruins, a luxury mansion at night, a forest of huge
 trees, a village of half-timbered houses, a forest of ancient China, a canyon, green hills with a far town, a ruined
 industrial city, a hangar of war machines and an arena of the future. Everything is drawn by the program, no image
-comes from a game. The backdrops register in hd_bg.BUILDERS when this module is imported (by hd_games12).
+comes from a game. The backdrops register in hd_bg.BUILDERS when this module is imported (by hd_panels).
 
 Décors des beat'em ups Capcom CPS (1.30), dessinés par le programme d'après des captures des jeux. Tout est dessiné
 par le programme, aucune image ne vient d'un jeu.

@@ -1,5 +1,6 @@
 """HD scenes of the Capcom CPS shoot'em ups (1.30), each drawn after screenshots of its game: 1941, 1944, 19XX, Varth,
-U.N. Squadron, Carrier Air Wing, Forgotten Worlds, Giga Wing, Progear, Mars Matrix, Dimahoo, Eco Fighters and Mercs.
+U.N. Squadron, Carrier Air Wing, Forgotten Worlds, Giga Wing, Progear, Mars Matrix, Dimahoo and Eco Fighters (Mercs is shown
+with player panels, hd_panels.py).
 Each game has its own animated backdrop and reacts to the values read in its memory: the energy that drops is a hit
 taken, a life lost blows up, a bomb spent sweeps the screen, the weapon read in the game is named. The planes, the
 heroes, the enemies and the machines are creations of the program in the spirit of the games (the planes of the war
@@ -15,10 +16,10 @@ import math
 
 from .hd_games import CREAM, GOLD, RED, WHITE, _clamp, _mix, _n
 from .hd_games3 import DARK, AeroFightersScene, _poly, bomber_draw, jet_draw, prop_plane_draw
-from .hd_games5 import ShockTroopers2Scene, SideShooterScene, side_heli_draw
+from .hd_games5 import SideShooterScene, side_heli_draw
 from .hd_games6 import portrait_draw
 from .hd_games10 import gunboat_draw
-from .hd_themes13 import GW_LANES, MC_ROAD, MM_LANES, SEA41_LANES, SEA44_LANES, THEMES, VT_LANES
+from .hd_themes13 import GW_LANES, MM_LANES, SEA41_LANES, SEA44_LANES, THEMES, VT_LANES
 from .i18n import tr
 
 LINE = DARK + (255,)
@@ -1072,68 +1073,7 @@ class EcoFightersScene(_SideCps):
             self.label(screen, name, W - S(30), H - S(36), 28, GOLD, key="black", align="right")
 
 
-# ============================================================================ Mercs
-class MercsScene(ShockTroopers2Scene):
-    """Mercs as in the game: a sandy track across the desert seen from the sky, tufts of grass, old walls and
-    sandbags, our mercenary of our own runs up the track and shoots the soldiers, the jeeps and the tanks. A mega
-    crash spent sweeps the screen, the energy that drops is a hit taken. 1P and the score, the time in yellow at the
-    top right, the green energy bar and the mega crashes at the bottom. / Une piste de sable à travers le désert,
-    notre mercenaire à nous la remonte et tire sur les soldats, les jeeps et les chars, comme dans le jeu."""
-    THEME = "mc_desert"
-    HERO = ((70, 110, 60), (150, 130, 90), (60, 40, 30), (220, 50, 40))
-    FOE = ((176, 150, 100), (140, 120, 80), (110, 100, 70), (0, 0, 0))
-    ALIAS = {"grenades": "bombs"}                      # a mega crash is thrown like a grenade / comme une grenade
-    hits = 0                                           # (tests)
-
-    def changed(self, vals, name):
-        return super().changed(vals, self.ALIAS.get(name, name))
-
-    def road(self, z):
-        S = self.S
-        return S(MC_ROAD[0]) + S(70) + z * (S(MC_ROAD[1]) - S(MC_ROAD[0]) - S(64))
-
-    def update(self, vals, now):
-        super().update(vals, now)
-        ch = self.changed(vals, "health")
-        if ch and ch[1] < ch[0]:
-            self.hurt = now
-            self.hits += 1
-            self.fx.shake(6, 0.25)
-        ch = self.changed(vals, "bombs")
-        if ch and ch[1] < ch[0]:                                         # the mega crash / la méga attaque
-            self.fx.flash((255, 220, 160), 0.4, 0.4)
-            self.popup("MEGA CRASH !", self.hx(), self.road(self.hz) - self.S(220), GOLD, 42, key="stencil")
-            for f in self.foes:
-                if not f.get("dead") and f["x"] < self.W * 0.98:
-                    self.fx.later(0.3 + self.rng.uniform(0, 0.3), self.kill, f, now)
-
-    def status(self, screen, eng, vals, logo, now):
-        """As in the game: 1P and the score, the time in yellow at the top right, the green energy bar and the mega
-        crashes at the bottom. / Comme dans le jeu : 1P et le score, le temps en jaune en haut à droite, la barre
-        d'énergie verte et les méga attaques en bas."""
-        S, W, H, hd = self.S, self.W, self.H, self.hd
-        hd.draw_logo(screen, logo, W / 2, S(6), S(400), S(76), now)
-        self.pill(screen, S(12), S(6), S(420), S(58), 160, radius=14)
-        self.text(screen, "1P", S(30), S(34), 28, (255, 230, 120), key="black", valign="middle")
-        if _n(vals.get("score")) is not None:
-            hd._score(screen, eng, "score", S(410), S(12), "right", S(40))
-        t = _n(vals.get("time"))
-        if t is not None:
-            self.pill(screen, W - S(200), S(6), S(184), S(84), 160, radius=14)
-            hd.put_number(screen, f"{int(t)}", "stencil", S(64), (255, 230, 60), W - S(108), S(48), "center", "middle")
-        elif not self.p2_in(vals):
-            word, col = self.invite(vals, now)
-            self.label(screen, word, W - S(24), S(40), 30, col, align="right")
-        e = _n(vals.get("health"))
-        if e is not None:
-            self.pill(screen, S(16), H - S(62), S(470), S(48), 160, radius=12)
-            self.bar(screen, S(30), H - S(50), S(440), S(24), e / 100.0, (80, 220, 90), back=(40, 30, 30))
-        b = _n(vals.get("bombs"))
-        if b is not None:
-            self.label(screen, f"MEGA CRASH x{int(b)}", W - S(30), H - S(36), 28, GOLD, key="black", align="right")
-
-
 SCENES = {"1944": Loop1944Scene, "19xx": War19XXScene, "1941": Counter1941Scene, "varth": VarthScene, "gigawing": GigaWingScene,
           "mmatrix": MarsMatrixScene, "dimahoo": DimahooScene, "unsquad": UNSquadronScene, "cawing": CarrierAirWingScene,
-          "forgottn": ForgottenWorldsScene, "progear": ProgearScene, "ecofghtr": EcoFightersScene, "mercs": MercsScene}
+          "forgottn": ForgottenWorldsScene, "progear": ProgearScene, "ecofghtr": EcoFightersScene}
 __all__ = ["SCENES", "THEMES"]
