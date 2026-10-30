@@ -248,9 +248,12 @@ def values_from_cheats(cs, fam, name=""):
             v = value(addr, n, fam, "be" if n > 1 else "u8",
                       f"{'player 1' if key == 'health' else 'player 2'} health in %, full = 0x{full:X} ({src}, {found[key]['name']})")
             v.update({"mult": round(100.0 / full, 6), "round": 1, "min": 0, "max": 100})
-            # gone below zero at a K.O. (Street Fighter II): 0xFF... reads an empty bar, not a full one
-            # passée sous zéro au K.O. : 0xFF... se lit barre vide, pas pleine
-            v["zero_from"] = f"0x{full + ((1 << (8 * n)) - full) // 2:X}"
+            # gone below zero at a K.O. (Street Fighter II): 0xFF... reads an empty bar, not a full one. Not when the cheat
+            # fills the bar with 0xFF itself (Slam Masters), a full bar would read empty.
+            # passée sous zéro au K.O. : 0xFF... se lit barre vide. Pas quand le code remplit la barre avec 0xFF lui-même.
+            zero = full + ((1 << (8 * n)) - full) // 2
+            if zero > full:
+                v["zero_from"] = f"0x{zero:X}"
             vals[key] = v
     for key in ("rounds", "rounds_p2"):              # rounds won, the markers under the bars / les rounds gagnés
         t = enabled(found[key]) if key in found else None
