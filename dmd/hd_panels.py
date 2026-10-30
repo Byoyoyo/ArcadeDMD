@@ -319,9 +319,15 @@ class PanelScene(GameScene):
                     if ch:
                         self.mark(side, "name", now)
             if spec.get("names"):
-                ch = self.changed(vals, "_p1_chr" if side == "p1" else "_p2_chr")
+                watch = spec.get("name_watch") or ("_p1_chr", "_p2_chr")
+                ch = self.changed(vals, watch[0] if side == "p1" else watch[1])
                 if ch:
                     self.mark(side, "name", now)
+                    n = self.name(side, vals) if spec.get("name_popup") else None
+                    if n:                                                    # a weapon picked up (Mercs) / une arme ramassée
+                        self.events["weapon"] += 1
+                        self.fx.glow(self.X(side, 200), self.S(60), 20, 140, ACCENT[side], 0.45, "front", 0.9, 0.0)
+                        self.popup(tr(f"{n} !", f"{n}!"), self.X(side, 320), self.S(250), _mix(ACCENT[side], WHITE, 0.3), 36)
         if spec.get("floor"):
             ch = self.changed(vals, "floor")
             if ch:
@@ -459,7 +465,8 @@ class PanelScene(GameScene):
         / Le nom montré dans le panneau : le personnage lu dans le jeu, le compagnon, le héros, ou rien."""
         spec = self.SPEC
         if spec.get("names"):
-            n = vals.get("p1_char" if side == "p1" else "p2_char")
+            keys = spec["names"] if isinstance(spec["names"], tuple) else ("p1_char", "p2_char")   # Mercs: its weapons
+            n = vals.get(keys[0] if side == "p1" else keys[1])
             if n:
                 return str(n)
         if side == "p1":
@@ -792,7 +799,8 @@ SPECS = {
     "mpang": dict(theme="pg_peak", hit="balloon", balloons=True),
     # run and gun
     "mercs": dict(theme="mc_desert", hit="gun", gauge=_g(("ÉNERGIE", "ENERGY"), (90, 220, 110), (70, 24, 24)),
-                  bombs=dict(label=("MÉGA ATTAQUE", "MEGA CRASH"))),
+                  bombs=dict(label=("MÉGA ATTAQUE", "MEGA CRASH")),
+                  names=("p1_weapon", "p2_weapon"), name_watch=("weapon", "weapon_p2"), name_popup=True),   # the weapon held / l'arme
 }
 
 

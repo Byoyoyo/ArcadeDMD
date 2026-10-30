@@ -40,7 +40,7 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 
 **Also**
 - Player 2 shows in the Capcom shoot'em ups when his values move, his score that goes up, a life or a bomb spent, a hit taken. He stayed on PRESS START, these games have no BIOS that tells who plays. Giga Wing also reads the bombs and the power of player 2, and its score and credits learned on a cabinet. The credits show under the logo during a game.
-- Mercs reads its timer whole, three digits where only the last one was read (TIME 7), the score of both players learned on a cabinet, and the mega crashes of player 2, which leave his panel too. FinalBurn Neo sets it for three players, the README tells how to set it for two (DIP switches).
+- Mercs reads its timer whole, three digits where only the last one was read (TIME 7), the score of both players learned on a cabinet, the mega crashes of player 2, which leave his panel too, and the weapon of each player, named next to his badge (machine gun, spread gun, flamethrower). FinalBurn Neo sets it for three players, the README tells how to set it for two (DIP switches).
 - The HD screen gave the Metal Slug scene to Marvel Super Heroes and Magic Sword, their names start like Metal Slug's. Only the Metal Slug games get it now.
 
 **Updating from 1.29.3**
@@ -81,7 +81,7 @@ Extract the new zip over the old folder (`config.json`, your learned addresses a
 
 **Aussi**
 - Le joueur 2 apparaît dans les shoot'em up Capcom quand ses valeurs bougent, son score qui monte, une vie ou une bombe en moins, un coup reçu. Il restait sur PRESS START, ces jeux n'ont pas de BIOS qui dit qui joue. Giga Wing lit aussi les bombes et la puissance du joueur 2, et son score et ses crédits appris sur une borne. Les crédits s'affichent sous le logo pendant la partie.
-- Mercs lit son chrono en entier, trois chiffres dont seul le dernier était lu (TIME 7), le score des deux joueurs appris sur une borne, et les méga attaques du joueur 2, qui partent aussi de son panneau. FinalBurn Neo le règle pour trois joueurs, le README dit comment le régler pour deux (DIP switches).
+- Mercs lit son chrono en entier, trois chiffres dont seul le dernier était lu (TIME 7), le score des deux joueurs appris sur une borne, les méga attaques du joueur 2, qui partent aussi de son panneau, et l'arme de chaque joueur, nommée à côté de son badge (mitrailleuse, tir triple, lance-flammes). FinalBurn Neo le règle pour trois joueurs, le README dit comment le régler pour deux (DIP switches).
 - L'écran HD donnait la scène de Metal Slug à Marvel Super Heroes et à Magic Sword, leur nom commence comme celui de Metal Slug. Seuls les Metal Slug l'ont maintenant.
 
 **Mettre à jour depuis la 1.29.3**
