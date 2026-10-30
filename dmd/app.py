@@ -361,7 +361,7 @@ class Simulator:
                         self._set("backdrop", self.rng.choice([i for i in range(self.backdrops) if i != b] or [b]), t)
                 for n in self.fighters:
                     self._set(n, 100, t)
-                if "time" in self.values:
+                if "time" in self.values and "time" not in self.sim:   # a game that counts its own time (Mercs) keeps it
                     self._set("time", 60, t)
                 self.ko_until = None
             self.fight_next = t + 0.5
