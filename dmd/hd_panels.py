@@ -339,9 +339,18 @@ class PanelScene(GameScene):
                         self.fx.glow(self.X(side, 200), self.S(60), 20, 140, GOLD, 0.45, "front", 0.9, 0.0)
                         self.popup(tr(*lv[1]), self.X(side, 320), self.S(300), GOLD, 34)   # under a weapon picked up
         if spec.get("floor"):
-            ch = self.changed(vals, "floor")
+            fl = spec["floor"] if isinstance(spec["floor"], dict) else {}      # Mercs: its missions / ses missions
+            ch = self.changed(vals, fl.get("value", "floor"))
             if ch:
                 self.mark("p1", "floor", now)
+                if fl.get("done") and ch[1] == ch[0] + 1:                    # a mission complete / une mission accomplie
+                    self.events["floor"] = self.events.get("floor", 0) + 1
+                    x, y = self.W / 2, self.S(250)
+                    self.fx.flash((255, 240, 200), 0.2, 0.3)
+                    for i, r in enumerate((180, 300, 440)):
+                        self.fx.glow(x, y, 30, r, GOLD, 0.6 + 0.15 * i, "front", 0.9, 0.0, delay=0.1 * i)
+                    self.fx.sparks(x, y, 50, (255, 230, 140), (400, 1400), (0, 360), (0.5, 1.1), 300, "front", 3, 30)
+                    self.popup(tr(*fl["done"]).format(n=int(ch[0])), x, self.S(250), GOLD, 46, life=2.2)
 
     def _hit(self, side, gain, vals, now):
         """Points: the blow shows in the middle. A shot, a punch, a slash, a thrown weapon, a spell, a balloon.
@@ -737,9 +746,11 @@ class PanelScene(GameScene):
         hd.draw_logo(screen, logo, W / 2, S(14), S(540), S(124) if t is not None else S(160), now)
         line = None
         if self.SPEC.get("floor"):
-            fl = _n(vals.get("floor"))
+            spec_fl = self.SPEC["floor"] if isinstance(self.SPEC["floor"], dict) else {}
+            fl = _n(vals.get(spec_fl.get("value", "floor")))
             if fl is not None:
-                line = tr(f"ÉTAGE {int(fl)}", f"FLOOR {int(fl)}")
+                word = tr(*spec_fl["label"]) if spec_fl.get("label") else tr("ÉTAGE", "FLOOR")
+                line = f"{word} {int(fl)}"
         if line:
             k = self.glow_k("p1", "floor", now, 1.2)
             self.label(screen, line, W / 2, S(158), 34, _mix(SKY, WHITE, 0.5 * k), key="xbold", align="center", alpha=170)
@@ -812,7 +823,9 @@ SPECS = {
     "mercs": dict(theme="mc_desert", hit="gun", gauge=_g(("ÉNERGIE", "ENERGY"), (90, 220, 110), (70, 24, 24)),
                   bombs=dict(label=("MÉGA ATTAQUE", "MEGA CRASH")),
                   names=("p1_weapon", "p2_weapon"), name_watch=("weapon", "weapon_p2"), name_popup=True,    # the weapon held / l'arme
-                  name_level=("weapon_level", ("PUISSANCE +1 !", "POWER UP!"))),                         # its power-ups (POW)
+                  name_level=("weapon_level", ("PUISSANCE +1 !", "POWER UP!")),                          # its power-ups (POW)
+                  floor=dict(value="mission", label=("MISSION", "MISSION"),
+                             done=("MISSION {n} ACCOMPLIE !", "MISSION {n} COMPLETE!"))),
 }
 
 

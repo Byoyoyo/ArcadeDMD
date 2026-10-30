@@ -48,6 +48,12 @@
         "bytes": 3,
         "note": "timer, three digits one per byte (the Infinite Time cheat of FinalBurn Neo writes 9 in the last one, 0xFF0ECD), checked with RAM captures under RetroArch (193, 176, 159, 105)"
       },
+      "mission": {
+        "addr": "0xFF0E8B",
+        "type": "u8",
+        "add": 1,
+        "note": "mission, from 0 for the first one (shown from 1), found with RAM captures under RetroArch (learn.bat, mission=1, 2 and 3)"
+      },
       "bombs": {
         "addr": "0xFF117C",
         "type": "bcd",
@@ -695,6 +701,93 @@
       {
         "type": "events",
         "events": [
+          {
+            "on": "mission",
+            "change": "up",
+            "step": 1,
+            "when": {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "text": "MISSION COMPLETE",
+            "color": "#ffd040",
+            "font": "8x13B",
+            "ms": 1400,
+            "priority": 6,
+            "anim": [
+              {
+                "image": ["artwork/{game}/bomb.gif", "artwork/bomb.gif", "sprites/fx_fire.png"],
+                "count": 3,
+                "spread": [
+                  14,
+                  114
+                ],
+                "y": 16,
+                "delay": 0.12,
+                "ms": 90
+              }
+            ]
+          },
+          {
+            "on": "mission",
+            "change": "up",
+            "step": 1,
+            "when": {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "text": "MISSION {mission}",
+            "color": "#ffffff",
+            "font": "9x15B",
+            "ms": 1500,
+            "priority": 5.5
+          },
           {
             "on": "bombs",
             "change": "down",
