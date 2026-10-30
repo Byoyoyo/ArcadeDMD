@@ -674,6 +674,9 @@ def build(fbneo, cheats_dir, games_dir):
         for k in ("lives", "bombs"):
             if k in merged:
                 demo[k] = 3
+        for k in ("power_level", "power_level_p2"):     # the first level of the gauge / le premier niveau de la jauge
+            if k in merged:
+                demo[k] = 1
         for side, key, pick in (("p1_char", "_p1_chr", 0), ("p2_char", "_p2_chr", 1)):
             if key in merged and side in derived:
                 keys = sorted(derived[side]["names"], key=lambda k: [int(x) for x in k.split(",")])

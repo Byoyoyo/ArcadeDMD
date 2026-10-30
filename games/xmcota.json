@@ -145,6 +145,8 @@
     "health": 100,
     "health_p2": 100,
     "time": 99,
+    "power_level": 1,
+    "power_level_p2": 1,
     "_p1_chr": 0,
     "_p2_chr": 2
   },
