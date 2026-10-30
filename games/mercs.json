@@ -52,6 +52,12 @@
         "bytes": 1,
         "note": "mega crashes of player 1 (FinalBurn Neo cheats, Infinite Missiles PL1 writes 99)"
       },
+      "bombs_p2": {
+        "addr": "0xFF122C",
+        "type": "bcd",
+        "bytes": 1,
+        "note": "mega crashes of player 2 (FinalBurn Neo cheats, Infinite Missiles PL2 writes 99)"
+      },
       "score": {
         "addr": "",
         "type": "bcd",
