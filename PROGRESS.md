@@ -307,7 +307,7 @@ Depuis la 1.30, chaque autre jeu Capcom a sa scène de dalle et sa scène HD à 
 | 22 | Mars Matrix: Hyper Solid Shooting | Shoot'em up | 🟡 | ✅ | ✅ | 1.30 |
 | 23 | Dimahoo | Shoot'em up | 🟡 | ✅ | ✅ | 1.30 |
 | 24 | Eco Fighters | Shoot'em up | 🟡 | ✅ | ✅ | 1.30 |
-| 25 | Mercs | Run and gun | 🟡 | ✅ | ✅ | 1.30 |
+| 25 | Mercs | Run and gun | ✅ | ✅ | ✅ | 1.30 |
 | 26 | Ghouls'n Ghosts | Platformer / Plateformes | 🟡 | ✅ | ✅ | 1.30 |
 | 27 | Strider | Action | 🟡 | ✅ | ✅ | 1.30 |
 | 28 | Pang! 3 | Action | 🟡 | ✅ | ✅ | 1.30 |

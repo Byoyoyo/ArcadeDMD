@@ -187,6 +187,40 @@ def pair_names_of(c):
     return [t[1] for t in opts[0]["triples"]], out
 
 
+def timer(t, fam, src):
+    """("time", spec) when the Infinite Time cheat fills a whole two-digit timer, 99 in BCD or in binary. Otherwise it pins
+    a part of it, one digit of a timer kept one digit per byte (Three Wonders, Cadillacs and Dinosaurs), the seconds of a
+    clock (Ghouls'n Ghosts 1:35, Strider, Willow), the digits of a clock, a word, or a counter that is not the timer seen
+    in the game (The Punisher shows TIME 23, its cheat writes 191). Then ("_time", spec), read only to see that the game
+    runs, the panels do not show it.
+    / Le chrono entier quand la triche le remplit (99). Sinon elle n'en fige qu'une partie (un chiffre, les secondes d'une
+    horloge, un compteur qui n'est pas le chrono du jeu) : lu seulement pour voir que le jeu tourne, sans l'afficher."""
+    addr, first = t[0][1], t[0][2]
+    if first in (0x99, 0x63):
+        kind = "bcd" if first == 0x99 else "u8"
+        spec = value(addr, 1, fam, kind, f"timer ({src}, Infinite Time)")
+        if kind == "u8":
+            spec.pop("bytes", None)
+        return "time", spec
+    digits = 0
+    for i, (_, a, x) in enumerate(t):            # digits written one per byte / des chiffres, un par octet
+        if a != addr + i or x > 9:
+            break
+        digits += 1
+    if digits >= 2:
+        kind, n = "digits", digits
+    elif len(t) == 2 and t[1][1] == addr + 1:    # a word, 999 in Janpai Puzzle Choukou / un mot de 16 bits
+        kind, n = "be", 2
+    else:
+        kind, n = ("bcd" if bcd_like(first) else "u8"), 1
+    writes = " ".join(f"{x:02X}" for _, _, x in t)
+    spec = value(addr, n, fam, kind, f"part of the timer only ({src}, Infinite Time writes {writes}), read to see that "
+                                     "the game runs, not shown")
+    if kind == "u8":
+        spec.pop("bytes", None)
+    return "_time", spec
+
+
 # full health of a game whose cheats only drain it, from a game of the same series / vie pleine d'un jeu de la même série
 FULL = {"sf2": 0x90, "nwarr": 0x90}
 
@@ -214,10 +248,8 @@ def values_from_cheats(cs, fam, name=""):
     if "time" in found:
         t = enabled(found["time"])
         if t and t[0][2] > 0:
-            kind = "bcd" if bcd_like(t[0][2]) else "u8"
-            vals["time"] = value(t[0][1], 1, fam, kind, f"timer ({src}, Infinite Time)")
-            if kind == "u8":
-                vals["time"].pop("bytes", None)
+            key, spec = timer(t, fam, src)
+            vals[key] = spec
     if "credits" in found:
         t = enabled(found["credits"])
         if t:
@@ -506,6 +538,8 @@ def build(fbneo, cheats_dir, games_dir):
                 if not (isinstance(v, dict) and "FBNeo cheat database" in str(v.get("note", "")))}
         merged = dict(vals)
         merged.update(hand)                          # learned or set by hand wins / ce qui est appris passe avant
+        if "time" in hand:                           # the whole timer found by hand (Mercs) / le chrono entier trouvé à la main
+            merged.pop("_time", None)
         d["memory"] = {"cpu": ":maincpu", "values": merged}
         dv = d.get("derived") if isinstance(d.get("derived"), dict) else {}
         dv.update(derived)
@@ -529,8 +563,9 @@ def build(fbneo, cheats_dir, games_dir):
                     hd = {"stages": STAGE_LISTS[name], "note": f"HD themes of the fights (one per game, no stage value known), made by {TOOL}"}
                 if hd:
                     d["hd"] = hd
-        watch = [k for k in ("time", "health", "health_p2", "lives", "lives_p2", "bombs", "score", "score_p2") if k in merged]
-        moving = [k for k in ("time", "score", "score_p2") + (("health", "health_p2") if scene == "cps_combat" else ()) if k in merged]
+        watch = [k for k in ("time", "_time", "health", "health_p2", "lives", "lives_p2", "bombs", "score", "score_p2") if k in merged]
+        moving = [k for k in ("time", "_time", "score", "score_p2") + (("health", "health_p2") if scene == "cps_combat" else ())
+                  if k in merged]
         if moving:                                   # the timer, the score once learned, the health of a fight
             d["activity"] = {"values": watch, "moving": moving, "seconds": 10,
                              "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of "
@@ -552,7 +587,9 @@ def build(fbneo, cheats_dir, games_dir):
                 d.pop("coins", None)
         demo = {"credits": 2, "p1_mode": 1, "p2_mode": 0}
         if scene == "cps_combat":
-            demo.update({"health": 100, "health_p2": 100, "time": 99})
+            demo.update({"health": 100, "health_p2": 100})
+            if "time" in merged:
+                demo["time"] = 99
         for k in ("lives", "bombs"):
             if k in merged:
                 demo[k] = 3
@@ -565,6 +602,13 @@ def build(fbneo, cheats_dir, games_dir):
                     demo[key + "2"] = parts[1]
         if not d.get("demo_hand"):
             d["demo"] = demo
+        dd = d.get("demo") if isinstance(d.get("demo"), dict) else {}
+        if "time" not in merged:                     # a timer not shown, not in the demo either / pas de chrono dans la démo
+            dd.pop("time", None)
+            if isinstance(dd.get("sim"), dict) and "time" in dd["sim"]:
+                dd["sim"].pop("time")
+                if not dd["sim"]:                    # it only moved the timer / elle ne faisait bouger que le chrono
+                    dd.pop("sim")
         dump(path, d)
         report.append(f"{fam} {name:10s} {scene:14s} {len(sets):3d} sets  " + (", ".join(got) or "-"))
     return report

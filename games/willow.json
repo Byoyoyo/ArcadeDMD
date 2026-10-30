@@ -1,6 +1,6 @@
 {
   "title": "Willow",
-  "note": "Capcom CPS1 action game: time, credits (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "note": "Capcom CPS1 action game: credits (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
   "generated": "tools/cps_games.py",
   "cps": "CPS1",
   "match": [
@@ -18,11 +18,11 @@
   "memory": {
     "cpu": ":maincpu",
     "values": {
-      "time": {
+      "_time": {
         "addr": "0xFF83C7",
         "type": "bcd",
         "bytes": 1,
-        "note": "timer (FBNeo cheat database, Infinite Time)"
+        "note": "part of the timer only (FBNeo cheat database, Infinite Time writes 59), read to see that the game runs, not shown"
       },
       "credits": {
         "addr": "0xFF82A2",
@@ -63,14 +63,13 @@
     }
   },
   "activity": {
-    "values": ["time", "health", "lives", "score", "score_p2"],
-    "moving": ["time", "score", "score_p2"],
+    "values": ["_time", "health", "lives", "score", "score_p2"],
+    "moving": ["_time", "score", "score_p2"],
     "seconds": 10,
     "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
   },
   "demo": {
     "score": 0,
-    "time": 99,
     "lives": 3,
     "health": 100,
     "hero": 0,
@@ -86,15 +85,6 @@
           1.6
         ],
         "start": 2.0
-      },
-      "time": {
-        "count": [
-          0,
-          99,
-          -1
-        ],
-        "every": 1.0,
-        "start": 1.0
       },
       "health": {
         "cycle": [

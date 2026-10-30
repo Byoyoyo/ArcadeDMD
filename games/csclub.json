@@ -1,6 +1,6 @@
 {
   "title": "Capcom Sports Club",
-  "note": "Capcom CPS2 action game: time, credits (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "note": "Capcom CPS2 action game: credits (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
   "generated": "tools/cps_games.py",
   "cps": "CPS2",
   "match": [
@@ -18,11 +18,11 @@
   "memory": {
     "cpu": ":maincpu",
     "values": {
-      "time": {
+      "_time": {
         "addr": "0xFF8C92",
-        "type": "bcd",
-        "bytes": 1,
-        "note": "timer (FBNeo cheat database, Infinite Time)"
+        "type": "digits",
+        "bytes": 3,
+        "note": "part of the timer only (FBNeo cheat database, Infinite Time writes 09 05 09 23), read to see that the game runs, not shown"
       },
       "credits": {
         "addr": "0xFF8AE9",
@@ -44,26 +44,14 @@
     }
   },
   "activity": {
-    "values": ["time", "score", "score_p2"],
-    "moving": ["time", "score", "score_p2"],
+    "values": ["_time", "score", "score_p2"],
+    "moving": ["_time", "score", "score_p2"],
     "seconds": 10,
     "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
   },
   "demo": {
     "credits": 1,
     "score": 0,
-    "time": 90,
-    "sim": {
-      "time": {
-        "count": [
-          0,
-          90,
-          -1
-        ],
-        "every": 1.0,
-        "start": 1.0
-      }
-    },
     "p1_mode": 1,
     "p2_mode": 0
   },

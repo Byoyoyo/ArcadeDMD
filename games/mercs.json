@@ -1,6 +1,6 @@
 {
   "title": "Mercs",
-  "note": "Capcom CPS1 action game: health, health_p2, time (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "note": "Capcom CPS1 action game: health, health_p2 (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
   "generated": "tools/cps_games.py",
   "cps": "CPS1",
   "match": [
@@ -41,10 +41,10 @@
         "max": 100
       },
       "time": {
-        "addr": "0xFF0ECD",
-        "type": "bcd",
-        "bytes": 1,
-        "note": "timer (FBNeo cheat database, Infinite Time)"
+        "addr": "0xFF0ECB",
+        "type": "digits",
+        "bytes": 3,
+        "note": "timer, three digits one per byte (the Infinite Time cheat of FinalBurn Neo writes 9 in the last one, 0xFF0ECD), checked with RAM captures under RetroArch (193, 176, 159, 105)"
       },
       "bombs": {
         "addr": "0xFF117C",
@@ -59,16 +59,16 @@
         "note": "mega crashes of player 2 (FinalBurn Neo cheats, Infinite Missiles PL2 writes 99)"
       },
       "score": {
-        "addr": "",
-        "type": "bcd",
-        "bytes": 4,
-        "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+        "addr": "0xFF0F78",
+        "type": "digits",
+        "bytes": 8,
+        "note": "player 1 score, one digit per byte, found with learn.bat under RetroArch (450, 2350, 3800 and 10550)"
       },
       "score_p2": {
-        "addr": "",
-        "type": "bcd",
-        "bytes": 4,
-        "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+        "addr": "0xFF0F80",
+        "type": "digits",
+        "bytes": 8,
+        "note": "player 2 score, one digit per byte, found with learn.bat under RetroArch (450, 850 and 3950)"
       }
     }
   },
@@ -95,8 +95,9 @@
     "p1_mode": 1,
     "p2_mode": 0,
     "bombs": 3,
+    "bombs_p2": 3,
     "score": 0,
-    "time": 99,
+    "time": 200,
     "sim": {
       "bombs": {
         "cycle": [
@@ -110,10 +111,22 @@
         "every": 6.0,
         "start": 6.0
       },
+      "bombs_p2": {
+        "cycle": [
+          3,
+          2,
+          2,
+          3,
+          1,
+          3
+        ],
+        "every": 7.0,
+        "start": 9.0
+      },
       "time": {
         "count": [
           0,
-          99,
+          200,
           -1
         ],
         "every": 1.0,
@@ -603,6 +616,56 @@
             "text": "MEGA CRASH",
             "color": "#ffd040",
             "font": "9x15B",
+            "ms": 1400,
+            "priority": 3,
+            "anim": [
+              {
+                "image": ["artwork/{game}/bomb.gif", "artwork/bomb.gif", "sprites/fx_fire.png"],
+                "count": 4,
+                "spread": [
+                  10,
+                  118
+                ],
+                "y": 16,
+                "delay": 0.07,
+                "ms": 90
+              }
+            ]
+          },
+          {
+            "on": "bombs_p2",
+            "change": "down",
+            "step": 1,
+            "when": {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "text": "2P MEGA CRASH",
+            "color": "#60c8ff",
+            "font": "8x13B",
             "ms": 1400,
             "priority": 3,
             "anim": [

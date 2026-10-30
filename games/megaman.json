@@ -1,6 +1,6 @@
 {
   "title": "Mega Man: The Power Battle",
-  "note": "Capcom CPS1 fighting game: health, health_p2, time (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "note": "Capcom CPS1 fighting game: health, health_p2 (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
   "generated": "tools/cps_games.py",
   "cps": "CPS1",
   "match": [
@@ -41,17 +41,17 @@
         "min": 0,
         "max": 100
       },
-      "time": {
+      "_time": {
         "addr": "0xFF8119",
         "type": "bcd",
         "bytes": 1,
-        "note": "timer (FBNeo cheat database, Infinite Time)"
+        "note": "part of the timer only (FBNeo cheat database, Infinite Time writes 45), read to see that the game runs, not shown"
       }
     }
   },
   "activity": {
-    "values": ["time", "health", "health_p2"],
-    "moving": ["time", "health", "health_p2"],
+    "values": ["_time", "health", "health_p2"],
+    "moving": ["_time", "health", "health_p2"],
     "seconds": 10,
     "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
   },
@@ -60,8 +60,7 @@
     "p1_mode": 1,
     "p2_mode": 0,
     "health": 100,
-    "health_p2": 100,
-    "time": 99
+    "health_p2": 100
   },
   "hd": {
     "stages": ["fight_lab", "fight_city", "fight_factory", "space"],

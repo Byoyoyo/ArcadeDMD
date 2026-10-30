@@ -1,6 +1,6 @@
 {
   "title": "Dungeons & Dragons: Shadow over Mystara",
-  "note": "Capcom CPS2 action game: health, health_p2, time (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "note": "Capcom CPS2 action game: health, health_p2 (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
   "generated": "tools/cps_games.py",
   "cps": "CPS2",
   "match": [
@@ -36,11 +36,11 @@
         "min": 0,
         "max": 100
       },
-      "time": {
+      "_time": {
         "addr": "0xFFCAB2",
         "type": "bcd",
         "bytes": 1,
-        "note": "timer (FBNeo cheat database, Infinite Time)"
+        "note": "part of the timer only (FBNeo cheat database, Infinite Time writes 04 04), read to see that the game runs, not shown"
       },
       "score": {
         "addr": "",
@@ -57,8 +57,8 @@
     }
   },
   "activity": {
-    "values": ["time", "health", "health_p2", "score", "score_p2"],
-    "moving": ["time", "score", "score_p2"],
+    "values": ["_time", "health", "health_p2", "score", "score_p2"],
+    "moving": ["_time", "score", "score_p2"],
     "seconds": 10,
     "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
   },
@@ -68,7 +68,6 @@
     "p2_mode": 0,
     "score": 0,
     "health": 100,
-    "time": 99,
     "health_p2": 100,
     "sim": {
       "health": {
@@ -85,15 +84,6 @@
         ],
         "every": 2.0,
         "start": 3.0
-      },
-      "time": {
-        "count": [
-          0,
-          99,
-          -1
-        ],
-        "every": 1.0,
-        "start": 1.0
       },
       "health_p2": {
         "cycle": [

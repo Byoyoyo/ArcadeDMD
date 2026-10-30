@@ -1,6 +1,6 @@
 {
   "title": "Cadillacs and Dinosaurs",
-  "note": "Capcom CPS1 action game: health, health_p2, time, lives, lives_p2, 4 characters (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "note": "Capcom CPS1 action game: health, health_p2, lives, lives_p2, 4 characters (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
   "generated": "tools/cps_games.py",
   "cps": "CPS1",
   "match": [
@@ -45,11 +45,11 @@
         "min": 0,
         "max": 100
       },
-      "time": {
+      "_time": {
         "addr": "0xFF84E9",
         "type": "bcd",
         "bytes": 1,
-        "note": "timer (FBNeo cheat database, Infinite Time)"
+        "note": "part of the timer only (FBNeo cheat database, Infinite Time writes 09), read to see that the game runs, not shown"
       },
       "lives": {
         "addr": "0xFFB317",
@@ -106,8 +106,8 @@
     }
   },
   "activity": {
-    "values": ["time", "health", "health_p2", "lives", "lives_p2", "score", "score_p2"],
-    "moving": ["time", "score", "score_p2"],
+    "values": ["_time", "health", "health_p2", "lives", "lives_p2", "score", "score_p2"],
+    "moving": ["_time", "score", "score_p2"],
     "seconds": 10,
     "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
   },
@@ -125,7 +125,6 @@
     "p2_mode": 0,
     "score": 0,
     "health": 100,
-    "time": 99,
     "lives": 3,
     "health_p2": 100,
     "_p2_chr": 2,
@@ -145,15 +144,6 @@
         ],
         "every": 2.0,
         "start": 3.0
-      },
-      "time": {
-        "count": [
-          0,
-          99,
-          -1
-        ],
-        "every": 1.0,
-        "start": 1.0
       },
       "lives": {
         "cycle": [

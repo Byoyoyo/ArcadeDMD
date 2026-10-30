@@ -42,10 +42,10 @@
         "min": 0,
         "max": 100
       },
-      "time": {
+      "_time": {
         "addr": "0xFF81B2",
         "type": "u8",
-        "note": "timer (MAME cheat.dat, Infinite Time)"
+        "note": "part of the timer only (MAME cheat.dat, Infinite Time writes 3B, as in Warriors of Fate), read to see that the game runs, not shown"
       },
       "credits": {
         "addr": "0xFF62F7",
@@ -65,7 +65,6 @@
     "p2_mode": 0,
     "score": 0,
     "health": 100,
-    "time": 99,
     "lives": 3,
     "sim": {
       "health": {
@@ -82,15 +81,6 @@
         ],
         "every": 2.0,
         "start": 3.0
-      },
-      "time": {
-        "count": [
-          0,
-          99,
-          -1
-        ],
-        "every": 1.0,
-        "start": 1.0
       },
       "lives": {
         "cycle": [
@@ -1555,8 +1545,8 @@
   },
   "demo_hand": true,
   "activity": {
-    "values": ["time", "health", "lives", "score", "score_p2"],
-    "moving": ["time", "score", "score_p2"],
+    "values": ["_time", "health", "lives", "score", "score_p2"],
+    "moving": ["_time", "score", "score_p2"],
     "seconds": 10,
     "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
   }

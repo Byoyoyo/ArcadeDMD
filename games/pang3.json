@@ -1,6 +1,6 @@
 {
   "title": "Pang! 3",
-  "note": "Capcom CPS1 puzzle, quiz or other game: time, lives, lives_p2 (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "note": "Capcom CPS1 puzzle, quiz or other game: lives, lives_p2 (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
   "generated": "tools/cps_games.py",
   "cps": "CPS1",
   "match": [
@@ -21,10 +21,10 @@
   "memory": {
     "cpu": ":maincpu",
     "values": {
-      "time": {
+      "_time": {
         "addr": "0xFF8BAE",
         "type": "u8",
-        "note": "timer (FBNeo cheat database, Infinite Time)"
+        "note": "part of the timer only (FBNeo cheat database, Infinite Time writes FA), read to see that the game runs, not shown"
       },
       "lives": {
         "addr": "0xFF8BB4",
@@ -51,8 +51,8 @@
     }
   },
   "activity": {
-    "values": ["time", "lives", "lives_p2", "score", "score_p2"],
-    "moving": ["time", "score", "score_p2"],
+    "values": ["_time", "lives", "lives_p2", "score", "score_p2"],
+    "moving": ["_time", "score", "score_p2"],
     "seconds": 10,
     "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
   },
@@ -66,7 +66,6 @@
   },
   "demo": {
     "score": 0,
-    "time": 120,
     "lives": 3,
     "sim": {
       "score": {
@@ -80,15 +79,6 @@
           1.5
         ],
         "start": 2.0
-      },
-      "time": {
-        "count": [
-          0,
-          120,
-          -1
-        ],
-        "every": 1.0,
-        "start": 1.0
       },
       "lives": {
         "cycle": [

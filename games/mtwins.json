@@ -1,6 +1,6 @@
 {
   "title": "Mega Twins",
-  "note": "Capcom CPS1 action game: health, health_p2, time, credits, lives, lives_p2 (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "note": "Capcom CPS1 action game: health, health_p2, credits, lives, lives_p2 (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
   "generated": "tools/cps_games.py",
   "cps": "CPS1",
   "match": [
@@ -40,11 +40,11 @@
         "min": 0,
         "max": 100
       },
-      "time": {
+      "_time": {
         "addr": "0xFF0F69",
         "type": "bcd",
         "bytes": 1,
-        "note": "timer (FBNeo cheat database, Infinite Time)"
+        "note": "part of the timer only (FBNeo cheat database, Infinite Time writes 59), read to see that the game runs, not shown"
       },
       "credits": {
         "addr": "0xFF0F3E",
@@ -76,14 +76,13 @@
     }
   },
   "activity": {
-    "values": ["time", "health", "health_p2", "lives", "lives_p2", "score", "score_p2"],
-    "moving": ["time", "score", "score_p2"],
+    "values": ["_time", "health", "health_p2", "lives", "lives_p2", "score", "score_p2"],
+    "moving": ["_time", "score", "score_p2"],
     "seconds": 10,
     "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
   },
   "demo": {
     "score": 0,
-    "time": 180,
     "lives": 3,
     "health": 100,
     "health_p2": 100,
@@ -99,15 +98,6 @@
           1.6
         ],
         "start": 2.0
-      },
-      "time": {
-        "count": [
-          0,
-          180,
-          -1
-        ],
-        "every": 1.0,
-        "start": 1.0
       },
       "health": {
         "cycle": [

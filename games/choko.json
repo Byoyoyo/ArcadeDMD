@@ -1,6 +1,6 @@
 {
   "title": "Janpai Puzzle Choukou",
-  "note": "Capcom CPS2 puzzle, quiz or other game: time, credits (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "note": "Capcom CPS2 puzzle, quiz or other game: credits (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
   "generated": "tools/cps_games.py",
   "cps": "CPS2",
   "match": [
@@ -18,11 +18,11 @@
   "memory": {
     "cpu": ":maincpu",
     "values": {
-      "time": {
+      "_time": {
         "addr": "0xFF63E8",
-        "type": "bcd",
-        "bytes": 1,
-        "note": "timer (FBNeo cheat database, Infinite Time)"
+        "type": "be",
+        "bytes": 2,
+        "note": "part of the timer only (FBNeo cheat database, Infinite Time writes 03 E7), read to see that the game runs, not shown"
       },
       "credits": {
         "addr": "0xFF809E",
@@ -32,8 +32,8 @@
     }
   },
   "activity": {
-    "values": ["time"],
-    "moving": ["time"],
+    "values": ["_time"],
+    "moving": ["_time"],
     "seconds": 10,
     "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
   },
@@ -41,19 +41,7 @@
     "attract": true,
     "credits": 0,
     "p1_mode": 1,
-    "p2_mode": 0,
-    "time": 60,
-    "sim": {
-      "time": {
-        "count": [
-          0,
-          60,
-          -1
-        ],
-        "every": 1.0,
-        "start": 1.0
-      }
-    }
+    "p2_mode": 0
   },
   "scene": {
     "layers": [
