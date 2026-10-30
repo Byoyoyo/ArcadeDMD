@@ -15,6 +15,7 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - Hyper Street Fighter II, Marvel vs. Capcom and X-Men: Children of the Atom read the score of each player, learned on a cabinet.
 - The super gauge of Marvel vs. Capcom, Marvel Super Heroes, X-Men vs. Street Fighter and X-Men: Children of the Atom works like the game's. The bar of the current level, with LEVEL 1, 2 or 3 beside it, and MAX at the top level. It showed the level as a third of the bar, X-Men's stayed empty at Level 1.
 - Marvel vs. Capcom reads its credits, learned on a cabinet. Two coins for a credit is counted right.
+- Marvel vs. Capcom gives each player two fighters who take turns. The health and the name shown are those of the fighter on screen, and a partner who comes in is no longer a K.O. Two empty bars and a DOUBLE K.O. came in the middle of a fight.
 - The empty part of the health bars on the HD screen is dark grey instead of dark red, in every fighting game. A nearly empty bar looked full and red on the cabinet (X-Men: Children of the Atom).
 - Night Warriors reads the rounds won by each player (cheat database). Gold stars under the bars on the HD screen, gold squares next to the timer on the panel, and the winner of each round from them.
 - The health of Magic Sword, Willow and Tenchi wo Kurau II reads empty when it goes below zero, like in the other Capcom games since 1.30.0.
@@ -33,6 +34,7 @@ Extract the new zip over the old folder (`config.json`, your learned addresses a
 - Hyper Street Fighter II, Marvel vs. Capcom et X-Men: Children of the Atom lisent le score de chaque joueur, appris sur une borne.
 - La jauge de super de Marvel vs. Capcom, Marvel Super Heroes, X-Men vs. Street Fighter et X-Men: Children of the Atom marche comme celle du jeu. La barre du niveau en cours, avec NIVEAU 1, 2 ou 3 à côté, et MAX au niveau le plus haut. Elle montrait le niveau en tiers de barre, et celle de X-Men restait vide au Level 1.
 - Marvel vs. Capcom lit ses crédits, appris sur une borne. Deux pièces pour un crédit sont bien comptées.
+- Marvel vs. Capcom donne à chaque joueur deux combattants qui se relaient. La vie et le nom affichés sont ceux du combattant à l'écran, et un partenaire qui prend la suite n'est plus un K.O. Deux barres vides et un DOUBLE K.O. arrivaient en plein combat.
 - La partie vide des barres de vie sur l'écran HD est gris foncé au lieu de rouge foncé, dans tous les jeux de combat. Une barre presque vide paraissait pleine et rouge sur la borne (X-Men: Children of the Atom).
 - Night Warriors lit les rounds gagnés par chaque joueur (base de triche). Des étoiles dorées sous les barres sur l'écran HD, des carrés dorés à côté du chrono sur la dalle, et le vainqueur de chaque round d'après eux.
 - La vie de Magic Sword, Willow et Tenchi wo Kurau II se lit vide quand elle passe sous zéro, comme dans les autres jeux Capcom depuis la 1.30.0.

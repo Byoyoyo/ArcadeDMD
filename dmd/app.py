@@ -21,7 +21,7 @@ from .scene import Scene, Ctx, GameState, LogoIntro
 from .outputs import ZeDMDOutput, PreviewOutput, GifRecorder, NullOutput
 from .pixelcade import PixelcadeOutput, guess_pixelcade_dir, list_ports
 from .retroarch import RetroArchSource
-from .memvalues import derive, game_values
+from .memvalues import derive, game_values, resolve_value
 from .coinbuttons import CoinButtons, mvs_rates, side_word
 from .neocoins import NeoCoins
 from .textfiles import TextFiles
@@ -271,6 +271,9 @@ class Simulator:
         self.rng = rng or random.Random(3)
         self.state = state
         self.names = list(((game or {}).get("memory") or {}).get("values", {}).keys()) or ["score", "credits"]
+        tag = (game or {}).get("tag")
+        if isinstance(tag, dict):                     # a team that takes turns: its health is played directly
+            self.names += [k for k in tag if k not in self.names]
         if (game or {}).get("activity") and "p1_mode" not in self.names:   # who plays is guessed (Capcom): shown in the demo too
             self.names += ["p1_mode", "p2_mode"] + ([] if "credits" in self.names else ["credits"])
         demo = (game or {}).get("demo", {})
@@ -577,6 +580,7 @@ class Engine:
         self.active_at = -1e9
         self.start_at = -1e9          # a credit read in the game was spent / un crédit lu dans le jeu a été dépensé
         self.humans = {}              # player -> (value, its value when a human controls him) / qui dirige chaque joueur
+        self.tag = {}                 # values worked out from a team that takes turns / valeurs d'une équipe qui se relaie
         self.p2_score_read = False
         self.p2_human_at = -1e9       # player 2 of a fighting game seen as a human / joueur 2 vu comme un humain
         self.start_press = {}         # player -> when he pressed START / quand chaque joueur a appuyé sur START
@@ -670,6 +674,11 @@ class Engine:
         self.state.reset(meta)
         self.derived = g.get("derived") if isinstance(g.get("derived"), dict) else None
         names = meta.get("values") if isinstance(meta.get("values"), list) else []
+        # a team that takes turns (Marvel vs. Capcom): the health of the fighter on screen, made from values read
+        # une équipe qui se relaie : la vie du combattant à l'écran, faite à partir des valeurs lues
+        tag = g.get("tag") if isinstance(g.get("tag"), dict) else {}
+        self.tag = tag if source in ("plugin", "retroarch") else {}
+        names = names + [k for k in self.tag if k not in names]
         # credits of a Neo Geo that cannot be read (RetroArch): guessed from its BIOS / crédits devinés d'après le BIOS
         self.coin_guess = NeoCoins(mvs_rates(self.cfg)) if (source in ("plugin", "retroarch") and "credits" not in names
                                                             and "bios_request" in names) else None
@@ -792,8 +801,20 @@ class Engine:
             if self.mode != "game" or self.source != source:
                 # reprise après un silence (menu MAME ouvert longtemps, moteur relancé en cours de partie) : sans le logo
                 self.start_game(self.last_start or {"system": "?", "description": ""}, source, intro=False)
+            incoming = ev.get("v") or {}
+            if self.tag:
+                # a team that takes turns (Marvel vs. Capcom): each player's health is the one of his fighter on screen,
+                # worked out before it is shown, a partner who comes in is not a K.O.
+                # une équipe qui se relaie : la vie de chaque joueur est celle de son combattant à l'écran
+                merged = dict(self.state.values)
+                merged.update(incoming)
+                incoming = dict(incoming)
+                for k, spec in self.tag.items():
+                    v = resolve_value(spec, merged)
+                    if v is not None:
+                        incoming[k] = v
             # état des joueurs d'abord : il dit si un score qui tombe à 0 est une vraie remise à zéro
-            for k, v in sorted((ev.get("v") or {}).items(), key=lambda kv: not kv[0].endswith("_mode")):
+            for k, v in sorted(incoming.items(), key=lambda kv: not kv[0].endswith("_mode")):
                 if k in self.hold_zero and self._hold_zero(k, v, now):
                     continue
                 self.state.update(k, v, now, quiet=(t == "hb"))

@@ -229,6 +229,10 @@ def timer(t, fam, src):
     return "_time", spec
 
 
+# teams that take turns, two fighters a player (Marvel vs. Capcom): where each fighter is kept, and in it the byte at 1
+# while he is on screen, his health and his character (Seb's RAM captures, the first one K.O., the second one on screen)
+# les équipes qui se relaient : où est chaque combattant, et dans son bloc l'octet à 1 quand il est à l'écran, sa vie
+TAG = {"mvsc": {"p1": (0xFF3000, 0xFF3800), "p2": (0xFF3400, 0xFF3C00), "on": 0x000, "hp": 0x271, "chr": 0x053}}
 # the level a game shows for 0 in its level byte (X-Men: Children of the Atom says Level 1) / le niveau affiché pour 0
 LEVEL_SHOWN_FROM = {"xmcota": 1}
 # full health of a game whose cheats only drain it, from a game of the same series / vie pleine d'un jeu de la même série
@@ -686,6 +690,34 @@ def build(fbneo, cheats_dir, games_dir):
                     demo[key + "2"] = parts[1]
         if not d.get("demo_hand"):
             d["demo"] = demo
+        tag = TAG.get(name)
+        if tag and "health" in merged and "health_p2" in merged:
+            # each player's health is the one of his fighter on screen, worked out by the engine ("tag"), and his name
+            # the one of that fighter / la vie de chaque joueur est celle de son combattant à l'écran, son nom aussi
+            out = {}
+            for k in [k for k in merged if k[:6] in ("_p1_on", "_p2_on", "_p1_hp", "_p2_hp") or k in ("_p1_chr2", "_p2_chr2")]:
+                merged.pop(k)                        # made again below, in the same order / refaites plus bas
+            for side, hk, ck in (("p1", "health", "_p1_chr"), ("p2", "health_p2", "_p2_chr")):
+                b1, b2 = tag[side]
+                pre = f"_{side}"
+                who = "player 1" if side == "p1" else "player 2"
+                hp1 = merged.pop(hk)
+                hp2 = dict(hp1, addr=f"0x{b2 + tag['hp']:X}", note=hp1["note"].replace("1st", "2nd").replace(
+                    f"{who} health", f"{who} health of his second fighter"))
+                merged[pre + "_hp1"], merged[pre + "_hp2"] = hp1, hp2
+                for i, b in ((1, b1), (2, b2)):
+                    merged[f"{pre}_on{i}"] = value(b + tag["on"], 1, fam, "u8", f"{who}, fighter {i} on screen (1), found "
+                                                                                f"in RAM captures on a cabinet")
+                merged[ck + "2"] = value(b2 + tag["chr"], 1, fam, "u8", f"{who}, character of his second fighter, the first one "
+                                                                         f"+0x{b2 - b1:X}")
+                out[hk] = {"team": [[pre + "_on1", pre + "_hp1", pre + "_hp1"], [pre + "_on2", pre + "_hp2", pre + "_hp2"]]}
+                dvs = d.get("derived") or {}
+                if isinstance(dvs.get(side + "_char"), dict) and dvs[side + "_char"].get("names"):
+                    dvs[side + "_char"] = {"team": [[pre + "_on1", pre + "_hp1", ck], [pre + "_on2", pre + "_hp2", ck + "2"]],
+                                           "names": dvs[side + "_char"]["names"]}
+            d["tag"] = out
+        else:
+            d.pop("tag", None)
         dd = d.get("demo") if isinstance(d.get("demo"), dict) else {}
         if "time" not in merged:                     # a timer not shown, not in the demo either / pas de chrono dans la démo
             dd.pop("time", None)
