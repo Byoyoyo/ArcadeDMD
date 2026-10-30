@@ -25,7 +25,8 @@
         "mult": 0.990099,
         "round": 1,
         "min": 0,
-        "max": 100
+        "max": 100,
+        "zero_from": "0xB2"
       },
       "health_p2": {
         "addr": "0xFF84C1",
@@ -34,7 +35,8 @@
         "mult": 0.990099,
         "round": 1,
         "min": 0,
-        "max": 100
+        "max": 100,
+        "zero_from": "0xB2"
       },
       "_time": {
         "addr": "0xFF8225",

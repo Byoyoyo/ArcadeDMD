@@ -31,7 +31,8 @@
         "mult": 0.337838,
         "round": 1,
         "min": 0,
-        "max": 100
+        "max": 100,
+        "zero_from": "0x8094"
       },
       "health_p2": {
         "addr": "0x206AAC0",
@@ -41,7 +42,8 @@
         "mult": 0.337838,
         "round": 1,
         "min": 0,
-        "max": 100
+        "max": 100,
+        "zero_from": "0x8094"
       },
       "credits": {
         "addr": "0x2000A10",

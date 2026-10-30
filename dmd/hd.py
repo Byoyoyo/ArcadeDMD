@@ -681,6 +681,8 @@ class HDRenderer:
             self.draw_bar(screen, S(40), S(176), bw, S(50), f1, self.trail("p1", f1, now), "left")
             self.draw_bar(screen, int(cx + S(160)), S(176), bw, S(50), f2, self.trail("p2", f2, now), "right")
         screen.blit(self.badge, (int(cx - self.badge.get_width() / 2), S(140)))
+        if h1 is not None and h2 is not None:
+            self.draw_rounds(screen, vals, S(40) + bw, int(cx + S(160)), now)
         ko = h1 is not None and h2 is not None and (h1 <= 0 or h2 <= 0)
         t = _num(vals.get("time"))
         if ko:
@@ -727,6 +729,30 @@ class HDRenderer:
                 self.pg.draw.rect(pill, (120, 90, 40, 255), pill.get_rect(), max(1, S(3)), border_radius=h // 2)
             screen.blit(pill, (int(cx - w / 2), S(338) - h // 2))
             self.put(screen, t, cx, S(338), "center", "middle")
+
+    def draw_rounds(self, screen, vals, x1, x2, now):
+        """The rounds won, gold stars under the inner end of each health bar (Street Fighter II, Alpha), the last one
+        won glowing a moment. / Les rounds gagnés, étoiles dorées sous le bout intérieur de chaque barre."""
+        S, pg = self.S, self.pg
+        r, gap, y = S(15), S(10), S(250)
+        for side, x0, d in (("p1", x1, -1), ("p2", x2, 1)):
+            n = _num(vals.get("rounds" if side == "p1" else "rounds_p2"))
+            if n is None:
+                continue
+            n = max(0, int(n))
+            k = self.fight.round_glow(side, now) if self.fight is not None else 0.0
+            for i in range(max(2, min(n, 5))):
+                cx = x0 + d * (r + i * (2 * r + gap))
+                pts = [(cx + (r if j % 2 == 0 else r * 0.45) * math.sin(j * math.pi / 5),
+                        y - (r if j % 2 == 0 else r * 0.45) * math.cos(j * math.pi / 5)) for j in range(10)]
+                if i < n:
+                    glow = k if i == n - 1 else 0.0
+                    col = (255, int(208 + 47 * glow), int(64 + 150 * glow))
+                    pg.draw.polygon(screen, col, pts)
+                    pg.draw.polygon(screen, (120, 70, 10), pts, max(1, S(2)))
+                else:
+                    pg.draw.polygon(screen, (40, 32, 20), pts)
+                    pg.draw.polygon(screen, (110, 90, 50), pts, max(1, S(2)))
 
     def draw_super(self, screen, vals, side, now, room):
         """Super gauge of the Capcom fighting games (Alpha, Marvel, Street Fighter III...) under the fighter: it fills up,

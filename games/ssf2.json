@@ -1,6 +1,6 @@
 {
   "title": "Super Street Fighter II: The New Challengers",
-  "note": "Capcom CPS2 fighting game: health, health_p2, time, 16 characters (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "note": "Capcom CPS2 fighting game: health, health_p2, rounds, rounds_p2, time, 16 characters (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
   "generated": "tools/cps_games.py",
   "cps": "CPS2",
   "match": [
@@ -37,7 +37,8 @@
         "mult": 0.694444,
         "round": 1,
         "min": 0,
-        "max": 100
+        "max": 100,
+        "zero_from": "0xC8"
       },
       "health_p2": {
         "addr": "0xFF87F9",
@@ -46,7 +47,18 @@
         "mult": 0.694444,
         "round": 1,
         "min": 0,
-        "max": 100
+        "max": 100,
+        "zero_from": "0xC8"
+      },
+      "rounds": {
+        "addr": "0xFF875E",
+        "type": "u8",
+        "note": "rounds won by player 1 (FBNeo cheat database, Rounds won always set = 0 PL1)"
+      },
+      "rounds_p2": {
+        "addr": "0xFF8B5E",
+        "type": "u8",
+        "note": "rounds won by player 2 (FBNeo cheat database, Rounds won always set = 0 PL2)"
       },
       "time": {
         "addr": "0xFF8CCE",

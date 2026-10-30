@@ -335,6 +335,7 @@ local function make_reader(space, def)
 	local vmax = tonumber(def.max)
 	local mask = parse_addr(def.mask)
 	local shift = math.tointeger(def.shift)
+	local zero = parse_addr(def.zero_from)    -- a bar gone below zero reads 0xFF...: empty / une barre passee sous zero
 	local doff = parse_addr(def.digit_offset) or 0
 	local raw
 	if t == "u8" then
@@ -392,6 +393,7 @@ local function make_reader(space, def)
 		local v = raw(a)
 		if mask then v = v & mask end
 		if shift then v = v >> shift end
+		if zero and v >= zero then return vmin or 0 end
 		v = v * mult + add
 		if vmin and v < vmin then v = vmin end
 		if vmax and v > vmax then v = vmax end

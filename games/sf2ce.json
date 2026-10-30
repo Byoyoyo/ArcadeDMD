@@ -1,6 +1,6 @@
 {
   "title": "Street Fighter II': Champion Edition",
-  "note": "Capcom CPS1 fighting game: health, health_p2, time, 12 characters (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "note": "Capcom CPS1 fighting game: health, health_p2, rounds, rounds_p2, time, 12 characters (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
   "generated": "tools/cps_games.py",
   "cps": "CPS1",
   "match": [
@@ -37,7 +37,8 @@
         "mult": 0.694444,
         "round": 1,
         "min": 0,
-        "max": 100
+        "max": 100,
+        "zero_from": "0xC8"
       },
       "health_p2": {
         "addr": "0xFF86E9",
@@ -46,7 +47,18 @@
         "mult": 0.694444,
         "round": 1,
         "min": 0,
-        "max": 100
+        "max": 100,
+        "zero_from": "0xC8"
+      },
+      "rounds": {
+        "addr": "0xFF864E",
+        "type": "u8",
+        "note": "rounds won by player 1 (FBNeo cheat database, Rounds won always set = 0 PL1)"
+      },
+      "rounds_p2": {
+        "addr": "0xFF894E",
+        "type": "u8",
+        "note": "rounds won by player 2 (FBNeo cheat database, Rounds won always set = 0 PL2)"
       },
       "time": {
         "addr": "0xFF8ABE",

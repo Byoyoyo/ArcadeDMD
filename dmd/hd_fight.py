@@ -148,6 +148,25 @@ class FightFX:
         self.super_xy = (0, 0)
         self.health = {"p1": None, "p2": None}
         self.prev_time = None
+        self.rounds = {"p1": None, "p2": None}     # rounds won read in the game / rounds gagnés lus dans le jeu
+        self.round_t = {"p1": -99.0, "p2": -99.0}
+
+    def round_glow(self, side, now):
+        """1 when the side just won a round, down to 0 in 1.5 s (its last star glows). / L'étoile du round gagné brille."""
+        k = (now - self.round_t.get(side, -99.0)) / 1.5
+        return 0.0 if k >= 1 or k < 0 else 1.0 - k
+
+    def _rounds(self, vals, now, play=True):
+        """The rounds won read in the game (Street Fighter II, Alpha): one more is the winner of the round, whatever the
+        health bars said. / Un round gagné de plus désigne le vainqueur, quoi qu'aient dit les barres de vie."""
+        for side, key in (("p1", "rounds"), ("p2", "rounds_p2")):
+            r = _n(vals.get(key))
+            old = self.rounds.get(side)
+            if play and r is not None and old is not None and r == old + 1:
+                self.round_t[side] = now
+                if self.win is None or self.win[0] != side:
+                    self.win = [side, now + 0.2, (self.health.get(side) or 0) >= 99, False]
+            self.rounds[side] = r
 
     def stages(self, game):
         """Themes of the game's stages, indexed by the "backdrop" value; an unknown theme becomes the arena, so that the
@@ -241,6 +260,7 @@ class FightFX:
             if h1 != h2:
                 self.win = ["p1" if h1 > h2 else "p2", now + 1.0, False, False]
         self.prev_time = t
+        self._rounds(vals, now)
         if self.win is not None and not self.win[3] and now >= self.win[1]:
             self._celebrate(*self.win[:3])
             self.win[3] = True
@@ -269,6 +289,7 @@ class FightFX:
         self.health = {"p1": h1, "p2": h2}
         self.prev["p1"], self.prev["p2"] = h1, h2
         self.prev_time = _n(vals.get("time"))
+        self._rounds(vals, self.fx.now, play=False)
 
     def _hit(self, victim, old, new, now):
         fx, rng, S = self.fx, self.rng, self.hd.S

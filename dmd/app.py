@@ -354,6 +354,9 @@ class Simulator:
             if t >= self.ko_until:                      # nouveau round
                 self.kos += 1
                 if self.kos % 2 == 0:                   # new stage: round number and backdrop change
+                    for r in ("rounds", "rounds_p2"):       # a new match / un nouveau match
+                        if r in self.values:
+                            self._set(r, 0, t)
                     if "stage" in self.values:
                         self._set("stage", (self.values["stage"] + 1) % 6, t)
                     if "backdrop" in self.values:
@@ -371,6 +374,9 @@ class Simulator:
         self._set(n, v, t)
         if v <= 0:
             self.ko_until = t + 2.5
+            won = "rounds_p2" if n == "health" else "rounds"        # the other one won the round / l'autre a gagné le round
+            if won in self.values:
+                self._set(won, self.values[won] + 1, t)
         self.fight_next = t + self.rng.uniform(0.6, 2.2)
 
     def _attract(self, t):
@@ -483,6 +489,7 @@ class Simulator:
 # --------------------------------------------------------------------------
 
 P2_WAIT = 45.0        # seconds after which player 2, whose values stopped moving, has left / le joueur 2 est parti
+START_HOLD = 45.0     # a credit the game spent: a player started, he plays while he picks his fighter / un crédit dépensé
 
 
 class CoinCount:
@@ -567,6 +574,7 @@ class Engine:
         self.coin_skip = {}           # a start already counted, its value still at 0 / départ déjà compté, valeur encore à 0
         self.activity = None          # who plays, guessed from the values that move (CPS) / qui joue, d'après ce qui bouge
         self.active_at = -1e9
+        self.start_at = -1e9          # a credit read in the game was spent / un crédit lu dans le jeu a été dépensé
         # the coin buttons read on the controllers (coin_buttons.bat) / les boutons des pièces lus sur les manettes
         self.coin_buttons = CoinButtons.from_config(config, log) if not demo_game else None
         self.hold_zero = {}           # score qui passe à 0 un instant (combattant recréé entre deux rounds)
@@ -699,6 +707,7 @@ class Engine:
         self.coin_skip = {}
         self.p2_active_at = -1e9
         self.active_at = -1e9
+        self.start_at = -1e9
         vals = game_values(g, meta.get("system") or "", meta.get("parent") or "") if g else {}
         self.hold_zero = {k: float(d["hold_zero"]) for k, d in vals.items()
                           if isinstance(d, dict) and isinstance(d.get("hold_zero"), (int, float)) and d["hold_zero"] > 0}
@@ -805,7 +814,11 @@ class Engine:
         a = self.activity
         if any(e[0] in a["values"] for e in self.state.events):
             self.active_at = now
-        mode = 1 if now - self.active_at < a["seconds"] else 0
+        if self.coin_count is None:                 # credits read in the game: one or two spent is a start (select screen)
+            for name, old, new, t in self.state.events:       # crédits lus dans le jeu : un ou deux dépensés, un départ
+                if name == "credits" and isinstance(old, (int, float)) and isinstance(new, (int, float)) and 0 < old - new <= 2:
+                    self.start_at = now
+        mode = 1 if now - self.active_at < a["seconds"] or now - self.start_at < START_HOLD else 0
         if mode == 1 and self.state.values.get("p1_mode") == 0 and self.coin_count is not None and self._use_credit("p1", now):
             # the player started: a credit used. His value still at 0 will come back for that same start, not a continue
             # le joueur commence : un crédit pris. Sa valeur encore à 0 reviendra pour ce même départ

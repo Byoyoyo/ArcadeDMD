@@ -41,6 +41,8 @@ PATTERNS = {
     "health_p2": rf"^(?:select )?infinite (?:energy|health|vitality|life)(?: '?all'?| \((?:1st char(?:acter)?|active char)\))? {PL}2$",
     "_drain": rf"^(?:always have no energy|drain all energy now!?(?: \(active char\))?) {PL}1(?:/cpu)?$",
     "_drain_p2": rf"^(?:always have no energy|drain all energy now!?(?: \(active char\))?) {PL}2(?:/cpu)?$",
+    "rounds": rf"^rounds won always (?:set )?= 0 {PL}1$",
+    "rounds_p2": rf"^rounds won always (?:set )?= 0 {PL}2$",
     "lives": rf"^infinite lives {PL}1$",
     "lives_p2": rf"^infinite lives {PL}2$",
     "bombs": rf"^infinite (?:bombs|bomb stock|bomb) {PL}1$",
@@ -244,7 +246,15 @@ def values_from_cheats(cs, fam, name=""):
             v = value(addr, n, fam, "be" if n > 1 else "u8",
                       f"{'player 1' if key == 'health' else 'player 2'} health in %, full = 0x{full:X} ({src}, {found[key]['name']})")
             v.update({"mult": round(100.0 / full, 6), "round": 1, "min": 0, "max": 100})
+            # gone below zero at a K.O. (Street Fighter II): 0xFF... reads an empty bar, not a full one
+            # passée sous zéro au K.O. : 0xFF... se lit barre vide, pas pleine
+            v["zero_from"] = f"0x{full + ((1 << (8 * n)) - full) // 2:X}"
             vals[key] = v
+    for key in ("rounds", "rounds_p2"):              # rounds won, the markers under the bars / les rounds gagnés
+        t = enabled(found[key]) if key in found else None
+        if t:
+            vals[key] = value(t[0][1], 1, fam, "u8", f"rounds won by {'player 1' if key == 'rounds' else 'player 2'} "
+                                                     f"({src}, {found[key]['name']})")
     if "time" in found:
         t = enabled(found["time"])
         if t and t[0][2] > 0:
@@ -451,6 +461,15 @@ SUPER_LAYERS = [
     {"type": "rect", "x": 65, "y": 30, "w": 63, "h": 2, "color": "#ffd040", "blink_period": 0.5, "when": {"var": "power_p2", "gt": 99.5}}]
 
 
+# the rounds won, small gold squares above the bars, on each side of the timer (Street Fighter II and others)
+# les rounds gagnés, petits carrés dorés au-dessus des barres, de chaque côté du chrono
+ROUND_LAYERS = [
+    {"type": "icons", "var": "rounds", "x": 54, "y": 11, "max": 2, "gap": 1, "align": "right", "pattern": ["##", "##"],
+     "colors": {"#": "#ffd040"}, "empty": "#3a2a10", "when": {"all": [{"has": "rounds"}, {"has": ["health", "health_p2"]}]}},
+    {"type": "icons", "var": "rounds_p2", "x": 73, "y": 11, "max": 2, "gap": 1, "pattern": ["##", "##"],
+     "colors": {"#": "#ffd040"}, "empty": "#3a2a10", "when": {"all": [{"has": "rounds_p2"}, {"has": ["health", "health_p2"]}]}}]
+
+
 def make_templates(games_dir):
     """games/cps_*.json: the shared scenes, the Neo Geo ones with the title where they said NEO GEO."""
     for key, src in TEMPLATES.items():
@@ -469,6 +488,9 @@ def make_templates(games_dir):
             out.append(ly)
         if key == "cps_combat":
             out[1:1] = SUPER_LAYERS
+            bars = [i for i, ly in enumerate(out) if ly.get("type") == "gauge" and ly.get("var") == "health_p2"]
+            if bars:
+                out[bars[0] + 1:bars[0] + 1] = ROUND_LAYERS
         dump(os.path.join(games_dir, key + ".json"), {
             "note": f"Shared scene of the Capcom CPS games ({key.split('_')[-1] if '_' in key else 'action'}), made by {TOOL} "
                     f"from games/{src}.json. The games take it with scene_from.",

@@ -849,6 +849,53 @@
         "anchor": "left"
       },
       {
+        "type": "icons",
+        "var": "rounds",
+        "x": 54,
+        "y": 11,
+        "max": 2,
+        "gap": 1,
+        "align": "right",
+        "pattern": ["##", "##"],
+        "colors": {
+          "#": "#ffd040"
+        },
+        "empty": "#3a2a10",
+        "when": {
+          "all": [
+            {
+              "has": "rounds"
+            },
+            {
+              "has": ["health", "health_p2"]
+            }
+          ]
+        }
+      },
+      {
+        "type": "icons",
+        "var": "rounds_p2",
+        "x": 73,
+        "y": 11,
+        "max": 2,
+        "gap": 1,
+        "pattern": ["##", "##"],
+        "colors": {
+          "#": "#ffd040"
+        },
+        "empty": "#3a2a10",
+        "when": {
+          "all": [
+            {
+              "has": "rounds_p2"
+            },
+            {
+              "has": ["health", "health_p2"]
+            }
+          ]
+        }
+      },
+      {
         "type": "rect",
         "x": 55,
         "y": 9,

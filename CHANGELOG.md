@@ -10,7 +10,7 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 **Every Capcom CPS1, CPS2 and CPS3 game**
 - Every Capcom CPS1, CPS2 and CPS3 game of FinalBurn Neo is recognized, with MAME as with RetroArch. That makes 88 games and their 942 sets. A version, a bootleg or a hack takes the file of its original game, with its own name when it has one.
 - The values of the cheat database of FinalBurn Neo are read, each player's health, the timer, the lives, the bombs, the super gauge, the characters and their names, the stage, and the credits when the game keeps them. The timer shows when the cheat gives all of it. In 23 games it only gives a part (one digit, the seconds of a clock, a counter that is not the timer seen in the game), ArcadeDMD then reads it only to see that the game runs. The RAM of the CPS3, whose bytes are reversed in 32-bit words, is put back in order.
-- The Capcom games have no BIOS that tells who plays. ArcadeDMD watches the timer, the score once it is learned, and the health in the fighting games. As long as they move, player 1 plays, and after 10 seconds without any change the coin screen comes back. Without them, the game stays on its game scene.
+- The Capcom games have no BIOS that tells who plays. ArcadeDMD watches the timer, the score once it is learned, and the health in the fighting games. As long as they move, player 1 plays, and after 10 seconds without any change the coin screen comes back. Without them, the game stays on its game scene. When the game's credits are read, a credit spent is a start, player 1 plays from the select screen on.
 - `demo_capcom.bat` plays the demo of a Capcom game, most of them with the coin screen first.
 
 **The Capcom fighting games**
@@ -18,6 +18,7 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - Eight new fight stages drawn by the program. A castle roof in Japan at night, a Chinese street market, a steel factory, a gothic manor under the moon, an Indian palace at sunset, a golden temple on its river, a laboratory and an air base at dusk.
 - The super gauges, on the bottom line of the panel and under the fighters on the HD screen. Blue as they fill up, gold with MAX when they are full.
 - Street Fighter III: New Generation names its fighters.
+- Street Fighter II, Champion Edition, Hyper Fighting, Super Street Fighter II and Street Fighter Alpha read the rounds won by each player. Gold stars under the bars on the HD screen, gold squares next to the timer on the panel, and the winner of each round from them. In Street Fighter II the health goes below zero at a K.O. and read full, the K.O. was missed and the WIN went to the wrong fighter. A bar below zero now reads empty, in every Capcom game.
 
 **The Capcom games done one by one**
 - Fifty Capcom games get a panel scene and an animated HD scene of their own, drawn by the program.
@@ -51,7 +52,7 @@ Extract the new zip over the old folder (`config.json`, your learned addresses a
 **Tous les jeux Capcom CPS1, CPS2 et CPS3**
 - Chaque jeu Capcom CPS1, CPS2 et CPS3 de FinalBurn Neo est reconnu, avec MAME comme avec RetroArch. Ça fait 88 jeux et leurs 942 sets. Une version, un bootleg ou un hack prend le fichier de son jeu d'origine, avec son propre nom quand il en a un.
 - Ce qu'écrit la base de codes de triche de FinalBurn Neo est lu. La vie de chaque joueur, le chrono, les vies, les bombes, la jauge de super, les personnages et leur nom, le décor, et les crédits quand le jeu les garde. Le chrono s'affiche quand la triche le donne en entier. Dans 23 jeux elle n'en donne qu'une partie (un chiffre, les secondes d'une horloge, un compteur qui n'est pas le chrono vu dans le jeu), ArcadeDMD ne le lit alors que pour voir que le jeu tourne. La RAM du CPS3, dont les octets sont inversés par mots de 32 bits, est remise dans l'ordre.
-- Les jeux Capcom n'ont pas de BIOS qui dit qui joue. ArcadeDMD surveille le chrono, le score une fois appris, et la vie dans les jeux de combat. Tant qu'ils bougent, le joueur 1 joue, et au bout de 10 secondes sans le moindre changement l'écran des pièces revient. Sans eux, le jeu reste sur sa scène de jeu.
+- Les jeux Capcom n'ont pas de BIOS qui dit qui joue. ArcadeDMD surveille le chrono, le score une fois appris, et la vie dans les jeux de combat. Tant qu'ils bougent, le joueur 1 joue, et au bout de 10 secondes sans le moindre changement l'écran des pièces revient. Sans eux, le jeu reste sur sa scène de jeu. Quand les crédits du jeu sont lus, un crédit dépensé est un départ, le joueur 1 joue dès l'écran de sélection.
 - `demo_capcom.bat` lance la démo d'un jeu Capcom, la plupart avec l'écran des pièces d'abord.
 
 **Les jeux de combat Capcom**
@@ -59,6 +60,7 @@ Extract the new zip over the old folder (`config.json`, your learned addresses a
 - Huit nouveaux décors de combat dessinés par le programme. Un toit de château au Japon la nuit, un marché chinois, une aciérie, un manoir gothique sous la lune, un palais indien au couchant, un temple d'or au bord de son fleuve, un laboratoire et une base aérienne au crépuscule.
 - Les jauges de super, sur la ligne du bas de la dalle et sous les combattants sur l'écran HD. Bleues quand elles se remplissent, dorées avec MAX quand elles sont pleines.
 - Street Fighter III: New Generation donne le nom de ses combattants.
+- Street Fighter II, Champion Edition, Hyper Fighting, Super Street Fighter II et Street Fighter Alpha lisent les rounds gagnés par chaque joueur. Des étoiles dorées sous les barres sur l'écran HD, des carrés dorés à côté du chrono sur la dalle, et le vainqueur de chaque round d'après eux. Dans Street Fighter II la vie passe sous zéro au K.O. et se lisait pleine, le K.O. était raté et le WIN allait au mauvais combattant. Une barre sous zéro se lit maintenant vide, dans tous les jeux Capcom.
 
 **Les jeux Capcom faits un par un**
 - Cinquante jeux Capcom ont une scène de dalle et une scène HD animée à leur image, dessinées par le programme.

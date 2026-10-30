@@ -29,7 +29,8 @@
         "mult": 1.785714,
         "round": 1,
         "min": 0,
-        "max": 100
+        "max": 100,
+        "zero_from": "0x9C"
       },
       "health_p2": {
         "addr": "0xFF9055",
@@ -38,7 +39,8 @@
         "mult": 1.785714,
         "round": 1,
         "min": 0,
-        "max": 100
+        "max": 100,
+        "zero_from": "0x9C"
       },
       "zenny": {
         "addr": "0xFFE192",
