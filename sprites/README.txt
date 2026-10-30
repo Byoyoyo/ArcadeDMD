@@ -14,7 +14,6 @@ disc.png    flying disc (4 frames of 20x3) for Windjammers
 car.png     rally car seen from above (2 frames of 10x5) for Neo Geo racing games
 runner.png  running fighter (2 frames of 8x10) for Neo Geo action games and beat'em ups
 horse.png  galloping race horse and its jockey (2 frames of 14x11) for the Neo Geo horse races
-snes_hero.png  little hero in a teal hood (2 frames of 8x10), our own character, for Super Mario World
 cps_prop.png   propeller fighter of the war (2 frames of 12x6) for 1941, 1944 and 19XX
 cps_jet.png    jet fighter (2 frames of 14x5) for Varth, U.N. Squadron, Carrier Air Wing and Giga Wing
 cps_flyer.png  flying soldier (2 frames of 12x5) for Forgotten Worlds
@@ -61,7 +60,6 @@ disc.png    palet (4 images de 20x3) pour Windjammers
 car.png     voiture de rallye vue du dessus (2 images de 10x5) pour les jeux de course Neo Geo
 runner.png  combattant qui court (2 images de 8x10) pour les jeux d action et beat'em up Neo Geo
 horse.png  cheval de course au galop et son jockey (2 images de 14x11) pour les courses de chevaux Neo Geo
-snes_hero.png  petit heros a capuche turquoise (2 images de 8x10), notre personnage, pour Super Mario World
 cps_prop.png   chasseur a helice de la guerre (2 images de 12x6) pour 1941, 1944 et 19XX
 cps_jet.png    chasseur a reaction (2 images de 14x5) pour Varth, U.N. Squadron, Carrier Air Wing et Giga Wing
 cps_flyer.png  soldat volant (2 images de 12x5) pour Forgotten Worlds

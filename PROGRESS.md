@@ -350,31 +350,6 @@ Depuis la 1.30, chaque set Capcom CPS1, CPS2 et CPS3 de FinalBurn Neo est reconn
 | Homebrew | 1 / 1 | its own (Frog Feast) / la sienne (Frog Feast) |
 | Demos / Démos | 1 / 1 | the one of its genre / celle de son genre |
 
-## Consoles, a first test / Consoles, un premier essai
-
-### Super Nintendo 🟡
-
-Read in RetroArch with the Snes9x core since 1.30. The addresses come from the rebuilt source code of the two games (snesrev) and still have to be confirmed in game with `test_retroarch.bat`.
-
-Lue dans RetroArch avec le cœur Snes9x depuis la 1.30. Les adresses viennent du code source reconstruit des deux jeux (snesrev) et doivent encore être confirmées en jeu avec `test_retroarch.bat`.
-
-| Game / Jeu | Values / Valeurs | Panel / Dalle | HD | Version |
-|---|---|---|---|---|
-| Super Mario World | ✅ | ✅ | ✅ | 1.30 |
-| The Legend of Zelda: A Link to the Past | ✅ | ✅ | ✅ | 1.30 |
-
-### Dreamcast (Flycast) 🟡
-
-Read in RetroArch with the Flycast core since 1.30. The addresses still have to be confirmed in game.
-
-Lue dans RetroArch avec le cœur Flycast depuis la 1.30. Les adresses doivent encore être confirmées en jeu.
-
-| Game / Jeu | Values / Valeurs | Panel / Dalle | HD | Version |
-|---|---|---|---|---|
-| Marvel vs. Capcom 2 (USA) | ✅ | ✅ | ✅ | 1.30 |
-| Marvel vs. Capcom 2 (Japan, Europe / Japon, Europe) | ⬜ | ⬜ | ⬜ | |
-| Marvel vs. Capcom 2 (Naomi, `mvsc2`) | ⬜ | ⬜ | ⬜ | |
-
 ## What comes next / La suite
 
 1. **MAME classics / Les classiques MAME.** Pac-Man, Ms. Pac-Man, Galaga, Donkey Kong, Space Invaders, Dig Dug, Frogger, Defender, Robotron, Asteroids, Centipede...

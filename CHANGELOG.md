@@ -27,19 +27,6 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - Quiz Tonosama no Yabou 2, Quiz Nanairo Dreams, Jyangokushi, Janpai Puzzle Choukou, Gulun.Pa!, Pnickies, Frog Feast, Pokonyan! Balloon, Magical Pumpkin and Ganbare! Marine Kun get theirs too.
 - Final Fight Anniversary Edition, Final Fight EX and Tenchi wo Kurau II CPS Changer take the scene of their game.
 
-**Marvel vs. Capcom 2 on the Dreamcast**
-- ArcadeDMD reads Dreamcast games in RetroArch, with the Flycast core. The first one is Marvel vs. Capcom 2 (US disc).
-- On the panel, the two characters on point with their health bars and the timer, the hyper combo gauges, and the three characters of each team. Events take the panel one at a time, a character KO, HYPER COMBO, the character who comes in, TIME OVER, and P1 WINS or P2 WINS.
-- On the HD screen, the fighting scene with a background for each stage, the three characters of each team and the hyper combo gauges. WIN and the confetti wait until a whole team is down.
-
-**Super Mario World and A Link to the Past on the Super Nintendo**
-- Two Super Nintendo games have their own panel and HD scenes, recognized by their usual names (USA, Europe, Japan...). Use the Snes9x core with the network commands on.
-- Super Mario World shows the score, the lives, the coins, the time, the big coins, the bonus stars, the power, the reserve item and the world on the map. A Link to the Past shows the hearts, the magic, the rupees, the bombs, the arrows, the keys, the item on Y, the dungeon or the world, the pendants and the crystals.
-- The panel shows each event big, one at a time, with explosions (1UP, CAPE, STAR POWER, COURSE CLEAR, the item found, VICTORY, BOMBOS, DARK WORLD...).
-- The HD screen is drawn our own way. A little hero runs and jumps with the game's speed and controller, a young adventurer swings his sword, drops bombs and shoots arrows, and the backdrop follows the level, the world or the dungeon.
-- `demo_consoles.bat` plays their demos and the one of Marvel vs. Capcom 2.
-- The Super Nintendo cores are known to `test_retroarch.bat` and the log.
-
 **Also**
 - The HD screen gave the Metal Slug scene to Marvel Super Heroes and Magic Sword, their names start like Metal Slug's. Only the Metal Slug games get it now.
 
@@ -67,19 +54,6 @@ Extract the new zip over the old folder (`config.json`, your learned addresses a
 - Les jeux d'action, de plateformes, de réflexion et les quiz (Ghouls'n Ghosts, Strider, Pang! 3, Mighty! Pang, Super Puzzle Fighter II Turbo, Mega Twins, Magic Sword, Willow, Nemo, Three Wonders, Dynasty Wars, Puzz Loop 2, Capcom Sports Club, Quiz & Dragons, Adventure Quiz Capcom World 2). Le héros lance ce que le jeu dit qu'il tient, son armure et son compagnon suivent le jeu.
 - Quiz Tonosama no Yabou 2, Quiz Nanairo Dreams, Jyangokushi, Janpai Puzzle Choukou, Gulun.Pa!, Pnickies, Frog Feast, Pokonyan! Balloon, Magical Pumpkin et Ganbare! Marine Kun ont aussi les leurs.
 - Final Fight Anniversary Edition, Final Fight EX et Tenchi wo Kurau II CPS Changer prennent la scène de leur jeu.
-
-**Marvel vs. Capcom 2 sur Dreamcast**
-- ArcadeDMD lit les jeux Dreamcast dans RetroArch, avec le cœur Flycast. Le premier est Marvel vs. Capcom 2 (disque américain).
-- Sur la dalle, les deux personnages au point avec leurs barres de vie et le chrono, les jauges d'hyper combo, et les trois personnages de chaque équipe. Les événements prennent la dalle un à la fois, le KO d'un personnage, HYPER COMBO, le personnage qui entre, TIME OVER, et P1 WINS ou P2 WINS.
-- Sur l'écran HD, la scène de combat avec un décor pour chaque stage, les trois personnages de chaque équipe et les jauges d'hyper combo. WIN et les confettis attendent qu'une équipe entière soit à terre.
-
-**Super Mario World et A Link to the Past sur Super Nintendo**
-- Deux jeux Super Nintendo ont leurs propres scènes sur la dalle et sur l'écran HD, reconnus sous leurs noms habituels (USA, Europe, Japon...). Prends le cœur Snes9x avec les commandes réseau actives.
-- Super Mario World affiche le score, les vies, les pièces, le temps, les grosses pièces, les étoiles bonus, la puissance, l'objet en réserve et le monde sur la carte. A Link to the Past affiche les cœurs, la magie, les rubis, les bombes, les flèches, les clés, l'objet sur Y, le donjon ou le monde, les pendentifs et les cristaux.
-- La dalle montre chaque événement en grand, un à la fois, avec des explosions (1UP, CAPE, INVINCIBLE, NIVEAU RÉUSSI, l'objet trouvé, VICTOIRE, BOMBOS, MONDE DES TÉNÈBRES...).
-- L'écran HD est dessiné à notre façon. Un petit héros court et saute avec la vitesse et la manette du jeu, un jeune aventurier frappe de son épée, pose des bombes et tire des flèches, et le décor suit le niveau, le monde ou le donjon.
-- `demo_consoles.bat` lance leurs démos et celle de Marvel vs. Capcom 2.
-- `test_retroarch.bat` et le journal connaissent les cœurs Super Nintendo.
 
 **Aussi**
 - L'écran HD donnait la scène de Metal Slug à Marvel Super Heroes et à Magic Sword, leur nom commence comme celui de Metal Slug. Seuls les Metal Slug l'ont maintenant.
