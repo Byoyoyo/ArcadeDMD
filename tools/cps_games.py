@@ -52,6 +52,10 @@ PATTERNS = {
     "power_p2": rf"^(?:infinite (?:power|super|super meter|super gauge)|always (?:have )?max(?:imum)? (?:power|super)(?: gauge)?) {PL}2$",
     "_p1_chr": rf"^select (?:1st )?char(?:acter)?(?: \(active char\))?(?: now!)? {PL}1$",
     "_p2_chr": rf"^select (?:1st )?char(?:acter)?(?: \(active char\))?(?: now!)? {PL}2$",
+    # who controls each player, a human or the computer (Street Fighter Alpha, Alpha 3, Marvel vs. Capcom)
+    # qui dirige chaque joueur, un humain ou l'ordinateur
+    "_p1_ctl": rf"^select control(?: \(1st char\))? {PL}1$",
+    "_p2_ctl": rf"^select control(?: \(1st char\))? {PL}2$",
 }
 PATTERNS = {k: re.compile(v, re.I) for k, v in PATTERNS.items()}
 BACKDROP = re.compile(r"^(?:select (?:permanent )?(?:background|backdrop)(?: now!?)?|background always =|select next stage now!?)$", re.I)
@@ -260,6 +264,15 @@ def values_from_cheats(cs, fam, name=""):
         if t:
             vals[key] = value(t[0][1], 1, fam, "u8", f"rounds won by {'player 1' if key == 'rounds' else 'player 2'} "
                                                      f"({src}, {found[key]['name']})")
+    for key in ("_p1_ctl", "_p2_ctl"):               # a human or the computer / un humain ou l'ordinateur
+        c = found.get(key)
+        human = [o for o in (c or {}).get("options", []) if o["triples"] and re.search(r"user|human", o["label"], re.I)]
+        if human and len(human[0]["triples"]) == 1:
+            addr, val = human[0]["triples"][0][1], human[0]["triples"][0][2]
+            who = "player 1" if key == "_p1_ctl" else "player 2"
+            v = value(addr, 1, fam, "u8", f"{who} controlled by a human ({val}) or the computer ({src}, {c['name']})")
+            v["human"] = val
+            vals[key] = v
     if "time" in found:
         t = enabled(found["time"])
         if t and t[0][2] > 0:
@@ -612,6 +625,12 @@ def build(fbneo, cheats_dir, games_dir):
             d["activity"] = {"values": watch, "moving": moving, "seconds": 10,
                              "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of "
                                      "the moving ones is read (lives or bombs alone change too seldom)"}
+            # the game says who is a human: player 2 against the computer or against a challenger
+            # le jeu dit qui est un humain : le joueur 2 contre l'ordinateur ou contre un challenger
+            ctl = {p: [k, merged[k]["human"]] for p, k in (("p1", "_p1_ctl"), ("p2", "_p2_ctl"))
+                   if isinstance(merged.get(k), dict) and "human" in merged[k]}
+            if ctl:
+                d["activity"]["human"] = ctl
         else:
             d.pop("activity", None)
         # credits not read: counted from the coin buttons. A player begins (start, continue, joining in) when his lives
