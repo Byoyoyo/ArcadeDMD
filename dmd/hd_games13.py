@@ -14,7 +14,7 @@ créations du programme dans l'esprit des jeux, aucune image ne vient d'un jeu.
 
 import math
 
-from .hd_games import CREAM, GOLD, RED, WHITE, _clamp, _mix, _n
+from .hd_games import AMBER, CREAM, GOLD, RED, WHITE, _clamp, _mix, _n
 from .hd_games3 import DARK, AeroFightersScene, _poly, bomber_draw, jet_draw, prop_plane_draw
 from .hd_games5 import SideShooterScene, side_heli_draw
 from .hd_games6 import portrait_draw
@@ -323,6 +323,13 @@ class _CpsShooter:
                 self.p2_joins += 1
             self.p2_seen = now
         super().update(vals, now)
+
+    def draw_hud(self, screen, eng, vals, logo, now):
+        super().draw_hud(screen, eng, vals, logo, now)
+        c = _n(vals.get("credits"))
+        if c is not None:                                  # the credits under the logo / les crédits sous le logo
+            self.label(screen, tr(f"CRÉDITS {int(c):02d}", f"CREDITS {int(c):02d}"), self.W / 2, self.S(122), 28, AMBER,
+                       align="center", alpha=190)
 
     def energy_hits(self, vals, now):
         for side, suf in (("p1", ""), ("p2", "_p2")):
@@ -887,10 +894,16 @@ class GigaWingScene(_CpsShooter, AeroFightersScene):
         if lives is not None:
             self.icons_row(screen, self.life_icon("p1", vals), lives, S(30), S(102), S(44), 6)
         self.p2_corner(screen, eng, vals, now, "2P", (120, 190, 255))
+        bimg = self.img("gwb", S(30), S(30), lambda d, W_, H_: d.ellipse([0, 0, W_ - 1, H_ - 1], fill=(250, 210, 60, 255), outline=LINE, width=2))
         b = _n(vals.get("bombs"))
         if b is not None:
-            bimg = self.img("gwb", S(30), S(30), lambda d, W_, H_: d.ellipse([0, 0, W_ - 1, H_ - 1], fill=(250, 210, 60, 255), outline=LINE, width=2))
             self.icons_row(screen, bimg, b, S(30), H - S(40), S(36), label="B")
+        if self.p2_in(vals):                             # player 2's planes under his score, his bombs above REFLECT
+            lives2, b2 = _n(vals.get("lives_p2")), _n(vals.get("bombs_p2"))
+            if lives2 is not None:
+                self.icons_row(screen, self.life_icon("p2", vals), lives2, W - S(30), S(102), S(44), 6, right=True)
+            if b2 is not None:
+                self.icons_row(screen, bimg, b2, W - S(30), H - S(96), S(36), label="B", right=True)
         pilot = vals.get("p1_char")
         if isinstance(pilot, str) and pilot:
             self.label(screen, pilot, W / 2, H - S(30), 28, WHITE, key="black", align="center")

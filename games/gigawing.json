@@ -33,6 +33,12 @@
         "type": "u8",
         "note": "bombs (FBNeo cheat database, Infinite Bombs PL1)"
       },
+      "credits": {
+        "addr": "0xFF2095",
+        "type": "bcd",
+        "bytes": 1,
+        "note": "credits, found with learn.bat under RetroArch (1, 2 and 3 credits, 0xFF72A7 also matched but stayed at 0 during a game with credits)"
+      },
       "_p1_chr": {
         "addr": "0xFF7309",
         "type": "u8",
@@ -50,10 +56,10 @@
         "max": 3
       },
       "score": {
-        "addr": "",
+        "addr": "0xFF70D0",
         "type": "bcd",
         "bytes": 4,
-        "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+        "note": "player 1 score, found with learn.bat under RetroArch (378980, 4006260 and 7182880, one area only)"
       },
       "score_p2": {
         "addr": "",
@@ -101,14 +107,6 @@
     "moving": ["score", "score_p2"],
     "seconds": 10,
     "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
-  },
-  "coins": {
-    "begin": {
-      "lives": "p1",
-      "lives_p2": "p2"
-    },
-    "rise": 2,
-    "note": "credits not read: counted from the coin buttons (coin_buttons.bat). A player begins (start, continue, joining in) and uses one when his lives come back from 0 by 2 or more (an extra life is 1)"
   },
   "hd": {
     "scene": "gigawing"

@@ -39,7 +39,7 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - The credits of the fighting games are bigger, on a dark pill.
 
 **Also**
-- Player 2 shows in the Capcom shoot'em ups when his values move, his score that goes up, a life or a bomb spent, a hit taken. He stayed on PRESS START, these games have no BIOS that tells who plays. Giga Wing also reads the bombs and the power of player 2.
+- Player 2 shows in the Capcom shoot'em ups when his values move, his score that goes up, a life or a bomb spent, a hit taken. He stayed on PRESS START, these games have no BIOS that tells who plays. Giga Wing also reads the bombs and the power of player 2, and its score and credits learned on a cabinet. The credits show under the logo during a game.
 - The HD screen gave the Metal Slug scene to Marvel Super Heroes and Magic Sword, their names start like Metal Slug's. Only the Metal Slug games get it now.
 
 **Updating from 1.29.3**
@@ -79,7 +79,7 @@ Extract the new zip over the old folder (`config.json`, your learned addresses a
 - Les crédits des jeux de combat sont plus gros, sur une pastille sombre.
 
 **Aussi**
-- Le joueur 2 apparaît dans les shoot'em up Capcom quand ses valeurs bougent, son score qui monte, une vie ou une bombe en moins, un coup reçu. Il restait sur PRESS START, ces jeux n'ont pas de BIOS qui dit qui joue. Giga Wing lit aussi les bombes et la puissance du joueur 2.
+- Le joueur 2 apparaît dans les shoot'em up Capcom quand ses valeurs bougent, son score qui monte, une vie ou une bombe en moins, un coup reçu. Il restait sur PRESS START, ces jeux n'ont pas de BIOS qui dit qui joue. Giga Wing lit aussi les bombes et la puissance du joueur 2, et son score et ses crédits appris sur une borne. Les crédits s'affichent sous le logo pendant la partie.
 - L'écran HD donnait la scène de Metal Slug à Marvel Super Heroes et à Magic Sword, leur nom commence comme celui de Metal Slug. Seuls les Metal Slug l'ont maintenant.
 
 **Mettre à jour depuis la 1.29.3**

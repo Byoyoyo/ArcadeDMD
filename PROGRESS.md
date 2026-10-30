@@ -302,7 +302,7 @@ Depuis la 1.30, chaque autre jeu Capcom a sa scène de dalle et sa scène HD à 
 | 17 | U.N. Squadron | Shoot'em up | 🟡 | ✅ | ✅ | 1.30 |
 | 18 | Carrier Air Wing | Shoot'em up | 🟡 | ✅ | ✅ | 1.30 |
 | 19 | Forgotten Worlds | Shoot'em up | 🟡 | ✅ | ✅ | 1.30 |
-| 20 | Giga Wing | Shoot'em up | 🟡 | ✅ | ✅ | 1.30 |
+| 20 | Giga Wing | Shoot'em up | ✅ | ✅ | ✅ | 1.30 |
 | 21 | Progear | Shoot'em up | 🟡 | ✅ | ✅ | 1.30 |
 | 22 | Mars Matrix: Hyper Solid Shooting | Shoot'em up | 🟡 | ✅ | ✅ | 1.30 |
 | 23 | Dimahoo | Shoot'em up | 🟡 | ✅ | ✅ | 1.30 |
