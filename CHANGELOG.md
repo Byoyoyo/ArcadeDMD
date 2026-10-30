@@ -12,7 +12,7 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 
 **Capcom games**
 - Player 2 of the fighting games. PRESS START and CPU stayed on his side even when a second player came in. Street Fighter Alpha, Alpha 3, Marvel vs. Capcom, Vampire Hunter 2 and JoJo's Bizarre Adventure read who controls each fighter, a human or the computer (cheat database). In the other fighting games, player 2 is seen as he comes in, his score going up once it is learned, his START with a credit, or a credit spent during a fight (a challenger). He leaves when nobody plays any more, or two minutes after his score stopped moving.
-- Hyper Street Fighter II and Marvel vs. Capcom read the score of each player, learned on a cabinet.
+- Hyper Street Fighter II, Marvel vs. Capcom and X-Men: Children of the Atom read the score of each player, learned on a cabinet.
 - The super gauge of Marvel vs. Capcom, Marvel Super Heroes, X-Men vs. Street Fighter and X-Men: Children of the Atom works like the game's. The bar of the current level, with LEVEL 1, 2 or 3 beside it, and MAX at the top level. It showed the level as a third of the bar, X-Men's stayed empty at Level 1.
 - Marvel vs. Capcom reads its credits, learned on a cabinet. Two coins for a credit is counted right.
 - The empty part of the health bars on the HD screen is dark grey instead of dark red, in every fighting game. A nearly empty bar looked full and red on the cabinet (X-Men: Children of the Atom).
@@ -30,7 +30,7 @@ Extract the new zip over the old folder (`config.json`, your learned addresses a
 
 **Jeux Capcom**
 - Le joueur 2 des jeux de combat. PRESS START et CPU restaient affichés de son côté même quand un deuxième joueur arrivait. Street Fighter Alpha, Alpha 3, Marvel vs. Capcom, Vampire Hunter 2 et JoJo's Bizarre Adventure lisent qui dirige chaque combattant, un humain ou l'ordinateur (base de triche). Dans les autres jeux de combat, le joueur 2 est vu quand il arrive, son score qui monte une fois appris, son START avec un crédit, ou un crédit dépensé en plein combat (un challenger). Il repart quand plus personne ne joue, ou deux minutes après que son score a cessé de bouger.
-- Hyper Street Fighter II et Marvel vs. Capcom lisent le score de chaque joueur, appris sur une borne.
+- Hyper Street Fighter II, Marvel vs. Capcom et X-Men: Children of the Atom lisent le score de chaque joueur, appris sur une borne.
 - La jauge de super de Marvel vs. Capcom, Marvel Super Heroes, X-Men vs. Street Fighter et X-Men: Children of the Atom marche comme celle du jeu. La barre du niveau en cours, avec NIVEAU 1, 2 ou 3 à côté, et MAX au niveau le plus haut. Elle montrait le niveau en tiers de barre, et celle de X-Men restait vide au Level 1.
 - Marvel vs. Capcom lit ses crédits, appris sur une borne. Deux pièces pour un crédit sont bien comptées.
 - La partie vide des barres de vie sur l'écran HD est gris foncé au lieu de rouge foncé, dans tous les jeux de combat. Une barre presque vide paraissait pleine et rouge sur la borne (X-Men: Children of the Atom).

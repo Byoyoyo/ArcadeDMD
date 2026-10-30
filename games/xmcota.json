@@ -87,6 +87,18 @@
         "type": "u8",
         "note": "player 2 or computer character (FBNeo cheat database, Select Character PL2)"
       },
+      "score": {
+        "addr": "0xFF4184",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 1 score, found with learn.bat under RetroArch on a cabinet"
+      },
+      "score_p2": {
+        "addr": "0xFF4584",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 2 score, found with learn.bat under RetroArch on a cabinet (a two-player game), 0x400 further like his health"
+      },
       "backdrop": {
         "addr": "0xFF488F",
         "type": "u8",
@@ -133,8 +145,8 @@
     }
   },
   "activity": {
-    "values": ["time", "health", "health_p2"],
-    "moving": ["time", "health", "health_p2"],
+    "values": ["time", "health", "health_p2", "score", "score_p2"],
+    "moving": ["time", "score", "score_p2", "health", "health_p2"],
     "seconds": 10,
     "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
   },

@@ -99,8 +99,9 @@
       },
       "credits": {
         "addr": "0xFF4499",
-        "type": "u8",
-        "note": "credits, found in RAM captures under RetroArch on a cabinet (2 then 3 on the title screen, the only byte to do so, 4 and 5 in games)"
+        "type": "bcd",
+        "note": "credits, found in RAM captures under RetroArch on a cabinet (2 then 3 on the title screen, the only byte to do so, 4 and 5 in games), learned the same with learn.bat",
+        "bytes": 1
       },
       "power_level": {
         "addr": "0xFF3274",
