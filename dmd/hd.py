@@ -330,7 +330,9 @@ class HDRenderer:
 
         line = Image.new("RGBA", (w, h), (0, 0, 0, 0))
         ImageDraw.Draw(line).line(shape + [shape[0]], fill=CREAM + (255,), width=max(2, self.S(4)))
-        b = {"back": solid((70, 12, 14)), "trail": solid((255, 235, 235)), "line": self._surf(line),
+        # the empty part stays dark and neutral: a nearly empty bar must not look full and red (X-Men, Seb's cabinet)
+        # la partie vide reste sombre et neutre : une barre presque vide ne doit pas paraître pleine et rouge
+        b = {"back": solid((24, 26, 34)), "trail": solid((255, 235, 235)), "line": self._surf(line),
              "fill": {k: gradient(*v) for k, v in BARS.items()}}
         self.bars[key] = b
         return b
