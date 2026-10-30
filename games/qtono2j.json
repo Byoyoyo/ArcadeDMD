@@ -48,6 +48,14 @@
     "seconds": 10,
     "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
   },
+  "coins": {
+    "begin": {
+      "lives": "p1",
+      "lives_p2": "p2"
+    },
+    "rise": 2,
+    "note": "credits not read: counted from the coin buttons (coin_buttons.bat). A player begins (start, continue, joining in) and uses one when his lives come back from 0 by 2 or more (an extra life is 1)"
+  },
   "demo": {
     "attract": true,
     "credits": 0,

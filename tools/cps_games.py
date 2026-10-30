@@ -537,6 +537,19 @@ def build(fbneo, cheats_dir, games_dir):
                                      "the moving ones is read (lives or bombs alone change too seldom)"}
         else:
             d.pop("activity", None)
+        # credits not read: counted from the coin buttons. A player begins (start, continue, joining in) when his lives
+        # come back from 0 by 2 or more, an extra life is 1. Kept when set by hand (Mercs: its energy, it has no lives).
+        # crédits comptés d'après les boutons : un joueur commence quand ses vies reviennent de 0 (2 ou plus)
+        coins = d.get("coins") if isinstance(d.get("coins"), dict) else {}
+        if not coins.get("hand"):
+            begin = {k: p for k, p in (("lives", "p1"), ("lives_p2", "p2")) if k in merged}
+            if "credits" not in merged and scene != "cps_combat" and begin:
+                d["coins"] = {"begin": begin, "rise": 2,
+                              "note": "credits not read: counted from the coin buttons (coin_buttons.bat). A player begins "
+                                      "(start, continue, joining in) and uses one when his lives come back from 0 by 2 or "
+                                      "more (an extra life is 1)"}
+            else:
+                d.pop("coins", None)
         demo = {"credits": 2, "p1_mode": 1, "p2_mode": 0}
         if scene == "cps_combat":
             demo.update({"health": 100, "health_p2": 100, "time": 99})

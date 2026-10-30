@@ -20,12 +20,23 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - Street Fighter III: New Generation names its fighters.
 
 **The Capcom games done one by one**
-- Fifty Capcom games get a panel scene and an animated HD scene of their own, drawn by the program with heroes and foes of our own.
-- The beat'em ups (Final Fight, Captain Commando, Cadillacs and Dinosaurs, The Punisher, The King of Dragons, Knights of the Round, Warriors of Fate, the two Dungeons & Dragons, Alien vs. Predator, Armored Warriors, Battle Circuit). The hero chosen in the game, things to break that leave food or treasure, the name and gauge of the foe just hit, and player 2 who joins at the hero's side with his own box.
+- Fifty Capcom games get a panel scene and an animated HD scene of their own, drawn by the program.
+- The 23 games with characters show like Metal Slug on the HD screen, with no character drawn by the program. The beat'em ups (Final Fight, Captain Commando, Cadillacs and Dinosaurs, The Punisher, The King of Dragons, Knights of the Round, Warriors of Fate, the two Dungeons & Dragons, Alien vs. Predator, Armored Warriors, Battle Circuit), the action games and platformers (Ghouls'n Ghosts, Strider, Mega Twins, Magic Sword, Willow, Nemo, Three Wonders, Dynasty Wars), the two Pang and Mercs. The place of the game stays behind, calm and darker, each player has a panel with what is read in the game (gauge, lives, score, bombs, weapon, level), and the middle shows the logo, the time and the credits. The game's events show between the panels. Points are a punch, a shot, a slash, a thrown weapon, a spell or a balloon that bursts, a bomb or a special leaves the panel and the middle blows up, a life lost turns the panel red. Player 2's panel lights up when his values move.
 - The shoot'em ups (1944, 19XX, 1941, Varth, U.N. Squadron, Carrier Air Wing, Forgotten Worlds, Giga Wing, Progear, Mars Matrix, Dimahoo, Eco Fighters, Mercs). Once the score is learned, the enemies blow up when the game scores points, a bomb sweeps the screen, the weapon picked up and the plane chosen are named, and on the panel the plane of the game flies and fires.
-- The action games, platformers, puzzle games and quizzes (Ghouls'n Ghosts, Strider, Pang! 3, Mighty! Pang, Super Puzzle Fighter II Turbo, Mega Twins, Magic Sword, Willow, Nemo, Three Wonders, Dynasty Wars, Puzz Loop 2, Capcom Sports Club, Quiz & Dragons, Adventure Quiz Capcom World 2). The hero throws what the game says he holds, his armour and his partner follow the game.
+- The puzzle games and quizzes (Super Puzzle Fighter II Turbo, Puzz Loop 2, Capcom Sports Club, Quiz & Dragons, Adventure Quiz Capcom World 2) play by themselves with our own gems, balls, questions and players.
 - Quiz Tonosama no Yabou 2, Quiz Nanairo Dreams, Jyangokushi, Janpai Puzzle Choukou, Gulun.Pa!, Pnickies, Frog Feast, Pokonyan! Balloon, Magical Pumpkin and Ganbare! Marine Kun get theirs too.
 - Final Fight Anniversary Edition, Final Fight EX and Tenchi wo Kurau II CPS Changer take the scene of their game.
+
+**Credits and coins**
+- Under RetroArch most Capcom games do not give their credits. With the coin buttons shown by `coin_buttons.bat`, ArcadeDMD counts them. A coin gives a credit and a player who begins takes one, at the start, at a continue (lives back from 0, or the energy in Mercs) and when player 2 joins in. For an exact count, `learn.bat` can find where the game keeps them.
+- 1944 and Dimahoo keep all their values outside of the memory RetroArch shares. The log says so, launch them with MAME to see everything.
+- Super Puzzle Fighter II Turbo no longer draws two little fighters, the counter gems fly across to the other well and the names read in the game show in the middle.
+- 1944 on the HD screen takes the icons of the game. The bombs as B medals, the side fighters in stock in their frame with their number, the gold crystals picked up, POW in yellow. The side fighters fly at our plane's sides, a bomb is a salvo of missiles, and a big WARNING announces the boss once its address is found.
+- The MAME plugin no longer opens an error window (CPU not found) when MAME starts on its own game list, and no longer sends a game start for it.
+
+**HD screen**
+- The animated backdrops are a little darker so that the information stands out (`"dim"` in the `preview` section, 30 percent by default, 0 to 80).
+- The credits of the fighting games are bigger, on a dark pill.
 
 **Also**
 - The HD screen gave the Metal Slug scene to Marvel Super Heroes and Magic Sword, their names start like Metal Slug's. Only the Metal Slug games get it now.
@@ -48,12 +59,23 @@ Extract the new zip over the old folder (`config.json`, your learned addresses a
 - Street Fighter III: New Generation donne le nom de ses combattants.
 
 **Les jeux Capcom faits un par un**
-- Cinquante jeux Capcom ont une scène de dalle et une scène HD animée à leur image, dessinées par le programme avec des héros et des ennemis à nous.
-- Les beat'em up (Final Fight, Captain Commando, Cadillacs and Dinosaurs, The Punisher, The King of Dragons, Knights of the Round, Warriors of Fate, les deux Dungeons & Dragons, Alien vs. Predator, Armored Warriors, Battle Circuit). Le héros choisi dans le jeu, des objets à casser qui laissent de la nourriture ou un trésor, le nom et la jauge de l'ennemi qu'on vient de frapper, et le joueur 2 qui arrive aux côtés du héros avec son encadré à lui.
+- Cinquante jeux Capcom ont une scène de dalle et une scène HD animée à leur image, dessinées par le programme.
+- Les 23 jeux à personnages s'affichent façon Metal Slug sur l'écran HD, sans personnage dessiné par le programme. Les beat'em up (Final Fight, Captain Commando, Cadillacs and Dinosaurs, The Punisher, The King of Dragons, Knights of the Round, Warriors of Fate, les deux Dungeons & Dragons, Alien vs. Predator, Armored Warriors, Battle Circuit), les jeux d'action et de plateformes (Ghouls'n Ghosts, Strider, Mega Twins, Magic Sword, Willow, Nemo, Three Wonders, Dynasty Wars), les deux Pang et Mercs. Le décor du jeu reste derrière, calme et plus sombre, chaque joueur a un panneau avec ce qui est lu dans le jeu (jauge, vies, score, bombes, arme, niveau), et le milieu montre le logo, le temps et les crédits. Les événements du jeu se voient entre les panneaux. Des points font un coup de poing, un tir, une entaille, une arme lancée, un sort ou un ballon qui éclate, une bombe ou un coup spécial part du panneau et le milieu explose, une vie perdue fait rougir le panneau. Le panneau du joueur 2 s'allume quand ses valeurs bougent.
 - Les shoot'em up (1944, 19XX, 1941, Varth, U.N. Squadron, Carrier Air Wing, Forgotten Worlds, Giga Wing, Progear, Mars Matrix, Dimahoo, Eco Fighters, Mercs). Une fois le score appris, les ennemis explosent quand le jeu marque des points, une bombe balaie l'écran, l'arme ramassée et l'avion choisi sont nommés, et sur la dalle l'avion du jeu vole et tire.
-- Les jeux d'action, de plateformes, de réflexion et les quiz (Ghouls'n Ghosts, Strider, Pang! 3, Mighty! Pang, Super Puzzle Fighter II Turbo, Mega Twins, Magic Sword, Willow, Nemo, Three Wonders, Dynasty Wars, Puzz Loop 2, Capcom Sports Club, Quiz & Dragons, Adventure Quiz Capcom World 2). Le héros lance ce que le jeu dit qu'il tient, son armure et son compagnon suivent le jeu.
+- Les jeux de réflexion et les quiz (Super Puzzle Fighter II Turbo, Puzz Loop 2, Capcom Sports Club, Quiz & Dragons, Adventure Quiz Capcom World 2) jouent tout seuls avec nos propres gemmes, billes, questions et joueurs.
 - Quiz Tonosama no Yabou 2, Quiz Nanairo Dreams, Jyangokushi, Janpai Puzzle Choukou, Gulun.Pa!, Pnickies, Frog Feast, Pokonyan! Balloon, Magical Pumpkin et Ganbare! Marine Kun ont aussi les leurs.
 - Final Fight Anniversary Edition, Final Fight EX et Tenchi wo Kurau II CPS Changer prennent la scène de leur jeu.
+
+**Crédits et pièces**
+- Sous RetroArch la plupart des jeux Capcom ne donnent pas leurs crédits. Avec les boutons des pièces montrés par `coin_buttons.bat`, ArcadeDMD les compte. Une pièce donne un crédit et un joueur qui commence en prend un, au départ, à un continue (les vies qui reviennent de 0, ou l'énergie dans Mercs) et quand le joueur 2 arrive. Pour un compte exact, `learn.bat` peut trouver où le jeu les garde.
+- 1944 et Dimahoo gardent toutes leurs valeurs hors de la mémoire que RetroArch partage. Le journal le dit, lance-les avec MAME pour tout voir.
+- Super Puzzle Fighter II Turbo ne dessine plus deux petits combattants, les gemmes à compteur volent vers l'autre puits et les noms lus dans le jeu s'affichent au milieu.
+- 1944 prend les icônes du jeu sur l'écran HD. Les bombes en médailles B, l'escorte en réserve dans son cadre avec son nombre, les cristaux d'or ramassés, POW en jaune. Les chasseurs d'escorte volent à côté de notre avion, une bombe est une salve de missiles, et un grand WARNING annonce le boss une fois son adresse trouvée.
+- Le plugin MAME n'ouvre plus de fenêtre d'erreur (CPU introuvable) quand MAME démarre sur sa liste de jeux, et n'envoie plus de départ de partie pour elle.
+
+**Écran HD**
+- Les décors animés sont un peu assombris pour que les infos ressortent (`"dim"` dans la section `preview`, 30 % par défaut, de 0 à 80).
+- Les crédits des jeux de combat sont plus gros, sur une pastille sombre.
 
 **Aussi**
 - L'écran HD donnait la scène de Metal Slug à Marvel Super Heroes et à Magic Sword, leur nom commence comme celui de Metal Slug. Seuls les Metal Slug l'ont maintenant.

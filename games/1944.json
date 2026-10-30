@@ -68,6 +68,36 @@
         "type": "bcd",
         "bytes": 4,
         "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+      },
+      "fighters": {
+        "addr": "0x9223FB",
+        "type": "u8",
+        "mame_only": true,
+        "note": "side fighters in stock of player 1, the plane in its frame and its number (MAME 2003-Plus cheat.dat, Infinite Side Arm Stock PL1 writes 99), to confirm in game"
+      },
+      "gold": {
+        "addr": "0x9223FD",
+        "type": "u8",
+        "mame_only": true,
+        "note": "gold crystals picked up by player 1, the diamonds under the bombs (MAME 2003-Plus cheat.dat, Maximum Gold PL1 writes 100), to confirm in game"
+      },
+      "fighters_p2": {
+        "addr": "0x9224FB",
+        "type": "u8",
+        "mame_only": true,
+        "note": "side fighters in stock of player 2, the plane in its frame and its number (MAME 2003-Plus cheat.dat, Infinite Side Arm Stock PL2 writes 99), to confirm in game"
+      },
+      "gold_p2": {
+        "addr": "0x9224FD",
+        "type": "u8",
+        "mame_only": true,
+        "note": "gold crystals picked up by player 2, the diamonds under the bombs (MAME 2003-Plus cheat.dat, Maximum Gold PL2 writes 100), to confirm in game"
+      },
+      "warning": {
+        "addr": "",
+        "type": "u8",
+        "mame_only": true,
+        "note": "the boss WARNING (not 0 while it shows), not in the cheat databases, to find with RAM captures taken during the WARNING"
       }
     }
   },
@@ -112,8 +142,57 @@
         ],
         "every": 8.0,
         "start": 6.0
+      },
+      "health": {
+        "cycle": [
+          100,
+          92,
+          84,
+          84,
+          70,
+          100
+        ],
+        "every": 4.0,
+        "start": 4.0
+      },
+      "fighters": {
+        "cycle": [
+          2,
+          2,
+          1,
+          1,
+          2,
+          3
+        ],
+        "every": 7.0,
+        "start": 7.0
+      },
+      "gold": {
+        "count": [
+          0,
+          40,
+          1
+        ],
+        "every": 3.0,
+        "start": 3.0
+      },
+      "warning": {
+        "cycle": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "every": 4.0,
+        "start": 4.0
       }
-    }
+    },
+    "health": 100,
+    "fighters": 2,
+    "gold": 0,
+    "warning": 0
   },
   "demo_hand": true,
   "scene": {

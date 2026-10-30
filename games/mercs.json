@@ -72,6 +72,14 @@
     "seconds": 10,
     "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
   },
+  "coins": {
+    "begin": {
+      "health": "p1",
+      "health_p2": "p2"
+    },
+    "hand": true,
+    "note": "credits not read: counted from the coin buttons (coin_buttons.bat). A player begins (start, continue, joining in) and uses one when his energy comes back from 0. Mercs has no lives, set by hand"
+  },
   "hd": {
     "scene": "mercs"
   },

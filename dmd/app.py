@@ -556,6 +556,12 @@ class Engine:
         self.derived = None
         self.coin_guess = None        # crédits d'une Neo Geo devinés d'après le BIOS (RetroArch)
         self.coin_count = None        # credits counted from the coin buttons (no BIOS, credits not read) / crédits comptés
+        self.coin_game = None         # the game they were counted for / le jeu pour lequel ils sont comptés
+        self.coin_begin = {}          # value -> player who begins when it comes back from 0 / valeur -> joueur qui commence
+        self.coin_rise = 1.0
+        self.coin_zero = {}           # when each of those values fell to 0 / quand chacune est tombée à 0
+        self.coin_used = {}           # when each player last took a counted credit / dernier crédit compté pris
+        self.coin_skip = {}           # a start already counted, its value still at 0 / départ déjà compté, valeur encore à 0
         self.activity = None          # who plays, guessed from the values that move (CPS) / qui joue, d'après ce qui bouge
         self.active_at = -1e9
         # the coin buttons read on the controllers (coin_buttons.bat) / les boutons des pièces lus sur les manettes
@@ -651,9 +657,6 @@ class Engine:
         # credits of a Neo Geo that cannot be read (RetroArch): guessed from its BIOS / crédits devinés d'après le BIOS
         self.coin_guess = NeoCoins(mvs_rates(self.cfg)) if (source in ("plugin", "retroarch") and "credits" not in names
                                                             and "bios_request" in names) else None
-        # no BIOS and no credits read (Capcom...): the coin buttons count them / les boutons des pièces les comptent
-        self.coin_count = CoinCount() if (self.coin_guess is None and self.coin_buttons is not None and "credits" not in names
-                                          and source in ("plugin", "retroarch")) else None
         # a game without a BIOS that says who plays (CPS): player 1 plays while its values move (timer, health...)
         # un jeu sans BIOS qui dit qui joue (CPS) : le joueur 1 joue tant que ses valeurs bougent (chrono, vie...)
         act = g.get("activity") if isinstance(g.get("activity"), dict) else None
@@ -666,6 +669,29 @@ class Engine:
             moving = act.get("moving")
             if watch and (not isinstance(moving, list) or any(v in watch for v in moving)):
                 self.activity = {"values": set(watch), "seconds": float(act.get("seconds", 10))}
+        # no BIOS and no credits read (Capcom...): the coin buttons count them, the count kept when the same game comes
+        # back after a silence (RetroArch menu opened a while), not when it is launched again
+        # les boutons des pièces les comptent, gardés quand le même jeu revient après un silence (menu de RetroArch)
+        # Only when something tells that a player begins (who plays, or the value of the game file's "coins"), else the
+        # count would only go up (1944 under RetroArch, nothing read). / Seulement si quelque chose dit qu'un joueur commence.
+        coins = g.get("coins") if isinstance(g.get("coins"), dict) else {}
+        begin = coins.get("begin") if isinstance(coins.get("begin"), dict) else {}
+        begin = {v: p for v, p in begin.items() if p in ("p1", "p2") and v in names}
+        keep = self.coin_count if (not intro and self.coin_count is not None and self.coin_game == key) else None
+        self.coin_count = (keep or CoinCount()) if (self.coin_guess is None and self.coin_buttons is not None
+                                                    and "credits" not in names and source in ("plugin", "retroarch")
+                                                    and (self.activity is not None or begin)) else None
+        self.coin_game = key
+        if self.coin_count is not None and self.coin_count.credits:
+            self.state.update("credits", self.coin_count.credits, 0.0, quiet=True)
+        # the value that says when a player begins (start, continue, joining in) and uses a counted credit
+        # la valeur qui dit quand un joueur commence (départ, continue, arrivée) et prend un crédit compté
+        self.coin_begin = begin if self.coin_count else {}
+        rise = coins.get("rise")
+        self.coin_rise = float(rise) if isinstance(rise, (int, float)) and rise > 0 else 1.0
+        self.coin_zero = {}
+        self.coin_used = {}
+        self.coin_skip = {}
         self.active_at = -1e9
         vals = game_values(g, meta.get("system") or "", meta.get("parent") or "") if g else {}
         self.hold_zero = {k: float(d["hold_zero"]) for k, d in vals.items()
@@ -774,9 +800,41 @@ class Engine:
         if any(e[0] in a["values"] for e in self.state.events):
             self.active_at = now
         mode = 1 if now - self.active_at < a["seconds"] else 0
-        if mode == 1 and self.state.values.get("p1_mode") == 0 and self.coin_count is not None and self.coin_count.credits > 0:
-            self.state.update("credits", self.coin_count.use(), now)          # the player started: a credit used / un crédit pris
+        if mode == 1 and self.state.values.get("p1_mode") == 0 and self.coin_count is not None and self._use_credit("p1", now):
+            # the player started: a credit used. His value still at 0 will come back for that same start, not a continue
+            # le joueur commence : un crédit pris. Sa valeur encore à 0 reviendra pour ce même départ
+            if any(p == "p1" and not self.state.values.get(v) for v, p in self.coin_begin.items()):
+                self.coin_skip["p1"] = now
         self.state.update("p1_mode", mode, now)
+
+    def _coin_begin(self, now):
+        """A player begins (start, continue, joining in) when his value comes back from 0 after a second at least (Mercs:
+        his energy, others: their lives, by 2 or more since an extra life is 1): a counted credit used.
+        / Un joueur commence (départ, continue, arrivée) quand sa valeur revient de 0 : un crédit compté pris."""
+        for name, old, new, t in self.state.events:
+            player = self.coin_begin.get(name)
+            if player is None or not isinstance(new, (int, float)):
+                continue
+            if new == 0:
+                self.coin_zero[name] = t
+            elif old == 0 and new > 0:
+                skip = self.coin_skip.pop(player, None)
+                if skip is not None and t - skip < 60.0:          # the start already counted / départ déjà compté
+                    continue
+                if new >= self.coin_rise and t - self.coin_zero.get(name, -1e9) >= 1.0:
+                    self._use_credit(player, now)
+
+    def _use_credit(self, player, now):
+        """A counted credit used by a player who begins, once for a same beginning (seen by who plays and by his value).
+        True when one was taken. / Un crédit compté pris par un joueur qui commence, une seule fois pour un même départ."""
+        if self.coin_count is None or self.coin_count.credits <= 0 or now - self.coin_used.get(player, -1e9) < 5.0:
+            return False
+        self.coin_used[player] = now
+        c = self.coin_count.use()
+        self.state.update("credits", c, now)
+        n = player[1:]
+        self.log(tr(f"joueur {n} commence, crédits comptés {c}", f"player {n} begins, credits counted {c}"))
+        return True
 
     def coin_rates(self):
         """Credits a coin gives on the left and on the right, written on the coin doors of the HD screen. A Neo Geo in
@@ -980,6 +1038,8 @@ class Engine:
             self.log(tr(f"plus de nouvelles de {src} : retour à l'écran d'attente",
                         f"no news from {src}: back to the idle screen"))
             self.go_idle()
+        if self.coin_begin:
+            self._coin_begin(now)
         if self.activity is not None:
             self._activity(now)
         if self.texts is not None:     # fichiers texte pour OBS, séries de victoires en match VS

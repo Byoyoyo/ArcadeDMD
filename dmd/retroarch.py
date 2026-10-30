@@ -533,6 +533,13 @@ class RetroArchSource:
             elif not d.get("mame_only"):
                 self.log(tr(f"RetroArch : {name} ({d.get('addr')}) hors de la mémoire visible par RetroArch, ignoré",
                             f"RetroArch: {name} ({d.get('addr')}) is outside the memory visible to RetroArch, ignored"))
+        mame = [n for n, d in values.items() if isinstance(d, dict) and d.get("mame_only") and value_span(d) is not None]
+        if mame and not defs:
+            # 1944, Dimahoo: everything outside the 64 KB that FinalBurn Neo shares / tout hors des 64 Ko partagés
+            self.log(tr(f"RetroArch : {key or st['content']} garde ses valeurs hors de la mémoire que RetroArch partage "
+                        f"({', '.join(sorted(mame))}), rien n'est lu. Lance ce jeu avec MAME pour tout voir.",
+                        f"RetroArch: {key or st['content']} keeps its values outside the memory RetroArch shares "
+                        f"({', '.join(sorted(mame))}), nothing is read. Launch this game with MAME to see everything."))
         core = find_core(st["content"])
         self.session = {"ident": (st["system"], st["content"]), "key": key or "", "layout": layout,
                         "defs": defs, "clusters": make_clusters(defs) if defs else [], "last": {},

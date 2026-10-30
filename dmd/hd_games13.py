@@ -468,11 +468,29 @@ class WarPlanesScene(_CpsShooter, AeroFightersScene):
                                                                         (0.52, 0.38), (0.7, 0.0)], W, H, (255, 170, 40, 255), LINE, 2))
 
 
+def medal_draw(d, W, H):
+    """A round medal for a bomb, gold rim and red heart, the letter is laid on it after. / Une médaille ronde pour une bombe."""
+    ow = _ow(W)
+    d.ellipse([0.03 * W, 0.03 * H, 0.97 * W, 0.97 * H], fill=(250, 196, 70, 255), outline=LINE, width=ow)
+    d.ellipse([0.16 * W, 0.16 * H, 0.84 * W, 0.84 * H], fill=(206, 54, 36, 255), outline=(110, 28, 18, 255), width=max(1, ow // 2))
+    d.ellipse([0.26 * W, 0.2 * H, 0.52 * W, 0.36 * H], fill=(255, 255, 255, 90))
+
+
+def crystal_draw(d, W, H):
+    """A gold crystal, cut like a diamond. / Un cristal d'or taillé."""
+    ow = _ow(W)
+    _poly(d, [(0.5, 0.02), (0.96, 0.5), (0.5, 0.98), (0.04, 0.5)], W, H, (255, 196, 50, 255), LINE, ow)
+    _poly(d, [(0.5, 0.02), (0.7, 0.5), (0.5, 0.98), (0.3, 0.5)], W, H, (255, 230, 130, 255))
+    _poly(d, [(0.5, 0.12), (0.6, 0.48), (0.5, 0.48)], W, H, (255, 255, 255, 210))
+
+
 class Loop1944Scene(WarPlanesScene):
     """1944: The Loop Master as in the game: the deep blue Pacific seen from the sky, huge battleships and their wakes,
-    our silver twin-boom fighter against the green fighters and the bombers. 1P in red and the score, the red energy
-    gauge under it, the lightning bombs at the bottom left, 2P in pink. / Le Pacifique bleu profond, d'énormes
-    cuirassés, notre chasseur bipoutre argenté contre les chasseurs verts, comme dans le jeu."""
+    our silver twin-boom fighter against the green fighters and the bombers. The HUD in the spirit of the game: 1P and the
+    score, POW (the energy) in yellow, the bombs as B medals, the side fighters in stock in their frame with their number,
+    the gold crystals picked up. The side fighters fly at our plane's sides, a bomb is a salvo of missiles, a big WARNING
+    announces the boss. / Le Pacifique, nos chasseurs d'escorte à nos côtés, les bombes en médailles B, les cristaux d'or
+    ramassés, une salve de missiles pour une bombe et un grand WARNING avant le boss, comme dans le jeu."""
     THEME = "c44_sea"
     SHADE = (70, 60)
     SHIPS = True
@@ -481,20 +499,184 @@ class Loop1944Scene(WarPlanesScene):
     SHOT = {"p1": (255, 220, 120), "p2": (255, 170, 220)}
     FOE_KIND = 4
     FOE_ACC = (230, 230, 230)
+    WARN = 3.6                                         # seconds of the WARNING banner / durée du bandeau WARNING
+    POW = (255, 214, 50)
+
+    def __init__(self, hd, rng=None):
+        super().__init__(hd, rng)
+        self.warn_t = -99.0
+        self.warnings = 0                              # (tests)
+        self.escorts_seen = 0
+        self.glints = {}                               # (side, what) -> time it changed / quand ça a changé
+
+    def update(self, vals, now):
+        super().update(vals, now)
+        S = self.S
+        for side, suf in (("p1", ""), ("p2", "_p2")):
+            P = self.ships[side]
+            ch = self.changed(vals, "fighters" + suf)
+            if ch:
+                self.glints[(side, "fighters")] = now
+                if ch[1] > ch[0] and P["in"]:                         # side fighters picked up / des chasseurs d'escorte
+                    x, y = self.pos(side, now)
+                    self.popup(tr("ESCORTE !", "WINGMEN!"), x, max(S(176), y - S(80)), (130, 200, 255), 38)
+            ch = self.changed(vals, "gold" + suf)
+            if ch and ch[1] > ch[0]:
+                self.glints[(side, "gold")] = now
+            ch = self.changed(vals, "bombs" + suf)
+            if ch:
+                self.glints[(side, "bombs")] = now
+        ch = self.changed(vals, "warning")
+        if ch and ch[1] and not ch[0]:                                # the boss comes / le boss arrive
+            self.warn_t = now
+            self.warnings += 1
+            self.fx.flash((255, 40, 30), 0.3, 0.3)
+            self.fx.shake(4, 0.3)
+
+    def bomb(self, side, now):
+        """The bomb of 1944: a salvo of missiles that blows up the whole screen. / Une salve de missiles."""
+        fx, S, rng = self.fx, self.S, self.rng
+        x, y = self.pos(side, now)
+        self.bombs += 1
+        self.bpop[side] = now
+        self.weapon_window(now)
+        self.popup(tr("MISSILES !", "MISSILES!"), x, max(S(176), y - S(80)), (255, 190, 90), 40)
+        for i in range(10):
+            ty = S(self.ZONE[0]) + (S(self.ZONE[1]) - S(self.ZONE[0])) * (i + 0.5) / 10
+            tx = x + S(500) + rng.uniform(0, S(700))
+            p = fx.projectile("missile", x + S(40), y, tx, ty, 0.5 + 0.04 * i, rng.uniform(-30, 30),
+                              lambda a, b: fx.explosion(a, b, 0.6, False), spin=0.0, kind="rocket", trail=0.02)
+            p.rot = -math.degrees(math.atan2(ty - y, tx - x))
+        fx.later(0.55, self._carpet, x + S(600), y, 0.0)
+        for e in self.enemies:
+            if not e.get("dead"):
+                fx.later(0.5 + rng.uniform(0, 0.4), self._boom, e)
+        for g in self.ground:
+            if not g.get("dead") and self.gx(g) > x:
+                fx.later(0.6 + rng.uniform(0, 0.3), self._ground_boom, g)
+
+    # -- what is drawn / ce qui est dessiné
+    def escorts(self, screen, vals, now):
+        """The side fighters at our plane's sides while some are in stock. / Les chasseurs d'escorte à côté du nôtre."""
+        S = self.S
+        img = self.img("escort44", S(70), S(64), prop_plane_draw(0, (245, 245, 250)))
+        for side, suf in (("p1", ""), ("p2", "_p2")):
+            n = _n(vals.get("fighters" + suf))
+            P = self.ships[side]
+            if not n or n <= 0 or not P["in"] or now - P["t_dead"] < 1.2 or now < P["t_spawn"]:
+                continue
+            self.escorts_seen += 1
+            x, y = self.pos(side, now)
+            for k, dy in enumerate((-1, 1)):
+                ey = y + dy * S(64) + math.sin(now * 3.0 + k * 2.1) * S(6)
+                screen.blit(img, (int(x - S(40) - img.get_width() / 2), int(ey - img.get_height() / 2)))
+
+    def medal(self):
+        s = self.imgs.get("medal44")
+        if s is None:
+            s = self.imgs["medal44"] = self.img("medal44base", self.S(36), self.S(36), medal_draw).copy()
+            t = self.hd.text("B", "black", self.S(22), WHITE, 0.0)
+            self.hd.put(s, t, s.get_width() / 2, s.get_height() / 2 + self.S(1), "center", "middle")
+        return s
+
+    def hud_item(self, screen, side, what, n, x, y, right, now):
+        """One item of the bottom row, as in the game: B medals, the side fighters in their frame, the gold crystals.
+        Returns its width. / Un élément de la ligne du bas, renvoie sa largeur."""
+        S, hd = self.S, self.hd
+        if what == "bombs":
+            img, step, k = self.medal(), S(40), min(8, max(0, n))
+            extra = hd.text(f"×{n}", "black", S(28), WHITE)["w"] + S(8) if n > 8 else 0
+            w = max(1, k) * step + extra
+        elif what == "fighters":
+            img = self.img("escort44icon", S(44), S(40), prop_plane_draw(0, (245, 245, 250)))
+            num = hd.text(str(n), "black", S(36), (255, 226, 120))
+            w = img.get_width() + S(10) + num["w"]
+        else:
+            img = self.img("crystal44", S(30), S(36), crystal_draw)
+            num = hd.text(f"×{n}", "black", S(30), (255, 226, 120))
+            w = img.get_width() + S(8) + num["w"]
+        x0 = x - w if right else x
+        if what == "fighters":                                       # a gold frame, as in the game / un cadre doré
+            self.box(screen, x0 - S(10), y - S(26), w + S(20), S(52), (230, 186, 70), fill=(14, 22, 52, 200), radius=10, width=3)
+        else:
+            self.pill(screen, x0 - S(10), y - S(26), w + S(20), S(52), 150, radius=12)
+        if what == "bombs":
+            for i in range(k):
+                screen.blit(img, (int(x0 + i * step), int(y - img.get_height() / 2)))
+            if extra:
+                self.text(screen, f"×{n}", x0 + k * step + S(4), y, 28, WHITE, key="black", valign="middle")
+        else:
+            screen.blit(img, (int(x0), int(y - img.get_height() / 2)))
+            hd.put(screen, num, x0 + img.get_width() + S(8 if what == "gold" else 10), y, "left", "middle")
+        t = self.glints.get((side, what))
+        if t is not None and now - t < 0.8:                           # it just changed: a glint / un éclat
+            g = self.fx.sp.glow(S(70), (255, 230, 150), 8, hot=0.5)
+            g.set_alpha(int(255 * (1 - (now - t) / 0.8)))
+            screen.blit(g, (int(x0 + w / 2 - g.get_width() / 2), int(y - g.get_height() / 2)), special_flags=self.pg.BLEND_RGB_ADD)
+        return w
+
+    def hud_row(self, screen, vals, side, now):
+        S = self.S
+        suf = "" if side == "p1" else "_p2"
+        right = side == "p2"
+        x, y = (self.W - S(30) if right else S(30)), self.H - S(40)
+        for what in ("bombs", "fighters", "gold"):
+            n = _n(vals.get(what + suf))
+            if n is None:
+                continue
+            w = self.hud_item(screen, side, what, int(n), x, y, right, now)
+            x = x - w - S(34) if right else x + w + S(34)
+
+    def warning(self, screen, now):
+        """WARNING across the screen before the boss, as in the game. / WARNING en travers de l'écran avant le boss."""
+        k = now - self.warn_t
+        if k < 0 or k > self.WARN:
+            return
+        S, W, H, pg = self.S, self.W, self.H, self.pg
+        fade = min(1.0, k / 0.25, (self.WARN - k) / 0.35)
+        bh = S(150)
+        y0 = int(H / 2 - bh / 2 + S(20))
+        band = self.imgs.get("warnband")
+        if band is None:
+            band = self.imgs["warnband"] = pg.Surface((W, bh), pg.SRCALPHA)
+            band.fill((30, 0, 0, 170))
+        band.set_alpha(int(255 * fade))
+        screen.blit(band, (0, y0))
+        sh = S(18)
+        stripes = self.imgs.get("warnstripes")
+        if stripes is None:                                            # red and black stripes / bandes rouges et noires
+            per = S(48)
+            stripes = self.imgs["warnstripes"] = pg.Surface((W + per * 2, sh), pg.SRCALPHA)
+            stripes.fill((12, 6, 6, 255))
+            for i in range(-1, (W + per * 2) // per + 2):
+                x = i * per
+                pg.draw.polygon(stripes, (230, 40, 30, 255), [(x, sh), (x + per // 2, 0), (x + per, 0), (x + per // 2, sh)])
+        off = int((now * 160) % S(48))
+        stripes.set_alpha(int(255 * fade))
+        screen.blit(stripes, (-off, y0), area=None)
+        screen.blit(stripes, (-S(48) + off, y0 + bh - sh))
+        if int(k * 3.2) % 2 == 0 or k > self.WARN - 0.6:              # WARNING blinks / clignote
+            self.text(screen, "WARNING", W / 2, y0 + bh / 2 - S(10), 104, (255, 50, 36), key="stencil", align="center", valign="middle",
+                      glow=0.9, alpha=fade)
+        self.text(screen, tr("LE BOSS ARRIVE", "THE BOSS IS COMING"), W / 2, y0 + bh - sh - S(20), 30, CREAM, key="black", align="center",
+                  valign="middle", glow=0.3, alpha=fade)
 
     def status(self, screen, eng, vals, logo, now):
-        """As in the game: 1P in red and the score, the red energy gauge, 2P in pink, the lightning bombs at the bottom
-        left. / Comme dans le jeu : 1P en rouge et le score, la jauge d'énergie rouge, 2P en rose, les éclairs en bas."""
-        S, W, H, hd = self.S, self.W, self.H, self.hd
+        """As in the game: 1P in red and the score, POW in yellow, 2P in pink, and at the bottom the B medals, the side
+        fighters in their frame and the gold crystals. / Comme dans le jeu : 1P et le score, POW, et en bas les médailles
+        B, l'escorte dans son cadre et les cristaux d'or."""
+        S, W, hd = self.S, self.W, self.hd
+        self.escorts(screen, vals, now)
+        self.warning(screen, now)
         hd.draw_logo(screen, logo, W / 2, S(8), S(460), S(90), now)
         self.score_box(screen, eng, vals, "p1", "1P", (255, 70, 60))
         e = _n(vals.get("health"))
         if e is not None:
-            self.gauge(screen, "POW", e / 100.0, S(30), S(98), 300, (240, 50, 40))
+            self.gauge(screen, "POW", e / 100.0, S(30), S(98), 300, self.POW if e > 25 else (240, 50, 40))
         self.p2_corner(screen, eng, vals, now, "2P", (255, 120, 200))
-        b = _n(vals.get("bombs"))
-        if b is not None:
-            self.icons_row(screen, self.bolt_icon(), b, S(30), H - S(40), S(34))
+        self.hud_row(screen, vals, "p1", now)
+        if self.p2_in(vals):
+            self.hud_row(screen, vals, "p2", now)
 
 
 class War19XXScene(WarPlanesScene):

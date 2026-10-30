@@ -450,6 +450,12 @@ local session = nil
 local function start_session()
 	detect_language()
 	local info = machine_info()
+	-- MAME's own game list, no game running: nothing to read, nothing to send
+	-- la liste des jeux de MAME, aucun jeu lancé : rien à lire, rien à envoyer
+	if info.system == "___empty" then
+		session = nil
+		return
+	end
 	local games = load_games()
 	local game = nil
 	-- d'abord les fichiers propres a un jeu, puis les modeles ("fallback", par exemple neogeo.json)
@@ -465,8 +471,12 @@ local function start_session()
 	local cpu_tag = mem.cpu or default_cpu_tag()
 	local space = find_space(cpu_tag, mem.space)
 	if not space then
-		log_error(tr("CPU introuvable : ", "CPU not found: ") .. tostring(cpu_tag)
-			.. tr(" (verifier \"cpu\" dans le fichier du jeu)", " (check \"cpu\" in the game file)"))
+		if mem.cpu then        -- the game file names a CPU that is not there / le fichier du jeu nomme un CPU absent
+			log_error(tr("CPU introuvable : ", "CPU not found: ") .. tostring(cpu_tag)
+				.. tr(" (verifier \"cpu\" dans le fichier du jeu)", " (check \"cpu\" in the game file)"))
+		else                   -- a machine without a CPU to read: no window, a line in the log
+			log(tr("aucun CPU a lire pour ", "no CPU to read for ") .. tostring(info.system))
+		end
 	end
 	local readers, names = {}, {}
 	-- adresses du fichier, plus celles propres au jeu dans un modele ("per_game", barres de vie...)

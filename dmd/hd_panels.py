@@ -157,9 +157,13 @@ class PanelScene(GameScene):
             off = self.panels[side].copy()
             off.set_alpha(130)
             self.panels[side + "_off"] = off
+        # one veil for the darker backdrops of the HD screen ("dim") and this one, a single blit
+        # un seul voile pour le décor assombri de l'écran HD (« dim ») et celui des panneaux, une seule copie
+        dim = int(getattr(hd, "dim", 0) * 255 / 100)
         self.veil = self.pg.Surface((self.W, self.H)).convert()
         self.veil.fill((0, 0, 0))
-        self.veil.set_alpha(self.VEIL)
+        self.veil.set_alpha(int(round(255 - (255 - self.VEIL) * (255 - dim) / 255)))
+        self.bd.own_veil = True
         draw = self.bd.draw
 
         def bd_draw(target, now, mv):                     # the backdrop, a veil, then the effects behind
