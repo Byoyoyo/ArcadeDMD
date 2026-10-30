@@ -229,6 +229,8 @@ def timer(t, fam, src):
     return "_time", spec
 
 
+# the level a game shows for 0 in its level byte (X-Men: Children of the Atom says Level 1) / le niveau affiché pour 0
+LEVEL_SHOWN_FROM = {"xmcota": 1}
 # full health of a game whose cheats only drain it, from a game of the same series / vie pleine d'un jeu de la même série
 FULL = {"sf2": 0x90, "nwarr": 0x90}
 
@@ -289,7 +291,25 @@ def values_from_cheats(cs, fam, name=""):
             if t:
                 vals[key] = value(t[0][1], 1, fam, "u8", f"{key.replace('_p2', ' of player 2')} ({src}, {found[key]['name']})")
     for key in ("power", "power_p2"):
-        w = word(enabled(found[key])) if key in found else None
+        who = "player 1" if key == "power" else "player 2"
+        t = enabled(found[key]) if key in found else []
+        lv = [x for x in t if 0 < x[2] <= 5]
+        fill = [x for x in t if x[2] > 5]
+        if len(t) == 2 and len(lv) == 1 and len(fill) == 1:
+            # a level and the bar inside it (Marvel Super Heroes, X-Men, X-Men vs. Street Fighter): the bar of the
+            # current level, like the game, and the level beside it / le niveau et la barre de ce niveau, comme le jeu
+            faddr, full = fill[0][1], fill[0][2]
+            v = value(faddr, 1, fam, "u8", f"super gauge of {who} in % of the current level, full = 0x{full:X} ({src})")
+            v.update({"mult": round(100.0 / full, 6), "round": 1, "min": 0, "max": 100})
+            vals[key] = v
+            add = LEVEL_SHOWN_FROM.get(name, 0)
+            lvl = value(lv[0][1], 1, fam, "u8", f"super gauge level of {who}, {lv[0][2] + add} at most ({src})")
+            if add:
+                lvl["add"] = add
+            lvl["max"] = lv[0][2] + add
+            vals["power_level" if key == "power" else "power_level_p2"] = lvl
+            continue
+        w = word(t) if t else None
         if w and w[2] > 0:
             addr, n, full = w
             v = value(addr, n, fam, "be" if n > 1 else "u8",
