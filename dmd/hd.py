@@ -36,11 +36,16 @@ from .hd_games8 import SCENES as _SCENES_124
 from .hd_games9 import SCENES as _SCENES_125
 from .hd_games10 import SCENES as _SCENES_126
 from .hd_games11 import SCENES as _SCENES_127
+from .hd_games13 import SCENES as _SCENES_CPS_SHOOT
+from .hd_games14 import SCENES as _SCENES_CPS_ACTION
+from .hd_games16 import SCENES as _SCENES_CPS_SMALL
+from .hd_panels import SCENES as _SCENES_CPS_PANELS
 from .hd_mslug import MetalSlugScene, family
 from .i18n import tr
 
 AMBER, RED, CREAM, LINE = (255, 168, 48), (255, 52, 30), (235, 225, 205), (168, 112, 30)
 GREY, DIM = (150, 150, 165), (90, 90, 100)
+MAX_INK = (70, 36, 6)
 BARS = {"g": ((48, 240, 160), (20, 150, 110)), "y": ((255, 214, 60), (190, 130, 20)), "r": ((255, 70, 50), (160, 30, 20))}
 FONT_FILES = {"black": "Inter-Black.otf", "xbold": "Inter-ExtraBold.otf", "bold": "Inter-Bold.otf",
               "logo": "InterDisplay-BlackItalic.otf", "stencil": "BlackOpsOne-Regular.ttf"}
@@ -51,7 +56,10 @@ CHIPS = (("lives", ("VIES", "LIVES")), ("lives_p2", ("VIES J2", "LIVES P2")), ("
          ("time", ("TEMPS", "TIME")), ("record", ("RECORD", "HI-SCORE")), ("credits", ("CRÉDITS", "CREDITS")))
 GAME_SCENES = dict(_SCENES_117, **_SCENES_118, **_SCENES_119, **_SCENES_120, **_SCENES_121, **_SCENES_122, **_SCENES_123,
                    **_SCENES_124, **_SCENES_125, **_SCENES_126,
-                   **_SCENES_127)     # Neo Geo games done one by one
+                   **_SCENES_127,     # Neo Geo games done one by one
+                   **_SCENES_CPS_SHOOT, **_SCENES_CPS_ACTION,
+                   **_SCENES_CPS_SMALL)     # Capcom CPS games done one by one
+GAME_SCENES.update(_SCENES_CPS_PANELS)       # the Capcom games with characters, shown like Metal Slug (1.30)
 MSLUG_WEAPONS = {0: ("PISTOLET", "HANDGUN"), 1: ("FUSIL À POMPE", "SHOTGUN"), 2: ("LANCE-FLAMMES", "FLAMETHROWER"),
                  3: ("LANCE-ROQUETTES", "ROCKET LAUNCHER"), 4: ("MITRAILLETTE", "MACHINE GUN")}
 
@@ -106,8 +114,27 @@ class HDRenderer:
         self.enter = 1.0              # attract screen coming in after the intro
         self.veil = None
         self.flash_glow = None
+        # the backdrops a little darker, so that the information stands out ("dim" in the preview section, 0 to 80 %)
+        # les décors un peu assombris, pour que les infos ressortent (« dim » dans la section preview, de 0 à 80 %)
+        try:
+            self.dim = max(0, min(80, int((cfg or {}).get("dim", 30))))
+        except (TypeError, ValueError):
+            self.dim = 30
+        self.dim_veils = {}
+        self.credit_pills = {}
 
     # ------------------------------------------------------------ outils
+    def dim_veil(self, size):
+        """The dark veil laid on every backdrop, or None. / Le voile sombre posé sur chaque décor, ou None."""
+        if self.dim <= 0:
+            return None
+        v = self.dim_veils.get(size)
+        if v is None:
+            v = self.dim_veils[size] = self.pg.Surface(size).convert()
+            v.fill((0, 0, 0))
+            v.set_alpha(int(self.dim * 255 / 100))
+        return v
+
     def S(self, v):
         return int(round(v * self.s))
 
@@ -563,7 +590,7 @@ class HDRenderer:
             self.game_scene[1].render(screen, eng, now, self.logo_for(meta, title))
             return
         self.FPS = HDRenderer.FPS
-        fight = (g.get("scene_from") or key) == "neogeo_combat" or ("health" in vals and "health_p2" in vals)
+        fight = (g.get("scene_from") or key) in ("neogeo_combat", "cps_combat") or ("health" in vals and "health_p2" in vals)
         logo = self.logo_for(meta, title)
         if fight and self.themed:                             # combat : salle de tournoi, étincelles, combos, K.O.
             if self.fight is None:
@@ -654,6 +681,8 @@ class HDRenderer:
             self.draw_bar(screen, S(40), S(176), bw, S(50), f1, self.trail("p1", f1, now), "left")
             self.draw_bar(screen, int(cx + S(160)), S(176), bw, S(50), f2, self.trail("p2", f2, now), "right")
         screen.blit(self.badge, (int(cx - self.badge.get_width() / 2), S(140)))
+        if h1 is not None and h2 is not None:
+            self.draw_rounds(screen, vals, S(40) + bw, int(cx + S(160)), now)
         ko = h1 is not None and h2 is not None and (h1 <= 0 or h2 <= 0)
         t = _num(vals.get("time"))
         if ko:
@@ -687,10 +716,76 @@ class HDRenderer:
             team = self.team(eng, side)
             if team:
                 self.draw_team(screen, team, S(44) if side == "p1" else W - S(44), S(372), side, room)
+            else:
+                self.draw_super(screen, vals, side, now, room)
         credits = _num(vals.get("credits"))
-        if credits is not None:
-            self.put(screen, self.text(tr(f"CRÉDITS {int(credits):02d}", f"CREDITS {int(credits):02d}"), "bold", S(30),
-                                       (200, 170, 120), glow=0), cx, S(335), "center", "middle")
+        if credits is not None:                               # big enough to read, on a dark pill / lisibles, sur une pastille
+            t = self.text(tr(f"CRÉDITS {int(credits):02d}", f"CREDITS {int(credits):02d}"), "xbold", S(44), AMBER, 0.3)
+            w, h = t["w"] + S(56), S(64)
+            pill = self.credit_pills.get((w, h))
+            if pill is None:
+                pill = self.credit_pills[(w, h)] = self.pg.Surface((w, h), self.pg.SRCALPHA)
+                self.pg.draw.rect(pill, (6, 8, 18, 225), pill.get_rect(), border_radius=h // 2)
+                self.pg.draw.rect(pill, (120, 90, 40, 255), pill.get_rect(), max(1, S(3)), border_radius=h // 2)
+            screen.blit(pill, (int(cx - w / 2), S(338) - h // 2))
+            self.put(screen, t, cx, S(338), "center", "middle")
+
+    def draw_rounds(self, screen, vals, x1, x2, now):
+        """The rounds won, gold stars under the inner end of each health bar (Street Fighter II, Alpha), the last one
+        won glowing a moment. / Les rounds gagnés, étoiles dorées sous le bout intérieur de chaque barre."""
+        S, pg = self.S, self.pg
+        r, gap, y = S(15), S(10), S(250)
+        for side, x0, d in (("p1", x1, -1), ("p2", x2, 1)):
+            n = _num(vals.get("rounds" if side == "p1" else "rounds_p2"))
+            if n is None:
+                continue
+            n = max(0, int(n))
+            k = self.fight.round_glow(side, now) if self.fight is not None else 0.0
+            for i in range(max(2, min(n, 5))):
+                cx = x0 + d * (r + i * (2 * r + gap))
+                pts = [(cx + (r if j % 2 == 0 else r * 0.45) * math.sin(j * math.pi / 5),
+                        y - (r if j % 2 == 0 else r * 0.45) * math.cos(j * math.pi / 5)) for j in range(10)]
+                if i < n:
+                    glow = k if i == n - 1 else 0.0
+                    col = (255, int(208 + 47 * glow), int(64 + 150 * glow))
+                    pg.draw.polygon(screen, col, pts)
+                    pg.draw.polygon(screen, (120, 70, 10), pts, max(1, S(2)))
+                else:
+                    pg.draw.polygon(screen, (40, 32, 20), pts)
+                    pg.draw.polygon(screen, (110, 90, 50), pts, max(1, S(2)))
+
+    def draw_super(self, screen, vals, side, now, room):
+        """Super gauge of the Capcom fighting games (Alpha, Marvel, Street Fighter III...) under the fighter: it fills up,
+        turns gold and says MAX when full. / Jauge de super sous le combattant : elle se remplit, dorée et MAX quand pleine."""
+        p = _num(vals.get("power" if side == "p1" else "power_p2"))
+        if p is None:
+            return
+        S, pg, W = self.S, self.pg, self.W
+        f = max(0.0, min(1.0, p / 100.0))
+        lab = self.text("SUPER", "black", S(30), (120, 190, 255), glow=0)
+        w, h = int(min(room - lab["w"] - S(60), S(520))), S(24)
+        y = S(380)
+        if side == "p1":
+            lx, x = S(44), S(44) + lab["w"] + S(16)
+        else:
+            lx, x = W - S(44), W - S(44) - lab["w"] - S(16) - w
+        self.put(screen, lab, lx, y + h / 2, "left" if side == "p1" else "right", "middle")
+        pg.draw.rect(screen, (24, 28, 44), (x, y, w, h), border_radius=h // 2)
+        full = f >= 0.999
+        if f > 0:
+            fw = max(h, int(w * f))
+            fx = x if side == "p1" else x + w - fw
+            if full:
+                k = 0.5 + 0.5 * math.sin(now * 8)
+                col = (255, int(190 + 50 * k), int(40 + 80 * k))
+            else:
+                col = (60, 150, 255)
+            pg.draw.rect(screen, col, (fx, y, fw, h), border_radius=h // 2)
+            pg.draw.rect(screen, (200, 230, 255) if not full else (255, 250, 220), (fx + h // 3, y + S(4), max(1, fw - 2 * (h // 3)), S(4)),
+                         border_radius=S(2))
+        pg.draw.rect(screen, (150, 170, 210), (x, y, w, h), max(1, S(2)), border_radius=h // 2)
+        if full:
+            self.put(screen, self.text("MAX", "black", S(26), MAX_INK, glow=0), x + w / 2, y + h / 2, "center", "middle")
 
     def team(self, eng, side):
         """Équipe King of Fighters dans l'ordre de passage : [(nom, état)], état « done », « now » ou « next »."""

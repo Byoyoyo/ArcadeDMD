@@ -1,0 +1,219 @@
+{
+  "title": "Street Fighter Alpha 2",
+  "note": "Capcom CPS2 fighting game: health, health_p2, time, power, power_p2, 24 characters (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS2",
+  "match": [
+    {
+      "system": ["sfa2", "sfa2re", "sfa2u", "sfa2uhc", "sfa2ultra", "sfa2ur1", "sfz2a", "sfz2ad", "sfz2b", "sfz2br1", "sfz2h", "sfz2j", "sfz2jd", "sfz2jr1", "sfz2n", "sfz2rea", "sfz2rej"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xFF0000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["sfa2", "sfa2re", "sfa2u", "sfa2uhc", "sfa2ultra", "sfa2ur1", "sfz2a", "sfz2ad", "sfz2b", "sfz2br1", "sfz2h", "sfz2j", "sfz2jd", "sfz2jr1", "sfz2n", "sfz2rea", "sfz2rej"]
+  },
+  "titles": {
+    "sfa2uhc": "Street Fighter Alpha 2 - Unlock Hidden Characters",
+    "sfz2a": "Street Fighter Zero 2",
+    "sfz2b": "Street Fighter Zero 2",
+    "sfz2br1": "Street Fighter Zero 2",
+    "sfz2h": "Street Fighter Zero 2",
+    "sfz2j": "Street Fighter Zero 2",
+    "sfz2jr1": "Street Fighter Zero 2",
+    "sfz2n": "Street Fighter Zero 2",
+    "sfz2ad": "Street Fighter Zero 2",
+    "sfz2jd": "Street Fighter Zero 2",
+    "sfa2ultra": "Street Fighter Alpha 2 Ultra",
+    "sfa2re": "Street Fighter Alpha 2 Restoration",
+    "sfz2rea": "Street Fighter Zero 2 Restoration",
+    "sfz2rej": "Street Fighter Zero 2 Restoration"
+  },
+  "scene_from": "cps_combat",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "health": {
+        "addr": "0xFF8451",
+        "type": "u8",
+        "note": "player 1 health in %, full = 0x90 (FBNeo cheat database, Infinite Energy PL1)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xC8"
+      },
+      "health_p2": {
+        "addr": "0xFF8851",
+        "type": "u8",
+        "note": "player 2 health in %, full = 0x90 (FBNeo cheat database, Infinite Energy PL2)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xC8"
+      },
+      "time": {
+        "addr": "0xFF8109",
+        "type": "u8",
+        "note": "timer (FBNeo cheat database, Infinite Time)"
+      },
+      "power": {
+        "addr": "0xFF849F",
+        "type": "u8",
+        "note": "super gauge of player 1 in %, full = 0x90 (FBNeo cheat database)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "power_p2": {
+        "addr": "0xFF889F",
+        "type": "u8",
+        "note": "super gauge of player 2 in %, full = 0x90 (FBNeo cheat database)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "_p1_chr": {
+        "addr": "0xFF8482",
+        "type": "u8",
+        "note": "player 1 character (FBNeo cheat database, Select Character PL1)"
+      },
+      "_p2_chr": {
+        "addr": "0xFF8882",
+        "type": "u8",
+        "note": "player 2 or computer character (FBNeo cheat database, Select Character PL2)"
+      },
+      "backdrop": {
+        "addr": "0xFF8101",
+        "type": "u8",
+        "note": "stage backdrop, picks the HD theme in hd.stages (FBNeo cheat database, Select Backdrop)"
+      }
+    }
+  },
+  "derived": {
+    "p1_char": {
+      "value": "_p1_chr",
+      "names": {
+        "0": "RYU",
+        "1": "KEN MASTERS",
+        "2": "AKUMA",
+        "3": "CHARLIE",
+        "4": "CHUN-LI",
+        "5": "ADON",
+        "6": "SODOM",
+        "7": "GUY",
+        "8": "BIRDIE",
+        "9": "ROSE",
+        "10": "M. BISON",
+        "11": "SAGAT",
+        "12": "DAN HIBIKI",
+        "13": "S.KASUGANO",
+        "14": "R.SCHUGERG",
+        "15": "DHALSIM",
+        "16": "ZANGIEF",
+        "17": "GEN",
+        "18": "#CHUN-LI",
+        "19": "#GEN",
+        "20": "#SHIN-AKUMA",
+        "21": "#.ZANGIEF",
+        "22": "#.DHALSIM",
+        "23": "#.N.H.N.M.R"
+      }
+    },
+    "p2_char": {
+      "value": "_p2_chr",
+      "names": {
+        "0": "RYU",
+        "1": "KEN MASTERS",
+        "2": "AKUMA",
+        "3": "CHARLIE",
+        "4": "CHUN-LI",
+        "5": "ADON",
+        "6": "SODOM",
+        "7": "GUY",
+        "8": "BIRDIE",
+        "9": "ROSE",
+        "10": "M. BISON",
+        "11": "SAGAT",
+        "12": "DAN HIBIKI",
+        "13": "S.KASUGANO",
+        "14": "R.SCHUGERG",
+        "15": "DHALSIM",
+        "16": "ZANGIEF",
+        "17": "GEN",
+        "18": "#CHUN-LI",
+        "19": "#GEN",
+        "20": "#SHIN-AKUMA",
+        "21": "#.ZANGIEF",
+        "22": "#.DHALSIM",
+        "23": "#.N.H.N.M.R"
+      }
+    }
+  },
+  "activity": {
+    "values": ["time", "health", "health_p2"],
+    "moving": ["time", "health", "health_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "health": 100,
+    "health_p2": 100,
+    "time": 99,
+    "_p1_chr": 0,
+    "_p2_chr": 1
+  },
+  "hd": {
+    "stages": ["fight_snow", "fight_snow", "fight_harbor", "fight_harbor", "fight_ruins", "fight_ruins", "fight_base", "fight_base", "fight_market", "fight_market", "fight_thai", "fight_thai", "fight_desert", "fight_desert", "fight_city", "fight_city", "fight_gothic", "fight_gothic", "fight_harbor", "fight_harbor", "fight_jungle", "fight_jungle", "fight_thai", "fight_thai", "fight_market", "fight_market", "fight_temple", "fight_temple", "fight_city", "fight_city", "fight_palace", "fight_palace", "fight_factory", "fight_factory", "fight_market", "fight_market", "fight_desert", "fight_desert", "fight_jungle"],
+    "places": [
+      ["JAPON", "JAPAN"],
+      ["JAPON", "JAPAN"],
+      ["ÉTATS-UNIS", "USA"],
+      ["ÉTATS-UNIS", "USA"],
+      ["JAPON", "JAPAN"],
+      ["JAPON", "JAPAN"],
+      ["ÉTATS-UNIS", "USA"],
+      ["ÉTATS-UNIS", "USA"],
+      ["CHINE", "CHINA"],
+      ["CHINE", "CHINA"],
+      ["THAÏLANDE", "THAILAND"],
+      ["THAÏLANDE", "THAILAND"],
+      ["ÉTATS-UNIS", "USA"],
+      ["ÉTATS-UNIS", "USA"],
+      ["ÉTATS-UNIS", "USA"],
+      ["ÉTATS-UNIS", "USA"],
+      ["ANGLETERRE", "ENGLAND"],
+      ["ANGLETERRE", "ENGLAND"],
+      ["ITALIE", "ITALY"],
+      ["ITALIE", "ITALY"],
+      ["BRÉSIL", "BRAZIL"],
+      ["BRÉSIL", "BRAZIL"],
+      ["THAÏLANDE", "THAILAND"],
+      ["THAÏLANDE", "THAILAND"],
+      ["HONG KONG", "HONG KONG"],
+      ["HONG KONG", "HONG KONG"],
+      ["JAPON", "JAPAN"],
+      ["JAPON", "JAPAN"],
+      ["ÉTATS-UNIS", "USA"],
+      ["ÉTATS-UNIS", "USA"],
+      ["INDE", "INDIA"],
+      ["INDE", "INDIA"],
+      ["URSS", "USSR"],
+      ["URSS", "USSR"],
+      ["CHINE", "CHINA"],
+      ["CHINE", "CHINA"],
+      ["AUSTRALIE", "AUSTRALIA"],
+      ["AUSTRALIE", "AUSTRALIA"],
+      ["VENEZUELA", "VENEZUELA"]
+    ],
+    "note": "HD theme and place shown for each backdrop value (index = value), made by tools/cps_games.py from the stages of the cheat database, see README, HD themes"
+  }
+}

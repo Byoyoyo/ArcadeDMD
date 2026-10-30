@@ -1,13 +1,14 @@
 """Pictures of the README (docs/images), made with the real code of ArcadeDMD and simulated values.
 
 Writes led_fight.gif (King of Fighters '98, from the game logo to the fight), led_metal_slug.gif, led_shooter.gif
-(Aero Fighters 2, the simple panel of the shoot'em ups and its plane) and hd_coin_screen.jpg (the coin screen of an
-MVS, 1 credit on the left and 2 on the right). In English, like the other pictures. The game logo is the
+(Aero Fighters 2, the simple panel of the shoot'em ups and its plane), hd_coin_screen.jpg (the coin screen of an
+MVS, 1 credit on the left and 2 on the right) and hd_capcom_stages.jpg (four Capcom fighting games on their stages). In English, like the other pictures. The game logo is the
 "GAME LOGO / Clear Logo from LaunchBox" badge, kept in a fake LaunchBox folder, never a real logo.
 
 Images du README faites avec le vrai code d'ArcadeDMD et des valeurs simulées.
 
-usage: python tools/docs_images.py [out_folder]      (docs/images by default, needs pygame and Pillow)
+usage: python tools/docs_images.py [out_folder [picture ...]]      (docs/images and every picture by default,
+       needs pygame and Pillow)
 """
 import os
 import shutil
@@ -133,6 +134,44 @@ def led_demo(game, name, t_from, t_to):
     save_gif(frames, os.path.join(OUT, name))
 
 
+def hd_capcom_stages():
+    """Four Capcom fighting games on their own stages (the backdrop value read in the game), the place under the stage."""
+    out, clock = hd_output()
+    shots = []
+    t = 0.0
+    for game, back, p1, p2, power in (("sf2ce", 0, 0, 3, None), ("sfa3", 0x22, 1, 9, (60, 100)), ("vsav", 0, None, None, None),
+                                      ("xmcota", 9, 0, 4, (35, 80))):
+        eng = app.Engine(KIT, CFG, [out], LOG, demo_game=game)
+        eng.sim = None
+        eng.demo_until = None
+        v = {"p1_mode": 1, "p2_mode": 0, "credits": 1, "health": 100, "health_p2": 100, "time": 99, "backdrop": back}
+        if p1 is not None:
+            v.update({"_p1_chr": p1, "_p2_chr": p2})
+        if power:
+            v.update({"power": power[0], "power_p2": power[1]})
+        for k in range(int(3.0 * FPS)):
+            t += 1 / FPS
+            clock[0] = t
+            if k == int(1.2 * FPS):
+                v.update({"health_p2": 72, "time": 97})
+            for key, val in v.items():
+                eng.state.update(key, val, t)
+            if eng.derived:
+                for key, val in derive(eng.derived, eng.state.values).items():
+                    eng.state.update(key, val, t, quiet=True)
+            frame = eng.step(t)
+            out.hd_next = 0.0
+            out.send(frame)
+        shots.append(Image.frombytes("RGB", (W, H), pygame.image.tostring(out.screen, "RGB")))
+    out.close()
+    sheet = Image.new("RGB", (W, H * len(shots)))
+    for i, im in enumerate(shots):
+        sheet.paste(im, (0, i * H))
+    path = os.path.join(OUT, "hd_capcom_stages.jpg")
+    sheet.save(path, quality=84)
+    print(path, os.path.getsize(path) // 1024, "KB")
+
+
 def hd_coin_screen():
     """The coin screen of an MVS under RetroArch: two coins on the left, the right door gives 2 credits."""
     out, clock = hd_output()
@@ -163,11 +202,13 @@ def hd_coin_screen():
     print(path, os.path.getsize(path) // 1024, "KB")
 
 
+ALL = {"led_fight": led_fight, "led_metal_slug": lambda: led_demo("mslug", "led_metal_slug.gif", 0.0, 12.0),
+       "led_shooter": lambda: led_demo("sonicwi2", "led_shooter.gif", 11.0, 25.0), "hd_coin_screen": hd_coin_screen,
+       "hd_capcom_stages": hd_capcom_stages}
+
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
     pygame.init()
-    led_fight()
-    led_demo("mslug", "led_metal_slug.gif", 0.0, 12.0)
-    led_demo("sonicwi2", "led_shooter.gif", 11.0, 25.0)
-    hd_coin_screen()
+    for name in sys.argv[2:] or ALL:                  # only some pictures: docs_images.py docs/images hd_capcom_stages
+        ALL[name]()
     shutil.rmtree(TMP, ignore_errors=True)

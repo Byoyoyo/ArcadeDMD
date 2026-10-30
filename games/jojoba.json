@@ -1,0 +1,173 @@
+{
+  "title": "JoJo's Bizarre Adventure",
+  "note": "Capcom CPS3 fighting game: health, health_p2, time, credits, power, power_p2, 25 characters (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS3",
+  "match": [
+    {
+      "system": ["jojoba", "jojobajr1", "jojobajr2", "jojoban", "jojobaner1", "jojobaner2", "jojobanr1", "jojobanr2", "jojobanrb", "jojobar1", "jojobar2"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0x2000000",
+    "ram_size": "0x80000",
+    "swap32": true,
+    "note": "FinalBurn Neo core: CPS3 main RAM from 0x2000000 (512 KB), bytes reversed within 32-bit words",
+    "content": ["jojoba", "jojobajr1", "jojobajr2", "jojoban", "jojobaner1", "jojobaner2", "jojobanr1", "jojobanr2", "jojobanrb", "jojobar1", "jojobar2"]
+  },
+  "titles": {
+    "jojoban": "JoJo no Kimyou na Bouken: Mirai e no Isan",
+    "jojobajr1": "JoJo no Kimyou na Bouken: Mirai e no Isan",
+    "jojobanr1": "JoJo no Kimyou na Bouken: Mirai e no Isan",
+    "jojobajr2": "JoJo no Kimyou na Bouken: Mirai e no Isan",
+    "jojobanr2": "JoJo no Kimyou na Bouken: Mirai e no Isan"
+  },
+  "scene_from": "cps_combat",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "health": {
+        "addr": "0x20349CD",
+        "type": "u8",
+        "note": "player 1 health in %, full = 0x90 (FBNeo cheat database, Infinite Energy PL1)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xC8"
+      },
+      "health_p2": {
+        "addr": "0x2034DED",
+        "type": "u8",
+        "note": "player 2 health in %, full = 0x90 (FBNeo cheat database, Infinite Energy PL2)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xC8"
+      },
+      "time": {
+        "addr": "0x20314B4",
+        "type": "u8",
+        "note": "timer (FBNeo cheat database, Infinite Time)"
+      },
+      "credits": {
+        "addr": "0x20713A8",
+        "type": "u8",
+        "note": "credits (FBNeo cheat database, Infinite Credits)"
+      },
+      "power": {
+        "addr": "0x2034862",
+        "type": "be",
+        "bytes": 2,
+        "note": "super gauge of player 1 in %, full = 0x680A (FBNeo cheat database)",
+        "mult": 0.003755,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "power_p2": {
+        "addr": "0x2034886",
+        "type": "be",
+        "bytes": 2,
+        "note": "super gauge of player 2 in %, full = 0x680A (FBNeo cheat database)",
+        "mult": 0.003755,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "_p1_chr": {
+        "addr": "0x203489F",
+        "type": "u8",
+        "note": "player 1 character (FBNeo cheat database, Select Character PL1)"
+      },
+      "_p2_chr": {
+        "addr": "0x2034CBF",
+        "type": "u8",
+        "note": "player 2 or computer character (FBNeo cheat database, Select Character PL2)"
+      }
+    }
+  },
+  "derived": {
+    "p1_char": {
+      "value": "_p1_chr",
+      "names": {
+        "0": "JOUTARO",
+        "1": "KAKYOUIN",
+        "2": "AVDOL",
+        "3": "POLNAREFF",
+        "4": "J.JOSTER",
+        "5": "IGGI",
+        "6": "ALESSY",
+        "7": "CHACA",
+        "8": "D'BO",
+        "9": "N'DOUL",
+        "10": "MIDLER",
+        "11": "DIO",
+        "12": "VANILLA ICE",
+        "13": "DEATH 13",
+        "14": "J.K.DIO",
+        "15": "H.K.JOSEPH",
+        "16": "HOLHORSE",
+        "17": "VANILLA ICE",
+        "18": "K.W.N.KAKYO",
+        "19": "A.N.POLNARE",
+        "20": "PETSHOP",
+        "22": "MAHRIAH",
+        "23": "H.+.VOING",
+        "24": "ROBBER SOUL",
+        "25": "KAHN"
+      }
+    },
+    "p2_char": {
+      "value": "_p2_chr",
+      "names": {
+        "0": "JOUTARO",
+        "1": "KAKYOUIN",
+        "2": "AVDOL",
+        "3": "POLNAREFF",
+        "4": "J.JOSTER",
+        "5": "IGGI",
+        "6": "ALESSY",
+        "7": "CHACA",
+        "8": "D'BO",
+        "9": "N'DOUL",
+        "10": "MIDLER",
+        "11": "DIO",
+        "12": "VANILLA ICE",
+        "13": "DEATH 13",
+        "14": "J.K.DIO",
+        "15": "H.K.JOSEPH",
+        "16": "HOLHORSE",
+        "17": "VANILLA ICE",
+        "18": "K.W.N.KAKYO",
+        "19": "A.N.POLNARE",
+        "20": "PETSHOP",
+        "22": "MAHRIAH",
+        "23": "H.+.VOING",
+        "24": "ROBBER SOUL",
+        "25": "KAHN"
+      }
+    }
+  },
+  "activity": {
+    "values": ["time", "health", "health_p2"],
+    "moving": ["time", "health", "health_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "health": 100,
+    "health_p2": 100,
+    "time": 99,
+    "_p1_chr": 0,
+    "_p2_chr": 1
+  },
+  "hd": {
+    "stages": ["fight_city", "fight_desert", "fight_harbor", "fight_gothic", "fight_ruins"],
+    "note": "HD themes of the fights (one per game, no stage value known), made by tools/cps_games.py"
+  }
+}

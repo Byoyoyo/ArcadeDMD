@@ -1,0 +1,1097 @@
+{
+  "title": "Mercs",
+  "note": "Capcom CPS1 action game: health, health_p2 (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS1",
+  "match": [
+    {
+      "system": ["mercs", "mercsc", "mercsj", "mercsu", "mercsur1"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xFF0000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["mercs", "mercsc", "mercsj", "mercsu", "mercsur1"]
+  },
+  "titles": {
+    "mercsj": "Senjou no Ookami II",
+    "mercsc": "Senjo no Ookami II"
+  },
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "health": {
+        "addr": "0xFF1175",
+        "type": "u8",
+        "note": "player 1 health in %, full = 0x30 (FBNeo cheat database, Infinite Energy PL1)",
+        "mult": 2.083333,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0x98"
+      },
+      "health_p2": {
+        "addr": "0xFF1225",
+        "type": "u8",
+        "note": "player 2 health in %, full = 0x30 (FBNeo cheat database, Infinite Energy PL2)",
+        "mult": 2.083333,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0x98"
+      },
+      "time": {
+        "addr": "0xFF0ECB",
+        "type": "digits",
+        "bytes": 3,
+        "note": "timer, three digits one per byte (the Infinite Time cheat of FinalBurn Neo writes 9 in the last one, 0xFF0ECD), checked with RAM captures under RetroArch (193, 176, 159, 105)"
+      },
+      "mission": {
+        "addr": "0xFF0E8B",
+        "type": "u8",
+        "add": 1,
+        "note": "mission, from 0 for the first one (shown from 1), found with RAM captures under RetroArch (learn.bat, mission=1, 2 and 3)"
+      },
+      "bombs": {
+        "addr": "0xFF117C",
+        "type": "bcd",
+        "bytes": 1,
+        "note": "mega crashes of player 1 (FinalBurn Neo cheats, Infinite Missiles PL1 writes 99)"
+      },
+      "bombs_p2": {
+        "addr": "0xFF122C",
+        "type": "bcd",
+        "bytes": 1,
+        "note": "mega crashes of player 2 (FinalBurn Neo cheats, Infinite Missiles PL2 writes 99)"
+      },
+      "weapon": {
+        "addr": "0xFF1185",
+        "type": "u8",
+        "note": "weapon of player 1, 0 the assault rifle of the start, 1 the flamethrower, 2 the shotgun (three green shots), 3 the grenade launcher (the fourth weapon of the game, to confirm), found with RAM captures under RetroArch (learn.bat, arme=...)"
+      },
+      "weapon_p2": {
+        "addr": "0xFF1235",
+        "type": "u8",
+        "note": "weapon of player 2, as player 1's, 0xB0 further like his energy and his mega crashes"
+      },
+      "weapon_level": {
+        "addr": "0xFF117E",
+        "type": "u8",
+        "note": "power-ups (POW) of player 1's weapon, up to 10 in the game, 0 at the start of a game then 1 and 2 as they are picked up (RAM captures under RetroArch)"
+      },
+      "weapon_level_p2": {
+        "addr": "0xFF122E",
+        "type": "u8",
+        "note": "power-ups (POW) of player 2's weapon, 0xB0 further"
+      },
+      "score": {
+        "addr": "0xFF0F78",
+        "type": "digits",
+        "bytes": 8,
+        "note": "player 1 score, one digit per byte, found with learn.bat under RetroArch (450, 2350, 3800 and 10550)"
+      },
+      "score_p2": {
+        "addr": "0xFF0F80",
+        "type": "digits",
+        "bytes": 8,
+        "note": "player 2 score, one digit per byte, found with learn.bat under RetroArch (450, 850 and 3950)"
+      }
+    }
+  },
+  "derived": {
+    "p1_weapon": {
+      "value": "weapon",
+      "names": {
+        "fr": {
+          "0": "FUSIL D'ASSAUT",
+          "1": "LANCE-FLAMMES",
+          "2": "FUSIL À POMPE",
+          "3": "LANCE-GRENADES"
+        },
+        "en": {
+          "0": "ASSAULT RIFLE",
+          "1": "FLAMETHROWER",
+          "2": "SHOTGUN",
+          "3": "GRENADE LAUNCHER"
+        }
+      }
+    },
+    "p2_weapon": {
+      "value": "weapon_p2",
+      "names": {
+        "fr": {
+          "0": "FUSIL D'ASSAUT",
+          "1": "LANCE-FLAMMES",
+          "2": "FUSIL À POMPE",
+          "3": "LANCE-GRENADES"
+        },
+        "en": {
+          "0": "ASSAULT RIFLE",
+          "1": "FLAMETHROWER",
+          "2": "SHOTGUN",
+          "3": "GRENADE LAUNCHER"
+        }
+      }
+    }
+  },
+  "activity": {
+    "values": ["time", "health", "health_p2", "bombs", "score", "score_p2"],
+    "moving": ["time", "score", "score_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
+  },
+  "coins": {
+    "begin": {
+      "health": "p1",
+      "health_p2": "p2"
+    },
+    "hand": true,
+    "note": "credits not read: counted from the coin buttons (coin_buttons.bat). A player begins (start, continue, joining in) and uses one when his energy comes back from 0. Mercs has no lives, set by hand"
+  },
+  "hd": {
+    "scene": "mercs"
+  },
+  "demo": {
+    "attract": true,
+    "credits": 0,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "bombs": 3,
+    "bombs_p2": 3,
+    "score": 0,
+    "time": 200,
+    "sim": {
+      "bombs": {
+        "cycle": [
+          3,
+          3,
+          2,
+          2,
+          1,
+          3
+        ],
+        "every": 6.0,
+        "start": 6.0
+      },
+      "bombs_p2": {
+        "cycle": [
+          3,
+          2,
+          2,
+          3,
+          1,
+          3
+        ],
+        "every": 7.0,
+        "start": 9.0
+      },
+      "time": {
+        "count": [
+          0,
+          200,
+          -1
+        ],
+        "every": 1.0,
+        "start": 1.0
+      },
+      "weapon": {
+        "cycle": [
+          0,
+          2,
+          2,
+          1,
+          1,
+          0
+        ],
+        "every": 9.0,
+        "start": 8.0
+      },
+      "weapon_p2": {
+        "cycle": [
+          0,
+          0,
+          1,
+          1,
+          2,
+          2
+        ],
+        "every": 10.0,
+        "start": 13.0
+      },
+      "weapon_level": {
+        "cycle": [
+          0,
+          1,
+          1,
+          2,
+          3,
+          3,
+          4,
+          0
+        ],
+        "every": 7.0,
+        "start": 10.0
+      },
+      "weapon_level_p2": {
+        "cycle": [
+          0,
+          0,
+          1,
+          2,
+          2,
+          3,
+          0
+        ],
+        "every": 8.0,
+        "start": 15.0
+      }
+    },
+    "weapon": 0,
+    "weapon_p2": 0,
+    "weapon_level": 0,
+    "weapon_level_p2": 0
+  },
+  "demo_hand": true,
+  "scene": {
+    "layers": [
+      {
+        "type": "rect",
+        "x": 0,
+        "y": 13,
+        "w": 128,
+        "h": 10,
+        "color": "#5a4a2a",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 0,
+        "y": 22,
+        "w": 128,
+        "h": 1,
+        "color": "#c8b478",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "sprite",
+        "image": ["sprites/runner.png"],
+        "frames": 2,
+        "fps": 8,
+        "mode": "pingpong",
+        "x0": 4,
+        "x1": 50,
+        "speed": 8,
+        "face": "right",
+        "y": 13,
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "shoot": {
+          "on": ["score"],
+          "dx": 8,
+          "dy": 3,
+          "speed": 110,
+          "color": "#ffe080",
+          "gap": 0.25
+        }
+      },
+      {
+        "type": "text",
+        "font": "9x15B",
+        "x": 64,
+        "y": 3,
+        "align": "center",
+        "text": "{score}",
+        "color": "#ffa830",
+        "when": {
+          "all": [
+            {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "has": "score"
+            }
+          ]
+        },
+        "flash": {
+          "on": "score",
+          "color": "#ffffff",
+          "ms": 90
+        }
+      },
+      {
+        "type": "text",
+        "font": "6x10",
+        "fit": true,
+        "max_w": 124,
+        "x": 64,
+        "y": 4,
+        "align": "center",
+        "upper": true,
+        "text": "{title}",
+        "color": "#ffd25a",
+        "when": {
+          "all": [
+            {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "not": {
+                "has": "score"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "icons",
+        "var": "health",
+        "x": 2,
+        "y": 25,
+        "max": 1,
+        "gap": 0,
+        "pattern": [".#.#.", "#####", "#####", ".###.", "..#.."],
+        "colors": {
+          "#": "#5adc5a"
+        },
+        "empty": "#402020",
+        "when": {
+          "all": [
+            {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "has": "health"
+            }
+          ]
+        }
+      },
+      {
+        "type": "gauge",
+        "var": "health",
+        "max": 100,
+        "x": 9,
+        "y": 26,
+        "w": 40,
+        "h": 4,
+        "color": "#5adc5a",
+        "low": "#ff3020",
+        "low_at": 0.25,
+        "back": "#301010",
+        "when": {
+          "all": [
+            {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "has": "health"
+            }
+          ]
+        },
+        "flash": {
+          "on": "health",
+          "color": "#ffffff",
+          "ms": 250
+        }
+      },
+      {
+        "type": "text",
+        "font": "5x8",
+        "x": 127,
+        "y": 24,
+        "align": "right",
+        "text": "{time}",
+        "color": "#ffe040",
+        "when": {
+          "all": [
+            {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "has": "time"
+            }
+          ]
+        }
+      },
+      {
+        "type": "counter",
+        "var": "bombs",
+        "pattern": [".#.", "###", "###", ".#."],
+        "colors": {
+          "#": "#ff8a30"
+        },
+        "x": 100,
+        "y": 24,
+        "align": "right",
+        "font": "5x8",
+        "max": 99,
+        "when": {
+          "all": [
+            {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "has": "bombs"
+            }
+          ]
+        },
+        "flash": {
+          "on": "bombs",
+          "color": "#ffffff",
+          "ms": 400
+        }
+      },
+      {
+        "type": "coinop",
+        "when": {
+          "all": [
+            {
+              "has": "p1_mode"
+            },
+            {
+              "not": {
+                "var": "p1_mode",
+                "in": [
+                  1,
+                  2
+                ]
+              }
+            },
+            {
+              "not": {
+                "var": "p2_mode",
+                "in": [
+                  1,
+                  2
+                ]
+              }
+            }
+          ]
+        },
+        "title": [
+          {
+            "text": "{title}",
+            "color": "#ffd25a"
+          }
+        ],
+        "idle_image": ["sprites/insert_coin.gif", "sprites/insert_coin.png"]
+      },
+      {
+        "type": "events",
+        "events": [
+          {
+            "on": "mission",
+            "change": "up",
+            "step": 1,
+            "when": {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "text": "MISSION COMPLETE",
+            "color": "#ffd040",
+            "font": "8x13B",
+            "ms": 1400,
+            "priority": 6,
+            "anim": [
+              {
+                "image": ["artwork/{game}/bomb.gif", "artwork/bomb.gif", "sprites/fx_fire.png"],
+                "count": 3,
+                "spread": [
+                  14,
+                  114
+                ],
+                "y": 16,
+                "delay": 0.12,
+                "ms": 90
+              }
+            ]
+          },
+          {
+            "on": "mission",
+            "change": "up",
+            "step": 1,
+            "when": {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "text": "MISSION {mission}",
+            "color": "#ffffff",
+            "font": "9x15B",
+            "ms": 1500,
+            "priority": 5.5
+          },
+          {
+            "on": "bombs",
+            "change": "down",
+            "step": 1,
+            "when": {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "text": "MEGA CRASH",
+            "color": "#ffd040",
+            "font": "9x15B",
+            "ms": 1400,
+            "priority": 3,
+            "anim": [
+              {
+                "image": ["artwork/{game}/bomb.gif", "artwork/bomb.gif", "sprites/fx_fire.png"],
+                "count": 4,
+                "spread": [
+                  10,
+                  118
+                ],
+                "y": 16,
+                "delay": 0.07,
+                "ms": 90
+              }
+            ]
+          },
+          {
+            "on": "bombs_p2",
+            "change": "down",
+            "step": 1,
+            "when": {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "text": "2P MEGA CRASH",
+            "color": "#60c8ff",
+            "font": "8x13B",
+            "ms": 1400,
+            "priority": 3,
+            "anim": [
+              {
+                "image": ["artwork/{game}/bomb.gif", "artwork/bomb.gif", "sprites/fx_fire.png"],
+                "count": 4,
+                "spread": [
+                  10,
+                  118
+                ],
+                "y": 16,
+                "delay": 0.07,
+                "ms": 90
+              }
+            ]
+          },
+          {
+            "on": "weapon",
+            "change": "any",
+            "when": {
+              "all": [
+                {
+                  "not": {
+                    "all": [
+                      {
+                        "has": "p1_mode"
+                      },
+                      {
+                        "not": {
+                          "var": "p1_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        }
+                      },
+                      {
+                        "not": {
+                          "var": "p2_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "has": "p1_weapon"
+                }
+              ]
+            },
+            "text": "{p1_weapon}",
+            "color": "#ffd25a",
+            "font": "8x13B",
+            "ms": 1300,
+            "priority": 2
+          },
+          {
+            "on": "weapon_p2",
+            "change": "any",
+            "when": {
+              "all": [
+                {
+                  "not": {
+                    "all": [
+                      {
+                        "has": "p1_mode"
+                      },
+                      {
+                        "not": {
+                          "var": "p1_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        }
+                      },
+                      {
+                        "not": {
+                          "var": "p2_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "has": "p2_weapon"
+                }
+              ]
+            },
+            "text": "2P {p2_weapon}",
+            "color": "#60c8ff",
+            "font": "6x10",
+            "ms": 1300,
+            "priority": 2
+          },
+          {
+            "on": "weapon_level",
+            "change": "up",
+            "step": 1,
+            "when": {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "text": "POWER UP",
+            "color": "#ffd040",
+            "font": "9x15B",
+            "ms": 1100,
+            "priority": 2
+          },
+          {
+            "on": "weapon_level_p2",
+            "change": "up",
+            "step": 1,
+            "when": {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "text": "2P POWER UP",
+            "color": "#60c8ff",
+            "font": "8x13B",
+            "ms": 1100,
+            "priority": 2
+          },
+          {
+            "on": "credits",
+            "change": "up",
+            "when": {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "text": "CREDIT {credits}",
+            "icon": [".###.", "#ooo#", "#o#o#", "#ooo#", ".###."],
+            "colors": {
+              "#": "#c87d0f",
+              "o": "#ffc828"
+            },
+            "icon_scale": 2,
+            "color": "#ffc828",
+            "font": "8x13B",
+            "ms": 1500,
+            "priority": 1.5
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "title": "Street Fighter II': Champion Edition",
+  "note": "Capcom CPS1 fighting game: health, health_p2, rounds, rounds_p2, time, 12 characters (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS1",
+  "match": [
+    {
+      "system": ["sf2ce", "sf2acc", "sf2acca", "sf2accp2", "sf2amf", "sf2amf10", "sf2amf11", "sf2amf12", "sf2amf13", "sf2amf14", "sf2amf2", "sf2amf3", "sf2amf4", "sf2amf5", "sf2amf6", "sf2amf7", "sf2amf8", "sf2amf9", "sf2bhh", "sf2bs", "sf2ceb", "sf2ceb2", "sf2ceb3", "sf2ceb4", "sf2ceb5", "sf2ceblp", "sf2cebltw", "sf2cebr", "sf2ceda", "sf2ceea", "sf2ceeab2", "sf2ceeab3", "sf2ceeabl", "sf2ceec", "sf2ceh", "sf2ceja", "sf2cejab2", "sf2cejabl", "sf2cejb", "sf2cejc", "sf2cems6a", "sf2cet", "sf2ceua", "sf2ceuab2", "sf2ceuab3", "sf2ceuab4", "sf2ceuab5", "sf2ceuab6", "sf2ceuab7", "sf2ceuab8", "sf2ceuab9", "sf2ceuabl", "sf2ceub", "sf2ceuc", "sf2ceucbl", "sf2ceupl", "sf2cre", "sf2dkot2", "sf2dongb", "sf2gm", "sf2koryu", "sf2koryu2", "sf2koryu3", "sf2koryua", "sf2level", "sf2md", "sf2mdt", "sf2mdta", "sf2mdtb", "sf2mdtc", "sf2mega", "sf2mega2", "sf2mix", "sf2mkot", "sf2mkot2", "sf2rb", "sf2rb2", "sf2rb3", "sf2rb4", "sf2rb5", "sf2rb6", "sf2re", "sf2red", "sf2red2", "sf2reda", "sf2redp2", "sf2sl73a", "sf2tlona", "sf2tlona2", "sf2tlonb", "sf2tlonb2", "sf2tlonc", "sf2tlonc2", "sf2v004", "sf2v0042", "sf2v0043", "sf2yyc", "sf2yyc2"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xFF0000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["sf2ce", "sf2acc", "sf2acca", "sf2accp2", "sf2amf", "sf2amf10", "sf2amf11", "sf2amf12", "sf2amf13", "sf2amf14", "sf2amf2", "sf2amf3", "sf2amf4", "sf2amf5", "sf2amf6", "sf2amf7", "sf2amf8", "sf2amf9", "sf2bhh", "sf2bs", "sf2ceb", "sf2ceb2", "sf2ceb3", "sf2ceb4", "sf2ceb5", "sf2ceblp", "sf2cebltw", "sf2cebr", "sf2ceda", "sf2ceea", "sf2ceeab2", "sf2ceeab3", "sf2ceeabl", "sf2ceec", "sf2ceh", "sf2ceja", "sf2cejab2", "sf2cejabl", "sf2cejb", "sf2cejc", "sf2cems6a", "sf2cet", "sf2ceua", "sf2ceuab2", "sf2ceuab3", "sf2ceuab4", "sf2ceuab5", "sf2ceuab6", "sf2ceuab7", "sf2ceuab8", "sf2ceuab9", "sf2ceuabl", "sf2ceub", "sf2ceuc", "sf2ceucbl", "sf2ceupl", "sf2cre", "sf2dkot2", "sf2dongb", "sf2gm", "sf2koryu", "sf2koryu2", "sf2koryu3", "sf2koryua", "sf2level", "sf2md", "sf2mdt", "sf2mdta", "sf2mdtb", "sf2mdtc", "sf2mega", "sf2mega2", "sf2mix", "sf2mkot", "sf2mkot2", "sf2rb", "sf2rb2", "sf2rb3", "sf2rb4", "sf2rb5", "sf2rb6", "sf2re", "sf2red", "sf2red2", "sf2reda", "sf2redp2", "sf2sl73a", "sf2tlona", "sf2tlona2", "sf2tlonb", "sf2tlonb2", "sf2tlonc", "sf2tlonc2", "sf2v004", "sf2v0042", "sf2v0043", "sf2yyc", "sf2yyc2"]
+  },
+  "titles": {
+    "sf2mdt": "Street Fighter II': Magic Delta Turbo",
+    "sf2mdta": "Street Fighter II': Magic Delta Turbo",
+    "sf2mdtb": "Street Fighter II': Magic Delta Turbo",
+    "sf2mdtc": "Street Fighter II': Magic Delta Turbo",
+    "sf2mkot": "Street Fighter II': Magic KO Turbo!! - Nightmare Crack",
+    "sf2mkot2": "Street Fighter II': Magic KO Turbo!! - Nightmare Crack",
+    "sf2bs": "Street Fighter II': BONUS STAGE",
+    "sf2mix": "Street Fighter II Mix",
+    "sf2cre": "Street Fighter II': Champion Re-Edit"
+  },
+  "scene_from": "cps_combat",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "health": {
+        "addr": "0xFF83E9",
+        "type": "u8",
+        "note": "player 1 health in %, full = 0x90 (FBNeo cheat database, Infinite Energy PL1)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xC8"
+      },
+      "health_p2": {
+        "addr": "0xFF86E9",
+        "type": "u8",
+        "note": "player 2 health in %, full = 0x90 (FBNeo cheat database, Infinite Energy PL2)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xC8"
+      },
+      "rounds": {
+        "addr": "0xFF864E",
+        "type": "u8",
+        "note": "rounds won by player 1 (FBNeo cheat database, Rounds won always set = 0 PL1)"
+      },
+      "rounds_p2": {
+        "addr": "0xFF894E",
+        "type": "u8",
+        "note": "rounds won by player 2 (FBNeo cheat database, Rounds won always set = 0 PL2)"
+      },
+      "time": {
+        "addr": "0xFF8ABE",
+        "type": "bcd",
+        "bytes": 1,
+        "note": "timer (FBNeo cheat database, Infinite Time)"
+      },
+      "_p1_chr": {
+        "addr": "0xFF864F",
+        "type": "u8",
+        "note": "player 1 character (FBNeo cheat database, Select Character PL1)"
+      },
+      "_p2_chr": {
+        "addr": "0xFF894F",
+        "type": "u8",
+        "note": "player 2 or computer character (FBNeo cheat database, Select Character PL2)"
+      },
+      "backdrop": {
+        "addr": "0xFFDD5F",
+        "type": "u8",
+        "note": "stage backdrop, picks the HD theme in hd.stages (FBNeo cheat database, Select Background)"
+      }
+    }
+  },
+  "derived": {
+    "p1_char": {
+      "value": "_p1_chr",
+      "names": {
+        "0": "RYU",
+        "1": "E. HONDA",
+        "2": "BLANKA",
+        "3": "GUILE",
+        "4": "KEN",
+        "5": "CHUN LI",
+        "6": "ZANGIEF",
+        "7": "DHALSIM",
+        "8": "M. BISON",
+        "9": "SAGAT",
+        "10": "BALROG",
+        "11": "VEGA"
+      }
+    },
+    "p2_char": {
+      "value": "_p2_chr",
+      "names": {
+        "0": "RYU",
+        "1": "E. HONDA",
+        "2": "BLANKA",
+        "3": "GUILE",
+        "4": "KEN",
+        "5": "CHUN LI",
+        "6": "ZANGIEF",
+        "7": "DHALSIM",
+        "8": "M. BISON",
+        "9": "SAGAT",
+        "10": "BALROG",
+        "11": "VEGA"
+      }
+    }
+  },
+  "activity": {
+    "values": ["time", "health", "health_p2"],
+    "moving": ["time", "health", "health_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "health": 100,
+    "health_p2": 100,
+    "time": 99,
+    "_p1_chr": 0,
+    "_p2_chr": 1
+  },
+  "hd": {
+    "stages": ["fight_castle", "fight_temple", "fight_jungle", "fight_base", "fight_harbor", "fight_market", "fight_factory", "fight_palace", "fight_thai", "fight_thai", "fight_city", "fight_city"],
+    "places": [
+      ["JAPON", "JAPAN"],
+      ["JAPON", "JAPAN"],
+      ["BRÉSIL", "BRAZIL"],
+      ["ÉTATS-UNIS", "USA"],
+      ["ÉTATS-UNIS", "USA"],
+      ["CHINE", "CHINA"],
+      ["URSS", "USSR"],
+      ["INDE", "INDIA"],
+      ["THAÏLANDE", "THAILAND"],
+      ["THAÏLANDE", "THAILAND"],
+      ["ÉTATS-UNIS", "USA"],
+      ["ESPAGNE", "SPAIN"]
+    ],
+    "note": "HD theme and place shown for each backdrop value (index = value), made by tools/cps_games.py from the stages of the cheat database, see README, HD themes"
+  }
+}

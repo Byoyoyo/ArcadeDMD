@@ -1,0 +1,832 @@
+{
+  "title": "Final Fight: Anniversary Edition",
+  "note": "Capcom CPS2 action game: no value known yet (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS2",
+  "match": [
+    {
+      "system": ["ffightaec2", "ffightaec2ds"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xFF0000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["ffightaec2", "ffightaec2ds"]
+  },
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "score": {
+        "addr": "",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+      },
+      "score_p2": {
+        "addr": "",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+      }
+    }
+  },
+  "demo": {
+    "credits": 0,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "score": 0,
+    "sim": {}
+  },
+  "scene": {
+    "layers": [
+      {
+        "type": "rect",
+        "x": 0,
+        "y": 17,
+        "w": 128,
+        "h": 9,
+        "color": "#b48c8c",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 14,
+        "y": 19,
+        "w": 6,
+        "h": 7,
+        "color": "#2a1e22",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 58,
+        "y": 19,
+        "w": 6,
+        "h": 7,
+        "color": "#2a1e22",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 102,
+        "y": 19,
+        "w": 6,
+        "h": 7,
+        "color": "#2a1e22",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 4,
+        "y": 18,
+        "w": 5,
+        "h": 3,
+        "color": "#3c4660",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 26,
+        "y": 18,
+        "w": 5,
+        "h": 3,
+        "color": "#3c4660",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 40,
+        "y": 18,
+        "w": 5,
+        "h": 3,
+        "color": "#3c4660",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 70,
+        "y": 18,
+        "w": 5,
+        "h": 3,
+        "color": "#3c4660",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 84,
+        "y": 18,
+        "w": 5,
+        "h": 3,
+        "color": "#3c4660",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 114,
+        "y": 18,
+        "w": 5,
+        "h": 3,
+        "color": "#3c4660",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "x": 0,
+        "y": 26,
+        "w": 128,
+        "h": 6,
+        "color": "#9a9ca4",
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "sprite",
+        "image": ["sprites/runner.png"],
+        "frames": 2,
+        "fps": 8,
+        "mode": "pingpong",
+        "x0": 4,
+        "x1": 50,
+        "speed": 8,
+        "face": "right",
+        "y": 22,
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "shoot": {
+          "on": ["score"],
+          "dx": 8,
+          "dy": 3,
+          "speed": 90,
+          "color": "#ffffff",
+          "gap": 0.2
+        }
+      },
+      {
+        "type": "text",
+        "font": "6x10",
+        "x": 1,
+        "y": 1,
+        "align": "left",
+        "segments": [
+          {
+            "text": "{score}",
+            "color": "#ffa830"
+          }
+        ],
+        "when": {
+          "has": "score"
+        },
+        "flash": {
+          "on": "score",
+          "color": "#ffffff",
+          "ms": 120
+        }
+      },
+      {
+        "type": "marquee",
+        "font": "6x10",
+        "y": 1,
+        "x": 0,
+        "w": 56,
+        "speed": 12,
+        "gap": 40,
+        "upper": true,
+        "segments": [
+          {
+            "text": "{title}",
+            "color": "#ffd030"
+          }
+        ],
+        "when": {
+          "not": {
+            "has": "score"
+          }
+        },
+        "static_if_fits": true
+      },
+      {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "segments": [
+          {
+            "text": "{score_p2}",
+            "color": "#ffa830"
+          }
+        ],
+        "when": {
+          "all": [
+            {
+              "var": "p2_mode",
+              "in": [
+                1,
+                2
+              ]
+            },
+            {
+              "has": "score_p2"
+            }
+          ]
+        }
+      },
+      {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "INSERT COIN",
+        "color": "#ffa830",
+        "when": {
+          "all": [
+            {
+              "not": {
+                "var": "p2_mode",
+                "in": [
+                  1,
+                  2
+                ]
+              }
+            },
+            {
+              "not": {
+                "var": "credits",
+                "gt": 0
+              }
+            }
+          ]
+        },
+        "blink_period": 1.0
+      },
+      {
+        "type": "cycle",
+        "period": 1.5,
+        "when": {
+          "all": [
+            {
+              "not": {
+                "var": "p2_mode",
+                "in": [
+                  1,
+                  2
+                ]
+              }
+            },
+            {
+              "var": "credits",
+              "gt": 0
+            }
+          ]
+        },
+        "pages": [
+          {
+            "layers": [
+              {
+                "type": "text",
+                "font": "6x10",
+                "x": 127,
+                "y": 1,
+                "align": "right",
+                "text": "CREDITS {credits}",
+                "color": "#ffa830"
+              }
+            ]
+          },
+          {
+            "layers": [
+              {
+                "type": "text",
+                "font": "6x10",
+                "x": 127,
+                "y": 1,
+                "align": "right",
+                "text": "PRESS START",
+                "color": "#ffa830"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "gauge",
+        "var": "health",
+        "max": 100,
+        "x": 1,
+        "y": 13,
+        "w": 46,
+        "h": 4,
+        "color": "#ffd020",
+        "low": "#ff4040",
+        "back": "#a01818",
+        "bevel": "#fff0b0",
+        "shade": false,
+        "when": {
+          "all": [
+            {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "has": "health"
+            }
+          ]
+        },
+        "flash": {
+          "on": "health",
+          "color": "#ffffff",
+          "ms": 300
+        }
+      },
+      {
+        "type": "text",
+        "font": "6x10",
+        "x": 64,
+        "y": 11,
+        "align": "center",
+        "segments": [
+          {
+            "text": "{time}",
+            "color": "#b090ff"
+          }
+        ],
+        "when": {
+          "all": [
+            {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "has": "time"
+            }
+          ]
+        }
+      },
+      {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 11,
+        "align": "right",
+        "segments": [
+          {
+            "text": "={lives}",
+            "color": "#ffe080"
+          }
+        ],
+        "when": {
+          "all": [
+            {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "has": "lives"
+            },
+            {
+              "not": {
+                "var": "p2_mode",
+                "in": [
+                  1,
+                  2
+                ]
+              }
+            }
+          ]
+        },
+        "flash": {
+          "on": "lives",
+          "color": "#ff4040",
+          "ms": 600
+        }
+      },
+      {
+        "type": "coinop",
+        "when": {
+          "all": [
+            {
+              "has": "p1_mode"
+            },
+            {
+              "not": {
+                "var": "p1_mode",
+                "in": [
+                  1,
+                  2
+                ]
+              }
+            },
+            {
+              "not": {
+                "var": "p2_mode",
+                "in": [
+                  1,
+                  2
+                ]
+              }
+            }
+          ]
+        },
+        "title": [
+          {
+            "text": "{title}",
+            "color": "#ffd030"
+          }
+        ],
+        "idle_image": ["sprites/insert_coin.gif", "sprites/insert_coin.png"]
+      }
+    ]
+  },
+  "hd": {
+    "scene": "ffight"
+  },
+  "demo_hand": true,
+  "activity": {
+    "values": ["score", "score_p2"],
+    "moving": ["score", "score_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
+  }
+}

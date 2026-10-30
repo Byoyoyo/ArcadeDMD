@@ -1,0 +1,142 @@
+{
+  "title": "X-Men: Children of the Atom",
+  "note": "Capcom CPS2 fighting game: health, health_p2, time, power, power_p2, 13 characters (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS2",
+  "match": [
+    {
+      "system": ["xmcota", "xmcotaa", "xmcotaar1", "xmcotaar2", "xmcotab", "xmcotabh", "xmcotah", "xmcotahr1", "xmcotaj", "xmcotaj1", "xmcotaj2", "xmcotaj3", "xmcotajr", "xmcotar1", "xmcotar1d", "xmcotatag", "xmcotau"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xFF0000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["xmcota", "xmcotaa", "xmcotaar1", "xmcotaar2", "xmcotab", "xmcotabh", "xmcotah", "xmcotahr1", "xmcotaj", "xmcotaj1", "xmcotaj2", "xmcotaj3", "xmcotajr", "xmcotar1", "xmcotar1d", "xmcotatag", "xmcotau"]
+  },
+  "scene_from": "cps_combat",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "health": {
+        "addr": "0xFF4191",
+        "type": "u8",
+        "note": "player 1 health in %, full = 0x8F (FBNeo cheat database, Infinite Energy PL1)",
+        "mult": 0.699301,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xC7"
+      },
+      "health_p2": {
+        "addr": "0xFF4591",
+        "type": "u8",
+        "note": "player 2 health in %, full = 0x8F (FBNeo cheat database, Infinite Energy PL2)",
+        "mult": 0.699301,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xC7"
+      },
+      "time": {
+        "addr": "0xFF4808",
+        "type": "bcd",
+        "bytes": 1,
+        "note": "timer (FBNeo cheat database, Infinite Time)"
+      },
+      "power": {
+        "addr": "0xFF4198",
+        "type": "u8",
+        "note": "super gauge of player 1 in %, full = 0x2 (FBNeo cheat database)",
+        "mult": 50.0,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "power_p2": {
+        "addr": "0xFF4598",
+        "type": "u8",
+        "note": "super gauge of player 2 in %, full = 0x2 (FBNeo cheat database)",
+        "mult": 50.0,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "_p1_chr": {
+        "addr": "0xFF4051",
+        "type": "u8",
+        "note": "player 1 character (FBNeo cheat database, Select Character PL1)"
+      },
+      "_p2_chr": {
+        "addr": "0xFF4451",
+        "type": "u8",
+        "note": "player 2 or computer character (FBNeo cheat database, Select Character PL2)"
+      },
+      "backdrop": {
+        "addr": "0xFF488F",
+        "type": "u8",
+        "note": "stage backdrop, picks the HD theme in hd.stages (FBNeo cheat database, Select Background)"
+      }
+    }
+  },
+  "derived": {
+    "p1_char": {
+      "value": "_p1_chr",
+      "names": {
+        "0": "WOLVERINE",
+        "2": "PSYLOCKE",
+        "4": "COLOSSUS",
+        "6": "CYCLOPS",
+        "8": "STORM",
+        "10": "ICEMAN",
+        "12": "SPIRAL",
+        "14": "S.SAMURAI",
+        "16": "OMEGA RED",
+        "18": "SENTINEL",
+        "20": "#JUGGERNAUT",
+        "22": "#MAGNETO",
+        "24": "#GOUKI"
+      }
+    },
+    "p2_char": {
+      "value": "_p2_chr",
+      "names": {
+        "0": "WOLVERINE",
+        "2": "PSYLOCKE",
+        "4": "COLOSSUS",
+        "6": "CYCLOPS",
+        "8": "STORM",
+        "10": "ICEMAN",
+        "12": "SPIRAL",
+        "14": "S.SAMURAI",
+        "16": "OMEGA RED",
+        "18": "SENTINEL",
+        "20": "#JUGGERNAUT",
+        "22": "#MAGNETO",
+        "24": "#GOUKI"
+      }
+    }
+  },
+  "activity": {
+    "values": ["time", "health", "health_p2"],
+    "moving": ["time", "health", "health_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "health": 100,
+    "health_p2": 100,
+    "time": 99,
+    "_p1_chr": 0,
+    "_p2_chr": 2
+  },
+  "hd": {
+    "stages": ["cs_forest", "fight_temple", "fight_snow", "fight_city", "fight_desert", "fight_snow", "fight_lab", "fight_castle", "fight_factory", "fight_lab", "fight_ruins", "space"],
+    "places": ["", "", "", "", "", "", "", "", "", "", "", ""],
+    "note": "HD theme and place shown for each backdrop value (index = value), made by tools/cps_games.py from the stages of the cheat database, see README, HD themes"
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "title": "Hyper Street Fighter II: The Anniversary Edition",
+  "note": "Capcom CPS2 fighting game: health, health_p2, time, credits, power, power_p2, 17 characters (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS2",
+  "match": [
+    {
+      "system": ["hsf2", "hsf230b", "hsf2a", "hsf2app", "hsf2d", "hsf2da", "hsf2df", "hsf2ev2", "hsf2j", "hsf2j1", "hsf2j2", "hsf2jpp", "hsf2pp", "sf2prime"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xFF0000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["hsf2", "hsf230b", "hsf2a", "hsf2app", "hsf2d", "hsf2da", "hsf2df", "hsf2ev2", "hsf2j", "hsf2j1", "hsf2j2", "hsf2jpp", "hsf2pp", "sf2prime"]
+  },
+  "titles": {
+    "hsf2pp": "Hyper Street Fighter II Plus Plus",
+    "hsf2jpp": "Hyper Street Fighter II Plus Plus",
+    "hsf2app": "Hyper Street Fighter II Plus Plus",
+    "sf2prime": "Street Fighter II': Prime"
+  },
+  "scene_from": "cps_combat",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "health": {
+        "addr": "0xFF8367",
+        "type": "u8",
+        "note": "player 1 health in %, full = 0x90 (FBNeo cheat database, Infinite Energy PL1)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xC8"
+      },
+      "health_p2": {
+        "addr": "0xFF8767",
+        "type": "u8",
+        "note": "player 2 health in %, full = 0x90 (FBNeo cheat database, Infinite Energy PL2)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xC8"
+      },
+      "time": {
+        "addr": "0xFF8BFC",
+        "type": "bcd",
+        "bytes": 1,
+        "note": "timer (FBNeo cheat database, Infinite Time)"
+      },
+      "credits": {
+        "addr": "0xFF830A",
+        "type": "u8",
+        "note": "credits (FBNeo cheat database, Infinite Credits)"
+      },
+      "power": {
+        "addr": "0xFF85F0",
+        "type": "u8",
+        "note": "super gauge of player 1 in %, full = 0x30 (FBNeo cheat database)",
+        "mult": 2.083333,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "power_p2": {
+        "addr": "0xFF89F0",
+        "type": "u8",
+        "note": "super gauge of player 2 in %, full = 0x30 (FBNeo cheat database)",
+        "mult": 2.083333,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "_p1_chr": {
+        "addr": "0xFF8667",
+        "type": "u8",
+        "note": "player 1 character (FBNeo cheat database, Select Character PL1)"
+      },
+      "_p2_chr": {
+        "addr": "0xFF8A67",
+        "type": "u8",
+        "note": "player 2 or computer character (FBNeo cheat database, Select Character PL2)"
+      }
+    }
+  },
+  "derived": {
+    "p1_char": {
+      "value": "_p1_chr",
+      "names": {
+        "0": "RYU",
+        "1": "E. HONDA",
+        "2": "BLANKA",
+        "3": "GUILE",
+        "4": "KEN",
+        "5": "CHUN-LI",
+        "6": "ZANGIEF",
+        "7": "DHALSIM",
+        "8": "M. BISON",
+        "9": "SAGAT",
+        "10": "BALROG",
+        "11": "VEGA",
+        "12": "CAMMY",
+        "13": "T. HAWK",
+        "14": "FEI LONG",
+        "15": "DEE JAY",
+        "16": "#AKUMA/GOUK"
+      }
+    },
+    "p2_char": {
+      "value": "_p2_chr",
+      "names": {
+        "0": "RYU",
+        "1": "E. HONDA",
+        "2": "BLANKA",
+        "3": "GUILE",
+        "4": "KEN",
+        "5": "CHUN-LI",
+        "6": "ZANGIEF",
+        "7": "DHALSIM",
+        "8": "M. BISON",
+        "9": "SAGAT",
+        "10": "BALROG",
+        "11": "VEGA",
+        "12": "CAMMY",
+        "13": "T. HAWK",
+        "14": "FEI LONG",
+        "15": "DEE JAY",
+        "16": "#AKUMA/GOUK"
+      }
+    }
+  },
+  "activity": {
+    "values": ["time", "health", "health_p2"],
+    "moving": ["time", "health", "health_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "health": 100,
+    "health_p2": 100,
+    "time": 99,
+    "_p1_chr": 0,
+    "_p2_chr": 1
+  },
+  "hd": {
+    "stages": ["fight_castle", "fight_temple", "fight_jungle", "fight_base", "fight_harbor", "fight_market", "fight_factory", "fight_palace", "fight_city", "fight_thai"],
+    "note": "HD themes of the fights (one per game, no stage value known), made by tools/cps_games.py"
+  }
+}

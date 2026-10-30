@@ -69,7 +69,7 @@ def family(key):
     for name in ("mslugx", "mslug2", "mslug3", "mslug4", "mslug5", "mslug"):
         if k.startswith(name):
             return name
-    return "mslug" if k.startswith("ms") else ""
+    return "mslug" if k[:2] == "ms" and k[2:3].isdigit() else ""        # ms4plus, ms5plus... but not msword or msh (Capcom)
 
 
 def _n(v):

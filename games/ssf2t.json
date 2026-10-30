@@ -1,0 +1,181 @@
+{
+  "title": "Super Street Fighter II Turbo",
+  "note": "Capcom CPS2 fighting game: health, health_p2, time, power, power_p2, 16 characters (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS2",
+  "match": [
+    {
+      "system": ["ssf2t", "ssf2ta", "ssf2tad", "ssf2td", "ssf2tdf", "ssf2tgmc", "ssf2th", "ssf2tnl", "ssf2ttag", "ssf2tu", "ssf2tuc", "ssf2tur1", "ssf2xdced", "ssf2xj", "ssf2xjjs", "ssf2xjr1", "ssf2xjr1d", "ssf2xjr1r", "ssf2xjr1trn", "ssf2xucj", "usf2t", "usf2xj"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xFF0000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["ssf2t", "ssf2ta", "ssf2tad", "ssf2td", "ssf2tdf", "ssf2tgmc", "ssf2th", "ssf2tnl", "ssf2ttag", "ssf2tu", "ssf2tuc", "ssf2tur1", "ssf2xdced", "ssf2xj", "ssf2xjjs", "ssf2xjr1", "ssf2xjr1d", "ssf2xjr1r", "ssf2xjr1trn", "ssf2xucj", "usf2t", "usf2xj"]
+  },
+  "titles": {
+    "ssf2tnl": "Super Street Fighter II Turbo New Legacy v0.9",
+    "ssf2xj": "Super Street Fighter II X: Grand Master Challenge",
+    "ssf2xjjs": "Super Street Fighter II X: Grand Master Challenge (Original Color HB",
+    "ssf2xjr1": "Super Street Fighter II X: Grand Master Challenge",
+    "ssf2xjr1r": "Super Street Fighter II X: Grand Master Challenge",
+    "ssf2xjr1trn": "Super Street Fighter II X: GMC Trainer",
+    "ssf2xjr1d": "Super Street Fighter II X: Grand Master Challenge",
+    "ssf2ttag": "Super Street Fighter II Turbo Tag",
+    "ssf2xdced": "Super Street Fighter II X: Grand Master Challenge",
+    "ssf2tgmc": "Super Street Fighter II Turbo: Grand Master Challenge",
+    "ssf2tuc": "Super Street Fighter II EX: The Ultimate Championship",
+    "ssf2xucj": "Super Street Fighter II EX: The Ultimate Championship",
+    "usf2t": "Ultra Street Fighter II: The Final Challengers",
+    "usf2xj": "Ultra Street Fighter II: The Final Challengers"
+  },
+  "scene_from": "cps_combat",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "health": {
+        "addr": "0xFF8479",
+        "type": "u8",
+        "note": "player 1 health in %, full = 0x90 (FBNeo cheat database, Infinite Energy PL1)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xC8"
+      },
+      "health_p2": {
+        "addr": "0xFF8879",
+        "type": "u8",
+        "note": "player 2 health in %, full = 0x90 (FBNeo cheat database, Infinite Energy PL2)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xC8"
+      },
+      "time": {
+        "addr": "0xFF8DCE",
+        "type": "bcd",
+        "bytes": 1,
+        "note": "timer (FBNeo cheat database, Infinite Time)"
+      },
+      "power": {
+        "addr": "0xFF8702",
+        "type": "u8",
+        "note": "super gauge of player 1 in %, full = 0x30 (FBNeo cheat database)",
+        "mult": 2.083333,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "power_p2": {
+        "addr": "0xFF8B02",
+        "type": "u8",
+        "note": "super gauge of player 2 in %, full = 0x30 (FBNeo cheat database)",
+        "mult": 2.083333,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "_p1_chr": {
+        "addr": "0xFF87DF",
+        "type": "u8",
+        "note": "player 1 character (FBNeo cheat database, Select Character PL1)"
+      },
+      "_p2_chr": {
+        "addr": "0xFF8BDF",
+        "type": "u8",
+        "note": "player 2 or computer character (FBNeo cheat database, Select Character PL2)"
+      },
+      "backdrop": {
+        "addr": "0xFFE18B",
+        "type": "u8",
+        "note": "stage backdrop, picks the HD theme in hd.stages (FBNeo cheat database, Select Background)"
+      }
+    }
+  },
+  "derived": {
+    "p1_char": {
+      "value": "_p1_chr",
+      "names": {
+        "0": "RYU",
+        "1": "E. HONDA",
+        "2": "BLANKA",
+        "3": "GUILE",
+        "4": "KEN",
+        "5": "CHUN LI",
+        "6": "ZANGIEF",
+        "7": "DHALSIM",
+        "8": "M. BISON",
+        "9": "SAGAT",
+        "10": "BALROG",
+        "11": "VEGA",
+        "12": "CAMMY",
+        "13": "T. HAWK",
+        "14": "FEI LONG",
+        "15": "DEE JAY"
+      }
+    },
+    "p2_char": {
+      "value": "_p2_chr",
+      "names": {
+        "0": "RYU",
+        "1": "E. HONDA",
+        "2": "BLANKA",
+        "3": "GUILE",
+        "4": "KEN",
+        "5": "CHUN LI",
+        "6": "ZANGIEF",
+        "7": "DHALSIM",
+        "8": "M. BISON",
+        "9": "SAGAT",
+        "10": "BALROG",
+        "11": "VEGA",
+        "12": "CAMMY",
+        "13": "T. HAWK",
+        "14": "FEI LONG",
+        "15": "DEE JAY"
+      }
+    }
+  },
+  "activity": {
+    "values": ["time", "health", "health_p2"],
+    "moving": ["time", "health", "health_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "health": 100,
+    "health_p2": 100,
+    "time": 99,
+    "_p1_chr": 0,
+    "_p2_chr": 1
+  },
+  "hd": {
+    "stages": ["fight_castle", "fight_temple", "fight_jungle", "fight_base", "fight_harbor", "fight_market", "fight_factory", "fight_palace", "fight_thai", "fight_thai", "fight_city", "fight_city", "fight_gothic", "fight_desert", "fight_market", "fight_harbor"],
+    "places": [
+      ["JAPON", "JAPAN"],
+      ["JAPON", "JAPAN"],
+      ["BRÉSIL", "BRAZIL"],
+      ["ÉTATS-UNIS", "USA"],
+      ["ÉTATS-UNIS", "USA"],
+      ["CHINE", "CHINA"],
+      ["URSS", "USSR"],
+      ["INDE", "INDIA"],
+      ["THAÏLANDE", "THAILAND"],
+      ["THAÏLANDE", "THAILAND"],
+      ["ÉTATS-UNIS", "USA"],
+      ["ESPAGNE", "SPAIN"],
+      ["ANGLETERRE", "ENGLAND"],
+      ["MEXIQUE", "MEXICO"],
+      ["HONG KONG", "HONG KONG"],
+      ["JAMAÏQUE", "JAMAICA"]
+    ],
+    "note": "HD theme and place shown for each backdrop value (index = value), made by tools/cps_games.py from the stages of the cheat database, see README, HD themes"
+  }
+}

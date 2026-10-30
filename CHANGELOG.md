@@ -3,6 +3,92 @@
 Newest version first. Each version is in English, then in French.
 La version la plus récente en premier. Chaque version est en anglais, puis en français.
 
+## 1.30.0
+
+### English
+
+**Every Capcom CPS1, CPS2 and CPS3 game**
+- Every Capcom CPS1, CPS2 and CPS3 game of FinalBurn Neo is recognized, with MAME as with RetroArch. That makes 88 games and their 942 sets. A version, a bootleg or a hack takes the file of its original game, with its own name when it has one.
+- The values of the cheat database of FinalBurn Neo are read, each player's health, the timer, the lives, the bombs, the super gauge, the characters and their names, the stage, and the credits when the game keeps them. The timer shows when the cheat gives all of it. In 23 games it only gives a part (one digit, the seconds of a clock, a counter that is not the timer seen in the game), ArcadeDMD then reads it only to see that the game runs. The RAM of the CPS3, whose bytes are reversed in 32-bit words, is put back in order.
+- The Capcom games have no BIOS that tells who plays. ArcadeDMD watches the timer, the score once it is learned, and the health in the fighting games. As long as they move, player 1 plays, and after 10 seconds without any change the coin screen comes back. Without them, the game stays on its game scene. When the game's credits are read, a credit spent is a start, player 1 plays from the select screen on.
+- `demo_capcom.bat` plays the demo of a Capcom game, most of them with the coin screen first.
+
+**The Capcom fighting games**
+- 22 fighting games read their stage. The HD screen shows it, with the place under the stage banner (CHINA, INDIA, FEAST OF THE DAMNED...).
+- Eight new fight stages drawn by the program. A castle roof in Japan at night, a Chinese street market, a steel factory, a gothic manor under the moon, an Indian palace at sunset, a golden temple on its river, a laboratory and an air base at dusk.
+- The super gauges, on the bottom line of the panel and under the fighters on the HD screen. Blue as they fill up, gold with MAX when they are full.
+- Street Fighter III: New Generation names its fighters.
+- Street Fighter II, Champion Edition, Hyper Fighting, Super Street Fighter II and Street Fighter Alpha read the rounds won by each player. Gold stars under the bars on the HD screen, gold squares next to the timer on the panel, and the winner of each round from them. In Street Fighter II the health goes below zero at a K.O. and read full, the K.O. was missed and the WIN went to the wrong fighter. A bar below zero now reads empty, in every Capcom game. Street Fighter II also reads its credits and the score, learned on a cabinet. A credit spent switches to the game at the character select, PRESS START no longer stays on.
+
+**The Capcom games done one by one**
+- Fifty Capcom games get a panel scene and an animated HD scene of their own, drawn by the program.
+- The 23 games with characters show like Metal Slug on the HD screen, with no character drawn by the program. The beat'em ups (Final Fight, Captain Commando, Cadillacs and Dinosaurs, The Punisher, The King of Dragons, Knights of the Round, Warriors of Fate, the two Dungeons & Dragons, Alien vs. Predator, Armored Warriors, Battle Circuit), the action games and platformers (Ghouls'n Ghosts, Strider, Mega Twins, Magic Sword, Willow, Nemo, Three Wonders, Dynasty Wars), the two Pang and Mercs. The place of the game stays behind, calm and darker, each player has a panel with what is read in the game (gauge, lives, score, bombs, weapon, level), and the middle shows the logo, the timer when it is read whole, and the credits. The game's events show between the panels. Points are a punch, a shot, a slash, a thrown weapon, a spell or a balloon that bursts, a bomb or a special leaves the panel and the middle blows up, a life lost turns the panel red. Player 2's panel lights up when his values move.
+- The shoot'em ups (1944, 19XX, 1941, Varth, U.N. Squadron, Carrier Air Wing, Forgotten Worlds, Giga Wing, Progear, Mars Matrix, Dimahoo, Eco Fighters, Mercs). Once the score is learned, the enemies blow up when the game scores points, a bomb sweeps the screen, the weapon picked up and the plane chosen are named, and on the panel the plane of the game flies and fires.
+- The puzzle games and quizzes (Super Puzzle Fighter II Turbo, Puzz Loop 2, Capcom Sports Club, Quiz & Dragons, Adventure Quiz Capcom World 2) play by themselves with our own gems, balls, questions and players.
+- Quiz Tonosama no Yabou 2, Quiz Nanairo Dreams, Jyangokushi, Janpai Puzzle Choukou, Gulun.Pa!, Pnickies, Frog Feast, Pokonyan! Balloon, Magical Pumpkin and Ganbare! Marine Kun get theirs too.
+- Final Fight Anniversary Edition, Final Fight EX and Tenchi wo Kurau II CPS Changer take the scene of their game.
+
+**Credits and coins**
+- Under RetroArch most Capcom games do not give their credits. With the coin buttons shown by `coin_buttons.bat`, ArcadeDMD counts them. A coin gives a credit and a player who begins takes one, at the start, at a continue (lives back from 0, or the energy in Mercs) and when player 2 joins in (his values start moving). For an exact count, `learn.bat` can find where the game keeps them.
+- 1944 and Dimahoo keep all their values outside of the memory RetroArch shares. The log says so, launch them with MAME to see everything.
+- Super Puzzle Fighter II Turbo no longer draws two little fighters, the counter gems fly across to the other well and the names read in the game show in the middle.
+- 1944 on the HD screen takes the icons of the game. The bombs as B medals, the side fighters in stock in their frame with their number, the gold crystals picked up, POW in yellow. The side fighters fly at our plane's sides, a bomb is a salvo of missiles, and a big WARNING announces the boss once its address is found.
+- The MAME plugin no longer opens an error window (CPU not found) when MAME starts on its own game list, and no longer sends a game start for it.
+
+**HD screen**
+- The animated backdrops are a little darker so that the information stands out (`"dim"` in the `preview` section, 30 percent by default, 0 to 80).
+- The credits of the fighting games are bigger, on a dark pill.
+
+**Also**
+- Player 2 shows in the Capcom shoot'em ups when his values move, his score that goes up, a life or a bomb spent, a hit taken. He stayed on PRESS START, these games have no BIOS that tells who plays. Giga Wing also reads the bombs and the power of player 2, and its score and credits learned on a cabinet. The credits show under the logo during a game.
+- Mercs reads its timer whole, three digits where only the last one was read (TIME 7), the score of both players learned on a cabinet, the mega crashes of player 2, which leave his panel too, and the weapon of each player, named next to his badge with its power-ups (assault rifle, flamethrower, shotgun, grenade launcher), and the mission, MISSION 1 COMPLETE! when the next one starts. FinalBurn Neo sets it for three players, the README tells how to set it for two (DIP switches).
+- The HD screen gave the Metal Slug scene to Marvel Super Heroes and Magic Sword, their names start like Metal Slug's. Only the Metal Slug games get it now.
+
+**Updating from 1.29.3**
+Extract the new zip over the old folder (`config.json`, your learned addresses and your `artwork` folder are kept).
+
+### Français
+
+**Tous les jeux Capcom CPS1, CPS2 et CPS3**
+- Chaque jeu Capcom CPS1, CPS2 et CPS3 de FinalBurn Neo est reconnu, avec MAME comme avec RetroArch. Ça fait 88 jeux et leurs 942 sets. Une version, un bootleg ou un hack prend le fichier de son jeu d'origine, avec son propre nom quand il en a un.
+- Ce qu'écrit la base de codes de triche de FinalBurn Neo est lu. La vie de chaque joueur, le chrono, les vies, les bombes, la jauge de super, les personnages et leur nom, le décor, et les crédits quand le jeu les garde. Le chrono s'affiche quand la triche le donne en entier. Dans 23 jeux elle n'en donne qu'une partie (un chiffre, les secondes d'une horloge, un compteur qui n'est pas le chrono vu dans le jeu), ArcadeDMD ne le lit alors que pour voir que le jeu tourne. La RAM du CPS3, dont les octets sont inversés par mots de 32 bits, est remise dans l'ordre.
+- Les jeux Capcom n'ont pas de BIOS qui dit qui joue. ArcadeDMD surveille le chrono, le score une fois appris, et la vie dans les jeux de combat. Tant qu'ils bougent, le joueur 1 joue, et au bout de 10 secondes sans le moindre changement l'écran des pièces revient. Sans eux, le jeu reste sur sa scène de jeu. Quand les crédits du jeu sont lus, un crédit dépensé est un départ, le joueur 1 joue dès l'écran de sélection.
+- `demo_capcom.bat` lance la démo d'un jeu Capcom, la plupart avec l'écran des pièces d'abord.
+
+**Les jeux de combat Capcom**
+- 22 jeux de combat lisent leur décor. L'écran HD le montre, avec le lieu sous le bandeau du décor (CHINE, INDE, FEAST OF THE DAMNED...).
+- Huit nouveaux décors de combat dessinés par le programme. Un toit de château au Japon la nuit, un marché chinois, une aciérie, un manoir gothique sous la lune, un palais indien au couchant, un temple d'or au bord de son fleuve, un laboratoire et une base aérienne au crépuscule.
+- Les jauges de super, sur la ligne du bas de la dalle et sous les combattants sur l'écran HD. Bleues quand elles se remplissent, dorées avec MAX quand elles sont pleines.
+- Street Fighter III: New Generation donne le nom de ses combattants.
+- Street Fighter II, Champion Edition, Hyper Fighting, Super Street Fighter II et Street Fighter Alpha lisent les rounds gagnés par chaque joueur. Des étoiles dorées sous les barres sur l'écran HD, des carrés dorés à côté du chrono sur la dalle, et le vainqueur de chaque round d'après eux. Dans Street Fighter II la vie passe sous zéro au K.O. et se lisait pleine, le K.O. était raté et le WIN allait au mauvais combattant. Une barre sous zéro se lit maintenant vide, dans tous les jeux Capcom. Street Fighter II lit aussi ses crédits et le score, appris sur une borne. Un crédit dépensé passe au jeu dès la sélection des personnages, PRESS START ne reste plus affiché.
+
+**Les jeux Capcom faits un par un**
+- Cinquante jeux Capcom ont une scène de dalle et une scène HD animée à leur image, dessinées par le programme.
+- Les 23 jeux à personnages s'affichent façon Metal Slug sur l'écran HD, sans personnage dessiné par le programme. Les beat'em up (Final Fight, Captain Commando, Cadillacs and Dinosaurs, The Punisher, The King of Dragons, Knights of the Round, Warriors of Fate, les deux Dungeons & Dragons, Alien vs. Predator, Armored Warriors, Battle Circuit), les jeux d'action et de plateformes (Ghouls'n Ghosts, Strider, Mega Twins, Magic Sword, Willow, Nemo, Three Wonders, Dynasty Wars), les deux Pang et Mercs. Le décor du jeu reste derrière, calme et plus sombre, chaque joueur a un panneau avec ce qui est lu dans le jeu (jauge, vies, score, bombes, arme, niveau), et le milieu montre le logo, le chrono quand il est lu en entier, et les crédits. Les événements du jeu se voient entre les panneaux. Des points font un coup de poing, un tir, une entaille, une arme lancée, un sort ou un ballon qui éclate, une bombe ou un coup spécial part du panneau et le milieu explose, une vie perdue fait rougir le panneau. Le panneau du joueur 2 s'allume quand ses valeurs bougent.
+- Les shoot'em up (1944, 19XX, 1941, Varth, U.N. Squadron, Carrier Air Wing, Forgotten Worlds, Giga Wing, Progear, Mars Matrix, Dimahoo, Eco Fighters, Mercs). Une fois le score appris, les ennemis explosent quand le jeu marque des points, une bombe balaie l'écran, l'arme ramassée et l'avion choisi sont nommés, et sur la dalle l'avion du jeu vole et tire.
+- Les jeux de réflexion et les quiz (Super Puzzle Fighter II Turbo, Puzz Loop 2, Capcom Sports Club, Quiz & Dragons, Adventure Quiz Capcom World 2) jouent tout seuls avec nos propres gemmes, billes, questions et joueurs.
+- Quiz Tonosama no Yabou 2, Quiz Nanairo Dreams, Jyangokushi, Janpai Puzzle Choukou, Gulun.Pa!, Pnickies, Frog Feast, Pokonyan! Balloon, Magical Pumpkin et Ganbare! Marine Kun ont aussi les leurs.
+- Final Fight Anniversary Edition, Final Fight EX et Tenchi wo Kurau II CPS Changer prennent la scène de leur jeu.
+
+**Crédits et pièces**
+- Sous RetroArch la plupart des jeux Capcom ne donnent pas leurs crédits. Avec les boutons des pièces montrés par `coin_buttons.bat`, ArcadeDMD les compte. Une pièce donne un crédit et un joueur qui commence en prend un, au départ, à un continue (les vies qui reviennent de 0, ou l'énergie dans Mercs) et quand le joueur 2 arrive (ses valeurs se mettent à bouger). Pour un compte exact, `learn.bat` peut trouver où le jeu les garde.
+- 1944 et Dimahoo gardent toutes leurs valeurs hors de la mémoire que RetroArch partage. Le journal le dit, lance-les avec MAME pour tout voir.
+- Super Puzzle Fighter II Turbo ne dessine plus deux petits combattants, les gemmes à compteur volent vers l'autre puits et les noms lus dans le jeu s'affichent au milieu.
+- 1944 prend les icônes du jeu sur l'écran HD. Les bombes en médailles B, l'escorte en réserve dans son cadre avec son nombre, les cristaux d'or ramassés, POW en jaune. Les chasseurs d'escorte volent à côté de notre avion, une bombe est une salve de missiles, et un grand WARNING annonce le boss une fois son adresse trouvée.
+- Le plugin MAME n'ouvre plus de fenêtre d'erreur (CPU introuvable) quand MAME démarre sur sa liste de jeux, et n'envoie plus de départ de partie pour elle.
+
+**Écran HD**
+- Les décors animés sont un peu assombris pour que les infos ressortent (`"dim"` dans la section `preview`, 30 % par défaut, de 0 à 80).
+- Les crédits des jeux de combat sont plus gros, sur une pastille sombre.
+
+**Aussi**
+- Le joueur 2 apparaît dans les shoot'em up Capcom quand ses valeurs bougent, son score qui monte, une vie ou une bombe en moins, un coup reçu. Il restait sur PRESS START, ces jeux n'ont pas de BIOS qui dit qui joue. Giga Wing lit aussi les bombes et la puissance du joueur 2, et son score et ses crédits appris sur une borne. Les crédits s'affichent sous le logo pendant la partie.
+- Mercs lit son chrono en entier, trois chiffres dont seul le dernier était lu (TIME 7), le score des deux joueurs appris sur une borne, les méga attaques du joueur 2, qui partent aussi de son panneau, et l'arme de chaque joueur, nommée à côté de son badge avec ses POW (fusil d'assaut, lance-flammes, fusil à pompe, lance-grenades), et la mission, MISSION 1 ACCOMPLIE ! quand la suivante commence. FinalBurn Neo le règle pour trois joueurs, le README dit comment le régler pour deux (DIP switches).
+- L'écran HD donnait la scène de Metal Slug à Marvel Super Heroes et à Magic Sword, leur nom commence comme celui de Metal Slug. Seuls les Metal Slug l'ont maintenant.
+
+**Mettre à jour depuis la 1.29.3**
+Décompresse le nouveau zip par-dessus l'ancien dossier (`config.json`, tes adresses apprises et ton dossier `artwork` sont gardés).
+
 ## 1.29.3
 
 ### English

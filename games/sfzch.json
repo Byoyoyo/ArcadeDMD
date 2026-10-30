@@ -1,0 +1,37 @@
+{
+  "title": "Street Fighter Zero",
+  "note": "Capcom CPS1 fighting game: no value known yet (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS1",
+  "match": [
+    {
+      "system": ["sfzch", "sfach", "sfzach", "sfzbch", "sfzcha", "sfzech", "sfzhch"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xFF0000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["sfzch", "sfach", "sfzach", "sfzbch", "sfzcha", "sfzech", "sfzhch"]
+  },
+  "titles": {
+    "sfach": "Street Fighter Alpha: Warriors' Dreams"
+  },
+  "scene_from": "cps_combat",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {}
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "health": 100,
+    "health_p2": 100
+  },
+  "hd": {
+    "stages": ["fight_castle", "fight_temple", "fight_jungle", "fight_base", "fight_harbor", "fight_market", "fight_factory", "fight_palace", "fight_city", "fight_thai"],
+    "note": "HD themes of the fights (one per game, no stage value known), made by tools/cps_games.py"
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "title": "Ring of Destruction: Slammasters II",
+  "note": "Capcom CPS2 fighting game: health, health_p2, time, credits (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS2",
+  "match": [
+    {
+      "system": ["ringdest", "ringdesta", "ringdestb", "ringdesth", "ringdstd", "smbomb", "smbombr1"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xFF0000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["ringdest", "ringdesta", "ringdestb", "ringdesth", "ringdstd", "smbomb", "smbombr1"]
+  },
+  "titles": {
+    "smbomb": "Super Muscle Bomber: The International Blowout",
+    "smbombr1": "Super Muscle Bomber: The International Blowout"
+  },
+  "scene_from": "cps_combat",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "health": {
+        "addr": "0xFF802C",
+        "type": "be",
+        "bytes": 2,
+        "note": "player 1 health in %, full = 0x116 (FBNeo cheat database, Infinite Energy PL1)",
+        "mult": 0.359712,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0x808B"
+      },
+      "health_p2": {
+        "addr": "0xFF842C",
+        "type": "be",
+        "bytes": 2,
+        "note": "player 2 health in %, full = 0x116 (FBNeo cheat database, Infinite Energy PL2)",
+        "mult": 0.359712,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0x808B"
+      },
+      "time": {
+        "addr": "0xFF72CA",
+        "type": "bcd",
+        "bytes": 1,
+        "note": "timer (FBNeo cheat database, Infinite Time)"
+      },
+      "credits": {
+        "addr": "0xFF726E",
+        "type": "u8",
+        "note": "credits (FBNeo cheat database, Infinite Credits)"
+      }
+    }
+  },
+  "activity": {
+    "values": ["time", "health", "health_p2"],
+    "moving": ["time", "health", "health_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "health": 100,
+    "health_p2": 100,
+    "time": 99
+  },
+  "hd": {
+    "stages": ["arena"],
+    "note": "HD themes of the fights (one per game, no stage value known), made by tools/cps_games.py"
+  }
+}

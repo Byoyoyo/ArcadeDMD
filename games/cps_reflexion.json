@@ -1,0 +1,266 @@
+{
+  "note": "Shared scene of the Capcom CPS games (reflexion), made by tools/cps_games.py from games/neogeo_reflexion.json. The games take it with scene_from.",
+  "generated": "tools/cps_games.py",
+  "scene": {
+    "layers": [
+      {
+        "type": "sprite",
+        "image": ["sprites/blocks.png"],
+        "frames": 6,
+        "fps": 1.5,
+        "mode": "fixed",
+        "x": 0,
+        "y": 27
+      },
+      {
+        "type": "marquee",
+        "segments": [
+          {
+            "text": "{title}",
+            "color": "#e6e6e6"
+          }
+        ],
+        "font": "6x10",
+        "y": 0,
+        "speed": 12,
+        "gap": 40,
+        "upper": true,
+        "static_if_fits": true
+      },
+      {
+        "type": "marquee",
+        "segments": [
+          {
+            "text": "{title}",
+            "color": "#ececec"
+          }
+        ],
+        "font": "7x14",
+        "y": 11,
+        "x": 0,
+        "w": 128,
+        "speed": 14,
+        "gap": 40,
+        "upper": true,
+        "static_if_fits": true,
+        "when": {
+          "not": {
+            "any": [
+              {
+                "has": "score"
+              },
+              {
+                "has": "lives"
+              },
+              {
+                "has": "credits"
+              },
+              {
+                "has": "health"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "text",
+        "font": "7x14",
+        "x": 64,
+        "y": 8,
+        "align": "center",
+        "segments": [
+          {
+            "text": "CREDITS ",
+            "color": "#30d8ff"
+          },
+          {
+            "text": "{credits}",
+            "color": "#ffc830"
+          }
+        ],
+        "when": {
+          "all": [
+            {
+              "has": "credits"
+            },
+            {
+              "not": {
+                "any": [
+                  {
+                    "has": "score"
+                  },
+                  {
+                    "has": "lives"
+                  },
+                  {
+                    "has": "health"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "flash": {
+          "on": "credits",
+          "color": "#ffffff",
+          "ms": 400
+        }
+      },
+      {
+        "type": "text",
+        "font": "7x14",
+        "x": 1,
+        "y": 8,
+        "align": "left",
+        "text": "P1",
+        "color": "#30ff60",
+        "when": {
+          "has": "score"
+        }
+      },
+      {
+        "type": "text",
+        "font": "7x14",
+        "x": 20,
+        "y": 8,
+        "align": "left",
+        "text": "{score}",
+        "color": "#ececec",
+        "when": {
+          "has": "score"
+        },
+        "flash": {
+          "on": "score",
+          "color": "#a8ffbc",
+          "ms": 120
+        }
+      },
+      {
+        "type": "text",
+        "font": "7x14",
+        "x": 127,
+        "y": 8,
+        "align": "right",
+        "segments": [
+          {
+            "text": "P2 ",
+            "color": "#30d8ff"
+          },
+          {
+            "text": "{score_p2}",
+            "color": "#ffc830"
+          }
+        ],
+        "when": {
+          "has": "score_p2"
+        },
+        "flash": {
+          "on": "score_p2",
+          "color": "#fff4c8",
+          "ms": 120
+        }
+      },
+      {
+        "type": "text",
+        "font": "7x14",
+        "x": 127,
+        "y": 8,
+        "align": "right",
+        "segments": [
+          {
+            "text": "LIVES ",
+            "color": "#30d8ff"
+          },
+          {
+            "text": "{lives}",
+            "color": "#ffc830"
+          }
+        ],
+        "when": {
+          "all": [
+            {
+              "has": "lives"
+            },
+            {
+              "not": {
+                "has": "score_p2"
+              }
+            }
+          ]
+        },
+        "flash": {
+          "on": "lives",
+          "color": "#ff4040",
+          "ms": 600
+        }
+      },
+      {
+        "type": "cycle",
+        "period": 4,
+        "when": {
+          "not": {
+            "has": "health"
+          }
+        },
+        "pages": [
+          {
+            "when": {
+              "has": "bombs"
+            },
+            "layers": [
+              {
+                "type": "text",
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "text": "BOMBS {bombs}",
+                "color": "#30d8ff",
+                "flash": {
+                  "on": "bombs",
+                  "color": "#ffffff",
+                  "ms": 300
+                }
+              }
+            ]
+          },
+          {
+            "when": {
+              "all": [
+                {
+                  "has": "credits"
+                },
+                {
+                  "any": [
+                    {
+                      "has": "score"
+                    },
+                    {
+                      "has": "lives"
+                    }
+                  ]
+                }
+              ]
+            },
+            "layers": [
+              {
+                "type": "text",
+                "font": "6x10",
+                "x": 64,
+                "y": 19,
+                "align": "center",
+                "text": "CREDITS {credits}",
+                "color": "#30d8ff",
+                "flash": {
+                  "on": "credits",
+                  "color": "#ffffff",
+                  "ms": 400
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

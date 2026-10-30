@@ -13,7 +13,7 @@
 
 local exports = {
 	name = "arcadedmd",
-	version = "1.29.3",
+	version = "1.30.0",
 	description = "ArcadeDMD",
 	license = "MIT",
 	author = { name = "Byoyoyo" } }
@@ -335,6 +335,7 @@ local function make_reader(space, def)
 	local vmax = tonumber(def.max)
 	local mask = parse_addr(def.mask)
 	local shift = math.tointeger(def.shift)
+	local zero = parse_addr(def.zero_from)    -- a bar gone below zero reads 0xFF...: empty / une barre passee sous zero
 	local doff = parse_addr(def.digit_offset) or 0
 	local raw
 	if t == "u8" then
@@ -392,6 +393,7 @@ local function make_reader(space, def)
 		local v = raw(a)
 		if mask then v = v & mask end
 		if shift then v = v >> shift end
+		if zero and v >= zero then return vmin or 0 end
 		v = v * mult + add
 		if vmin and v < vmin then v = vmin end
 		if vmax and v > vmax then v = vmax end
@@ -450,6 +452,12 @@ local session = nil
 local function start_session()
 	detect_language()
 	local info = machine_info()
+	-- MAME's own game list, no game running: nothing to read, nothing to send
+	-- la liste des jeux de MAME, aucun jeu lancé : rien à lire, rien à envoyer
+	if info.system == "___empty" then
+		session = nil
+		return
+	end
 	local games = load_games()
 	local game = nil
 	-- d'abord les fichiers propres a un jeu, puis les modeles ("fallback", par exemple neogeo.json)
@@ -465,8 +473,12 @@ local function start_session()
 	local cpu_tag = mem.cpu or default_cpu_tag()
 	local space = find_space(cpu_tag, mem.space)
 	if not space then
-		log_error(tr("CPU introuvable : ", "CPU not found: ") .. tostring(cpu_tag)
-			.. tr(" (verifier \"cpu\" dans le fichier du jeu)", " (check \"cpu\" in the game file)"))
+		if mem.cpu then        -- the game file names a CPU that is not there / le fichier du jeu nomme un CPU absent
+			log_error(tr("CPU introuvable : ", "CPU not found: ") .. tostring(cpu_tag)
+				.. tr(" (verifier \"cpu\" dans le fichier du jeu)", " (check \"cpu\" in the game file)"))
+		else                   -- a machine without a CPU to read: no window, a line in the log
+			log(tr("aucun CPU a lire pour ", "no CPU to read for ") .. tostring(info.system))
+		end
 	end
 	local readers, names = {}, {}
 	-- adresses du fichier, plus celles propres au jeu dans un modele ("per_game", barres de vie...)

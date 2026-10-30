@@ -26,6 +26,7 @@ from PIL import Image, ImageDraw, ImageFilter
 from . import hd_stages
 from .hd_bg import Backdrop
 from .hd_fx import FX, Particle
+from .hd_themes15 import CPS_STAGES
 from .i18n import tr
 
 GOLD = (255, 214, 120)
@@ -38,7 +39,9 @@ CONFETTI = ((255, 80, 80), (255, 210, 60), (80, 220, 255), (120, 255, 140), (255
 STAGE_NAMES = {"arena": ("ARÈNE", "ARENA"), "city": ("VILLE", "CITY"), "temple": ("TEMPLE", "TEMPLE"),
                "harbor": ("PORT", "HARBOR"), "ruins": ("RUINES", "RUINS"), "desert": ("DÉSERT", "DESERT"),
                "snow": ("MONTAGNE", "MOUNTAIN"), "jungle": ("JUNGLE", "JUNGLE"), "base": ("BASE", "BASE"),
-               "city_war": ("CHAMP DE BATAILLE", "BATTLEFIELD")}
+               "city_war": ("CHAMP DE BATAILLE", "BATTLEFIELD"), "castle": ("CHÂTEAU", "CASTLE"), "market": ("MARCHÉ", "MARKET"),
+               "factory": ("ACIÉRIE", "STEEL MILL"), "gothic": ("MANOIR", "MANOR"), "palace": ("PALAIS", "PALACE"),
+               "thai": ("TEMPLE D'OR", "GOLDEN TEMPLE"), "lab": ("LABORATOIRE", "LABORATORY")}
 
 
 def stage_name(theme):
@@ -145,10 +148,46 @@ class FightFX:
         self.super_xy = (0, 0)
         self.health = {"p1": None, "p2": None}
         self.prev_time = None
+        self.rounds = {"p1": None, "p2": None}     # rounds won read in the game / rounds gagnés lus dans le jeu
+        self.round_t = {"p1": -99.0, "p2": -99.0}
+
+    def round_glow(self, side, now):
+        """1 when the side just won a round, down to 0 in 1.5 s (its last star glows). / L'étoile du round gagné brille."""
+        k = (now - self.round_t.get(side, -99.0)) / 1.5
+        return 0.0 if k >= 1 or k < 0 else 1.0 - k
+
+    def _rounds(self, vals, now, play=True):
+        """The rounds won read in the game (Street Fighter II, Alpha): one more is the winner of the round, whatever the
+        health bars said. / Un round gagné de plus désigne le vainqueur, quoi qu'aient dit les barres de vie."""
+        for side, key in (("p1", "rounds"), ("p2", "rounds_p2")):
+            r = _n(vals.get(key))
+            old = self.rounds.get(side)
+            if play and r is not None and old is not None and r == old + 1:
+                self.round_t[side] = now
+                if self.win is None or self.win[0] != side:
+                    self.win = [side, now + 0.2, (self.health.get(side) or 0) >= 99, False]
+            self.rounds[side] = r
 
     def stages(self, game):
+        """Themes of the game's stages, indexed by the "backdrop" value; an unknown theme becomes the arena, so that the
+        places keep their index. / Thèmes des décors du jeu ; un thème inconnu devient l'arène."""
         lst = ((game or {}).get("hd") or {}).get("stages")
-        return [s for s in lst if s in hd_stages.hd_bg.BUILDERS] if lst else list(hd_stages.FIGHT_STAGES)
+        if lst:
+            return [s if s in hd_stages.hd_bg.BUILDERS else "arena" for s in lst]
+        return list(hd_stages.FIGHT_STAGES) + (list(CPS_STAGES) if (game or {}).get("cps") else [])   # Capcom: their stages too
+
+    @staticmethod
+    def place(game, pick, theme):
+        """Place shown under STAGE n: the game's own ("hd" "places", [french, english] by backdrop value, the countries of
+        Street Fighter II for example), else the theme's. / Le lieu du jeu (pays de Street Fighter II...), sinon celui du thème."""
+        places = ((game or {}).get("hd") or {}).get("places")
+        if isinstance(places, list) and places:
+            p = places[int(pick) % len(places)]
+            if isinstance(p, list) and len(p) == 2 and all(isinstance(x, str) for x in p):
+                return tr(p[0], p[1])
+            if isinstance(p, str):
+                return p
+        return stage_name(theme)
 
     def geom(self):
         """Place des barres de vie, comme dans HDRenderer.draw_fight."""
@@ -180,7 +219,7 @@ class FightFX:
         sig = (stage, back)
         if pick is not None and sig != self.stage_v:
             theme = stages[int(pick) % len(stages)]
-            place = stage_name(theme)
+            place = self.place(game, pick, theme)
             label = (f"STAGE {int(stage) + 1}", place) if stage is not None else (place, "")
             changed = {i for i in (0, 1) if self.stage_v is None or sig[i] != self.stage_v[i]}
             if self.stage_v is None:
@@ -221,6 +260,7 @@ class FightFX:
             if h1 != h2:
                 self.win = ["p1" if h1 > h2 else "p2", now + 1.0, False, False]
         self.prev_time = t
+        self._rounds(vals, now)
         if self.win is not None and not self.win[3] and now >= self.win[1]:
             self._celebrate(*self.win[:3])
             self.win[3] = True
@@ -249,6 +289,7 @@ class FightFX:
         self.health = {"p1": h1, "p2": h2}
         self.prev["p1"], self.prev["p2"] = h1, h2
         self.prev_time = _n(vals.get("time"))
+        self._rounds(vals, self.fx.now, play=False)
 
     def _hit(self, victim, old, new, now):
         fx, rng, S = self.fx, self.rng, self.hd.S

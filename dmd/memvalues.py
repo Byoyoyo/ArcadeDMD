@@ -7,6 +7,7 @@ Les définitions sont celles de games/*.json, rubrique memory.values :
   {"addr": "0x100377", "type": "u8"}
   {"addr": "0xFFFE26", "type": "be", "bytes": 4, "mult": 10}
 Types : u8, u16, u32, s8, s16, be, le, bcd, bcd_le, digits, digits_le.
+"zero_from": a raw value from which the value reads its "min" (a health bar gone below zero, 0xFF in a byte).
 """
 
 
@@ -115,9 +116,17 @@ def decode(d, getb, big_endian=True):
     shift = d.get("shift")
     if isinstance(shift, int) and shift > 0:
         v >>= shift
+    zero = parse_addr(d.get("zero_from"))
+    if zero is not None and v >= zero:
+        # a bar gone below zero (K.O. in Street Fighter II) reads 0xFF..., far above full: empty, not full
+        # une barre passée sous zéro (K.O.) se lit 0xFF..., bien au-dessus du plein : vide, pas pleine
+        return d.get("min", 0)
     mult = d.get("mult", 1)
     add = d.get("add", 0)
     v = v * mult + add
+    digits = d.get("round")
+    if isinstance(digits, int) and not isinstance(digits, bool):
+        v = round(v, digits)                    # a percentage of a full bar / un pourcentage de barre pleine
     lo, hi = d.get("min"), d.get("max")
     if isinstance(lo, (int, float)) and v < lo:
         v = lo
@@ -172,6 +181,11 @@ def _resolve(expr, values, depth=0):
         if not isinstance(lst, list) or isinstance(idx, bool) or not isinstance(idx, int) or not 0 <= idx < len(lst):
             return None
         return _resolve(lst[idx], values, depth + 1)
+    if "join" in expr:                        # several values together, "a,b" (a character given by a row and a column)
+        parts = [_resolve(x, values, depth + 1) for x in expr.get("join") or []]
+        if not parts or any(p is None or isinstance(p, bool) for p in parts):
+            return None
+        return ",".join(str(int(p)) if isinstance(p, float) and p.is_integer() else str(p) for p in parts)
     if "find" in expr:
         lst = expr.get("find")
         target = _resolve(expr.get("eq"), values, depth + 1)

@@ -1,0 +1,1532 @@
+{
+  "note": "Shared scene of the Capcom CPS games (combat), made by tools/cps_games.py from games/neogeo_combat.json. The games take it with scene_from.",
+  "generated": "tools/cps_games.py",
+  "scene": {
+    "layers": [
+      {
+        "type": "rect",
+        "x": 0,
+        "y": 30,
+        "w": 128,
+        "h": 2,
+        "color": "#a8701e"
+      },
+      {
+        "type": "gauge",
+        "var": "power",
+        "max": 100,
+        "x": 0,
+        "y": 30,
+        "w": 63,
+        "h": 2,
+        "anchor": "left",
+        "color": "#3c96ff",
+        "low": "#3c96ff",
+        "low_at": 0,
+        "back": "#2a1c08",
+        "shade": false,
+        "when": {
+          "has": "power"
+        }
+      },
+      {
+        "type": "rect",
+        "x": 0,
+        "y": 30,
+        "w": 63,
+        "h": 2,
+        "color": "#ffd040",
+        "blink_period": 0.5,
+        "when": {
+          "var": "power",
+          "gt": 99.5
+        }
+      },
+      {
+        "type": "gauge",
+        "var": "power_p2",
+        "max": 100,
+        "x": 65,
+        "y": 30,
+        "w": 63,
+        "h": 2,
+        "anchor": "right",
+        "color": "#3c96ff",
+        "low": "#3c96ff",
+        "low_at": 0,
+        "back": "#2a1c08",
+        "shade": false,
+        "when": {
+          "has": "power_p2"
+        }
+      },
+      {
+        "type": "rect",
+        "x": 65,
+        "y": 30,
+        "w": 63,
+        "h": 2,
+        "color": "#ffd040",
+        "blink_period": 0.5,
+        "when": {
+          "var": "power_p2",
+          "gt": 99.5
+        }
+      },
+      {
+        "type": "text",
+        "font": "6x10",
+        "x": 1,
+        "y": 1,
+        "align": "left",
+        "text": "{score}",
+        "color": "#ffa830",
+        "when": {
+          "all": [
+            {
+              "any": [
+                {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                },
+                {
+                  "not": {
+                    "has": "p1_mode"
+                  }
+                }
+              ]
+            },
+            {
+              "has": "score"
+            },
+            {
+              "not": {
+                "all": [
+                  {
+                    "all": [
+                      {
+                        "var": "p1_mode",
+                        "in": [
+                          1,
+                          2
+                        ]
+                      },
+                      {
+                        "var": "p2_mode",
+                        "in": [
+                          1,
+                          2
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "has": ["beat", "beat_p2"]
+                  },
+                  {
+                    "any": [
+                      {
+                        "var": "beat",
+                        "gt": 0
+                      },
+                      {
+                        "var": "beat_p2",
+                        "gt": 0
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "flash": {
+          "on": "score",
+          "color": "#ffffff",
+          "ms": 120
+        }
+      },
+      {
+        "type": "marquee",
+        "segments": [
+          {
+            "text": "{title}",
+            "color": "#ffa830"
+          }
+        ],
+        "font": "6x10",
+        "y": 1,
+        "x": 0,
+        "w": 56,
+        "speed": 12,
+        "gap": 40,
+        "upper": true,
+        "when": {
+          "all": [
+            {
+              "any": [
+                {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                },
+                {
+                  "not": {
+                    "has": "p1_mode"
+                  }
+                }
+              ]
+            },
+            {
+              "not": {
+                "has": "score"
+              }
+            },
+            {
+              "not": {
+                "all": [
+                  {
+                    "all": [
+                      {
+                        "var": "p1_mode",
+                        "in": [
+                          1,
+                          2
+                        ]
+                      },
+                      {
+                        "var": "p2_mode",
+                        "in": [
+                          1,
+                          2
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "has": ["beat", "beat_p2"]
+                  },
+                  {
+                    "any": [
+                      {
+                        "var": "beat",
+                        "gt": 0
+                      },
+                      {
+                        "var": "beat_p2",
+                        "gt": 0
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "static_if_fits": true
+      },
+      {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "{score_p2}",
+        "color": "#ffa830",
+        "when": {
+          "all": [
+            {
+              "var": "p2_mode",
+              "in": [
+                1,
+                2
+              ]
+            },
+            {
+              "has": "score_p2"
+            },
+            {
+              "not": {
+                "all": [
+                  {
+                    "all": [
+                      {
+                        "var": "p1_mode",
+                        "in": [
+                          1,
+                          2
+                        ]
+                      },
+                      {
+                        "var": "p2_mode",
+                        "in": [
+                          1,
+                          2
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "has": ["beat", "beat_p2"]
+                  },
+                  {
+                    "any": [
+                      {
+                        "var": "beat",
+                        "gt": 0
+                      },
+                      {
+                        "var": "beat_p2",
+                        "gt": 0
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "flash": {
+          "on": "score_p2",
+          "color": "#ffffff",
+          "ms": 120
+        }
+      },
+      {
+        "type": "text",
+        "font": "6x10",
+        "x": 1,
+        "y": 1,
+        "align": "left",
+        "segments": [
+          {
+            "text": "BEAT BY ",
+            "color": "#ff2a1a"
+          },
+          {
+            "text": "{beat:02d}",
+            "color": "#ffffff"
+          }
+        ],
+        "when": {
+          "all": [
+            {
+              "all": [
+                {
+                  "all": [
+                    {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    },
+                    {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "has": ["beat", "beat_p2"]
+                },
+                {
+                  "any": [
+                    {
+                      "var": "beat",
+                      "gt": 0
+                    },
+                    {
+                      "var": "beat_p2",
+                      "gt": 0
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "var": "beat",
+              "gt": 0
+            }
+          ]
+        },
+        "flash": {
+          "on": "beat",
+          "color": "#ffffff",
+          "ms": 400
+        }
+      },
+      {
+        "type": "text",
+        "font": "6x10",
+        "x": 1,
+        "y": 1,
+        "align": "left",
+        "text": "CHALLENGER",
+        "color": "#ff2a1a",
+        "when": {
+          "all": [
+            {
+              "all": [
+                {
+                  "all": [
+                    {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    },
+                    {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "has": ["beat", "beat_p2"]
+                },
+                {
+                  "any": [
+                    {
+                      "var": "beat",
+                      "gt": 0
+                    },
+                    {
+                      "var": "beat_p2",
+                      "gt": 0
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "var": "beat",
+              "eq": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "segments": [
+          {
+            "text": "BEAT BY ",
+            "color": "#ff2a1a"
+          },
+          {
+            "text": "{beat_p2:02d}",
+            "color": "#ffffff"
+          }
+        ],
+        "when": {
+          "all": [
+            {
+              "all": [
+                {
+                  "all": [
+                    {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    },
+                    {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "has": ["beat", "beat_p2"]
+                },
+                {
+                  "any": [
+                    {
+                      "var": "beat",
+                      "gt": 0
+                    },
+                    {
+                      "var": "beat_p2",
+                      "gt": 0
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "var": "beat_p2",
+              "gt": 0
+            }
+          ]
+        },
+        "flash": {
+          "on": "beat_p2",
+          "color": "#ffffff",
+          "ms": 400
+        }
+      },
+      {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "text": "CHALLENGER",
+        "color": "#ff2a1a",
+        "when": {
+          "all": [
+            {
+              "all": [
+                {
+                  "all": [
+                    {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    },
+                    {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "has": ["beat", "beat_p2"]
+                },
+                {
+                  "any": [
+                    {
+                      "var": "beat",
+                      "gt": 0
+                    },
+                    {
+                      "var": "beat_p2",
+                      "gt": 0
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "var": "beat_p2",
+              "eq": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "marquee",
+        "segments": [
+          {
+            "text": "{title}",
+            "color": "#ffa830"
+          }
+        ],
+        "font": "6x10",
+        "y": 1,
+        "x": 72,
+        "w": 56,
+        "speed": 12,
+        "gap": 40,
+        "upper": true,
+        "when": {
+          "all": [
+            {
+              "all": [
+                {
+                  "has": "p1_mode"
+                },
+                {
+                  "not": {
+                    "var": "p1_mode",
+                    "in": [
+                      1,
+                      2
+                    ]
+                  }
+                },
+                {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              ]
+            },
+            {
+              "not": {
+                "has": "score_p2"
+              }
+            }
+          ]
+        },
+        "static_if_fits": true
+      },
+      {
+        "type": "text",
+        "font": "6x10",
+        "x": 127,
+        "y": 1,
+        "align": "right",
+        "blink_period": 1.0,
+        "text": "INSERT COIN",
+        "color": "#ffa830",
+        "when": {
+          "all": [
+            {
+              "all": [
+                {
+                  "any": [
+                    {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    },
+                    {
+                      "not": {
+                        "has": "p1_mode"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "not": {
+                    "var": "p2_mode",
+                    "in": [
+                      1,
+                      2
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "not": {
+                "var": "credits",
+                "gt": 0
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "cycle",
+        "period": 1.5,
+        "when": {
+          "all": [
+            {
+              "all": [
+                {
+                  "any": [
+                    {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    },
+                    {
+                      "not": {
+                        "has": "p1_mode"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "not": {
+                    "var": "p2_mode",
+                    "in": [
+                      1,
+                      2
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "var": "credits",
+              "gt": 0
+            }
+          ]
+        },
+        "pages": [
+          {
+            "layers": [
+              {
+                "type": "text",
+                "font": "6x10",
+                "x": 127,
+                "y": 1,
+                "align": "right",
+                "text": "CREDITS {credits}",
+                "color": "#ffa830"
+              }
+            ]
+          },
+          {
+            "layers": [
+              {
+                "type": "text",
+                "font": "6x10",
+                "x": 127,
+                "y": 1,
+                "align": "right",
+                "text": "PRESS START",
+                "color": "#ffa830"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "font": "6x10",
+        "x": 1,
+        "y": 1,
+        "align": "left",
+        "blink_period": 1.0,
+        "text": "INSERT COIN",
+        "color": "#ffa830",
+        "when": {
+          "all": [
+            {
+              "all": [
+                {
+                  "has": "p1_mode"
+                },
+                {
+                  "not": {
+                    "var": "p1_mode",
+                    "in": [
+                      1,
+                      2
+                    ]
+                  }
+                },
+                {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              ]
+            },
+            {
+              "not": {
+                "var": "credits",
+                "gt": 0
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "cycle",
+        "period": 1.5,
+        "when": {
+          "all": [
+            {
+              "all": [
+                {
+                  "has": "p1_mode"
+                },
+                {
+                  "not": {
+                    "var": "p1_mode",
+                    "in": [
+                      1,
+                      2
+                    ]
+                  }
+                },
+                {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              ]
+            },
+            {
+              "var": "credits",
+              "gt": 0
+            }
+          ]
+        },
+        "pages": [
+          {
+            "layers": [
+              {
+                "type": "text",
+                "font": "6x10",
+                "x": 1,
+                "y": 1,
+                "align": "left",
+                "text": "CREDITS {credits}",
+                "color": "#ffa830"
+              }
+            ]
+          },
+          {
+            "layers": [
+              {
+                "type": "text",
+                "font": "6x10",
+                "x": 1,
+                "y": 1,
+                "align": "left",
+                "text": "PRESS START",
+                "color": "#ffa830"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "gauge",
+        "max": 100,
+        "y": 14,
+        "w": 54,
+        "h": 4,
+        "color": "#30f0a0",
+        "low": "#30f0a0",
+        "back": "#a01a12",
+        "bevel": "#d8f0ec",
+        "shade": false,
+        "when": {
+          "has": ["health", "health_p2"]
+        },
+        "var": "health",
+        "x": 0,
+        "anchor": "right"
+      },
+      {
+        "type": "gauge",
+        "max": 100,
+        "y": 14,
+        "w": 54,
+        "h": 4,
+        "color": "#30f0a0",
+        "low": "#30f0a0",
+        "back": "#a01a12",
+        "bevel": "#d8f0ec",
+        "shade": false,
+        "when": {
+          "has": ["health", "health_p2"]
+        },
+        "var": "health_p2",
+        "x": 74,
+        "anchor": "left"
+      },
+      {
+        "type": "icons",
+        "var": "rounds",
+        "x": 54,
+        "y": 11,
+        "max": 2,
+        "gap": 1,
+        "align": "right",
+        "pattern": ["##", "##"],
+        "colors": {
+          "#": "#ffd040"
+        },
+        "empty": "#3a2a10",
+        "when": {
+          "all": [
+            {
+              "has": "rounds"
+            },
+            {
+              "has": ["health", "health_p2"]
+            }
+          ]
+        }
+      },
+      {
+        "type": "icons",
+        "var": "rounds_p2",
+        "x": 73,
+        "y": 11,
+        "max": 2,
+        "gap": 1,
+        "pattern": ["##", "##"],
+        "colors": {
+          "#": "#ffd040"
+        },
+        "empty": "#3a2a10",
+        "when": {
+          "all": [
+            {
+              "has": "rounds_p2"
+            },
+            {
+              "has": ["health", "health_p2"]
+            }
+          ]
+        }
+      },
+      {
+        "type": "rect",
+        "x": 55,
+        "y": 9,
+        "w": 1,
+        "h": 11,
+        "color": "#a8701e",
+        "when": {
+          "has": ["health", "health_p2"]
+        }
+      },
+      {
+        "type": "rect",
+        "x": 71,
+        "y": 9,
+        "w": 1,
+        "h": 11,
+        "color": "#a8701e",
+        "when": {
+          "has": ["health", "health_p2"]
+        }
+      },
+      {
+        "type": "text",
+        "font": "7x14",
+        "x": 64,
+        "y": 9,
+        "align": "center",
+        "text": "{time}",
+        "color": "#ffa830",
+        "when": {
+          "all": [
+            {
+              "has": "time"
+            },
+            {
+              "has": ["health", "health_p2"]
+            },
+            {
+              "not": {
+                "any": [
+                  {
+                    "var": "health",
+                    "eq": 0
+                  },
+                  {
+                    "var": "health_p2",
+                    "eq": 0
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "text",
+        "font": "7x14",
+        "x": 64,
+        "y": 9,
+        "align": "center",
+        "text": "KO",
+        "color": "#ff3020",
+        "when": {
+          "all": [
+            {
+              "has": ["health", "health_p2"]
+            },
+            {
+              "any": [
+                {
+                  "var": "health",
+                  "eq": 0
+                },
+                {
+                  "var": "health_p2",
+                  "eq": 0
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "text",
+        "font": "9x15B",
+        "x": 64,
+        "y": 8,
+        "align": "center",
+        "text": "VS",
+        "color": "#ffa830",
+        "when": {
+          "not": {
+            "has": "health"
+          }
+        }
+      },
+      {
+        "type": "cycle",
+        "period": 3,
+        "when": {
+          "not": {
+            "all": [
+              {
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "pages": [
+          {
+            "when": {
+              "any": [
+                {
+                  "has": "p1_char"
+                },
+                {
+                  "has": "p2_char"
+                }
+              ]
+            },
+            "layers": [
+              {
+                "type": "text",
+                "font": "6x10",
+                "x": 1,
+                "y": 21,
+                "align": "left",
+                "segments": [
+                  {
+                    "text": "P1 ",
+                    "color": "#ffa830"
+                  },
+                  {
+                    "text": "{p1_char}",
+                    "color": "#ffffff"
+                  }
+                ],
+                "when": {
+                  "all": [
+                    {
+                      "any": [
+                        {
+                          "var": "p1_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        },
+                        {
+                          "not": {
+                            "has": "p1_mode"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "has": "p1_char"
+                    }
+                  ]
+                },
+                "fit": true,
+                "max_w": 62
+              },
+              {
+                "type": "text",
+                "font": "6x10",
+                "x": 1,
+                "y": 21,
+                "align": "left",
+                "text": "P1",
+                "color": "#ffa830",
+                "when": {
+                  "all": [
+                    {
+                      "any": [
+                        {
+                          "var": "p1_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        },
+                        {
+                          "not": {
+                            "has": "p1_mode"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "not": {
+                        "has": "p1_char"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "text",
+                "font": "6x10",
+                "x": 1,
+                "y": 21,
+                "align": "left",
+                "segments": [
+                  {
+                    "text": "CPU ",
+                    "color": "#ffa830"
+                  },
+                  {
+                    "text": "{p1_char}",
+                    "color": "#ffffff"
+                  }
+                ],
+                "when": {
+                  "all": [
+                    {
+                      "all": [
+                        {
+                          "has": "p1_mode"
+                        },
+                        {
+                          "not": {
+                            "var": "p1_mode",
+                            "in": [
+                              1,
+                              2
+                            ]
+                          }
+                        },
+                        {
+                          "var": "p2_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "has": "p1_char"
+                    }
+                  ]
+                },
+                "fit": true,
+                "max_w": 62
+              },
+              {
+                "type": "text",
+                "font": "6x10",
+                "x": 1,
+                "y": 21,
+                "align": "left",
+                "text": "CPU",
+                "color": "#ffa830",
+                "when": {
+                  "all": [
+                    {
+                      "all": [
+                        {
+                          "has": "p1_mode"
+                        },
+                        {
+                          "not": {
+                            "var": "p1_mode",
+                            "in": [
+                              1,
+                              2
+                            ]
+                          }
+                        },
+                        {
+                          "var": "p2_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "not": {
+                        "has": "p1_char"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "text",
+                "font": "6x10",
+                "x": 127,
+                "y": 21,
+                "align": "right",
+                "segments": [
+                  {
+                    "text": "{p2_char} ",
+                    "color": "#ffffff"
+                  },
+                  {
+                    "text": "P2",
+                    "color": "#ffa830"
+                  }
+                ],
+                "when": {
+                  "all": [
+                    {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    },
+                    {
+                      "has": "p2_char"
+                    }
+                  ]
+                },
+                "fit": true,
+                "max_w": 62
+              },
+              {
+                "type": "text",
+                "font": "6x10",
+                "x": 127,
+                "y": 21,
+                "align": "right",
+                "text": "P2",
+                "color": "#ffa830",
+                "when": {
+                  "all": [
+                    {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    },
+                    {
+                      "not": {
+                        "has": "p2_char"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "text",
+                "font": "6x10",
+                "x": 127,
+                "y": 21,
+                "align": "right",
+                "segments": [
+                  {
+                    "text": "{p2_char} ",
+                    "color": "#ffffff"
+                  },
+                  {
+                    "text": "CPU",
+                    "color": "#ffa830"
+                  }
+                ],
+                "when": {
+                  "all": [
+                    {
+                      "all": [
+                        {
+                          "any": [
+                            {
+                              "var": "p1_mode",
+                              "in": [
+                                1,
+                                2
+                              ]
+                            },
+                            {
+                              "not": {
+                                "has": "p1_mode"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "not": {
+                            "var": "p2_mode",
+                            "in": [
+                              1,
+                              2
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "has": "p2_char"
+                    }
+                  ]
+                },
+                "fit": true,
+                "max_w": 62
+              },
+              {
+                "type": "text",
+                "font": "6x10",
+                "x": 127,
+                "y": 21,
+                "align": "right",
+                "text": "CPU",
+                "color": "#ffa830",
+                "when": {
+                  "all": [
+                    {
+                      "all": [
+                        {
+                          "any": [
+                            {
+                              "var": "p1_mode",
+                              "in": [
+                                1,
+                                2
+                              ]
+                            },
+                            {
+                              "not": {
+                                "has": "p1_mode"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "not": {
+                            "var": "p2_mode",
+                            "in": [
+                              1,
+                              2
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "not": {
+                        "has": "p2_char"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "when": {
+              "not": {
+                "any": [
+                  {
+                    "has": "p1_char"
+                  },
+                  {
+                    "has": "p2_char"
+                  }
+                ]
+              }
+            },
+            "layers": [
+              {
+                "type": "text",
+                "font": "6x10",
+                "x": 1,
+                "y": 21,
+                "align": "left",
+                "text": "P1",
+                "color": "#ffa830",
+                "when": {
+                  "any": [
+                    {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    },
+                    {
+                      "not": {
+                        "has": "p1_mode"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "text",
+                "font": "6x10",
+                "x": 1,
+                "y": 21,
+                "align": "left",
+                "text": "CPU",
+                "color": "#ffa830",
+                "when": {
+                  "all": [
+                    {
+                      "has": "p1_mode"
+                    },
+                    {
+                      "not": {
+                        "var": "p1_mode",
+                        "in": [
+                          1,
+                          2
+                        ]
+                      }
+                    },
+                    {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "text",
+                "font": "6x10",
+                "x": 127,
+                "y": 21,
+                "align": "right",
+                "text": "P2",
+                "color": "#ffa830",
+                "when": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "type": "text",
+                "font": "6x10",
+                "x": 127,
+                "y": 21,
+                "align": "right",
+                "text": "CPU",
+                "color": "#ffa830",
+                "when": {
+                  "all": [
+                    {
+                      "any": [
+                        {
+                          "var": "p1_mode",
+                          "in": [
+                            1,
+                            2
+                          ]
+                        },
+                        {
+                          "not": {
+                            "has": "p1_mode"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "not": {
+                        "var": "p2_mode",
+                        "in": [
+                          1,
+                          2
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "coinop",
+        "when": {
+          "all": [
+            {
+              "has": "p1_mode"
+            },
+            {
+              "not": {
+                "var": "p1_mode",
+                "in": [
+                  1,
+                  2
+                ]
+              }
+            },
+            {
+              "not": {
+                "var": "p2_mode",
+                "in": [
+                  1,
+                  2
+                ]
+              }
+            }
+          ]
+        },
+        "title": [
+          {
+            "text": "{title}",
+            "color": "#ffa830"
+          }
+        ],
+        "idle_image": ["sprites/insert_coin.gif", "sprites/insert_coin.png"]
+      }
+    ]
+  }
+}

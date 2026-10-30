@@ -1,0 +1,167 @@
+{
+  "title": "Street Fighter III 2nd Impact: Giant Attack",
+  "note": "Capcom CPS3 fighting game: health, health_p2, time, credits, power, power_p2, 15 characters (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS3",
+  "match": [
+    {
+      "system": ["sfiii2", "sfiii2a", "sfiii2bh", "sfiii2h", "sfiii2j", "sfiii2n"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0x2000000",
+    "ram_size": "0x80000",
+    "swap32": true,
+    "note": "FinalBurn Neo core: CPS3 main RAM from 0x2000000 (512 KB), bytes reversed within 32-bit words",
+    "content": ["sfiii2", "sfiii2a", "sfiii2bh", "sfiii2h", "sfiii2j", "sfiii2n"]
+  },
+  "scene_from": "cps_combat",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "health": {
+        "addr": "0x200E5A3",
+        "type": "u8",
+        "note": "player 1 health in %, full = 0xA0 (FBNeo cheat database, Infinite Energy PL1)",
+        "mult": 0.625,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xD0"
+      },
+      "health_p2": {
+        "addr": "0x200E9AF",
+        "type": "u8",
+        "note": "player 2 health in %, full = 0xA0 (FBNeo cheat database, Infinite Energy PL2)",
+        "mult": 0.625,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xD0"
+      },
+      "time": {
+        "addr": "0x2010167",
+        "type": "u8",
+        "note": "timer (FBNeo cheat database, Infinite Time)"
+      },
+      "credits": {
+        "addr": "0x2008528",
+        "type": "u8",
+        "note": "credits (FBNeo cheat database, Infinite Credits)"
+      },
+      "power": {
+        "addr": "0x200ED35",
+        "type": "u8",
+        "note": "super gauge of player 1 in %, full = 0xA0 (FBNeo cheat database)",
+        "mult": 0.625,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "power_p2": {
+        "addr": "0x200ED61",
+        "type": "u8",
+        "note": "super gauge of player 2 in %, full = 0xA0 (FBNeo cheat database)",
+        "mult": 0.625,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "_p1_chr": {
+        "addr": "0x20142C1",
+        "type": "u8",
+        "note": "player 1 character (FBNeo cheat database, Select Character PL1)"
+      },
+      "_p2_chr": {
+        "addr": "0x20142C3",
+        "type": "u8",
+        "note": "player 2 or computer character (FBNeo cheat database, Select Character PL2)"
+      },
+      "backdrop": {
+        "addr": "0x20142E7",
+        "type": "u8",
+        "note": "stage backdrop, picks the HD theme in hd.stages (FBNeo cheat database, Select Permanent Background)"
+      }
+    }
+  },
+  "activity": {
+    "values": ["time", "health", "health_p2"],
+    "moving": ["time", "health", "health_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "health": 100,
+    "health_p2": 100,
+    "time": 99,
+    "_p1_chr": 0,
+    "_p2_chr": 1
+  },
+  "derived": {
+    "p1_char": {
+      "value": "_p1_chr",
+      "names": {
+        "0": "RYU",
+        "1": "ALEX",
+        "2": "YUN",
+        "3": "NECRO",
+        "4": "IBUKI",
+        "5": "HUGO",
+        "6": "SEAN",
+        "7": "URIEN",
+        "8": "ELENA",
+        "9": "ORO",
+        "10": "YANG",
+        "11": "DUDLEY",
+        "12": "KEN",
+        "13": "#AKUMA#",
+        "26": "#GILL#"
+      }
+    },
+    "p2_char": {
+      "value": "_p2_chr",
+      "names": {
+        "0": "RYU",
+        "1": "ALEX",
+        "2": "YUN",
+        "3": "NECRO",
+        "4": "IBUKI",
+        "5": "HUGO",
+        "6": "SEAN",
+        "7": "URIEN",
+        "8": "ELENA",
+        "9": "ORO",
+        "10": "YANG",
+        "11": "DUDLEY",
+        "12": "KEN",
+        "13": "#AKUMA#",
+        "26": "#GILL#"
+      }
+    }
+  },
+  "hd": {
+    "stages": ["pul_nebula", "fight_city", "fight_castle", "fight_market", "fight_gothic", "fight_factory", "fight_harbor", "fight_temple", "fight_desert", "fight_jungle", "fight_market", "fight_harbor", "fight_jungle", "fight_lab", "fight_ruins", "fight_ruins"],
+    "places": [
+      "",
+      ["ÉTATS-UNIS", "USA"],
+      ["JAPON", "JAPAN"],
+      ["HONG KONG", "HONG KONG"],
+      ["ANGLETERRE", "ENGLAND"],
+      ["RUSSIE", "RUSSIA"],
+      "",
+      ["JAPON", "JAPAN"],
+      ["KENYA", "KENYA"],
+      ["BRÉSIL", "BRAZIL"],
+      ["HONG KONG", "HONG KONG"],
+      ["ÉTATS-UNIS", "USA"],
+      ["BRÉSIL", "BRAZIL"],
+      "",
+      ["JAPON", "JAPAN"],
+      ["JAPON", "JAPAN"]
+    ],
+    "note": "HD theme and place shown for each backdrop value (index = value), made by tools/cps_games.py from the stages of the cheat database, see README, HD themes"
+  }
+}

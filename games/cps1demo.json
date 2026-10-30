@@ -1,0 +1,28 @@
+{
+  "title": "Chaos Demo",
+  "note": "Capcom CPS1 puzzle, quiz or other game: no value known yet (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS1",
+  "match": [
+    {
+      "system": ["cps1demo"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xFF0000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["cps1demo"]
+  },
+  "scene_from": "cps_reflexion",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {}
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0
+  }
+}

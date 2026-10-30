@@ -1,0 +1,69 @@
+{
+  "title": "Muscle Bomber Duo: Ultimate Team Battle",
+  "note": "Capcom CPS1 fighting game: health, health_p2 (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "generated": "tools/cps_games.py",
+  "cps": "CPS1",
+  "match": [
+    {
+      "system": ["mbombrd", "mbombdje", "mbombrda", "mbombrdh", "mbombrdj", "mbombrdu"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xFF0000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["mbombrd", "mbombdje", "mbombrda", "mbombrdh", "mbombrdj", "mbombrdu"]
+  },
+  "titles": {
+    "mbombrdj": "Muscle Bomber Duo: Heat Up Warriors",
+    "mbombdje": "Muscle Bomber Duo: heat up warriors"
+  },
+  "scene_from": "cps_combat",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "health": {
+        "addr": "0xFF907B",
+        "type": "u8",
+        "note": "player 1 health in %, full = 0xFF (FBNeo cheat database, Infinite Energy PL1)",
+        "mult": 0.392157,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "health_p2": {
+        "addr": "0xFF927B",
+        "type": "u8",
+        "note": "player 2 health in %, full = 0xFF (FBNeo cheat database, Infinite Energy PL2)",
+        "mult": 0.392157,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "_time": {
+        "addr": "0xFFA00C",
+        "type": "digits",
+        "bytes": 2,
+        "note": "part of the timer only (FBNeo cheat database, Infinite Time writes 09 05 0A), read to see that the game runs, not shown"
+      }
+    }
+  },
+  "activity": {
+    "values": ["_time", "health", "health_p2"],
+    "moving": ["_time", "health", "health_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "health": 100,
+    "health_p2": 100
+  },
+  "hd": {
+    "stages": ["arena"],
+    "note": "HD themes of the fights (one per game, no stage value known), made by tools/cps_games.py"
+  }
+}

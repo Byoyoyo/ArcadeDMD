@@ -334,6 +334,17 @@ class TextEl(Element):
                 w = font.width(full, self.spacing)
                 if w <= self.max_w:
                     break
+            if w > self.max_w:                          # still too long: the value gets shorter / la valeur raccourcit
+                vary = max(range(len(parts)), key=lambda i: ("{" in self.segments[i][0], len(parts[i][0])))
+                while w > self.max_w and len(parts[vary][0]) > 1:
+                    parts[vary] = (parts[vary][0][:-1], parts[vary][1])
+                    full = "".join(p for p, _ in parts)
+                    w = font.width(full, self.spacing)
+                colors = []
+                for txt, col in parts:
+                    colors.extend([col] * len(txt))
+                if flash is not None:
+                    colors = [flash] * len(full)
         x = self.x
         if self.align == "center":
             x = self.x - w // 2
