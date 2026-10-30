@@ -59,14 +59,24 @@
         "note": "mega crashes of player 2 (FinalBurn Neo cheats, Infinite Missiles PL2 writes 99)"
       },
       "weapon": {
-        "addr": "0xFF117E",
+        "addr": "0xFF1185",
         "type": "u8",
-        "note": "weapon of player 1, 0 the machine gun of the start, 1 the spread gun (three ways), 2 the flamethrower, found with RAM captures under RetroArch (learn.bat, arme=...)"
+        "note": "weapon of player 1, 0 the assault rifle of the start, 1 the flamethrower, 2 the shotgun (three green shots), 3 the grenade launcher (the fourth weapon of the game, to confirm), found with RAM captures under RetroArch (learn.bat, arme=...)"
       },
       "weapon_p2": {
-        "addr": "0xFF122E",
+        "addr": "0xFF1235",
         "type": "u8",
         "note": "weapon of player 2, as player 1's, 0xB0 further like his energy and his mega crashes"
+      },
+      "weapon_level": {
+        "addr": "0xFF117E",
+        "type": "u8",
+        "note": "power-ups (POW) of player 1's weapon, up to 10 in the game, 0 at the start of a game then 1 and 2 as they are picked up (RAM captures under RetroArch)"
+      },
+      "weapon_level_p2": {
+        "addr": "0xFF122E",
+        "type": "u8",
+        "note": "power-ups (POW) of player 2's weapon, 0xB0 further"
       },
       "score": {
         "addr": "0xFF0F78",
@@ -87,14 +97,16 @@
       "value": "weapon",
       "names": {
         "fr": {
-          "0": "MITRAILLEUSE",
-          "1": "TIR TRIPLE",
-          "2": "LANCE-FLAMMES"
+          "0": "FUSIL D'ASSAUT",
+          "1": "LANCE-FLAMMES",
+          "2": "FUSIL À POMPE",
+          "3": "LANCE-GRENADES"
         },
         "en": {
-          "0": "MACHINE GUN",
-          "1": "SPREAD GUN",
-          "2": "FLAMETHROWER"
+          "0": "ASSAULT RIFLE",
+          "1": "FLAMETHROWER",
+          "2": "SHOTGUN",
+          "3": "GRENADE LAUNCHER"
         }
       }
     },
@@ -102,14 +114,16 @@
       "value": "weapon_p2",
       "names": {
         "fr": {
-          "0": "MITRAILLEUSE",
-          "1": "TIR TRIPLE",
-          "2": "LANCE-FLAMMES"
+          "0": "FUSIL D'ASSAUT",
+          "1": "LANCE-FLAMMES",
+          "2": "FUSIL À POMPE",
+          "3": "LANCE-GRENADES"
         },
         "en": {
-          "0": "MACHINE GUN",
-          "1": "SPREAD GUN",
-          "2": "FLAMETHROWER"
+          "0": "ASSAULT RIFLE",
+          "1": "FLAMETHROWER",
+          "2": "SHOTGUN",
+          "3": "GRENADE LAUNCHER"
         }
       }
     }
@@ -177,10 +191,10 @@
       "weapon": {
         "cycle": [
           0,
-          1,
-          1,
           2,
           2,
+          1,
+          1,
           0
         ],
         "every": 9.0,
@@ -190,17 +204,46 @@
         "cycle": [
           0,
           0,
-          2,
-          2,
           1,
-          1
+          1,
+          2,
+          2
         ],
         "every": 10.0,
         "start": 13.0
+      },
+      "weapon_level": {
+        "cycle": [
+          0,
+          1,
+          1,
+          2,
+          3,
+          3,
+          4,
+          0
+        ],
+        "every": 7.0,
+        "start": 10.0
+      },
+      "weapon_level_p2": {
+        "cycle": [
+          0,
+          0,
+          1,
+          2,
+          2,
+          3,
+          0
+        ],
+        "every": 8.0,
+        "start": 15.0
       }
     },
     "weapon": 0,
-    "weapon_p2": 0
+    "weapon_p2": 0,
+    "weapon_level": 0,
+    "weapon_level_p2": 0
   },
   "demo_hand": true,
   "scene": {
@@ -834,6 +877,80 @@
             "color": "#60c8ff",
             "font": "6x10",
             "ms": 1300,
+            "priority": 2
+          },
+          {
+            "on": "weapon_level",
+            "change": "up",
+            "step": 1,
+            "when": {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "text": "POWER UP",
+            "color": "#ffd040",
+            "font": "9x15B",
+            "ms": 1100,
+            "priority": 2
+          },
+          {
+            "on": "weapon_level_p2",
+            "change": "up",
+            "step": 1,
+            "when": {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "text": "2P POWER UP",
+            "color": "#60c8ff",
+            "font": "8x13B",
+            "ms": 1100,
             "priority": 2
           },
           {

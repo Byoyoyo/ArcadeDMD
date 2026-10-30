@@ -307,7 +307,8 @@ class PanelScene(GameScene):
                         self.popup(tr("ARMURE PERDUE !", "ARMOUR LOST!"), self.X(side, 360), self.S(240), (255, 200, 60), 34)
                 self._armor = state
             for item in spec.get("levels", ()):
-                ch = self.changed(vals, item["value"] + ("" if item.get("p1_only", True) else sfx)) if side == "p1" else None
+                both = not item.get("p1_only", True)                        # Mercs: the power of each player's weapon
+                ch = self.changed(vals, item["value"] + (sfx if both else "")) if side == "p1" or both else None
                 if ch and ch[1] > ch[0]:
                     self.events["level"] += 1
                     self.mark(side, item["value"], now)
@@ -323,11 +324,20 @@ class PanelScene(GameScene):
                 ch = self.changed(vals, watch[0] if side == "p1" else watch[1])
                 if ch:
                     self.mark(side, "name", now)
-                    n = self.name(side, vals) if spec.get("name_popup") else None
+                    keys = spec["names"] if isinstance(spec["names"], tuple) and spec.get("name_popup") else None
+                    n = vals.get(keys[0] if side == "p1" else keys[1]) if keys else None
                     if n:                                                    # a weapon picked up (Mercs) / une arme ramassée
                         self.events["weapon"] += 1
                         self.fx.glow(self.X(side, 200), self.S(60), 20, 140, ACCENT[side], 0.45, "front", 0.9, 0.0)
                         self.popup(tr(f"{n} !", f"{n}!"), self.X(side, 320), self.S(250), _mix(ACCENT[side], WHITE, 0.3), 36)
+                lv = spec.get("name_level")
+                ch = self.changed(vals, lv[0] + sfx) if lv else None
+                if ch:                                                       # a power-up of the weapon / un POW
+                    self.mark(side, "name", now)
+                    if ch[1] > ch[0]:
+                        self.events["level"] += 1
+                        self.fx.glow(self.X(side, 200), self.S(60), 20, 140, GOLD, 0.45, "front", 0.9, 0.0)
+                        self.popup(tr(*lv[1]), self.X(side, 320), self.S(300), GOLD, 34)   # under a weapon picked up
         if spec.get("floor"):
             ch = self.changed(vals, "floor")
             if ch:
@@ -468,7 +478,8 @@ class PanelScene(GameScene):
             keys = spec["names"] if isinstance(spec["names"], tuple) else ("p1_char", "p2_char")   # Mercs: its weapons
             n = vals.get(keys[0] if side == "p1" else keys[1])
             if n:
-                return str(n)
+                lvl = _n(vals.get(spec["name_level"][0] + ("" if side == "p1" else "_p2"))) if spec.get("name_level") else None
+                return f"{n} +{int(lvl)}" if lvl is not None and lvl >= 1 else str(n)    # FLAMETHROWER +2 (two POW)
         if side == "p1":
             for item in spec.get("labels", ()):
                 v = _n(vals.get(item["value"]))
@@ -800,7 +811,8 @@ SPECS = {
     # run and gun
     "mercs": dict(theme="mc_desert", hit="gun", gauge=_g(("ÉNERGIE", "ENERGY"), (90, 220, 110), (70, 24, 24)),
                   bombs=dict(label=("MÉGA ATTAQUE", "MEGA CRASH")),
-                  names=("p1_weapon", "p2_weapon"), name_watch=("weapon", "weapon_p2"), name_popup=True),   # the weapon held / l'arme
+                  names=("p1_weapon", "p2_weapon"), name_watch=("weapon", "weapon_p2"), name_popup=True,    # the weapon held / l'arme
+                  name_level=("weapon_level", ("PUISSANCE +1 !", "POWER UP!"))),                         # its power-ups (POW)
 }
 
 
