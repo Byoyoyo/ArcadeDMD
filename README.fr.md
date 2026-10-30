@@ -844,6 +844,8 @@ ArcadeDMD lit Marvel vs. Capcom 2 sur Dreamcast, dans RetroArch avec le cœur Fl
 2. Donne au disque le nom du jeu, par exemple `Marvel vs. Capcom 2 (USA).chd`. ArcadeDMD reconnaît le jeu à son nom de fichier. Un `disc.gdi` rangé dans un dossier n'est pas reconnu, renomme donc le fichier `.gdi` (ses fichiers de pistes gardent leur nom).
 3. Les commandes réseau restent activées, port 55355, comme pour les autres jeux. Rien d'autre à régler.
 
+![Marvel vs. Capcom 2 sur un marquee LCD, affichage HD](docs/images/hd_mvc2.jpg)
+
 Sur la dalle, les deux personnages au point sont en haut, avec leurs barres de vie et le chrono entre les deux. Sous chaque barre, la jauge d'hyper combo (5 niveaux). En bas, P1 et P2 avec leurs trois personnages, en blanc celui au point, en vert ceux qui attendent, en sombre ceux mis KO. Les événements prennent la dalle un à la fois. Ce sont le KO d'un personnage, HYPER COMBO quand une jauge est dépensée, le personnage qui entre (CYCLOPS IN), TIME OVER, et P1 WINS ou P2 WINS quand une équipe entière est à terre. Hors match, le titre et 3 VS 3 s'affichent.
 
 Sur l'écran HD, la scène de combat a un décor pour chaque stage du jeu. Sous chaque nom, les trois personnages de l'équipe, celui au point allumé, ceux mis KO barrés. Sous chaque barre de vie, la jauge d'hyper combo. Un personnage KO ne termine pas le match. WIN et les confettis attendent qu'une équipe entière soit à terre. Hors match, le logo du jeu et 3 VS 3 s'affichent.
@@ -853,6 +855,8 @@ Les adresses de la vie et des jauges viennent de la base de codes de triche de l
 ### Super Nintendo (Super Mario World, A Link to the Past)
 
 Deux jeux Super Nintendo ont leurs propres scènes sur la dalle et sur l'écran HD avec RetroArch, sans rien apprendre. Ce sont Super Mario World et The Legend of Zelda A Link to the Past. Ils sont reconnus sous leurs noms habituels (No-Intro et GoodSNES, USA, Europe, Japon, France, Allemagne, Canada...), par exemple `Super Mario World (USA).sfc` ou `Legend of Zelda, The - A Link to the Past (USA).sfc`. Yoshi's Island, les compilations All-Stars et la version Game Boy Advance ne sont pas pris pour eux.
+
+![Super Mario World et A Link to the Past sur un marquee LCD, affichage HD, dessinés à notre façon](docs/images/hd_snes.jpg)
 
 Le cœur à prendre est Snes9x. Dans RetroArch, va dans Menu principal, Mise à jour en ligne, Télécharger un cœur, puis choisis « Nintendo - SNES / SFC (Snes9x - Current) ». Mesen-S, bsnes-mercury, bsnes 2014 et les anciens Snes9x (2010, 2005, 2002) donnent aussi leur mémoire. bsnes et bsnes-hd beta n'ont pas été vérifiés. Si `test_retroarch.bat` dit que la mémoire ne se lit pas, prends Snes9x. Les commandes réseau doivent être actives, comme pour les autres jeux (voir À régler une fois dans RetroArch).
 

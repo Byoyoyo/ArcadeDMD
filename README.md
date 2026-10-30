@@ -844,6 +844,8 @@ ArcadeDMD reads Marvel vs. Capcom 2 on the Dreamcast, in RetroArch with the Flyc
 2. Name the disc after the game, for example `Marvel vs. Capcom 2 (USA).chd`. ArcadeDMD recognizes the game by its file name. A `disc.gdi` in a folder is not recognized, so rename the `.gdi` file (its track files keep their names).
 3. Network Commands stay on, port 55355, as for the other games. Nothing else to set.
 
+![Marvel vs. Capcom 2 on an LCD marquee, HD display](docs/images/hd_mvc2.jpg)
+
 On the panel, the two characters on point are at the top, with their health bars and the timer between them. Under each bar is the hyper combo gauge (5 levels). At the bottom, P1 and P2 with their three characters, white on point, green waiting, dark once KO. Events take the panel one at a time. They are a character KO, HYPER COMBO when a gauge is spent, the character who comes in (CYCLOPS IN), TIME OVER, and P1 WINS or P2 WINS when a whole team is down. Out of a match, the title and 3 VS 3 are shown.
 
 On the HD screen, the fighting scene has a background for each stage of the game. Under each name are the three characters of the team, the one on point lit, those KO struck out. Under each health bar is the hyper combo gauge. A character KO does not end the match. WIN and the confetti wait until a whole team is down. Out of a match, the game logo and 3 VS 3 are shown.
@@ -853,6 +855,8 @@ The health and gauge addresses come from the libretro cheat database and from th
 ### Super Nintendo (Super Mario World, A Link to the Past)
 
 Two Super Nintendo games have their own panel and HD scenes under RetroArch, with nothing to learn, Super Mario World and The Legend of Zelda: A Link to the Past. They are recognized by their usual names (No-Intro and GoodSNES, USA, Europe, Japan, France, Germany, Canada...), for example `Super Mario World (USA).sfc` or `Legend of Zelda, The - A Link to the Past (USA).sfc`. Yoshi's Island, the All-Stars compilations and the Game Boy Advance version are not taken for them.
+
+![Super Mario World and A Link to the Past on an LCD marquee, HD display, drawn our own way](docs/images/hd_snes.jpg)
 
 The core to take is Snes9x. In RetroArch, go to Main Menu > Online Updater > Core Downloader, then choose "Nintendo - SNES / SFC (Snes9x - Current)". Mesen-S, bsnes-mercury, bsnes 2014 and the older Snes9x (2010, 2005, 2002) share their memory too. bsnes and bsnes-hd beta were not checked. If `test_retroarch.bat` says the memory cannot be read, take Snes9x. Network Commands must be on, as for the other games (see One-time setup in RetroArch).
 
