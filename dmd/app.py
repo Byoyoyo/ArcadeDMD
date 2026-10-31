@@ -681,9 +681,15 @@ class Engine:
         tag = g.get("tag") if isinstance(g.get("tag"), dict) else {}
         self.tag = tag if source in ("plugin", "retroarch") else {}
         names = names + [k for k in self.tag if k not in names]
-        # credits of a Neo Geo that cannot be read (RetroArch): guessed from its BIOS / crédits devinés d'après le BIOS
-        self.coin_guess = NeoCoins(mvs_rates(self.cfg)) if (source in ("plugin", "retroarch") and "credits" not in names
-                                                            and "bios_request" in names) else None
+        # credits of a Neo Geo that cannot be read (RetroArch): guessed from its BIOS, the guess kept when the same game
+        # comes back after a silence (RetroArch menu opened a while), and started from the credits left last time
+        # crédits devinés d'après le BIOS, gardés quand le même jeu revient après un silence, et repartis des crédits
+        # restants la dernière fois
+        if source in ("plugin", "retroarch") and "credits" not in names and "bios_request" in names:
+            same = not intro and self.coin_guess is not None and self.coin_game == key
+            self.coin_guess = self.coin_guess if same else NeoCoins(mvs_rates(self.cfg), self._neo_kept(meta.get("system") or ""))
+        else:
+            self.coin_guess = None
         # a game without a BIOS that says who plays (CPS): player 1 plays while its values move (timer, health...)
         # un jeu sans BIOS qui dit qui joue (CPS) : le joueur 1 joue tant que ses valeurs bougent (chrono, vie...)
         act = g.get("activity") if isinstance(g.get("activity"), dict) else None
@@ -837,6 +843,7 @@ class Engine:
                         self.state.update("coin_side", None, now)      # seen by the BIOS only: side unknown / côté inconnu
                     self.state.update("credits", c, now)
                     self.log(tr(f"crédits devinés d'après le BIOS : {c}", f"credits guessed from the BIOS: {c}"))
+                    self._neo_keep(c)
         elif t == "stop":
             if self.source == source or self.mode != "game":
                 self.go_idle()
@@ -1027,7 +1034,46 @@ class Engine:
         c = self.coin_guess.add(side, now)
         if c is not None and c != old:
             self.state.update("credits", c, now)
+            self._neo_keep(c)
         self.log(tr(f"pièce à {where}, crédits devinés {c}", f"coin on the {where}, credits guessed {c}"))
+
+    def _neo_file(self):
+        return os.path.join(self.root, "runtime", "neo_credits.json")
+
+    def _neo_kept(self, rom):
+        """Credits guessed for a Neo Geo game when it was last quit. FinalBurn Neo saves its backup RAM, credits
+        included, and gives them back the next time. / Crédits devinés pour un jeu Neo Geo quand on l'a quitté."""
+        try:
+            with open(self._neo_file(), encoding="utf-8") as f:
+                d = json.load(f)
+        except (OSError, ValueError):
+            return 0
+        v = d.get(rom) if isinstance(d, dict) and rom else None
+        return v if isinstance(v, int) and 0 <= v <= 99 else 0
+
+    def _neo_keep(self, c):
+        """The guessed credits of the game, kept for the next time. / Les crédits devinés, gardés pour la fois suivante."""
+        rom = self.state.meta.get("system") or ""
+        if not rom or not isinstance(c, int):
+            return
+        path = self._neo_file()
+        try:
+            with open(path, encoding="utf-8") as f:
+                d = json.load(f)
+        except (OSError, ValueError):
+            d = {}
+        if not isinstance(d, dict):
+            d = {}
+        if d.get(rom) == c:
+            return
+        d[rom] = c
+        try:
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path + ".tmp", "w", encoding="utf-8") as f:
+                json.dump(d, f, indent=1, sort_keys=True)
+            os.replace(path + ".tmp", path)
+        except OSError:
+            pass
 
     def _hold_zero(self, k, v, now):
         """Score lu à 0 en pleine partie (l'objet du combattant n'est pas encore recréé entre deux rounds
