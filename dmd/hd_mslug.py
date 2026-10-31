@@ -24,6 +24,7 @@ Dessins (casques, grenades, armes, décors) faits par le programme, aucune image
 """
 
 import math
+import os
 import random
 
 from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageOps
@@ -525,13 +526,30 @@ class MetalSlugScene:
         return s
 
     def tank_surf(self, side):
+        """The tank's picture, the program's drawing or the owner's own (sprites/mslug_tank_hd.png, side view, gun to the
+        right, fitted in the card). / Le dessin du char, celui du programme ou le sien (sprites/mslug_tank_hd.png)."""
         s = self.tanks.get(side)
         if s is None:
-            img = tank_img(self.S(190), self.S(108))
+            img = self._own_tank() or tank_img(self.S(190), self.S(108))
             if side == "p2":
                 img = ImageOps.mirror(img)
             s = self.tanks[side] = self.hd._surf(img)
         return s
+
+    def _own_tank(self):
+        path = os.path.join(getattr(self.hd, "root", "") or "", "sprites", "mslug_tank_hd.png")
+        if not os.path.isfile(path):
+            return None
+        try:
+            img = Image.open(path).convert("RGBA")
+        except (OSError, ValueError):
+            return None
+        w, h = self.S(190), self.S(108)
+        k = min(w / max(1, img.width), h / max(1, img.height))
+        img = img.resize((max(1, int(img.width * k)), max(1, int(img.height * k))), Image.LANCZOS)
+        out = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+        out.alpha_composite(img, ((w - img.width) // 2, h - img.height))      # sitting on the bottom / posé en bas
+        return out
 
     def get(self, vals, side, base):
         return vals.get(base if side == "p1" else base + "_p2")
