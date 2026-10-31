@@ -239,7 +239,11 @@ TAG = {"mvsc": {"p1": (0xFF3000, 0xFF3800), "p2": (0xFF3400, 0xFF3C00), "on": 0x
        "xmvsf": {"p1": (0xFF4000, 0xFF4800), "p2": (0xFF4400, 0xFF4C00), "on": None, "hp": 0x211, "chr": 0x053}}
 # who controls each player when the cheats do not say, the byte at +3 in the fighter's block like in Marvel vs. Capcom:
 # 1 for a human (Seb's captures, a game on each side) / qui dirige chaque joueur quand les codes ne le disent pas
-HUMAN = {"mshvsf": {"p1": 0xFF3803, "p2": 0xFF3C03}, "xmvsf": {"p1": 0xFF4003, "p2": 0xFF4403}}
+HUMAN = {"mshvsf": {"p1": 0xFF3803, "p2": 0xFF3C03}, "xmvsf": {"p1": 0xFF4003, "p2": 0xFF4403},
+         "xmcota": {"p1": 0xFF4003, "p2": 0xFF4403}}
+# rounds won when the cheats do not say, counted at the K.O. itself (X-Men: Children of the Atom, Seb's captures of
+# three games, alone on each side and two players) / les rounds gagnés quand les codes ne les donnent pas
+ROUNDS = {"xmcota": (0xFF4802, 0xFF4803)}
 # games where the computer scores too (Seb's captures of Marvel Super Heroes vs. Street Fighter and X-Men vs. Street
 # Fighter, the other games of the family taken alike): player 2's score going up does not say he is a human
 # les jeux où l'ordinateur marque aussi des points (captures de Seb, les autres jeux de la famille pris pareil)
@@ -618,6 +622,10 @@ def build(fbneo, cheats_dir, games_dir):
                 if not (isinstance(v, dict) and "FBNeo cheat database" in str(v.get("note", "")))}
         merged = dict(vals)
         merged.update(hand)                          # learned or set by hand wins / ce qui est appris passe avant
+        for key, a in zip(("rounds", "rounds_p2"), ROUNDS.get(name, ())):
+            merged.pop(key, None)                    # always at the same place / toujours à la même place
+            merged[key] = value(a, 1, fam, "u8", f"rounds won by {'player 1' if key == 'rounds' else 'player 2'}, counted at "
+                                                 f"the K.O., found in RAM captures on a cabinet")
         # versions whose own cheats put a value elsewhere (JoJo's Venture's second revision, Quiz & Dragons in Japan...):
         # read there for that version, MAME and RetroArch both take "per_game" over the file's values
         # les versions dont les propres codes de triche mettent une valeur ailleurs : lue là pour cette version
@@ -670,6 +678,7 @@ def build(fbneo, cheats_dir, games_dir):
             for p, a in HUMAN.get(name, {}).items():
                 k = f"_{p}_ctl"
                 who = "player 1" if p == "p1" else "player 2"
+                merged.pop(k, None)                  # always at the end / toujours à la fin
                 merged[k] = value(a, 1, fam, "u8", f"{who} controlled by a human (1) or the computer, found in RAM captures "
                                                    f"on a cabinet (a game on each side)")
                 merged[k]["human"] = 1
