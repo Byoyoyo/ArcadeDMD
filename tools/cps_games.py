@@ -250,9 +250,6 @@ ROUNDS = {"xmcota": (0xFF4802, 0xFF4803)}
 CPU_SCORES = {"xmcota", "msh", "xmvsf", "mshvsf", "mvsc"}
 # the level a game shows for 0 in its level byte (X-Men: Children of the Atom says Level 1) / le niveau affiché pour 0
 LEVEL_SHOWN_FROM = {"xmcota": 1}
-# the name a game gives its top level instead of its number (X-Men: Children of the Atom says Level Max, Seb's photo)
-# le nom que le jeu donne à son niveau le plus haut au lieu de son numéro
-LEVEL_TOP_NAME = {"xmcota": "MAX"}
 # full health of a game whose cheats only drain it, from a game of the same series / vie pleine d'un jeu de la même série
 FULL = {"sf2": 0x90, "nwarr": 0x90}
 
@@ -329,8 +326,6 @@ def values_from_cheats(cs, fam, name=""):
             if add:
                 lvl["add"] = add
             lvl["max"] = lv[0][2] + add
-            if name in LEVEL_TOP_NAME:
-                lvl["top_name"] = LEVEL_TOP_NAME[name]
             vals["power_level" if key == "power" else "power_level_p2"] = lvl
             continue
         w = word(t) if t else None

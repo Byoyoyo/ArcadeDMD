@@ -686,6 +686,8 @@ class HDRenderer:
         if h1 is not None and h2 is not None:
             self.draw_rounds(screen, vals, S(40) + bw, int(cx + S(160)), now)
         ko = h1 is not None and h2 is not None and (h1 <= 0 or h2 <= 0)
+        if ko and h1 <= 0 and h2 <= 0 and not (self.fight is not None and now - self.fight.ko_t < 3.0):
+            ko = False                    # both bars empty without a K.O.: the select screen / l'écran de sélection
         t = _num(vals.get("time"))
         if ko:
             ks = self.fight.ko_scale(now) if self.fight is not None else 1.0
@@ -719,7 +721,7 @@ class HDRenderer:
             if team:
                 self.draw_team(screen, team, S(44) if side == "p1" else W - S(44), S(372), side, room)
             else:
-                self.draw_super(screen, vals, side, now, room, *self._level_top(eng, side))
+                self.draw_super(screen, vals, side, now, room, self._level_top(eng, side))
         credits = _num(vals.get("credits"))
         if credits is not None:                               # big enough to read, on a dark pill / lisibles, sur une pastille
             t = self.text(tr(f"CRÉDITS {int(credits):02d}", f"CREDITS {int(credits):02d}"), "xbold", S(44), AMBER, 0.3)
@@ -758,20 +760,16 @@ class HDRenderer:
 
     @staticmethod
     def _level_top(eng, side):
-        """The top level of the super gauge in the game file ("max" of power_level) and the name the game gives it
-        ("top_name", X-Men's MAX), or (None, None). / Le niveau le plus haut et le nom que le jeu lui donne."""
+        """The top level of the super gauge in the game file ("max" of power_level), or None. / Le niveau le plus haut."""
         lib = getattr(eng, "library", None)
         g = lib.get((eng.state.meta or {}).get("game") or "") if lib is not None else None
         spec = (((g or {}).get("memory") or {}).get("values") or {}).get("power_level" if side == "p1" else "power_level_p2")
-        if not isinstance(spec, dict):
-            return None, None
-        name = spec.get("top_name")
-        return _num(spec.get("max")), (str(name) if isinstance(name, str) and name else None)
+        return _num(spec.get("max")) if isinstance(spec, dict) else None
 
-    def draw_super(self, screen, vals, side, now, room, top=None, top_name=None):
+    def draw_super(self, screen, vals, side, now, room, top=None):
         """Super gauge of the Capcom fighting games (Alpha, Marvel, Street Fighter III...) under the fighter: it fills up,
         turns gold and says MAX when full. With a level (the Marvel games, X-Men), the bar of the current level and the
-        level beside it, like the game, full at the top level (top), named like the game there (top_name, X-Men's MAX).
+        level beside it (POWER 1, POWER 2), full with POWER MAX at the top level (top).
         / Jauge de super sous le combattant : elle se remplit, dorée et MAX quand pleine. Avec un niveau (les Marvel,
         X-Men), la barre du niveau en cours et le niveau à côté, comme le jeu, pleine au niveau le plus haut."""
         p = _num(vals.get("power" if side == "p1" else "power_p2"))
@@ -782,8 +780,7 @@ class HDRenderer:
         lv = _num(vals.get("power_level" if side == "p1" else "power_level_p2"))
         if lv is not None and top and lv >= top:
             f = 1.0                                       # top level: the game keeps the bar full / niveau le plus haut
-        n = top_name if (lv is not None and top and top_name and lv >= top) else (None if lv is None else int(lv))
-        word = "SUPER" if lv is None else tr(f"NIVEAU {n}", f"LEVEL {n}")
+        word = "SUPER" if lv is None else ("POWER MAX" if top and lv >= top else f"POWER {int(lv)}")
         lab = self.text(word, "black", S(30), (120, 190, 255), glow=0)
         w, h = int(min(room - lab["w"] - S(60), S(520))), S(24)
         y = S(380)
