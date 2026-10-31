@@ -546,10 +546,18 @@ class TwinkleScene(GameScene):
                 e["dead"] = now
 
     def bomb(self, side, now):
+        """A bomb, the big show: the whole screen shakes (and once more, smaller), flashes white, a shockwave and sparks
+        burst from the middle of the field. / Une bombe, le grand spectacle : tout l'écran tremble, flashe, onde de choc."""
         st = self.side[side]
         self.bombs += 1
         st["bomb"] = now
         x, y = self.fxy(side, 0.5, 0.5)
+        self.fx.shake(16, 0.75)
+        self.fx.later(0.3, self.fx.shake, 9, 0.45)
+        self.fx.flash((255, 250, 235), 0.45, 0.28)
+        bx, by = self.fxy(side, 0.5, 0.55)
+        for col, n, sp in (((255, 255, 255), 50, (500, 1300)), ((255, 220, 120), 40, (300, 900)), ((255, 140, 210), 30, (200, 700))):
+            self.fx.sparks(bx, by, n, col, sp, (0, 360), (0.4, 0.9), 300, "front", 4, 22)
         x0, w = self.fields[0 if side == "p1" else 1]
         for i in range(12):
             a = i / 12 * math.tau
@@ -684,6 +692,13 @@ class TwinkleScene(GameScene):
             if lvl:
                 fl = self.flash_img(w * 1.1, H * 1.3, lvl)
                 screen.blit(fl, (int(bx - fl.get_width() / 2), int(by - fl.get_height() / 2)), special_flags=pg.BLEND_RGB_ADD)
+            if kb < 0.55:                                              # the shockwave / l'onde de choc
+                rw = 1 - kb / 0.55
+                rad = int(S(40) + kb / 0.55 * w * 0.75)
+                pg.draw.ellipse(screen, (255, 255, 255), (int(bx - rad), int(by - rad * 0.62), 2 * rad, int(2 * rad * 0.62)),
+                                max(2, int(S(26) * rw)))
+                pg.draw.ellipse(screen, (255, 230, 150), (int(bx - rad * 0.8), int(by - rad * 0.5), int(1.6 * rad), int(rad)),
+                                max(1, int(S(10) * rw)))
             for ring, (n, size, col, speed) in enumerate(((10, 20, (255, 255, 255), 1.0), (16, 16, (255, 236, 140), 1.25),
                                                           (22, 12, (255, 170, 220), 1.5))):
                 rad = S(60) + kb * speed * S(330)
