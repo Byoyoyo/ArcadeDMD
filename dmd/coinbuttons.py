@@ -30,7 +30,9 @@ from .i18n import tr
 LEFT, RIGHT = 0, 1
 SIDES = (("left", LEFT), ("right", RIGHT))
 STARTS = (("start1", 0), ("start2", 1))   # START of player 1 and of player 2 / START du joueur 1 et du joueur 2
-REFRACTORY = 0.15            # a button that bounces makes one coin / un bouton qui rebondit fait une seule pièce
+MIN_GAP = 0.06               # two coins at least that far apart (fast presses all count, RetroArch counts them all)
+MIN_UP = 0.03                # released at least that long: a button that bounces makes one coin
+                             # au moins 60 ms entre deux pièces, et relâché au moins 30 ms : un rebond ne fait qu'une pièce
 AWAY = 3.0                   # a controller that is not there is tried again after that / manette absente
 # keys looked at by coin_buttons.bat: not the mouse buttons, nor the Shift, Ctrl and Alt that also come as left or right
 # touches regardées : ni les boutons de la souris, ni Maj, Ctrl et Alt qui arrivent aussi en version gauche ou droite
@@ -169,6 +171,7 @@ class CoinButtons:
         self.sq = collections.deque()
         self.held = {}
         self.last = {}
+        self.up = {}                      # when each button was last released / quand chaque bouton a été relâché
         self.away = {}                    # controller not there: when to try again / manette absente : quand réessayer
         self.failed = False
         self.stop_ev = threading.Event()
@@ -211,21 +214,28 @@ class CoinButtons:
         b = cache[j]
         return b is not None and bool(b >> inp[2] & 1)
 
+    def _press(self, k, d, now):
+        """True for a new press of button k (down now, up before): not a bounce, not too close to the last one.
+        / Un nouvel appui, pas un rebond."""
+        new = (d and not self.held.get(k) and now - self.last.get(k, -9.0) >= MIN_GAP
+               and now - self.up.get(k, -9.0) >= MIN_UP)
+        if not d and self.held.get(k):
+            self.up[k] = now
+        if new:
+            self.last[k] = now
+        if d and not self.held.get(k) and not new:
+            d = False                                    # a bounce stays up, the next press counts / un rebond
+        self.held[k] = d
+        return new
+
     def scan(self, now):
         cache = {}                                       # each controller read once / chaque manette lue une fois
         for side, inp in self.inputs.items():
-            d = self.down(inp, now, cache)
-            if d and not self.held.get(side) and now - self.last.get(side, -9.0) >= REFRACTORY:
+            if self._press(side, self.down(inp, now, cache), now):
                 self.q.append((side, now))
-                self.last[side] = now
-            self.held[side] = d
         for player, inp in self.starts.items():
-            k = f"s{player}"
-            d = self.down(inp, now, cache)
-            if d and not self.held.get(k) and now - self.last.get(k, -9.0) >= REFRACTORY:
+            if self._press(f"s{player}", self.down(inp, now, cache), now):
                 self.sq.append((player, now))
-                self.last[k] = now
-            self.held[k] = d
 
     def _run(self):
         while not self.stop_ev.is_set():

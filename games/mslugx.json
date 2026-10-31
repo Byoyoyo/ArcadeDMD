@@ -89,6 +89,17 @@
         "zero_from": "0x80",
         "note": "player 2 rescued prisoners (cheat database, Get 50 Prisoners Now! PL2)"
       },
+      "time": {
+        "addr": "0x1013DE",
+        "type": "u8",
+        "note": "timer (cheat database, Infinite Time writes 90), to be confirmed in game"
+      },
+      "mission": {
+        "addr": "0x10C2FD",
+        "type": "u8",
+        "add": 1,
+        "note": "mission number, 0-based in RAM (cheat database \"Select Starting Mission\"), to be confirmed in game"
+      },
       "credits": {
         "addr": "0xD00034",
         "type": "bcd",

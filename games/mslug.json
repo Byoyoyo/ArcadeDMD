@@ -20,16 +20,22 @@
     "cpu": ":maincpu",
     "values": {
       "score": {
-        "addr": "0x1081B6",
-        "type": "bcd",
-        "bytes": 4,
-        "note": "player 1 score, found with learn.bat (RetroArch, FinalBurn Neo)"
+        "addr": "0x106E94",
+        "type": "digits",
+        "bytes": 8,
+        "not_learned": [
+          "0x1081B6"
+        ],
+        "note": "player 1 score, one digit per byte, the game's own (RAM captures on a cabinet, two players included). learn.bat finds 0x1081B6 (BCD), where the game puts the score of the last player who scored: player 1's only while he plays alone"
       },
       "score_p2": {
-        "addr": "",
-        "type": "bcd",
-        "bytes": 4,
-        "note": "player 2, to find with learn.bat (two-player game, score_p2=...)"
+        "addr": "0x106E9C",
+        "type": "digits",
+        "bytes": 8,
+        "not_learned": [
+          "0x1081B6"
+        ],
+        "note": "player 2 score, one digit per byte, right after player 1's (learn.bat captures on a cabinet, 1200, 2400 and 4700 while player 1 kept 18700)"
       },
       "lives": {
         "addr": "0x100377",

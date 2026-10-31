@@ -534,6 +534,15 @@ def run(root, game=None, answers=None, write=None, show=True, pick_interactive=F
         res, note = search(obs, field, objects, big_endian)
         if note:
             print("  " + note)
+        spec = (((cfg or new_cfg or {}).get("memory") or {}).get("values") or {}).get(field)
+        bad = [a for a in (spec.get("not_learned") or [])] if isinstance(spec, dict) else []
+        if bad and res:
+            from .learned import _addr
+            far = [r for r in res if r.get("ptr") is not None or all(abs(r["addr"] - (_addr(a) or -99)) >= 4 for a in bad)]
+            if len(far) < len(res):
+                print(tr(f"  {', '.join(bad)} laissé de côté : le jeu n'y garde pas « {field} » (voir games/{game}.json).",
+                         f"  {', '.join(bad)} left aside: the game does not keep \"{field}\" there (see games/{game}.json)."))
+            res = far
         if not res:
             print(tr("  Rien trouvé. Vérifie les valeurs saisies, ou capture à des moments où la valeur a changé.",
                      "  Nothing found. Check the values you typed, or capture at moments when the value has changed."))
@@ -624,6 +633,8 @@ def run(root, game=None, answers=None, write=None, show=True, pick_interactive=F
             if v.get("ptr") and k.startswith("score"):
                 # entre deux rounds l'objet est recréé : un 0 passager ne doit pas effacer le score
                 v["hold_zero"] = old.get("hold_zero", 20) if isinstance(old, dict) else 20
+            if isinstance(old, dict) and old.get("not_learned"):
+                v["not_learned"] = old["not_learned"]                # still ruled out next time / toujours écartée
             vals[k] = v
             if note:
                 vals[k]["note"] = note

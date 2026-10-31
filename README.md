@@ -878,7 +878,7 @@ When run while RetroArch is closed, `learn.bat` re-analyzes the game's latest ca
 
 The recognized names are `score`, `score2` (or `score_p2`), `credits`, `lives`, `lives_p2`, `bombs` and `ammo`. The French names `crédits`, `vies`, `vies2`, `bombes` and `munitions` work too. For a game that has no file yet, the tool creates one in `games\` with the generic scene.
 
-Whatever the tool finds is also copied to `learned\`. A new version of ArcadeDMD replaces the files in `games\`, but the engine automatically puts the learned addresses back at startup. To forget what was learned for a game, delete its file in `learned\`.
+Whatever the tool finds is also copied to `learned\`. A new version of ArcadeDMD replaces the files in `games\`, but the engine automatically puts the learned addresses back at startup. To forget what was learned for a game, delete its file in `learned\`. An address that the game's file rules out (`not_learned`, where the game keeps something else that the tool mistakes for the value) is removed from `learned\` by itself, and the tool leaves it aside. In Metal Slug, the place the tool found holds the score of the last player who scored.
 
 ### Good to know
 
