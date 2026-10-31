@@ -1199,8 +1199,10 @@ class MetalSlugScene:
                 gap = score - P.score_disp
                 P.score_disp = min(score, P.score_disp + max(1, int(gap * 0.18) + 1)) if gap else score
             pop = max(0.0, 1 - (now - P.score_t) / 0.22)
-            hd.put_number(screen, self._fmt(P.score_disp), "stencil", S(92), GOLD, self.X(side, x0, 28), S(84),
-                          "left" if side == "p1" else "right", scale=1 + 0.12 * pop)
+            # in the middle of the band between the line under J1 / J2 (panel y 72) and the card (184), Seb found it on the line
+            # au milieu de la bande entre le trait sous J1 / J2 et la carte : il était collé au trait
+            hd.put_number(screen, self._fmt(P.score_disp), "stencil", S(92), GOLD, self.X(side, x0, 28), y0 + S(128),
+                          "left" if side == "p1" else "right", "middle", scale=1 + 0.12 * pop)
         elif side == "p2":
             hd.put(screen, hd.text(tr("SCORE À APPRENDRE", "SCORE NOT LEARNED YET"), "bold", S(24), GREY, glow=0), self.X(side, x0, 28), S(120), "right")
         self._draw_weapon(screen, side, P, x0, vals, now)
