@@ -236,7 +236,7 @@ class TwinkleScene(GameScene):
     the game: chains that grow, fireballs that cross the column (with !! where they land), the charged shot that leaves
     as a beam of light (1, 2 or MAX !), a bomb that rumbles and lights up the whole screen (rays, shockwaves, a shower of
     stars, BOMB !), a boss attack that darkens the other field with BOSS ATTACK !, a heart that breaks or comes back,
-    K.O. and WIN ! with fireworks, PERFECT ! for a round won without losing a heart.
+    K.O. and WIN ! with fireworks, PERFECT ! when the game gives one (a formation cleared in one chain).
     / Deux terrains côte à côte, comme dans le jeu, et les grands moments lus dans le jeu."""
     THEME = "ts_frame"
     STATIC = True
@@ -268,7 +268,7 @@ class TwinkleScene(GameScene):
         self.side = {side: {"x": 0.5, "tx": 0.5, "next": 0.0, "hit": -99.0, "fire": 0.0, "enemies": [], "balls": [], "boss": None,
                             "next_row": 0.0, "chain": 0, "bomb": -99.0, "chain_n": 0, "chain_t": -99.0, "warn": (-99.0, 1),
                             "beam": (-99.0, 0), "red": -99.0, "ko": -99.0, "win": -99.0, "orb": (-99.0, 0), "hearts": [],
-                            "boss_t": -99.0, "clean": None, "perfect": -99.0} for side in ("p1", "p2")}
+                            "boss_t": -99.0, "perfect": -99.0} for side in ("p1", "p2")}
         self.comets = []                                  # fireballs crossing the column / boules de feu qui traversent
         self.big = {}                                     # big texts and pictures of the effects / grands textes, images
         self.bigq = {}                                    # the big texts that bounce, at a few scales / à quelques tailles
@@ -441,11 +441,6 @@ class TwinkleScene(GameScene):
     # ------------------------------------------------------------ ce qui arrive
     def update(self, vals, now):
         S, dt, rng = self.S, self.dt, self.rng
-        ins = (bool(self.p1_in(vals)), bool(self.p2_in(vals)))
-        if ins != getattr(self, "was_in", ins) and any(a and not b for a, b in zip(ins, self.was_in)):
-            for st in self.side.values():                              # a game starts, or player 2 comes in: hearts seen anew
-                st["clean"] = None                                     # / une partie commence : les cœurs revus
-        self.was_in = ins
         for side, suf in (("p1", ""), ("p2", "_p2")):
             st = self.side[side]
             other = "p2" if side == "p1" else "p1"
@@ -456,9 +451,6 @@ class TwinkleScene(GameScene):
                 if now >= st["next"]:
                     st["tx"], st["next"] = rng.uniform(0.12, 0.88), now + rng.uniform(0.8, 2.0)
                 st["x"] += (st["tx"] - st["x"]) * min(1.0, dt * 2.0)
-            hv = _n(vals.get("lives" + suf))
-            if hv is not None and st["clean"] is None:                 # seen for the first time: untouched with five hearts
-                st["clean"] = hv >= 4.99                               # / vu la 1re fois : intact avec cinq cœurs
             ch = self.changed(vals, "lives" + suf)
             if ch:
                 self.hearts_changed(side, other, ch[0], ch[1], now, vals)
@@ -470,6 +462,9 @@ class TwinkleScene(GameScene):
             if ch and ch[1] > 0:
                 lvl = max(1, min(3, int(ch[1]) // 16))
                 self.send(side, other, lvl, now)
+            ch = self.changed(vals, "perfect" + suf)
+            if ch and ch[1] > ch[0] and ch[1] > 0:                     # the game's PERFECT: a formation cleared in one chain
+                self.perfect(side, now)
             ch = self.changed(vals, "hits" + suf)
             if ch and ch[1] >= 2 and ch[1] > ch[0]:                     # the chain the game counts (N HIT)
                 st["chain_n"], st["chain_t"] = int(ch[1]), now
@@ -515,7 +510,6 @@ class TwinkleScene(GameScene):
         if new < old:
             st["hit"] = now
             st["red"] = now
-            st["clean"] = False                                        # hit in this round: no PERFECT / touché
             self.hits += 1
             x, y = self.fxy(side, st["x"], 0.82)
             self.fx.sparks(x, y, 20, (255, 120, 160), (200, 500), (0, 360), (0.3, 0.7), 0, "front", 3, 20)
@@ -532,28 +526,28 @@ class TwinkleScene(GameScene):
                     os_["win"] = now
                     for k in range(8):                                 # fireworks for the winner / feu d'artifice
                         self.fx.later(0.2 + k * 0.28, self.firework, other)
-                    if os_["clean"]:                                   # won without losing a heart: PERFECT, as in the game
-                        self.perfect(other, now)
         else:
             for i in range(int(math.floor(old + 0.01)), int(math.ceil(new - 0.01))):
                 st["hearts"].append(("fill", i, now))
             if old <= 0 < new:
-                st["ko"] = self.side[other]["win"] = self.side[other]["perfect"] = st["perfect"] = -99.0   # a new round
-                st["clean"] = self.side[other]["clean"] = True                                         # / une nouvelle manche
+                st["ko"] = self.side[other]["win"] = -99.0          # a new round / une nouvelle manche
         st["hearts"] = [h for h in st["hearts"] if now - h[2] < 1.0]
 
+    PERFECT_T = 2.4                                                    # how long PERFECT ! stays / durée de PERFECT !
+
     def perfect(self, side, now):
-        """PERFECT !, big on the winner's field, with a golden burst and fireworks over the whole screen.
-        / PERFECT ! en grand sur le terrain du gagnant, une gerbe dorée et un feu d'artifice sur tout l'écran."""
+        """The game's PERFECT, a formation of puffballs cleared in one chain: PERFECT ! big on that field, bouncing in
+        with stars around it, a golden burst and two fireworks. / Le PERFECT du jeu, un groupe de boules balayé d'une
+        seule chaîne : PERFECT ! en grand sur ce terrain, qui rebondit, avec des étoiles, une gerbe dorée."""
         st = self.side[side]
-        st["perfect"] = now + 0.35
+        st["perfect"] = now
         self.perfects += 1
-        x, y = self.fxy(side, 0.5, 0.32)
-        self.fx.later(0.35, self.fx.glow, x, y, 60, 360, (255, 214, 90), 0.7, "front", 1.0, 0.0)
-        self.fx.later(0.35, self.fx.sparks, x, y, 60, (255, 236, 150), (300, 1000), (0, 360), (0.5, 1.1), 260, "front", 4, 22)
-        self.fx.later(0.35, self.fx.flash, (255, 220, 120), 0.3, 0.4)
-        for k in range(10):                                            # both fields light up / les deux terrains
-            self.fx.later(0.5 + k * 0.22, self.firework, "p1" if k % 2 else "p2")
+        x, y = self.fxy(side, 0.5, 0.42)
+        self.fx.glow(x, y, 60, 330, (255, 214, 90), 0.6, "front", 1.0, 0.0)
+        self.fx.sparks(x, y, 60, (255, 236, 150), (300, 1000), (0, 360), (0.5, 1.1), 260, "front", 4, 22)
+        self.fx.shake(5, 0.25)
+        for k in range(2):
+            self.fx.later(0.25 + k * 0.35, self.firework, side)
 
     def firework(self, side):
         x0, w = self.fields[0 if side == "p1" else 1]
@@ -892,7 +886,7 @@ class TwinkleScene(GameScene):
                          1.0 if kw < 0.9 else (1.2 - kw) / 0.3)
         kch = now - st["chain_t"]                                      # the chain counter / le compteur de chaîne
         calm = not (0 <= now - st["bomb"] < 1.3 or 0 <= now - st["boss_t"] < 2.2 or 0 <= ko < 6.0 or 0 <= now - st["win"] < 6.0
-                    or 0 <= now - st["beam"][0] < 0.9 or 0 <= now - st["perfect"] < 6.0)
+                    or 0 <= now - st["beam"][0] < 0.9 or 0 <= now - st["perfect"] < self.PERFECT_T)
         if calm and st["chain_n"] >= 2 and 0 <= kch < 1.3:
             fx_, fy_ = st.get("chain_xy", (0.5, 0.5))
             px, py = self.fxy(side, _clamp(fx_, 0.25, 0.75), fy_)
@@ -903,11 +897,11 @@ class TwinkleScene(GameScene):
             self.put_big(screen, self.big_text("ko"), cx, H * 0.53, 1.0 + 0.8 * max(0.0, 1 - ko / 0.18))
         kwn = now - st["win"]
         kp = now - st["perfect"]
-        if 0 <= kwn < 6.0:                                             # WIN !, smaller under PERFECT ! / plus petit dessous
-            perf = 0 <= kp < 6.0
+        perf = 0 <= kp < self.PERFECT_T
+        if 0 <= kwn < 6.0:                                             # WIN !, smaller under a PERFECT ! / plus petit dessous
             q = int(round((0.7 if perf else 1.0) * (1.0 + 0.8 * max(0.0, 1 - kwn / 0.18)) * 10))
             self.put_big(screen, self.big_q("win", max(7, min(18, q))), cx, H * (0.73 if perf else 0.54) + S(4) * math.sin(now * 5))
-        if 0 <= kp < 6.0:                                              # PERFECT ! above WIN !, bouncing in, with stars around
+        if perf:                                                       # PERFECT !, bouncing in, with stars around it
             px, py = cx, H * 0.42
             g = self.fx.sp.glow(S(190 + 20 * (int(now * 8) % 3)), (255, 190, 80), 7)
             screen.blit(g, (int(px - g.get_width() / 2), int(py - g.get_height() / 2)), special_flags=pg.BLEND_RGB_ADD)
@@ -918,7 +912,7 @@ class TwinkleScene(GameScene):
                                 ts_star_pts(px + math.cos(a) * S(380), py + math.sin(a) * S(95), r, a * 2))
             sc = 1 + 1.2 * math.exp(-kp * 7) * math.cos(kp * 14)
             self.put_big(screen, self.big_q("perfect", max(7, min(20, int(round(sc * 10))))), px, py, 1.0,
-                         1.0 if kp < 5.4 else (6.0 - kp) / 0.6)
+                         1.0 if kp < self.PERFECT_T - 0.4 else (self.PERFECT_T - kp) / 0.4)
 
     def draw_comets(self, screen, now):
         """Fireballs crossing the column with their trail. / Les boules de feu qui traversent la colonne."""

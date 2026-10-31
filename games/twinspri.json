@@ -134,6 +134,18 @@
         "add": 1,
         "note": "stage against the computer, shown in the column, 0 for stage 1 (RAM captures on a cabinet at stages 1, 2, 3 and 3; 0x10BB09 holds the same)"
       },
+      "perfect": {
+        "addr": "",
+        "type": "u8",
+        "max": 1,
+        "note": "player 1's PERFECT, a formation cleared in one chain: learn it with learn.bat (perfect=1 while the game shows PERFECT, perfect=0 otherwise)"
+      },
+      "perfect_p2": {
+        "addr": "",
+        "type": "u8",
+        "max": 1,
+        "note": "player 2's PERFECT (perfect2=1 while the game shows it on his side, perfect2=0 otherwise)"
+      },
       "credits": {
         "addr": "0xD00034",
         "type": "bcd",
@@ -319,6 +331,42 @@
         ],
         "every": 24.0,
         "start": 24.0
+      },
+      "perfect": {
+        "cycle": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "every": 2.5,
+        "start": 9.0
+      },
+      "perfect_p2": {
+        "cycle": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "every": 2.5,
+        "start": 9.0
       }
     },
     "stage": 1

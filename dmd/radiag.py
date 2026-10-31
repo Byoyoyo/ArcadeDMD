@@ -27,6 +27,7 @@ LABELS = {"lives": ("vies", "lives"), "lives_p2": ("vies J2", "P2 lives"), "bomb
           "vehicle": ("char", "tank"), "vehicle_p2": ("char J2", "P2 tank"), "vehicle_hp": ("énergie du char", "tank energy"),
           "vehicle_hp_p2": ("énergie du char J2", "P2 tank energy"), "vehicle_ammo": ("obus du char", "tank shells"),
           "vehicle_ammo_p2": ("obus du char J2", "P2 tank shells"), "hits": ("chaîne", "chain"), "hits_p2": ("chaîne J2", "P2 chain"),
+          "perfect": ("PERFECT", "PERFECT"), "perfect_p2": ("PERFECT J2", "P2 PERFECT"),
           "weapon_p2": ("arme J2", "P2 weapon"), "health": ("vie J1 %", "P1 health %"), "health_p2": ("vie J2 %", "P2 health %"),
           "p1_char": ("perso J1", "P1 character"), "p2_char": ("perso J2", "P2 character"),
           "beat": ("BEAT BY J1", "BEAT BY P1"), "beat_p2": ("BEAT BY J2", "BEAT BY P2"),
