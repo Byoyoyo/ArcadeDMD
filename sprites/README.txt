@@ -36,6 +36,9 @@ To replace the ring with your own character, drop sonic.gif
 For Sonic 2, sonic2.gif (or sonic2.png) takes priority if it exists.
 For the Metal Slug games, mslug_tank.gif (or mslug_tank.png as a strip of 3 frames)
 replaces the tank. 5 pixels high at most, cannon facing right.
+On the HD screen, mslug_tank_hd.png replaces the tank of the first Metal Slug
+in the player's card (any size, seen from the side, cannon facing right).
+A plain background around the drawing is made transparent, empty margins are cut.
 For shoot'em ups, neogeo_ship.gif (or .png) replaces the ship.
 
 For the coin screen of the Neo Geo fighting games (nobody playing),
@@ -82,6 +85,9 @@ Pour remplacer l anneau par ton propre personnage, depose sonic.gif
 Pour Sonic 2, sonic2.gif (ou sonic2.png) passe en priorite s il existe.
 Pour les Metal Slug, mslug_tank.gif (ou mslug_tank.png en bande de 3 images)
 remplace le char. 5 pixels de haut au plus, canon vers la droite.
+Sur l ecran HD, mslug_tank_hd.png remplace le char du premier Metal Slug
+dans la carte du joueur (toute taille, vu de profil, canon vers la droite).
+Un fond uni autour du dessin devient transparent, les marges vides sont coupees.
 Pour les shoot'em up, neogeo_ship.gif (ou .png) remplace le vaisseau.
 
 Pour l ecran des pieces des jeux de combat Neo Geo (personne ne joue),

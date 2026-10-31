@@ -1,6 +1,6 @@
 {
   "title": "X-Men: Children of the Atom",
-  "note": "Capcom CPS2 fighting game: health, health_p2, time, power, power_p2, 13 characters (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "note": "Capcom CPS2 fighting game: health, health_p2, time, power, power_level, power_p2, power_level_p2, 13 characters (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
   "generated": "tools/cps_games.py",
   "cps": "CPS2",
   "match": [
@@ -46,22 +46,36 @@
         "note": "timer (FBNeo cheat database, Infinite Time)"
       },
       "power": {
-        "addr": "0xFF4198",
+        "addr": "0xFF4195",
         "type": "u8",
-        "note": "super gauge of player 1 in %, full = 0x2 (FBNeo cheat database)",
-        "mult": 50.0,
+        "note": "super gauge of player 1 in % of the current level, full = 0x8E (FBNeo cheat database)",
+        "mult": 0.704225,
         "round": 1,
         "min": 0,
         "max": 100
       },
-      "power_p2": {
-        "addr": "0xFF4598",
+      "power_level": {
+        "addr": "0xFF4198",
         "type": "u8",
-        "note": "super gauge of player 2 in %, full = 0x2 (FBNeo cheat database)",
-        "mult": 50.0,
+        "note": "super gauge level of player 1, 3 at most (FBNeo cheat database)",
+        "add": 1,
+        "max": 3
+      },
+      "power_p2": {
+        "addr": "0xFF4595",
+        "type": "u8",
+        "note": "super gauge of player 2 in % of the current level, full = 0x8E (FBNeo cheat database)",
+        "mult": 0.704225,
         "round": 1,
         "min": 0,
         "max": 100
+      },
+      "power_level_p2": {
+        "addr": "0xFF4598",
+        "type": "u8",
+        "note": "super gauge level of player 2, 3 at most (FBNeo cheat database)",
+        "add": 1,
+        "max": 3
       },
       "_p1_chr": {
         "addr": "0xFF4051",
@@ -73,10 +87,44 @@
         "type": "u8",
         "note": "player 2 or computer character (FBNeo cheat database, Select Character PL2)"
       },
+      "score": {
+        "addr": "0xFF4184",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 1 score, found with learn.bat under RetroArch on a cabinet"
+      },
+      "score_p2": {
+        "addr": "0xFF4584",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 2 score, found with learn.bat under RetroArch on a cabinet (a two-player game), 0x400 further like his health"
+      },
+      "rounds": {
+        "addr": "0xFF4802",
+        "type": "u8",
+        "note": "rounds won by player 1, counted at the K.O., found in RAM captures on a cabinet"
+      },
+      "rounds_p2": {
+        "addr": "0xFF4803",
+        "type": "u8",
+        "note": "rounds won by player 2, counted at the K.O., found in RAM captures on a cabinet"
+      },
       "backdrop": {
         "addr": "0xFF488F",
         "type": "u8",
         "note": "stage backdrop, picks the HD theme in hd.stages (FBNeo cheat database, Select Background)"
+      },
+      "_p1_ctl": {
+        "addr": "0xFF4003",
+        "type": "u8",
+        "note": "player 1 controlled by a human (1) or the computer, found in RAM captures on a cabinet (a game on each side)",
+        "human": 1
+      },
+      "_p2_ctl": {
+        "addr": "0xFF4403",
+        "type": "u8",
+        "note": "player 2 controlled by a human (1) or the computer, found in RAM captures on a cabinet (a game on each side)",
+        "human": 1
       }
     }
   },
@@ -119,10 +167,21 @@
     }
   },
   "activity": {
-    "values": ["time", "health", "health_p2"],
-    "moving": ["time", "health", "health_p2"],
+    "values": ["time", "health", "health_p2", "score", "score_p2"],
+    "moving": ["time", "score", "score_p2", "health", "health_p2"],
     "seconds": 10,
-    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
+    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)",
+    "human": {
+      "p1": [
+        "_p1_ctl",
+        1
+      ],
+      "p2": [
+        "_p2_ctl",
+        1
+      ]
+    },
+    "cpu_scores": true
   },
   "demo": {
     "credits": 2,
@@ -131,6 +190,8 @@
     "health": 100,
     "health_p2": 100,
     "time": 99,
+    "power_level": 1,
+    "power_level_p2": 1,
     "_p1_chr": 0,
     "_p2_chr": 2
   },

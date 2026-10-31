@@ -41,8 +41,10 @@ PATTERNS = {
     "health_p2": rf"^(?:select )?infinite (?:energy|health|vitality|life)(?: '?all'?| \((?:1st char(?:acter)?|active char)\))? {PL}2$",
     "_drain": rf"^(?:always have no energy|drain all energy now!?(?: \(active char\))?) {PL}1(?:/cpu)?$",
     "_drain_p2": rf"^(?:always have no energy|drain all energy now!?(?: \(active char\))?) {PL}2(?:/cpu)?$",
-    "rounds": rf"^rounds won always (?:set )?= 0 {PL}1$",
-    "rounds_p2": rf"^rounds won always (?:set )?= 0 {PL}2$",
+    # the counter itself, or the cheat that sets it to win the match with this round (Night Warriors)
+    # le compteur lui-même, ou le code qui le règle pour gagner le match avec ce round
+    "rounds": rf"^(?:rounds won always (?:set )?= 0|win this round to win match now!?) {PL}1$",
+    "rounds_p2": rf"^(?:rounds won always (?:set )?= 0|win this round to win match now!?) {PL}2$",
     "lives": rf"^infinite lives {PL}1$",
     "lives_p2": rf"^infinite lives {PL}2$",
     "bombs": rf"^infinite (?:bombs|bomb stock|bomb) {PL}1$",
@@ -50,6 +52,10 @@ PATTERNS = {
     "power_p2": rf"^(?:infinite (?:power|super|super meter|super gauge)|always (?:have )?max(?:imum)? (?:power|super)(?: gauge)?) {PL}2$",
     "_p1_chr": rf"^select (?:1st )?char(?:acter)?(?: \(active char\))?(?: now!)? {PL}1$",
     "_p2_chr": rf"^select (?:1st )?char(?:acter)?(?: \(active char\))?(?: now!)? {PL}2$",
+    # who controls each player, a human or the computer (Street Fighter Alpha, Alpha 3, Marvel vs. Capcom)
+    # qui dirige chaque joueur, un humain ou l'ordinateur
+    "_p1_ctl": rf"^select control(?: \(1st char\))? {PL}1$",
+    "_p2_ctl": rf"^select control(?: \(1st char\))? {PL}2$",
 }
 PATTERNS = {k: re.compile(v, re.I) for k, v in PATTERNS.items()}
 BACKDROP = re.compile(r"^(?:select (?:permanent )?(?:background|backdrop)(?: now!?)?|background always =|select next stage now!?)$", re.I)
@@ -223,6 +229,27 @@ def timer(t, fam, src):
     return "_time", spec
 
 
+# teams that take turns, two fighters a player (Marvel vs. Capcom): where each fighter is kept, and in it the byte at 1
+# while he is on screen, his health and his character (Seb's RAM captures, the first one K.O., the second one on screen)
+# les équipes qui se relaient : où est chaque combattant, et dans son bloc l'octet à 1 quand il est à l'écran, sa vie
+# X-Men vs. Street Fighter keeps the fighter on screen in the first block and the other one in the second ("on": None)
+# X-Men vs. Street Fighter garde le combattant à l'écran dans le premier bloc, l'autre dans le second
+TAG = {"mvsc": {"p1": (0xFF3000, 0xFF3800), "p2": (0xFF3400, 0xFF3C00), "on": 0x000, "hp": 0x271, "chr": 0x053},
+       "mshvsf": {"p1": (0xFF3800, 0xFF4000), "p2": (0xFF3C00, 0xFF4400), "on": 0x000, "hp": 0x251, "chr": 0x053},
+       "xmvsf": {"p1": (0xFF4000, 0xFF4800), "p2": (0xFF4400, 0xFF4C00), "on": None, "hp": 0x211, "chr": 0x053}}
+# who controls each player when the cheats do not say, the byte at +3 in the fighter's block like in Marvel vs. Capcom:
+# 1 for a human (Seb's captures, a game on each side) / qui dirige chaque joueur quand les codes ne le disent pas
+HUMAN = {"mshvsf": {"p1": 0xFF3803, "p2": 0xFF3C03}, "xmvsf": {"p1": 0xFF4003, "p2": 0xFF4403},
+         "xmcota": {"p1": 0xFF4003, "p2": 0xFF4403}}
+# rounds won when the cheats do not say, counted at the K.O. itself (X-Men: Children of the Atom, Seb's captures of
+# three games, alone on each side and two players) / les rounds gagnés quand les codes ne les donnent pas
+ROUNDS = {"xmcota": (0xFF4802, 0xFF4803)}
+# games where the computer scores too (Seb's captures of Marvel Super Heroes vs. Street Fighter and X-Men vs. Street
+# Fighter, the other games of the family taken alike): player 2's score going up does not say he is a human
+# les jeux où l'ordinateur marque aussi des points (captures de Seb, les autres jeux de la famille pris pareil)
+CPU_SCORES = {"xmcota", "msh", "xmvsf", "mshvsf", "mvsc"}
+# the level a game shows for 0 in its level byte (X-Men: Children of the Atom says Level 1) / le niveau affiché pour 0
+LEVEL_SHOWN_FROM = {"xmcota": 1}
 # full health of a game whose cheats only drain it, from a game of the same series / vie pleine d'un jeu de la même série
 FULL = {"sf2": 0x90, "nwarr": 0x90}
 
@@ -258,6 +285,15 @@ def values_from_cheats(cs, fam, name=""):
         if t:
             vals[key] = value(t[0][1], 1, fam, "u8", f"rounds won by {'player 1' if key == 'rounds' else 'player 2'} "
                                                      f"({src}, {found[key]['name']})")
+    for key in ("_p1_ctl", "_p2_ctl"):               # a human or the computer / un humain ou l'ordinateur
+        c = found.get(key)
+        human = [o for o in (c or {}).get("options", []) if o["triples"] and re.search(r"user|human", o["label"], re.I)]
+        if human and len(human[0]["triples"]) == 1:
+            addr, val = human[0]["triples"][0][1], human[0]["triples"][0][2]
+            who = "player 1" if key == "_p1_ctl" else "player 2"
+            v = value(addr, 1, fam, "u8", f"{who} controlled by a human ({val}) or the computer ({src}, {c['name']})")
+            v["human"] = val
+            vals[key] = v
     if "time" in found:
         t = enabled(found["time"])
         if t and t[0][2] > 0:
@@ -274,7 +310,25 @@ def values_from_cheats(cs, fam, name=""):
             if t:
                 vals[key] = value(t[0][1], 1, fam, "u8", f"{key.replace('_p2', ' of player 2')} ({src}, {found[key]['name']})")
     for key in ("power", "power_p2"):
-        w = word(enabled(found[key])) if key in found else None
+        who = "player 1" if key == "power" else "player 2"
+        t = enabled(found[key]) if key in found else []
+        lv = [x for x in t if 0 < x[2] <= 5]
+        fill = [x for x in t if x[2] > 5]
+        if len(t) == 2 and len(lv) == 1 and len(fill) == 1:
+            # a level and the bar inside it (Marvel Super Heroes, X-Men, X-Men vs. Street Fighter): the bar of the
+            # current level, like the game, and the level beside it / le niveau et la barre de ce niveau, comme le jeu
+            faddr, full = fill[0][1], fill[0][2]
+            v = value(faddr, 1, fam, "u8", f"super gauge of {who} in % of the current level, full = 0x{full:X} ({src})")
+            v.update({"mult": round(100.0 / full, 6), "round": 1, "min": 0, "max": 100})
+            vals[key] = v
+            add = LEVEL_SHOWN_FROM.get(name, 0)
+            lvl = value(lv[0][1], 1, fam, "u8", f"super gauge level of {who}, {lv[0][2] + add} at most ({src})")
+            if add:
+                lvl["add"] = add
+            lvl["max"] = lv[0][2] + add
+            vals["power_level" if key == "power" else "power_level_p2"] = lvl
+            continue
+        w = word(t) if t else None
         if w and w[2] > 0:
             addr, n, full = w
             v = value(addr, n, fam, "be" if n > 1 else "u8",
@@ -563,6 +617,25 @@ def build(fbneo, cheats_dir, games_dir):
                 if not (isinstance(v, dict) and "FBNeo cheat database" in str(v.get("note", "")))}
         merged = dict(vals)
         merged.update(hand)                          # learned or set by hand wins / ce qui est appris passe avant
+        for key, a in zip(("rounds", "rounds_p2"), ROUNDS.get(name, ())):
+            merged.pop(key, None)                    # always at the same place / toujours à la même place
+            merged[key] = value(a, 1, fam, "u8", f"rounds won by {'player 1' if key == 'rounds' else 'player 2'}, counted at "
+                                                 f"the K.O., found in RAM captures on a cabinet")
+        # versions whose own cheats put a value elsewhere (JoJo's Venture's second revision, Quiz & Dragons in Japan...):
+        # read there for that version, MAME and RetroArch both take "per_game" over the file's values
+        # les versions dont les propres codes de triche mettent une valeur ailleurs : lue là pour cette version
+        per = {}
+        for x in sets[1:]:
+            xc = cheats(os.path.join(cheats_dir, x + ".ini"))
+            if xc:
+                xv = values_from_cheats(xc, fam, name)[0]
+                diff = {k: v for k, v in xv.items() if k in vals and k not in hand and v.get("addr") != vals[k].get("addr")}
+                if diff:
+                    per[x] = diff
+        if per:
+            d["per_game"] = per
+        else:
+            d.pop("per_game", None)
         if "time" in hand:                           # the whole timer found by hand (Mercs) / le chrono entier trouvé à la main
             merged.pop("_time", None)
         d["memory"] = {"cpu": ":maincpu", "values": merged}
@@ -595,6 +668,21 @@ def build(fbneo, cheats_dir, games_dir):
             d["activity"] = {"values": watch, "moving": moving, "seconds": 10,
                              "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of "
                                      "the moving ones is read (lives or bombs alone change too seldom)"}
+            # the game says who is a human: player 2 against the computer or against a challenger
+            # le jeu dit qui est un humain : le joueur 2 contre l'ordinateur ou contre un challenger
+            for p, a in HUMAN.get(name, {}).items():
+                k = f"_{p}_ctl"
+                who = "player 1" if p == "p1" else "player 2"
+                merged.pop(k, None)                  # always at the end / toujours à la fin
+                merged[k] = value(a, 1, fam, "u8", f"{who} controlled by a human (1) or the computer, found in RAM captures "
+                                                   f"on a cabinet (a game on each side)")
+                merged[k]["human"] = 1
+            ctl = {p: [k, merged[k]["human"]] for p, k in (("p1", "_p1_ctl"), ("p2", "_p2_ctl"))
+                   if isinstance(merged.get(k), dict) and "human" in merged[k]}
+            if ctl:
+                d["activity"]["human"] = ctl
+            if name in CPU_SCORES and scene == "cps_combat":
+                d["activity"]["cpu_scores"] = True
         else:
             d.pop("activity", None)
         # credits not read: counted from the coin buttons. A player begins (start, continue, joining in) when his lives
@@ -618,6 +706,9 @@ def build(fbneo, cheats_dir, games_dir):
         for k in ("lives", "bombs"):
             if k in merged:
                 demo[k] = 3
+        for k in ("power_level", "power_level_p2"):     # the first level of the gauge / le premier niveau de la jauge
+            if k in merged:
+                demo[k] = 1
         for side, key, pick in (("p1_char", "_p1_chr", 0), ("p2_char", "_p2_chr", 1)):
             if key in merged and side in derived:
                 keys = sorted(derived[side]["names"], key=lambda k: [int(x) for x in k.split(",")])
@@ -627,6 +718,38 @@ def build(fbneo, cheats_dir, games_dir):
                     demo[key + "2"] = parts[1]
         if not d.get("demo_hand"):
             d["demo"] = demo
+        tag = TAG.get(name)
+        if tag and "health" in merged and "health_p2" in merged:
+            # each player's health is the one of his fighter on screen, worked out by the engine ("tag"), and his name
+            # the one of that fighter / la vie de chaque joueur est celle de son combattant à l'écran, son nom aussi
+            out = {}
+            for k in [k for k in merged if k[:6] in ("_p1_on", "_p2_on", "_p1_hp", "_p2_hp") or k in ("_p1_chr2", "_p2_chr2")]:
+                merged.pop(k)                        # made again below, in the same order / refaites plus bas
+            for side, hk, ck in (("p1", "health", "_p1_chr"), ("p2", "health_p2", "_p2_chr")):
+                b1, b2 = tag[side]
+                pre = f"_{side}"
+                who = "player 1" if side == "p1" else "player 2"
+                hp1 = merged.pop(hk)
+                hp2 = dict(hp1, addr=f"0x{b2 + tag['hp']:X}", note=hp1["note"].replace("1st", "2nd").replace(
+                    f"{who} health", f"{who} health of his second fighter"))
+                merged[pre + "_hp1"], merged[pre + "_hp2"] = hp1, hp2
+                if tag["on"] is None:                # the first block is the one on screen / le premier bloc est à l'écran
+                    on1, on2 = 1, 0
+                else:
+                    on1, on2 = pre + "_on1", pre + "_on2"
+                    for i, b in ((1, b1), (2, b2)):
+                        merged[f"{pre}_on{i}"] = value(b + tag["on"], 1, fam, "u8", f"{who}, fighter {i} on screen (1), found "
+                                                                                    f"in RAM captures on a cabinet")
+                merged[ck + "2"] = value(b2 + tag["chr"], 1, fam, "u8", f"{who}, character of his second fighter, the first one "
+                                                                         f"+0x{b2 - b1:X}")
+                out[hk] = {"team": [[on1, pre + "_hp1", pre + "_hp1"], [on2, pre + "_hp2", pre + "_hp2"]]}
+                dvs = d.get("derived") or {}
+                if isinstance(dvs.get(side + "_char"), dict) and dvs[side + "_char"].get("names"):
+                    dvs[side + "_char"] = {"team": [[on1, pre + "_hp1", ck], [on2, pre + "_hp2", ck + "2"]],
+                                           "names": dvs[side + "_char"]["names"]}
+            d["tag"] = out
+        else:
+            d.pop("tag", None)
         dd = d.get("demo") if isinstance(d.get("demo"), dict) else {}
         if "time" not in merged:                     # a timer not shown, not in the demo either / pas de chrono dans la démo
             dd.pop("time", None)

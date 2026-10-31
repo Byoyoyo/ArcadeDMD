@@ -290,13 +290,27 @@ def _search_moving(snaps_values, big_endian=True, exclude=(), most=6):
 
 
 WIDE_FIELDS = ("score", "record", "hi", "point", "top", "best")
+# counted from 1 on the screen, often from 0 in memory (stage 1 kept as 0) / comptés à partir de 1 à l'écran, de 0 en mémoire
+FROM_ONE = ("stage", "mission", "round", "level", "area", "loop")
+
+
+def is_wide(field):
+    """A score is wide (3-4 bytes), a counter short. "hi" stands for hiscore, not for hits (a chain is a short counter).
+    / Un score est large, un compteur court ; « hi » veut dire hiscore, pas hits."""
+    f = field.lower()
+    return not f.startswith("hit") and any(k in f for k in WIDE_FIELDS)
+
+
+def counts_from_one(field):
+    f = field.lower()
+    return any(f == k or f.startswith(k + "_") or f.startswith(k + "2") for k in FROM_ONE)
 
 
 def rank(results, field, objects=None):
     """Trie les candidats : un score est en général large (3-4 octets), un compteur court.
     À codage égal : adresse fixe hors des combattants, puis l'objet du bon joueur, puis une adresse fixe
     tombée dans la mémoire d'un combattant (recyclée d'un round à l'autre)."""
-    wide = any(k in field.lower() for k in WIDE_FIELDS)
+    wide = is_wide(field)
     pref = {"bcd": 0, "be": 1, "u8": 1, "digits": 2, "digits_ascii": 3, "le": 4, "bcd_le": 5}
     # un petit compteur (vies, bombes...) est plutôt un octet simple, les crédits souvent en BCD
     small = {"u8": 0, "bcd": 1} if "credit" not in field.lower() else {"bcd": 0, "u8": 1}
@@ -315,9 +329,42 @@ def rank(results, field, objects=None):
     return sorted(results, key=key)
 
 
+def _search_flag(snaps_values):
+    """Something that is on or off (typed 1 or 0): a byte that is not 0 in every capture typed 1 and 0 in every capture
+    typed 0, a timer or a counter as well as a true flag. Read 0 or 1 ("max": 1).
+    / Un interrupteur tapé 1 ou 0 : un octet non nul dans les captures à 1, nul dans celles à 0, lu 0 ou 1."""
+    first = snaps_values[0][0]
+    if any(s.layout() != first.layout() for s, _ in snaps_values):
+        return []
+    on = [s.data for s, v in snaps_values if v]
+    off = [s.data for s, v in snaps_values if not v]
+    out = []
+    for off_i in range(len(first.data)):
+        if all(d[off_i] for d in on) and not any(d[off_i] for d in off):
+            a = first.addr_of(off_i)
+            if a is not None:
+                out.append({"addr": a, "type": "u8", "bytes": 1, "mult": 1, "max": 1})
+    return out if len(out) <= 400 else []
+
+
 def search(snaps_values, field="score", objects=None, big_endian=True):
     """snaps_values : liste de (Snapshot, valeur). Retourne (candidats triés, note)."""
     res = _search_all(snaps_values, objects, big_endian)
+    if {v for _, v in snaps_values} == {0, 1}:
+        # on or off: the exact 1 and 0 first, then what is merely not 0 / allumé ou éteint : 1 et 0 exacts, puis non nul
+        seen = {r["addr"] for r in res if r.get("ptr") is None}
+        flags = [r for r in _search_flag(snaps_values) if r["addr"] not in seen]
+        if flags:
+            return rank(res, field, objects) + rank(flags, field, objects), tr(
+                "(allumé ou éteint : ArcadeDMD lit 1 quand l'octet n'est pas à 0)", "(on or off: ArcadeDMD reads 1 when the byte is not 0)")
+    if not res and counts_from_one(field) and all(v >= 1 for _, v in snaps_values):
+        # stage 1 kept as 0: the game file adds 1 / stage 1 gardé à 0 : le fichier du jeu ajoute 1
+        res = _search_all([(s, v - 1) for s, v in snaps_values], objects, big_endian)
+        if res:
+            for r in res:
+                r["add"] = 1
+            return rank(res, field, objects), tr(f"(le jeu compte à partir de 0 : 0 pour {field} 1, ArcadeDMD ajoute 1)",
+                                                 f"(the game counts from 0: 0 for {field} 1, ArcadeDMD adds 1)")
     if not res and len({v for _, v in snaps_values}) >= 2:
         res = _search_moving(snaps_values, big_endian, exclude=set(objects or ()))
         if res:
@@ -340,7 +387,8 @@ def search(snaps_values, field="score", objects=None, big_endian=True):
 
 
 def describe(r):
-    m = f" ×{r['mult']}" if r["mult"] != 1 else ""
+    m = (f" ×{r['mult']}" if r["mult"] != 1 else "") + (f" +{r['add']}" if r.get("add") else "") + (
+        tr(" (lu 0 ou 1)", " (read 0 or 1)") if r.get("max") == 1 else "")
     label = tr(*LABELS[r["type"]]) if r["type"] in LABELS else r["type"]
     what = tr(f"{label} {r['bytes']} octet(s){m}", f"{label} {r['bytes']} byte(s){m}")
     if r.get("ptr") is not None:
@@ -370,6 +418,10 @@ def to_config(r):
         d["type"] = kind
     if r["mult"] != 1:
         d["mult"] = r["mult"]
+    if r.get("add"):
+        d["add"] = r["add"]
+    if r.get("max") is not None:
+        d["max"] = r["max"]
     return d
 
 
@@ -417,6 +469,10 @@ ALIASES = {
     "hp": "health", "health1": "health", "healthp1": "health", "health_p1": "health",
     "health2": "health_p2", "healthp2": "health_p2", "hp2": "health_p2",
     "beat_p1": "beat", "beatby1": "beat",
+    "hit": "hits", "chain": "hits", "chaine": "hits", "combo": "hits", "hit2": "hits_p2", "hits2": "hits_p2", "chain2": "hits_p2",
+    "chaine2": "hits_p2", "combo2": "hits_p2",
+    # Twinkle Star Sprites' PERFECT, 1 while the game shows it, 0 otherwise / 1 pendant que le jeu l'affiche, 0 sinon
+    "parfait": "perfect", "perfect1": "perfect", "perfect2": "perfect_p2", "parfait2": "perfect_p2", "perfectj2": "perfect_p2",
     "hiscore": "record", "highscore": "record", "hi_score": "record", "high_score": "record", "hi": "record",
     "top": "record", "best": "record",
 }
@@ -534,6 +590,17 @@ def run(root, game=None, answers=None, write=None, show=True, pick_interactive=F
         res, note = search(obs, field, objects, big_endian)
         if note:
             print("  " + note)
+        spec = (((cfg or new_cfg or {}).get("memory") or {}).get("values") or {}).get(field)
+        bad = [a for a in (spec.get("not_learned") or [])] if isinstance(spec, dict) else []
+        if bad and res:
+            from .learned import _addr
+            right = _addr(spec.get("addr")) if spec.get("addr") else None        # the game file's own: kept / gardée
+            far = [r for r in res if r.get("ptr") is not None or r["addr"] == right
+                   or all(abs(r["addr"] - (_addr(a) or -99)) >= 4 for a in bad)]
+            if len(far) < len(res):
+                print(tr(f"  {', '.join(bad)} laissé de côté : le jeu n'y garde pas « {field} » (voir games/{game}.json).",
+                         f"  {', '.join(bad)} left aside: the game does not keep \"{field}\" there (see games/{game}.json)."))
+            res = far
         if not res:
             print(tr("  Rien trouvé. Vérifie les valeurs saisies, ou capture à des moments où la valeur a changé.",
                      "  Nothing found. Check the values you typed, or capture at moments when the value has changed."))
@@ -624,6 +691,8 @@ def run(root, game=None, answers=None, write=None, show=True, pick_interactive=F
             if v.get("ptr") and k.startswith("score"):
                 # entre deux rounds l'objet est recréé : un 0 passager ne doit pas effacer le score
                 v["hold_zero"] = old.get("hold_zero", 20) if isinstance(old, dict) else 20
+            if isinstance(old, dict) and old.get("not_learned"):
+                v["not_learned"] = old["not_learned"]                # still ruled out next time / toujours écartée
             vals[k] = v
             if note:
                 vals[k]["note"] = note

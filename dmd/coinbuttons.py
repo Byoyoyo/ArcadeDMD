@@ -4,8 +4,10 @@ RetroArch does not tell when a coin goes in, nor through which slot. An MVS keep
 which the FinalBurn Neo core does not share, and its BIOS leaves no trace of a second coin put in during a game. So
 ArcadeDMD reads the two coin buttons itself, on the controllers or on the keyboard, at the same time as RetroArch and
 without taking them from it. coin_buttons.bat shows it once which buttons they are, and they go into config.json
-("coin_buttons"). Each coin is then seen with its side, during a game too. Windows only: the controllers
-are read through winmm and the keys through GetAsyncKeyState, both work while another window has the focus.
+("coin_buttons"). Each coin is then seen with its side, during a game too. The two START buttons can be shown too
+("start1", "start2"): a game that does not give its credits then sees a player begin as soon as he presses START with a
+credit, on the select screen. Windows only: the controllers are read through winmm and the keys through
+GetAsyncKeyState, both work while another window has the focus.
 
 Les boutons des pièces de la borne, lus directement sur les manettes (coin_buttons.bat).
 
@@ -13,7 +15,9 @@ RetroArch ne dit pas quand une pièce entre, ni par quel monnayeur. La MVS le ga
 borne, que le cœur FinalBurn Neo ne partage pas, et son BIOS ne laisse aucune trace d'une deuxième pièce mise en pleine
 partie. ArcadeDMD lit donc lui-même les deux boutons des pièces, sur les manettes ou le clavier, en même temps que
 RetroArch et sans les lui prendre. coin_buttons.bat lui montre une fois quels boutons c'est, ils vont dans config.json.
-Chaque pièce est alors vue avec son côté, en pleine partie aussi. Windows seulement.
+Chaque pièce est alors vue avec son côté, en pleine partie aussi. Les deux boutons START aussi (« start1 », « start2 ») :
+un jeu qui ne donne pas ses crédits voit alors un joueur commencer dès qu'il appuie sur START avec un crédit, sur l'écran
+de sélection. Windows seulement.
 """
 
 import collections
@@ -25,7 +29,10 @@ from .i18n import tr
 
 LEFT, RIGHT = 0, 1
 SIDES = (("left", LEFT), ("right", RIGHT))
-REFRACTORY = 0.15            # a button that bounces makes one coin / un bouton qui rebondit fait une seule pièce
+STARTS = (("start1", 0), ("start2", 1))   # START of player 1 and of player 2 / START du joueur 1 et du joueur 2
+MIN_GAP = 0.06               # two coins at least that far apart (fast presses all count, RetroArch counts them all)
+MIN_UP = 0.03                # released at least that long: a button that bounces makes one coin
+                             # au moins 60 ms entre deux pièces, et relâché au moins 30 ms : un rebond ne fait qu'une pièce
 AWAY = 3.0                   # a controller that is not there is tried again after that / manette absente
 # keys looked at by coin_buttons.bat: not the mouse buttons, nor the Shift, Ctrl and Alt that also come as left or right
 # touches regardées : ni les boutons de la souris, ni Maj, Ctrl et Alt qui arrivent aussi en version gauche ou droite
@@ -126,6 +133,10 @@ def side_word(side):
     return tr("gauche", "left") if side == LEFT else tr("droite", "right")
 
 
+def start_word(player):
+    return tr(f"START du joueur {player + 1}", f"player {player + 1}'s START")
+
+
 def mvs_rates(cfg):
     """Credits given by a coin on a Neo Geo MVS, left slot then right slot. The MVS gives 2 for a coin in its second slot
     when nothing was changed in its settings ("mvs_credits" in coin_buttons). / Crédits par pièce d'une MVS."""
@@ -137,7 +148,9 @@ def mvs_rates(cfg):
 
 
 class CoinButtons:
-    """Watches the two coin buttons. poll() gives the side of each coin put in since the last call (0 left, 1 right)."""
+    """Watches the two coin buttons, and the two START buttons when they are known. poll() gives the side of each coin put
+    in since the last call (0 left, 1 right), poll_starts() the player of each START pressed (0 player 1, 1 player 2).
+    / Surveille les boutons des pièces, et les deux START quand ils sont connus."""
 
     def __init__(self, cfg, log=None, source=None, thread=True):
         spec = cfg.get("coin_buttons") if isinstance(cfg.get("coin_buttons"), dict) else {}
@@ -146,11 +159,19 @@ class CoinButtons:
             inp = parse(spec.get(name))
             if inp is not None:
                 self.inputs[side] = inp
+        # START buttons, kept apart from the coins (keys "s0", "s1" in held and last) / les START, à part des pièces
+        self.starts = {}
+        for name, player in STARTS:
+            inp = parse(spec.get(name))
+            if inp is not None and inp not in self.inputs.values():
+                self.starts[player] = inp
         self.source = source
         self.log = log
         self.q = collections.deque()
+        self.sq = collections.deque()
         self.held = {}
         self.last = {}
+        self.up = {}                      # when each button was last released / quand chaque bouton a été relâché
         self.away = {}                    # controller not there: when to try again / manette absente : quand réessayer
         self.failed = False
         self.stop_ev = threading.Event()
@@ -173,6 +194,10 @@ class CoinButtons:
             return None
         log(tr(f"boutons des pièces : à gauche ({describe(found[LEFT])}), à droite ({describe(found[RIGHT])})",
                f"coin buttons: on the left ({describe(found[LEFT])}), on the right ({describe(found[RIGHT])})"))
+        starts = [parse(spec.get(name)) for name, _ in STARTS]
+        if any(starts):
+            log(tr(f"boutons START : joueur 1 ({describe(starts[0])}), joueur 2 ({describe(starts[1])})",
+                   f"START buttons: player 1 ({describe(starts[0])}), player 2 ({describe(starts[1])})"))
         return cls(cfg, log, src)
 
     def down(self, inp, now, cache):
@@ -189,14 +214,28 @@ class CoinButtons:
         b = cache[j]
         return b is not None and bool(b >> inp[2] & 1)
 
+    def _press(self, k, d, now):
+        """True for a new press of button k (down now, up before): not a bounce, not too close to the last one.
+        / Un nouvel appui, pas un rebond."""
+        new = (d and not self.held.get(k) and now - self.last.get(k, -9.0) >= MIN_GAP
+               and now - self.up.get(k, -9.0) >= MIN_UP)
+        if not d and self.held.get(k):
+            self.up[k] = now
+        if new:
+            self.last[k] = now
+        if d and not self.held.get(k) and not new:
+            d = False                                    # a bounce stays up, the next press counts / un rebond
+        self.held[k] = d
+        return new
+
     def scan(self, now):
         cache = {}                                       # each controller read once / chaque manette lue une fois
         for side, inp in self.inputs.items():
-            d = self.down(inp, now, cache)
-            if d and not self.held.get(side) and now - self.last.get(side, -9.0) >= REFRACTORY:
+            if self._press(side, self.down(inp, now, cache), now):
                 self.q.append((side, now))
-                self.last[side] = now
-            self.held[side] = d
+        for player, inp in self.starts.items():
+            if self._press(f"s{player}", self.down(inp, now, cache), now):
+                self.sq.append((player, now))
 
     def _run(self):
         while not self.stop_ev.is_set():
@@ -211,11 +250,18 @@ class CoinButtons:
 
     def poll(self, now=None):
         """The sides of the coins put in since the last call. Without a thread, the buttons are read here."""
-        if self.thread is None and self.source is not None and self.inputs:
+        if self.thread is None and self.source is not None and (self.inputs or self.starts):
             self.scan(time.monotonic() if now is None else now)
         out = []
         while self.q:
             out.append(self.q.popleft()[0])
+        return out
+
+    def poll_starts(self):
+        """The players who pressed START since the last call (read by poll()). / Les joueurs qui ont appuyé sur START."""
+        out = []
+        while self.sq:
+            out.append(self.sq.popleft()[0])
         return out
 
     def close(self):
@@ -223,6 +269,41 @@ class CoinButtons:
 
 
 # ------------------------------------------------------------------ coin_buttons.bat
+def learn_starts(coins, out, src, wait, clock, sleep, poll):
+    """The START of player 1, then of player 2, not a coin button. [] when none is pressed within wait seconds.
+    / Le START du joueur 1, puis celui du joueur 2, pas un bouton des pièces."""
+    starts = []
+    for player in (0, 1):
+        out(tr(f"Appuie maintenant sur le bouton START du joueur {player + 1}.",
+               f"Now press player {player + 1}'s START button."))
+        got = None
+        end = clock() + wait
+        while clock() < end:
+            b = wait_press(src, max(0.0, end - clock()), clock, sleep, poll)
+            if b is None:
+                break
+            if b in coins:
+                out("   " + tr("C'est un bouton des pièces. Appuie sur START.", "That is a coin button. Press START."))
+                continue
+            if b in starts:
+                out("   " + tr("C'est le START du joueur 1. Appuie sur celui du joueur 2.",
+                               "That is player 1's START. Press player 2's."))
+                continue
+            got = b
+            break
+        if got is None:
+            if not starts:
+                out("   " + tr("Aucun bouton START vu. ArcadeDMD devinera le départ d'après ce qui bouge dans le jeu.",
+                               "No START button seen. ArcadeDMD will guess the start from what moves in the game."))
+            else:
+                out("   " + tr("Aucun START vu pour le joueur 2. Seul celui du joueur 1 est enregistré.",
+                               "No START seen for player 2. Only player 1's is saved."))
+            break
+        out("   " + tr(f"C'est la {describe(got)}.", f"That is {describe(got)}."))
+        starts.append(got)
+    return starts
+
+
 def held_now(src, ids):
     """Everything held right now, on the controllers ids and the keyboard."""
     held = set()
@@ -257,7 +338,8 @@ def wait_press(src, seconds, clock, sleep, poll):
 
 
 def learn(root, out=print, source=None, wait=60.0, check=10.0, poll=0.01, clock=time.monotonic, sleep=time.sleep):
-    """coin_buttons.bat: asks for the left coin button, then the right one, and writes them into config.json."""
+    """coin_buttons.bat: asks for the left coin button, then the right one, then the START of each player, and writes
+    them into config.json. / Demande les boutons des pièces, puis les START, et les écrit dans config.json."""
     from .setup_tools import load_config_file, save_config_file
     out(tr("Boutons des pièces", "Coin buttons"))
     out("")
@@ -265,8 +347,10 @@ def learn(root, out=print, source=None, wait=60.0, check=10.0, poll=0.01, clock=
     if src is None:
         out(tr("Cette commande ne marche que sous Windows.", "This command only works on Windows."))
         return 1
-    out(tr("ArcadeDMD va lire lui-même tes deux boutons de pièce. Il verra chaque pièce et son côté, même en pleine partie.",
-           "ArcadeDMD is going to read your two coin buttons itself. It will see each coin and its side, during a game too."))
+    out(tr("ArcadeDMD va lire lui-même tes deux boutons de pièce et tes deux boutons START. Il verra chaque pièce et son "
+           "côté, même en pleine partie, et chaque joueur qui commence.",
+           "ArcadeDMD is going to read your two coin buttons and your two START buttons itself. It will see each coin "
+           "and its side, during a game too, and each player who begins."))
     out(tr("RetroArch peut rester ouvert.", "RetroArch can stay open."))
     out("")
     out(tr("Appuie sur le bouton des pièces de gauche, celui du joueur 1.",
@@ -296,23 +380,30 @@ def learn(root, out=print, source=None, wait=60.0, check=10.0, poll=0.01, clock=
                        "No button seen on the right. Only the left one is saved."))
     else:
         out("   " + tr(f"C'est la {describe(right)}.", f"That is {describe(right)}."))
+    starts = learn_starts([b for b in (left, right) if b is not None], out, src, wait, clock, sleep, poll)
     cfg = load_config_file(root)
     cb = cfg.get("coin_buttons") if isinstance(cfg.get("coin_buttons"), dict) else {}
     cb["left"] = spec_of(left)
     cb["right"] = spec_of(right) if right is not None else None
+    if starts:                                           # none seen: the old ones stay / aucun vu : les anciens restent
+        cb["start1"] = spec_of(starts[0])
+        cb["start2"] = spec_of(starts[1]) if len(starts) > 1 else None
     cfg["coin_buttons"] = cb
     save_config_file(root, cfg)
     out(tr("C'est enregistré dans config.json.", "Saved in config.json."))
     if check > 0:
         out("")
-        out(tr(f"Pour vérifier, appuie encore sur l'un ou l'autre pendant {int(check)} secondes.",
-               f"To check, press either of them again for {int(check)} seconds."))
+        out(tr(f"Pour vérifier, appuie encore sur ces boutons pendant {int(check)} secondes.",
+               f"To check, press these buttons again for {int(check)} seconds."))
         cbs = CoinButtons({"coin_buttons": cb}, None, src, thread=False)
         cbs.poll(clock())                                # the button just learned may still be held / encore appuyé
+        cbs.poll_starts()
         end = clock() + check
         while clock() < end:
             for side in cbs.poll(clock()):
                 out("   " + tr(f"pièce à {side_word(side)}", f"coin on the {side_word(side)}"))
+            for player in cbs.poll_starts():
+                out("   " + start_word(player))
             sleep(poll)
     out("")
     out(tr("Terminé. Si ArcadeDMD tourne, il reprend tout seul ce réglage.",

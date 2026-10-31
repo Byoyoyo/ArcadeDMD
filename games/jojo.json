@@ -91,5 +91,157 @@
   "hd": {
     "stages": ["fight_city", "fight_desert", "fight_harbor", "fight_gothic", "fight_ruins"],
     "note": "HD themes of the fights (one per game, no stage value known), made by tools/cps_games.py"
+  },
+  "per_game": {
+    "jojojr2": {
+      "health": {
+        "addr": "0x2030589",
+        "type": "u8",
+        "note": "player 1 health in %, full = 0x90 (FBNeo cheat database, Infinite Energy PL1)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xC8"
+      },
+      "health_p2": {
+        "addr": "0x2030991",
+        "type": "u8",
+        "note": "player 2 health in %, full = 0x90 (FBNeo cheat database, Infinite Energy PL2)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xC8"
+      },
+      "time": {
+        "addr": "0x202D098",
+        "type": "u8",
+        "note": "timer (FBNeo cheat database, Infinite Time)"
+      },
+      "credits": {
+        "addr": "0x2068CAC",
+        "type": "u8",
+        "note": "credits (FBNeo cheat database, Infinite Credits)"
+      },
+      "power": {
+        "addr": "0x203041F",
+        "type": "u8",
+        "note": "super gauge of player 1 in %, full = 0xA (FBNeo cheat database)",
+        "mult": 10.0,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "power_p2": {
+        "addr": "0x2030443",
+        "type": "u8",
+        "note": "super gauge of player 2 in %, full = 0xA (FBNeo cheat database)",
+        "mult": 10.0,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      }
+    },
+    "jojonr2": {
+      "health": {
+        "addr": "0x2030589",
+        "type": "u8",
+        "note": "player 1 health in %, full = 0x90 (FBNeo cheat database, Infinite Energy PL1)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xC8"
+      },
+      "health_p2": {
+        "addr": "0x2030991",
+        "type": "u8",
+        "note": "player 2 health in %, full = 0x90 (FBNeo cheat database, Infinite Energy PL2)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xC8"
+      },
+      "time": {
+        "addr": "0x202D098",
+        "type": "u8",
+        "note": "timer (FBNeo cheat database, Infinite Time)"
+      },
+      "credits": {
+        "addr": "0x2068CAC",
+        "type": "u8",
+        "note": "credits (FBNeo cheat database, Infinite Credits)"
+      },
+      "power": {
+        "addr": "0x203041F",
+        "type": "u8",
+        "note": "super gauge of player 1 in %, full = 0xA (FBNeo cheat database)",
+        "mult": 10.0,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "power_p2": {
+        "addr": "0x2030443",
+        "type": "u8",
+        "note": "super gauge of player 2 in %, full = 0xA (FBNeo cheat database)",
+        "mult": 10.0,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      }
+    },
+    "jojor2": {
+      "health": {
+        "addr": "0x2030589",
+        "type": "u8",
+        "note": "player 1 health in %, full = 0x90 (FBNeo cheat database, Infinite Energy PL1)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xC8"
+      },
+      "health_p2": {
+        "addr": "0x2030991",
+        "type": "u8",
+        "note": "player 2 health in %, full = 0x90 (FBNeo cheat database, Infinite Energy PL2)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xC8"
+      },
+      "time": {
+        "addr": "0x202D098",
+        "type": "u8",
+        "note": "timer (FBNeo cheat database, Infinite Time)"
+      },
+      "credits": {
+        "addr": "0x2068CAC",
+        "type": "u8",
+        "note": "credits (FBNeo cheat database, Infinite Credits)"
+      },
+      "power": {
+        "addr": "0x203041F",
+        "type": "u8",
+        "note": "super gauge of player 1 in %, full = 0xA (FBNeo cheat database)",
+        "mult": 10.0,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "power_p2": {
+        "addr": "0x2030443",
+        "type": "u8",
+        "note": "super gauge of player 2 in %, full = 0xA (FBNeo cheat database)",
+        "mult": 10.0,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      }
+    }
   }
 }

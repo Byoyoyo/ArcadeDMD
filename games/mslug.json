@@ -20,16 +20,22 @@
     "cpu": ":maincpu",
     "values": {
       "score": {
-        "addr": "0x1081B6",
-        "type": "bcd",
-        "bytes": 4,
-        "note": "player 1 score, found with learn.bat (RetroArch, FinalBurn Neo)"
+        "addr": "0x106E94",
+        "type": "digits",
+        "bytes": 8,
+        "not_learned": [
+          "0x1081B6"
+        ],
+        "note": "player 1 score, one digit per byte, the game's own (RAM captures on a cabinet, two players included). learn.bat finds 0x1081B6 (BCD), where the game puts the score of the last player who scored: player 1's only while he plays alone"
       },
       "score_p2": {
-        "addr": "",
-        "type": "bcd",
-        "bytes": 4,
-        "note": "player 2, to find with learn.bat (two-player game, score_p2=...)"
+        "addr": "0x106E9C",
+        "type": "digits",
+        "bytes": 8,
+        "not_learned": [
+          "0x1081B6"
+        ],
+        "note": "player 2 score, one digit per byte, right after player 1's (learn.bat captures on a cabinet, 1200, 2400 and 4700 while player 1 kept 18700)"
       },
       "lives": {
         "addr": "0x100377",
@@ -50,16 +56,86 @@
         "type": "u8",
         "note": "player 1 bombs"
       },
+      "bombs_p2": {
+        "addr": "0x100560",
+        "type": "u8",
+        "note": "player 2 bombs, 0xA0 after player 1's (cheat database, Infinite Bombs PL2)"
+      },
       "ammo": {
         "addr": "0x1004C2",
         "type": "be",
         "bytes": 2,
         "note": "player 1 ammo, 2 bytes"
       },
+      "ammo_p2": {
+        "addr": "0x100562",
+        "type": "be",
+        "bytes": 2,
+        "note": "player 2 ammo, 2 bytes (cheat database, Infinite Ammo PL2)"
+      },
       "weapon": {
         "addr": "0x1004B1",
         "type": "u8",
         "note": "player 1 weapon, 0 handgun, 1 shotgun, 2 flamethrower, 3 rocket launcher, 4 heavy machine gun"
+      },
+      "weapon_p2": {
+        "addr": "0x100551",
+        "type": "u8",
+        "note": "player 2 weapon, same codes as player 1 (cheat database, Always ... PL2)"
+      },
+      "vehicle": {
+        "addr": "0x1004CC",
+        "type": "u8",
+        "note": "player 1 in the tank (1), on foot (0), found in RAM captures on a cabinet (13 captures, 6 in the tank, 7 on foot, 4 of them beside the parked tank)"
+      },
+      "vehicle_hp": {
+        "addr": "0x1005E7",
+        "type": "u8",
+        "mult": 2.083333,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0x80",
+        "note": "energy of the tank, in % (full at 0x30, 16 a hit, 3 hits), the tank's own (cheat database, Infinite Tank Gas). The copy the game shows at 0x100387 fills up when the player gets in, the tank's own is right at once. Shown while player 1 is in it"
+      },
+      "vehicle_ammo": {
+        "addr": "0x100610",
+        "type": "u8",
+        "zero_from": "0x80",
+        "note": "cannon shells of the tank, its own (cheat database, Infinite Tank Cannon), shown while player 1 is in it"
+      },
+      "vehicle_p2": {
+        "addr": "0x10056C",
+        "type": "u8",
+        "note": "player 2 in the tank (1), the same place in his own block, 0xA0 further like his bombs and weapon"
+      },
+      "vehicle_hp_p2": {
+        "addr": "0x1005E7",
+        "type": "u8",
+        "mult": 2.083333,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0x80",
+        "note": "the same tank, shown while player 2 is in it"
+      },
+      "vehicle_ammo_p2": {
+        "addr": "0x100610",
+        "type": "u8",
+        "zero_from": "0x80",
+        "note": "the same tank, shown while player 2 is in it"
+      },
+      "prisoners": {
+        "addr": "0x100376",
+        "type": "u8",
+        "zero_from": "0x80",
+        "note": "player 1 rescued prisoners, found with learn.bat on a cabinet (3 captures with 1, 2 and 3 prisoners, the same count in 8 older ones), right before his lives. The game keeps a copy at 0x106F4D"
+      },
+      "prisoners_p2": {
+        "addr": "0x100416",
+        "type": "u8",
+        "zero_from": "0x80",
+        "note": "player 2, deduced: right before his lives in his own block, 0xA0 further (0xFF while he does not play, read 0)"
       },
       "time": {
         "addr": "0x106E93",
@@ -130,7 +206,85 @@
     "credits": 2,
     "p1_mode": 1,
     "p2_mode": 0,
-    "time": 60
+    "time": 60,
+    "vehicle": 0,
+    "vehicle_hp": 100,
+    "vehicle_ammo": 10,
+    "vehicle_p2": 0,
+    "vehicle_hp_p2": 100,
+    "vehicle_ammo_p2": 10,
+    "sim": {
+      "vehicle": {
+        "cycle": [
+          0,
+          1,
+          1,
+          1,
+          1,
+          0,
+          0
+        ],
+        "every": 5,
+        "start": 8
+      },
+      "vehicle_hp": {
+        "cycle": [
+          100,
+          100,
+          66.7,
+          33.3,
+          0,
+          0,
+          100
+        ],
+        "every": 5,
+        "start": 8
+      },
+      "vehicle_ammo": {
+        "cycle": [
+          10,
+          10,
+          9,
+          8,
+          8,
+          8,
+          10
+        ],
+        "every": 5,
+        "start": 8
+      },
+      "vehicle_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 60
+      },
+      "vehicle_hp_p2": {
+        "cycle": [
+          100
+        ],
+        "every": 60
+      },
+      "vehicle_ammo_p2": {
+        "cycle": [
+          10
+        ],
+        "every": 60
+      },
+      "prisoners": {
+        "count": [
+          0,
+          12,
+          1
+        ],
+        "every": [
+          6,
+          11
+        ],
+        "start": 5
+      }
+    },
+    "prisoners": 0
   },
   "scene": {
     "layers": [

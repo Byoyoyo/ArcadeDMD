@@ -11,6 +11,10 @@ The coin buttons, when coin_buttons.bat has shown them (dmd/coinbuttons.py), tel
 A coin on the right then gives the credits of the second slot of the MVS (2 unless its settings were changed). What the
 BIOS shows right after a press is that same coin.
 
+FinalBurn Neo saves the backup RAM of each game when it is quit (saves/fbneo/<game>.fs), credits included, and gives
+them back the next time. The engine keeps the guessed credits of each game the same way (runtime/neo_credits.json), and
+a game that starts on its title screen (credits left) starts from them ("kept").
+
 Crédits d'une Neo Geo MVS devinés d'après son BIOS, quand on ne peut pas les lire.
 
 La MVS range ses crédits dans la mémoire de sauvegarde de la borne. MAME la lit, le cœur FinalBurn Neo de RetroArch ne
@@ -19,7 +23,9 @@ il demande au jeu son écran titre (la demande passe à 3), et cet écran compte
 seul, un compte qui repart quand une autre pièce entre. En pleine partie le BIOS remet ce compte à chaque pièce sans le
 faire tourner, seule la première pièce de la partie se voit. Chaque joueur qui commence prend un crédit, et de retour à
 la démo (demande 2) il n'en reste plus. Les boutons des pièces, quand coin_buttons.bat les a montrés, disent chaque
-pièce et son côté. Ils passent avant."""
+pièce et son côté. Ils passent avant. FinalBurn Neo sauve la mémoire de sauvegarde de chaque jeu quand on le quitte,
+crédits compris, et la rend la fois suivante. Le moteur garde les crédits devinés de chaque jeu de la même façon, et un
+jeu qui démarre sur son écran titre (des crédits restants) repart d'eux."""
 
 DEMO, TITLE = 2, 3          # BIOS_USER_REQUEST
 IN_GAME = 2                 # BIOS_USER_MODE
@@ -29,9 +35,11 @@ class NeoCoins:
     SETTLE = 1.5            # seconds of title screen before a countdown that starts again counts as a coin
     PRESSED = 2.0           # what the BIOS shows this long after a button is that coin / la même pièce
 
-    def __init__(self, rates=(1, 2)):
+    def __init__(self, rates=(1, 2), kept=0):
         self.notes = []                                  # (fr, en) for the log / pour le journal
         self.rates = rates                               # credits of a coin, left then right / crédits d'une pièce
+        # credits left when this game was last quit, given back by FinalBurn Neo / crédits restants la dernière fois
+        self.kept = kept if isinstance(kept, int) and 0 < kept <= 99 else 0
         self.seen = None
         self.looked = False
         self.aes = False
@@ -69,10 +77,20 @@ class NeoCoins:
             return None
         if not self.looked:                              # first look / premier regard
             self.looked = True
-            if self.credits is None:
-                self.credits = 1 if (req == TITLE and mode != IN_GAME) else 0
             self.notes.append(("BIOS Neo Geo en mode MVS (arcade) : crédits devinés d'après le BIOS",
                                "Neo Geo BIOS in MVS mode (arcade): credits guessed from the BIOS"))
+            if self.credits is None:
+                if req == TITLE and mode != IN_GAME:
+                    # the title at once: credits are left, those of last time if there were more than one
+                    # l'écran titre tout de suite : il reste des crédits, ceux de la dernière fois s'il y en avait plus
+                    self.credits = max(1, self.kept)
+                elif mode == IN_GAME:
+                    self.credits = self.kept             # a game going on: the best guess / une partie en cours
+                else:
+                    self.credits = 0
+                if self.credits == self.kept > 0:
+                    self.notes.append((f"crédits restants de la dernière fois : {self.kept}",
+                                       f"credits left from last time: {self.kept}"))
         if (req, mode) != self.seen:
             self.notes.append((f"BIOS Neo Geo : demande {req}, mode {mode}", f"Neo Geo BIOS: request {req}, mode {mode}"))
             self.seen = (req, mode)
