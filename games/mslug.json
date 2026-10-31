@@ -61,6 +61,48 @@
         "type": "u8",
         "note": "player 1 weapon, 0 handgun, 1 shotgun, 2 flamethrower, 3 rocket launcher, 4 heavy machine gun"
       },
+      "vehicle": {
+        "addr": "0x1004CC",
+        "type": "u8",
+        "note": "player 1 in the tank (1), on foot (0), found in RAM captures on a cabinet (13 captures, 6 in the tank, 7 on foot, 4 of them beside the parked tank)"
+      },
+      "vehicle_hp": {
+        "addr": "0x100387",
+        "type": "u8",
+        "mult": 2.083333,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0x80",
+        "note": "energy of the tank player 1 is in, in % (full at 0x30, 16 a hit, 3 hits), the copy the game shows, 0 on foot. The tank's own is at 0x1005E7 (cheat database, Infinite Tank Gas), the same while he is in it"
+      },
+      "vehicle_ammo": {
+        "addr": "0x100391",
+        "type": "u8",
+        "zero_from": "0x80",
+        "note": "cannon shells of the tank player 1 is in, the copy the game shows. The tank's own are at 0x100610 (cheat database, Infinite Tank Cannon), the same while he is in it"
+      },
+      "vehicle_p2": {
+        "addr": "0x10056C",
+        "type": "u8",
+        "note": "player 2 in the tank (1), the same place in his own block, 0xA0 further like his bombs and weapon"
+      },
+      "vehicle_hp_p2": {
+        "addr": "0x100427",
+        "type": "u8",
+        "mult": 2.083333,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0x80",
+        "note": "energy of the tank player 2 is in, in %, 0xA0 after player 1's like his lives"
+      },
+      "vehicle_ammo_p2": {
+        "addr": "0x100431",
+        "type": "u8",
+        "zero_from": "0x80",
+        "note": "cannon shells of the tank player 2 is in, 0xA0 after player 1's"
+      },
       "time": {
         "addr": "0x106E93",
         "type": "u8",
@@ -130,7 +172,72 @@
     "credits": 2,
     "p1_mode": 1,
     "p2_mode": 0,
-    "time": 60
+    "time": 60,
+    "vehicle": 0,
+    "vehicle_hp": 100,
+    "vehicle_ammo": 10,
+    "vehicle_p2": 0,
+    "vehicle_hp_p2": 100,
+    "vehicle_ammo_p2": 10,
+    "sim": {
+      "vehicle": {
+        "cycle": [
+          0,
+          1,
+          1,
+          1,
+          1,
+          0,
+          0
+        ],
+        "every": 5,
+        "start": 8
+      },
+      "vehicle_hp": {
+        "cycle": [
+          100,
+          100,
+          66.7,
+          33.3,
+          0,
+          0,
+          100
+        ],
+        "every": 5,
+        "start": 8
+      },
+      "vehicle_ammo": {
+        "cycle": [
+          10,
+          10,
+          9,
+          8,
+          8,
+          8,
+          10
+        ],
+        "every": 5,
+        "start": 8
+      },
+      "vehicle_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 60
+      },
+      "vehicle_hp_p2": {
+        "cycle": [
+          100
+        ],
+        "every": 60
+      },
+      "vehicle_ammo_p2": {
+        "cycle": [
+          10
+        ],
+        "every": 60
+      }
+    }
   },
   "scene": {
     "layers": [

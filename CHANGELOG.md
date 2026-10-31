@@ -24,6 +24,7 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - A version whose own cheats put its values elsewhere reads them there. The second revision of JoJo's Venture (all its values), Quiz & Dragons' Japanese resale (the lives) and the US Eco Fighters (the credits) read their parent's addresses until now.
 
 **Neo Geo**
+- Metal Slug shows its tank on the HD screen. In the tank, the tank takes the place of the weapon, with its energy in hits (three, like in the game) and its cannon shells. A hit makes the lost case blink, a shell flies to the backdrop, BAIL OUT! blinks when it has no energy left, and a destroyed tank blows up. The demo gets in the tank too. Whether the player is in it, and what the tank has, were found in RAM captures made on a cabinet.
 - The credits of a Neo Geo under RetroArch, guessed from its BIOS, start from those left the last time the game was quit. FinalBurn Neo keeps them in the game's backup memory and gives them back, ArcadeDMD guessed only one. Metal Slug showed one credit less than the game on a cabinet. The guess is no longer lost either when the game comes back after RetroArch's menu was open a while.
 
 **Updating from 1.30.0**
@@ -48,6 +49,7 @@ Extract the new zip over the old folder (`config.json`, your learned addresses a
 - Une version dont les propres codes de triche mettent ses valeurs ailleurs les lit là. La deuxième révision de JoJo's Venture (toutes ses valeurs), la réédition japonaise de Quiz & Dragons (les vies) et Eco Fighters américain (les crédits) lisaient jusqu'ici les adresses de leur jeu d'origine.
 
 **Neo Geo**
+- Metal Slug montre son char sur l'écran HD. Dans le char, il prend la place de l'arme, avec son énergie en coups (trois, comme dans le jeu) et ses obus. Un coup reçu fait clignoter la case perdue, un obus part vers le décor, ÉJECTE-TOI ! clignote quand il n'a plus d'énergie, et le char détruit explose. La démo monte aussi dans le char. Savoir si le joueur est dedans, et ce qu'a le char, a été trouvé dans des captures faites sur une borne.
 - Les crédits d'une Neo Geo sous RetroArch, devinés d'après son BIOS, repartent de ceux qui restaient la dernière fois qu'on a quitté le jeu. FinalBurn Neo les garde dans la mémoire de sauvegarde du jeu et les rend, ArcadeDMD n'en devinait qu'un. Metal Slug affichait un crédit de moins que le jeu sur une borne. La devinette n'est plus perdue non plus quand le jeu revient après un moment dans le menu de RetroArch.
 
 **Mettre à jour depuis la 1.30.0**

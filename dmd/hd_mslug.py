@@ -2,8 +2,9 @@
 
 Ammo going down fires shots in the style of the weapon, bombs are thrown and explode in the backdrop, a weapon
 pickup drops a crate, a lost life drops the helmet, rescued prisoners, coins, score, timer, next mission (new
-backdrop), player joining, CONTINUE and GAME OVER. Missing values are simply hidden. All drawings are made by
-the program, no image comes from the games.
+backdrop), player joining, CONTINUE and GAME OVER. In a vehicle (the tank of the first Metal Slug), the tank
+takes the place of the weapon, with its energy in hits and its cannon shells. Missing values are simply hidden. All
+drawings are made by the program, no image comes from the games.
 
 Scène HD des Metal Slug : deux panneaux de soldat, décor animé, et un effet pour chaque événement du jeu.
 
@@ -14,7 +15,9 @@ Ce que fait chaque valeur lue dans la mémoire du jeu
 - arme qui change : la carte de l'arme s'illumine, la jauge se remplit ;
 - vie perdue : le casque tombe, le panneau rougit et tremble ; vie gagnée : « 1UP » ;
 - prisonniers libérés, crédits, score qui défile, chrono qui passe au rouge, mission suivante (changement de décor),
-  arrivée d'un joueur, CONTINUE et GAME OVER.
+  arrivée d'un joueur, CONTINUE et GAME OVER ;
+- dans un véhicule (le char du premier Metal Slug) : le char prend la place de l'arme, avec son énergie en coups
+  et ses obus ; un coup reçu secoue la carte, un obus part vers le décor, le char détruit explose.
 Les valeurs absentes (pas encore trouvées pour un jeu) sont simplement cachées.
 
 Dessins (casques, grenades, armes, décors) faits par le programme, aucune image tirée des jeux.
@@ -57,7 +60,8 @@ STYLE = {
     "gun": {"gap": 0.08, "muzzle": 1.0, "tracer": ((255, 220, 120), 4, 140), "casing": "case"},
 }
 TIP = {"pistol": (0.89, 0.385), "shotgun": (0.985, 0.395), "flame": (0.975, 0.45), "rocket": (0.99, 0.41),
-       "mg": (0.975, 0.41), "laser": (0.97, 0.44), "gun": (0.975, 0.41)}
+       "mg": (0.975, 0.41), "laser": (0.97, 0.44), "gun": (0.975, 0.41), "tank": (0.99, 0.36)}
+TANK_HITS = 3               # coups qu'encaisse le char du premier Metal Slug (jauge pleine à 48, 16 par coup)
 PORT = {"pistol": (0.45, 0.30), "shotgun": (0.32, 0.36), "mg": (0.30, 0.33), "gun": (0.30, 0.33)}
 
 PW, PH = 640, 418           # taille d'un panneau, écran de référence 1920 x 460
@@ -246,6 +250,43 @@ def weapon_img(kind, w, h):
     return _draw(w, h, fn)
 
 
+def tank_img(w, h):
+    """Un petit char vu de profil, canon vers la droite (dessin du programme, pas celui du jeu).
+    / A small tank seen from the side, gun to the right (the program's own drawing, not the game's)."""
+    def fn(d, W, H):
+        def R(x0, y0, x1, y1, fill, r=0):
+            if r:
+                d.rounded_rectangle([x0 * W, y0 * H, x1 * W, y1 * H], radius=r * H, fill=fill)
+            else:
+                d.rectangle([x0 * W, y0 * H, x1 * W, y1 * H], fill=fill)
+
+        def P(pts, fill):
+            d.polygon([(x * W, y * H) for x, y in pts], fill=fill)
+
+        dark, mid, light = (58, 70, 44), OLIVE, (132, 152, 98)
+        R(0.08, 0.66, 0.80, 0.94, GUN_D, 0.14)                         # chenille
+        for i in range(6):
+            x = 0.15 + i * 0.115
+            d.ellipse([(x - 0.045) * W, 0.70 * H, (x + 0.045) * W, 0.90 * H], fill=GUN)
+            d.ellipse([(x - 0.018) * W, 0.76 * H, (x + 0.018) * W, 0.84 * H], fill=GUN_L)
+        P([(0.04, 0.68), (0.12, 0.46), (0.76, 0.46), (0.86, 0.62), (0.84, 0.70), (0.06, 0.72)], mid)   # caisse
+        R(0.12, 0.46, 0.76, 0.51, light)
+        R(0.06, 0.64, 0.84, 0.70, dark)
+        R(0.24, 0.26, 0.62, 0.48, mid, 0.08)                            # tourelle
+        R(0.26, 0.26, 0.60, 0.31, light, 0.04)
+        R(0.34, 0.18, 0.46, 0.27, dark, 0.03)                           # trappe
+        R(0.60, 0.32, 0.99, 0.40, GUN, 0.02)                            # canon
+        R(0.60, 0.32, 0.99, 0.34, GUN_L)
+        R(0.93, 0.30, 0.99, 0.42, GUN_D, 0.02)
+        pts = []
+        for i in range(10):                                             # étoile au pochoir
+            r = H * (0.075 if i % 2 == 0 else 0.03)
+            a = -math.pi / 2 + i * math.pi / 5
+            pts.append((W * 0.43 + r * math.cos(a), H * 0.585 + r * math.sin(a)))
+        d.polygon(pts, fill=(236, 226, 200))
+    return _draw(w, h, fn)
+
+
 def small_imgs(s):
     """Objets qui volent : douille, cartouche, éclats, roquette (Pillow RGBA)."""
     out = {}
@@ -366,6 +407,9 @@ class Player:
         self.over_t = None
         self.move = 0.0
         self.flying = 0                 # grenades en vol (icônes déjà parties)
+        self.tank = False               # dans un véhicule / in a vehicle
+        self.tank_t = -99.0             # monté dans le char / got in
+        self.tank_hit_t = -99.0         # coup reçu par le char / hit taken by the tank
 
 
 # ---------------------------------------------------------------------------- la scène
@@ -401,6 +445,7 @@ class MetalSlugScene:
                       "prisoner": hd._surf(prisoner_img(int(34 * s), int(40 * s))), "coin": hd._surf(coin_img(int(34 * s)))}
         self.panels = {side: hd._surf(panel_img(side, s, ACCENT[side])) for side in ("p1", "p2")}
         self.weapons = {}
+        self.tanks = {}
         sp = self.fx.sp
         for name, img in small_imgs(s).items():
             sp.register(name, img)
@@ -426,7 +471,9 @@ class MetalSlugScene:
         texts = [("MISSION COMPLETE !", 88, GOLD, 0.8), (tr("J2 ARRIVE !", "P2 JOINS IN!"), 56, ACCENT["p2"], 0.6),
                  (tr("-1 VIE", "-1 LIFE"), 40, RED, 0.6), ("1UP !", 46, GREEN, 0.6), (tr("+1 CRÉDIT", "+1 CREDIT"), 34, GOLD, 0.6),
                  (tr("+1 PRISONNIER", "+1 PRISONER"), 34, CREAM, 0.6), (tr("PLUS DE MUNITIONS", "OUT OF AMMO"), 30, (255, 120, 90), 0.6),
-                 (tr("DERNIÈRE VIE", "LAST LIFE"), 34, RED, 0.7), ("CONTINUE ?", 80, GOLD, 0.6), ("GAME OVER", 80, RED, 0.6)]
+                 (tr("DERNIÈRE VIE", "LAST LIFE"), 34, RED, 0.7), ("CONTINUE ?", 80, GOLD, 0.6), ("GAME OVER", 80, RED, 0.6),
+                 (tr("EN CHAR !", "TANK!"), 40, GREEN, 0.6), (tr("CHAR DÉTRUIT", "TANK DESTROYED"), 40, RED, 0.6),
+                 (tr("ÉJECTE-TOI !", "BAIL OUT!"), 30, RED, 0.7)]
         texts += [(f"MISSION {n}", 92, GOLD, 0.7) for n in range(1, 7)]
         for text, size, col, glow in texts:
             out.insert(0, (hd.text, (text, "stencil", S(size), col, glow)))
@@ -475,6 +522,15 @@ class MetalSlugScene:
             if side == "p2":
                 img = ImageOps.mirror(img)
             s = self.weapons[key] = self.hd._surf(img)
+        return s
+
+    def tank_surf(self, side):
+        s = self.tanks.get(side)
+        if s is None:
+            img = tank_img(self.S(190), self.S(108))
+            if side == "p2":
+                img = ImageOps.mirror(img)
+            s = self.tanks[side] = self.hd._surf(img)
         return s
 
     def get(self, vals, side, base):
@@ -578,13 +634,15 @@ class MetalSlugScene:
             P.shots = []
             return
         quiet = now < P.sync_until
-        cur = {b: _n(self.get(vals, side, b)) for b in ("score", "lives", "bombs", "ammo", "weapon", "prisoners")}
+        cur = {b: _n(self.get(vals, side, b)) for b in ("score", "lives", "bombs", "ammo", "weapon", "prisoners", "vehicle",
+                                                          "vehicle_hp", "vehicle_ammo")}
         inp = _n(vals.get("p1_input" if side == "p1" else "p2_input"))
         old = P.seen
         P.seen = dict(cur, input=inp)
         if inp is not None:
             P.move = 1.0 if inp & BTN_RIGHT else (-1.0 if inp & BTN_LEFT else 0.0)
         if quiet or not old:
+            P.tank = cur["vehicle"] == 1                               # déjà dans le char : sans fanfare
             if cur["weapon"] is not None:
                 P.weapon_kind = self.weapon(side, cur["weapon"])[1] or "pistol"
                 P.ammo_max = max(1, cur["ammo"] or 0)
@@ -613,7 +671,7 @@ class MetalSlugScene:
             self._weapon_change(side, P, now, w, cur["ammo"])
         elif cur["ammo"] is not None and old.get("ammo") is not None and w == wo:
             d = cur["ammo"] - old["ammo"]
-            if d < 0:
+            if d < 0 and not P.tank:
                 self._queue_shots(P, now, -d)
             elif d > 0:
                 P.ammo_max = max(P.ammo_max, cur["ammo"])
@@ -636,10 +694,97 @@ class MetalSlugScene:
             self.fx.sparks(x, y, 18, GOLD, (200, 600), (200, 340), (0.3, 0.7), 500, "front", 3, 26)
             self.fx.glow(x, y, 10, 70, GOLD, 0.4)
             self.fx.text(tr("+1 PRISONNIER", "+1 PRISONER") if pr - po == 1 else tr(f"+{pr - po} PRISONNIERS", f"+{pr - po} PRISONERS"), x, y - self.S(40), CREAM, 34, life=1.3)
-        if inp is not None and P.weapon_kind == "pistol":
+        if inp is not None and (P.weapon_kind == "pistol" or P.tank):
             prev = old.get("input")
             if prev is not None and (inp & BTN_A) and not (prev & BTN_A):
-                self._queue_shots(P, now, 1)
+                if P.tank:
+                    self._tank_vulcan(side, P)                         # la mitrailleuse du char / the tank's machine gun
+                else:
+                    self._queue_shots(P, now, 1)
+        self._vehicle(side, P, old, cur, now)
+
+    # ------------------------------------------------------------ le char / the tank
+    def _vehicle(self, side, P, old, cur, now):
+        """In and out of the tank, the hits it takes, its cannon shells. / Le char : dedans, dehors, coups, obus."""
+        v, vo = cur["vehicle"], old.get("vehicle")
+        if v is None:
+            P.tank = False
+            return
+        if vo is not None and v != vo:
+            if v == 1:
+                self._tank_in(side, P, now)
+            elif vo == 1:
+                self._tank_out(side, P, now, old.get("vehicle_hp"))
+        P.tank = v == 1
+        if not P.tank or vo != 1:
+            return
+        hp, ho = cur["vehicle_hp"], old.get("vehicle_hp")
+        if hp is not None and ho is not None and hp < ho:
+            self._tank_hit(side, P, now, hp)
+        sh, so = cur["vehicle_ammo"], old.get("vehicle_ammo")
+        if sh is not None and so is not None and sh < so <= 99:
+            for i in range(min(3, int(so - sh))):
+                self.fx.later(i * 0.25, self._tank_fire, side, P)
+
+    def _tank_in(self, side, P, now):
+        P.tank_t = now
+        P.shots = []
+        sx, sy = self._slot_xy(side)
+        cx, cy = sx + self.S(95), sy + self.S(54)
+        self.fx.glow(cx, cy, 30, 240, GREEN, 0.45)
+        self.fx.smoke(cx, sy + self.S(100), 4, (10, 18), 2.6, (0.5, 0.9), (20, 60), 20, (170, 150, 120), 120, "front")
+        self.fx.text(tr("EN CHAR !", "TANK!"), self._card_text_x(side), self.S(232), GREEN, 40, life=1.3, rise=30,
+                     align="left" if side == "p1" else "right")
+        self.fx.shake(4, 0.25)
+
+    def _tank_out(self, side, P, now, hp):
+        P.weapon_t = now                                              # l'arme revient dans la carte / the weapon comes back
+        if hp is not None and hp > 0:
+            return
+        sx, sy = self._slot_xy(side)                                   # détruit : il explose / destroyed: it blows up
+        cx, cy = sx + self.S(95), sy + self.S(54)
+        self.fx.explosion(cx, cy, 1.4)
+        for i in range(3):
+            self.fx.later(0.12 + i * 0.14, self._boom, cx + self.rng.uniform(-60, 60) * self.s, cy + self.rng.uniform(-20, 30) * self.s)
+        self.fx.text(tr("CHAR DÉTRUIT", "TANK DESTROYED"), self._card_text_x(side), self.S(232), RED, 40, life=1.6, rise=30,
+                     align="left" if side == "p1" else "right")
+        self.fx.shake(9, 0.5)
+
+    def _tank_hit(self, side, P, now, hp):
+        P.tank_hit_t = now
+        gx, gy = self._tank_gauge_xy(side)
+        self.fx.sparks(gx, gy, 18, (255, 120, 70), (200, 600), (0, 360), (0.25, 0.6), 600, "front", 3, 24)
+        self.fx.glow(gx, gy, 10, 80, RED, 0.35)
+        self.fx.shake(5 if hp > 0 else 8, 0.3)
+
+    def _tank_fire(self, side, P):
+        """A cannon shell, from the tank to the backdrop. / Un obus du char vers le décor."""
+        if not P.tank:
+            return
+        fx, rng = self.fx, self.rng
+        x, y = self._tip_xy(side, "tank")
+        d = 1 if side == "p1" else -1
+        P.recoil_t = fx.now
+        fx.muzzle(x, y, d, 1.8, FIRE_HOT)
+        tx = self.W / 2 + d * rng.uniform(-40, 260) * self.s
+        ty = self.H * 0.725 + rng.uniform(-20, 30) * self.s
+        p = fx.projectile("rocket", x + d * self.S(10), y, tx, ty, 0.36, 4, self._shell_hit, spin=0.0, kind="rocket", trail=0.02)
+        p.rot = -math.degrees(math.atan2(ty - y, tx - x))
+        fx.smoke(x - d * self.S(60), y, 4, (10, 18), 2.6, (0.4, 0.8), (10, 40), 20, (170, 160, 150), 140, "front")
+        fx.shake(4, 0.18)
+
+    def _tank_vulcan(self, side, P):
+        fx, rng = self.fx, self.rng
+        x, y = self._tip_xy(side, "tank")
+        d = 1 if side == "p1" else -1
+        fx.muzzle(x, y - self.S(6), d, 0.9, FIRE_HOT)
+        for i in range(2):
+            tx = self.W / 2 + d * rng.uniform(-60, 300) * self.s
+            ty = self.H * 0.725 + rng.uniform(-30, 40) * self.s
+            fx.tracer(x + d * self.S(18), y - self.S(6), tx, ty, 2400, (255, 220, 120), 4, 150, "front")
+
+    def _shell_hit(self, x, y):
+        self.fx.explosion(x, y, 0.9)
 
     # ------------------------------------------------------------ effets des événements
     def _score_float(self, side, P, now, score):
@@ -1028,6 +1173,9 @@ class MetalSlugScene:
 
     def _draw_weapon(self, screen, side, P, x0, vals, now):
         hd, S, pg = self.hd, self.S, self.pg
+        if P.tank and _n(self.get(vals, side, "vehicle")) == 1:
+            self._draw_tank(screen, side, P, x0, vals, now)
+            return
         code = _n(self.get(vals, side, "weapon"))
         if code is None:
             return
@@ -1087,6 +1235,61 @@ class MetalSlugScene:
         ax += x0 - self.x0(side, P)
         hd.put_number(screen, str(int(ammo)), "stencil", S(50), WHITE if not low else RED, ax, ay,
                       "right" if side == "p1" else "left", "middle", scale=1 + 0.1 * flash)
+
+    def _draw_tank(self, screen, side, P, x0, vals, now):
+        """The tank in the weapon card: its drawing, its energy in hits, its cannon shells. When it has no energy left it
+        is about to blow up. / Le char dans la carte de l'arme : son dessin, son énergie en coups, ses obus."""
+        hd, S, pg = self.hd, self.S, self.pg
+        hp = _n(self.get(vals, side, "vehicle_hp"))
+        shells = _n(self.get(vals, side, "vehicle_ammo"))
+        tt = now - P.tank_t
+        hit = max(0.0, 1 - (now - P.tank_hit_t) / 0.4)
+        sx, sy = self._slot_xy(side)
+        sx += x0 - self.x0(side, P)
+        img = self.tank_surf(side)
+        pop = max(0.0, 1 - tt / 0.35)
+        if pop:
+            k = 1 + 0.35 * pop
+            img = pg.transform.smoothscale(img, (int(img.get_width() * k), int(img.get_height() * k)))
+        kick = max(0.0, 1 - (now - P.recoil_t) / 0.1) * S(8) * (-1 if side == "p1" else 1)
+        jx = math.sin(now * 80) * S(5) * hit
+        screen.blit(img, (int(sx + S(95) - img.get_width() / 2 + kick + jx), int(sy + S(54) - img.get_height() / 2)))
+        slide = max(0.0, 1 - tt / 0.3)
+        nx = self.X(side, x0, 36) + (-1 if side == "p1" else 1) * S(60) * slide
+        hd.put(screen, hd.text(tr("CHAR", "TANK"), "stencil", S(40), (176, 232, 140), glow=0.35), nx, S(208),
+               "left" if side == "p1" else "right")
+        hits = None if hp is None else max(0, min(TANK_HITS, math.ceil(hp * TANK_HITS / 100.0 - 0.05)))
+        gx, gw, gh, gy = self.X(side, x0, 36, 250), S(250), S(28), S(268)
+        if hits is not None:
+            sw = gw / TANK_HITS
+            blink = int(now * 6) % 2 == 0
+            col = {3: (110, 220, 90), 2: (240, 210, 70), 1: (255, 80, 50)}.get(hits, (255, 80, 50))
+            for i in range(TANK_HITS):
+                j = i if side == "p1" else TANK_HITS - 1 - i
+                r = pg.Rect(int(gx + j * sw + 3), gy, int(sw - 6), gh)
+                lit = i < hits
+                c = col if lit else (40, 42, 56)
+                if lit and hits == 1 and blink:
+                    c = (150, 40, 30)
+                if hit and i == hits:                                  # la case qui vient de partir / the one just lost
+                    c = (255, 240, 220) if blink else (255, 90, 60)
+                pg.draw.rect(screen, c, r, border_radius=S(4))
+            if hits == 0:
+                k = 0.45 + 0.55 * (0.5 + 0.5 * math.sin(now * 10))
+                hd.put(screen, hd.text(tr("ÉJECTE-TOI !", "BAIL OUT!"), "stencil", S(30), RED, glow=0.7), gx + gw / 2, gy + gh / 2,
+                       "center", "middle", alpha=k)
+        if shells is not None and shells <= 99:
+            ax, ay = self._ammo_xy(side)
+            ax += x0 - self.x0(side, P)
+            flash = max(0.0, 1 - (now - P.recoil_t) / 0.1)
+            hd.put_number(screen, str(int(shells)), "stencil", S(50), WHITE if shells > 0 else RED, ax, ay - S(6),
+                          "right" if side == "p1" else "left", "middle", scale=1 + 0.12 * flash)
+            hd.put(screen, hd.text(tr("OBUS", "SHELLS"), "bold", S(16), GREY, glow=0), ax, ay + S(24),
+                   "right" if side == "p1" else "left", "middle")
+
+    def _tank_gauge_xy(self, side):
+        x0 = self.x0(side, self.players[side])
+        return self.X(side, x0, 36, 250) + self.S(125), self.S(282)
 
     def _draw_items(self, screen, side, P, x0, vals, now):
         hd, S, pg = self.hd, self.S, self.pg
