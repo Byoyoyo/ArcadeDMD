@@ -113,19 +113,26 @@
         "note": "player 2 character (FinalBurn Neo cheats, Select Character PL2)"
       },
       "hits": {
-        "addr": "",
+        "addr": "0x10C8F1",
         "type": "u8",
-        "note": "player 1 chain, the N HIT shown by the game: learn it with learn.bat (hits=4 while the game shows 4 HIT)"
+        "not_learned": [
+          "0x10C8EE"
+        ],
+        "note": "player 1 chain, the N HIT shown by the game (RAM captures on a cabinet with 5, 3 and 4 HIT). One byte: an older learn.bat read it as 4 BCD bytes at 0x10C8EE, wrong from 10 HIT on"
       },
       "hits_p2": {
-        "addr": "",
+        "addr": "0x10D8F1",
         "type": "u8",
-        "note": "player 2 chain (hits2=...)"
+        "not_learned": [
+          "0x10D8EE"
+        ],
+        "note": "player 2 chain, at the same place in his block, like the score and the hearts (the computer's chains too)"
       },
       "stage": {
-        "addr": "",
+        "addr": "0x10BB00",
         "type": "u8",
-        "note": "stage against the computer, shown in the column: learn it with learn.bat (stage=1, stage=2...)"
+        "add": 1,
+        "note": "stage against the computer, shown in the column, 0 for stage 1 (RAM captures on a cabinet at stages 1, 2, 3 and 3; 0x10BB09 holds the same)"
       },
       "credits": {
         "addr": "0xD00034",
