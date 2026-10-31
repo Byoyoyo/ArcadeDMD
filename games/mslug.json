@@ -50,16 +50,32 @@
         "type": "u8",
         "note": "player 1 bombs"
       },
+      "bombs_p2": {
+        "addr": "0x100560",
+        "type": "u8",
+        "note": "player 2 bombs, 0xA0 after player 1's (cheat database, Infinite Bombs PL2)"
+      },
       "ammo": {
         "addr": "0x1004C2",
         "type": "be",
         "bytes": 2,
         "note": "player 1 ammo, 2 bytes"
       },
+      "ammo_p2": {
+        "addr": "0x100562",
+        "type": "be",
+        "bytes": 2,
+        "note": "player 2 ammo, 2 bytes (cheat database, Infinite Ammo PL2)"
+      },
       "weapon": {
         "addr": "0x1004B1",
         "type": "u8",
         "note": "player 1 weapon, 0 handgun, 1 shotgun, 2 flamethrower, 3 rocket launcher, 4 heavy machine gun"
+      },
+      "weapon_p2": {
+        "addr": "0x100551",
+        "type": "u8",
+        "note": "player 2 weapon, same codes as player 1 (cheat database, Always ... PL2)"
       },
       "vehicle": {
         "addr": "0x1004CC",

@@ -63,6 +63,9 @@ STYLE = {
 TIP = {"pistol": (0.89, 0.385), "shotgun": (0.985, 0.395), "flame": (0.975, 0.45), "rocket": (0.99, 0.41),
        "mg": (0.975, 0.41), "laser": (0.97, 0.44), "gun": (0.975, 0.41), "tank": (0.99, 0.36)}
 TANK_HITS = 3               # coups qu'encaisse le char du premier Metal Slug (jauge pleine à 48, 16 par coup)
+FRAME_DX, FRAME_DY = 2, 14  # middle of the card's frame from the middle of the picture slot (the frame is drawn in the
+                            # panel, at PW-226..PW-24 x 192..306, and the panel 14 lower) / milieu du cadre de la carte
+OWN_BOX = (184, 100)        # the owner's picture fits in it, in the middle of the frame / sa propre image y tient
 PORT = {"pistol": (0.45, 0.30), "shotgun": (0.32, 0.36), "mg": (0.30, 0.33), "gun": (0.30, 0.33)}
 
 PW, PH = 640, 418           # taille d'un panneau, écran de référence 1920 x 460
@@ -127,6 +130,10 @@ def prisoner_img(w, h):
         d.line([W * 0.37, H * 0.36, W * 0.12, H * 0.04], fill=c, width=lw)
         d.line([W * 0.63, H * 0.36, W * 0.88, H * 0.04], fill=c, width=lw)
         d.ellipse([W * 0.35, H * 0.02, W * 0.65, H * 0.29], fill=c)
+        hair = (252, 204, 48)                                         # yellow hair, easier to read / plus parlant
+        d.chord([W * 0.31, H * -0.01, W * 0.69, H * 0.25], 180, 360, fill=hair)
+        d.ellipse([W * 0.31, H * 0.08, W * 0.40, H * 0.20], fill=hair)
+        d.ellipse([W * 0.60, H * 0.08, W * 0.69, H * 0.20], fill=hair)
         d.rounded_rectangle([W * 0.31, H * 0.28, W * 0.69, H * 0.66], radius=W * 0.08, fill=c)
         d.line([W * 0.42, H * 0.62, W * 0.33, H * 0.99], fill=c, width=lw)
         d.line([W * 0.58, H * 0.62, W * 0.67, H * 0.99], fill=c, width=lw)
@@ -468,6 +475,8 @@ class MetalSlugScene:
         self.panels = {side: hd._surf(panel_img(side, s, ACCENT[side])) for side in ("p1", "p2")}
         self.weapons = {}
         self.tanks = {}
+        self.tank_own = False                    # the owner's picture of the tank / sa propre image du char
+        self.tank_tip = None                     # its cannon's end in the slot / le bout de son canon
         self.tank_surf("p1")                     # ready before the first tank (the owner's picture takes a moment)
         sp = self.fx.sp
         for name, img in small_imgs(s).items():
@@ -554,16 +563,19 @@ class MetalSlugScene:
         if s is None:
             img = self.tanks.get("img")
             if img is None:
-                img = self.tanks["img"] = self._own_tank() or tank_img(self.S(190), self.S(108))
+                own = self._own_tank()
+                self.tank_own = own is not None
+                self.tank_tip = self._cannon_tip(own) if own is not None else None
+                img = self.tanks["img"] = own or tank_img(self.S(190), self.S(108))
             if side == "p2":
                 img = ImageOps.mirror(img)
             s = self.tanks[side] = self.hd._surf(img)
         return s
 
     def _own_tank(self):
-        """The owner's picture fitted in the card. A plain background (a picture without transparency) is made
-        transparent, empty margins are cut. / Son image dans la carte : un fond uni devient transparent, les marges vides
-        partent."""
+        """The owner's picture fitted in the card, in the middle (drawn in the middle of the card's frame). A plain
+        background (a picture without transparency) is made transparent, empty margins are cut. / Son image dans la carte,
+        au milieu du cadre : un fond uni devient transparent, les marges vides partent."""
         path = os.path.join(getattr(self.hd, "root", "") or "", "sprites", "mslug_tank_hd.png")
         if not os.path.isfile(path):
             return None
@@ -578,7 +590,7 @@ class MetalSlugScene:
             if box is None:
                 return None
             img = img.crop(box)                                       # the drawing only / le dessin seul
-            k = min(w / img.width, h / img.height)
+            k = min(self.S(OWN_BOX[0]) / img.width, self.S(OWN_BOX[1]) / img.height)
             img = img.resize((max(1, int(img.width * k)), max(1, int(img.height * k))), Image.LANCZOS)
         except Exception as e:                                        # a picture it cannot read: the program's drawing
             log = getattr(self.hd, "log", None)
@@ -586,8 +598,21 @@ class MetalSlugScene:
                 log(f"sprites/mslug_tank_hd.png: {e}")
             return None
         out = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-        out.alpha_composite(img, ((w - img.width) // 2, h - img.height))      # sitting on the bottom / posé en bas
+        out.alpha_composite(img, ((w - img.width) // 2, (h - img.height) // 2))
         return out
+
+    def _cannon_tip(self, img):
+        """Where the shells of the owner's tank start, as a part of the slot: the right end of the drawing in its upper
+        part (the treads may go further at the bottom). / Le bout du canon de son char : le bout droit du haut du dessin."""
+        alpha = img.getchannel("A").point(lambda v: 255 if v > 128 else 0)
+        full = alpha.getbbox()
+        if full is None:
+            return None
+        top = alpha.crop((0, full[1], img.width, full[1] + max(1, int((full[3] - full[1]) * 0.6))))
+        box = top.getbbox() or (full[0], 0, full[2], 1)
+        cb = top.crop((box[2] - 1, 0, box[2], top.height)).getbbox() or box    # its last column / sa dernière colonne
+        x, y = box[2], full[1] + (cb[1] + cb[3]) / 2
+        return (self.S(FRAME_DX) + x) / self.S(190), (self.S(FRAME_DY) + y) / self.S(108)
 
     def get(self, vals, side, base):
         return vals.get(base if side == "p1" else base + "_p2")
@@ -1009,7 +1034,7 @@ class MetalSlugScene:
 
     def _tip_xy(self, side, kind):
         sx, sy = self._slot_xy(side)
-        tx, ty = TIP.get(kind or "gun", TIP["gun"])
+        tx, ty = self.tank_tip if kind == "tank" and self.tank_tip else TIP.get(kind or "gun", TIP["gun"])
         if side == "p2":
             tx = 1 - tx
         P = self.players[side]
@@ -1309,7 +1334,10 @@ class MetalSlugScene:
             img = pg.transform.smoothscale(img, (int(img.get_width() * k), int(img.get_height() * k)))
         kick = max(0.0, 1 - (now - P.recoil_t) / 0.1) * S(8) * (-1 if side == "p1" else 1)
         jx = math.sin(now * 80) * S(5) * hit
-        screen.blit(img, (int(sx + S(95) - img.get_width() / 2 + kick + jx), int(sy + S(54) - img.get_height() / 2)))
+        cx, cy = sx + S(95), sy + S(54)
+        if self.tank_own:                                              # the owner's picture: the middle of the frame
+            cx, cy = cx + (S(FRAME_DX) if side == "p1" else -S(FRAME_DX)), cy + S(FRAME_DY)
+        screen.blit(img, (int(cx - img.get_width() / 2 + kick + jx), int(cy - img.get_height() / 2)))
         slide = max(0.0, 1 - tt / 0.3)
         nx = self.X(side, x0, 36) + (-1 if side == "p1" else 1) * S(60) * slide
         hd.put(screen, hd.text(tr("CHAR", "TANK"), "stencil", S(40), (176, 232, 140), glow=0.35), nx, S(208),
