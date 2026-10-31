@@ -248,7 +248,8 @@
         "_p2_ctl",
         1
       ]
-    }
+    },
+    "cpu_scores": true
   },
   "demo": {
     "credits": 2,

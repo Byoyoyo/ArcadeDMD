@@ -582,6 +582,8 @@ class Engine:
         self.humans = {}              # player -> (value, its value when a human controls him) / qui dirige chaque joueur
         self.tag = {}                 # values worked out from a team that takes turns / valeurs d'une équipe qui se relaie
         self.p2_score_read = False
+        self.someone = 0              # somebody plays, on either side (who plays, guessed) / quelqu'un joue, d'un côté ou de l'autre
+        self.p1_cpu = False           # player 2 began alone, player 1 is the computer / le joueur 2 seul, le 1 est l'ordinateur
         self.p2_human_at = -1e9       # player 2 of a fighting game seen as a human / joueur 2 vu comme un humain
         self.start_press = {}         # player -> when he pressed START / quand chaque joueur a appuyé sur START
         # the coin buttons read on the controllers (coin_buttons.bat) / les boutons des pièces lus sur les manettes
@@ -695,7 +697,8 @@ class Engine:
             if watch and (not isinstance(moving, list) or any(v in watch for v in moving)):
                 # a fighting game: the health of player 2 is the one of the computer too / la vie du joueur 2 est aussi celle de l'ordinateur
                 self.activity = {"values": set(watch), "seconds": float(act.get("seconds", 10)),
-                                 "fight": isinstance(moving, list) and "health_p2" in moving}
+                                 "fight": isinstance(moving, list) and "health_p2" in moving,
+                                 "cpu_scores": bool(act.get("cpu_scores"))}
         # who controls each player, when the game file knows where the game keeps it (Street Fighter Alpha, Marvel...)
         # qui dirige chaque joueur, quand le fichier du jeu sait où le jeu le garde
         hum = act.get("human") if act and isinstance(act.get("human"), dict) else {}
@@ -730,6 +733,8 @@ class Engine:
         self.start_at = -1e9
         self.p2_human_at = -1e9
         self.start_press = {}
+        self.someone = 0
+        self.p1_cpu = False
         vals = game_values(g, meta.get("system") or "", meta.get("parent") or "") if g else {}
         self.hold_zero = {k: float(d["hold_zero"]) for k, d in vals.items()
                           if isinstance(d, dict) and isinstance(d.get("hold_zero"), (int, float)) and d["hold_zero"] > 0}
@@ -844,15 +849,35 @@ class Engine:
 
     def _activity(self, now):
         """p1_mode 1 while a watched value changes (not its first reading), 0 after "seconds" without a change: the coin
-        screen when nobody plays, the game's layout during a game or its demo. / p1_mode d'après les valeurs qui bougent."""
+        screen when nobody plays, the game's layout during a game or its demo. In a fighting game player 1 is the
+        computer (0 while somebody plays) when the game says so, or when player 2 began alone with his START.
+        / p1_mode d'après les valeurs qui bougent. Dans un jeu de combat, le joueur 1 est l'ordinateur quand le jeu le
+        dit, ou quand le joueur 2 a commencé seul avec son START."""
         a = self.activity
         if any(e[0] in a["values"] for e in self.state.events):
             self.active_at = now
+        was = self.someone
         if self.coin_count is None:                 # credits read in the game: one or two spent is a start (select screen)
             for name, old, new, t in self.state.events:       # crédits lus dans le jeu : un ou deux dépensés, un départ
                 if name == "credits" and isinstance(old, (int, float)) and isinstance(new, (int, float)) and 0 < old - new <= 2:
                     self.start_at = now
+                    if now - self.start_press.get("p1", -1e9) < 3.0:
+                        self.p1_cpu = False         # player 1's START: he comes in / le START du joueur 1 : il arrive
+                    elif not was and a.get("fight") and now - self.start_press.get("p2", -1e9) < 3.0:
+                        self.p1_cpu = True          # player 2's START, nobody played: he plays alone / il joue seul
         mode = 1 if now - self.active_at < a["seconds"] or now - self.start_at < START_HOLD else 0
+        self.someone = mode                         # somebody plays, on one side or the other / quelqu'un joue
+        if not mode:
+            self.p1_cpu = False
+        moving = now - self.active_at < a["seconds"]
+        flag = self.humans.get("p1") if a.get("fight") else None
+        v = self.state.values.get(flag[0]) if flag is not None else None
+        if mode and moving and isinstance(v, (int, float)):
+            # the game says who controls player 1: the computer when only player 2 plays (not read: as without it)
+            # le jeu dit qui dirige le joueur 1 : l'ordinateur quand seul le joueur 2 joue (pas lu : comme sans)
+            mode = 1 if v == flag[1] else 0
+        elif mode and self.p1_cpu:                  # player 2 began alone, player 1 is the computer / le joueur 2 seul
+            mode = 0
         if mode == 1 and self.state.values.get("p1_mode") == 0 and self.coin_count is not None and self._use_credit("p1", now):
             # the player started: a credit used. His value still at 0 will come back for that same start, not a continue
             # le joueur commence : un crédit pris. Sa valeur encore à 0 reviendra pour ce même départ
@@ -920,6 +945,8 @@ class Engine:
             return
         if p == "p1" and self.state.values.get("p1_mode") == 1:
             return                                     # START during his game / START en pleine partie
+        if p == "p1":
+            self.p1_cpu = False                        # player 1 comes in (a challenger, or a start) / le joueur 1 arrive
         if p == "p2" and now - self.p2_active_at < P2_WAIT:
             return
         if not self._use_credit(p, now):
@@ -929,29 +956,35 @@ class Engine:
         # his value still at 0 (lives, energy) will come back for this same start / sa valeur encore à 0 reviendra
         if any(q == p and not self.state.values.get(v) for v, q in self.coin_begin.items()):
             self.coin_skip[p] = now
-        if self.state.values.get("p1_mode") != 1:      # nobody played: the game begins, on player 2's side too
+        if not self.someone:                           # nobody played: the game begins / personne ne jouait
             self.start_at = now
-            self.state.update("p1_mode", 1, now)
+            self.someone = 1
+            if p == "p2":
+                self.p1_cpu = self.activity.get("fight", False)  # player 2 alone against the computer / seul contre l'ordinateur
+            if p == "p1" or not self.p1_cpu:
+                self.state.update("p1_mode", 1, now)
 
     def _p2_fight(self, now):
         """Player 2 of a fighting game without a BIOS, a human or the computer (p2_mode). Read in the game when its file
-        knows where (Street Fighter Alpha, Alpha 3, Marvel vs. Capcom, Vampire Hunter 2, JoJo's Bizarre Adventure),
-        otherwise seen as he comes in, his score goes up, his START with a credit, or a credit the game spends during a
+        knows where (Street Fighter Alpha, Alpha 3, Marvel vs. Capcom, Marvel Super Heroes vs. Street Fighter, X-Men vs.
+        Street Fighter, Vampire Hunter 2, JoJo's Bizarre Adventure), otherwise seen as he comes in, his score goes up
+        (not where the computer scores too, "cpu_scores"), his START with a credit, or a credit the game spends during a
         fight (a challenger). He leaves when nobody plays any more, or when his score has not moved for P2_FIGHT_IDLE
         seconds. / Le joueur 2 d'un jeu de combat sans BIOS : un humain ou l'ordinateur, lu dans le jeu ou vu quand il
-        arrive (son score monte, son START avec un crédit, un crédit dépensé en plein combat)."""
+        arrive (son score monte, sauf là où l'ordinateur marque aussi, son START avec un crédit, un crédit dépensé en
+        plein combat)."""
         vals = self.state.values
-        playing = vals.get("p1_mode") == 1
+        playing = self.someone == 1
         flag = self.humans.get("p2")
-        if flag is not None:
-            v = vals.get(flag[0])
-            mode = 1 if playing and isinstance(v, (int, float)) and v == flag[1] else 0
+        v = vals.get(flag[0]) if flag is not None else None
+        if isinstance(v, (int, float)):                    # read in the game / lu dans le jeu
+            mode = 1 if playing and v == flag[1] else 0
         else:
             for name, old, new, t in self.state.events:
                 if not isinstance(new, (int, float)) or not isinstance(old, (int, float)):
                     continue
-                if name == "score_p2" and new > old:
-                    self.p2_human_at = now
+                if name == "score_p2" and new > old and not self.activity.get("cpu_scores"):
+                    self.p2_human_at = now                 # only where the computer does not score / l'ordinateur ne marque pas
                 elif name == "credits" and self.coin_count is None and 0 < old - new <= 2:
                     # his START just before, or the fight going on (not player 1's own START): a challenger
                     # son START juste avant, ou le combat en cours (pas le START du joueur 1) : un challenger
@@ -960,7 +993,9 @@ class Engine:
                         self.p2_human_at = now
             if not playing:
                 self.p2_human_at = -1e9
-            idle = P2_FIGHT_IDLE if self.p2_score_read else float("inf")
+            # his score tells he still plays, unless the computer scores too: then until nobody plays
+            # son score dit qu'il joue encore, sauf si l'ordinateur marque aussi : alors jusqu'à ce que personne ne joue
+            idle = P2_FIGHT_IDLE if self.p2_score_read and not self.activity.get("cpu_scores") else float("inf")
             seen = self.p2_human_at > -1e8                 # seen as a human in this game / vu comme un humain
             mode = 1 if playing and seen and now - self.p2_human_at < idle else 0
         if vals.get("p2_mode") != mode:

@@ -232,7 +232,18 @@ def timer(t, fam, src):
 # teams that take turns, two fighters a player (Marvel vs. Capcom): where each fighter is kept, and in it the byte at 1
 # while he is on screen, his health and his character (Seb's RAM captures, the first one K.O., the second one on screen)
 # les équipes qui se relaient : où est chaque combattant, et dans son bloc l'octet à 1 quand il est à l'écran, sa vie
-TAG = {"mvsc": {"p1": (0xFF3000, 0xFF3800), "p2": (0xFF3400, 0xFF3C00), "on": 0x000, "hp": 0x271, "chr": 0x053}}
+# X-Men vs. Street Fighter keeps the fighter on screen in the first block and the other one in the second ("on": None)
+# X-Men vs. Street Fighter garde le combattant à l'écran dans le premier bloc, l'autre dans le second
+TAG = {"mvsc": {"p1": (0xFF3000, 0xFF3800), "p2": (0xFF3400, 0xFF3C00), "on": 0x000, "hp": 0x271, "chr": 0x053},
+       "mshvsf": {"p1": (0xFF3800, 0xFF4000), "p2": (0xFF3C00, 0xFF4400), "on": 0x000, "hp": 0x251, "chr": 0x053},
+       "xmvsf": {"p1": (0xFF4000, 0xFF4800), "p2": (0xFF4400, 0xFF4C00), "on": None, "hp": 0x211, "chr": 0x053}}
+# who controls each player when the cheats do not say, the byte at +3 in the fighter's block like in Marvel vs. Capcom:
+# 1 for a human (Seb's captures, a game on each side) / qui dirige chaque joueur quand les codes ne le disent pas
+HUMAN = {"mshvsf": {"p1": 0xFF3803, "p2": 0xFF3C03}, "xmvsf": {"p1": 0xFF4003, "p2": 0xFF4403}}
+# games where the computer scores too (Seb's captures of Marvel Super Heroes vs. Street Fighter and X-Men vs. Street
+# Fighter, the other games of the family taken alike): player 2's score going up does not say he is a human
+# les jeux où l'ordinateur marque aussi des points (captures de Seb, les autres jeux de la famille pris pareil)
+CPU_SCORES = {"xmcota", "msh", "xmvsf", "mshvsf", "mvsc"}
 # the level a game shows for 0 in its level byte (X-Men: Children of the Atom says Level 1) / le niveau affiché pour 0
 LEVEL_SHOWN_FROM = {"xmcota": 1}
 # full health of a game whose cheats only drain it, from a game of the same series / vie pleine d'un jeu de la même série
@@ -651,10 +662,18 @@ def build(fbneo, cheats_dir, games_dir):
                                      "the moving ones is read (lives or bombs alone change too seldom)"}
             # the game says who is a human: player 2 against the computer or against a challenger
             # le jeu dit qui est un humain : le joueur 2 contre l'ordinateur ou contre un challenger
+            for p, a in HUMAN.get(name, {}).items():
+                k = f"_{p}_ctl"
+                who = "player 1" if p == "p1" else "player 2"
+                merged[k] = value(a, 1, fam, "u8", f"{who} controlled by a human (1) or the computer, found in RAM captures "
+                                                   f"on a cabinet (a game on each side)")
+                merged[k]["human"] = 1
             ctl = {p: [k, merged[k]["human"]] for p, k in (("p1", "_p1_ctl"), ("p2", "_p2_ctl"))
                    if isinstance(merged.get(k), dict) and "human" in merged[k]}
             if ctl:
                 d["activity"]["human"] = ctl
+            if name in CPU_SCORES and scene == "cps_combat":
+                d["activity"]["cpu_scores"] = True
         else:
             d.pop("activity", None)
         # credits not read: counted from the coin buttons. A player begins (start, continue, joining in) when his lives
@@ -705,15 +724,19 @@ def build(fbneo, cheats_dir, games_dir):
                 hp2 = dict(hp1, addr=f"0x{b2 + tag['hp']:X}", note=hp1["note"].replace("1st", "2nd").replace(
                     f"{who} health", f"{who} health of his second fighter"))
                 merged[pre + "_hp1"], merged[pre + "_hp2"] = hp1, hp2
-                for i, b in ((1, b1), (2, b2)):
-                    merged[f"{pre}_on{i}"] = value(b + tag["on"], 1, fam, "u8", f"{who}, fighter {i} on screen (1), found "
-                                                                                f"in RAM captures on a cabinet")
+                if tag["on"] is None:                # the first block is the one on screen / le premier bloc est à l'écran
+                    on1, on2 = 1, 0
+                else:
+                    on1, on2 = pre + "_on1", pre + "_on2"
+                    for i, b in ((1, b1), (2, b2)):
+                        merged[f"{pre}_on{i}"] = value(b + tag["on"], 1, fam, "u8", f"{who}, fighter {i} on screen (1), found "
+                                                                                    f"in RAM captures on a cabinet")
                 merged[ck + "2"] = value(b2 + tag["chr"], 1, fam, "u8", f"{who}, character of his second fighter, the first one "
                                                                          f"+0x{b2 - b1:X}")
-                out[hk] = {"team": [[pre + "_on1", pre + "_hp1", pre + "_hp1"], [pre + "_on2", pre + "_hp2", pre + "_hp2"]]}
+                out[hk] = {"team": [[on1, pre + "_hp1", pre + "_hp1"], [on2, pre + "_hp2", pre + "_hp2"]]}
                 dvs = d.get("derived") or {}
                 if isinstance(dvs.get(side + "_char"), dict) and dvs[side + "_char"].get("names"):
-                    dvs[side + "_char"] = {"team": [[pre + "_on1", pre + "_hp1", ck], [pre + "_on2", pre + "_hp2", ck + "2"]],
+                    dvs[side + "_char"] = {"team": [[on1, pre + "_hp1", ck], [on2, pre + "_hp2", ck + "2"]],
                                            "names": dvs[side + "_char"]["names"]}
             d["tag"] = out
         else:
