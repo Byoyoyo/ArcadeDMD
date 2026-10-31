@@ -81,6 +81,12 @@
         "type": "u8",
         "note": "player 2 weapon"
       },
+      "prisoners": {
+        "addr": "0x10DDDD",
+        "type": "u8",
+        "zero_from": "0x80",
+        "note": "player 1 rescued prisoners (cheat database, Always have 15 Prisoners PL1)"
+      },
       "time": {
         "addr": "0x10D67E",
         "type": "bcd",
@@ -145,7 +151,22 @@
     "credits": 2,
     "p1_mode": 1,
     "p2_mode": 0,
-    "time": 60
+    "time": 60,
+    "prisoners": 0,
+    "sim": {
+      "prisoners": {
+        "count": [
+          0,
+          12,
+          1
+        ],
+        "every": [
+          6,
+          11
+        ],
+        "start": 5
+      }
+    }
   },
   "scene": {
     "layers": [

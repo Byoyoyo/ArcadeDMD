@@ -67,20 +67,20 @@
         "note": "player 1 in the tank (1), on foot (0), found in RAM captures on a cabinet (13 captures, 6 in the tank, 7 on foot, 4 of them beside the parked tank)"
       },
       "vehicle_hp": {
-        "addr": "0x100387",
+        "addr": "0x1005E7",
         "type": "u8",
         "mult": 2.083333,
         "round": 1,
         "min": 0,
         "max": 100,
         "zero_from": "0x80",
-        "note": "energy of the tank player 1 is in, in % (full at 0x30, 16 a hit, 3 hits), the copy the game shows, 0 on foot. The tank's own is at 0x1005E7 (cheat database, Infinite Tank Gas), the same while he is in it"
+        "note": "energy of the tank, in % (full at 0x30, 16 a hit, 3 hits), the tank's own (cheat database, Infinite Tank Gas). The copy the game shows at 0x100387 fills up when the player gets in, the tank's own is right at once. Shown while player 1 is in it"
       },
       "vehicle_ammo": {
-        "addr": "0x100391",
+        "addr": "0x100610",
         "type": "u8",
         "zero_from": "0x80",
-        "note": "cannon shells of the tank player 1 is in, the copy the game shows. The tank's own are at 0x100610 (cheat database, Infinite Tank Cannon), the same while he is in it"
+        "note": "cannon shells of the tank, its own (cheat database, Infinite Tank Cannon), shown while player 1 is in it"
       },
       "vehicle_p2": {
         "addr": "0x10056C",
@@ -88,20 +88,32 @@
         "note": "player 2 in the tank (1), the same place in his own block, 0xA0 further like his bombs and weapon"
       },
       "vehicle_hp_p2": {
-        "addr": "0x100427",
+        "addr": "0x1005E7",
         "type": "u8",
         "mult": 2.083333,
         "round": 1,
         "min": 0,
         "max": 100,
         "zero_from": "0x80",
-        "note": "energy of the tank player 2 is in, in %, 0xA0 after player 1's like his lives"
+        "note": "the same tank, shown while player 2 is in it"
       },
       "vehicle_ammo_p2": {
-        "addr": "0x100431",
+        "addr": "0x100610",
         "type": "u8",
         "zero_from": "0x80",
-        "note": "cannon shells of the tank player 2 is in, 0xA0 after player 1's"
+        "note": "the same tank, shown while player 2 is in it"
+      },
+      "prisoners": {
+        "addr": "0x100376",
+        "type": "u8",
+        "zero_from": "0x80",
+        "note": "player 1 rescued prisoners, found with learn.bat on a cabinet (3 captures with 1, 2 and 3 prisoners, the same count in 8 older ones), right before his lives. The game keeps a copy at 0x106F4D"
+      },
+      "prisoners_p2": {
+        "addr": "0x100416",
+        "type": "u8",
+        "zero_from": "0x80",
+        "note": "player 2, deduced: right before his lives in his own block, 0xA0 further (0xFF while he does not play, read 0)"
       },
       "time": {
         "addr": "0x106E93",
@@ -236,8 +248,21 @@
           10
         ],
         "every": 60
+      },
+      "prisoners": {
+        "count": [
+          0,
+          12,
+          1
+        ],
+        "every": [
+          6,
+          11
+        ],
+        "start": 5
       }
-    }
+    },
+    "prisoners": 0
   },
   "scene": {
     "layers": [

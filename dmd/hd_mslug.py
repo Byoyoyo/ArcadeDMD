@@ -288,6 +288,27 @@ def tank_img(w, h):
     return _draw(w, h, fn)
 
 
+def clear_background(img, tol=48):
+    """An opaque picture's plain background made transparent. The four corners give its colour (when they differ it is
+    not a plain background, a photo say, and the picture stays as it is); it goes from the corners inwards, as far as it
+    stays close to that colour (each channel within tol), so a light colour inside the drawing's outline stays.
+    / Le fond uni d'une image opaque rendu transparent : la couleur de ses quatre coins, depuis les coins et tant qu'on
+    reste proche d'elle. Le clair à l'intérieur du contour du dessin reste, une photo aussi."""
+    rgb = img.convert("RGB")
+    w, h = rgb.size
+    r, g, b = ImageChops.difference(rgb, Image.new("RGB", rgb.size, rgb.getpixel((0, 0)))).split()
+    dist = ImageChops.lighter(ImageChops.lighter(r, g), b).point(lambda v: min(v, 254))     # 255 = background found
+    corners = ((0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1))
+    if any(dist.getpixel(xy) > tol for xy in corners):
+        return img
+    for xy in corners:
+        if dist.getpixel(xy) != 255:
+            ImageDraw.floodfill(dist, xy, 255, thresh=tol)
+    out = img.copy()
+    out.putalpha(ImageChops.multiply(img.getchannel("A"), dist.point(lambda v: 0 if v == 255 else 255)))
+    return out
+
+
 def small_imgs(s):
     """Objets qui volent : douille, cartouche, éclats, roquette (Pillow RGBA)."""
     out = {}
@@ -447,6 +468,7 @@ class MetalSlugScene:
         self.panels = {side: hd._surf(panel_img(side, s, ACCENT[side])) for side in ("p1", "p2")}
         self.weapons = {}
         self.tanks = {}
+        self.tank_surf("p1")                     # ready before the first tank (the owner's picture takes a moment)
         sp = self.fx.sp
         for name, img in small_imgs(s).items():
             sp.register(name, img)
@@ -530,23 +552,39 @@ class MetalSlugScene:
         right, fitted in the card). / Le dessin du char, celui du programme ou le sien (sprites/mslug_tank_hd.png)."""
         s = self.tanks.get(side)
         if s is None:
-            img = self._own_tank() or tank_img(self.S(190), self.S(108))
+            img = self.tanks.get("img")
+            if img is None:
+                img = self.tanks["img"] = self._own_tank() or tank_img(self.S(190), self.S(108))
             if side == "p2":
                 img = ImageOps.mirror(img)
             s = self.tanks[side] = self.hd._surf(img)
         return s
 
     def _own_tank(self):
+        """The owner's picture fitted in the card. A plain background (a picture without transparency) is made
+        transparent, empty margins are cut. / Son image dans la carte : un fond uni devient transparent, les marges vides
+        partent."""
         path = os.path.join(getattr(self.hd, "root", "") or "", "sprites", "mslug_tank_hd.png")
         if not os.path.isfile(path):
             return None
+        w, h = self.S(190), self.S(108)
         try:
             img = Image.open(path).convert("RGBA")
-        except (OSError, ValueError):
+            img.thumbnail((w * 3, h * 3), Image.LANCZOS)                # a big picture made small first / réduite d'abord
+            if img.getchannel("A").getextrema()[0] == 255:
+                clear = clear_background(img)                         # no transparency: its plain background goes
+                img = clear if clear.getchannel("A").getbbox() else img        # (a picture of one colour stays whole)
+            box = img.getchannel("A").point(lambda v: 255 if v > 16 else 0).getbbox()
+            if box is None:
+                return None
+            img = img.crop(box)                                       # the drawing only / le dessin seul
+            k = min(w / img.width, h / img.height)
+            img = img.resize((max(1, int(img.width * k)), max(1, int(img.height * k))), Image.LANCZOS)
+        except Exception as e:                                        # a picture it cannot read: the program's drawing
+            log = getattr(self.hd, "log", None)
+            if callable(log):
+                log(f"sprites/mslug_tank_hd.png: {e}")
             return None
-        w, h = self.S(190), self.S(108)
-        k = min(w / max(1, img.width), h / max(1, img.height))
-        img = img.resize((max(1, int(img.width * k)), max(1, int(img.height * k))), Image.LANCZOS)
         out = Image.new("RGBA", (w, h), (0, 0, 0, 0))
         out.alpha_composite(img, ((w - img.width) // 2, h - img.height))      # sitting on the bottom / posé en bas
         return out
