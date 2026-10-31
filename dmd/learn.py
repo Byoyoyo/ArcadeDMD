@@ -417,6 +417,8 @@ ALIASES = {
     "hp": "health", "health1": "health", "healthp1": "health", "health_p1": "health",
     "health2": "health_p2", "healthp2": "health_p2", "hp2": "health_p2",
     "beat_p1": "beat", "beatby1": "beat",
+    "hit": "hits", "chain": "hits", "chaine": "hits", "combo": "hits", "hit2": "hits_p2", "hits2": "hits_p2", "chain2": "hits_p2",
+    "chaine2": "hits_p2", "combo2": "hits_p2",
     "hiscore": "record", "highscore": "record", "hi_score": "record", "high_score": "record", "hi": "record",
     "top": "record", "best": "record",
 }

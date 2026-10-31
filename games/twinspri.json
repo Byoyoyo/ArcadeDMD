@@ -112,6 +112,21 @@
         "type": "u8",
         "note": "player 2 character (FinalBurn Neo cheats, Select Character PL2)"
       },
+      "hits": {
+        "addr": "",
+        "type": "u8",
+        "note": "player 1 chain, the N HIT shown by the game: learn it with learn.bat (hits=4 while the game shows 4 HIT)"
+      },
+      "hits_p2": {
+        "addr": "",
+        "type": "u8",
+        "note": "player 2 chain (hits2=...)"
+      },
+      "stage": {
+        "addr": "",
+        "type": "u8",
+        "note": "stage against the computer, shown in the column: learn it with learn.bat (stage=1, stage=2...)"
+      },
       "credits": {
         "addr": "0xD00034",
         "type": "bcd",
@@ -269,8 +284,37 @@
         ],
         "every": 12.0,
         "start": 1.0
+      },
+      "hits": {
+        "cycle": [
+          0,
+          2,
+          3,
+          4,
+          0,
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          0,
+          0
+        ],
+        "every": 0.7,
+        "start": 3.0
+      },
+      "stage": {
+        "cycle": [
+          1,
+          2,
+          3
+        ],
+        "every": 24.0,
+        "start": 24.0
       }
-    }
+    },
+    "stage": 1
   },
   "scene": {
     "layers": [

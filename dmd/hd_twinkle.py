@@ -15,7 +15,7 @@ import threading
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
-from .hd_games import WHITE, GameScene, _clamp, _mix, _n, draw_img
+from .hd_games import AMBER, WHITE, GameScene, _clamp, _mix, _n, draw_img
 from .hd_themes4 import ts_fields, ts_forest_tile
 
 
@@ -183,7 +183,7 @@ def ts_plate(root, w, h, c1, c2, name, tag, right):
     r = H * 0.5
     cx = W - r if right else r
     d.ellipse([cx - r + ss, ss, cx + r - ss, H - ss], fill=(255, 226, 110, 255), outline=(120, 60, 10, 255), width=3 * ss)
-    f = ts_font(root, "black", H * 0.42)
+    f = ts_font(root, "black", H * (0.42 if len(tag) <= 2 else 0.3))
     d.text((cx, H / 2), tag, font=f, fill=(90, 30, 10, 255), anchor="mm")
     room = W - 2 * r - 40 * ss
     size = H * 0.6
@@ -326,10 +326,30 @@ class TwinkleScene(GameScene):
         r = self.S(22)
         return self.img(("tsorb", live), 2 * r, 2 * r, ts_orb(live), ss=3)
 
-    def plate_img(self, side, name, char):
+    def plate_img(self, side, name, char, tag=None):
         c1, c2 = TS_PLATES[int(char) % len(TS_PLATES)] if char is not None else ((90, 90, 120), (60, 60, 90))
-        return self._big(("plate", side, name, c1, c2), lambda: self.hd._surf(
-            ts_plate(self.root, self.S(470), self.S(52), c1, c2, name, "2P" if side == "p2" else "1P", side == "p2")))
+        tag = tag or ("2P" if side == "p2" else "1P")
+        return self._big(("plate", side, name, c1, c2, tag), lambda: self.hd._surf(
+            ts_plate(self.root, self.S(470), self.S(52), c1, c2, name, tag, side == "p2")))
+
+    def column_box(self, top, big):
+        """The box of the column, as in the game: VERSUS and VS between two players, STAGE and its number against the
+        computer. / Le cadre de la colonne : VERSUS VS à deux, STAGE et son numéro contre l'ordinateur."""
+        def make():
+            S = self.S
+            w, h = S(150), S(112)
+            img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+            d = ImageDraw.Draw(img)
+            d.rounded_rectangle([0, 0, w - 1, h - 1], radius=S(14), fill=(90, 14, 24, 235), outline=(250, 206, 80, 255), width=max(2, S(4)))
+            d.rounded_rectangle([S(7), S(7), w - 1 - S(7), h - 1 - S(7)], radius=S(9), outline=(140, 80, 20, 255), width=max(1, S(2)))
+            f = ts_font(self.root, "black", S(19))
+            d.text((w / 2, S(25)), top, font=f, fill=(255, 220, 110, 255), anchor="mm", stroke_width=max(1, S(2)), stroke_fill=(50, 10, 10, 255))
+            red = big == "VS"
+            num = ts_banner(self.root, big, S(56 if red else 60), (255, 250, 220) if not red else (255, 240, 200),
+                            (255, 190, 60) if not red else (255, 50, 50), max(3, S(4)))
+            img.alpha_composite(num, ((w - num.width) // 2, int(S(70) - num.height / 2)))
+            return self.hd._surf(img)
+        return self._big(("box", top, big), make)
 
     def tint(self, color, alpha, w, h):
         key = ("tint", color, int(w), int(h))
@@ -403,6 +423,12 @@ class TwinkleScene(GameScene):
             if ch and ch[1] > 0:
                 lvl = max(1, min(3, int(ch[1]) // 16))
                 self.send(side, other, lvl, now)
+            ch = self.changed(vals, "hits" + suf)
+            if ch and ch[1] >= 2 and ch[1] > ch[0]:                     # the chain the game counts (N HIT)
+                st["chain_n"], st["chain_t"] = int(ch[1]), now
+                st["chain_xy"] = (st["x"], 0.46)
+            elif ch and ch[1] < 2:
+                st["chain_t"] = min(st["chain_t"], now - 1.0)          # it ends: the counter goes / il s'efface
             ch = self.changed(vals, "power" + suf)
             if ch and ch[1] < ch[0] and ch[0] >= 0x1000:               # a charged shot leaves
                 self.charge(side, min(3, int(ch[0]) // 0x1000), now)
@@ -454,7 +480,7 @@ class TwinkleScene(GameScene):
                 self.kos += 1
                 self.fx.shake(6, 0.35)
                 os_ = self.side[other]
-                if self.p1_in(vals) if other == "p1" else self.p2_in(vals):
+                if self.p1_in(vals) if other == "p1" else (self.p2_in(vals) or self.p1_in(vals)):     # the computer too
                     os_["win"] = now
                     for k in range(8):                                 # fireworks for the winner / feu d'artifice
                         self.fx.later(0.2 + k * 0.28, self.firework, other)
@@ -482,9 +508,6 @@ class TwinkleScene(GameScene):
                 f["dead"] = now + 0.08 * n
                 n += 1
         st["chain"] += n
-        st["chain_n"] = (st["chain_n"] + n) if now - st["chain_t"] < 1.4 else n
-        st["chain_t"] = now
-        st["chain_xy"] = (e["x"], max(0.42, min(0.62, e["y"])))
 
     def send(self, side, other, lvl, now):
         """Fireballs (or the big boss creature) go over to the other field, across the column, with !! where they
@@ -700,7 +723,7 @@ class TwinkleScene(GameScene):
         kch = now - st["chain_t"]                                      # the chain counter / le compteur de chaîne
         calm = not (0 <= now - st["bomb"] < 1.3 or 0 <= now - st["boss_t"] < 2.2 or 0 <= ko < 6.0 or 0 <= now - st["win"] < 6.0
                     or 0 <= now - st["beam"][0] < 0.9)
-        if calm and st["chain_n"] >= 4 and 0 <= kch < 1.3:
+        if calm and st["chain_n"] >= 2 and 0 <= kch < 1.3:
             fx_, fy_ = st.get("chain_xy", (0.5, 0.5))
             px, py = self.fxy(side, _clamp(fx_, 0.25, 0.75), fy_)
             img = self.chain_img(st["chain_n"])
@@ -734,25 +757,40 @@ class TwinkleScene(GameScene):
         bombs; the logo above the column. / En haut la plaque du nom, le score, cinq gros cœurs ; en bas POW et bombes."""
         S, W, H, pg, hd = self.S, self.W, self.H, self.pg, self.hd
         hd.draw_logo(screen, logo, W / 2, S(4), S(380), S(76), now)
+        stage = _n(vals.get("stage"))
+        if self.p2_in(vals) and self.p1_in(vals):                     # the box of the column, as in the game
+            box = self.column_box("VERSUS", "VS")
+        elif stage is not None and stage >= 1:
+            box = self.column_box("STAGE", str(int(stage)))
+        else:
+            box = None
+        if box is not None:
+            screen.blit(box, (int(W / 2 - box.get_width() / 2), int(H * 0.66 - box.get_height() / 2)))
         for k, (side, suf) in enumerate((("p1", ""), ("p2", "_p2"))):
             st = self.side[side]
             x0, w = self.fields[k]
             right = k == 1
-            if right and not self.p2_in(vals):
-                word, col = self.invite(vals, now)
-                self.label(screen, word, x0 + w - S(16), S(36), 32, col, align="right")
-                continue
+            cpu = right and not self.p2_in(vals)                       # against the computer: its side, as in the game
             name = vals.get("name" + suf)
             char = _n(vals.get("char" + suf))
-            plate = self.plate_img(side, name if isinstance(name, str) and name else ("2P" if right else "1P"), char)
+            plate = self.plate_img(side, name if isinstance(name, str) and name else ("CPU" if cpu else ("2P" if right else "1P")), char,
+                                   "CPU" if cpu else None)
             px = x0 + w - S(14) - plate.get_width() if right else x0 + S(14)
             screen.blit(plate, (int(px), S(8)))
             sc = _n(vals.get("score" + suf))
-            if sc is not None:                                         # the score, between the plate and the logo
-                sw = hd.text(str(vals.get("score" + suf)), "black", S(50), (255, 200, 60))["w"]
-                sx = (px - S(22)) if right else (px + plate.get_width() + S(22))
-                self.pill(screen, (sx - sw - S(16)) if right else sx - S(16), S(6), sw + S(32), S(58), 150)
-                hd._score(screen, eng, "score" + suf, sx, S(10), "right" if right else "left", S(50))
+            if cpu:                                                    # a second player can come in: the invitation
+                word, col = self.invite(vals, now)
+                self.label(screen, word, px - S(18), S(36), 26, col, align="right")
+            elif sc is not None:                                       # the score, between the plate and the logo
+                txt = hd.text(str(vals.get("score" + suf)), "black", S(50), AMBER)
+                pw_ = txt["w"] + S(36)
+                pcx = (px - S(14) - pw_ / 2) if right else (px + plate.get_width() + S(14) + pw_ / 2)
+                self.pill(screen, pcx - pw_ / 2, S(8), pw_, S(52), 150)
+                pop = 0.0
+                t_ch = eng.state.changed_at.get("score" + suf)
+                if t_ch is not None and 0 <= eng.ctx.t - t_ch < 0.25:
+                    pop = 1 - (eng.ctx.t - t_ch) / 0.25
+                hd.put(screen, txt, pcx, S(34), "center", "middle", scale=1 + 0.2 * pop)
             hearts = _n(vals.get("lives" + suf))
             if hearts is not None:                                     # five big hearts, half ones too
                 fx_ = {h[1]: h for h in st["hearts"]}
