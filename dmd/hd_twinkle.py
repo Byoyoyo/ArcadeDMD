@@ -234,8 +234,9 @@ class TwinkleScene(GameScene):
     At the top of each field the name in big letters on a plate in the character's colours, the score, five big hearts
     (half ones too, the game's energy); at the bottom POW 1 2 MAX and the bombs. Big moments, from the values read in
     the game: chains that grow, fireballs that cross the column (with !! where they land), the charged shot that leaves
-    as a beam of light (1, 2 or MAX !), a bomb that flashes the field with rings of stars and BOMB !, a boss attack
-    that darkens the other field with BOSS ATTACK !, a heart that breaks or comes back, K.O. and WIN ! with fireworks.
+    as a beam of light (1, 2 or MAX !), a bomb that rumbles and lights up the whole screen (rays, shockwaves, a shower of
+    stars, BOMB !), a boss attack that darkens the other field with BOSS ATTACK !, a heart that breaks or comes back,
+    K.O. and WIN ! with fireworks, PERFECT ! for a round won without losing a heart.
     / Deux terrains côte à côte, comme dans le jeu, et les grands moments lus dans le jeu."""
     THEME = "ts_frame"
     STATIC = True
@@ -247,6 +248,7 @@ class TwinkleScene(GameScene):
            ("boss", "BOSS ATTACK !", 88, (255, 255, 255), (255, 110, 200), (255, 60, 160, 170)),
            ("ko", "K.O.", 170, (255, 240, 200), (255, 60, 60), (255, 40, 40, 170)),
            ("win", "WIN !", 140, (255, 255, 230), (255, 190, 50), (255, 200, 60, 170)),
+           ("perfect", "PERFECT !", 118, (255, 255, 235), (255, 176, 40), (255, 80, 200, 200)),
            ("max", "MAX !", 70, (255, 255, 255), (255, 214, 80), (255, 200, 80, 150)),
            ("lv1", "LV 1", 64, (255, 255, 255), (255, 150, 170), (255, 100, 140, 150)),
            ("lv2", "LV 2", 64, (255, 255, 255), (255, 190, 90), (255, 160, 60, 150)),
@@ -266,9 +268,15 @@ class TwinkleScene(GameScene):
         self.side = {side: {"x": 0.5, "tx": 0.5, "next": 0.0, "hit": -99.0, "fire": 0.0, "enemies": [], "balls": [], "boss": None,
                             "next_row": 0.0, "chain": 0, "bomb": -99.0, "chain_n": 0, "chain_t": -99.0, "warn": (-99.0, 1),
                             "beam": (-99.0, 0), "red": -99.0, "ko": -99.0, "win": -99.0, "orb": (-99.0, 0), "hearts": [],
-                            "boss_t": -99.0} for side in ("p1", "p2")}
+                            "boss_t": -99.0, "clean": None, "perfect": -99.0} for side in ("p1", "p2")}
         self.comets = []                                  # fireballs crossing the column / boules de feu qui traversent
         self.big = {}                                     # big texts and pictures of the effects / grands textes, images
+        self.bigq = {}                                    # the big texts that bounce, at a few scales / à quelques tailles
+        self.booms = []                                   # bombs going off over the whole screen / bombes sur tout l'écran
+        self.stars = []                                   # the shower of stars of a bomb / la pluie d'étoiles
+        self.ray_buf = None
+        self.ray_masks = {}
+        self.perfects = 0
         self.attacks = 0                                  # attacks sent (tests)
         self.bombs = 0
         self.hits = 0
@@ -279,7 +287,10 @@ class TwinkleScene(GameScene):
         self.warm = ([(self.witch, ("p1", 0, f)) for f in range(2)] + [(self.witch, ("p2", 0, f)) for f in range(2)]
                      + [(self.big_text, (k,)) for k, *_ in self.BIG] + [(self.chain_img, (n,)) for n in range(3, 13)]
                      + [(self.heart_img, (k,)) for k in ("full", "half", "empty")] + [(self.beam_img, ())]
-                     + [(self.flash_img, (self.fields[0][1] * 1.1, self.H * 1.3, lv)) for lv in range(6, 0, -1)] + self.warm)
+                     + [(self.flash_img, (self.fields[0][1] * 1.1, self.H * 1.3, lv)) for lv in range(6, 0, -1)]
+                     + [(self.big_q, ("bomb", q)) for q in range(23, 6, -1)] + [(self.big_q, ("perfect", q)) for q in range(20, 6, -1)]
+                     + [(self.big_q, ("win", q)) for q in range(18, 6, -1)] + self.warm)
+        self.warm[:0] = [(self.ray_mask, self.fxy(sd, 0.5, 0.55)) for sd in ("p1", "p2")]      # the bomb's light first
 
     def _build_tile(self):
         try:
@@ -371,6 +382,34 @@ class TwinkleScene(GameScene):
     def beam_img(self):
         return self._big("beam", lambda: self.hd._surf(ts_beam(self.S(170), self.S(330))))
 
+    def big_q(self, key, q):
+        """A big text at q tenths of its size, kept: a text that bounces is not resized at every image.
+        / Un grand texte à q dixièmes de sa taille, gardé : un texte qui rebondit n'est pas redimensionné à chaque image."""
+        base = self.big_text(key)
+        if base is None or q == 10:
+            return base
+        s = self.bigq.get((key, q))
+        if s is None:
+            if len(self.bigq) > 48:
+                self.bigq.clear()
+            s = self.bigq[(key, q)] = self.pg.transform.smoothscale(base, (max(1, base.get_width() * q // 10),
+                                                                           max(1, base.get_height() * q // 10)))
+        return s
+
+    def ray_mask(self, x, y):
+        """Light that fades from the bomb to the far end of the screen, for its rays. / Lumière qui décroît depuis la bombe."""
+        key = (int(x), int(y))
+        m = self.ray_masks.get(key)
+        if m is None:                                              # made at a quarter of the size: smooth, and quick
+            W, H, q = self.W, self.H, 4
+            R = max(2, int(W * 0.9 / q))
+            g = Image.radial_gradient("L").resize((2 * R, 2 * R), Image.BILINEAR).point(lambda v: int(255 * max(0.0, 1 - v / 255.0) ** 1.3))
+            small = Image.new("L", (max(1, W // q), max(1, H // q)), 0)
+            small.paste(g, (int(x / q) - R, int(y / q) - R))
+            full = small.resize((W, H), Image.BILINEAR)
+            m = self.ray_masks[key] = self.hd._surf(Image.merge("RGB", (full, full, full)))
+        return m
+
     def look(self, vals, side):
         v = _n(vals.get("char" if side == "p1" else "char_p2"))
         if v is None:
@@ -402,6 +441,11 @@ class TwinkleScene(GameScene):
     # ------------------------------------------------------------ ce qui arrive
     def update(self, vals, now):
         S, dt, rng = self.S, self.dt, self.rng
+        ins = (bool(self.p1_in(vals)), bool(self.p2_in(vals)))
+        if ins != getattr(self, "was_in", ins) and any(a and not b for a, b in zip(ins, self.was_in)):
+            for st in self.side.values():                              # a game starts, or player 2 comes in: hearts seen anew
+                st["clean"] = None                                     # / une partie commence : les cœurs revus
+        self.was_in = ins
         for side, suf in (("p1", ""), ("p2", "_p2")):
             st = self.side[side]
             other = "p2" if side == "p1" else "p1"
@@ -412,6 +456,9 @@ class TwinkleScene(GameScene):
                 if now >= st["next"]:
                     st["tx"], st["next"] = rng.uniform(0.12, 0.88), now + rng.uniform(0.8, 2.0)
                 st["x"] += (st["tx"] - st["x"]) * min(1.0, dt * 2.0)
+            hv = _n(vals.get("lives" + suf))
+            if hv is not None and st["clean"] is None:                 # seen for the first time: untouched with five hearts
+                st["clean"] = hv >= 4.99                               # / vu la 1re fois : intact avec cinq cœurs
             ch = self.changed(vals, "lives" + suf)
             if ch:
                 self.hearts_changed(side, other, ch[0], ch[1], now, vals)
@@ -468,6 +515,7 @@ class TwinkleScene(GameScene):
         if new < old:
             st["hit"] = now
             st["red"] = now
+            st["clean"] = False                                        # hit in this round: no PERFECT / touché
             self.hits += 1
             x, y = self.fxy(side, st["x"], 0.82)
             self.fx.sparks(x, y, 20, (255, 120, 160), (200, 500), (0, 360), (0.3, 0.7), 0, "front", 3, 20)
@@ -484,12 +532,28 @@ class TwinkleScene(GameScene):
                     os_["win"] = now
                     for k in range(8):                                 # fireworks for the winner / feu d'artifice
                         self.fx.later(0.2 + k * 0.28, self.firework, other)
+                    if os_["clean"]:                                   # won without losing a heart: PERFECT, as in the game
+                        self.perfect(other, now)
         else:
             for i in range(int(math.floor(old + 0.01)), int(math.ceil(new - 0.01))):
                 st["hearts"].append(("fill", i, now))
             if old <= 0 < new:
-                st["ko"] = self.side[other]["win"] = -99.0          # a new round / une nouvelle manche
+                st["ko"] = self.side[other]["win"] = self.side[other]["perfect"] = st["perfect"] = -99.0   # a new round
+                st["clean"] = self.side[other]["clean"] = True                                         # / une nouvelle manche
         st["hearts"] = [h for h in st["hearts"] if now - h[2] < 1.0]
+
+    def perfect(self, side, now):
+        """PERFECT !, big on the winner's field, with a golden burst and fireworks over the whole screen.
+        / PERFECT ! en grand sur le terrain du gagnant, une gerbe dorée et un feu d'artifice sur tout l'écran."""
+        st = self.side[side]
+        st["perfect"] = now + 0.35
+        self.perfects += 1
+        x, y = self.fxy(side, 0.5, 0.32)
+        self.fx.later(0.35, self.fx.glow, x, y, 60, 360, (255, 214, 90), 0.7, "front", 1.0, 0.0)
+        self.fx.later(0.35, self.fx.sparks, x, y, 60, (255, 236, 150), (300, 1000), (0, 360), (0.5, 1.1), 260, "front", 4, 22)
+        self.fx.later(0.35, self.fx.flash, (255, 220, 120), 0.3, 0.4)
+        for k in range(10):                                            # both fields light up / les deux terrains
+            self.fx.later(0.5 + k * 0.22, self.firework, "p1" if k % 2 else "p2")
 
     def firework(self, side):
         x0, w = self.fields[0 if side == "p1" else 1]
@@ -545,24 +609,42 @@ class TwinkleScene(GameScene):
             if abs(x0 + e["x"] * w - x) < S(90) and not e.get("dead"):
                 e["dead"] = now
 
+    STAR_COLS = ((255, 255, 255), (255, 226, 110), (255, 140, 210), (130, 220, 255), (170, 255, 150), (255, 180, 90))
+
     def bomb(self, side, now):
-        """A bomb, the big show: the whole screen shakes (and once more, smaller), flashes white, a shockwave and sparks
-        burst from the middle of the field. / Une bombe, le grand spectacle : tout l'écran tremble, flashe, onde de choc."""
+        """A bomb, the big show. The whole screen rumbles three times and flashes white then gold, giant rays of light
+        turn from the field over the whole screen, three shockwaves cross it, a shower of stars falls on both fields and
+        BOMB ! bounces in. / Une bombe, le grand spectacle : tout l'écran gronde trois fois, flashe blanc puis or, de
+        grands rayons de lumière tournent sur tout l'écran, trois ondes de choc le traversent, une pluie d'étoiles."""
         st = self.side[side]
         self.bombs += 1
         st["bomb"] = now
         x, y = self.fxy(side, 0.5, 0.5)
-        self.fx.shake(16, 0.75)
-        self.fx.later(0.3, self.fx.shake, 9, 0.45)
-        self.fx.flash((255, 250, 235), 0.45, 0.28)
         bx, by = self.fxy(side, 0.5, 0.55)
-        for col, n, sp in (((255, 255, 255), 50, (500, 1300)), ((255, 220, 120), 40, (300, 900)), ((255, 140, 210), 30, (200, 700))):
-            self.fx.sparks(bx, by, n, col, sp, (0, 360), (0.4, 0.9), 300, "front", 4, 22)
+        rng = self.rng
+        self.booms = [b for b in self.booms if now - b["t0"] < 1.7][-1:] + [{"t0": now, "x": bx, "y": by, "side": side,
+                                                                              "rot": rng.uniform(0, math.tau)}]
+        self.fx.shake(24, 0.6)
+        self.fx.later(0.35, self.fx.shake, 14, 0.5)
+        self.fx.later(0.8, self.fx.shake, 7, 0.45)
+        self.fx.flash((255, 255, 255), 0.85, 0.35)
+        self.fx.later(0.15, self.fx.flash, (255, 196, 90), 0.35, 0.7)
+        for col, n, sp in (((255, 255, 255), 70, (600, 1600)), ((255, 220, 120), 60, (400, 1100)), ((255, 140, 210), 50, (250, 900)),
+                           ((130, 220, 255), 40, (200, 800))):
+            self.fx.sparks(bx, by, n, col, sp, (0, 360), (0.5, 1.1), 300, "front", 4, 24)
         x0, w = self.fields[0 if side == "p1" else 1]
-        for i in range(12):
-            a = i / 12 * math.tau
-            self.fx.later(0.03 * i, self.fx.glow, x + math.cos(a) * w * 0.3, y + math.sin(a) * self.H * 0.3, 20, 110, (255, 240, 180), 0.5, "front",
-                          1.0, 0.0)
+        for i in range(16):
+            a = i / 16 * math.tau
+            self.fx.later(0.025 * i, self.fx.glow, x + math.cos(a) * w * 0.32, y + math.sin(a) * self.H * 0.32, 24, 140, (255, 240, 180), 0.55,
+                          "front", 1.0, 0.0)
+        s = self.s
+        for i in range(110):                                           # the shower of stars / la pluie d'étoiles
+            a = rng.uniform(0, math.tau)
+            v = rng.uniform(250, 1250) * s
+            self.stars.append({"x": bx, "y": by, "vx": math.cos(a) * v * 1.7, "vy": math.sin(a) * v * 0.75 - 180 * s,
+                               "t0": now + rng.uniform(0.0, 0.18), "life": rng.uniform(1.4, 2.5), "r": rng.uniform(7, 19) * s,
+                               "col": rng.choice(self.STAR_COLS), "a0": rng.uniform(0, 6), "spin": rng.uniform(-7, 7), "ph": rng.uniform(0, 6)})
+        self.stars = self.stars[-260:]
         for e in st["enemies"]:
             e["dead"] = e.get("dead") or now
         st["balls"] = []
@@ -614,6 +696,88 @@ class TwinkleScene(GameScene):
             screen.set_clip(None)
         self.draw_comets(screen, now)
         self.status(screen, eng, vals, logo, now)
+        self.draw_booms(screen, now)
+        self.draw_stars(screen, now)
+
+    RAY_COLS = ((255, 236, 170), (255, 160, 220), (170, 220, 255))
+
+    def draw_booms(self, screen, now):
+        """A bomb over the whole screen: giant rays of light that turn, three shockwaves that cross both fields and the
+        column, BOMB ! that bounces in. / Une bombe sur tout l'écran : rayons géants, ondes de choc, BOMB ! qui rebondit."""
+        if not self.booms:
+            return
+        pg, S, W = self.pg, self.S, self.W
+        self.booms = [b for b in self.booms if now - b["t0"] < 1.7]
+        rays = [b for b in self.booms if 0 <= now - b["t0"] < 1.1]
+        if rays:                                                       # the rays of the latest bomb / rayons de la dernière
+            b = rays[-1]
+            k = now - b["t0"]
+            if self.ray_buf is None or self.ray_buf.get_size() != screen.get_size():
+                self.ray_buf = pg.Surface(screen.get_size()).convert()
+            buf = self.ray_buf
+            buf.fill((0, 0, 0))
+            x, y = b["x"], b["y"]
+            fade = (1 - k / 1.1) ** 1.3 * min(1.0, k / 0.06 + 0.2)
+            R = W * 1.1
+            n = 18
+            for i in range(n):
+                a = b["rot"] + k * 0.8 + i * math.tau / n
+                col = self.RAY_COLS[i % 3]
+                for half, kk in ((0.09 if i % 2 == 0 else 0.055, 0.5), (0.035 if i % 2 == 0 else 0.02, 1.0)):
+                    c = tuple(int(v * fade * kk) for v in col)
+                    pg.draw.polygon(buf, c, [(x, y), (x + R * math.cos(a - half), y + R * math.sin(a - half)),
+                                             (x + R * math.cos(a + half), y + R * math.sin(a + half))])
+            buf.blit(self.ray_mask(x, y), (0, 0), special_flags=pg.BLEND_RGB_MULT)
+            screen.blit(buf, (0, 0), special_flags=pg.BLEND_RGB_ADD)
+        for b in self.booms:
+            k = now - b["t0"]
+            if k < 0:
+                continue
+            x, y = b["x"], b["y"]
+            for delay, col, wid in ((0.0, (255, 255, 255), 30), (0.1, (255, 220, 120), 22), (0.22, (255, 150, 220), 15)):
+                kk = k - delay                                         # shockwaves across the screen / ondes de choc
+                if 0 <= kk < 0.9:
+                    rr = S(50) + (kk / 0.9) ** 0.8 * W * 0.95
+                    pg.draw.ellipse(screen, col, (int(x - rr), int(y - rr * 0.55), int(2 * rr), int(2 * rr * 0.55)),
+                                    max(2, int(S(wid) * (1 - kk / 0.9))))
+            if k < 1.6:                                                # BOMB !, bouncing in / qui rebondit
+                g = self.fx.sp.glow(S(210 + 25 * (int(now * 10) % 3)), (255, 190, 90), 8)
+                screen.blit(g, (int(x - g.get_width() / 2), int(y - S(10) - g.get_height() / 2)), special_flags=pg.BLEND_RGB_ADD)
+                sc = 1 + 1.3 * math.exp(-k * 7) * math.cos(k * 14)
+                dx = S(9) * math.sin(now * 70) if k < 0.6 else 0
+                tx = x + (W / 2 - x) * 0.45 * _clamp((sc - 1) / 1.3)          # very big: toward the middle, all of it shows
+                self.put_big(screen, self.big_q("bomb", max(7, min(23, int(round(sc * 10))))), tx, y - S(10), 1.0,
+                             1.0 if k < 1.25 else (1.6 - k) / 0.35, dx)
+
+    def draw_stars(self, screen, now):
+        """The shower of stars of a bomb, over both fields. / La pluie d'étoiles d'une bombe, sur les deux terrains."""
+        if not self.stars:
+            return
+        pg, dt, s = self.pg, self.dt, self.s
+        keep = []
+        f = max(0.0, 1 - 1.9 * dt)
+        for st in self.stars:
+            age = now - st["t0"]
+            if age < 0:
+                keep.append(st)
+                continue
+            if age > st["life"]:
+                continue
+            st["vx"] *= f
+            st["vy"] = st["vy"] * f + 520 * s * dt
+            st["x"] += st["vx"] * dt
+            st["y"] += st["vy"] * dt
+            if st["y"] > self.H + 40:
+                continue
+            k = age / st["life"]
+            r = st["r"] * (0.7 + 0.3 * math.sin(now * 14 + st["ph"])) * (1.0 if k < 0.7 else (1 - k) / 0.3)
+            if r >= 1.5:
+                a = st["a0"] + age * st["spin"]
+                pg.draw.polygon(screen, st["col"], ts_star_pts(st["x"], st["y"], r, a))
+                if r > 7:
+                    pg.draw.polygon(screen, (255, 255, 255), ts_star_pts(st["x"], st["y"], r * 0.42, a))
+            keep.append(st)
+        self.stars = keep
 
     def draw_field(self, screen, vals, side, now):
         S, pg = self.S, self.pg
@@ -685,30 +849,21 @@ class TwinkleScene(GameScene):
         ko = now - st["ko"]
         if 0 <= ko < 6.0:
             screen.blit(self.tint((16, 16, 26), 140 * min(1.0, ko / 0.4), w, H), (int(x0), 0))
-        kb = now - st["bomb"]                                          # a bomb: flash, rings of stars, BOMB !
-        if 0 <= kb < 1.3:
+        kb = now - st["bomb"]                                          # a bomb: the field glows, rings of stars
+        if 0 <= kb < 1.3:                                              # (the rest goes over the whole screen, draw_booms)
             bx, by = self.fxy(side, 0.5, 0.55)
             lvl = max(0, min(6, int(round(6 * (1 - kb / 1.3) ** 1.5))))
             if lvl:
                 fl = self.flash_img(w * 1.1, H * 1.3, lvl)
                 screen.blit(fl, (int(bx - fl.get_width() / 2), int(by - fl.get_height() / 2)), special_flags=pg.BLEND_RGB_ADD)
-            if kb < 0.55:                                              # the shockwave / l'onde de choc
-                rw = 1 - kb / 0.55
-                rad = int(S(40) + kb / 0.55 * w * 0.75)
-                pg.draw.ellipse(screen, (255, 255, 255), (int(bx - rad), int(by - rad * 0.62), 2 * rad, int(2 * rad * 0.62)),
-                                max(2, int(S(26) * rw)))
-                pg.draw.ellipse(screen, (255, 230, 150), (int(bx - rad * 0.8), int(by - rad * 0.5), int(1.6 * rad), int(rad)),
-                                max(1, int(S(10) * rw)))
-            for ring, (n, size, col, speed) in enumerate(((10, 20, (255, 255, 255), 1.0), (16, 16, (255, 236, 140), 1.25),
-                                                          (22, 12, (255, 170, 220), 1.5))):
+            for ring, (n, size, col, speed) in enumerate(((10, 22, (255, 255, 255), 1.0), (16, 17, (255, 236, 140), 1.25),
+                                                          (22, 13, (255, 170, 220), 1.5), (28, 10, (140, 220, 255), 1.8))):
                 rad = S(60) + kb * speed * S(330)
                 if rad > w:
                     continue
                 for i in range(n):
                     a = i / n * math.tau + ring * 0.3 + kb * 0.8
                     pg.draw.polygon(screen, col, ts_star_pts(bx + math.cos(a) * rad * 1.25, by + math.sin(a) * rad * 0.6, S(size), a))
-            self.put_big(screen, self.big_text("bomb"), bx, by - S(10), 1.0 + 0.7 * max(0.0, 1 - kb / 0.15),
-                         1.0 if kb < 1.0 else (1.3 - kb) / 0.3)
         kb = now - st["boss_t"]
         if 0 <= kb < 2.2:                                              # BOSS ATTACK !, shaking / qui tremble
             sh = S(6) * math.sin(now * 60) if kb < 1.2 else 0
@@ -737,7 +892,7 @@ class TwinkleScene(GameScene):
                          1.0 if kw < 0.9 else (1.2 - kw) / 0.3)
         kch = now - st["chain_t"]                                      # the chain counter / le compteur de chaîne
         calm = not (0 <= now - st["bomb"] < 1.3 or 0 <= now - st["boss_t"] < 2.2 or 0 <= ko < 6.0 or 0 <= now - st["win"] < 6.0
-                    or 0 <= now - st["beam"][0] < 0.9)
+                    or 0 <= now - st["beam"][0] < 0.9 or 0 <= now - st["perfect"] < 6.0)
         if calm and st["chain_n"] >= 2 and 0 <= kch < 1.3:
             fx_, fy_ = st.get("chain_xy", (0.5, 0.5))
             px, py = self.fxy(side, _clamp(fx_, 0.25, 0.75), fy_)
@@ -747,8 +902,23 @@ class TwinkleScene(GameScene):
         if 0 <= ko < 6.0:                                              # K.O. / WIN !
             self.put_big(screen, self.big_text("ko"), cx, H * 0.53, 1.0 + 0.8 * max(0.0, 1 - ko / 0.18))
         kwn = now - st["win"]
-        if 0 <= kwn < 6.0:
-            self.put_big(screen, self.big_text("win"), cx, H * 0.54, 1.0 + 0.8 * max(0.0, 1 - kwn / 0.18) + 0.03 * math.sin(now * 6))
+        kp = now - st["perfect"]
+        if 0 <= kwn < 6.0:                                             # WIN !, smaller under PERFECT ! / plus petit dessous
+            perf = 0 <= kp < 6.0
+            q = int(round((0.7 if perf else 1.0) * (1.0 + 0.8 * max(0.0, 1 - kwn / 0.18)) * 10))
+            self.put_big(screen, self.big_q("win", max(7, min(18, q))), cx, H * (0.73 if perf else 0.54) + S(4) * math.sin(now * 5))
+        if 0 <= kp < 6.0:                                              # PERFECT ! above WIN !, bouncing in, with stars around
+            px, py = cx, H * 0.42
+            g = self.fx.sp.glow(S(190 + 20 * (int(now * 8) % 3)), (255, 190, 80), 7)
+            screen.blit(g, (int(px - g.get_width() / 2), int(py - g.get_height() / 2)), special_flags=pg.BLEND_RGB_ADD)
+            for i in range(14):
+                a = i / 14 * math.tau + now * 1.4
+                r = S(15 + 6 * math.sin(now * 9 + i))
+                pg.draw.polygon(screen, self.STAR_COLS[i % len(self.STAR_COLS)],
+                                ts_star_pts(px + math.cos(a) * S(380), py + math.sin(a) * S(95), r, a * 2))
+            sc = 1 + 1.2 * math.exp(-kp * 7) * math.cos(kp * 14)
+            self.put_big(screen, self.big_q("perfect", max(7, min(20, int(round(sc * 10))))), px, py, 1.0,
+                         1.0 if kp < 5.4 else (6.0 - kp) / 0.6)
 
     def draw_comets(self, screen, now):
         """Fireballs crossing the column with their trail. / Les boules de feu qui traversent la colonne."""
