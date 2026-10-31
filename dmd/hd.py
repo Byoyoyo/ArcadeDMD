@@ -271,7 +271,7 @@ class HDRenderer:
             if c.strip():
                 self.put(screen, self.text(c, key, size, color, glow), x0 + (pen + l) * scale, y + (t - top) * scale,
                          scale=scale)
-            pen += adv * scale
+            pen += adv                                            # scaled once, above / agrandi une seule fois
         return total
 
     # ------------------------------------------------------------ éléments fixes

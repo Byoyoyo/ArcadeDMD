@@ -141,18 +141,23 @@ def prisoner_img(w, h):
     return _draw(w, h, fn)
 
 
-def coin_img(size):
+def coin_img(size, symbol="", font=None):
+    """Gold coin with the currency symbol (€, $, £) struck in relief, as on the coin doors; a plain coin without one.
+    font(key, size) gives the font (hd.font). / Pièce d'or frappée du symbole de la monnaie, en relief ; unie sans symbole."""
     def fn(d, W, H):
-        d.ellipse([0, 0, W - 1, H - 1], fill=(176, 120, 24))
-        d.ellipse([W * 0.08, H * 0.08, W * 0.92, H * 0.92], fill=(246, 194, 64))
-        d.ellipse([W * 0.2, H * 0.2, W * 0.8, H * 0.8], outline=(200, 142, 34), width=max(2, int(W * 0.05)))
-        d.arc([W * 0.12, H * 0.12, W * 0.88, H * 0.88], 200, 290, fill=(255, 240, 170), width=max(2, int(W * 0.06)))
-        pts = []
-        for i in range(10):
-            r = W * (0.2 if i % 2 == 0 else 0.09)
-            a = -math.pi / 2 + i * math.pi / 5
-            pts.append((W / 2 + r * math.cos(a), H / 2 + r * math.sin(a)))
-        d.polygon(pts, fill=(214, 150, 38))
+        d.ellipse([0, 0, W - 1, H - 1], fill=(176, 116, 20))
+        d.ellipse([W * 0.07, H * 0.07, W * 0.93, H * 0.93], fill=(250, 198, 66))
+        d.arc([W * 0.12, H * 0.12, W * 0.88, H * 0.88], 200, 290, fill=(255, 242, 178), width=max(2, int(W * 0.06)))
+        if symbol and font is not None:
+            fe = font("black", max(8, int(W * 0.64 / max(1.0, 0.75 * len(symbol)))))
+            l, t, r, b = fe.getbbox(symbol)
+            x, y = W / 2 - (l + r) / 2, H / 2 - (t + b) / 2
+            o = max(1, W // 36)
+            d.text((x - o, y - o), symbol, font=fe, fill=(255, 248, 200))     # light edge, top left / arête claire
+            d.text((x + o, y + o), symbol, font=fe, fill=(150, 90, 6))        # shadow, bottom right / ombre
+            d.text((x, y), symbol, font=fe, fill=(206, 136, 20))
+        else:
+            d.ellipse([W * 0.2, H * 0.2, W * 0.8, H * 0.8], outline=(206, 146, 34), width=max(2, int(W * 0.05)))
     return _draw(size, size, fn, outline=False)
 
 
@@ -471,7 +476,13 @@ class MetalSlugScene:
         self.fx_dt = 0.0
         s = self.s
         self.icons = {"helmet": hd._surf(helmet_img(int(46 * s))), "grenade": hd._surf(grenade_img(int(30 * s), int(38 * s))),
-                      "prisoner": hd._surf(prisoner_img(int(34 * s), int(40 * s))), "coin": hd._surf(coin_img(int(34 * s)))}
+                      "prisoner": hd._surf(prisoner_img(int(34 * s), int(40 * s)))}
+        self.coin_symbol = None                  # the coins' symbol, from coin_symbol in config.json / symbole des pièces
+        self.coin_sprite = "coin"
+        self.coin_xy = None                      # the credits' coin on screen, where inserted coins land / où tombent les pièces
+        self.coin_box = None
+        self.in_attract = False
+        self.pills = {}
         self.panels = {side: hd._surf(panel_img(side, s, ACCENT[side])) for side in ("p1", "p2")}
         self.weapons = {}
         self.tanks = {}
@@ -483,8 +494,19 @@ class MetalSlugScene:
             sp.register(name, img)
         sp.register("helmet", helmet_img(int(46 * s)))
         sp.register("grenade", grenade_img(int(24 * s), int(30 * s)))
-        sp.register("coin", coin_img(int(40 * s)))
+        self.set_coin_symbol("€")
         self.warm = self._warm_list()
+
+    def set_coin_symbol(self, symbol):
+        """The coin beside the credits and the falling coins carry the symbol of config.json (€, $, £, "" plain).
+        / La pièce des crédits et celles qui tombent portent le symbole de config.json."""
+        symbol = str(symbol or "").strip()[:2]
+        if symbol == self.coin_symbol:
+            return
+        self.coin_symbol = symbol
+        self.icons["coin"] = self.hd._surf(coin_img(self.S(54), symbol, self.hd.font))
+        self.coin_sprite = "coin" + symbol                    # one name per symbol: turned copies stay right / une par symbole
+        self.fx.sp.register(self.coin_sprite, coin_img(self.S(54), symbol, self.hd.font))
 
     def _warm_list(self):
         """Images des grosses explosions, préparées petit à petit pendant les images calmes (pas d'à-coup)."""
@@ -1013,19 +1035,26 @@ class MetalSlugScene:
         self.fx.explosion(x, y, 1.0)
 
     def _coin(self, now, n):
-        self.coin_t = now
-        cx, cy = self.W / 2, self.S(412)
-        for i in range(min(3, n)):
-            self.fx.later(i * 0.2, self._drop_coin, cx + (i - (min(3, n) - 1) / 2) * self.S(40), cy)
+        """Coins inserted: each one falls onto the credits' coin; one +n CRÉDITS for them all.
+        / Pièces mises : chacune tombe sur la pièce des crédits ; un seul +n CRÉDITS pour toutes."""
+        k = min(3, n)
+        for i in range(k):
+            self.fx.later(i * 0.22, self._drop_coin, n if i == k - 1 else 0)
 
-    def _drop_coin(self, x, y):
-        p = self.fx.obj("coin", x, self.S(-30), 0, 200, gravity=1800, vrot=0, life=0.9, floor=y - self.S(30), bounce=0.3)
-        p.on_end = (self._coin_ding, (x, y - self.S(30)))
+    def _drop_coin(self, n):
+        x, y = self.coin_xy or (self.W / 2, self.S(398))
+        p = self.fx.projectile(self.coin_sprite, x, self.S(-40), x, y, 0.55, 90, self._coin_ding, spin=0, trail=0)
+        p.on_end = (self._coin_ding, (x, y, n))
+        p.floor, p.bounce = y, 0.0                                # stops right on the coin / s'arrête pile dessus
 
-    def _coin_ding(self, x, y):
-        self.fx.glow(x, y, 10, 80, GOLD, 0.35)
-        self.fx.sparks(x, y, 12, GOLD, (150, 450), (200, 340), (0.3, 0.6), 500, "front", 2, 18)
-        self.fx.text(tr("+1 CRÉDIT", "+1 CREDIT"), x, y - self.S(40), GOLD, 34, life=1.1, rise=60)
+    def _coin_ding(self, x, y, n=0):
+        self.coin_t = self.fx.now
+        self.fx.glow(x, y, 12, 96, GOLD, 0.35)
+        self.fx.sparks(x, y, 16, GOLD, (180, 520), (200, 340), (0.3, 0.6), 500, "front", 2, 18)
+        if n and not self.in_attract and self.coin_box is not None:     # waiting screen: PRESS START says it / l'attente le dit
+            bx, by = self.coin_box
+            word = tr(f"+{n} CRÉDIT" + ("S" if n > 1 else ""), f"+{n} CREDIT" + ("S" if n > 1 else ""))
+            self.fx.text(word, bx, by - self.S(30), GOLD, 36, life=1.2, rise=40)
 
     # ------------------------------------------------------------ positions (pour les effets)
     def _slot_xy(self, side):
@@ -1078,8 +1107,10 @@ class MetalSlugScene:
 
     # ------------------------------------------------------------ dessin
     def render(self, screen, eng, now, logo):
+        self.set_coin_symbol((getattr(eng, "cfg", None) or {}).get("coin_symbol", "€"))
         self.update(eng, now)
         vals = eng.state.values
+        self.in_attract = self._attract(vals)
         for side in ("p1", "p2"):                                   # tirs en attente
             P = self.players[side]
             while P.shots and P.shots[0] <= now:
@@ -1116,18 +1147,70 @@ class MetalSlugScene:
 
     def _draw_attract(self, screen, vals, logo, now):
         hd, S, W = self.hd, self.S, self.W
-        hd.draw_logo(screen, logo, W / 2, S(200), S(1000), S(230), now, valign="middle")
         credits = _n(vals.get("credits"))
+        if credits is None:
+            ly, lh, y, ph = S(200), S(230), S(372), S(92)
+        else:                                                     # a little higher: the credits below / crédits dessous
+            ly, lh, y, ph = S(186), S(200), S(339), S(84)
+        hd.draw_logo(screen, logo, W / 2, ly, S(1000), lh, now, valign="middle")
         word = "PRESS START" if credits else "INSERT COIN"
         k = hd._pulse(now)
         t = hd.text(word, "stencil", S(62), tuple(int(c * k) for c in GOLD), glow=0.7)
-        pill = self.pg.Surface((int(t["w"] + S(90)), S(92)), self.pg.SRCALPHA)
-        self.pg.draw.rect(pill, (6, 6, 14, 170), pill.get_rect(), border_radius=S(46))
-        screen.blit(pill, (int(W / 2 - pill.get_width() / 2), S(372) - pill.get_height() // 2))
-        hd.put(screen, t, W / 2, S(372), "center", "middle")
+        pill = self.pg.Surface((int(t["w"] + S(90)), ph), self.pg.SRCALPHA)
+        self.pg.draw.rect(pill, (6, 6, 14, 170), pill.get_rect(), border_radius=ph // 2)
+        screen.blit(pill, (int(W / 2 - pill.get_width() / 2), y - pill.get_height() // 2))
+        hd.put(screen, t, W / 2, y, "center", "middle")
         if credits is not None:
-            hd.put(screen, hd.text(tr(f"CRÉDITS {int(credits):02d}", f"CREDITS {int(credits):02d}"), "bold", S(26), (214, 184, 132), glow=0),
-                   W / 2, S(436), "center", "middle")
+            self._draw_credits(screen, credits, W / 2, S(421), now, 0.9)
+
+    def _draw_credits(self, screen, credits, cx, cy, now, k=1.0):
+        """The coin (€) and CRÉDITS 07, big and bright in a dark pill that stands out from the scenery; the coin and the
+        number jump when a coin lands. / La pièce (€) et CRÉDITS 07, gros et clairs dans une pastille sombre ; ils sautent
+        quand une pièce tombe dessus."""
+        hd, S = self.hd, self.S
+        bump = max(0.0, 1 - (now - self.coin_t) / 0.35)
+        num = f"{int(credits):02d}"
+        lsize, nsize = S(32 * k), S(48 * k)
+        lab = hd.text(tr("CRÉDITS", "CREDITS"), "stencil", lsize, CREAM, glow=0)
+        nw = hd.text_width(num, "stencil", nsize)
+        ic = self.icons["coin"]
+        if k != 1.0:
+            key = ("coin", self.coin_symbol, k)
+            if key not in self.pills:
+                self.pills[key] = self.pg.transform.smoothscale(ic, (int(ic.get_width() * k), int(ic.get_height() * k)))
+            ic = self.pills[key]
+        cw = ic.get_width()
+        ph = S(68 * k)
+        pw = int(ph / 2 + cw / 2 + S(14 * k) + lab["w"] + S(16 * k) + nw + S(30 * k))
+        x0, y0 = int(cx - pw / 2), int(cy - ph / 2)
+        screen.blit(self._pill(pw, ph, int(round(bump * 6))), (x0, y0))
+        icx = x0 + ph / 2
+        self.coin_xy, self.coin_box = (icx, cy), (cx, y0)
+        screen.blit(ic, (int(icx - ic.get_width() / 2), int(cy - ic.get_height() / 2 - bump * S(9 * k))))
+        _, top, _, bottom, _ = hd._glyph("stencil", nsize, "0")
+        base = cy + (bottom - top) / 2                            # label and number on one baseline / même ligne de pied
+        x = icx + cw / 2 + S(14 * k)
+        hd.put(screen, lab, x, base, "left", "bottom")
+        x += lab["w"] + S(16 * k)
+        hd.put_number(screen, num, "stencil", nsize, GOLD, x + nw / 2, cy, "center", "middle", scale=1 + 0.3 * bump, glow=0.45)
+
+    def _pill(self, w, h, lv):
+        """Dark pill with a gold edge, drawn smooth once per size; lv 0-6 lights the edge up.
+        / Pastille sombre au bord doré, lisse, dessinée une fois par taille ; lv allume le bord."""
+        key = (w, h, lv)
+        p = self.pills.get(key)
+        if p is None:
+            if len(self.pills) > 40:
+                self.pills.clear()
+            ss = 3
+            img = Image.new("RGBA", (w * ss, h * ss), (0, 0, 0, 0))
+            d = ImageDraw.Draw(img)
+            e = max(2, self.S(3)) * ss
+            f = 0.6 + 0.4 * lv / 6
+            d.rounded_rectangle([0, 0, w * ss - 1, h * ss - 1], radius=h * ss // 2, fill=tuple(int(c * f) for c in GOLD) + (255,))
+            d.rounded_rectangle([e, e, w * ss - 1 - e, h * ss - 1 - e], radius=h * ss // 2 - e, fill=(10, 12, 26, 226))
+            p = self.pills[key] = self.hd._surf(img.resize((w, h), Image.LANCZOS))
+        return p
 
     def _draw_center(self, screen, vals, logo, now):
         hd, S, W = self.hd, self.S, self.W
@@ -1157,14 +1240,8 @@ class MetalSlugScene:
             hd.put_number(screen, str(int(self.time_v)), "stencil", S(56), col, cx, y + S(56), "center", "middle",
                           scale=1.0 + 0.12 * pulse)
         credits = _n(vals.get("credits"))
-        if credits is not None:
-            t = hd.text(tr(f"CRÉDITS {int(credits):02d}", f"CREDITS {int(credits):02d}"), "bold", S(26), (214, 184, 132), glow=0)
-            ic = self.icons["coin"]
-            total = ic.get_width() + S(10) + t["w"]
-            x = cx - total / 2
-            bump = max(0.0, 1 - (now - self.coin_t) / 0.3)
-            screen.blit(ic, (int(x), int(S(424) - ic.get_height() / 2 - bump * S(8))))
-            hd.put(screen, t, x + ic.get_width() + S(10), S(424), valign="middle", scale=1 + 0.25 * bump)
+        if credits is not None:                                   # bottom edge with the panels' / en bas, comme les panneaux
+            self._draw_credits(screen, credits, cx, S(14 + 418 - 34), now)
 
     def _draw_panel(self, screen, side, vals, now):
         P = self.players[side]
