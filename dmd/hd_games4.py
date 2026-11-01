@@ -117,10 +117,53 @@ def s45_bomber_draw(d, W, H):
     bomber_draw(d, W, H)
 
 
+class BarFill:
+    """How full a bar of the game is when its full value is not known (the super shot bar of Strikers 1945 Plus, 1.31).
+    At rest it is the lowest value seen, full the highest of the last fills, and at least `floor` above the rest until a
+    fill goes further. A fill ends when the bar falls back by more than half. / Le remplissage d'une barre du jeu dont on
+    ne connaît pas la valeur pleine : au repos la plus basse vue, pleine la plus haute des derniers remplissages, au
+    moins floor au-dessus. Un remplissage finit quand la barre retombe de plus de moitié."""
+
+    def __init__(self, floor=255):
+        self.floor = floor
+        self.lo = None
+        self.top = None                                 # the highest value of the fill going on / du remplissage en cours
+        self.peaks = []                                 # the highest value of each of the last fills / des derniers
+        self.fills = 0                                  # fills seen (tests) / remplissages vus (tests)
+
+    def span(self):
+        lo = self.lo or 0
+        return max(self.floor, max(self.peaks + [lo if self.top is None else self.top]) - lo)
+
+    def feed(self, v):
+        """A value read. Returns the highest value of the fill that just ended, else None. / Une valeur lue ; rend le
+        sommet du remplissage qui vient de finir."""
+        if v is None:
+            return None
+        if self.lo is None or v < self.lo:
+            self.lo = v
+        if self.top is None or v >= self.top:
+            self.top = v
+            return None
+        if self.top - v > self.span() / 2:
+            peak, self.top = self.top, v
+            self.peaks = (self.peaks + [peak])[-4:]
+            self.fills += 1
+            return peak
+        return None
+
+    def frac(self, v):
+        if v is None or self.lo is None:
+            return 0.0
+        return _clamp((v - self.lo) / self.span())
+
+
 class StrikersScene(AeroFightersScene):
     """Strikers 1945 Plus as in the game: the plane chosen by the player over war-torn ground, its shots, the super shot,
     the bomb that brings a formation of bombers. On the sides, the game's panels: the score, the lives, the bombs and
-    the super shot gauge. / Comme dans le jeu : l'avion choisi au-dessus d'un sol ravagé, les panneaux sur les côtés."""
+    the SUPER SHOT box, where the bar fills as the game's own does and the number gives the super shots in stock
+    (1.31). / Comme dans le jeu : l'avion choisi au-dessus d'un sol ravagé, les panneaux sur les côtés. La barre du
+    super tir se remplit comme celle du jeu, le nombre donne les super tirs en réserve."""
     THEME = "s45_ground"
     SHADE = (60, 60)
     PROP = True
@@ -139,6 +182,16 @@ class StrikersScene(AeroFightersScene):
         super().__init__(hd, rng)
         self.supers = 0                                 # super shots shown (tests)
         self.raids = 0                                  # bombs shown as a formation of bombers (tests)
+        # the super shot bar of each player, its full value learned in game and kept from one game to the next
+        # la barre du super tir de chaque joueur, sa valeur pleine apprise en jeu et gardée d'une partie à l'autre
+        self.bars = {"p1": BarFill(), "p2": BarFill()}
+        self.fill = {"p1": 0.0, "p2": 0.0}              # how full it shows / son remplissage à l'écran
+        self.stock_t = {"p1": -99.0, "p2": -99.0}       # when a super shot was earned / quand un super tir est gagné
+        self.bar_logs = 0
+
+    def restart(self, vals, now):
+        super().restart(vals, now)
+        self.fill = {"p1": 0.0, "p2": 0.0}
 
     def kind(self, vals, side):
         v = _n(vals.get("plane" if side == "p1" else "plane_p2"))
@@ -180,7 +233,28 @@ class StrikersScene(AeroFightersScene):
                 continue
             ch = self.changed(vals, "super" + suf)
             if ch and ch[1] < ch[0] and now - P["t_dead"] > 1.2:
-                self.super_shot(side, now)
+                self.super_shot(side, now)                  # one less in stock: the super shot leaves / un de moins : il part
+            elif ch and ch[1] > ch[0]:
+                self.stock_t[side] = now                    # one more: the number jumps / un de plus : le nombre saute
+            v = _n(vals.get("charge" + suf))
+            if v is not None:
+                bar = self.bars[side]
+                peak = bar.feed(v)
+                if peak is not None:
+                    self.log_bar(side, bar, peak, v, _n(vals.get("super" + suf)))
+                self.fill[side] += (bar.frac(v) - self.fill[side]) * min(1.0, self.dt * 14)
+
+    def log_bar(self, side, bar, peak, v, stock):
+        """The first fills of the bar go in the log, with the values read, to know its full value for sure.
+        / Les premiers remplissages de la barre vont dans le journal, pour connaître sûrement sa valeur pleine."""
+        if self.bar_logs >= 8:
+            return
+        self.bar_logs += 1
+        n = "?" if stock is None else int(stock)
+        self.hd.log(tr(f"Strikers 1945 Plus, barre du super tir {'J1' if side == 'p1' else 'J2'} : de {int(bar.lo)} à {int(peak)} "
+                       f"(0x{int(peak):04X}), retombée à {int(v)}, {n} super tirs en réserve",
+                       f"Strikers 1945 Plus, {side.upper()} super shot bar: from {int(bar.lo)} to {int(peak)} (0x{int(peak):04X}), "
+                       f"back to {int(v)}, {n} super shots in stock"))
 
     def super_shot(self, side, now):
         """The super shot: a long blast of light in front of the plane, everything in its way blows up.
@@ -294,15 +368,29 @@ class StrikersScene(AeroFightersScene):
                 screen.blit(bimg, (int(x0 + S(40)), S(224) - int(S(6) * k)))
                 self.text(screen, str(int(bombs)), x0 + pw - S(40), S(244), 44, (255, 170, 60), key="stencil", align="right", valign="middle")
             sup = _n(vals.get("super" + suf))
-            if sup is not None:                                        # SUPER SHOT, a column of segments
+            chg = _n(vals.get("charge" + suf))
+            if sup is not None or chg is not None:                     # SUPER SHOT, a column of segments
                 self.box(screen, x0 + S(14), S(276), pw - S(28), S(170), (60, 46, 30), fill=(30, 22, 12, 230), radius=8)
                 self.text(screen, "SUPER", x0 + S(26), S(296), 24, (255, 170, 60), key="black", valign="middle", glow=0.2)
                 self.text(screen, "SHOT", x0 + S(26), S(322), 24, (255, 170, 60), key="black", valign="middle", glow=0.2)
-                n = int(_clamp(sup, 0, 8))
+                if chg is None:                                        # no bar read: the super shots in stock light it
+                    lit, full = int(_clamp(sup, 0, 8)), False
+                else:                                                  # the bar of the game fills it, the stock beside
+                    lit, full = self.fill[side] * 8, self.fill[side] > 0.985
+                    if sup is not None:
+                        b = max(0.0, 1 - (now - self.stock_t[side]) / 0.4)
+                        self.text(screen, f"×{int(sup)}", x0 + pw - S(28), S(309), 40, _mix((255, 170, 60), (255, 244, 200), b),
+                                  key="stencil", align="right", valign="middle", glow=0.3, scale=1 + 0.35 * b)
+                on = (255, 176, 40)
+                if full:                                               # full: it glows / pleine : elle brille
+                    on = _mix((255, 226, 130), WHITE, 0.25 + 0.25 * math.sin(now * 12))
+                    g = self.fx.sp.glow(S(46), (255, 200, 90), 5, hot=0.3)
+                    screen.blit(g, (int(x0 + pw - S(62) - g.get_width() / 2), int(S(385) - g.get_height() / 2)),
+                                special_flags=pg.BLEND_RGB_ADD)
                 for i in range(8):
-                    on = i < n
                     yy = S(430) - i * S(13)
-                    pg.draw.rect(screen, (255, 176, 40) if on else (70, 50, 20), (int(x0 + pw - S(90)), yy, S(56), S(9)), border_radius=S(2))
+                    pg.draw.rect(screen, _mix((70, 50, 20), on, _clamp(lit - i)), (int(x0 + pw - S(90)), yy, S(56), S(9)),
+                                 border_radius=S(2))
             pwr = _n(vals.get("power" + suf))
             if pwr is not None:                                        # the power of the shots, next to the super shot gauge
                 self.text(screen, "POW", x0 + S(26), S(368), 20, CREAM, key="bold", valign="middle", glow=0)
