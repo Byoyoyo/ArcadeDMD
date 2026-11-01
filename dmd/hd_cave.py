@@ -22,7 +22,6 @@ import math
 
 from PIL import Image
 
-from .hd_credits import CreditsBar
 from .hd_games import CREAM, GOLD, RED, WHITE, _clamp, _mix, _n
 from .hd_games3 import DARK, AeroFightersScene, _poly, heli_draw, rotor_draw, tank_draw
 from .hd_games6 import PuzzleBobble2Scene
@@ -240,7 +239,6 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         self.stage_banners = 0
         self.boss_stars = 0
         self.slow = 1.0                                # the bullets slowed down (Espgaluda's awakening) / ralenties
-        self.cbar = CreditsBar(hd, self.fx)            # the credits as in Metal Slug / les crédits comme dans Metal Slug
         self.kill_t = {"p1": -99.0, "p2": -99.0}
         self.kill_xy = {"p1": None, "p2": None}
         self.chain_kills = 0                           # (tests)
@@ -315,12 +313,6 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         """Where a tank drives: a road of the backdrop of the stage. / Où roule un char : une route du décor du niveau."""
         lanes = LANES.get(self.bd.theme, self.LANES)
         return self.S(self.rng.choice(lanes) + self.rng.uniform(-8, 8))
-
-    def always(self, vals, now):
-        """The credits on every image: a coin falls onto the pill when they go up during a game (on the attract screen the
-        coin doors show it). / Les crédits à chaque image : une pièce tombe sur la pastille pendant une partie."""
-        super().always(vals, now)
-        self.cbar.watch(_n(vals.get("credits")), now, drop=not self.nobody(vals))
 
     # -- a game starts / une partie commence
     def restart(self, vals, now):
@@ -1144,11 +1136,7 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         if name:
             self.label(screen, name, S(30) + (w1 or 0) + S(10), H - S(40), 26, CREAM, key="black", alpha=140)
         if two:
-            self.bombs_row(screen, vals, "p2", now)
-        c = _n(vals.get("credits"))
-        if c is not None:                                                # as in Metal Slug / comme dans Metal Slug
-            self.cbar.set_symbol((getattr(eng, "cfg", None) or {}).get("coin_symbol", "€"))
-            self.cbar.draw(screen, c, W / 2, H - S(44), now, 0.85)
+            self.bombs_row(screen, vals, "p2", now)                     # the credits: GameScene, as in Metal Slug
 
 
 # ============================================================================ DoDonPachi

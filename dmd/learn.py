@@ -472,9 +472,39 @@ ALIASES = {
     "chaine2": "hits_p2", "combo2": "hits_p2",
     # Twinkle Star Sprites' PERFECT, 1 while the game shows it, 0 otherwise / 1 pendant que le jeu l'affiche, 0 sinon
     "parfait": "perfect", "perfect1": "perfect", "perfect2": "perfect_p2", "parfait2": "perfect_p2", "perfectj2": "perfect_p2",
+    # matches won in a VS game (Puzzle Bobble) / matchs gagnés en VS
+    "victoire": "wins", "victoires": "wins", "victoire1": "wins", "victoires1": "wins", "win": "wins", "wins1": "wins",
+    "victoire2": "wins_p2", "victoires2": "wins_p2", "victoiresj2": "wins_p2", "win2": "wins_p2", "winsp2": "wins_p2",
     "hiscore": "record", "highscore": "record", "hi_score": "record", "high_score": "record", "hi": "record",
     "top": "record", "best": "record",
 }
+
+
+# the value names the scenes know, whatever the game file / les noms de valeurs que les scènes connaissent
+STANDARD = set(ALIASES.values()) | {
+    "score", "score_p2", "lives", "lives_p2", "bombs", "bombs_p2", "ammo", "ammo_p2", "credits", "time", "weapon", "weapon_p2",
+    "prisoners", "health", "health_p2", "beat", "beat_p2", "rings", "record", "hits", "hits_p2", "perfect", "perfect_p2",
+    "stage", "round", "rounds", "rounds_p2", "wins", "wins_p2", "power", "power_p2", "level", "warning"}
+
+
+def canonical(name):
+    """The value name of what was typed: the French names and the player 2 forms (ALIASES), and the slips, an s too
+    many (scores2 is score_p2) or a 2 for player 2 (wins2 is wins_p2). / Le nom de valeur de ce qui a été tapé : les
+    noms français, le joueur 2, et les fautes de frappe, un s en trop ou un 2 pour le joueur 2."""
+    k = name.strip().lower().replace("-", "_")
+    if k in ALIASES:
+        return ALIASES[k]
+    if k in STANDARD:
+        return k
+    m = re.fullmatch(r"(.+?)s(_?[jp]?[12])?", k)                   # an s too many / un s en trop
+    if m:
+        c = m.group(1) + (m.group(2) or "")
+        if c in ALIASES or c in STANDARD:
+            return ALIASES.get(c, c)
+    m = re.fullmatch(r"(.+?)_?[jp]?2", k)                          # a 2 for player 2 / un 2 pour le joueur 2
+    if m and m.group(1) + "_p2" in STANDARD:
+        return m.group(1) + "_p2"
+    return k
 
 
 def parse_values(line):
@@ -485,9 +515,27 @@ def parse_values(line):
             k, v = part.split("=", 1)
             v = v.replace(".", "").replace(" ", "")
             if v.isdigit():
-                k = k.strip().lower()
-                out[ALIASES.get(k, k)] = int(v)
+                out[canonical(k)] = int(v)
     return out
+
+
+def unknown_names(vals, known):
+    """The names typed that neither the game file nor the scenes know, each with the closest known one (or None).
+    / Les noms tapés que ni le fichier du jeu ni les scènes ne connaissent, chacun avec le plus proche."""
+    import difflib
+    names = set(known) | STANDARD
+    typed = {typed_name(n): n for n in sorted(names)}            # compared as they are typed: score2, not score_p2
+    out = []
+    for k in vals:
+        if k not in names:
+            near = difflib.get_close_matches(typed_name(k), sorted(typed), n=1, cutoff=0.6)
+            out.append((k, typed[near[0]] if near else None))
+    return out
+
+
+def typed_name(name):
+    """How to type a value name in learn.bat: score2 for score_p2. / Comment taper un nom : score2 pour score_p2."""
+    return name[:-3] + "2" if name.endswith("_p2") else name
 
 
 def open_image(path):
@@ -839,6 +887,7 @@ def run_live_retroarch(root, client, st, game=None, inputs=None):
     answers = {}
     shots = []
     warned = False
+    again = None                                      # a line kept despite an unknown name / ligne gardée malgré un nom inconnu
     n = 0
     feed = iter(inputs) if inputs is not None else None
     while True:
@@ -858,6 +907,17 @@ def run_live_retroarch(root, client, st, game=None, inputs=None):
         if not vals:
             print(tr("  Exemple de saisie :  score=1200 vies=2", "  Example:  score=1200 lives=2"))
             continue
+        odd = unknown_names(vals, known)
+        if odd and line != again:                     # a slip: nothing captured, the line to type again
+            again = line
+            for k, near in odd:
+                hint = tr(f" Tu voulais dire {typed_name(near)} ?", f" Did you mean {typed_name(near)}?") if near else ""
+                print(tr(f"  « {k} » n'est pas une valeur de ce jeu, aucune scène ne l'affichera.{hint}",
+                         f"  \"{k}\" is not a value of this game, no scene would show it.{hint}"))
+            print(tr("  Rien n'est capturé. Retape la ligne corrigée, ou la même ligne pour garder ce nom.",
+                     "  Nothing captured. Type the line again corrected, or the same line to keep that name."))
+            continue
+        again = None
         now = client.status()
         if not now or now.get("content") != st["content"]:
             print(tr("  RetroArch ne répond plus, ou le jeu a changé. Arrêt des captures.",

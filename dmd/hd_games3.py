@@ -1297,6 +1297,7 @@ class BaseballScene(GameScene):
     """Baseball seen from behind home plate. The balls, strikes and outs read in memory make the pitches: the ball
     goes into the mitt, the umpire calls the strike, the batter hits, a fielder catches. The runs read in memory send
     the ball far and the runners home. / Le baseball vu de derrière le marbre."""
+    CREDITS = (-420, None)                                # the batter stands in the middle / le frappeur est au milieu
     THEME = "ballpark"
     STATIC = True
     SHADE = (90, 0)

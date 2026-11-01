@@ -13,7 +13,7 @@ bulles sont des créations du programme, les personnages sous licence de certain
 
 import math
 
-from .hd_games import AMBER, CREAM, GOLD, P1C, P2C, WHITE, GameScene, _mix, _n
+from .hd_games import CREAM, GOLD, P1C, P2C, WHITE, GameScene, _mix, _n
 from .hd_games11 import MahjongScene, QuizScene
 from .hd_themes16 import BW_CELL, BW_COLS, BW_ROWS, BW_TOP, BW_WELLS, FF_BANKS, FF_PADS, THEMES
 from .i18n import tr
@@ -832,9 +832,6 @@ class MarineKunScene(GameScene):
         self.box(screen, W - S(360), self.H - S(96), S(320), S(70), (250, 210, 80), fill=(20, 30, 70, 225), radius=10, width=3)
         self.text(screen, tr("MÉDAILLES", "MEDALS"), W - S(340), self.H - S(61), 22, (250, 210, 80), key="black", valign="middle", glow=0)
         self.hd.put_number(screen, f"{self.medals:04d}", "black", S(40), WHITE, W - S(60), self.H - S(61), "right", "middle")
-        credits = _n(vals.get("credits"))
-        if credits is not None:
-            self.label(screen, tr(f"CRÉDITS {int(credits)}", f"CREDITS {int(credits)}"), S(170), self.H - S(61), 26, AMBER, align="center")
         if not self.p2_in(vals):
             word, col = self.invite(vals, now)
             self.label(screen, word, W - S(260), S(50), 30, col, align="center")

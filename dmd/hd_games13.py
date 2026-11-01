@@ -14,7 +14,7 @@ créations du programme dans l'esprit des jeux, aucune image ne vient d'un jeu.
 
 import math
 
-from .hd_games import AMBER, CREAM, GOLD, RED, WHITE, _clamp, _mix, _n
+from .hd_games import CREAM, GOLD, RED, WHITE, _clamp, _mix, _n
 from .hd_games3 import DARK, AeroFightersScene, _poly, bomber_draw, jet_draw, prop_plane_draw
 from .hd_games5 import SideShooterScene, side_heli_draw
 from .hd_games6 import portrait_draw
@@ -324,12 +324,6 @@ class _CpsShooter:
             self.p2_seen = now
         super().update(vals, now)
 
-    def draw_hud(self, screen, eng, vals, logo, now):
-        super().draw_hud(screen, eng, vals, logo, now)
-        c = _n(vals.get("credits"))
-        if c is not None:                                  # the credits under the logo / les crédits sous le logo
-            self.label(screen, tr(f"CRÉDITS {int(c):02d}", f"CREDITS {int(c):02d}"), self.W / 2, self.S(122), 28, AMBER,
-                       align="center", alpha=190)
 
     def energy_hits(self, vals, now):
         for side, suf in (("p1", ""), ("p2", "_p2")):
@@ -765,7 +759,7 @@ class War19XXScene(WarPlanesScene):
             self.icons_row(screen, ball, b, S(30), H - S(40), S(36))
         name = self.PLANES.get(self.kind(vals, "p1"))
         if name and _n(vals.get("plane")) is not None:
-            self.label(screen, name, W / 2, H - S(30), 28, GOLD, key="black", align="center")
+            self.label(screen, name, W / 2, H - S(100), 28, GOLD, key="black", align="center")
 
 
 class Counter1941Scene(WarPlanesScene):
@@ -857,7 +851,7 @@ class VarthScene(_CpsShooter, AeroFightersScene):
         pod = _n(vals.get("pods"))
         bits = [n for n in (name, (tr("MISSILES ", "MISSILES ") + self.PODS[int(pod)]) if pod is not None and int(pod) in self.PODS else None) if n]
         if bits:
-            self.label(screen, "   ".join(bits), W / 2, H - S(30), 28, GOLD, key="black", align="center")
+            self.label(screen, "   ".join(bits), W / 2, H - S(100), 28, GOLD, key="black", align="center")
 
 
 class GigaWingScene(_CpsShooter, AeroFightersScene):
@@ -906,7 +900,7 @@ class GigaWingScene(_CpsShooter, AeroFightersScene):
                 self.icons_row(screen, bimg, b2, W - S(30), H - S(96), S(36), label="B", right=True)
         pilot = vals.get("p1_char")
         if isinstance(pilot, str) and pilot:
-            self.label(screen, pilot, W / 2, H - S(30), 28, WHITE, key="black", align="center")
+            self.label(screen, pilot, W / 2, H - S(100), 28, WHITE, key="black", align="center")
         k = 0.7 + 0.3 * math.sin(now * 4)
         self.label(screen, "REFLECT OK", W - S(30), H - S(36), 28, GOLD, key="black", align="right", fade=k)
 
@@ -1026,7 +1020,7 @@ class DimahooScene(_CpsShooter, AeroFightersScene):
             self.icons_row(screen, star, b, S(30), H - S(40), S(36))
         hero = vals.get("p1_char")
         if isinstance(hero, str) and hero:
-            self.label(screen, hero, W / 2, H - S(30), 28, WHITE, key="black", align="center")
+            self.label(screen, hero, W / 2, H - S(100), 28, WHITE, key="black", align="center")
 
 
 # ============================================================================ side-view shooters / de profil

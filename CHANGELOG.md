@@ -21,6 +21,8 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 
 **The Neo Geo games**
 - Checked against MAME's cheat collection. 286 of their values were already the same, none learned on a cabinet is replaced. MAME adds the super gauge of 14 fighting games, shown under the fighters on the HD screen (Art of Fighting 1 and 2, Garou, King of Fighters '96, Ninja Master's, Real Bout Fatal Fury 1, 2 and Special, Rage of the Dragons, Samurai Shodown III, IV, V and V Special, World Heroes Perfect), the characters of Fatal Fury 2, the timer of Karnov's Revenge, Football Frenzy and The Irritating Maze, the lives and bombs of player 2 in Zed Blade.
+- Puzzle Bobble. Player 2's score shows at the top right of the HD screen, the scene had never drawn it (its address, from RetroAchievements, is the one learned on a cabinet).
+- Puzzle Bobble in a VS game between two players. The game mode and the matches won by each player are read (found in captures taken in a VS game, to confirm). VS takes the place of ROUND between the boards, the wins of each player in big on each side, and a match won shows P1 WINS! or P2 WINS! with the score of the wins, gold sparks over the winner and new boards. On the panel, 2 VS 3 takes the place of ROUND.
 
 **RetroAchievements**
 - The public RetroAchievements scripts on GitHub (RATools, 38 scripts for 35 of our arcade games) were compared with the game files. None of them puts one of our values elsewhere, and more than sixty of our values are confirmed, the health bars and the timers of the fighting games, the score of King of Fighters '97, 2001 and 2002, the lives, the score and the weapon of Metal Slug 3, the lives of Ninja Combat, Prehistoric Isle 2 and The Punisher...
@@ -30,6 +32,11 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
   - Neo Geo. Aero Fighters 2 and 3, Art of Fighting, Bang Bead, Blazing Star, Blue's Journey, Burning Fight, Cyber-Lip, Double Dragon, Eight Man, Fatal Fury 1, 2 and Special, Garou, Ghost Pilots, King of Fighters '94, King of the Monsters, Last Resort, Legend of Success Joe, Magical Drop II and III, Magician Lord, Metal Slug 2, X and 5, Money Puzzle Exchanger, Mutation Nation, Puzzle Bobble, Pulstar, Rage of the Dragons, Real Bout Fatal Fury, Samurai Shodown, Sengoku 3, Shock Troopers and its 2nd Squad, Spin Master, Viewpoint, Waku Waku 7, Zupapa!
   - Capcom. 1941, 19XX, Three Wonders, Armored Warriors, Battle Circuit, Cadillacs and Dinosaurs, Capcom Sports Club, Captain Commando, Eco Fighters, Final Fight, JoJo's Bizarre Adventure, Knights of the Round, Mega Man 1 and 2, Mighty! Pang, Pang! 3, Progear, Street Fighter II' Hyper Fighting, Strider, Super Gem Fighter, Super Puzzle Fighter II Turbo, U.N. Squadron, Warriors of Fate.
   - Cave. Akai Katana, Deathsmiles and its MegaBlack Label, DonPachi, ESP Ra.De. (its stage too), Dangun Feveron (the sum of the scores of its stages), Gaia Crusaders, Gogetsuji Legends, Ketsui (two words that the ARM of its protection keeps), Power Instinct 2, Puzzle Uo Poko, Sailor Moon.
+
+**The credits on the HD screen**
+- Every scene has the credits as in Metal Slug during a game. The coin struck with the symbol of `config.json` and CRÉDITS 07 in their gold-edged pill, a coin falling onto it for each credit put in and +1 CRÉDIT rising. At the bottom in the middle, or beside it when the game already has something there, the batter of baseball, the hand of mahjong, the answers of the quizzes, the quotas of Magical Drop, the clock of Street Hoop, the shogi board, our soldier in NAM-1975, our fists in The Super Spy, the power gauge of the golf games.
+- The fights, the Capcom panels and the Capcom shoot'em ups show them that way too, in place of their CRÉDITS 07 text. The labels that were at the bottom in the middle move up above them (the plane in 19XX and Strikers 1945 Plus, the pilot in Giga Wing, the hero in Dimahoo, the missiles in Varth, LEVEL in Zed Blade, Gururin and Puzzle De Pon!, the stage in Pulstar, ROUND in Blazing Star and Puzzle Bobble).
+- Metal Slug. A grenade that blows up, player 1's or player 2's, shakes the whole screen hard and lights it up orange. One right after another shakes less.
 
 **DoDonPachi on the HD screen**
 - Seen from the sky like the other vertical shoot'em ups, the ship flies to the right over the stage and the enemies answer the way Cave's games do. Rings and spirals of pink and blue bullets from the gunships, fans of needles from the helicopters, aimed bullets from the little fighters, big slow orbs from the tanks on the roads.
@@ -56,6 +63,7 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 **learn.bat**
 - Under RetroArch a big RAM is read by windows of requests. The 2 MB of a CV1000 took a minute, it now takes seconds. A small RAM is read as before.
 - Credits that only went up between the captures. The coins put in go up with them, so learn.bat says so, asks for one capture after START (one credit less) and saves nothing by itself, unless its first choice is the address the game file already has.
+- A name that neither the game file nor the scenes know is reported with the closest one (scroe2, did you mean score2?) and nothing is captured. The same line typed again keeps it. An s too many (scores2) or a 2 stuck to the name (wins2, victoires2) is understood, and a value already learned under such a name moves to the right one at start.
 
 **Demo**
 - `demo_cave.bat` shows the Cave games without playing. Pick the game in the list, or give it directly, `demo_cave.bat ddonpach` for example.
@@ -79,6 +87,8 @@ Unzip the new zip over the old folder (`config.json`, your learned addresses and
 
 **Les jeux Neo Geo**
 - Vérifiés avec la collection de codes de MAME. 286 de leurs valeurs étaient déjà les mêmes, aucune de celles apprises sur une borne n'est remplacée. MAME ajoute la jauge de super de 14 jeux de combat, affichée sous les combattants sur l'écran HD (Art of Fighting 1 et 2, Garou, King of Fighters '96, Ninja Master's, Real Bout Fatal Fury 1, 2 et Special, Rage of the Dragons, Samurai Shodown III, IV, V et V Special, World Heroes Perfect), les personnages de Fatal Fury 2, le chrono de Karnov's Revenge, Football Frenzy et The Irritating Maze, les vies et les bombes du joueur 2 dans Zed Blade.
+- Puzzle Bobble. Le score du joueur 2 s'affiche en haut à droite de l'écran HD, la scène ne le dessinait jamais (son adresse, venue de RetroAchievements, est celle apprise sur une borne).
+- Puzzle Bobble en partie VS à deux. Le mode de jeu et les matchs gagnés par chaque joueur sont lus (trouvés dans des captures prises en VS, à confirmer). VS remplace le ROUND entre les plateaux, avec les victoires de chaque joueur en gros de chaque côté, et un match gagné affiche J1 GAGNE ! ou J2 GAGNE ! avec le score des victoires, des étincelles dorées sur le gagnant et de nouveaux plateaux. Sur la dalle, 2 VS 3 remplace le ROUND.
 
 **RetroAchievements**
 - Les scripts RetroAchievements publics sur GitHub (RATools, 38 scripts pour 35 de nos jeux d'arcade) ont été comparés aux fichiers de jeu. Aucun ne met une de nos valeurs ailleurs, et plus de soixante de nos valeurs sont confirmées, les barres de vie et les chronos des jeux de combat, le score de King of Fighters '97, 2001 et 2002, les vies, le score et l'arme de Metal Slug 3, les vies de Ninja Combat, Prehistoric Isle 2 et The Punisher...
@@ -88,6 +98,11 @@ Unzip the new zip over the old folder (`config.json`, your learned addresses and
   - Neo Geo. Aero Fighters 2 et 3, Art of Fighting, Bang Bead, Blazing Star, Blue's Journey, Burning Fight, Cyber-Lip, Double Dragon, Eight Man, Fatal Fury 1, 2 et Special, Garou, Ghost Pilots, King of Fighters '94, King of the Monsters, Last Resort, Legend of Success Joe, Magical Drop II et III, Magician Lord, Metal Slug 2, X et 5, Money Puzzle Exchanger, Mutation Nation, Puzzle Bobble, Pulstar, Rage of the Dragons, Real Bout Fatal Fury, Samurai Shodown, Sengoku 3, Shock Troopers et son 2nd Squad, Spin Master, Viewpoint, Waku Waku 7, Zupapa!
   - Capcom. 1941, 19XX, Three Wonders, Armored Warriors, Battle Circuit, Cadillacs and Dinosaurs, Capcom Sports Club, Captain Commando, Eco Fighters, Final Fight, JoJo's Bizarre Adventure, Knights of the Round, Mega Man 1 et 2, Mighty! Pang, Pang! 3, Progear, Street Fighter II' Hyper Fighting, Strider, Super Gem Fighter, Super Puzzle Fighter II Turbo, U.N. Squadron, Warriors of Fate.
   - Cave. Akai Katana, Deathsmiles et son MegaBlack Label, DonPachi, ESP Ra.De. (son niveau aussi), Dangun Feveron (la somme des scores de ses niveaux), Gaia Crusaders, Gogetsuji Legends, Ketsui (deux mots que garde l'ARM de sa protection), Power Instinct 2, Puzzle Uo Poko, Sailor Moon.
+
+**Les crédits sur l'écran HD**
+- Toutes les scènes ont les crédits comme dans Metal Slug pendant une partie. La pièce frappée du symbole de `config.json` et CRÉDITS 07 dans leur pastille au bord doré, une pièce qui tombe dessus pour chaque crédit mis et +1 CRÉDIT qui monte. En bas au milieu, ou à côté quand le jeu y a déjà quelque chose, le frappeur du baseball, la main du mahjong, les réponses des quiz, les quotas de Magical Drop, le chrono de Street Hoop, le plateau de shogi, notre soldat dans NAM-1975, nos poings dans The Super Spy, la jauge de puissance des jeux de golf.
+- Les combats, les panneaux Capcom et les shoot'em ups Capcom les montrent ainsi aussi, à la place de leur texte CRÉDITS 07. Ce qui était en bas au milieu remonte au-dessus (l'avion dans 19XX et Strikers 1945 Plus, le pilote dans Giga Wing, le héros dans Dimahoo, les missiles dans Varth, LEVEL dans Zed Blade, Gururin et Puzzle De Pon!, le stage dans Pulstar, ROUND dans Blazing Star et Puzzle Bobble).
+- Metal Slug. Une grenade qui explose, celle du joueur 1 ou du joueur 2, fait trembler fort tout l'écran et l'éclaire d'orange. Celle qui suit de près une autre tremble moins.
 
 **DoDonPachi sur l'écran HD**
 - Vu du ciel comme les autres shoot'em ups verticaux, le vaisseau vole vers la droite au-dessus du niveau et les ennemis répondent comme dans les jeux Cave. Des anneaux et des spirales de boulettes roses et bleues des canonnières, des éventails d'aiguilles des hélicoptères, des balles visées des petits chasseurs, de grosses sphères lentes des chars sur les routes.
@@ -114,6 +129,7 @@ Unzip the new zip over the old folder (`config.json`, your learned addresses and
 **learn.bat**
 - Sous RetroArch, une grande RAM se lit par fenêtres de demandes. Les 2 Mo d'un CV1000 prenaient une minute, quelques secondes maintenant. Une petite RAM se lit comme avant.
 - Des crédits qui n'ont fait que monter entre les captures. Les pièces mises montent avec eux, alors learn.bat le dit, demande une capture après START (un crédit en moins) et n'enregistre rien d'office, sauf si son premier choix est l'adresse que le fichier du jeu a déjà.
+- Un nom que ni le fichier du jeu ni les scènes ne connaissent est signalé avec le plus proche (scroe2, tu voulais dire score2 ?) et rien n'est capturé. La même ligne retapée le garde. Un s en trop (scores2) ou un 2 collé au nom (wins2, victoires2) est compris, et une valeur déjà apprise sous un tel nom passe sous le bon au démarrage.
 
 **Démo**
 - `demo_cave.bat` montre les jeux Cave sans jouer. Choisis le jeu dans la liste, ou donne-le directement, `demo_cave.bat ddonpach` par exemple.

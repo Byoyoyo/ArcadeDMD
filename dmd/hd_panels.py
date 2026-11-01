@@ -15,7 +15,7 @@ import math
 
 from PIL import Image, ImageChops, ImageDraw, ImageOps
 
-from .hd_games import GameScene, GOLD, AMBER, RED, CREAM, WHITE, _n, _mix, _clamp, draw_img
+from .hd_games import GameScene, GOLD, RED, CREAM, WHITE, _n, _mix, _clamp, draw_img
 from . import hd_themes12, hd_themes13, hd_themes14   # the backdrops of the games / les décors des jeux
 from .hd_mslug import ACCENT, grenade_img
 from .i18n import tr
@@ -742,7 +742,6 @@ class PanelScene(GameScene):
     def _center(self, screen, vals, logo, now):
         hd, S, W = self.hd, self.S, self.W
         t = _n(vals.get("time"))
-        credits = _n(vals.get("credits"))
         hd.draw_logo(screen, logo, W / 2, S(14), S(540), S(124) if t is not None else S(160), now)
         line = None
         if self.SPEC.get("floor"):
@@ -761,10 +760,7 @@ class PanelScene(GameScene):
             self.box(screen, W / 2 - S(120), ty, S(240), S(132), (RED if low else GOLD), fill=(8, 10, 22, 210), radius=18, width=3)
             self.text(screen, "TIME", W / 2, ty + S(12), 26, CREAM, key="xbold", align="center", glow=0)
             self.text(screen, str(int(t)), W / 2, ty + S(82), 84, RED if low else GOLD, key="stencil", align="center", valign="middle",
-                      scale=1 + 0.08 * pulse)
-        if credits is not None:
-            self.label(screen, tr(f"CRÉDITS {int(credits):02d}", f"CREDITS {int(credits):02d}"), W / 2, S(404), 40, AMBER, key="xbold",
-                       align="center", alpha=210)
+                      scale=1 + 0.08 * pulse)                   # the credits below: GameScene, as in Metal Slug
 
 
 def _balloon_draw(col):

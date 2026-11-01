@@ -480,6 +480,8 @@ class MetalSlugScene:
         self.coin_symbol = None                  # the coins' symbol, from coin_symbol in config.json / symbole des pièces
         self.coin_sprite = "coin"
         self.coin_xy = None                      # the credits' coin on screen, where inserted coins land / où tombent les pièces
+        self.boom_t = -99.0                      # when the last grenade blew up / quand la dernière grenade a explosé
+        self.booms = 0                           # (tests)
         self.coin_box = None
         self.in_attract = False
         self.pills = {}
@@ -1032,7 +1034,15 @@ class MetalSlugScene:
         P.flying = max(0, P.flying - 1)
 
     def _boom(self, x, y):
-        self.fx.explosion(x, y, 1.0)
+        """A grenade blows up, player 1's or player 2's: the explosion, the whole screen shakes hard and lights up orange; a
+        grenade right after another one shakes less (no endless quake). / Une grenade explose : tout l'écran tremble fort et
+        s'éclaire ; celle qui suit de près une autre tremble moins."""
+        first = self.fx.now - self.boom_t > 0.35
+        self.boom_t = self.fx.now
+        self.booms += 1
+        self.fx.explosion(x, y, 1.15)
+        self.fx.shake(15 if first else 6, 0.6)
+        self.fx.flash((255, 200, 130), 0.24 if first else 0.1, 0.24)
 
     def _coin(self, now, n):
         """Coins inserted: each one falls onto the credits' coin; one +n CRÉDITS for them all.

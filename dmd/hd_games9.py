@@ -755,11 +755,12 @@ class StakesWinner2Scene(StakesWinnerScene):
 
 class JockeyGPScene(HorseRaceScene):
     """Jockey Grand Prix as in the game: the dirt track and its green rail, eight numbered horses of our own, the odds
-    board at the top with the race numbers, WAGER and CREDIT; the winner's number lights up on the board. No value of
-    the game is known yet: the races run by themselves. / La piste en terre, huit chevaux numérotés à nous, le tableau
-    des cotes, WAGER et CREDIT ; le numéro du vainqueur s'allume, comme dans le jeu."""
+    board at the top with the race numbers, WAGER and the credits beside it as in Metal Slug; the winner's number lights
+    up on the board. No value of the game is known yet: the races run by themselves. / La piste en terre, huit chevaux
+    numérotés à nous, le tableau des cotes, WAGER et les crédits à côté ; le numéro du vainqueur s'allume."""
     THEME = "jgp_dirt"
     NUMBERS = True
+    CREDITS = (440, None)                             # beside WAGER, as in Metal Slug / à côté de WAGER
     MARK = False
     DUST = (200, 170, 120)
 
@@ -784,12 +785,10 @@ class JockeyGPScene(HorseRaceScene):
             lit = self.winner == i + 1 and int(now * 4) % 2 == 0
             self.text(screen, str(i + 1), x, by + S(30), 30, (255, 230, 60) if lit else WHITE, key="black", align="center", valign="middle", glow=0)
             self.text(screen, f"{self.odds[i]:.1f}", x, by + S(76), 24, (120, 230, 255), key="black", align="center", valign="middle", glow=0)
-        cr = _n(vals.get("credits"))
-        for k, (lab, v) in enumerate((("WAGER", 0), ("CREDIT", cr))):
-            x = S(30) + k * S(270)
-            self.pill(screen, x - S(10), H - S(52), S(250), S(44), 170, radius=10)
-            self.text(screen, lab, x, H - S(30), 22, (250, 220, 80), key="black", valign="middle", glow=0)
-            self.text(screen, f"{int(v or 0):06d}", x + S(226), H - S(30), 24, WHITE, key="black", align="right", valign="middle", glow=0)
+        x = S(30)                                         # WAGER; the credits beside it, as in Metal Slug (CREDITS)
+        self.pill(screen, x - S(10), H - S(52), S(250), S(44), 170, radius=10)
+        self.text(screen, "WAGER", x, H - S(30), 22, (250, 220, 80), key="black", valign="middle", glow=0)
+        self.text(screen, f"{0:06d}", x + S(226), H - S(30), 24, WHITE, key="black", align="right", valign="middle", glow=0)
 
 
 # ============================================================================ Gururin
@@ -1040,7 +1039,7 @@ class GururinScene(GameScene):
                 screen.blit(img, (int(nx - S(48) + i * S(33)), S(176)))
         lv = _n(vals.get("level"))
         if lv is not None:
-            self.label(screen, f"LEVEL {int(lv)}", W / 2, S(420), 30, WHITE, key="black", align="center")
+            self.label(screen, f"LEVEL {int(lv)}", W / 2, S(344), 30, WHITE, key="black", align="center")
 
 
 # ============================================================================ Ghostlop

@@ -24,6 +24,7 @@ from collections import OrderedDict
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 from .hd_coin import CoinDoors, coin_rates
+from .hd_credits import CreditsBar
 from .hd_fight import FightFX
 from .hd_games import SCENES as _SCENES_117
 from .hd_games2 import SCENES as _SCENES_118
@@ -124,6 +125,7 @@ class HDRenderer:
             self.dim = 30
         self.dim_veils = {}
         self.credit_pills = {}
+        self.fight_cbar = None        # the credits of the fights, as in Metal Slug / les crédits des combats
 
     # ------------------------------------------------------------ outils
     def dim_veil(self, size):
@@ -646,6 +648,10 @@ class HDRenderer:
         known = p1m is not None
         p1_in = p1m in (1, 2) or not known
         p2_in = p2m in (1, 2)
+        if self.fight is not None:                            # the coins put in fall onto the credits during a fight
+            if self.fight_cbar is None or self.fight_cbar.fx is not self.fight.fx:
+                self.fight_cbar = CreditsBar(self, self.fight.fx)
+            self.fight_cbar.watch(_num(vals.get("credits")), now, drop=not (known and not p1_in and not p2_in))
         if known and not p1_in and not p2_in:                 # personne ne joue : démo du jeu
             self.draw_logo(screen, logo, W / 2, S(190), S(1000), S(220), now, valign="middle")
             if self.coins_on:                                 # monnayeurs, pièces, crédits, boutons START
@@ -725,7 +731,10 @@ class HDRenderer:
             else:
                 self.draw_super(screen, vals, side, now, room, self._level_top(eng, side))
         credits = _num(vals.get("credits"))
-        if credits is not None:                               # big enough to read, on a dark pill / lisibles, sur une pastille
+        if credits is not None and self.fight_cbar is not None:  # as in Metal Slug: the coin (€), CRÉDITS 07 / comme Metal Slug
+            self.fight_cbar.set_symbol((getattr(eng, "cfg", None) or {}).get("coin_symbol", "€"))
+            self.fight_cbar.draw(screen, credits, cx, S(338), now, 0.85)
+        elif credits is not None:                             # big enough to read, on a dark pill / lisibles, sur une pastille
             t = self.text(tr(f"CRÉDITS {int(credits):02d}", f"CREDITS {int(credits):02d}"), "xbold", S(44), AMBER, 0.3)
             w, h = t["w"] + S(56), S(64)
             pill = self.credit_pills.get((w, h))

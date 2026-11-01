@@ -311,7 +311,7 @@ class StrikersScene(AeroFightersScene):
                     pg.draw.rect(screen, (255, 210, 70) if on else (58, 46, 26), (int(x0 + S(28) + i * S(22)), S(386), S(16), S(46)), border_radius=S(3))
         plane = vals.get("plane_name")
         if isinstance(plane, str) and plane and self.p1_in(vals):
-            self.label(screen, plane, W / 2, S(420), 26, GOLD, key="xbold", align="center", alpha=130)
+            self.label(screen, plane, W / 2, S(344), 26, GOLD, key="xbold", align="center", alpha=130)
 
 
 # ============================================================================ Street Hoop
@@ -422,6 +422,7 @@ class StreetHoopScene(GameScene):
     points, dunks), the other team then takes the ball back. The points of both teams at the top, the clock in its
     orange box at the bottom between the two SUPER SHOT gauges, 1P above the player's man.
     / Le basket de rue comme dans le jeu : trois contre trois sur un demi-terrain, le panier à droite."""
+    CREDITS = (250, None)                                 # the clock and the super shots / le chrono et les super tirs
     THEME = "hoop_park"
     STATIC = True
     SHADE = (60, 70)
@@ -2042,6 +2043,7 @@ class LeagueBowlingScene(GameScene):
     with their own pins. Each time the game's shot clock starts again, the bowler throws: the ball hooks down the lane
     and the pins fly, STRIKE! or SPARE! now and then. TIME and the score at the top, as in the game.
     / Le bowling comme dans le jeu : la piste vue de derrière le joueur, les quilles au fond, STRIKE !"""
+    CREDITS = (-420, None)                                # the bowler is in the middle / le joueur est au milieu
     THEME = "lb_lanes"
     STATIC = True
     SHADE = (60, 40)

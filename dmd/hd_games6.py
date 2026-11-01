@@ -610,7 +610,7 @@ class PuzzleDePonScene(PuzzleBobble2Scene):
         super().draw_hud(screen, eng, vals, logo, now)
         t = _n(vals.get("time"))
         if t is not None and not self.p2_in(vals):                     # the star dial and its hand
-            cx, cy, r = W / 2, S(280), S(110)
+            cx, cy, r = W / 2, S(236), S(92)
             dial = self.img("pdpdial", int(2 * r), int(2 * r), compass_draw, ss=2)
             screen.blit(dial, (int(cx - r), int(cy - r)))
             a = -math.pi / 2 + _clamp(t / 120.0) * math.tau
@@ -619,7 +619,7 @@ class PuzzleDePonScene(PuzzleBobble2Scene):
             self.pg.draw.circle(screen, (30, 40, 120), (int(cx), int(cy)), S(10))
         lv = _n(vals.get("level"))
         if lv is not None:
-            self.label(screen, f"LEVEL-{int(lv) + 2}", W / 2, S(424), 32, WHITE, key="black", align="center")
+            self.label(screen, f"LEVEL-{int(lv) + 2}", W / 2, S(358), 32, WHITE, key="black", align="center")
 
 
 # ============================================================================ Magical Drop II, Money Puzzle Exchanger

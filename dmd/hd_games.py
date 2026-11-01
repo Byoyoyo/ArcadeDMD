@@ -18,6 +18,7 @@ from PIL import Image, ImageDraw
 from . import hd_themes
 from .hd_bg import Backdrop
 from .hd_coin import CoinDoors, coin_rates
+from .hd_credits import CreditsBar
 from .hd_fx import FIRE, FIRE_HOT, FX
 from .i18n import tr
 
@@ -68,6 +69,10 @@ class GameScene:
     EXPLOSIONS = False            # True: explosion glows prepared during the calm moments
     BANNERS = (("GAME OVER", RED),)                          # banner texts prepared in advance
     PILLS = False                 # True: dark pills under the texts of the top bar (bright backdrop)
+    CREDITS = "bottom"            # the credits as in Metal Slug while somebody plays: "bottom" in the middle at the bottom,
+                                  # (x, y) a place of the scene's own, None not shown. x: a fraction of the width (0 to 1),
+                                  # else from the left edge, or from the right edge when below 0; y: None at the bottom
+    CREDITS_K = 0.85              # their size, 1 as in Metal Slug / leur taille
 
     def __init__(self, hd, rng=None):
         self.hd, self.pg, self.S, self.s = hd, hd.pg, hd.S, hd.s
@@ -95,6 +100,7 @@ class GameScene:
         self.dt = 0.0
         self.touched = set()                                 # players who touched their stick or buttons
         self.modes = {}                                      # BIOS player modes seen at the previous image
+        self.cbar = CreditsBar(hd, self.fx)                  # the credits as in Metal Slug / les crédits comme dans Metal Slug
         for i, col in enumerate(((120, 124, 138), (88, 90, 102), (150, 120, 90))):
             self.fx.sp.register(f"chunk{i}", draw_img(self.S(14 + 5 * i), self.S(12 + 4 * i), chunk_draw(col)))
         self.warm = self._warm_list()
@@ -370,6 +376,27 @@ class GameScene:
     def invite(self, vals, now):
         return self.hd._invite(vals, now)
 
+    def credits_at(self, vals):
+        """Middle of the credits pill, or None. / Le milieu de la pastille des crédits, ou None."""
+        at = self.CREDITS
+        if at is None:
+            return None
+        if at == "bottom":
+            return self.W / 2, self.H - self.S(44)
+        x, y = at
+        x = self.W * x if 0 < x <= 1 else (self.W + self.S(x) if x < 0 else self.S(x))
+        return x, (self.H - self.S(44) if y is None else self.S(y))
+
+    def draw_credits(self, screen, eng, vals, now):
+        """The coin (€) and CRÉDITS 07 in their pill, as in Metal Slug; the coins put in fall onto it.
+        / La pièce et CRÉDITS 07 dans leur pastille, comme dans Metal Slug ; les pièces mises tombent dessus."""
+        c = _n(vals.get("credits"))
+        at = self.credits_at(vals)
+        if c is None or at is None:
+            return
+        self.cbar.set_symbol((getattr(eng, "cfg", None) or {}).get("coin_symbol", "€"))
+        self.cbar.draw(screen, c, at[0], at[1], now, self.CREDITS_K)
+
     def top_bar(self, screen, eng, vals, logo, now, right=True):
         """Top: P1 and the score on the left, the logo in the middle, player 2 or the invitation on the right."""
         hd, S, W = self.hd, self.S, self.W
@@ -431,6 +458,7 @@ class GameScene:
         self.last = now
         self.fx.update(now)
         idle = self.nobody(vals)
+        self.cbar.watch(_n(vals.get("credits")), now, drop=not idle)   # the coin doors show them on the attract screen
         for side in ("p1", "p2"):                              # GAME OVER when a player's game ends
             m = vals.get(side + "_mode")
             if m == 3 and self.modes.get(side) in (1, 2):
@@ -463,6 +491,7 @@ class GameScene:
             self.draw_attract(target, eng, vals, logo, now)
         else:
             self.draw_hud(target, eng, vals, logo, now)
+            self.draw_credits(target, eng, vals, now)
             for side, x in (("p1", self.W * 0.27), ("p2", self.W * 0.73)):     # continue countdown of the game
                 if vals.get(side + "_mode") == 2:
                     k = 0.6 + 0.4 * (0.5 + 0.5 * math.sin(now * 6))
@@ -856,7 +885,7 @@ class BlazingStarScene(GameScene):
                     self.text(screen, f"+{n - 7}", x0 + d * 7 * S(64), S(400), 28, CREAM, align="left" if d > 0 else "right")
         rnd = _n(vals.get("round"))
         if rnd is not None:
-            self.text(screen, f"ROUND {int(rnd)}", W / 2, S(404), 46, GOLD, key="stencil", align="center", valign="middle")
+            self.text(screen, f"ROUND {int(rnd)}", W / 2, S(336), 46, GOLD, key="stencil", align="center", valign="middle")
 
 
 # ============================================================================ Puzzle Bobble
@@ -1017,6 +1046,14 @@ class PuzzleBobbleScene(GameScene):
         self.slide = {"p1": -99.0, "p2": -99.0}
         self.angle = {"p1": 0.0, "p2": 0.0}
         self.boards = {side: Board(self, self.launcher_xy(side)[0]) for side in ("p1", "p2")}
+        self.win_t = {"p1": -99.0, "p2": -99.0}               # when each player last won a VS match / dernière victoire
+        self.matches = 0                                     # (tests)
+
+    @staticmethod
+    def vs(vals):
+        """A VS game between two players: the game mode read in the game (vs_mode, Puzzle Bobble), both of them playing.
+        / Une partie VS à deux : le mode lu dans le jeu, les deux joueurs en jeu."""
+        return vals.get("vs_mode") == 1 and vals.get("p1_mode") in (1, 2) and vals.get("p2_mode") in (1, 2)
 
     def bub(self, i, r):
         S = self.S
@@ -1056,11 +1093,25 @@ class PuzzleBobbleScene(GameScene):
                 v = 1700 * self.s
                 self.flying.append({"c": ch[0], "x": x, "y": y, "vx": math.sin(a) * v, "vy": -math.cos(a) * v, "t0": now, "side": side})
                 self.slide[side] = now
+        vs = self.vs(vals)
         ch = self.changed(vals, "round")
-        if ch:                                                         # new round: new boards
+        if ch and not vs:                                              # new round: new boards (VS: no rounds)
             self.slam(f"ROUND {int(ch[1])}", GOLD, now, 1.6)
             for b in self.boards.values():
                 self._clear(b, now, 3 + min(3, int(ch[1]) // 8))
+        for side, name in (("p1", "wins"), ("p2", "wins_p2")):
+            ch = self.changed(vals, name)
+            if ch and ch[1] > ch[0] and vs:                            # a VS match won: the banner, the score, new boards
+                self.win_t[side] = now
+                self.matches += 1
+                w1, w2 = int(_n(vals.get("wins")) or 0), int(_n(vals.get("wins_p2")) or 0)
+                self.slam(tr("J1 GAGNE !", "P1 WINS!") if side == "p1" else tr("J2 GAGNE !", "P2 WINS!"), P1C if side == "p1" else P2C,
+                          now, 2.0, sub=f"{w1}  -  {w2}")
+                x, y = self.launcher_xy(side)
+                self.fx.sparks(x, y - self.S(120), 40, GOLD, (300, 900), (200, 340), (0.5, 1.1), 900, "front", 3, 28)
+                self.fx.glow(x, y - self.S(120), 30, 220, _mix(GOLD, WHITE, 0.3), 0.5, "front", 0.8, 0.0)
+                for b in self.boards.values():
+                    self.fx.later(0.5, self._clear, b, now + 0.5, 3)
 
     def _burst(self, x, y, c, n=14):
         col = BUBBLE_RGB[int(c) % len(BUBBLE_RGB)]
@@ -1101,7 +1152,7 @@ class PuzzleBobbleScene(GameScene):
             screen.blit(b, (int(f["x"] - b.get_width() / 2), int(f["y"] - b.get_height() / 2)))
             keep.append(f)
         self.flying = keep
-        self.top_bar(screen, eng, vals, logo, now, right=False)
+        self.top_bar(screen, eng, vals, logo, now, right=self.p2_in(vals))  # player 2's score; the invitation at its launcher
         for side, suf, d in (("p1", "", -1), ("p2", "_p2", 1)):
             if side == "p2" and not self.p2_in(vals):                  # player 2 is invited in its own place
                 word, col = self.invite(vals, now)
@@ -1127,9 +1178,32 @@ class PuzzleBobbleScene(GameScene):
                 screen.blit(b, (int(nx - b.get_width() / 2), int(ny - b.get_height() / 2)))
             if nxt is not None:
                 self.label(screen, tr("SUIVANTE", "NEXT"), nx, S(370), 18, CREAM, key="bold", align="center", glow=0, alpha=120)
+        if self.vs(vals):
+            self.draw_vs(screen, vals, now)
+            return
         rnd = _n(vals.get("round"))
-        if rnd is not None:
-            self.label(screen, f"ROUND {int(rnd)}", W / 2, S(404), 52, GOLD, key="stencil", align="center")
+        if rnd is not None:                                            # above the credits / au-dessus des crédits
+            self.label(screen, f"ROUND {int(rnd)}", W / 2, S(300), 52, GOLD, key="stencil", align="center")
+
+    def draw_vs(self, screen, vals, now):
+        """VS between the boards, the matches won by each player in big on each side, the last one won jumping and glowing.
+        / VS entre les plateaux, les victoires de chaque joueur en gros de chaque côté, la dernière qui saute et brille."""
+        hd, S, W = self.hd, self.S, self.W
+        cx, cy = W / 2, S(246)
+        w1, w2 = _n(vals.get("wins")), _n(vals.get("wins_p2"))
+        known = w1 is not None and w2 is not None
+        pw, ph = (S(400), S(176)) if known else (S(200), S(120))
+        self.box(screen, cx - pw / 2, cy - ph / 2, pw, ph, GOLD, fill=(8, 10, 22, 205), radius=28, width=3)
+        hd.put(screen, hd.text("VS", "stencil", S(70), GOLD, glow=0.6), cx, cy, "center", "middle")
+        if not known:
+            return
+        for side, v, col, d in (("p1", w1, P1C, -1), ("p2", w2, P2C, 1)):
+            k = max(0.0, 1 - (now - self.win_t[side]) / 0.6)
+            x = cx + d * S(126)
+            hd.put_number(screen, str(int(v)), "black", S(120), _mix(col, WHITE, 0.5 * k), x, cy - S(6), "center", "middle",
+                          scale=1 + 0.35 * k, glow=0.4 + 0.4 * k)
+            tag = tr("J1", "P1") if side == "p1" else tr("J2", "P2")
+            hd.put(screen, hd.text(tag, "xbold", S(24), CREAM, glow=0), x, cy + S(62), "center", "middle")
 
 
 # ============================================================================ Windjammers
@@ -1545,6 +1619,7 @@ def ball_draw(d, W, H):
 
 
 class TurfMastersScene(GameScene):
+    CREDITS = (0.5, 350)                                  # over the power gauge / au-dessus de la jauge de puissance
     THEME = "golf"
     STATIC = True
     SHADE = (130, 120)
