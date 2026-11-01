@@ -350,13 +350,12 @@ def _search_flag(snaps_values):
 def search(snaps_values, field="score", objects=None, big_endian=True):
     """snaps_values : liste de (Snapshot, valeur). Retourne (candidats triés, note)."""
     res = _search_all(snaps_values, objects, big_endian)
-    if {v for _, v in snaps_values} == {0, 1}:
-        # on or off: the exact 1 and 0 first, then what is merely not 0 / allumé ou éteint : 1 et 0 exacts, puis non nul
-        seen = {r["addr"] for r in res if r.get("ptr") is None}
-        flags = [r for r in _search_flag(snaps_values) if r["addr"] not in seen]
+    if not res and {v for _, v in snaps_values} == {0, 1}:
+        # on or off, no exact 1 and 0: what is merely not 0 (a timer) / allumé ou éteint, sans 1 et 0 exacts : non nul
+        flags = _search_flag(snaps_values)
         if flags:
-            return rank(res, field, objects) + rank(flags, field, objects), tr(
-                "(allumé ou éteint : ArcadeDMD lit 1 quand l'octet n'est pas à 0)", "(on or off: ArcadeDMD reads 1 when the byte is not 0)")
+            return rank(flags, field, objects), tr("(allumé ou éteint : ArcadeDMD lit 1 quand l'octet n'est pas à 0)",
+                                                   "(on or off: ArcadeDMD reads 1 when the byte is not 0)")
     if not res and counts_from_one(field) and all(v >= 1 for _, v in snaps_values):
         # stage 1 kept as 0: the game file adds 1 / stage 1 gardé à 0 : le fichier du jeu ajoute 1
         res = _search_all([(s, v - 1) for s, v in snaps_values], objects, big_endian)

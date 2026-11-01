@@ -135,16 +135,14 @@
         "note": "stage against the computer, shown in the column, 0 for stage 1 (RAM captures on a cabinet at stages 1, 2, 3 and 3; 0x10BB09 holds the same)"
       },
       "perfect": {
-        "addr": "",
+        "addr": "0x10C221",
         "type": "u8",
-        "max": 1,
-        "note": "player 1's PERFECT, a formation cleared in one chain: learn it with learn.bat (perfect=1 while the game shows PERFECT, perfect=0 otherwise)"
+        "note": "player 1's PERFECT, a formation cleared in one chain: 1 while the game shows it (RAM captures on a cabinet, 1 in the three taken during a PERFECT, 0 in the three taken without), maybe more for several in a row"
       },
       "perfect_p2": {
-        "addr": "",
+        "addr": "0x10D221",
         "type": "u8",
-        "max": 1,
-        "note": "player 2's PERFECT (perfect2=1 while the game shows it on his side, perfect2=0 otherwise)"
+        "note": "player 2's PERFECT, at the same place in his block, like the score, the hearts and the chain (the computer's too)"
       },
       "credits": {
         "addr": "0xD00034",

@@ -463,8 +463,8 @@ class TwinkleScene(GameScene):
                 lvl = max(1, min(3, int(ch[1]) // 16))
                 self.send(side, other, lvl, now)
             ch = self.changed(vals, "perfect" + suf)
-            if ch and ch[1] > ch[0] and ch[1] > 0:                     # the game's PERFECT: a formation cleared in one chain
-                self.perfect(side, now)
+            if ch and ch[1] > ch[0] and ch[1] > 0 and now - st["perfect"] > 1.5:   # the game's PERFECT: a formation
+                self.perfect(side, now)                                # cleared in one chain (once, if it counts on)
             ch = self.changed(vals, "hits" + suf)
             if ch and ch[1] >= 2 and ch[1] > ch[0]:                     # the chain the game counts (N HIT)
                 st["chain_n"], st["chain_t"] = int(ch[1]), now
