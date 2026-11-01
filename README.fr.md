@@ -694,7 +694,7 @@ Les jeux Neo Geo connus de MAME (clones compris) ont une scène commune selon le
 
 ### Les jeux Capcom CPS1, CPS2 et CPS3
 
-Chaque jeu Capcom CPS1, CPS2 et CPS3 de FinalBurn Neo est reconnu, avec MAME comme avec RetroArch. Ça fait 88 jeux et leurs 942 sets. Une version, un bootleg ou un hack prend le fichier de son jeu d'origine, avec son propre nom quand il en a un (Street Fighter II' Magic Delta Turbo par exemple). Une version dont les propres codes de triche mettent une valeur ailleurs la lit là, dans la rubrique `"per_game"` du fichier (la deuxième révision de JoJo's Venture, la réédition japonaise de Quiz & Dragons, Eco Fighters américain). Les fichiers sont faits par `tools/cps_games.py` à partir de la liste et de la base de codes de triche de FinalBurn Neo.
+Chaque jeu Capcom CPS1, CPS2 et CPS3 de FinalBurn Neo est reconnu, avec MAME comme avec RetroArch. Ça fait 88 jeux et leurs 942 sets. Une version, un bootleg ou un hack prend le fichier de son jeu d'origine, avec son propre nom quand il en a un (Street Fighter II' Magic Delta Turbo par exemple). Une version dont les propres codes de triche mettent une valeur ailleurs la lit là, dans la rubrique `"per_game"` du fichier (la deuxième révision de JoJo's Venture, la réédition japonaise de Quiz & Dragons, Eco Fighters américain). Les fichiers sont faits par `tools/cps_games.py` à partir de la liste et de la base de codes de triche de FinalBurn Neo, complétée par celle de MAME (la collection de mamecheat.co.uk). MAME donne toutes ses valeurs à Street Fighter Zero (CPS Changer), les crédits de Final Fight et de Varth, et les personnages de JoJo's Venture.
 
 ![Quatre jeux de combat Capcom dans leurs décors, affichage HD](docs/images/hd_capcom_stages.jpg)
 
@@ -712,7 +712,7 @@ Chaque jeu Capcom CPS1, CPS2 et CPS3 de FinalBurn Neo est reconnu, avec MAME com
 | Darkstalkers: The Night Warriors | CPS2 | `dstlk.json` | oui | oui | oui (12) | - | oui |
 | Hyper Street Fighter II: The Anniversary Edition | CPS2 | `hsf2.json` | oui | oui | oui (17) | oui | fixe |
 | JoJo's Bizarre Adventure | CPS3 | `jojoba.json` | oui | oui | oui (25) | oui | fixe |
-| JoJo's Venture | CPS3 | `jojo.json` | oui | oui | - | oui | fixe |
+| JoJo's Venture | CPS3 | `jojo.json` | oui | oui | oui (16) | oui | fixe |
 | Marvel Super Heroes | CPS2 | `msh.json` | oui | oui | oui (13) | oui | fixe |
 | Marvel Super Heroes Vs. Street Fighter | CPS2 | `mshvsf.json` | oui | oui | oui (25) | oui | fixe |
 | Marvel Vs. Capcom: Clash of Super Heroes | CPS2 | `mvsc.json` | oui | oui | oui (22) | oui | oui |
@@ -732,7 +732,7 @@ Chaque jeu Capcom CPS1, CPS2 et CPS3 de FinalBurn Neo est reconnu, avec MAME com
 | Street Fighter III 2nd Impact: Giant Attack | CPS3 | `sfiii2.json` | oui | oui | oui (15) | oui | oui |
 | Street Fighter III 3rd Strike: Fight for the Future | CPS3 | `sfiii3.json` | oui | oui | oui (19) | oui | oui |
 | Street Fighter III: New Generation | CPS3 | `sfiii.json` | oui | oui | oui (11) | oui | oui |
-| Street Fighter Zero | CPS1 | `sfzch.json` | - | - | - | - | fixe |
+| Street Fighter Zero | CPS1 | `sfzch.json` | oui | oui | oui (13) | oui | oui |
 | Street Fighter Zero 2 Alpha | CPS2 | `sfz2al.json` | oui | oui | oui (21) | - | oui |
 | Super Gem Fighter: Mini Mix | CPS2 | `sgemf.json` | oui | oui | oui (12) | oui | oui |
 | Super Street Fighter II Turbo | CPS2 | `ssf2t.json` | oui | oui | oui (16) | oui | oui |

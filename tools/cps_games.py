@@ -2,15 +2,18 @@
 
 From the list of FinalBurn Neo (src/burn/drv/capcom/d_cps1.cpp, d_cps2.cpp, d_cps2_custom.cpp, src/burn/drv/cps3/d_cps3.cpp)
 each original game gets its file, with every version, bootleg and hack of it, for MAME as for RetroArch. From the cheat
-database of FinalBurn Neo (FBNeo-cheats, cheats/<game>.ini) it takes what the cheats write: the health of each player
+database of FinalBurn Neo (FBNeo-cheats, cheats/<game>.ini), completed by MAME's (mamecheat.co.uk, the XML files of its
+cheat.7z, read by tools/mame_cheats.py, 1.31), it takes what the cheats write: the health of each player
 and its full value, the timer, the credits, the lives, the bombs, the super gauge, the characters and their names. The
 genre of FinalBurn Neo picks the shared scene (games/cps_combat.json, cps_action.json, cps_shoot.json, cps_reflexion.json,
 made here from the Neo Geo ones). A file that was changed by hand keeps its scene and what the tool does not make.
 
 Construit les fichiers des jeux Capcom CPS1, CPS2 et CPS3 à partir de FinalBurn Neo : la liste des jeux avec leurs
-versions, bootlegs et hacks, et ce qu'écrivent les codes de triche (vie, chrono, crédits, vies, bombes, jauge, persos).
+versions, bootlegs et hacks, et ce qu'écrivent les codes de triche de FinalBurn Neo, complétés par ceux de MAME (vie,
+chrono, crédits, vies, bombes, jauge, persos).
 
-usage: python tools/cps_games.py FBNEO_SOURCE_FOLDER FBNEO_CHEATS_FOLDER
+usage: python tools/cps_games.py FBNEO_SOURCE_FOLDER FBNEO_CHEATS_FOLDER [MAME_CHEATS]
+       MAME_CHEATS: the folder of the XML files of MAME's cheat.7z, or cheat.7z itself (pip install py7zr)
 """
 import json
 import os
@@ -501,7 +504,7 @@ def stages_from_cheats(cs, fam):
                 theme, place = looks.get(v) or ((stages[-1], places[-1]) if stages else looks[min(looks)])
                 stages.append(theme)
                 places.append(place)
-            val = value(addr, 1, fam, "u8", f"stage backdrop, picks the HD theme in hd.stages (FBNeo cheat database, {c['name']})")
+            val = value(addr, 1, fam, "u8", f"stage backdrop, picks the HD theme in hd.stages ({srcof(c)}, {c['name']})")
             hd = {"stages": stages, "places": places,
                   "note": f"HD theme and place shown for each backdrop value (index = value), made by {TOOL} from the stages of the "
                           "cheat database, see README, HD themes"}
@@ -574,7 +577,8 @@ def make_templates(games_dir, templates=None, maker="Capcom CPS", tool=TOOL):
             "generated": tool, "scene": {"layers": out}})
 
 
-def build(fbneo, cheats_dir, games_dir):
+def build(fbneo, cheats_dir, games_dir, mame_path=""):
+    from mame_cheats import MameCheats, merge as merge_cheats
     ds = []
     for rel in DRIVERS:
         path = os.path.join(fbneo, rel)
@@ -591,16 +595,25 @@ def build(fbneo, cheats_dir, games_dir):
     groups = {}
     for d in ds:
         groups.setdefault(root(d)["name"], []).append(d)
+    mame = MameCheats(mame_path)
+    mame.preload([d["name"] for d in ds])
+    loaded = {}
+
+    def load_cs(x):
+        """The cheats of a version: FinalBurn Neo's, then MAME's it does not have. / Les codes d'une version."""
+        if x not in loaded:
+            loaded[x] = merge_cheats(cheats(os.path.join(cheats_dir, x + ".ini")), mame.get(x))
+        return loaded[x]
     make_templates(games_dir)
     report = []
     for name in sorted(groups):
         p = by[name]
         fam = family(p)
         sets = [name] + sorted(x["name"] for x in groups[name] if x["name"] != name)
-        cs = cheats(os.path.join(cheats_dir, name + ".ini"))
+        cs = load_cs(name)
         if not cs:                                   # a version that has cheats / une version qui en a
             for x in sets[1:]:
-                cs = cheats(os.path.join(cheats_dir, x + ".ini"))
+                cs = load_cs(x)
                 if cs:
                     break
         vals, derived, got = values_from_cheats(cs, fam, name)
@@ -620,8 +633,10 @@ def build(fbneo, cheats_dir, games_dir):
         d["title"] = d.get("title_hand") or title
         kind = {"cps_combat": "fighting game", "cps_shoot": "shoot'em up", "cps_reflexion": "puzzle, quiz or other game",
                 "cps_action": "action game"}[scene]
+        dbs = " and ".join(db for db, word in (("FinalBurn Neo", "FBNeo cheat database"), ("MAME", "MAME cheat database"))
+                           if any(word in str(v.get("note", "")) for v in vals.values())) or "FinalBurn Neo"
         d["note"] = (f"Capcom {fam} {kind}: " + (", ".join(got) if got else "no value known yet")
-                     + f" (FinalBurn Neo cheat database). Made by {TOOL}.")
+                     + f" ({dbs} cheat database{'s' if ' and ' in dbs else ''}). Made by {TOOL}.")
         d["generated"] = TOOL
         d["cps"] = fam
         d["match"] = [{"system": sets}]
@@ -633,8 +648,9 @@ def build(fbneo, cheats_dir, games_dir):
         if "scene" not in d:
             d["scene_from"] = scene
         mem = d.get("memory") if isinstance(d.get("memory"), dict) else {}
-        hand = {k: v for k, v in (mem.get("values") or {}).items()
-                if not (isinstance(v, dict) and "FBNeo cheat database" in str(v.get("note", "")))}
+        hand = {k: v for k, v in (mem.get("values") or {}).items()     # not made from a cheat database / pas d'une base
+                if not (isinstance(v, dict) and ("FBNeo cheat database" in str(v.get("note", ""))
+                                                 or "MAME cheat database" in str(v.get("note", ""))))}
         merged = dict(vals)
         merged.update(hand)                          # learned or set by hand wins / ce qui est appris passe avant
         for key, a in zip(("rounds", "rounds_p2"), ROUNDS.get(name, ())):
@@ -646,7 +662,7 @@ def build(fbneo, cheats_dir, games_dir):
         # les versions dont les propres codes de triche mettent une valeur ailleurs : lue là pour cette version
         per = {}
         for x in sets[1:]:
-            xc = cheats(os.path.join(cheats_dir, x + ".ini"))
+            xc = load_cs(x)
             if xc:
                 xv = values_from_cheats(xc, fam, name)[0]
                 diff = {k: v for k, v in xv.items() if k in vals and k not in hand and v.get("addr") != vals[k].get("addr")}
@@ -786,7 +802,7 @@ def main(argv):
     if len(argv) < 3:
         print(__doc__)
         return 2
-    report = build(argv[1], argv[2], os.path.join(ROOT, "games"))
+    report = build(argv[1], argv[2], os.path.join(ROOT, "games"), argv[3] if len(argv) > 3 else "")
     print("\n".join(report))
     print(len(report), "games")
     return 0

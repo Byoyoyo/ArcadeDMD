@@ -1,6 +1,6 @@
 {
   "title": "Street Fighter II: The World Warrior",
-  "note": "Capcom CPS1 fighting game: health, health_p2, rounds, rounds_p2, time, 12 characters (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "note": "Capcom CPS1 fighting game: health, health_p2, rounds, rounds_p2, time, credits, 12 characters (FinalBurn Neo and MAME cheat databases). Made by tools/cps_games.py.",
   "generated": "tools/cps_games.py",
   "cps": "CPS1",
   "match": [
@@ -58,6 +58,12 @@
         "bytes": 1,
         "note": "timer (FBNeo cheat database, Infinite Time)"
       },
+      "credits": {
+        "addr": "0xFF82DD",
+        "type": "bcd",
+        "bytes": 1,
+        "note": "credits, found with learn.bat under RetroArch (1, 2 and 3 credits, then 4 in a game while 0xFF82F5, the other match, counted the 5 coins put in)"
+      },
       "_p1_chr": {
         "addr": "0xFF8657",
         "type": "u8",
@@ -67,12 +73,6 @@
         "addr": "0xFF8957",
         "type": "u8",
         "note": "player 2 or computer character (FBNeo cheat database, Select Character PL2)"
-      },
-      "credits": {
-        "addr": "0xFF82DD",
-        "type": "bcd",
-        "bytes": 1,
-        "note": "credits, found with learn.bat under RetroArch (1, 2 and 3 credits, then 4 in a game while 0xFF82F5, the other match, counted the 5 coins put in)"
       },
       "score": {
         "addr": "0xFF8660",

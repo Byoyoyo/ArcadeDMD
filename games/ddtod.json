@@ -868,5 +868,15 @@
   "hd": {
     "scene": "ddtod"
   },
-  "demo_hand": true
+  "demo_hand": true,
+  "per_game": {
+    "ddtodar1": {
+      "_time": {
+        "addr": "0xFF8068",
+        "type": "be",
+        "bytes": 2,
+        "note": "part of the timer only (MAME cheat database, Infinite Time writes 46 50), read to see that the game runs, not shown"
+      }
+    }
+  }
 }

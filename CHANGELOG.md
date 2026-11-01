@@ -16,6 +16,9 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - RetroArch, FinalBurn Neo core. The 64 KB of the 68000's work RAM of the Cave board (from 0x100000, 0x200000 in Guwange, 0x300000 in Hotdog Storm and Koro Koro Quest, 0x400000 in Power Instinct 2), the 128 KB of the PGM from 0x800000, and the CV1000's RAM from 0xC000000, as far as the values of the game go (2 MB for most of them, up to 6 MB). Metamoqester keeps its values out of this RAM and is read with MAME only.
 - A game whose credits are not read counts them from the coin buttons (`coin_buttons.bat`).
 
+**The Capcom games**
+- MAME's cheats complete FinalBurn Neo's for the Capcom games too (`tools/cps_games.py`). Street Fighter Zero (CPS Changer) gets all its values, the health, the timer, the rounds won, the super gauge, the characters and the backdrop. Final Fight and Varth read their credits instead of counting the coin buttons. JoJo's Venture names its characters.
+
 **DoDonPachi on the HD screen**
 - Seen from the sky like the other vertical shoot'em ups, the ship flies to the right over the stage and the enemies answer the way Cave's games do. Rings and spirals of pink and blue bullets from the gunships, fans of needles from the helicopters, aimed bullets from the little fighters, big slow orbs from the tanks on the roads.
 - The three ships read in the game. The red fighter of the focused stream, the helicopter whose guns follow its turns and whose pods turn around it, the blue fighter of the spread. Player 2 has other colours, as in the game. Each one fires its laser when the fire is held, a thick blue beam that bites the enemy in front, the pods gathered before it.
@@ -52,6 +55,9 @@ Unzip the new zip over the old folder (`config.json`, your learned addresses and
 - Une version dont les propres codes de triche mettent ses valeurs ailleurs les lit là, chaque valeur là où écrit le même code de cette version (Dai-Ou-Jou V100 et son Black Label, Guwange Special, les premières versions de DoDonPachi II, la version mondiale de Dai-Ou-Jou avec les codes de MAME). Une valeur que ses codes ne donnent pas reste à apprendre plutôt que lue au mauvais endroit.
 - RetroArch, cœur FinalBurn Neo. Les 64 Ko de la RAM de travail du 68000 de la carte Cave (à partir de 0x100000, 0x200000 dans Guwange, 0x300000 dans Hotdog Storm et Koro Koro Quest, 0x400000 dans Power Instinct 2), les 128 Ko du PGM à partir de 0x800000, et la RAM du CV1000 à partir de 0xC000000, aussi loin que vont les valeurs du jeu (2 Mo pour la plupart, jusqu'à 6 Mo). Metamoqester garde ses valeurs hors de cette RAM et se lit avec MAME seulement.
 - Un jeu dont les crédits ne sont pas lus les compte d'après les boutons des pièces (`coin_buttons.bat`).
+
+**Les jeux Capcom**
+- Les codes de MAME complètent ceux de FinalBurn Neo pour les jeux Capcom aussi (`tools/cps_games.py`). Street Fighter Zero (CPS Changer) a toutes ses valeurs, la vie, le chrono, les rounds gagnés, la jauge de super, les personnages et le décor. Final Fight et Varth lisent leurs crédits au lieu de compter les boutons des pièces. JoJo's Venture nomme ses personnages.
 
 **DoDonPachi sur l'écran HD**
 - Vu du ciel comme les autres shoot'em ups verticaux, le vaisseau vole vers la droite au-dessus du niveau et les ennemis répondent comme dans les jeux Cave. Des anneaux et des spirales de boulettes roses et bleues des canonnières, des éventails d'aiguilles des hélicoptères, des balles visées des petits chasseurs, de grosses sphères lentes des chars sur les routes.
