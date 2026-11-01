@@ -1,6 +1,6 @@
 {
  "title": "Samurai Shodown IV",
- "note": "Neo Geo fighting game: health, timer, 18 characters.",
+ "note": "Neo Geo fighting game: health, timer, 18 characters, super gauge (MAME cheat database).",
  "match": [
   {
    "system": [
@@ -109,6 +109,24 @@
     "addr": "0x108B2B",
     "type": "u8",
     "note": "backdrop of the fight (cheat database \"Select Backdrop\"): 0 Arie, 1 Obama, 2 Kuchinotsu, 3 Koga, 4 Kushiyama, 5 Dohsaki, 6 Funatsu, 7 Fukae, 8 Kusenbutake, 9 Amakusa Castle (vs Amakusa), 10 Amakusa Castle (vs Zankuro), 11 Amakusa Castle (vs rival). Picks the HD theme in \"hd\": \"stages\""
+   },
+   "power": {
+    "addr": "0x10844C",
+    "type": "u8",
+    "note": "super gauge of player 1 in %, full = 0x40 (MAME cheat database)",
+    "mult": 1.5625,
+    "round": 1,
+    "min": 0,
+    "max": 100
+   },
+   "power_p2": {
+    "addr": "0x10864C",
+    "type": "u8",
+    "note": "super gauge of player 2 in %, full = 0x40 (MAME cheat database)",
+    "mult": 1.5625,
+    "round": 1,
+    "min": 0,
+    "max": 100
    }
   }
  },

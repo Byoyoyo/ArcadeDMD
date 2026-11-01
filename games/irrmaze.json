@@ -71,6 +71,11 @@
     "addr": "0x10FD82",
     "type": "u8",
     "note": "BIOS_MVS_FLAG: 0 home console (AES, no coins), otherwise arcade (MVS)"
+   },
+   "time": {
+    "addr": "0x10A857",
+    "type": "u8",
+    "note": "timer (MAME cheat database, Infinite Time)"
    }
   }
  },

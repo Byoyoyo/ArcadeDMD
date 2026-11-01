@@ -1,6 +1,6 @@
 {
  "title": "Ninja Master's",
- "note": "Neo Geo fighting game: health, timer.",
+ "note": "Neo Geo fighting game: health, timer, super gauge (MAME cheat database).",
  "match": [
   {
    "system": [
@@ -92,6 +92,24 @@
     "type": "bcd",
     "bytes": 4,
     "note": "player 2, to find with learn.bat (two-player game, score2=...)"
+   },
+   "power": {
+    "addr": "0x1000AE",
+    "type": "u8",
+    "note": "super gauge of player 1 in %, full = 0x60 (MAME cheat database)",
+    "mult": 1.041667,
+    "round": 1,
+    "min": 0,
+    "max": 100
+   },
+   "power_p2": {
+    "addr": "0x1010AE",
+    "type": "u8",
+    "note": "super gauge of player 2 in %, full = 0x60 (MAME cheat database)",
+    "mult": 1.041667,
+    "round": 1,
+    "min": 0,
+    "max": 100
    }
   }
  },

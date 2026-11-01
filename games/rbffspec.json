@@ -1,6 +1,6 @@
 {
  "title": "Real Bout Fatal Fury Special",
- "note": "Neo Geo fighting game: health, timer, 20 characters.",
+ "note": "Neo Geo fighting game: health, timer, 20 characters, super gauge (MAME cheat database).",
  "match": [
   {
    "system": [
@@ -109,6 +109,24 @@
     "addr": "0x106A31",
     "type": "u8",
     "note": "backdrop of the fight (cheat database \"Select Backdrop\"): 1 Japan, 2 Korea, 3 Brazil, 4 Hong Kong, 5 China, 6 USA (Beach), 7 USA (Stage), 8 Germany (Day), 9 Germany (Night), 10 Geese Tower. Picks the HD theme in \"hd\": \"stages\""
+   },
+   "power": {
+    "addr": "0x1004BC",
+    "type": "u8",
+    "note": "super gauge of player 1 in %, full = 0x3C (MAME cheat database)",
+    "mult": 1.666667,
+    "round": 1,
+    "min": 0,
+    "max": 100
+   },
+   "power_p2": {
+    "addr": "0x1005BC",
+    "type": "u8",
+    "note": "super gauge of player 2 in %, full = 0x3C (MAME cheat database)",
+    "mult": 1.666667,
+    "round": 1,
+    "min": 0,
+    "max": 100
    }
   }
  },

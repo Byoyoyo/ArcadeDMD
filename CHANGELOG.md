@@ -19,6 +19,9 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 **The Capcom games**
 - MAME's cheats complete FinalBurn Neo's for the Capcom games too (`tools/cps_games.py`). Street Fighter Zero (CPS Changer) gets all its values, the health, the timer, the rounds won, the super gauge, the characters and the backdrop. Final Fight and Varth read their credits instead of counting the coin buttons. JoJo's Venture names its characters.
 
+**The Neo Geo games**
+- Checked against MAME's cheat collection. 286 of their values were already the same, none learned on a cabinet is replaced. MAME adds the super gauge of 14 fighting games, shown under the fighters on the HD screen (Art of Fighting 1 and 2, Garou, King of Fighters '96, Ninja Master's, Real Bout Fatal Fury 1, 2 and Special, Rage of the Dragons, Samurai Shodown III, IV, V and V Special, World Heroes Perfect), the characters of Fatal Fury 2, the timer of Karnov's Revenge, Football Frenzy and The Irritating Maze, the lives and bombs of player 2 in Zed Blade.
+
 **DoDonPachi on the HD screen**
 - Seen from the sky like the other vertical shoot'em ups, the ship flies to the right over the stage and the enemies answer the way Cave's games do. Rings and spirals of pink and blue bullets from the gunships, fans of needles from the helicopters, aimed bullets from the little fighters, big slow orbs from the tanks on the roads.
 - The three ships read in the game. The red fighter of the focused stream, the helicopter whose guns follow its turns and whose pods turn around it, the blue fighter of the spread. Player 2 has other colours, as in the game. Each one fires its laser when the fire is held, a thick blue beam that bites the enemy in front, the pods gathered before it.
@@ -58,6 +61,9 @@ Unzip the new zip over the old folder (`config.json`, your learned addresses and
 
 **Les jeux Capcom**
 - Les codes de MAME complètent ceux de FinalBurn Neo pour les jeux Capcom aussi (`tools/cps_games.py`). Street Fighter Zero (CPS Changer) a toutes ses valeurs, la vie, le chrono, les rounds gagnés, la jauge de super, les personnages et le décor. Final Fight et Varth lisent leurs crédits au lieu de compter les boutons des pièces. JoJo's Venture nomme ses personnages.
+
+**Les jeux Neo Geo**
+- Vérifiés avec la collection de codes de MAME. 286 de leurs valeurs étaient déjà les mêmes, aucune de celles apprises sur une borne n'est remplacée. MAME ajoute la jauge de super de 14 jeux de combat, affichée sous les combattants sur l'écran HD (Art of Fighting 1 et 2, Garou, King of Fighters '96, Ninja Master's, Real Bout Fatal Fury 1, 2 et Special, Rage of the Dragons, Samurai Shodown III, IV, V et V Special, World Heroes Perfect), les personnages de Fatal Fury 2, le chrono de Karnov's Revenge, Football Frenzy et The Irritating Maze, les vies et les bombes du joueur 2 dans Zed Blade.
 
 **DoDonPachi sur l'écran HD**
 - Vu du ciel comme les autres shoot'em ups verticaux, le vaisseau vole vers la droite au-dessus du niveau et les ennemis répondent comme dans les jeux Cave. Des anneaux et des spirales de boulettes roses et bleues des canonnières, des éventails d'aiguilles des hélicoptères, des balles visées des petits chasseurs, de grosses sphères lentes des chars sur les routes.

@@ -1,6 +1,6 @@
 {
  "title": "Karnov's Revenge",
- "note": "Neo Geo fighting game: health, 14 characters.",
+ "note": "Neo Geo fighting game: health, 14 characters, timer (MAME cheat database).",
  "match": [
   {
    "system": [
@@ -96,6 +96,11 @@
     "addr": "0x103871",
     "type": "u8",
     "note": "player 2 or computer character"
+   },
+   "time": {
+    "addr": "0x103A70",
+    "type": "u8",
+    "note": "timer (MAME cheat database, Infinite Time)"
    }
   }
  },

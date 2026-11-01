@@ -1,6 +1,6 @@
 {
  "title": "Samurai Shodown V Special",
- "note": "Neo Geo fighting game: health, timer, 28 characters.",
+ "note": "Neo Geo fighting game: health, timer, 28 characters, super gauge (MAME cheat database).",
  "match": [
   {
    "system": [
@@ -106,6 +106,24 @@
     "addr": "0x108323",
     "type": "u8",
     "note": "player 2 or computer character"
+   },
+   "power": {
+    "addr": "0x10844E",
+    "type": "u8",
+    "note": "super gauge of player 1 in %, full = 0x40 (MAME cheat database)",
+    "mult": 1.5625,
+    "round": 1,
+    "min": 0,
+    "max": 100
+   },
+   "power_p2": {
+    "addr": "0x10865E",
+    "type": "u8",
+    "note": "super gauge of player 2 in %, full = 0x40 (MAME cheat database)",
+    "mult": 1.5625,
+    "round": 1,
+    "min": 0,
+    "max": 100
    }
   }
  },
