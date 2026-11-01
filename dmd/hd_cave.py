@@ -22,7 +22,8 @@ import math
 
 from PIL import Image
 
-from .hd_games import AMBER, CREAM, GOLD, RED, WHITE, _clamp, _mix, _n
+from .hd_credits import CreditsBar
+from .hd_games import CREAM, GOLD, RED, WHITE, _clamp, _mix, _n
 from .hd_games3 import DARK, AeroFightersScene, _poly, heli_draw, rotor_draw, tank_draw
 from .hd_games6 import PuzzleBobble2Scene
 from .hd_games13 import _CpsShooter, pg_plane_draw
@@ -230,12 +231,21 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         self.hitpop = {"p1": -99.0, "p2": -99.0}
         self.slot_t = {"p1": -99.0, "p2": -99.0}
         self.bomb_t = -99.0
+        self.calm_t = -99.0                            # a ship lost: the enemies hold their fire until then / répit
+        self.waves = []                                # the rings of the bomb: [t0, x, y, r1, color, life, width]
+        self.wave_buf = None
         self.cancels = 0                               # (tests)
         self.lasers = 0
         self.patterns = 0
         self.stage_banners = 0
         self.boss_stars = 0
         self.slow = 1.0                                # the bullets slowed down (Espgaluda's awakening) / ralenties
+        self.cbar = CreditsBar(hd, self.fx)            # the credits as in Metal Slug / les crédits comme dans Metal Slug
+        self.kill_t = {"p1": -99.0, "p2": -99.0}
+        self.kill_xy = {"p1": None, "p2": None}
+        self.chain_kills = 0                           # (tests)
+        self.chain_sparks = 0
+        self.loops = 0
         for P in self.ships.values():
             P.update({"mode": "shot", "mode_t": 0.0, "laser_t": -99.0, "tgt": None, "opt": 0.0})
         self.bd.prebuild([t for t in self.STAGES if t != self.THEME])
@@ -306,6 +316,12 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         lanes = LANES.get(self.bd.theme, self.LANES)
         return self.S(self.rng.choice(lanes) + self.rng.uniform(-8, 8))
 
+    def always(self, vals, now):
+        """The credits on every image: a coin falls onto the pill when they go up during a game (on the attract screen the
+        coin doors show it). / Les crédits à chaque image : une pièce tombe sur la pastille pendant une partie."""
+        super().always(vals, now)
+        self.cbar.watch(_n(vals.get("credits")), now, drop=not self.nobody(vals))
+
     # -- a game starts / une partie commence
     def restart(self, vals, now):
         super().restart(vals, now)
@@ -338,28 +354,40 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
                 e.update({"type": "jet" if rng.random() < 0.6 else "prop", "hp": 3})
         if self.SIDE:
             self.ground = []                                           # nothing on the ground seen from the side / rien au sol
+        loop = _n(vals.get("loop"))
         ch = self.changed(vals, self.STAGE_KEY)
         if ch and ch[1] > 0:                                           # a new stage / un nouveau niveau
             self.stage_banners += 1
             self.bd.set_theme(self.stage_theme(ch[1]), now, 1.4)
             if self.STAGE_KEY != "round":                              # ROUND n is already slammed / déjà annoncé
-                self.slam(f"{self.STAGE_WORD} {int(ch[1])}", GOLD, now, 2.0)
+                sub = tr("2E BOUCLE", "2ND LOOP") if loop is not None and loop >= 1 else None
+                self.slam(f"{self.STAGE_WORD} {int(ch[1])}", GOLD, now, 2.0, sub=sub)
             self.boost = (3.0, now + 2.0)
             self.bullets, self.spirals = [], []
+        ch = self.changed(vals, "loop")
+        if ch and ch[1] > ch[0]:                                       # the second loop begins / la 2e boucle commence
+            self.loops += 1
+            self.slam(tr("2E BOUCLE", "2ND LOOP"), (255, 120, 90), now, 2.6, sub=tr("PLUS DE BOULETTES", "MORE BULLETS"))
+            self.fx.flash((255, 200, 160), 0.3, 0.5)
+            self.fx.shake(10, 0.6)
         for side, suf in (("p1", ""), ("p2", "_p2")):
             P = self.ships[side]
             ch = self.changed(vals, "hits" + suf)
             if ch:
-                h = int(ch[1])
-                if h > ch[0]:
+                old, h = int(ch[0]), int(ch[1])
+                n = h - old if h > old else (h if 0 < h < old else 0)   # a new chain starts again from 1 / repart de 1
+                if n > 0:
                     self.hitpop[side] = now
                     self.maxhit[side] = max(self.maxhit[side], h)
+                    if P["in"]:
+                        self.chain_kill(side, n, h, now)
             ch = self.changed(vals, "bombs_max" + suf)
             if ch and ch[1] > ch[0]:
                 self.slot_t[side] = now
             ch = self.changed(vals, "lives" + suf)
             if ch and ch[1] < ch[0] and P["in"]:                       # the ship blows up: the bullets vanish / plus de boulettes
                 self.clear_bullets(sparkle=True)
+                self.calm_t = now + 1.0                                # a moment of respite / un moment de répit
             ch = self.changed(vals, "ship" + suf)
             name = self.SHIP_NAMES.get(self.ship_kind(vals, side), "")
             if ch and P["in"] and name:
@@ -463,6 +491,9 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         return math.atan2(best[2] - y, best[1] - x)
 
     def shoot(self, x, y, ang, speed, kind):
+        now = self.fx.now
+        if now < self.calm_t or now - self.bomb_t < 1.2:                # a fan already on its way waits too / attend aussi
+            return
         if len(self.bullets) < MAX_BULLETS:
             v = speed * self.s
             self.bullets.append([x, y, math.cos(ang) * v, math.sin(ang) * v, kind])
@@ -483,7 +514,7 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         """The enemies on the screen fire their patterns: the little ones aimed bullets, the helicopters fans of needles,
         the gunships rings and spirals. / Les ennemis tirent leurs motifs : balles visées, éventails d'aiguilles, anneaux
         et spirales."""
-        if self.fx.now - self.bomb_t < 1.2:                              # the bomb burns everything / la bombe brûle tout
+        if self.fx.now - self.bomb_t < 1.2 or self.fx.now < self.calm_t:  # the bomb burns everything, a ship lost / répit
             return
         S, W, rng = self.S, self.W, self.rng
         d = self.DENSITY
@@ -562,6 +593,7 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         if not self.bullets:
             return
         self.cancels += 1
+        self.calm_t = max(self.calm_t, now + 0.8)                       # a breather / un moment de répit
         self.boss_stars += len(self.bullets)
         for b in self.bullets:
             self.stars.append([b[0], b[1], b[2] * 0.15, b[3] * 0.15, now, side])
@@ -573,6 +605,85 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
             self.cancel(side, now)
             self.fx.flash((255, 240, 200), 0.15, 0.35)
 
+    def score_events(self, vals, now):
+        """Points scored. With the hit counter read, the enemies destroyed come from it (chain_kill) and their points only
+        show as +n; the points that come without a hit (a medal, a boss, the bonus of the stage) go as before: a big blast
+        or the bonus counted. / Des points marqués. Avec le compteur de coups lu, les ennemis détruits viennent de lui et
+        leurs points s'affichent en +n ; les autres points (médaille, boss, bonus du niveau) comme avant."""
+        chained = {}
+        for name, side, hname in (("score", "p1", "hits"), ("score_p2", "p2", "hits_p2")):
+            ch, hc = self.changed(vals, name), self.changed(vals, hname)
+            if ch and ch[1] > ch[0] and hc and (hc[1] > hc[0] or 0 < hc[1] < hc[0]):
+                chained[side] = ch[1] - ch[0]
+        if not chained:
+            super().score_events(vals, now)
+            return
+        keep = {}
+        for side, gain in chained.items():                              # their points: +n where the last one blew up
+            name = "score" if side == "p1" else "score_p2"
+            keep[name] = self.prev.get(name)
+            self.prev[name] = vals.get(name)                            # not counted again below / pas recompté
+            if now - self.last_points > 0.35:
+                self.last_points = now
+                x, y = self.kill_xy[side] or self.pos(side, now)
+                self.popup(f"+{int(gain)}", x, y - self.S(50), CREAM, 24)
+        super().score_events(vals, now)
+        for name, v in keep.items():
+            if v is not None:
+                self.prev[name] = v
+
+    def chain_kill(self, side, n, h, now):
+        """Enemies destroyed in the game, told by the hit counter that climbs: one blows up on the screen for each, three at
+        most at once; a burst of hits (the laser on a big one) makes it spark and shake; every 50 hits the chain glows.
+        / Des ennemis détruits, dits par le compteur qui monte : un explose pour chacun, trois au plus d'un coup ; une
+        rafale de coups (le laser sur un gros) le fait étinceler ; tous les 50 coups la chaîne brille."""
+        self.chain_kills += 1
+        if now - self.kill_t[side] < 0.08:
+            self.spark_target(side, now)
+        else:
+            self.kill_t[side] = now
+            for i in range(min(3, n)):
+                self.fx.later(i * 0.05, self.kill_one, side)
+        if len([e for e in self.enemies if not e.get("dead")]) < 4:     # more enemies to destroy / d'autres arrivent
+            self.next_enemy = min(self.next_enemy, now + 0.15)
+        if h // 50 > (h - n) // 50 and h >= 50:                         # every 50 hits / tous les 50 coups
+            x, y = self.pos(side, now)
+            self.popup(f"{h // 50 * 50} HIT !", x + self.S(120), max(self.S(176), y - self.S(90)), (255, 220, 90), 44, key="stencil")
+            self.fx.glow(x, y, 30, 260, (255, 200, 80), 0.5, "front", 0.7, 0.0)
+
+    def kill_one(self, side):
+        """One enemy blown up for the chain: the one hit, else the nearest ahead; a big one only takes a hit until its last.
+        / Un ennemi détruit pour la chaîne : celui touché, sinon le plus proche devant ; un gros encaisse jusqu'au bout."""
+        fx, S, now = self.fx, self.S, self.fx.now
+        e = self.kill_target(side, now)
+        if e is None:
+            spot = self.no_target_kill(side, now)
+            if spot is not None:
+                self.kill_xy[side] = spot
+            return
+        x, y = e["x"], e.get("yy", e["y"])
+        self.kill_xy[side] = (x, y)
+        if e.get("type") == "bomber" and e.get("hp", 0) > 2:
+            e["hp"] -= 2
+            e["hit"] = now
+            fx.sparks(x - S(30), y, 10, (255, 230, 160), (200, 700), (120, 240), (0.15, 0.4), 0, "front", 3, 24)
+            fx.small_blast(x + S(self.rng.uniform(-40, 40)), y + S(self.rng.uniform(-30, 30)), 0.8, "front")
+            return
+        e["doomed"] = True
+        self._boom(e)
+        fx.sparks(x, y, 14, (255, 236, 170), (300, 900), (0, 360), (0.2, 0.5), 400, "front", 3, 26)
+        fx.glow(x, y, 20, 150, (255, 255, 230), 0.18, "front", 0.9, 0.0, hot=0.7)
+
+    def spark_target(self, side, now):
+        """A burst of hits on the target of the shot: sparks and a white glint. / Une rafale de coups : étincelles."""
+        self.chain_sparks += 1
+        e = self.kill_target(side, now)
+        if e is None:
+            return
+        x, y = e["x"], e.get("yy", e["y"])
+        e["hit"] = now
+        self.fx.sparks(x - self.S(24), y, 6, (255, 240, 200), (200, 600), (120, 240), (0.1, 0.3), 0, "front", 2, 18)
+
     def bomb(self, side, now):
         """The bomb: the screen burns from the ship forward, waves of blasts, every bullet wiped away, every enemy blown up.
         / La bombe : l'écran s'embrase du vaisseau vers l'avant, vagues d'explosions, plus une boulette, plus un ennemi."""
@@ -582,21 +693,26 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         self.bpop[side] = now
         self.bomb_t = now
         self.weapon_window(now, 2.2)
-        self.popup(tr("BOMBE !", "BOMB!"), x, max(S(176), y - S(80)), (255, 190, 90), 44)
-        fx.flash((255, 236, 200), 0.42, 0.45)
-        fx.shake(14, 0.9)
-        fx.glow(x, y, 40, 760, (255, 150, 60), 0.85, "front", 0.5, 0.0)
-        fx.glow(x, y, 20, 420, (255, 250, 220), 0.4, "front", 0.8, 0.0)
+        self.popup(tr("BOMBE !", "BOMB!"), x, max(S(176), y - S(80)), (255, 190, 90), 62)
+        fx.flash((255, 250, 235), 0.85, 0.6)                             # the screen goes white / l'écran blanchit
+        fx.shake(30, 1.6)                                                # the whole screen quakes / tout l'écran tremble
+        fx.later(0.35, fx.shake, 22, 1.1)
+        fx.later(0.8, fx.shake, 14, 0.9)
+        fx.glow(x, y, 60, 1150, (255, 150, 60), 1.0, "front", 0.6, 0.0)
+        fx.glow(x, y, 30, 620, (255, 250, 220), 0.5, "front", 0.9, 0.0)
+        for i, (col, r1, life, wd) in enumerate((((255, 250, 230), 2300, 0.9, 26), ((255, 190, 90), 1900, 1.1, 18),
+                                                 ((255, 120, 60), 1500, 1.3, 12))):
+            self.waves.append([now + i * 0.12, x, y, S(r1), col, life, S(wd)])  # rings that sweep the screen / des anneaux
         for b in self.bullets:                                           # the bullets burn away / les boulettes brûlent
             fx.glow(b[0], b[1], 6, 26, (255, 210, 150), 0.3, "front", 0.9, 0.0, delay=rng.uniform(0, 0.25))
         self.bullets, self.spirals = [], []
-        for wave in range(4):                                            # waves of blasts / vagues d'explosions
+        for wave in range(5):                                            # waves of blasts / vagues d'explosions
             for i in range(6):
-                bx = x + S(160) + wave * S(300) + rng.uniform(-S(80), S(80))
-                by = S(self.ZONE[0]) + (S(self.ZONE[1]) - S(self.ZONE[0])) * (i + rng.uniform(0.1, 0.9)) / 6
-                fx.later(0.08 + wave * 0.16 + i * 0.03, fx.explosion, bx, by, rng.uniform(0.6, 1.0), False)
-        fx.later(0.6, fx.flash, (255, 190, 110), 0.22, 0.45)
-        fx.later(0.65, fx.shake, 9, 0.5)
+                bx = x + S(140) + wave * S(290) + rng.uniform(-S(90), S(90))
+                by = S(self.ZONE[0] - 40) + (S(self.ZONE[1] + 60) - S(self.ZONE[0] - 40)) * (i + rng.uniform(0.1, 0.9)) / 6
+                fx.later(0.06 + wave * 0.14 + i * 0.025, fx.explosion, bx, by, rng.uniform(0.8, 1.25), False)
+        fx.later(0.45, fx.flash, (255, 170, 90), 0.5, 0.6)
+        fx.later(1.0, fx.flash, (255, 120, 60), 0.25, 0.5)
         for e in self.enemies:
             if not e.get("dead"):
                 fx.later(0.3 + rng.uniform(0, 0.5), self._boom, e)
@@ -604,6 +720,36 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
             if not g.get("dead") and self.gx(g) > x:
                 fx.later(0.4 + rng.uniform(0, 0.4), self._ground_boom, g)
         self.bd.excite(1.0)
+
+    def draw_waves(self, screen, now):
+        """The rings of the bomb, growing from the ship across the whole screen, added to the picture: drawn here and not
+        as particles, the blasts that follow would push them out. / Les anneaux de la bombe, qui grandissent du vaisseau
+        à tout l'écran, ajoutés à l'image : dessinés ici, les explosions qui suivent les chasseraient des particules."""
+        if not self.waves:
+            return
+        pg = self.pg
+        if self.wave_buf is None or self.wave_buf.get_size() != screen.get_size():
+            self.wave_buf = pg.Surface(screen.get_size()).convert()
+        buf = self.wave_buf
+        buf.fill((0, 0, 0))
+        keep, drawn = [], False
+        for w in self.waves:
+            t0, x, y, r1, col, life, wd = w
+            k = (now - t0) / life
+            if k >= 1:
+                continue
+            keep.append(w)
+            if k < 0:
+                continue
+            r = self.S(30) + (r1 - self.S(30)) * (1 - (1 - k) ** 2)
+            a = 1 - k
+            for rr, ww, f in ((r + wd, wd * 2 + 1, 0.3), (r + wd // 2, wd + 1, 0.6), (r, max(2, wd // 3), 1.0)):
+                if rr > ww:
+                    pg.draw.circle(buf, tuple(min(255, int(v * a * f)) for v in col), (int(x), int(y)), int(rr), int(ww))
+                    drawn = True
+        self.waves = keep
+        if drawn:
+            screen.blit(buf, (0, 0), special_flags=pg.BLEND_RGB_ADD)
 
     # -- what is drawn / ce qui est dessiné
     def draw_hud(self, screen, eng, vals, logo, now):
@@ -663,6 +809,7 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         self.draw_ships(screen, vals, now)
         self.draw_bullets(screen, now)
         self.draw_stars(screen, now)
+        self.draw_waves(screen, now)
         self.draw_over(screen, vals, now)
         self.status(screen, eng, vals, logo, now)
         self.extra_hud(screen, vals, now)
@@ -952,9 +1099,9 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         if two:
             self.bombs_row(screen, vals, "p2", now)
         c = _n(vals.get("credits"))
-        if c is not None:
-            self.label(screen, tr(f"CRÉDITS {int(c):02d}", f"CREDITS {int(c):02d}"), W / 2, H - S(30), 26, AMBER, key="black", align="center",
-                       alpha=130)
+        if c is not None:                                                # as in Metal Slug / comme dans Metal Slug
+            self.cbar.set_symbol((getattr(eng, "cfg", None) or {}).get("coin_symbol", "€"))
+            self.cbar.draw(screen, c, W / 2, H - S(44), now, 0.85)
 
 
 # ============================================================================ DoDonPachi
@@ -1466,6 +1613,22 @@ class DeathsmilesScene(CaveShooterScene):
         if kind == "prop":
             return ghost_draw
         return bat_draw((80, 50, 60) if kind == "jet" else (50, 50, 80))
+
+    def update(self, vals, now):
+        super().update(vals, now)
+        for side, suf in (("p1", ""), ("p2", "_p2")):                    # the energy that drops: a hit / un coup reçu
+            ch = self.changed(vals, "energy" + suf)
+            if ch and ch[1] < ch[0] and self.ships[side]["in"]:
+                x, y = self.pos(side, now)
+                self.fx.sparks(x, y, 16, (220, 180, 255), (200, 600), (0, 360), (0.2, 0.5), 0, "front", 3, 22)
+                self.fx.shake(5, 0.25)
+
+    def extra_hud(self, screen, vals, now):
+        """The energy read in the game (MAME cheat database, 1.31). / L'énergie lue dans le jeu."""
+        for side, suf, x in (("p1", "", self.S(30)), ("p2", "_p2", self.W - self.S(250))):
+            e = _n(vals.get("energy" + suf))
+            if e is not None and (side == "p1" or self.p2_in(vals)):
+                self.gauge(screen, tr("ÉNERGIE", "ENERGY"), e / 100.0, x, self.S(160), 220, (190, 140, 255) if e > 25 else RED)
 
 
 class AkaiKatanaScene(CaveShooterScene):

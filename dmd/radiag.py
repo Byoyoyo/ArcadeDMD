@@ -14,7 +14,7 @@ import time
 from . import wincore
 from .i18n import tr
 from .learn import load_games
-from .memvalues import derive, game_values, value_span
+from .memvalues import derive, game_values, resolve_value, value_span
 from .retroarch import (RetroArchClient, core_label, explain_failure, find_core, layout_for, resolve,
                         read_values, too_old)
 
@@ -186,6 +186,11 @@ def report(root, client, st, port, say):
             else:
                 outside.append(name)
         vals = read_values(client, layout, defs) if defs else {}
+        tag = game.get("tag") if isinstance(game.get("tag"), dict) else {}
+        for k, spec in tag.items():                                 # made from others (DoDonPachi's score) / fait d'autres
+            v = resolve_value(spec, vals)
+            if v is not None:
+                vals[k] = v
         for k, v in derive(game.get("derived"), vals).items():     # personnage en train de se battre...
             if v is not None:
                 vals[k] = v

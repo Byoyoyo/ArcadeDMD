@@ -1,6 +1,6 @@
 {
   "title": "Ibara Kuro Black Label",
-  "note": "Shoot'em up by Cave (CV1000): no value known yet (FinalBurn Neo cheat database). Made by tools/cave_games.py.",
+  "note": "Shoot'em up by Cave (CV1000): credits, lives, lives_p2, bombs_p2 (MAME cheat database). Made by tools/cave_games.py.",
   "generated": "tools/cave_games.py",
   "cave": "CV1000",
   "match": [
@@ -10,15 +10,35 @@
   ],
   "retroarch": {
     "ram_base": "0xC000000",
-    "ram_size": "0x200000",
+    "ram_size": "0x300000",
     "swap16": true,
-    "note": "FinalBurn Neo core: CV1000 SH-3 RAM from 0xC000000, the first 2 MB where the games keep their values (the rest is the picture being drawn), bytes swapped within 16-bit words",
+    "note": "FinalBurn Neo core: CV1000 SH-3 RAM from 0xC000000, the first 3 MB of its 8, as far as the values of the game go, bytes swapped within 16-bit words",
     "content": ["ibarablk", "ibarablka"]
   },
   "scene_from": "cave_shoot",
   "memory": {
     "cpu": ":maincpu",
     "values": {
+      "credits": {
+        "addr": "0xC2860B0",
+        "type": "u8",
+        "note": "credits (MAME cheat database, Infinite Credits)"
+      },
+      "lives": {
+        "addr": "0xC29D432",
+        "type": "u8",
+        "note": "lives (MAME cheat database, Infinite Lives PL1)"
+      },
+      "lives_p2": {
+        "addr": "0xC29D6D2",
+        "type": "u8",
+        "note": "lives of player 2 (MAME cheat database, Infinite Lives PL2)"
+      },
+      "bombs_p2": {
+        "addr": "0xC29D6D5",
+        "type": "u8",
+        "note": "bombs of player 2 (MAME cheat database, Infinite Bombs PL2)"
+      },
       "score": {
         "addr": "",
         "type": "bcd",
@@ -37,7 +57,7 @@
     "scene": "ibarablk"
   },
   "activity": {
-    "values": ["score", "score_p2"],
+    "values": ["lives", "lives_p2", "bombs_p2", "score", "score_p2"],
     "moving": ["score", "score_p2"],
     "seconds": 10,
     "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
@@ -48,7 +68,10 @@
     "p1_mode": 1,
     "p2_mode": 0,
     "score": 0,
+    "lives": 3,
     "score_p2": 0,
+    "lives_p2": 0,
+    "bombs_p2": 0,
     "sim": {
       "score_p2": {
         "cycle": [
@@ -56,6 +79,44 @@
         ],
         "every": 3600.0,
         "start": 3600.0
+      },
+      "lives_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "bombs_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      }
+    }
+  },
+  "per_game": {
+    "ibarablka": {
+      "credits": {
+        "addr": "0xC2860C0",
+        "type": "u8",
+        "note": "credits (MAME cheat database, Infinite Credits) (ibarablka: its own cheats)"
+      },
+      "lives": {
+        "addr": "0xC29D442",
+        "type": "u8",
+        "note": "lives (MAME cheat database, Infinite Lives PL1) (ibarablka: its own cheats)"
+      },
+      "lives_p2": {
+        "addr": "0xC29D6E2",
+        "type": "u8",
+        "note": "lives of player 2 (MAME cheat database, Infinite Lives PL2) (ibarablka: its own cheats)"
+      },
+      "bombs_p2": {
+        "addr": "0xC29D6E5",
+        "type": "u8",
+        "note": "bombs of player 2 (MAME cheat database, Infinite Bombs PL2) (ibarablka: its own cheats)"
       }
     }
   }

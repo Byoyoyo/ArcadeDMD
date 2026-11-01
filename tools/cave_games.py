@@ -8,16 +8,19 @@ for RetroArch:
     DoDonPachi II that IGS made under Cave's licence,
   - the games of Cave's own CV1000 board with its SH-3 (src/burn/drv/cave/d_cv1k.cpp): Mushihime-sama, Espgaluda II,
     Ibara, Deathsmiles, DoDonPachi Dai-Fukkatsu, Akai Katana...
-From the cheat database of FinalBurn Neo (FBNeo-cheats, cheats/<game>.ini) it takes what the cheats write: the credits,
-the lives, the bombs and their slots, the power of the shot, the combo gauge, the ship chosen, the stage. What a cheat does
-not give (the score, the hit counter) is left to learn with learn.bat on the cabinet. A file that was changed by hand keeps
-its scene and what the tool does not make, a value learned or set by hand wins over the cheats.
+From the cheat database of FinalBurn Neo (FBNeo-cheats, cheats/<game>.ini), completed by MAME's (mamecheat.co.uk, the
+XML files of its cheat.7z, read by tools/mame_cheats.py), it takes what the cheats write: the credits, the lives, the bombs
+and their slots, the power of the shot, the combo gauge, the ship chosen, the stage. What a cheat does not give (the score,
+the hit counter) is left to learn with learn.bat on the cabinet. A file that was changed by hand keeps its scene and what
+the tool does not make, a value learned or set by hand wins over the cheats.
 
 Construit les fichiers des jeux Cave à partir de FinalBurn Neo : la carte Cave à 68000, les jeux Cave du PGM d'IGS et la
-carte CV1000 de Cave. Les codes de triche donnent les crédits, les vies, les bombes et leurs places, la puissance, la
-jauge de combo, le vaisseau choisi, le niveau. Le score et le compteur de coups s'apprennent avec learn.bat.
+carte CV1000 de Cave. Les codes de triche de FinalBurn Neo, complétés par ceux de MAME, donnent les crédits, les vies,
+les bombes et leurs places, la puissance, la jauge de combo, le vaisseau choisi, le niveau. Le score et le compteur de
+coups s'apprennent avec learn.bat.
 
-usage: python tools/cave_games.py FBNEO_SOURCE_FOLDER FBNEO_CHEATS_FOLDER
+usage: python tools/cave_games.py FBNEO_SOURCE_FOLDER FBNEO_CHEATS_FOLDER [MAME_CHEATS]
+       MAME_CHEATS: the folder of the XML files of MAME's cheat.7z, or cheat.7z itself (pip install py7zr)
 """
 import os
 import re
@@ -27,6 +30,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import cps_games  # noqa: E402
 from cps_games import cheats, dump, enabled, load, make_templates, value, values_from_cheats  # noqa: E402
+from mame_cheats import MameCheats, merge as merge_cheats  # noqa: E402
 from neogeo_sets import clean  # noqa: E402
 
 TOOL = "tools/cave_games.py"
@@ -136,10 +140,18 @@ def hand(fam):
             "ship": v(0x102D1D, f"ship of player 1: 0 type A (red fighter), 1 type B (helicopter), 2 type C (blue fighter) "
                                 f"({SRC}, Select Option Type PL1)"),
             "ship_p2": v(0x102D5D, f"ship of player 2 ({SRC}, Select Option Type PL2)"),
-            "credits": learn("credits", "u8", 1, "credits, not in the cheat databases: learn it with learn.bat (credits=...)"),
-            "hits": learn("hits", "u8", 1, "hit counter of player 1 (the combo shown as HIT), learn it with learn.bat (hits=...)"),
-            "hits_p2": learn("hits_p2", "u8", 1, "hit counter of player 2, learn it with learn.bat in a two-player game (hits2=...)"),
-            "stage": learn("stage", "u8", 1, "stage, learn it with learn.bat (stage=...)")},
+            "credits": v(0x1013AB, f"credits, {LEARNED}"),
+            "_score10": v(0x10161E, f"player 1 score without its last digit, {LEARNED}: the game shows the continues used as the last "
+                                    "digit (tag score)", "bcd", 4, mult=10),
+            "_cont": v(0x10174F, f"continues used by player 1, the last digit of the score as the game shows it, {LEARNED}"),
+            "_score10_p2": v(0x101622, f"player 2 score without its last digit, {LEARNED} (tag score_p2)", "bcd", 4, mult=10),
+            "_cont_p2": v(0x101753, f"continues used by player 2, {LEARNED}"),
+            "hits": v(0x1017EC, f"hit counter of player 1 as the game shows it, it stays after a chain until the next one, {LEARNED}",
+                      "bcd", 2),
+            "hits_p2": v(0x101816, f"hit counter of player 2 as the game shows it, {LEARNED}", "bcd", 2),
+            "stage": v(0x101979, "stage, the value read plus one (MAME cheat database: Select Level to follow Level 1 writes it, "
+                                 "Kill Boss with 1 hit tests it), checked on the cabinet", add=1),
+            "loop": v(0x10197A, "loop, 0 the first and 1 the second (MAME cheat database, Select Level to follow Level 1)", "u16", 2)},
         "donpachi": {
             "bombs": v(0x10217B, f"bombs of player 1 ({SRC}, Infinite Bombs PL1)"),
             "bombs_p2": v(0x1021BB, f"bombs of player 2 ({SRC}, Infinite Bombs PL2)"),
@@ -150,7 +162,8 @@ def hand(fam):
             "combo_p2": v(0x101761, f"combo gauge of player 2, full = 0x1F ({SRC}, Always Combo gauge Max PL2)",
                           mult=round(100 / 0x1F, 6), round=1, min=0, max=100),
             "hits": learn("hits", "u8", 1, "hit counter of player 1, learn it with learn.bat (hits=...)"),
-            "stage": learn("stage", "u8", 1, "stage, learn it with learn.bat (stage=...)")},
+            "stage": v(0x101A41, "area, the value read plus one (MAME cheat database: Select Area to follow Area 1 writes it)", add=1),
+            "loop": v(0x101A42, "loop, 0 the first (MAME cheat database, Select Area to follow Area 1)", "u16", 2)},
         "esprade": {
             "bombs": v(0x102750, f"bombs of player 1 ({SRC}, Infinite Bombs PL1)"),
             "bombs_p2": v(0x1027A0, f"bombs of player 2 ({SRC}, Infinite Bombs PL2)"),
@@ -267,6 +280,15 @@ def hand_clones(fam):
     return {"ddpdojblk": blk, "ddpdojblka": blk, "ddpdojblkb": blk, "ddpdojblkbl": blk}
 
 
+# the version whose cheats the values of hand() were read from, when it is not the parent: the others, the parent too, get
+# theirs where their own cheats write / la version dont les codes ont donné les valeurs de hand(), quand ce n'est pas le parent
+REF = {"ddp3": "ddpdoj"}
+# values made from others while the game runs ("tag" of the game file): DoDonPachi shows the continues used as the last
+# digit of the score, the game keeps the tens apart / valeurs faites d'autres valeurs pendant le jeu
+TAGS = {"ddonpach": {"score": {"sum": ["_score10", "_cont"]}, "score_p2": {"sum": ["_score10_p2", "_cont_p2"]}}}
+LEARNED = "learned on the cabinet with learn.bat (1.31)"
+
+
 # names of the values that tell a choice / noms des valeurs qui disent un choix
 NAMES = {"ddonpach": {"p1_ship": ("ship", {"0": "TYPE-A", "1": "TYPE-B", "2": "TYPE-C"}),
                       "p2_ship": ("ship_p2", {"0": "TYPE-A", "1": "TYPE-B", "2": "TYPE-C"})},
@@ -295,16 +317,22 @@ def board(d):
     return "CV1000" if "CV1000" in d["hw"] else "PGM" if "PGM" in d["hw"] else "CAVE"
 
 
-def window(d):
-    """(RAM base, size, layout for RetroArch) of a set. / La RAM partagée avec RetroArch."""
+CV1000_RAM = (0xC000000, 0x800000)            # the 8 MB of the CV1000's RAM / les 8 Mo de RAM du CV1000
+
+
+def window(d, cv_size=0x200000):
+    """(RAM base, size, layout for RetroArch) of a set. The CV1000 gives RetroArch its 8 MB, read as far as the values of
+    the game go (cv_size): 2 MB for most, more for those that keep them further (Ibara, Pink Sweets, Muchi Muchi Pork).
+    / La RAM partagée avec RetroArch. Le CV1000 se lit aussi loin que vont les valeurs du jeu."""
     b = board(d)
     if b == "PGM":
         return 0x800000, 0x20000, {"ram_base": "0x800000", "ram_size": "0x20000", "swap16": True,
                                    "note": "FinalBurn Neo core: PGM 68000 RAM from 0x800000 (128 KB), bytes swapped within 16-bit words"}
     if b == "CV1000":
-        return 0xC000000, 0x200000, {"ram_base": "0xC000000", "ram_size": "0x200000", "swap16": True,
-                                     "note": "FinalBurn Neo core: CV1000 SH-3 RAM from 0xC000000, the first 2 MB where the games keep "
-                                             "their values (the rest is the picture being drawn), bytes swapped within 16-bit words"}
+        mb = cv_size // 0x100000
+        return 0xC000000, cv_size, {"ram_base": "0xC000000", "ram_size": f"0x{cv_size:X}", "swap16": True,
+                                    "note": f"FinalBurn Neo core: CV1000 SH-3 RAM from 0xC000000, the first {mb} MB of its 8, as far as "
+                                            "the values of the game go, bytes swapped within 16-bit words"}
     base = SET_BASES.get(d["name"], BASES.get(d["file"], 0x100000))
     size = SIZES.get(d["file"], 0x10000)
     return base, size, {"ram_base": f"0x{base:X}", "ram_size": f"0x{size:X}", "swap16": True,
@@ -336,9 +364,9 @@ def cave_values(cs, fam):
             if not t:
                 continue
             if key == "bombs_p2":
-                out[key] = value(t[0][1], 1, fam, "u8", f"bombs of player 2 ({SRC}, {c['name']})")
+                out[key] = value(t[0][1], 1, fam, "u8", f"bombs of player 2 ({c.get('src') or SRC}, {c['name']})")
             else:
-                spec = value(t[0][1], 1, fam, "u8", f"{key}, the value read plus one ({SRC}, {c['name']})")
+                spec = value(t[0][1], 1, fam, "u8", f"{key}, the value read plus one ({c.get('src') or SRC}, {c['name']})")
                 spec["add"] = 1
                 out[key] = spec
     return out
@@ -364,14 +392,14 @@ def address_of(cs, where):
     return None
 
 
-def clone_values(x, vals, kept, cs, cheats_dir, fam, name):
+def clone_values(x, vals, kept, cs, load_cs, fam, name):
     """A version whose own cheats put values elsewhere (DoDonPachi Dai-Ou-Jou V100, Guwange Special...): each value read
     where the same cheat of that version writes, in the same shape as the parent's (a word stays a word). The values its
     cheats do not give, in a part of the RAM where the others moved, are left to learn rather than read at a wrong place.
     / Une version dont les codes mettent des valeurs ailleurs : chaque valeur lue là où écrit le même code de cette
     version, de la même forme. Celles que ses codes ne donnent pas, dans une partie de la RAM où les autres ont bougé,
     sont à apprendre plutôt que lues au mauvais endroit."""
-    xc = cheats(os.path.join(cheats_dir, x + ".ini"))
+    xc = load_cs(x)
     if not xc:
         return {}
     moved, found = {}, set()
@@ -452,7 +480,7 @@ def shooter_demo(merged, derived):
 
 
 # ------------------------------------------------------------------ build / construction
-def build(fbneo, cheats_dir, games_dir):
+def build(fbneo, cheats_dir, games_dir, mame_path=""):
     ds = []
     folder = os.path.join(fbneo, CAVE_DIR)
     for fname in sorted(os.listdir(folder)):
@@ -482,37 +510,46 @@ def build(fbneo, cheats_dir, games_dir):
     groups = {}
     for d in ds:
         groups.setdefault(root(d)["name"], []).append(d)
+    mame = MameCheats(mame_path)
+    mame.preload([d["name"] for d in ds])
+    loaded = {}
+
+    def load_cs(x):
+        """The cheats of a version: FinalBurn Neo's, then MAME's it does not have. / Les codes d'une version."""
+        if x not in loaded:
+            loaded[x] = merge_cheats(cheats(os.path.join(cheats_dir, x + ".ini")), mame.get(x))
+        return loaded[x]
     make_templates(games_dir, TEMPLATES, "Cave", TOOL)
     make_shoot_template(games_dir)
     report = []
     for name in sorted(groups):
         p = by[name]
-        base, size, ra = window(p)
+        sets = [name] + sorted(x["name"] for x in groups[name] if x["name"] != name)
+        base, size, ra = window(p, CV1000_RAM[1])  # the CV1000 cut down below, once its values are known / coupé plus bas
         fam = f"{board(p)}@{base:X}"
         cps_games.WINDOWS[fam] = (base, size)
-        sets = [name] + sorted(x["name"] for x in groups[name] if x["name"] != name)
-        cs = cheats(os.path.join(cheats_dir, name + ".ini"))
-        if not cs:                                   # a version that has cheats / une version qui en a
-            for x in sets[1:]:
-                cs = cheats(os.path.join(cheats_dir, x + ".ini"))
-                if cs:
-                    break
+        ref = None                                   # the version whose cheats give the values / celle dont les codes servent
+        for x in [REF.get(name), name] + sets[1:]:
+            if x and load_cs(x):
+                ref = x
+                break
+        cs = load_cs(ref) if ref else []
         vals, derived, got = values_from_cheats(cs, fam, name)
         for k, v in cave_values(cs, fam).items():
             vals.setdefault(k, v)
         extra = hand(fam).get(name, {})
         scene = scene_of(p["genre"])
-        if name in ("guwange",):                     # its energy is not the health of a fight / pas la vie d'un combat
-            vals.pop("health", None)
-            vals.pop("health_p2", None)
-        if name in ("mazinger",):                    # the energy of a shoot'em up, not the health of a fight / l'énergie d'un shoot
+        tags = TAGS.get(name, {})
+        if scene == "cave_shoot":                    # the energy of a shoot'em up, not the health of a fight / l'énergie d'un shoot
             for a, b in (("health", "energy"), ("health_p2", "energy_p2")):
-                if a in vals:
+                if a in vals and b not in vals and b not in extra:
                     vals[b] = vals.pop(a)
                     vals[b]["note"] = vals[b]["note"].replace("health in %", "energy in %")
+                vals.pop(a, None)
         if scene in ("cave_shoot", "cave_reflexion"):
             for k, v in SCORES.items():
-                extra.setdefault(k, v)
+                if k not in tags:
+                    extra.setdefault(k, v)
         vals.update(extra)
         title = clean(p["desc"])
         titles = {}
@@ -532,9 +569,11 @@ def build(fbneo, cheats_dir, games_dir):
         kind = {"cave_combat": "fighting game", "cave_shoot": "shoot'em up", "cave_reflexion": "puzzle game",
                 "cave_action": "action game"}[scene]
         maker = "by Cave" if name in BY_CAVE else ("by IGS under Cave's licence" if name == "ddp2" else "on the Cave board")
-        known = [k for k in vals if not k.startswith("_") and vals[k].get("addr")]
+        known = [k for k in vals if not k.startswith("_") and vals[k].get("addr")] + list(tags)
+        dbs = " and ".join(db for db, word in (("FinalBurn Neo", "FBNeo cheat database"), ("MAME", "MAME cheat database"))
+                           if any(word in str(v.get("note", "")) for v in vals.values()))
         d["note"] = (f"{kind[0].upper() + kind[1:]} {maker} ({board(p)}): " + (", ".join(known) if known else "no value known yet")
-                     + f" (FinalBurn Neo cheat database). Made by {TOOL}.")
+                     + (f" ({dbs} cheat database{'s' if ' and ' in dbs else ''})" if dbs else "") + f". Made by {TOOL}.")
         d["generated"] = TOOL
         d["cave"] = board(p)
         d["match"] = [{"system": sets}]
@@ -550,18 +589,33 @@ def build(fbneo, cheats_dir, games_dir):
                 if isinstance(v, dict) and v.get("addr") and "cheat database" not in str(v.get("note", ""))}
         merged = dict(vals)
         merged.update(kept)                          # learned or set by hand wins / ce qui est appris passe avant
+        for k in tags:                               # made while the game runs, not read / fait pendant le jeu, pas lu
+            merged.pop(k, None)
+        if tags:
+            d["tag"] = tags
+        else:
+            d.pop("tag", None)
         per = {}
         clones = hand_clones(fam)
-        for x in sets[1:]:
+        for x in sets:
+            if x == ref or (x == name and ref is None):
+                continue
             diff = {k: v for k, v in clones.get(x, {}).items() if k not in kept}
             if not diff:
-                diff = clone_values(x, vals, kept, cs, cheats_dir, fam, name)
+                diff = clone_values(x, vals, kept, cs, load_cs, fam, name)
             if diff:
                 per[x] = diff
         if per:
             d["per_game"] = per
         else:
             d.pop("per_game", None)
+        if board(p) == "CV1000":                     # read as far as its values go / lu aussi loin que vont ses valeurs
+            lo, most = CV1000_RAM
+            far = [int(v["addr"], 16) for vs in [merged] + list(per.values()) for v in vs.values()
+                   if isinstance(v, dict) and v.get("addr") and lo <= int(v["addr"], 16) < lo + most]
+            cv_size = max(0x200000, (max(far) - lo) // 0x100000 * 0x100000 + 0x100000) if far else 0x200000
+            ra = window(p, cv_size)[2]
+            d["retroarch"] = dict(ra, content=sets)
         d["memory"] = {"cpu": ":maincpu", "values": merged}
         dv = d.get("derived") if isinstance(d.get("derived"), dict) else {}
         dv.update(derived)
@@ -581,9 +635,9 @@ def build(fbneo, cheats_dir, games_dir):
             hd_old["scene"] = HD[name]
             d["hd"] = hd_old
         watch = [k for k in ("time", "_time", "health", "health_p2", "lives", "lives_p2", "bombs", "bombs_p2", "score", "score_p2")
-                 if k in merged]
+                 if k in merged or k in tags]
         moving = [k for k in ("time", "_time", "score", "score_p2") + (("health", "health_p2") if scene == "cave_combat" else ())
-                  if k in merged]
+                  if k in merged or k in tags]
         if moving:
             d["activity"] = {"values": watch, "moving": moving, "seconds": 10,
                              "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of "
@@ -623,7 +677,7 @@ def main(argv):
     if len(argv) < 3:
         print(__doc__)
         return 2
-    report = build(argv[1], argv[2], os.path.join(ROOT, "games"))
+    report = build(argv[1], argv[2], os.path.join(ROOT, "games"), argv[3] if len(argv) > 3 else "")
     print("\n".join(report))
     print(len(report), "games")
     return 0

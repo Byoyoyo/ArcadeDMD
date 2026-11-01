@@ -1,6 +1,6 @@
 {
   "title": "DonPachi",
-  "note": "Shoot'em up by Cave (CAVE): credits, lives, lives_p2, bombs, bombs_p2, power, power_p2, combo, combo_p2 (FinalBurn Neo cheat database). Made by tools/cave_games.py.",
+  "note": "Shoot'em up by Cave (CAVE): credits, lives, lives_p2, bombs, bombs_p2, power, power_p2, combo, combo_p2, stage, loop (FinalBurn Neo and MAME cheat databases). Made by tools/cave_games.py.",
   "generated": "tools/cave_games.py",
   "cave": "CAVE",
   "match": [
@@ -80,9 +80,16 @@
         "note": "hit counter of player 1, learn it with learn.bat (hits=...)"
       },
       "stage": {
-        "addr": "",
+        "addr": "0x101A41",
         "type": "u8",
-        "note": "stage, learn it with learn.bat (stage=...)"
+        "note": "area, the value read plus one (MAME cheat database: Select Area to follow Area 1 writes it)",
+        "add": 1
+      },
+      "loop": {
+        "addr": "0x101A42",
+        "type": "u16",
+        "bytes": 2,
+        "note": "loop, 0 the first (MAME cheat database, Select Area to follow Area 1)"
       },
       "score": {
         "addr": "",

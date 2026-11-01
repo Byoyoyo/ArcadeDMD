@@ -159,6 +159,7 @@ def game_values(game, system="", parent=""):
 #               "names": {"0": "KYO", "10": "RALF", ...}}
 # pick : l'élément de la liste désigné par "at" (un nom de valeur, un nombre ou un autre calcul)
 # find : la position dans la liste de la valeur égale à "eq"
+# sum : les nombres ajoutés (le score de DoDonPachi, ses dizaines et le nombre de continues en dernier chiffre)
 # names : nombre lu -> texte affiché (sans correspondance, la valeur reste vide)
 #         {"en": [...], "fr": [...]} : les noms dans chaque langue (club de golf, terrain, arme...)
 
@@ -175,6 +176,12 @@ def _resolve(expr, values, depth=0):
         return None
     if "value" in expr:                       # une valeur lue telle quelle (le plus souvent avec "names")
         return _resolve(expr.get("value"), values, depth + 1)
+    if "sum" in expr:                         # several numbers added (DoDonPachi: its score, then the continues as last digit)
+        parts = [_resolve(x, values, depth + 1) for x in expr.get("sum") or []]   # des nombres ajoutés
+        if not parts or any(isinstance(p, bool) or not isinstance(p, (int, float)) for p in parts):
+            return None
+        total = sum(parts)
+        return int(total) if isinstance(total, float) and total.is_integer() else total
     if "pick" in expr:
         lst = expr.get("pick")
         idx = _resolve(expr.get("at"), values, depth + 1)

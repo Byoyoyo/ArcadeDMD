@@ -1,6 +1,6 @@
 {
   "title": "Deathsmiles",
-  "note": "Shoot'em up by Cave (CV1000): no value known yet (FinalBurn Neo cheat database). Made by tools/cave_games.py.",
+  "note": "Shoot'em up by Cave (CV1000): credits, energy, energy_p2 (MAME cheat database). Made by tools/cave_games.py.",
   "generated": "tools/cave_games.py",
   "cave": "CV1000",
   "match": [
@@ -10,15 +10,42 @@
   ],
   "retroarch": {
     "ram_base": "0xC000000",
-    "ram_size": "0x200000",
+    "ram_size": "0x400000",
     "swap16": true,
-    "note": "FinalBurn Neo core: CV1000 SH-3 RAM from 0xC000000, the first 2 MB where the games keep their values (the rest is the picture being drawn), bytes swapped within 16-bit words",
+    "note": "FinalBurn Neo core: CV1000 SH-3 RAM from 0xC000000, the first 4 MB of its 8, as far as the values of the game go, bytes swapped within 16-bit words",
     "content": ["deathsml"]
   },
   "scene_from": "cave_shoot",
   "memory": {
     "cpu": ":maincpu",
     "values": {
+      "credits": {
+        "addr": "0xC060B23",
+        "type": "u8",
+        "note": "credits (MAME cheat database, Infinite Credits)"
+      },
+      "energy": {
+        "addr": "0xC388F3A",
+        "type": "be",
+        "bytes": 2,
+        "note": "player 1 energy in %, full = 0x385 (MAME cheat database, Infinite Energy PL1)",
+        "mult": 0.110988,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0x81C2"
+      },
+      "energy_p2": {
+        "addr": "0xC38906A",
+        "type": "be",
+        "bytes": 2,
+        "note": "player 2 energy in %, full = 0x385 (MAME cheat database, Infinite Energy PL2)",
+        "mult": 0.110988,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0x81C2"
+      },
       "score": {
         "addr": "",
         "type": "bcd",
@@ -48,9 +75,31 @@
     "p1_mode": 1,
     "p2_mode": 0,
     "score": 0,
+    "energy": 100,
     "score_p2": 0,
+    "energy_p2": 0,
     "sim": {
+      "energy": {
+        "cycle": [
+          100,
+          100,
+          80,
+          60,
+          40,
+          20,
+          100
+        ],
+        "every": 3.0,
+        "start": 6.0
+      },
       "score_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "energy_p2": {
         "cycle": [
           0
         ],

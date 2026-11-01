@@ -1,6 +1,6 @@
 {
   "title": "Crusher Makochan",
-  "note": "Puzzle game on the Cave board (CAVE): no value known yet (FinalBurn Neo cheat database). Made by tools/cave_games.py.",
+  "note": "Puzzle game on the Cave board (CAVE): no value known yet. Made by tools/cave_games.py.",
   "generated": "tools/cave_games.py",
   "cave": "CAVE",
   "match": [

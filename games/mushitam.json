@@ -12,7 +12,7 @@
     "ram_base": "0xC000000",
     "ram_size": "0x200000",
     "swap16": true,
-    "note": "FinalBurn Neo core: CV1000 SH-3 RAM from 0xC000000, the first 2 MB where the games keep their values (the rest is the picture being drawn), bytes swapped within 16-bit words",
+    "note": "FinalBurn Neo core: CV1000 SH-3 RAM from 0xC000000, the first 2 MB of its 8, as far as the values of the game go, bytes swapped within 16-bit words",
     "content": ["mushitam", "mushitama"]
   },
   "scene_from": "cave_reflexion",

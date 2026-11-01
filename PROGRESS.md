@@ -354,16 +354,16 @@ Depuis la 1.30, chaque set Capcom CPS1, CPS2 et CPS3 de FinalBurn Neo est reconn
 
 ### The Cave games / Les jeux Cave (37 games / jeux)
 
-Since 1.31, every Cave game of FinalBurn Neo is recognized, with MAME as with RetroArch, 158 sets. The shoot'em ups each have an HD scene of their own built on DoDonPachi's (bullets, laser, gold stars, bombs and their slots, hit counter), and a panel scene in the spirit of DoDonPachi. 🟡 in Values means the score and the hit counter still have to be learned with `learn.bat`, ⬜ that no value is known yet (the CV1000 has no cheats) and the scene plays by itself. Metamoqester keeps its values outside of the memory RetroArch shares, they are read with MAME only.
+Since 1.31, every Cave game of FinalBurn Neo is recognized, with MAME as with RetroArch, 158 sets. The shoot'em ups each have an HD scene of their own built on DoDonPachi's (bullets, laser, gold stars, bombs and their slots, hit counter), and a panel scene in the spirit of DoDonPachi. ✅ in Values means everything is read (DoDonPachi, learned on a cabinet), 🟡 that the score and the hit counter still have to be learned with `learn.bat`, ⬜ that no value is known yet (no cheat in FinalBurn Neo or MAME for these CV1000 games) and the scene plays by itself. Metamoqester keeps its values outside of the memory RetroArch shares, they are read with MAME only.
 
-Depuis la 1.31, chaque jeu Cave de FinalBurn Neo est reconnu, avec MAME comme avec RetroArch, 158 sets. Les shoot'em ups ont chacun leur scène HD bâtie sur celle de DoDonPachi (boulettes, laser, étoiles d'or, bombes et leurs places, compteur de coups), et une scène de dalle dans l'esprit de DoDonPachi. 🟡 dans Valeurs veut dire que le score et le compteur de coups restent à apprendre avec `learn.bat`, ⬜ qu'aucune valeur n'est connue pour l'instant (le CV1000 n'a pas de codes de triche) et que la scène joue toute seule. Metamoqester garde ses valeurs hors de la mémoire que RetroArch partage, elles ne sont lues qu'avec MAME.
+Depuis la 1.31, chaque jeu Cave de FinalBurn Neo est reconnu, avec MAME comme avec RetroArch, 158 sets. Les shoot'em ups ont chacun leur scène HD bâtie sur celle de DoDonPachi (boulettes, laser, étoiles d'or, bombes et leurs places, compteur de coups), et une scène de dalle dans l'esprit de DoDonPachi. ✅ dans Valeurs veut dire que tout est lu (DoDonPachi, appris sur une borne), 🟡 que le score et le compteur de coups restent à apprendre avec `learn.bat`, ⬜ qu'aucune valeur n'est connue pour l'instant (pas de code dans FinalBurn Neo ni dans MAME pour ces jeux du CV1000) et que la scène joue toute seule. Metamoqester garde ses valeurs hors de la mémoire que RetroArch partage, elles ne sont lues qu'avec MAME.
 
 | # | Game / Jeu | Board / Carte | Genre | Values / Valeurs | Panel / Dalle | HD | Version |
 |---|---|---|---|---|---|---|---|
 | 1 | Air Gallet | Cave 68000 | Shoot'em up | 🟡 | ✅ | ✅ | 1.31 |
 | 2 | Bishoujo Senshi Sailor Moon | Cave 68000 | Beat'em up | 🟡 | 🟡 | ✅ | 1.31 |
 | 3 | Crusher Makochan | Cave 68000 | Mini-games / Mini-jeux | ⬜ | 🟡 | ⬜ | 1.31 |
-| 4 | DoDonPachi | Cave 68000 | Shoot'em up | 🟡 | ✅ | ✅ | 1.31 |
+| 4 | DoDonPachi | Cave 68000 | Shoot'em up | ✅ | ✅ | ✅ | 1.31 |
 | 5 | DonPachi | Cave 68000 | Shoot'em up | 🟡 | ✅ | ✅ | 1.31 |
 | 6 | ESP Ra.De. - A.D.2018 Tokyo | Cave 68000 | Shoot'em up | 🟡 | ✅ | ✅ | 1.31 |
 | 7 | Fever SOS | Cave 68000 | Shoot'em up | 🟡 | ✅ | ✅ | 1.31 |
@@ -382,20 +382,20 @@ Depuis la 1.31, chaque jeu Cave de FinalBurn Neo est reconnu, avec MAME comme av
 | 20 | Espgaluda | IGS PGM | Shoot'em up | 🟡 | ✅ | ✅ | 1.31 |
 | 21 | Ketsui: Kizuna Jigoku Tachi | IGS PGM | Shoot'em up | 🟡 | ✅ | ✅ | 1.31 |
 | 22 | Akai Katana | CV1000 | Shoot'em up | ⬜ | ✅ | ✅ | 1.31 |
-| 23 | Deathsmiles | CV1000 | Shoot'em up | ⬜ | ✅ | ✅ | 1.31 |
-| 24 | Deathsmiles MegaBlack Label | CV1000 | Shoot'em up | ⬜ | ✅ | ✅ | 1.31 |
-| 25 | DoDonPachi Dai-Fukkatsu Black Label | CV1000 | Shoot'em up | ⬜ | ✅ | ✅ | 1.31 |
-| 26 | DoDonPachi Dai-Fukkatsu Ver 1.5 | CV1000 | Shoot'em up | ⬜ | ✅ | ✅ | 1.31 |
+| 23 | Deathsmiles | CV1000 | Shoot'em up | 🟡 | ✅ | ✅ | 1.31 |
+| 24 | Deathsmiles MegaBlack Label | CV1000 | Shoot'em up | 🟡 | ✅ | ✅ | 1.31 |
+| 25 | DoDonPachi Dai-Fukkatsu Black Label | CV1000 | Shoot'em up | 🟡 | ✅ | ✅ | 1.31 |
+| 26 | DoDonPachi Dai-Fukkatsu Ver 1.5 | CV1000 | Shoot'em up | 🟡 | ✅ | ✅ | 1.31 |
 | 27 | DoDonPachi SaiDaiOuJou | CV1000 | Shoot'em up | ⬜ | ✅ | ✅ | 1.31 |
-| 28 | Espgaluda II | CV1000 | Shoot'em up | ⬜ | ✅ | ✅ | 1.31 |
-| 29 | Ibara | CV1000 | Shoot'em up | ⬜ | ✅ | ✅ | 1.31 |
-| 30 | Ibara Kuro Black Label | CV1000 | Shoot'em up | ⬜ | ✅ | ✅ | 1.31 |
-| 31 | Muchi Muchi Pork! | CV1000 | Shoot'em up | ⬜ | ✅ | ✅ | 1.31 |
-| 32 | Mushihime-Sama | CV1000 | Shoot'em up | ⬜ | ✅ | ✅ | 1.31 |
-| 33 | Mushihime-Sama Futari Black Label - Another Ver | CV1000 | Shoot'em up | ⬜ | ✅ | ✅ | 1.31 |
-| 34 | Mushihime-Sama Futari Ver 1.5 | CV1000 | Shoot'em up | ⬜ | ✅ | ✅ | 1.31 |
+| 28 | Espgaluda II | CV1000 | Shoot'em up | 🟡 | ✅ | ✅ | 1.31 |
+| 29 | Ibara | CV1000 | Shoot'em up | 🟡 | ✅ | ✅ | 1.31 |
+| 30 | Ibara Kuro Black Label | CV1000 | Shoot'em up | 🟡 | ✅ | ✅ | 1.31 |
+| 31 | Muchi Muchi Pork! | CV1000 | Shoot'em up | 🟡 | ✅ | ✅ | 1.31 |
+| 32 | Mushihime-Sama | CV1000 | Shoot'em up | 🟡 | ✅ | ✅ | 1.31 |
+| 33 | Mushihime-Sama Futari Black Label - Another Ver | CV1000 | Shoot'em up | 🟡 | ✅ | ✅ | 1.31 |
+| 34 | Mushihime-Sama Futari Ver 1.5 | CV1000 | Shoot'em up | 🟡 | ✅ | ✅ | 1.31 |
 | 35 | Mushihime-Sama Matsuri Ver 1.5 | CV1000 | Shoot'em up | ⬜ | ✅ | ✅ | 1.31 |
-| 36 | Pink Sweets: Ibara Sorekara | CV1000 | Shoot'em up | ⬜ | ✅ | ✅ | 1.31 |
+| 36 | Pink Sweets: Ibara Sorekara | CV1000 | Shoot'em up | 🟡 | ✅ | ✅ | 1.31 |
 | 37 | Puzzle! Mushihime-Tama | CV1000 | Puzzle / Réflexion | 🟡 | 🟡 | ✅ | 1.31 |
 
 ## What comes next / La suite

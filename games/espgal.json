@@ -1,6 +1,6 @@
 {
   "title": "Espgaluda",
-  "note": "Shoot'em up by Cave (PGM): credits, lives, lives_p2, power, power_p2, stones, stones_p2 (FinalBurn Neo cheat database). Made by tools/cave_games.py.",
+  "note": "Shoot'em up by Cave (PGM): credits, lives, lives_p2, bombs_p2, power, power_p2, stones, stones_p2 (FinalBurn Neo and MAME cheat databases). Made by tools/cave_games.py.",
   "generated": "tools/cave_games.py",
   "cave": "PGM",
   "match": [
@@ -33,6 +33,11 @@
         "addr": "0x8139D9",
         "type": "u8",
         "note": "lives of player 2 (FBNeo cheat database, Infinite Lives PL2)"
+      },
+      "bombs_p2": {
+        "addr": "0x80EF5A",
+        "type": "u8",
+        "note": "bombs of player 2 (MAME cheat database, Infinite Bombs PL2)"
       },
       "power": {
         "addr": "0x80EEB6",
@@ -80,7 +85,7 @@
     "scene": "espgal"
   },
   "activity": {
-    "values": ["lives", "lives_p2", "score", "score_p2"],
+    "values": ["lives", "lives_p2", "bombs_p2", "score", "score_p2"],
     "moving": ["score", "score_p2"],
     "seconds": 10,
     "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
@@ -96,6 +101,7 @@
     "stones": 120,
     "score_p2": 0,
     "lives_p2": 0,
+    "bombs_p2": 0,
     "power_p2": 0,
     "stones_p2": 0,
     "sim": {
@@ -143,6 +149,13 @@
         "start": 3600.0
       },
       "lives_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "bombs_p2": {
         "cycle": [
           0
         ],

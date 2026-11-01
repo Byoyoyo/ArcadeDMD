@@ -258,6 +258,11 @@ LEVEL_SHOWN_FROM = {"xmcota": 1}
 FULL = {"sf2": 0x90, "nwarr": 0x90}
 
 
+def srcof(c):
+    """Where a cheat comes from: FinalBurn Neo's database, or MAME's (tools/mame_cheats.py). / D'où vient un code."""
+    return c.get("src") or "FBNeo cheat database"
+
+
 def values_from_cheats(cs, fam, name=""):
     found = {}
     for c in cs:
@@ -265,7 +270,6 @@ def values_from_cheats(cs, fam, name=""):
             if key not in found and pat.match(c["name"]):
                 found[key] = c
     vals, derived, got = {}, {}, []
-    src = "FBNeo cheat database"
     for key in ("health", "health_p2"):
         w = word(enabled(found[key])) if key in found else None
         drain = found.get("_drain" if key == "health" else "_drain_p2")
@@ -275,7 +279,7 @@ def values_from_cheats(cs, fam, name=""):
         if w and w[2] > 0:
             addr, n, full = w
             v = value(addr, n, fam, "be" if n > 1 else "u8",
-                      f"{'player 1' if key == 'health' else 'player 2'} health in %, full = 0x{full:X} ({src}, {found[key]['name']})")
+                      f"{'player 1' if key == 'health' else 'player 2'} health in %, full = 0x{full:X} ({srcof(found[key])}, {found[key]['name']})")
             v.update({"mult": round(100.0 / full, 6), "round": 1, "min": 0, "max": 100})
             # gone below zero at a K.O. (Street Fighter II): 0xFF... reads an empty bar, not a full one. Not when the cheat
             # fills the bar with 0xFF itself (Slam Masters), a full bar would read empty.
@@ -288,31 +292,42 @@ def values_from_cheats(cs, fam, name=""):
         t = enabled(found[key]) if key in found else None
         if t:
             vals[key] = value(t[0][1], 1, fam, "u8", f"rounds won by {'player 1' if key == 'rounds' else 'player 2'} "
-                                                     f"({src}, {found[key]['name']})")
+                                                     f"({srcof(found[key])}, {found[key]['name']})")
     for key in ("_p1_ctl", "_p2_ctl"):               # a human or the computer / un humain ou l'ordinateur
         c = found.get(key)
         human = [o for o in (c or {}).get("options", []) if o["triples"] and re.search(r"user|human", o["label"], re.I)]
         if human and len(human[0]["triples"]) == 1:
             addr, val = human[0]["triples"][0][1], human[0]["triples"][0][2]
             who = "player 1" if key == "_p1_ctl" else "player 2"
-            v = value(addr, 1, fam, "u8", f"{who} controlled by a human ({val}) or the computer ({src}, {c['name']})")
+            v = value(addr, 1, fam, "u8", f"{who} controlled by a human ({val}) or the computer ({srcof(c)}, {c['name']})")
             v["human"] = val
             vals[key] = v
     if "time" in found:
         t = enabled(found["time"])
         if t and t[0][2] > 0:
-            key, spec = timer(t, fam, src)
+            key, spec = timer(t, fam, srcof(found["time"]))
             vals[key] = spec
     if "credits" in found:
         t = enabled(found["credits"])
         if t:
             kind = "bcd" if t[0][2] > 9 and bcd_like(t[0][2]) else "u8"
-            vals["credits"] = value(t[0][1], 1, fam, kind, f"credits ({src}, {found['credits']['name']})")
+            vals["credits"] = value(t[0][1], 1, fam, kind, f"credits ({srcof(found['credits'])}, {found['credits']['name']})")
     for key in ("lives", "lives_p2", "bombs"):
         if key in found:
             t = enabled(found[key])
             if t:
-                vals[key] = value(t[0][1], 1, fam, "u8", f"{key.replace('_p2', ' of player 2')} ({src}, {found[key]['name']})")
+                note = f"{key.replace('_p2', ' of player 2')} ({srcof(found[key])}, {found[key]['name']})"
+                w = word(t) if found[key].get("src") else None
+                if w and w[1] == 2:
+                    # MAME writes a word: the count in it (0x0006), the count then its slots (0x0606) or a gauge (0x0FA0), left out
+                    # MAME écrit un mot : le nombre dedans, le nombre puis ses places, ou une jauge, laissée de côté
+                    hi = w[2] >> 8
+                    if hi == 0:
+                        vals[key] = value(w[0], 2, fam, "be", note)
+                    elif hi <= 9:
+                        vals[key] = value(w[0], 1, fam, "u8", note)
+                    continue
+                vals[key] = value(t[0][1], 1, fam, "u8", note)
     for key in ("power", "power_p2"):
         who = "player 1" if key == "power" else "player 2"
         t = enabled(found[key]) if key in found else []
@@ -322,11 +337,11 @@ def values_from_cheats(cs, fam, name=""):
             # a level and the bar inside it (Marvel Super Heroes, X-Men, X-Men vs. Street Fighter): the bar of the
             # current level, like the game, and the level beside it / le niveau et la barre de ce niveau, comme le jeu
             faddr, full = fill[0][1], fill[0][2]
-            v = value(faddr, 1, fam, "u8", f"super gauge of {who} in % of the current level, full = 0x{full:X} ({src})")
+            v = value(faddr, 1, fam, "u8", f"super gauge of {who} in % of the current level, full = 0x{full:X} ({srcof(found[key])})")
             v.update({"mult": round(100.0 / full, 6), "round": 1, "min": 0, "max": 100})
             vals[key] = v
             add = LEVEL_SHOWN_FROM.get(name, 0)
-            lvl = value(lv[0][1], 1, fam, "u8", f"super gauge level of {who}, {lv[0][2] + add} at most ({src})")
+            lvl = value(lv[0][1], 1, fam, "u8", f"super gauge level of {who}, {lv[0][2] + add} at most ({srcof(found[key])})")
             if add:
                 lvl["add"] = add
             lvl["max"] = lv[0][2] + add
@@ -336,7 +351,7 @@ def values_from_cheats(cs, fam, name=""):
         if w and w[2] > 0:
             addr, n, full = w
             v = value(addr, n, fam, "be" if n > 1 else "u8",
-                      f"super gauge of {'player 1' if key == 'power' else 'player 2'} in %, full = 0x{full:X} ({src})")
+                      f"super gauge of {'player 1' if key == 'power' else 'player 2'} in %, full = 0x{full:X} ({srcof(found[key])})")
             v.update({"mult": round(100.0 / full, 6), "round": 1, "min": 0, "max": 100})
             vals[key] = v
     for key, out in (("_p1_chr", "p1_char"), ("_p2_chr", "p2_char")):
@@ -344,13 +359,13 @@ def values_from_cheats(cs, fam, name=""):
             who = "player 1" if key == "_p1_chr" else "player 2 or computer"
             addr, names = names_of(found[key])
             if names:
-                vals[key] = value(addr, 1, fam, "u8", f"{who} character ({src}, {found[key]['name']})")
+                vals[key] = value(addr, 1, fam, "u8", f"{who} character ({srcof(found[key])}, {found[key]['name']})")
                 derived[out] = {"value": key, "names": names}
                 continue
             addrs, names = pair_names_of(found[key])
             if names:                                # the character told by two bytes / le personnage dit par deux octets
-                vals[key] = value(addrs[0], 1, fam, "u8", f"{who} character, first byte ({src}, {found[key]['name']})")
-                vals[key + "2"] = value(addrs[1], 1, fam, "u8", f"{who} character, second byte ({src}, {found[key]['name']})")
+                vals[key] = value(addrs[0], 1, fam, "u8", f"{who} character, first byte ({srcof(found[key])}, {found[key]['name']})")
+                vals[key + "2"] = value(addrs[1], 1, fam, "u8", f"{who} character, second byte ({srcof(found[key])}, {found[key]['name']})")
                 derived[out] = {"join": [key, key + "2"], "names": names}
     for k in vals:
         if not k.startswith("_"):

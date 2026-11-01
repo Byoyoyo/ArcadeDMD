@@ -1,6 +1,6 @@
 {
   "title": "DoDonPachi II - Bee Storm",
-  "note": "Shoot'em up by IGS under Cave's licence (PGM): lives, lives_p2, stage, bombs_p2, bombs, power, power_p2, combo, combo_p2 (FinalBurn Neo cheat database). Made by tools/cave_games.py.",
+  "note": "Shoot'em up by IGS under Cave's licence (PGM): credits, lives, lives_p2, stage, bombs_p2, bombs, power, power_p2, combo, combo_p2 (FinalBurn Neo and MAME cheat databases). Made by tools/cave_games.py.",
   "generated": "tools/cave_games.py",
   "cave": "PGM",
   "match": [
@@ -33,6 +33,11 @@
   "memory": {
     "cpu": ":maincpu",
     "values": {
+      "credits": {
+        "addr": "0x80EED6",
+        "type": "u8",
+        "note": "credits (MAME cheat database, Infinite Credits)"
+      },
       "lives": {
         "addr": "0x815976",
         "type": "u8",
@@ -111,14 +116,6 @@
     "moving": ["score", "score_p2"],
     "seconds": 10,
     "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
-  },
-  "coins": {
-    "begin": {
-      "lives": "p1",
-      "lives_p2": "p2"
-    },
-    "rise": 2,
-    "note": "credits not read: counted from the coin buttons (coin_buttons.bat). A player begins (start, continue, joining in) and uses one when his lives come back from 0 by 2 or more (an extra life is 1)"
   },
   "demo": {
     "attract": true,
@@ -246,6 +243,11 @@
   },
   "per_game": {
     "ddp2100": {
+      "credits": {
+        "addr": "0x80EED4",
+        "type": "u8",
+        "note": "credits (MAME cheat database, Infinite Credits) (ddp2100: its own cheats)"
+      },
       "power": {
         "addr": "0x812609",
         "type": "u8",
@@ -277,7 +279,47 @@
         "max": 100
       }
     },
+    "ddp2100c": {
+      "credits": {
+        "addr": "0x80EED4",
+        "type": "u8",
+        "note": "credits (MAME cheat database, Infinite Credits) (ddp2100c: its own cheats)"
+      }
+    },
+    "ddp2100hk": {
+      "credits": {
+        "addr": "0x80EED4",
+        "type": "u8",
+        "note": "credits (MAME cheat database, Infinite Credits) (ddp2100hk: its own cheats)"
+      }
+    },
+    "ddp2100j": {
+      "credits": {
+        "addr": "0x80EED4",
+        "type": "u8",
+        "note": "credits (MAME cheat database, Infinite Credits) (ddp2100j: its own cheats)"
+      }
+    },
+    "ddp2100k": {
+      "credits": {
+        "addr": "0x80EED4",
+        "type": "u8",
+        "note": "credits (MAME cheat database, Infinite Credits) (ddp2100k: its own cheats)"
+      }
+    },
+    "ddp2100t": {
+      "credits": {
+        "addr": "0x80EED4",
+        "type": "u8",
+        "note": "credits (MAME cheat database, Infinite Credits) (ddp2100t: its own cheats)"
+      }
+    },
     "ddp2101": {
+      "credits": {
+        "addr": "0x80EED4",
+        "type": "u8",
+        "note": "credits (MAME cheat database, Infinite Credits) (ddp2101: its own cheats)"
+      },
       "power": {
         "addr": "0x812609",
         "type": "u8",
@@ -307,6 +349,41 @@
         "round": 1,
         "min": 0,
         "max": 100
+      }
+    },
+    "ddp2101c": {
+      "credits": {
+        "addr": "0x80EED4",
+        "type": "u8",
+        "note": "credits (MAME cheat database, Infinite Credits) (ddp2101c: its own cheats)"
+      }
+    },
+    "ddp2101hk": {
+      "credits": {
+        "addr": "0x80EED4",
+        "type": "u8",
+        "note": "credits (MAME cheat database, Infinite Credits) (ddp2101hk: its own cheats)"
+      }
+    },
+    "ddp2101j": {
+      "credits": {
+        "addr": "0x80EED4",
+        "type": "u8",
+        "note": "credits (MAME cheat database, Infinite Credits) (ddp2101j: its own cheats)"
+      }
+    },
+    "ddp2101k": {
+      "credits": {
+        "addr": "0x80EED4",
+        "type": "u8",
+        "note": "credits (MAME cheat database, Infinite Credits) (ddp2101k: its own cheats)"
+      }
+    },
+    "ddp2101t": {
+      "credits": {
+        "addr": "0x80EED4",
+        "type": "u8",
+        "note": "credits (MAME cheat database, Infinite Credits) (ddp2101t: its own cheats)"
       }
     }
   }
