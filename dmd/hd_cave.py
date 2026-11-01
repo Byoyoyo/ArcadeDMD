@@ -1001,6 +1001,53 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
             self.pill(screen, bx - S(10), S(82), lw + S(20), S(46), 140)
             for i in range(n):
                 screen.blit(icon, (int(bx + i * S(46)), S(86)))
+        self.power_gauge(screen, vals, side, now)
+
+    def power_gauge(self, screen, vals, side, now):
+        """The level of the shot beside the ships left: POWER and a case per level, lit up to the level read in the game,
+        the newest one flashing when it grows, MAX at the top. Many levels (Guwange, Air Gallet): a bar and 12/14.
+        / Le niveau du tir à côté des vaisseaux : POWER et une case par niveau, allumées jusqu'au niveau lu, MAX en haut."""
+        S, W, pg, hd = self.S, self.W, self.pg, self.hd
+        right = side == "p2"
+        v = _n(vals.get("power" + ("_p2" if right else "")))
+        if v is None:
+            return
+        lit, total = self.power_cases(vals, side, v)
+        total = max(1, total or 1)
+        lit = min(lit, total)
+        top = lit >= total
+        y = S(105)
+        lab = hd.text("POWER", "bold", S(22), CREAM)["w"]
+        cases = total <= 10
+        cw, gap = (S(30 if total <= 6 else 24), S(7)) if cases else (0, 0)
+        body = total * cw + (total - 1) * gap if cases else S(200)
+        tail = S(64) if top else (0 if cases else S(70))
+        w = lab + S(14) + body + tail
+        x0 = W - S(330) - w if right else S(330)
+        self.pill(screen, x0 - S(12), y - S(23), w + S(24), S(46), 150)
+        self.text(screen, "POWER", x0, y, 22, CREAM, key="bold", valign="middle", glow=0)
+        bx = x0 + lab + S(14)
+        k = max(0.0, 1 - (now - self.powered.get(side, -99.0)) / 0.6)      # the level just grew / le niveau vient de grandir
+        if cases:
+            for i in range(total):
+                on = i < lit
+                if top:
+                    col = _mix(GOLD, WHITE, 0.5 + 0.5 * math.sin(now * 10))
+                elif on and i == lit - 1 and k > 0 and int(now * 16) % 2 == 0:
+                    col = WHITE
+                else:
+                    col = (255, 210, 70) if on else (58, 46, 26)
+                cx = int(bx + i * (cw + gap))
+                pg.draw.rect(screen, col, (cx, y - S(11), cw, S(22)), border_radius=S(5))
+                if on:
+                    pg.draw.rect(screen, _mix(col, WHITE, 0.6), (cx + S(5), y - S(8), cw - S(10), S(5)), border_radius=S(2))
+        else:
+            self.bar(screen, bx, y - S(9), body, S(18), lit / float(total), (255, 200, 60) if not top else GOLD, back=(40, 30, 16))
+            if not top:
+                self.text(screen, f"{int(lit)}/{int(total)}", bx + body + S(10), y, 20, CREAM, key="bold", valign="middle", glow=0)
+        if top:
+            self.text(screen, "MAX", bx + body + S(10), y, 24, GOLD, key="black", valign="middle", glow=0.4,
+                      scale=1 + 0.08 * math.sin(now * 10))
 
     def hit_counter(self, screen, vals, side, now):
         """The hit counter as in the game: the number and HIT, the gauge that drains under it, the best chain.

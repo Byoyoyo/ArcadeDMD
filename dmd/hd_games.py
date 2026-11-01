@@ -85,6 +85,9 @@ class GameScene:
         self.buf = None
         self.banner = None
         self.pops = []                                       # texts that pop up on a dark pill
+        self.power_pips = []                                 # the level cases under a POWER UP / les cases sous un POWER UP
+        self.powered = {"p1": -99.0, "p2": -99.0}            # when each player's shot last grew / quand le tir a grandi
+        self.tops = {}                                       # the top of each value, "max" of the game file / le maximum
         self.key = None
         self.was_idle = True
         self.boost = (0.0, -99.0)                            # (backdrop speed added, until)
@@ -222,6 +225,76 @@ class GameScene:
             self.label(screen, text, x, yy, size, color, key=key, align="center", glow=0.5, alpha=170, scale=round(pop * 20) / 20,
                        fade=fade)
         self.pops = keep
+        self.draw_power_pips(screen, now)
+
+    # ------------------------------------------------------------ the level of the shot / le niveau du tir
+    @staticmethod
+    def value_tops(eng, key):
+        """The top of each value the game file gives ("max"), the shot level for example. / Le maximum de chaque valeur."""
+        lib = getattr(eng, "library", None)
+        try:
+            g = lib.get(key) if lib is not None and key else None
+        except Exception:
+            g = None
+        vals = ((g or {}).get("memory") or {}).get("values") if isinstance(g, dict) else None
+        if not isinstance(vals, dict):
+            return {}
+        return {k: v["max"] for k, v in vals.items() if isinstance(v, dict) and _n(v.get("max")) is not None}
+
+    def power_cases(self, vals, side, v):
+        """(cases lit, cases) of a shot level as the scene shows it: as many cases lit as the value, as many cases as the
+        top the game file gives (None when it does not say it). / (cases allumées, cases) d'un niveau de tir."""
+        top = _n(self.tops.get("power" + ("" if side == "p1" else "_p2")))
+        return max(0, int(v)), (int(top) if top is not None and top > 0 else None)
+
+    def power_pop(self, x, y, lit, total, size=40):
+        """POWER UP where the ship took the item and the level reached under it, a case per level, lit up to it. POWER MAX
+        and every case lit at the top. Too many levels for cases (Guwange, Air Gallet): LV 12/14.
+        / POWER UP là où le vaisseau a pris l'objet et le niveau atteint dessous, une case par niveau. POWER MAX en haut."""
+        S = self.S
+        top = total is not None and lit >= total
+        y = max(y, S(196))                                   # it rises, stopping under the HUD / il monte, sous le HUD
+        self.popup("POWER MAX" if top else "POWER UP", x, y, GOLD, size + (6 if top else 0), life=1.6)
+        if total is not None and 0 < total <= 12:
+            self.power_pips.append((x, y + S(size * 0.95), min(lit, total), total, self.fx.now, 1.6, 60))
+        elif total is not None and not top:
+            self.popup(f"LV {lit}/{total}", x, y + S(size * 0.95), CREAM, max(22, size - 12), life=1.6)
+        elif lit > 0:
+            self.popup(f"LV {lit}", x, y + S(size * 0.95), CREAM, max(22, size - 12), life=1.6)
+
+    def draw_power_pips(self, screen, now):
+        """The cases of the POWER UP, rising and fading with it. / Les cases du POWER UP, qui montent et s'effacent avec lui."""
+        if not self.power_pips:
+            return
+        S, pg = self.S, self.pg
+        keep = []
+        for p in self.power_pips:
+            x, y, lit, total, t0, life, rise = p
+            k = (now - t0) / life
+            if k >= 1.0:
+                continue
+            keep.append(p)
+            if k < 0:
+                continue
+            yy = y - rise * self.s * (1 - (1 - k) ** 2)
+            fade = 1.0 if k < 0.7 else max(0.0, (1 - k) / 0.3)
+            cw, ch, gap = S(30 if total <= 6 else 22), S(20), S(8)
+            w = total * cw + (total - 1) * gap
+            self.pill(screen, x - w / 2 - S(12), yy - ch / 2 - S(8), w + S(24), ch + S(16), int(170 * fade) // 10 * 10)
+            full = lit >= total
+            for i in range(total):
+                on = i < lit
+                newest = on and i == lit - 1 and k < 0.5 and int(now * 16) % 2 == 0
+                col = WHITE if newest else ((255, 214, 70) if on else (60, 48, 28))
+                if full and on:
+                    col = _mix(GOLD, WHITE, 0.5 + 0.5 * math.sin(now * 12))
+                col = _mix((10, 12, 26), col, fade)
+                cx = x - w / 2 + i * (cw + gap)
+                pg.draw.rect(screen, col, (int(cx), int(yy - ch / 2), cw, ch), border_radius=S(5))
+                if on and fade > 0.5:
+                    pg.draw.rect(screen, _mix(col, WHITE, 0.6), (int(cx) + S(5), int(yy - ch / 2) + S(3), cw - S(10), S(5)),
+                                 border_radius=S(2))
+        self.power_pips = keep
 
     def box(self, screen, x, y, w, h, border, fill=(8, 10, 22, 196), radius=18, width=3):
         key = ("box", int(w), int(h), border, fill, radius)
@@ -353,6 +426,7 @@ class GameScene:
         key = eng.state.meta.get("game") or ""
         if key != self.key:
             self.key, self.prev, self.banner, self.was_idle, self.pops = key, {}, None, True, []
+            self.power_pips, self.tops = [], self.value_tops(eng, key)
         self.dt = 0.0 if self.last is None else max(0.0, min(0.1, now - self.last))
         self.last = now
         self.fx.update(now)
@@ -493,6 +567,14 @@ class BlazingStarScene(GameScene):
         """A bomb or a weapon of the game: what it hits may blow up for a moment. / Une bombe ou une arme du jeu."""
         self.free_kills = max(self.free_kills, now + dur)
 
+    def power_cases(self, vals, side, v):
+        """Blazing Star shows four cases, the first one lit from the start (its level 0); the scenes built on it that draw
+        their own HUD count as the game file says. / Blazing Star montre quatre cases, la première allumée dès le départ."""
+        lit, top = super().power_cases(vals, side, v)
+        if type(self).draw_hud is BlazingStarScene.draw_hud:
+            return lit + 1, (top if top is not None else 3) + 1
+        return lit, top
+
     def ship_surf(self, side):
         return self.img("ship_" + side, self.S(176), self.S(78), ship_draw(self.ACC[side]))
 
@@ -557,11 +639,15 @@ class BlazingStarScene(GameScene):
                 x, y = self.pos(side, now)
                 self.popup("1UP !", x, y - S(70), (140, 255, 150), 40)
             ch = self.changed(vals, "power" + suf)
-            if ch and ch[1] > ch[0] and alive:
+            if ch and ch[1] > ch[0] and alive:                       # POWER UP and the level reached / et le niveau atteint
                 x, y = self.pos(side, now)
-                self.popup("POWER UP", x, y - S(64), GOLD, 40)
-                fx.glow(x, y, 30, 170, (120, 220, 255), 0.5, "front", 0.9, 0.0)
-                fx.sparks(x, y, 18, (160, 230, 255), (200, 600), (0, 360), (0.3, 0.6), 0, "front", 3, 24)
+                lit, total = self.power_cases(vals, side, ch[1])
+                self.power_pop(x, y - S(64), lit, total)
+                self.powered[side] = now
+                top = total is not None and lit >= total
+                fx.glow(x, y, 30 if not top else 44, 170, (120, 220, 255) if not top else (255, 220, 120), 0.5, "front", 0.9, 0.0)
+                fx.sparks(x, y, 18 if not top else 36, (160, 230, 255) if not top else (255, 226, 140), (200, 600), (0, 360),
+                          (0.3, 0.6), 0, "front", 3, 24)
             pw = int(_n(vals.get("power" + suf)) or 0)
             if alive and firing and now >= P["fire"]:
                 P["fire"] = now + (0.075 if pw >= 3 else 0.11)

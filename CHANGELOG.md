@@ -22,6 +22,11 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 **The Neo Geo games**
 - Checked against MAME's cheat collection. 286 of their values were already the same, none learned on a cabinet is replaced. MAME adds the super gauge of 14 fighting games, shown under the fighters on the HD screen (Art of Fighting 1 and 2, Garou, King of Fighters '96, Ninja Master's, Real Bout Fatal Fury 1, 2 and Special, Rage of the Dragons, Samurai Shodown III, IV, V and V Special, World Heroes Perfect), the characters of Fatal Fury 2, the timer of Karnov's Revenge, Football Frenzy and The Irritating Maze, the lives and bombs of player 2 in Zed Blade.
 
+**RetroAchievements**
+- The public RetroAchievements scripts on GitHub (RATools, 38 scripts for 35 of our arcade games) were compared with the game files. None of them puts one of our values elsewhere, and more than sixty of our values are confirmed, the health bars and the timers of the fighting games, the score of King of Fighters '97, 2001 and 2002, the lives, the score and the weapon of Metal Slug 3, the lives of Ninja Combat, Prehistoric Isle 2 and The Punisher...
+- They give the score of 15 games that did not read it. Fatal Fury 3, Galaxy Fight, Karnov's Revenge, King of Fighters 2003, The Last Blade 1 and 2, Real Bout Fatal Fury Special, Prehistoric Isle 2, Night Warriors, Street Fighter Alpha (both players), Street Fighter Alpha 3, Street Fighter III 3rd Strike, The Punisher, Quiz & Dragons (both players) and Puzzle! Mushihime-Tama. And the rounds won of Fatal Fury 3, Karnov's Revenge, Marvel Super Heroes, Street Fighter Alpha 3 and X-Men vs. Street Fighter, gold stars under the health bars on the HD screen. To be checked in game.
+- `tools/ra_notes.py` downloads what RetroAchievements knows of the arcade games ArcadeDMD knows into `ra_notes.json`, the code notes, and with an account the achievements, the leaderboards and the rich presence.
+
 **DoDonPachi on the HD screen**
 - Seen from the sky like the other vertical shoot'em ups, the ship flies to the right over the stage and the enemies answer the way Cave's games do. Rings and spirals of pink and blue bullets from the gunships, fans of needles from the helicopters, aimed bullets from the little fighters, big slow orbs from the tanks on the roads.
 - The three ships read in the game. The red fighter of the focused stream, the helicopter whose guns follow its turns and whose pods turn around it, the blue fighter of the spread. Player 2 has other colours, as in the game. Each one fires its laser when the fire is held, a thick blue beam that bites the enemy in front, the pods gathered before it.
@@ -29,6 +34,8 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - A bomb turns the screen white and shakes it hard, three rings sweep it from the ship, five waves of blasts burn everything in front, every bullet is wiped away and the enemy fire stops a moment. A ship lost blows up, the bullets vanish for a moment, and the new bomb slot it gives glints.
 - The HUD as in the game. 1P and the score with the ships left, the hit counter with its gauge that drains and the best chain (MAX HIT), the bombs at the bottom with the empty slots still to come and MAX when they are all full, the ship chosen, 2P on the right.
 - The credits as in Metal Slug, at the bottom in the middle. The coin with the symbol of `config.json` in its gold-edged pill, a coin falling onto it for each credit put in during a game and +1 CRÉDIT rising. The other Cave shoot'em ups have it too.
+- The credits go down at START. learn.bat had kept the coins put in (0x100F83), which go up with the credits but never go down, and ArcadeDMD put that address back at each start. It is now set aside, the credits are read where the game counts them, one less for each START and each continue.
+- The level of the shot beside the ships left, POWER and a case per level lit up to the level read in the game, MAX at the top. A P taken shows POWER UP over the ship with the level reached under it, POWER MAX at the top. The level is read in the first byte of its cheat, which keeps it while the ship blows up and comes back. The other Cave shoot'em ups have it too, 8 levels in Dai-Ou-Jou, Ketsui and Espgaluda, a bar and 12/14 in Guwange and Air Gallet.
 - The stages in the spirit of the game, the countryside and its highway, the city, the harbour and its docks, the ruins, the steel fortress, the honeycomb hive and the last fortress in space. A new stage changes the backdrop under a STAGE banner. The second loop is announced, and its stages recall it under their banner. The backdrops are new, everything is drawn by the program, no ship, character or emblem of the game is drawn.
 
 **The other Cave games on the HD screen**
@@ -39,8 +46,12 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - The Cave shoot'em ups have a panel of their own in the spirit of DoDonPachi. Pink and blue bullets drift by, 1P and the score at the top with the ships left, the hit counter in the middle (the ship chosen when there is no chain), the bombs and their empty slots at the bottom with MAX when they are full, and the combo gauge that drains.
 - A panel scene can show the empty slots up to a value (`"slots"` of an `icons` layer) and test a value against another one (`"ge_var"` in a `"when"`).
 
+**The shoot'em ups**
+- Every shoot'em up whose power is read shows POWER UP over the ship with the level reached under it, a case per level as on its HUD, and POWER MAX at the top (Blazing Star, the Aero Fighters, Strikers 1945 Plus, Last Resort, the Capcom and Cave shoot'em ups...). Andro Dunos shows the level of each of its four weapons, Zed Blade its LEVEL.
+
 **learn.bat**
 - Under RetroArch a big RAM is read by windows of requests. The 2 MB of a CV1000 took a minute, it now takes seconds. A small RAM is read as before.
+- Credits that only went up between the captures. The coins put in go up with them, so learn.bat says so, asks for one capture after START (one credit less) and saves nothing by itself, unless its first choice is the address the game file already has.
 
 **Demo**
 - `demo_cave.bat` shows the Cave games without playing. Pick the game in the list, or give it directly, `demo_cave.bat ddonpach` for example.
@@ -65,6 +76,11 @@ Unzip the new zip over the old folder (`config.json`, your learned addresses and
 **Les jeux Neo Geo**
 - Vérifiés avec la collection de codes de MAME. 286 de leurs valeurs étaient déjà les mêmes, aucune de celles apprises sur une borne n'est remplacée. MAME ajoute la jauge de super de 14 jeux de combat, affichée sous les combattants sur l'écran HD (Art of Fighting 1 et 2, Garou, King of Fighters '96, Ninja Master's, Real Bout Fatal Fury 1, 2 et Special, Rage of the Dragons, Samurai Shodown III, IV, V et V Special, World Heroes Perfect), les personnages de Fatal Fury 2, le chrono de Karnov's Revenge, Football Frenzy et The Irritating Maze, les vies et les bombes du joueur 2 dans Zed Blade.
 
+**RetroAchievements**
+- Les scripts RetroAchievements publics sur GitHub (RATools, 38 scripts pour 35 de nos jeux d'arcade) ont été comparés aux fichiers de jeu. Aucun ne met une de nos valeurs ailleurs, et plus de soixante de nos valeurs sont confirmées, les barres de vie et les chronos des jeux de combat, le score de King of Fighters '97, 2001 et 2002, les vies, le score et l'arme de Metal Slug 3, les vies de Ninja Combat, Prehistoric Isle 2 et The Punisher...
+- Ils donnent le score de 15 jeux qui ne le lisaient pas. Fatal Fury 3, Galaxy Fight, Karnov's Revenge, King of Fighters 2003, The Last Blade 1 et 2, Real Bout Fatal Fury Special, Prehistoric Isle 2, Night Warriors, Street Fighter Alpha (les deux joueurs), Street Fighter Alpha 3, Street Fighter III 3rd Strike, The Punisher, Quiz & Dragons (les deux joueurs) et Puzzle! Mushihime-Tama. Et les rounds gagnés de Fatal Fury 3, Karnov's Revenge, Marvel Super Heroes, Street Fighter Alpha 3 et X-Men vs. Street Fighter, des étoiles dorées sous les barres de vie sur l'écran HD. À vérifier en jeu.
+- `tools/ra_notes.py` télécharge ce que RetroAchievements sait des jeux d'arcade qu'ArcadeDMD connaît dans `ra_notes.json`, les notes de code, et avec un compte les succès, les classements et la présence.
+
 **DoDonPachi sur l'écran HD**
 - Vu du ciel comme les autres shoot'em ups verticaux, le vaisseau vole vers la droite au-dessus du niveau et les ennemis répondent comme dans les jeux Cave. Des anneaux et des spirales de boulettes roses et bleues des canonnières, des éventails d'aiguilles des hélicoptères, des balles visées des petits chasseurs, de grosses sphères lentes des chars sur les routes.
 - Les trois vaisseaux lus dans le jeu. Le chasseur rouge du tir serré, l'hélicoptère dont les canons suivent les virages et dont les nacelles tournent autour de lui, le chasseur bleu de l'éventail. Le joueur 2 a d'autres couleurs, comme dans le jeu. Chacun tire son laser quand le tir est maintenu, un épais rayon bleu qui mord l'ennemi devant lui, les nacelles réunies devant.
@@ -72,6 +88,8 @@ Unzip the new zip over the old folder (`config.json`, your learned addresses and
 - Une bombe fait blanchir l'écran et le secoue fort, trois anneaux le balaient depuis le vaisseau, cinq vagues d'explosions brûlent tout devant, toutes les boulettes disparaissent et le tir ennemi s'arrête un moment. Un vaisseau perdu explose, les boulettes disparaissent un moment, et la place de bombe qu'il donne en plus brille.
 - Le HUD comme dans le jeu. 1P et le score avec les vaisseaux restants, le compteur de coups avec sa jauge qui se vide et la meilleure chaîne (MAX HIT), les bombes en bas avec les places vides des bombes à venir et MAX quand tout est plein, le vaisseau choisi, 2P à droite.
 - Les crédits comme dans Metal Slug, en bas au milieu. La pièce au symbole de `config.json` dans sa pastille au bord doré, une pièce qui tombe dessus pour chaque crédit mis pendant une partie et +1 CRÉDIT qui monte. Les autres shoot'em ups Cave l'ont aussi.
+- Les crédits baissent au START. learn.bat avait gardé les pièces mises (0x100F83), qui montent avec les crédits mais ne descendent jamais, et ArcadeDMD remettait cette adresse à chaque démarrage. Elle est maintenant écartée, les crédits se lisent là où le jeu les compte, un de moins à chaque START et à chaque continue.
+- Le niveau du tir à côté des vaisseaux restants, POWER et une case par niveau allumées jusqu'au niveau lu dans le jeu, MAX en haut. Un P ramassé affiche POWER UP au-dessus du vaisseau avec le niveau atteint dessous, POWER MAX au plus haut. Le niveau se lit dans le premier octet de son code, qui le garde pendant que le vaisseau explose et revient. Les autres shoot'em ups Cave l'ont aussi, 8 niveaux dans Dai-Ou-Jou, Ketsui et Espgaluda, une barre et 12/14 dans Guwange et Air Gallet.
 - Les niveaux dans l'esprit du jeu, la campagne et son autoroute, la ville, le port et ses quais, les ruines, la forteresse d'acier, la ruche d'alvéoles et la dernière forteresse dans l'espace. Un nouveau niveau change le décor sous un bandeau STAGE. La deuxième boucle s'annonce, et ses niveaux la rappellent sous leur bandeau. Les décors sont nouveaux, tout est dessiné par le programme, aucun vaisseau, personnage ou emblème du jeu n'est dessiné.
 
 **Les autres jeux Cave sur l'écran HD**
@@ -82,8 +100,12 @@ Unzip the new zip over the old folder (`config.json`, your learned addresses and
 - Les shoot'em ups Cave ont leur dalle dans l'esprit de DoDonPachi. Des boulettes roses et bleues passent, 1P et le score en haut avec les vaisseaux restants, le compteur de coups au milieu (le vaisseau choisi quand il n'y a pas de chaîne), les bombes et leurs places vides en bas avec MAX quand tout est plein, et la jauge de combo qui se vide.
 - Une scène de la dalle peut montrer les places vides jusqu'à une valeur (`"slots"` d'une couche `icons`) et comparer une valeur à une autre (`"ge_var"` dans un `"when"`).
 
+**Les shoot'em ups**
+- Chaque shoot'em up dont la puissance est lue affiche POWER UP au-dessus du vaisseau avec le niveau atteint dessous, une case par niveau comme sur son HUD, et POWER MAX au plus haut (Blazing Star, les Aero Fighters, Strikers 1945 Plus, Last Resort, les shoot'em ups Capcom et Cave...). Andro Dunos montre le niveau de chacune de ses quatre armes, Zed Blade son LEVEL.
+
 **learn.bat**
 - Sous RetroArch, une grande RAM se lit par fenêtres de demandes. Les 2 Mo d'un CV1000 prenaient une minute, quelques secondes maintenant. Une petite RAM se lit comme avant.
+- Des crédits qui n'ont fait que monter entre les captures. Les pièces mises montent avec eux, alors learn.bat le dit, demande une capture après START (un crédit en moins) et n'enregistre rien d'office, sauf si son premier choix est l'adresse que le fichier du jeu a déjà.
 
 **Démo**
 - `demo_cave.bat` montre les jeux Cave sans jouer. Choisis le jeu dans la liste, ou donne-le directement, `demo_cave.bat ddonpach` par exemple.

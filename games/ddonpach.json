@@ -50,15 +50,15 @@
         "note": "bomb slots of player 2 (FBNeo cheat database, Infinite Bombs PL2, the second byte)"
       },
       "power": {
-        "addr": "0x102CAF",
+        "addr": "0x102CAD",
         "type": "u8",
-        "note": "shot level of player 1, 4 at most (FBNeo cheat database, Maximum Shot PL1, the second byte, its state in MAME's notes)",
+        "note": "shot level of player 1, 0 to 4 (FBNeo cheat database, Maximum Shot PL1, the first byte): it keeps the level while the ship blows up and comes back, the second byte drops to 0 meanwhile (captures from the cabinet)",
         "max": 4
       },
       "power_p2": {
-        "addr": "0x102CEF",
+        "addr": "0x102CED",
         "type": "u8",
-        "note": "shot level of player 2 (FBNeo cheat database, Maximum Shot PL2)",
+        "note": "shot level of player 2 (FBNeo cheat database, Maximum Shot PL2, the first byte)",
         "max": 4
       },
       "combo": {
@@ -92,7 +92,8 @@
       "credits": {
         "addr": "0x1013AB",
         "type": "u8",
-        "note": "credits, learned on the cabinet with learn.bat (1.31)"
+        "note": "credits, learned on the cabinet with learn.bat (1.31): one less for each START and each continue. 0x100F83 matches the coins put in but never goes down, learn.bat sets it aside",
+        "not_learned": ["0x100F83"]
       },
       "_score10": {
         "addr": "0x10161E",

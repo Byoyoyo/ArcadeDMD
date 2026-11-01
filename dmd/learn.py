@@ -636,6 +636,18 @@ def run(root, game=None, answers=None, write=None, show=True, pick_interactive=F
             print(tr("  Trop de candidats : fais une ou deux captures de plus avec une valeur différente.",
                      "  Too many candidates: take one or two more captures with a different value."))
         pick = res[0] if len(res) <= 3 else None
+        typed = [v for _, v in obs]
+        if field.lower().startswith("credit") and len(res) > 1 and all(b >= a for a, b in zip(typed, typed[1:])):
+            # the coins put in go up with the credits, only the credits go down at a START (DoDonPachi, 1.31): nothing
+            # chosen by itself, unless the first one is the game file's own / les pièces mises montent avec les crédits,
+            # seuls les crédits descendent à un START : rien de choisi d'office, sauf si le 1er est celui du fichier du jeu
+            print(tr("  Les pièces mises montent avec les crédits. Fais une capture de plus après START (un crédit en moins),",
+                     "  The coins put in go up with the credits. Take one more capture after START (one credit less),"))
+            print(tr("  seul le compteur des crédits descend.", "  only the credits counter goes down."))
+            from .learned import _addr
+            own = _addr(spec.get("addr")) if isinstance(spec, dict) and spec.get("addr") else None
+            if answers is None and (own is None or res[0].get("ptr") is not None or res[0]["addr"] != own):
+                pick = None
         if answers is None or pick_interactive:
             default = "1" if pick else tr("aucun", "none")
             c = ask(tr(f"  Numéro à enregistrer pour « {field} » (Entrée = {default}) : ",

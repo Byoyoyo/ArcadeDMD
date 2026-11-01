@@ -20,10 +20,11 @@
   "cpu": ":maincpu",
   "values": {
    "score": {
-    "addr": "",
+    "addr": "0x10C1A4",
     "type": "bcd",
     "bytes": 4,
-    "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+    "mult": 100,
+    "note": "player 1 score, BCD, its last two digits always 0 (RetroAchievements script of Maximdraco/RA-Scripts on GitHub, its leaderboard), to confirm in game"
    },
    "score_p2": {
     "addr": "",

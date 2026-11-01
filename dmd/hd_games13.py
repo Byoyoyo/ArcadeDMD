@@ -1221,13 +1221,6 @@ class ProgearScene(_SideCps):
     def move(self, vals, now, idle):
         return 0.25 if idle else 0.9
 
-    def update(self, vals, now):
-        super().update(vals, now)
-        ch = self.changed(vals, "power")
-        if ch and ch[1] > ch[0] and self.ships["p1"]["in"]:
-            x, y = self.pos("p1", now)
-            self.popup("POWER UP", x, max(self.S(176), y - self.S(80)), GOLD, 36)
-
     def status(self, screen, eng, vals, logo, now):
         """As in the game: P.1 and the score, the planes left, the bombs, the power and the plane.
         / Comme dans le jeu : P.1 et le score, les avions, les bombes, la puissance et l'avion."""

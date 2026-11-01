@@ -94,10 +94,10 @@
     "note": "timer (BCD)"
    },
    "score": {
-    "addr": "",
+    "addr": "0x10E4CE",
     "type": "bcd",
     "bytes": 4,
-    "note": "to find with learn.bat"
+    "note": "player 1 score, BCD (RetroAchievements script of miagui/RAScripts on GitHub, one byte of it, laid out as in The Last Blade), to confirm in game"
    },
    "score_p2": {
     "addr": "",

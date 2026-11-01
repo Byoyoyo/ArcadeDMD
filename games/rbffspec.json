@@ -84,10 +84,10 @@
     "note": "timer (BCD)"
    },
    "score": {
-    "addr": "",
+    "addr": "0x10E00A",
     "type": "bcd",
     "bytes": 4,
-    "note": "to find with learn.bat"
+    "note": "player 1 score, BCD (RetroAchievements script of miagui/RAScripts on GitHub, its leaderboard), to confirm in game"
    },
    "score_p2": {
     "addr": "",

@@ -84,6 +84,16 @@
         "addr": "0xFF4451",
         "type": "u8",
         "note": "player 2 or computer character (FBNeo cheat database, Select Character PL2)"
+      },
+      "rounds": {
+        "addr": "0xFF4802",
+        "type": "u8",
+        "note": "rounds won by player 1 (RetroAchievements script of miagui/RAScripts on GitHub, its achievements, the same place as in X-Men Children of the Atom), to confirm in game"
+      },
+      "rounds_p2": {
+        "addr": "0xFF4803",
+        "type": "u8",
+        "note": "rounds won by player 2 (RetroAchievements script of miagui/RAScripts on GitHub, its achievements, the same place as in X-Men Children of the Atom), to confirm in game"
       }
     }
   },

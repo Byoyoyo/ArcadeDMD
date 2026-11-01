@@ -130,9 +130,10 @@ def hand(fam):
                                      "Infinite Bombs PL1, the second byte, capacity in MAME's notes)"),
             "bombs_p2": v(0x102CF0, f"bombs of player 2 ({SRC}, Infinite Bombs PL2)"),
             "bombs_max_p2": v(0x102CF1, f"bomb slots of player 2 ({SRC}, Infinite Bombs PL2, the second byte)"),
-            "power": v(0x102CAF, f"shot level of player 1, 4 at most ({SRC}, Maximum Shot PL1, the second byte, its state in "
-                                 "MAME's notes)", max=4),
-            "power_p2": v(0x102CEF, f"shot level of player 2 ({SRC}, Maximum Shot PL2)", max=4),
+            "power": v(0x102CAD, f"shot level of player 1, 0 to 4 ({SRC}, Maximum Shot PL1, the first byte): it keeps the level "
+                                 "while the ship blows up and comes back, the second byte drops to 0 meanwhile (captures from the "
+                                 "cabinet)", max=4),
+            "power_p2": v(0x102CED, f"shot level of player 2 ({SRC}, Maximum Shot PL2, the first byte)", max=4),
             "combo": v(0x1017D1, f"combo gauge of player 1, full = 0x37: it drains, each enemy destroyed fills it ({SRC}, "
                                  "Maximum Combo PL1)", mult=round(100 / 0x37, 6), round=1, min=0, max=100),
             "combo_p2": v(0x1017FB, f"combo gauge of player 2, full = 0x37 ({SRC}, Maximum Combo PL2)", mult=round(100 / 0x37, 6),
@@ -140,7 +141,8 @@ def hand(fam):
             "ship": v(0x102D1D, f"ship of player 1: 0 type A (red fighter), 1 type B (helicopter), 2 type C (blue fighter) "
                                 f"({SRC}, Select Option Type PL1)"),
             "ship_p2": v(0x102D5D, f"ship of player 2 ({SRC}, Select Option Type PL2)"),
-            "credits": v(0x1013AB, f"credits, {LEARNED}"),
+            "credits": v(0x1013AB, f"credits, {LEARNED}: one less for each START and each continue. 0x100F83 matches the coins "
+                                   "put in but never goes down, learn.bat sets it aside", not_learned=["0x100F83"]),
             "_score10": v(0x10161E, f"player 1 score without its last digit, {LEARNED}: the game shows the continues used as the last "
                                     "digit (tag score)", "bcd", 4, mult=10),
             "_cont": v(0x10174F, f"continues used by player 1, the last digit of the score as the game shows it, {LEARNED}"),

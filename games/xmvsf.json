@@ -83,6 +83,16 @@
         "bytes": 4,
         "note": "player 2 score, found with learn.bat under RetroArch on a cabinet, 0x400 further like his health"
       },
+      "rounds": {
+        "addr": "0xFF5002",
+        "type": "u8",
+        "note": "rounds won by player 1 (RetroAchievements script of miagui/RAScripts on GitHub, its achievements), to confirm in game"
+      },
+      "rounds_p2": {
+        "addr": "0xFF5003",
+        "type": "u8",
+        "note": "rounds won by player 2 (RetroAchievements script of miagui/RAScripts on GitHub, its achievements), to confirm in game"
+      },
       "_p1_ctl": {
         "addr": "0xFF4003",
         "type": "u8",

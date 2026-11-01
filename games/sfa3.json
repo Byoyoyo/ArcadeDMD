@@ -101,6 +101,22 @@
         "type": "u8",
         "note": "player 2 or computer character (FBNeo cheat database, Select Character PL2)"
       },
+      "score": {
+        "addr": "0xFF8510",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 1 score, BCD (RetroAchievements script of miagui/RAScripts on GitHub, its achievements), to confirm in game"
+      },
+      "rounds": {
+        "addr": "0xFF8526",
+        "type": "u8",
+        "note": "rounds won by player 1 (RetroAchievements script of miagui/RAScripts on GitHub, its achievements), to confirm in game"
+      },
+      "rounds_p2": {
+        "addr": "0xFF8926",
+        "type": "u8",
+        "note": "rounds won by player 2 (RetroAchievements script of miagui/RAScripts on GitHub, its achievements), to confirm in game"
+      },
       "backdrop": {
         "addr": "0xFF8101",
         "type": "u8",
@@ -179,8 +195,8 @@
     }
   },
   "activity": {
-    "values": ["time", "health", "health_p2"],
-    "moving": ["time", "health", "health_p2"],
+    "values": ["time", "health", "health_p2", "score"],
+    "moving": ["time", "score", "health", "health_p2"],
     "seconds": 10,
     "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)",
     "human": {

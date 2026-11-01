@@ -970,6 +970,11 @@ class ZedBladeScene(SideShooterScene):
             for e in self.enemies:
                 if not e.get("dead"):
                     fx.later(0.4, self._boom, e)
+        ch = self.changed(vals, "shot_level")
+        if ch and ch[1] > ch[0] and self.ships["p1"]["in"]:                    # LEVEL-1 to 4, as on the HUD / comme le HUD
+            x, y = self.pos("p1", now)
+            top = _n(self.tops.get("shot_level"))
+            self.power_pop(x, y - self.S(64), int(ch[1]) + 1, int(top) + 1 if top is not None else 4)
 
     def status(self, screen, eng, vals, logo, now):
         """As in the game: 1P- in red and the score, 2P- in blue, the bombs at the bottom left.

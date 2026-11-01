@@ -2817,7 +2817,13 @@ class AeroFightersScene(BlazingStarScene):
                               scale=1 + 0.08 * math.sin(now * 10))
 
     def power_max(self, vals, side):
-        return 3
+        """The top shot level: the game file's ("max"), 3 when it does not say. / Le niveau de tir le plus haut."""
+        top = _n(self.tops.get("power" + ("" if side == "p1" else "_p2")))
+        return int(top) if top is not None and top > 0 else 3
+
+    def power_cases(self, vals, side, v):
+        """As many cases lit as the shot level, as many cases as its top, as on the HUD. / Comme sur le HUD."""
+        return max(0, int(v)), self.power_max(vals, side)
 
 
 class AeroFighters2Scene(AeroFightersScene):
