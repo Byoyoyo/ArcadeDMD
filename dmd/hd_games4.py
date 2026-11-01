@@ -119,21 +119,26 @@ def s45_bomber_draw(d, W, H):
 
 class BarFill:
     """How full a bar of the game is when its full value is not known (the super shot bar of Strikers 1945 Plus, 1.31).
-    At rest it is the lowest value seen, full the highest of the last fills, and at least `floor` above the rest until a
-    fill goes further. A fill ends when the bar falls back by more than half. / Le remplissage d'une barre du jeu dont on
-    ne connaît pas la valeur pleine : au repos la plus basse vue, pleine la plus haute des derniers remplissages, au
-    moins floor au-dessus. Un remplissage finit quand la barre retombe de plus de moitié."""
+    At rest it is the lowest value seen. Full is `floor` above the rest until a first fill ends, then the highest value
+    a fill reached, read twice in a row so that a value misread once does not count. A fill ends when the bar falls
+    back under half its height. / Le remplissage d'une barre du jeu dont on ne connaît pas la valeur pleine : au repos
+    la plus basse vue, pleine à floor au-dessus jusqu'à la fin d'un premier remplissage, puis la plus haute atteinte,
+    lue deux fois de suite pour qu'un raté ne compte pas. Un remplissage finit quand la barre retombe sous sa moitié."""
 
     def __init__(self, floor=255):
         self.floor = floor
         self.lo = None
+        self.prev = None
         self.top = None                                 # the highest value of the fill going on / du remplissage en cours
-        self.peaks = []                                 # the highest value of each of the last fills / des derniers
+        self.full = None                                # the highest of the fills that ended / des remplissages finis
         self.fills = 0                                  # fills seen (tests) / remplissages vus (tests)
 
     def span(self):
         lo = self.lo or 0
-        return max(self.floor, max(self.peaks + [lo if self.top is None else self.top]) - lo)
+        top = lo if self.top is None else self.top
+        if self.full is None:
+            return max(self.floor, top - lo)
+        return max(1, self.full - lo, top - lo)
 
     def feed(self, v):
         """A value read. Returns the highest value of the fill that just ended, else None. / Une valeur lue ; rend le
@@ -142,12 +147,14 @@ class BarFill:
             return None
         if self.lo is None or v < self.lo:
             self.lo = v
-        if self.top is None or v >= self.top:
-            self.top = v
-            return None
-        if self.top - v > self.span() / 2:
+        seen = v if self.prev is None else min(v, self.prev)          # read twice in a row / lue deux fois de suite
+        self.prev = v
+        if self.top is None or seen > self.top:
+            self.top = seen
+        h = self.top - self.lo
+        if h >= 4 and v < self.top - h / 2:                           # the bar fell back / la barre retombe
             peak, self.top = self.top, v
-            self.peaks = (self.peaks + [peak])[-4:]
+            self.full = peak if self.full is None else max(self.full, peak)
             self.fills += 1
             return peak
         return None
