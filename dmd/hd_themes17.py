@@ -290,11 +290,11 @@ def build_gu_village(W, H, s, seed=1705):
         _rect(p, x - 18 * s, 0, x + 18 * s, 90 * s, (126, 70, 40, 255), (50, 26, 14, 255), 2 * s)
         for j in range(8):
             p.line([(x - 16 * s, 6 * s + j * 11 * s), (x + 16 * s, 6 * s + j * 11 * s)], (90, 48, 26, 255), 1.6 * s)
-    for _ in range(int(tw / (120 * s))):                            # houses and their roofs / maisons et leurs toits
-        x, y = rng.uniform(0, tw), rng.uniform(80, 440) * s
-        if any(abs(y / s - yy) < 34 for yy in VILLAGE_PATHS):
+    for _ in range(int(tw / (46 * s))):                             # houses and their roofs / maisons et leurs toits
+        x, y = rng.uniform(0, tw), rng.uniform(84, 450) * s
+        if any(abs(y / s - yy) < 40 for yy in VILLAGE_PATHS):
             continue
-        w, h = rng.uniform(60, 110) * s, rng.uniform(40, 64) * s
+        w, h = rng.uniform(70, 130) * s, rng.uniform(44, 70) * s
         roof = rng.choice(((60, 66, 80), (70, 70, 74), (88, 70, 60), (54, 60, 70)))
         _rect(p, x - w / 2 - 4 * s, y - h / 2 - 4 * s, x + w / 2 + 4 * s, y + h / 2 + 4 * s, (40, 32, 26, 255))
         p.poly([(x - w / 2, y - h / 2), (x + w / 2, y - h / 2), (x + w / 2 - 10 * s, y), (x - w / 2 + 10 * s, y)],
@@ -305,7 +305,7 @@ def build_gu_village(W, H, s, seed=1705):
             p.line([(xx, y - h / 2 + 2 * s), (xx, y + h / 2 - 2 * s)], tuple(max(0, c - 18) for c in roof) + (255,), 1.2 * s)
         p.line([(x - w / 2 + 10 * s, y), (x + w / 2 - 10 * s, y)], (30, 30, 34, 255), 4 * s)
     lights = []
-    for _ in range(int(tw / (240 * s))):                            # pines and stone lanterns / pins et lanternes
+    for _ in range(int(tw / (150 * s))):                            # pines and stone lanterns / pins et lanternes
         x, y = rng.uniform(0, tw), rng.uniform(60, 450) * s
         _clump(p, x, y, rng.uniform(16, 26) * s, rng, ((28, 52, 36), (42, 72, 46), (70, 100, 60)), n=8)
         lx, ly = x + rng.uniform(30, 60) * s, y + rng.uniform(-20, 20) * s

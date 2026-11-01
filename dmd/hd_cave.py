@@ -361,9 +361,10 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
             if ch and ch[1] < ch[0] and P["in"]:                       # the ship blows up: the bullets vanish / plus de boulettes
                 self.clear_bullets(sparkle=True)
             ch = self.changed(vals, "ship" + suf)
-            if ch and P["in"]:
+            name = self.SHIP_NAMES.get(self.ship_kind(vals, side), "")
+            if ch and P["in"] and name:
                 x, y = self.pos(side, now)
-                self.popup(self.SHIP_NAMES.get(self.ship_kind(vals, side), ""), x, max(S(176), y - S(80)), GOLD, 36, key="stencil")
+                self.popup(name, x, max(S(176), y - S(80)), GOLD, 36, key="stencil")
             ch = self.changed(vals, "combo" + suf)
             if ch and ch[1] > ch[0] + 20 and P["in"]:                    # an enemy destroyed fills the gauge / la jauge se remplit
                 self.hitpop[side] = max(self.hitpop[side], now - 0.12)
@@ -636,7 +637,11 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
                 continue
             big = e.get("type") == "bomber"
             if big and e["x"] < self.W * 0.72:                           # a gunship slows down to fire / ralentit pour tirer
-                e["v"] = max(40 * self.s, e["v"] * (1 - dt * 0.8))
+                e.setdefault("slow_t", now)
+                if now - e["slow_t"] < 9.0:
+                    e["v"] = max(40 * self.s, e["v"] * (1 - dt * 0.8))
+                else:                                                    # then it goes away / puis il s'en va
+                    e["v"] = min(260 * self.s, e["v"] + 120 * self.s * dt)
             e["yy"] = e["y"] + math.sin(now * 1.6 + e["ph"]) * S(8 if big else 20)
             keep.append(e)
             if not self.SIDE:

@@ -531,10 +531,9 @@ def build(fbneo, cheats_dir, games_dir):
             titles[name] = title
         kind = {"cave_combat": "fighting game", "cave_shoot": "shoot'em up", "cave_reflexion": "puzzle game",
                 "cave_action": "action game"}[scene]
-        maker = "Cave" if name in BY_CAVE else ("IGS under Cave's licence" if name == "ddp2" else "on the Cave board")
+        maker = "by Cave" if name in BY_CAVE else ("by IGS under Cave's licence" if name == "ddp2" else "on the Cave board")
         known = [k for k in vals if not k.startswith("_") and vals[k].get("addr")]
-        d["note"] = (f"{kind[0].upper() + kind[1:]} {'by ' + maker if maker in ('Cave', 'IGS under Cave' + chr(39) + 's licence') else maker}"
-                     f" ({board(p)}): " + (", ".join(known) if known else "no value known yet")
+        d["note"] = (f"{kind[0].upper() + kind[1:]} {maker} ({board(p)}): " + (", ".join(known) if known else "no value known yet")
                      + f" (FinalBurn Neo cheat database). Made by {TOOL}.")
         d["generated"] = TOOL
         d["cave"] = board(p)
