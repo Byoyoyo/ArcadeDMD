@@ -39,6 +39,7 @@ from .hd_games11 import SCENES as _SCENES_127
 from .hd_games13 import SCENES as _SCENES_CPS_SHOOT
 from .hd_games14 import SCENES as _SCENES_CPS_ACTION
 from .hd_games16 import SCENES as _SCENES_CPS_SMALL
+from .hd_cave import SCENES as _SCENES_CAVE
 from .hd_panels import SCENES as _SCENES_CPS_PANELS
 from .hd_mslug import MetalSlugScene, family
 from .i18n import tr
@@ -58,7 +59,8 @@ GAME_SCENES = dict(_SCENES_117, **_SCENES_118, **_SCENES_119, **_SCENES_120, **_
                    **_SCENES_124, **_SCENES_125, **_SCENES_126,
                    **_SCENES_127,     # Neo Geo games done one by one
                    **_SCENES_CPS_SHOOT, **_SCENES_CPS_ACTION,
-                   **_SCENES_CPS_SMALL)     # Capcom CPS games done one by one
+                   **_SCENES_CPS_SMALL,     # Capcom CPS games done one by one
+                   **_SCENES_CAVE)          # the Cave games (1.31)
 GAME_SCENES.update(_SCENES_CPS_PANELS)       # the Capcom games with characters, shown like Metal Slug (1.30)
 MSLUG_WEAPONS = {0: ("PISTOLET", "HANDGUN"), 1: ("FUSIL À POMPE", "SHOTGUN"), 2: ("LANCE-FLAMMES", "FLAMETHROWER"),
                  3: ("LANCE-ROQUETTES", "ROCKET LAUNCHER"), 4: ("MITRAILLETTE", "MACHINE GUN")}
@@ -592,7 +594,7 @@ class HDRenderer:
             self.game_scene[1].render(screen, eng, now, self.logo_for(meta, title))
             return
         self.FPS = HDRenderer.FPS
-        fight = (g.get("scene_from") or key) in ("neogeo_combat", "cps_combat") or ("health" in vals and "health_p2" in vals)
+        fight = (g.get("scene_from") or key) in ("neogeo_combat", "cps_combat", "cave_combat") or ("health" in vals and "health_p2" in vals)
         logo = self.logo_for(meta, title)
         if fight and self.themed:                             # combat : salle de tournoi, étincelles, combos, K.O.
             if self.fight is None:

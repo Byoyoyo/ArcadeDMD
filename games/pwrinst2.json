@@ -1,0 +1,135 @@
+{
+  "title": "Power Instinct 2",
+  "note": "Fighting game on the Cave board (CAVE): health, health_p2, time, credits (FinalBurn Neo cheat database). Made by tools/cave_games.py.",
+  "generated": "tools/cave_games.py",
+  "cave": "CAVE",
+  "match": [
+    {
+      "system": ["pwrinst2", "pwrinst2a", "pwrinst2j", "pwrinst2ja", "pwrinst2k"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0x400000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: Cave 68000 work RAM from 0x400000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["pwrinst2", "pwrinst2a", "pwrinst2j", "pwrinst2ja", "pwrinst2k"]
+  },
+  "titles": {
+    "pwrinst2j": "Gouketsuji Ichizoku 2",
+    "pwrinst2ja": "Gouketsuji Ichizoku 2",
+    "pwrinst2k": "Power instinct 2"
+  },
+  "scene_from": "cave_combat",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "health": {
+        "addr": "0x40079D",
+        "type": "u8",
+        "note": "player 1 health in %, full = 0xE0 (FBNeo cheat database, Infinite Energy PL1)",
+        "mult": 0.446429,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xF0"
+      },
+      "health_p2": {
+        "addr": "0x400B9D",
+        "type": "u8",
+        "note": "player 2 health in %, full = 0xE0 (FBNeo cheat database, Infinite Energy PL2)",
+        "mult": 0.446429,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xF0"
+      },
+      "time": {
+        "addr": "0x400344",
+        "type": "bcd",
+        "bytes": 1,
+        "note": "timer (FBNeo cheat database, Infinite Time)"
+      },
+      "credits": {
+        "addr": "0x40FE48",
+        "type": "bcd",
+        "bytes": 1,
+        "note": "credits (FBNeo cheat database, Infinite Credits PL1)"
+      },
+      "_p1_chr": {
+        "addr": "0x400327",
+        "type": "u8",
+        "note": "player 1 character (FBNeo cheat database, Select Character PL1)"
+      },
+      "_p2_chr": {
+        "addr": "0x40032B",
+        "type": "u8",
+        "note": "player 2 or computer character (FBNeo cheat database, Select Character PL2)"
+      }
+    }
+  },
+  "derived": {
+    "p1_char": {
+      "value": "_p1_chr",
+      "names": {
+        "2": "ANNIE",
+        "1": "OUME",
+        "3": "OUME",
+        "4": "THIN NEN",
+        "5": "KEITH",
+        "6": "ANGELA",
+        "7": "WHITE",
+        "8": "SAIZO",
+        "9": "REIJI",
+        "10": "SAHAD",
+        "11": "OSHIMA",
+        "12": "KANJI",
+        "13": "KANJI",
+        "14": "KINTARO",
+        "15": "POCHI",
+        "16": "KURARA",
+        "17": "S.KURARA",
+        "18": "OTANE",
+        "19": "OTANE"
+      }
+    },
+    "p2_char": {
+      "value": "_p2_chr",
+      "names": {
+        "2": "ANNIE",
+        "1": "OUME",
+        "3": "OUME",
+        "4": "THIN NEN",
+        "5": "KEITH",
+        "6": "ANGELA",
+        "7": "WHITE",
+        "8": "SAIZO",
+        "9": "REIJI",
+        "10": "SAHAD",
+        "11": "OSHIMA",
+        "12": "KANJI",
+        "13": "KANJI",
+        "14": "KINTARO",
+        "15": "POCHI",
+        "16": "KURARA",
+        "17": "S.KURARA",
+        "18": "OTANE",
+        "19": "OTANE"
+      }
+    }
+  },
+  "activity": {
+    "values": ["time", "health", "health_p2"],
+    "moving": ["time", "health", "health_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "health": 100,
+    "health_p2": 100,
+    "time": 99
+  }
+}

@@ -1,0 +1,182 @@
+{
+  "title": "Air Gallet",
+  "note": "Shoot'em up on the Cave board (CAVE): credits, lives, lives_p2, bombs, bombs_p2, power, power_p2 (FinalBurn Neo cheat database). Made by tools/cave_games.py.",
+  "generated": "tools/cave_games.py",
+  "cave": "CAVE",
+  "match": [
+    {
+      "system": ["agallet", "agalleta", "agalletah", "agalletaj", "agalletak", "agalletat", "agalletau", "agalleth", "agalletj", "agalletk", "agallett", "agalletu"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0x100000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: Cave 68000 work RAM from 0x100000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["agallet", "agalleta", "agalletah", "agalletaj", "agalletak", "agalletat", "agalletau", "agalleth", "agalletj", "agalletk", "agallett", "agalletu"]
+  },
+  "titles": {
+    "agalletj": "Akuu Gallet",
+    "agalletaj": "Akuu Gallet"
+  },
+  "scene_from": "cave_shoot",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "credits": {
+        "addr": "0x1001CD",
+        "type": "u8",
+        "note": "credits (FBNeo cheat database, Infinite Credits)"
+      },
+      "lives": {
+        "addr": "0x1002ED",
+        "type": "u8",
+        "note": "lives (FBNeo cheat database, Infinite Lives PL1)"
+      },
+      "lives_p2": {
+        "addr": "0x1002EF",
+        "type": "u8",
+        "note": "lives of player 2 (FBNeo cheat database, Infinite Lives PL2)"
+      },
+      "bombs": {
+        "addr": "0x100D73",
+        "type": "u8",
+        "note": "bombs (FBNeo cheat database, Infinite Bombs PL1)"
+      },
+      "bombs_p2": {
+        "addr": "0x100E33",
+        "type": "u8",
+        "note": "bombs of player 2 (FBNeo cheat database, Infinite Bombs PL2)"
+      },
+      "power": {
+        "addr": "0x100D7C",
+        "type": "u8",
+        "note": "shot power of player 1, 0x1D at most (FBNeo cheat database, Maximum Fire Power PL1)",
+        "max": 29
+      },
+      "power_p2": {
+        "addr": "0x100E3C",
+        "type": "u8",
+        "note": "shot power of player 2 (FBNeo cheat database, Maximum Fire Power PL2)",
+        "max": 29
+      },
+      "score": {
+        "addr": "",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+      },
+      "score_p2": {
+        "addr": "",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+      }
+    }
+  },
+  "hd": {
+    "scene": "agallet"
+  },
+  "activity": {
+    "values": ["lives", "lives_p2", "bombs", "bombs_p2", "score", "score_p2"],
+    "moving": ["score", "score_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
+  },
+  "demo": {
+    "attract": true,
+    "credits": 0,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "score": 0,
+    "lives": 3,
+    "bombs": 3,
+    "power": 1,
+    "score_p2": 0,
+    "lives_p2": 0,
+    "bombs_p2": 0,
+    "power_p2": 0,
+    "sim": {
+      "bombs": {
+        "cycle": [
+          3,
+          3,
+          2,
+          2,
+          1,
+          2,
+          3,
+          3
+        ],
+        "every": 6.0,
+        "start": 9.0
+      },
+      "power": {
+        "cycle": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          29,
+          29,
+          1
+        ],
+        "every": 7.0,
+        "start": 6.0
+      },
+      "score_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "lives_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "bombs_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "power_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      }
+    }
+  }
+}

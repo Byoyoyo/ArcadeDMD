@@ -1,0 +1,224 @@
+{
+  "title": "Ketsui: Kizuna Jigoku Tachi",
+  "note": "Shoot'em up by Cave (PGM): credits, lives, lives_p2, bombs, bombs_p2, power, power_p2, combo, combo_p2 (FinalBurn Neo cheat database). Made by tools/cave_games.py.",
+  "generated": "tools/cave_games.py",
+  "cave": "PGM",
+  "match": [
+    {
+      "system": ["ket", "ket1", "keta", "ketarr", "ketarr10", "ketarr15", "ketarr151", "ketarrb", "ketarrf", "ketarrs15", "ketarrs151", "ketb", "ketbl", "ketikd", "ketmatsuri", "ketse"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0x800000",
+    "ram_size": "0x20000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: PGM 68000 RAM from 0x800000 (128 KB), bytes swapped within 16-bit words",
+    "content": ["ket", "ket1", "keta", "ketarr", "ketarr10", "ketarr15", "ketarr151", "ketarrb", "ketarrf", "ketarrs15", "ketarrs151", "ketb", "ketbl", "ketikd", "ketmatsuri", "ketse"]
+  },
+  "titles": {
+    "ketmatsuri": "Ketsui: Kizuna Jigoku Tachi - IKD 2007 Special",
+    "ketikd": "Ketsui: Kizuna Jigoku Tachi - IKD 2007 Special"
+  },
+  "scene_from": "cave_shoot",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "credits": {
+        "addr": "0x801160",
+        "type": "u8",
+        "note": "credits (FBNeo cheat database, Infinite Credits)"
+      },
+      "lives": {
+        "addr": "0x812472",
+        "type": "be",
+        "bytes": 2,
+        "note": "lives of player 1 (FBNeo cheat database, Infinite Lives PL1)"
+      },
+      "lives_p2": {
+        "addr": "0x812474",
+        "type": "be",
+        "bytes": 2,
+        "note": "lives of player 2 (FBNeo cheat database, Infinite Lives PL2)"
+      },
+      "bombs": {
+        "addr": "0x80FEC6",
+        "type": "be",
+        "bytes": 2,
+        "note": "bombs of player 1 (FBNeo cheat database, Infinite Bombs PL1)"
+      },
+      "bombs_p2": {
+        "addr": "0x80FF36",
+        "type": "be",
+        "bytes": 2,
+        "note": "bombs of player 2 (FBNeo cheat database, Infinite Bombs PL2)"
+      },
+      "power": {
+        "addr": "0x80FEC2",
+        "type": "be",
+        "bytes": 2,
+        "note": "shot level of player 1, 8 at most (FBNeo cheat database, Maximum Fire Power PL1)",
+        "max": 8
+      },
+      "power_p2": {
+        "addr": "0x80FF32",
+        "type": "be",
+        "bytes": 2,
+        "note": "shot level of player 2 (FBNeo cheat database, Maximum Fire Power PL2)",
+        "max": 8
+      },
+      "combo": {
+        "addr": "0x81BB91",
+        "type": "u8",
+        "note": "combo time of player 1, full = 0x38 (FBNeo cheat database, Infinite Combo Time PL1)",
+        "mult": 1.785714,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "combo_p2": {
+        "addr": "0x81BC01",
+        "type": "u8",
+        "note": "combo time of player 2, full = 0x38 (FBNeo cheat database, Infinite Combo Time PL2)",
+        "mult": 1.785714,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "score": {
+        "addr": "",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+      },
+      "score_p2": {
+        "addr": "",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+      }
+    }
+  },
+  "hd": {
+    "scene": "ket"
+  },
+  "activity": {
+    "values": ["lives", "lives_p2", "bombs", "bombs_p2", "score", "score_p2"],
+    "moving": ["score", "score_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
+  },
+  "demo": {
+    "attract": true,
+    "credits": 0,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "score": 0,
+    "lives": 3,
+    "bombs": 3,
+    "power": 1,
+    "combo": 0,
+    "score_p2": 0,
+    "lives_p2": 0,
+    "bombs_p2": 0,
+    "power_p2": 0,
+    "combo_p2": 0,
+    "sim": {
+      "bombs": {
+        "cycle": [
+          3,
+          3,
+          2,
+          2,
+          1,
+          2,
+          3,
+          3
+        ],
+        "every": 6.0,
+        "start": 9.0
+      },
+      "power": {
+        "cycle": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          8,
+          8,
+          1
+        ],
+        "every": 7.0,
+        "start": 6.0
+      },
+      "combo": {
+        "cycle": [
+          100,
+          92,
+          84,
+          100,
+          94,
+          86,
+          78,
+          100,
+          96,
+          88,
+          80,
+          72,
+          100,
+          90,
+          80,
+          70,
+          58,
+          46,
+          34,
+          22,
+          10,
+          0,
+          0,
+          0
+        ],
+        "every": 0.25,
+        "start": 4.0
+      },
+      "score_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "lives_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "bombs_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "power_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "combo_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      }
+    }
+  }
+}

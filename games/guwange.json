@@ -1,0 +1,370 @@
+{
+  "title": "Guwange",
+  "note": "Shoot'em up by Cave (CAVE): credits, bombs, bombs_p2, power, power_p2, combo, combo_p2, energy, energy_p2, char, char_p2 (FinalBurn Neo cheat database). Made by tools/cave_games.py.",
+  "generated": "tools/cave_games.py",
+  "cave": "CAVE",
+  "match": [
+    {
+      "system": ["guwange", "guwanges"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0x200000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: Cave 68000 work RAM from 0x200000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["guwange", "guwanges"]
+  },
+  "scene_from": "cave_shoot",
+  "per_game": {
+    "guwanges": {
+      "credits": {
+        "addr": "0x20101B",
+        "type": "u8",
+        "note": "credits (FBNeo cheat database, Infinite Credits) (guwanges: its own cheats)"
+      },
+      "bombs": {
+        "addr": "0x202905",
+        "type": "u8",
+        "note": "bombs of player 1, 5 at most (FBNeo cheat database, Infinite Bombs PL1) (guwanges: its own cheats)"
+      },
+      "bombs_p2": {
+        "addr": "0x202965",
+        "type": "u8",
+        "note": "bombs of player 2 (FBNeo cheat database, Infinite Bombs PL2) (guwanges: its own cheats)"
+      },
+      "power": {
+        "addr": "0x202907",
+        "type": "u8",
+        "note": "shot power of player 1, 14 at most (FBNeo cheat database, Maximum Power PL1) (guwanges: its own cheats)",
+        "max": 14
+      },
+      "power_p2": {
+        "addr": "0x202967",
+        "type": "u8",
+        "note": "shot power of player 2 (FBNeo cheat database, Maximum Power PL2) (guwanges: its own cheats)",
+        "max": 14
+      },
+      "combo": {
+        "addr": "0x2028A9",
+        "type": "u8",
+        "note": "combo gauge of player 1, full = 10 (FBNeo cheat database, Infinite Combo Gauge PL1) (guwanges: its own cheats)",
+        "mult": 10.0,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "combo_p2": {
+        "addr": "0x202909",
+        "type": "u8",
+        "note": "combo gauge of player 2, full = 10 (FBNeo cheat database, Infinite Combo Gauge PL2) (guwanges: its own cheats)",
+        "mult": 10.0,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "energy": {
+        "addr": "0x2026E6",
+        "type": "u8",
+        "note": "energy of player 1, full = 0x24 (FBNeo cheat database, Infinite Energy PL1) (guwanges: its own cheats)",
+        "mult": 2.777778,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "energy_p2": {
+        "addr": "0x2026EC",
+        "type": "u8",
+        "note": "energy of player 2, full = 0x24 (FBNeo cheat database, Infinite Energy PL2) (guwanges: its own cheats)",
+        "mult": 2.777778,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "char": {
+        "addr": "0x2028F0",
+        "type": "u8",
+        "note": "hero of player 1: 0 Sisin, 1 Kosame, 2 Gensuke (FBNeo cheat database, Select Color PL1) (guwanges: its own cheats)"
+      },
+      "char_p2": {
+        "addr": "0x202950",
+        "type": "u8",
+        "note": "hero of player 2 (FBNeo cheat database, Select Color PL2) (guwanges: its own cheats)"
+      }
+    }
+  },
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "credits": {
+        "addr": "0x201011",
+        "type": "u8",
+        "note": "credits (FBNeo cheat database, Infinite Credits)"
+      },
+      "bombs": {
+        "addr": "0x2028F9",
+        "type": "u8",
+        "note": "bombs of player 1, 5 at most (FBNeo cheat database, Infinite Bombs PL1)"
+      },
+      "bombs_p2": {
+        "addr": "0x202959",
+        "type": "u8",
+        "note": "bombs of player 2 (FBNeo cheat database, Infinite Bombs PL2)"
+      },
+      "power": {
+        "addr": "0x2028FB",
+        "type": "u8",
+        "note": "shot power of player 1, 14 at most (FBNeo cheat database, Maximum Power PL1)",
+        "max": 14
+      },
+      "power_p2": {
+        "addr": "0x20295B",
+        "type": "u8",
+        "note": "shot power of player 2 (FBNeo cheat database, Maximum Power PL2)",
+        "max": 14
+      },
+      "combo": {
+        "addr": "0x20289D",
+        "type": "u8",
+        "note": "combo gauge of player 1, full = 10 (FBNeo cheat database, Infinite Combo Gauge PL1)",
+        "mult": 10.0,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "combo_p2": {
+        "addr": "0x20290D",
+        "type": "u8",
+        "note": "combo gauge of player 2, full = 10 (FBNeo cheat database, Infinite Combo Gauge PL2)",
+        "mult": 10.0,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "energy": {
+        "addr": "0x2026DA",
+        "type": "u8",
+        "note": "energy of player 1, full = 0x24 (FBNeo cheat database, Infinite Energy PL1)",
+        "mult": 2.777778,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "energy_p2": {
+        "addr": "0x2026E0",
+        "type": "u8",
+        "note": "energy of player 2, full = 0x24 (FBNeo cheat database, Infinite Energy PL2)",
+        "mult": 2.777778,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "char": {
+        "addr": "0x2028E4",
+        "type": "u8",
+        "note": "hero of player 1: 0 Sisin, 1 Kosame, 2 Gensuke (FBNeo cheat database, Select Color PL1)"
+      },
+      "char_p2": {
+        "addr": "0x202944",
+        "type": "u8",
+        "note": "hero of player 2 (FBNeo cheat database, Select Color PL2)"
+      },
+      "lives": {
+        "addr": "",
+        "type": "u8",
+        "note": "lives of player 1, not in the cheat databases: learn it with learn.bat (lives=...)"
+      },
+      "score": {
+        "addr": "",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+      },
+      "score_p2": {
+        "addr": "",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+      }
+    }
+  },
+  "derived": {
+    "p1_char": {
+      "value": "char",
+      "names": {
+        "0": "SISIN",
+        "1": "KOSAME",
+        "2": "GENSUKE"
+      }
+    },
+    "p2_char": {
+      "value": "char_p2",
+      "names": {
+        "0": "SISIN",
+        "1": "KOSAME",
+        "2": "GENSUKE"
+      }
+    }
+  },
+  "hd": {
+    "scene": "guwange"
+  },
+  "activity": {
+    "values": ["lives", "bombs", "bombs_p2", "score", "score_p2"],
+    "moving": ["score", "score_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
+  },
+  "demo": {
+    "attract": true,
+    "credits": 0,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "score": 0,
+    "lives": 3,
+    "bombs": 3,
+    "power": 1,
+    "combo": 0,
+    "char": 0,
+    "energy": 100,
+    "score_p2": 0,
+    "bombs_p2": 0,
+    "power_p2": 0,
+    "combo_p2": 0,
+    "char_p2": 0,
+    "energy_p2": 0,
+    "sim": {
+      "bombs": {
+        "cycle": [
+          3,
+          3,
+          2,
+          2,
+          1,
+          2,
+          3,
+          3
+        ],
+        "every": 6.0,
+        "start": 9.0
+      },
+      "power": {
+        "cycle": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          14,
+          14,
+          1
+        ],
+        "every": 7.0,
+        "start": 6.0
+      },
+      "combo": {
+        "cycle": [
+          100,
+          92,
+          84,
+          100,
+          94,
+          86,
+          78,
+          100,
+          96,
+          88,
+          80,
+          72,
+          100,
+          90,
+          80,
+          70,
+          58,
+          46,
+          34,
+          22,
+          10,
+          0,
+          0,
+          0
+        ],
+        "every": 0.25,
+        "start": 4.0
+      },
+      "char": {
+        "cycle": [
+          0,
+          1,
+          2
+        ],
+        "every": 40.0,
+        "start": 40.0
+      },
+      "energy": {
+        "cycle": [
+          100,
+          100,
+          80,
+          60,
+          40,
+          20,
+          100
+        ],
+        "every": 3.0,
+        "start": 6.0
+      },
+      "score_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "bombs_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "power_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "combo_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "char_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "energy_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      }
+    }
+  }
+}

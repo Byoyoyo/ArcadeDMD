@@ -206,6 +206,9 @@ def check_when(cond, state, now=None):
             return v < cond["lt"]
         if "le" in cond:
             return v <= cond["le"]
+        if "ge_var" in cond:                         # at least another value (bombs at their slots) / au moins une autre valeur
+            other = state.values.get(cond["ge_var"])
+            return isinstance(other, (int, float)) and isinstance(v, (int, float)) and v >= other
         return True
     return True
 
@@ -1358,8 +1361,10 @@ class IconsEl(Element):
     """A small drawing repeated for a value: lives as ships, bombs, power pips.
     "pattern": rows of characters, "." empty, other characters colored by "colors" (or "color").
     "max": at most this many, "empty": color of the slots left (up to max), "align": "left" or "right".
+    "slots": a value that says how many slots there are, the empty ones shown up to it (the bomb slots of DoDonPachi).
 
-    Un petit dessin répété autant de fois que la valeur : vies en vaisseaux, bombes, niveaux de puissance."""
+    Un petit dessin répété autant de fois que la valeur : vies en vaisseaux, bombes, niveaux de puissance. "slots" : la
+    valeur qui dit combien il y a de places, les vides montrées jusque-là (les places de bombes de DoDonPachi)."""
 
     def __init__(self, spec, root, log):
         super().__init__(spec, root, log)
@@ -1378,6 +1383,9 @@ class IconsEl(Element):
         mx = int(s.get("max", 8))
         n = max(0, min(n, mx))
         slots = mx if self.empty is not None else n
+        if self.empty is not None and isinstance(s.get("slots"), str):
+            k = _int_value(ctx, s["slots"])
+            slots = n if k is None else max(n, min(k, mx))
         gap = int(s.get("gap", 1))
         x0, y0 = int(s.get("x", 0)), int(s.get("y", 0))
         right = s.get("align") == "right"

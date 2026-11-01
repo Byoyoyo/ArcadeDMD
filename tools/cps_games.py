@@ -131,8 +131,12 @@ def bcd_like(v):
     return v not in (0x63, 0x3C, 0x5A, 0x64) and all(int(c, 16) <= 9 for c in f"{v:x}")
 
 
+# the RAM FinalBurn Neo gives RetroArch, per family (tools/cave_games.py adds its own) / la RAM partagée, par famille
+WINDOWS = {"CPS1": (0xFF0000, 0x10000), "CPS2": (0xFF0000, 0x10000), "CPS3": (0x2000000, 0x80000)}
+
+
 def visible(addr, fam):
-    lo, size = (0x2000000, 0x80000) if fam == "CPS3" else (0xFF0000, 0x10000)
+    lo, size = WINDOWS.get(fam, (0xFF0000, 0x10000))
     return lo <= addr < lo + size
 
 
@@ -527,9 +531,10 @@ ROUND_LAYERS = [
      "colors": {"#": "#ffd040"}, "empty": "#3a2a10", "when": {"all": [{"has": "rounds_p2"}, {"has": ["health", "health_p2"]}]}}]
 
 
-def make_templates(games_dir):
-    """games/cps_*.json: the shared scenes, the Neo Geo ones with the title where they said NEO GEO."""
-    for key, src in TEMPLATES.items():
+def make_templates(games_dir, templates=None, maker="Capcom CPS", tool=TOOL):
+    """games/cps_*.json: the shared scenes, the Neo Geo ones with the title where they said NEO GEO. tools/cave_games.py
+    makes games/cave_*.json the same way. / Les scènes communes, faites des scènes Neo Geo avec le titre du jeu."""
+    for key, src in (templates or TEMPLATES).items():
         d = load(os.path.join(games_dir, src + ".json")) or {}
         layers = json.loads(json.dumps((d.get("scene") or {}).get("layers") or []))
         out = []
@@ -543,15 +548,15 @@ def make_templates(games_dir):
                 if ly["when"] is None:
                     ly.pop("when")
             out.append(ly)
-        if key == "cps_combat":
+        if key.endswith("_combat"):
             out[1:1] = SUPER_LAYERS
             bars = [i for i, ly in enumerate(out) if ly.get("type") == "gauge" and ly.get("var") == "health_p2"]
             if bars:
                 out[bars[0] + 1:bars[0] + 1] = ROUND_LAYERS
         dump(os.path.join(games_dir, key + ".json"), {
-            "note": f"Shared scene of the Capcom CPS games ({key.split('_')[-1] if '_' in key else 'action'}), made by {TOOL} "
+            "note": f"Shared scene of the {maker} games ({key.split('_')[-1] if '_' in key else 'action'}), made by {tool} "
                     f"from games/{src}.json. The games take it with scene_from.",
-            "generated": TOOL, "scene": {"layers": out}})
+            "generated": tool, "scene": {"layers": out}})
 
 
 def build(fbneo, cheats_dir, games_dir):

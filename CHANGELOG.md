@@ -3,6 +3,76 @@
 Newest version first. Each version is in English, then in French.
 La version la plus récente en premier. Chaque version est en anglais, puis en français.
 
+## 1.31.0
+
+### English
+
+**The Cave games**
+- Every Cave game of FinalBurn Neo is recognized, with MAME as with RetroArch. That makes 37 games and their 158 sets. The games of the Cave board (DonPachi, DoDonPachi, ESP Ra.De., Dangun Feveron, Guwange, Puzzle Uo Poko), those Cave made for the IGS PGM (DoDonPachi Dai-Ou-Jou and its Black Label, Ketsui, Espgaluda, and DoDonPachi II that IGS made under Cave's licence), the games of Cave's own CV1000 board (Mushihime-sama, its Futari, Black Label and Matsuri, Espgaluda II, Ibara, Ibara Kuro Black Label, Pink Sweets, Muchi Muchi Pork!, Deathsmiles and its MegaBlack Label, DoDonPachi Dai-Fukkatsu and its Black Label, DoDonPachi SaiDaiOuJou, Akai Katana, Puzzle! Mushihime-Tama), and the games other companies made on the Cave board (Power Instinct 2, Gogetsuji Legends, Sailor Moon, Air Gallet, Hotdog Storm, Mazinger Z, Gaia Crusaders, Thunder Heroes, Metamoqester, Koro Koro Quest, Crusher Makochan). A version, a bootleg or a hack takes the file of its original game. The files are made by `tools/cave_games.py` from the list and the cheat database of FinalBurn Neo.
+- What is read (cheat database, read with MAME's notes). The credits, the lives, the bombs and in DoDonPachi and Dai-Ou-Jou their slots (three at the start, one more for each ship lost, six at most), the shot level, the combo gauge that drains, the ship chosen (TYPE-A, TYPE-B, TYPE-C), the stage or the round, the hero of Guwange and his energy, the multiplier of ESP Ra.De., the spirit stones of Espgaluda. The score and the hit counter are not in the cheat databases, learn them with `learn.bat` (`score=`, `hits=`, `stage=`, and `credits=` in DoDonPachi). The CV1000 games have no cheats, everything is to learn there.
+- A version whose own cheats put its values elsewhere reads them there, each value where the same cheat of that version writes (Dai-Ou-Jou V100 and its Black Label, Guwange Special, the first versions of DoDonPachi II). A value its cheats do not give is left to learn rather than read at a wrong place.
+- RetroArch, FinalBurn Neo core. The 64 KB of the 68000's work RAM of the Cave board (from 0x100000, 0x200000 in Guwange, 0x300000 in Hotdog Storm and Koro Koro Quest, 0x400000 in Power Instinct 2), the 128 KB of the PGM from 0x800000, and the first 2 MB of the CV1000's RAM from 0xC000000, where its games keep their values. Metamoqester keeps its values out of this RAM and is read with MAME only.
+- The credits of DoDonPachi are counted from the coin buttons until they are learned (`coin_buttons.bat`).
+
+**DoDonPachi on the HD screen**
+- Seen from the sky like the other vertical shoot'em ups, the ship flies to the right over the stage and the enemies answer the way Cave's games do. Rings and spirals of pink and blue bullets from the gunships, fans of needles from the helicopters, aimed bullets from the little fighters, big slow orbs from the tanks on the roads.
+- The three ships read in the game. The red fighter of the focused stream, the helicopter whose guns follow its turns and whose pods turn around it, the blue fighter of the spread. Player 2 has other colours, as in the game. Each one fires its laser when the fire is held, a thick blue beam that bites the enemy in front, the pods gathered before it.
+- Once the score is learned, an enemy only blows up when the game scores points. A big gain (a boss, a big machine) turns all its bullets into gold stars that fly to the ship.
+- A bomb burns the screen from the ship forward in four waves of blasts, wipes all the bullets and stops the enemy fire a moment. A ship lost blows up, the bullets vanish, and the new bomb slot it gives glints.
+- The HUD as in the game. 1P and the score with the ships left, the hit counter with its gauge that drains and the best chain (MAX HIT, once the counter is learned), the bombs at the bottom with the empty slots still to come and MAX when they are all full, the ship chosen, 2P on the right, the credits in the middle.
+- The stages in the spirit of the game, the countryside and its highway, the city, the harbour and its docks, the ruins, the steel fortress, the honeycomb hive and the last fortress in space. A new stage (once learned) changes the backdrop under a STAGE banner. The backdrops are new, everything is drawn by the program, no ship, character or emblem of the game is drawn.
+
+**The other Cave games on the HD screen**
+- Each one has its own scene, built on DoDonPachi's. DonPachi with thinner bullets, Dai-Ou-Jou with the thickest rain of the series, Dai-Fukkatsu and SaiDaiOuJou in brighter colours, DoDonPachi II over the sea. Young psychics of our own over the Tokyo of the future by night (ESP Ra.De., its multiplier beside the gauge). A wanderer of old Japan who walks the village at dusk while his guardian spirit flies around him (Guwange, the hero and his energy read in the game). A night of fever on a floor of neon (Dangun Feveron, the fighter and the round read in the game). Two attack helicopters and their lock-on over the city (Ketsui). Winged heroes and the awakening that slows the bullets down, turns them gold and the screen violet when the spirit stones drain (Espgaluda, Espgaluda II). A great horned beetle over the forest of the insects (Mushihime-sama and its sequels). Fighters high in the sky (Ibara, Pink Sweets), flying pigs (Muchi Muchi Pork!), a gothic flyer over the graveyards, seen from the side (Deathsmiles), fighters of the age of steam, seen from the side (Akai Katana). Hotdog Storm, Mazinger Z (its energy) and Air Gallet with our jet fighters. Uo Poko and Mushihime-Tama with the bubbles of the puzzle games.
+- The fighting games (Power Instinct 2, Gogetsuji Legends, Metamoqester) get the fight scene of the fighting games.
+
+**The panel**
+- The Cave shoot'em ups have a panel of their own in the spirit of DoDonPachi. Pink and blue bullets drift by, 1P and the score at the top with the ships left, the hit counter in the middle (the ship chosen when there is no chain), the bombs and their empty slots at the bottom with MAX when they are full, and the combo gauge that drains.
+- A panel scene can show the empty slots up to a value (`"slots"` of an `icons` layer) and test a value against another one (`"ge_var"` in a `"when"`).
+
+**learn.bat**
+- Under RetroArch a big RAM is read by windows of requests. The 2 MB of a CV1000 took a minute, it now takes seconds. A small RAM is read as before.
+
+**Demo**
+- `demo_cave.bat` shows the Cave games without playing. Pick the game in the list, or give it directly, `demo_cave.bat ddonpach` for example.
+
+**Updating from 1.30.1**
+Unzip the new zip over the old folder (`config.json`, your learned addresses and your `artwork` folder are kept).
+
+### Français
+
+**Les jeux Cave**
+- Tous les jeux Cave de FinalBurn Neo sont reconnus, avec MAME comme avec RetroArch. Cela fait 37 jeux et leurs 158 sets. Les jeux de la carte Cave (DonPachi, DoDonPachi, ESP Ra.De., Dangun Feveron, Guwange, Puzzle Uo Poko), ceux que Cave a faits pour le PGM d'IGS (DoDonPachi Dai-Ou-Jou et son Black Label, Ketsui, Espgaluda, et DoDonPachi II qu'IGS a fait sous licence Cave), les jeux de la carte CV1000 de Cave (Mushihime-sama, son Futari, son Black Label et son Matsuri, Espgaluda II, Ibara, Ibara Kuro Black Label, Pink Sweets, Muchi Muchi Pork!, Deathsmiles et son MegaBlack Label, DoDonPachi Dai-Fukkatsu et son Black Label, DoDonPachi SaiDaiOuJou, Akai Katana, Puzzle! Mushihime-Tama), et les jeux que d'autres ont faits sur la carte Cave (Power Instinct 2, Gogetsuji Legends, Sailor Moon, Air Gallet, Hotdog Storm, Mazinger Z, Gaia Crusaders, Thunder Heroes, Metamoqester, Koro Koro Quest, Crusher Makochan). Une version, un bootleg ou un hack prend le fichier de son jeu d'origine. Les fichiers sont faits par `tools/cave_games.py` d'après la liste et la base de triche de FinalBurn Neo.
+- Ce qui est lu (base de triche, lue avec les notes de MAME). Les crédits, les vies, les bombes et dans DoDonPachi et Dai-Ou-Jou leurs places (trois au départ, une de plus par vaisseau perdu, six au plus), le niveau du tir, la jauge de combo qui se vide, le vaisseau choisi (TYPE-A, TYPE-B, TYPE-C), le niveau ou le round, le héros de Guwange et son énergie, le multiplicateur d'ESP Ra.De., les pierres d'esprit d'Espgaluda. Le score et le compteur de coups ne sont pas dans les bases de triche, apprends-les avec `learn.bat` (`score=`, `hits=`, `stage=`, et `credits=` dans DoDonPachi). Les jeux du CV1000 n'ont pas de codes de triche, tout y est à apprendre.
+- Une version dont les propres codes de triche mettent ses valeurs ailleurs les lit là, chaque valeur là où écrit le même code de cette version (Dai-Ou-Jou V100 et son Black Label, Guwange Special, les premières versions de DoDonPachi II). Une valeur que ses codes ne donnent pas reste à apprendre plutôt que lue au mauvais endroit.
+- RetroArch, cœur FinalBurn Neo. Les 64 Ko de la RAM de travail du 68000 de la carte Cave (à partir de 0x100000, 0x200000 dans Guwange, 0x300000 dans Hotdog Storm et Koro Koro Quest, 0x400000 dans Power Instinct 2), les 128 Ko du PGM à partir de 0x800000, et les 2 premiers Mo de la RAM du CV1000 à partir de 0xC000000, là où ses jeux gardent leurs valeurs. Metamoqester garde ses valeurs hors de cette RAM et se lit avec MAME seulement.
+- Les crédits de DoDonPachi sont comptés d'après les boutons des pièces tant qu'ils ne sont pas appris (`coin_buttons.bat`).
+
+**DoDonPachi sur l'écran HD**
+- Vu du ciel comme les autres shoot'em ups verticaux, le vaisseau vole vers la droite au-dessus du niveau et les ennemis répondent comme dans les jeux Cave. Des anneaux et des spirales de boulettes roses et bleues des canonnières, des éventails d'aiguilles des hélicoptères, des balles visées des petits chasseurs, de grosses sphères lentes des chars sur les routes.
+- Les trois vaisseaux lus dans le jeu. Le chasseur rouge du tir serré, l'hélicoptère dont les canons suivent les virages et dont les nacelles tournent autour de lui, le chasseur bleu de l'éventail. Le joueur 2 a d'autres couleurs, comme dans le jeu. Chacun tire son laser quand le tir est maintenu, un épais rayon bleu qui mord l'ennemi devant lui, les nacelles réunies devant.
+- Une fois le score appris, un ennemi n'explose que quand le jeu marque des points. Un gros gain (un boss, une grosse machine) change toutes ses boulettes en étoiles d'or qui filent vers le vaisseau.
+- Une bombe embrase l'écran du vaisseau vers l'avant en quatre vagues d'explosions, efface toutes les boulettes et arrête le tir ennemi un moment. Un vaisseau perdu explose, les boulettes disparaissent, et la place de bombe qu'il donne en plus brille.
+- Le HUD comme dans le jeu. 1P et le score avec les vaisseaux restants, le compteur de coups avec sa jauge qui se vide et la meilleure chaîne (MAX HIT, une fois le compteur appris), les bombes en bas avec les places vides des bombes à venir et MAX quand tout est plein, le vaisseau choisi, 2P à droite, les crédits au milieu.
+- Les niveaux dans l'esprit du jeu, la campagne et son autoroute, la ville, le port et ses quais, les ruines, la forteresse d'acier, la ruche d'alvéoles et la dernière forteresse dans l'espace. Un nouveau niveau (une fois appris) change le décor sous un bandeau STAGE. Les décors sont nouveaux, tout est dessiné par le programme, aucun vaisseau, personnage ou emblème du jeu n'est dessiné.
+
+**Les autres jeux Cave sur l'écran HD**
+- Chacun a sa scène, bâtie sur celle de DoDonPachi. DonPachi avec moins de boulettes, Dai-Ou-Jou avec la pluie la plus épaisse de la série, Dai-Fukkatsu et SaiDaiOuJou en couleurs plus vives, DoDonPachi II au-dessus de la mer. De jeunes médiums à nous au-dessus du Tokyo du futur la nuit (ESP Ra.De., son multiplicateur à côté de la jauge). Un voyageur du Japon d'autrefois qui marche dans le village au crépuscule pendant que son esprit gardien vole autour de lui (Guwange, le héros et son énergie lus dans le jeu). Une nuit de fièvre sur une piste au néon (Dangun Feveron, le chasseur et le round lus dans le jeu). Deux hélicoptères d'attaque et leur verrouillage au-dessus de la ville (Ketsui). Des héros ailés et l'éveil qui ralentit les boulettes, les rend dorées et fait virer l'écran au violet quand les pierres d'esprit fondent (Espgaluda, Espgaluda II). Un grand scarabée à corne au-dessus de la forêt des insectes (Mushihime-sama et ses suites). Des chasseurs haut dans le ciel (Ibara, Pink Sweets), des cochons volants (Muchi Muchi Pork!), une silhouette gothique au-dessus des cimetières, de profil (Deathsmiles), des chasseurs de l'âge de la vapeur, de profil (Akai Katana). Hotdog Storm, Mazinger Z (son énergie) et Air Gallet avec nos chasseurs à réaction. Uo Poko et Mushihime-Tama avec les bulles des jeux de réflexion.
+- Les jeux de combat (Power Instinct 2, Gogetsuji Legends, Metamoqester) ont la scène des jeux de combat.
+
+**La dalle**
+- Les shoot'em ups Cave ont leur dalle dans l'esprit de DoDonPachi. Des boulettes roses et bleues passent, 1P et le score en haut avec les vaisseaux restants, le compteur de coups au milieu (le vaisseau choisi quand il n'y a pas de chaîne), les bombes et leurs places vides en bas avec MAX quand tout est plein, et la jauge de combo qui se vide.
+- Une scène de la dalle peut montrer les places vides jusqu'à une valeur (`"slots"` d'une couche `icons`) et comparer une valeur à une autre (`"ge_var"` dans un `"when"`).
+
+**learn.bat**
+- Sous RetroArch, une grande RAM se lit par fenêtres de demandes. Les 2 Mo d'un CV1000 prenaient une minute, quelques secondes maintenant. Une petite RAM se lit comme avant.
+
+**Démo**
+- `demo_cave.bat` montre les jeux Cave sans jouer. Choisis le jeu dans la liste, ou donne-le directement, `demo_cave.bat ddonpach` par exemple.
+
+**Mettre à jour depuis la 1.30.1**
+Décompresse le nouveau zip par-dessus l'ancien dossier (`config.json`, tes adresses apprises et ton dossier `artwork` sont gardés).
+
 ## 1.30.1
 
 ### English

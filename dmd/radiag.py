@@ -31,7 +31,15 @@ LABELS = {"lives": ("vies", "lives"), "lives_p2": ("vies J2", "P2 lives"), "bomb
           "weapon_p2": ("arme J2", "P2 weapon"), "health": ("vie J1 %", "P1 health %"), "health_p2": ("vie J2 %", "P2 health %"),
           "p1_char": ("perso J1", "P1 character"), "p2_char": ("perso J2", "P2 character"),
           "beat": ("BEAT BY J1", "BEAT BY P1"), "beat_p2": ("BEAT BY J2", "BEAT BY P2"),
-          "mission": ("mission", "mission"), "stage": ("stage", "stage"), "backdrop": ("décor", "backdrop")}
+          "mission": ("mission", "mission"), "stage": ("stage", "stage"), "backdrop": ("décor", "backdrop"),
+          # the Cave games (1.31) / les jeux Cave
+          "bombs_max": ("places de bombes", "bomb slots"), "bombs_max_p2": ("places de bombes J2", "P2 bomb slots"),
+          "combo": ("jauge de combo %", "combo gauge %"), "combo_p2": ("jauge de combo J2 %", "P2 combo gauge %"),
+          "power": ("puissance", "power"), "power_p2": ("puissance J2", "P2 power"), "ship": ("vaisseau", "ship"),
+          "ship_p2": ("vaisseau J2", "P2 ship"), "round": ("round", "round"), "multiplier": ("multiplicateur", "multiplier"),
+          "stones": ("pierres d'esprit", "spirit stones"), "stones_p2": ("pierres d'esprit J2", "P2 spirit stones"),
+          "energy": ("énergie J1 %", "P1 energy %"), "energy_p2": ("énergie J2 %", "P2 energy %"), "char": ("héros J1", "P1 hero"),
+          "char_p2": ("héros J2", "P2 hero"), "bubble": ("bulle", "bubble"), "bubble_p2": ("bulle J2", "P2 bubble")}
 
 
 HIDDEN = {"p1_mode", "p2_mode", "p1_input", "p2_input",     # BIOS : état des joueurs et commandes, utiles à la scène seulement
