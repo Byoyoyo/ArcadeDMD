@@ -415,12 +415,12 @@ To see which core is running, press F1 during the game, then go to Information >
 | Game | RetroArch core | Shown right away | To learn |
 |---|---|---|---|
 | Metal Slug (`mslug`) | FinalBurn Neo | score of each player, lives, bombs, weapon and ammo, the rescued prisoners, the mission, the tank (in it or not, its energy and its shells) | nothing |
-| Metal Slug 2 (`mslug2`), Metal Slug 4 (`mslug4`) | FinalBurn Neo | lives, bombs, weapon and ammo, the mission | score |
-| Metal Slug X (`mslugx`) | FinalBurn Neo | lives, bombs, weapon and ammo, the rescued prisoners, the mission, the timer | score |
+| Metal Slug 2 (`mslug2`), Metal Slug 4 (`mslug4`) | FinalBurn Neo | lives, bombs, weapon and ammo, the mission, the score of each player in Metal Slug 2 (RetroAchievements, to be checked) | Metal Slug 4's score |
+| Metal Slug X (`mslugx`) | FinalBurn Neo | lives, bombs, weapon and ammo, the rescued prisoners, the mission, the timer, the score of each player (RetroAchievements, to be checked) | nothing |
 | Metal Slug 3 (`mslug3`) | FinalBurn Neo | score, lives, bombs, weapon and ammo, the rescued prisoners, the mission | P2 score |
-| Metal Slug 5 (`mslug5`) | FinalBurn Neo | lives, bombs, weapon and ammo, player 1's rescued prisoners, the mission | score |
+| Metal Slug 5 (`mslug5`) | FinalBurn Neo | lives, bombs, weapon and ammo, player 1's rescued prisoners, the mission, player 1's score (RetroAchievements, to be checked) | player 2's score |
 | Twinkle Star Sprites (`twinspri`) | FinalBurn Neo | score, hearts, bombs, Pow gauge, character, chain and PERFECT of each player, the stage | nothing |
-| The 57 Neo Geo fighting games (King of Fighters, Samurai Shodown, Fatal Fury, Last Blade, World Heroes...) | FinalBurn Neo | see the Fighting games table just below | the score, except KOF 96 to 2003, Samurai Shodown II, Fatal Fury 3, Galaxy Fight, Karnov's Revenge, Real Bout Fatal Fury Special and The Last Blade 1 and 2 |
+| The 57 Neo Geo fighting games (King of Fighters, Samurai Shodown, Fatal Fury, Last Blade, World Heroes...) | FinalBurn Neo | see the Fighting games table just below | the score of the games the table below marks to learn |
 | Blazing Star (`blazstar`), Puzzle Bobble (`pbobblen`), Shock Troopers (`shocktro`), Pulstar (`pulstar`), Magical Drop III (`magdrop3`), Sengoku 3 (`sengoku3`), Top Hunter (`tophuntr`), Last Resort (`lresort`), Aero Fighters 2 (`sonicwi2`), Aero Fighters 3 (`sonicwi3`), Strikers 1945 Plus (`s1945p`), Super Dodge Ball (`sdodgeb`), Neo Bomberman (`neobombe`), League Bowling (`lbowling`), Magician Lord (`maglord`), NAM-1975 (`nam1975`), Cyber-Lip (`cyberlip`), Ghost Pilots (`gpilots`), Alpha Mission II (`alpham2`), Viewpoint (`viewpoin`), Zed Blade (`zedblade`), Prehistoric Isle 2 (`preisle2`), Shock Troopers 2nd Squad (`shocktr2`), Robo Army (`roboarmy`), Burning Fight (`burningf`), Mutation Nation (`mutnat`), Sengoku (`sengoku`), Sengoku 2 (`sengoku2`), Ninja Combat (`ncombat`), Ninja Commando (`ncommand`), Blue's Journey (`bjourney`), Puzzle Bobble 2 (`pbobbl2n`), Magical Drop II (`magdrop2`), Money Puzzle Exchanger (`miexchng`), Puzzle De Pon! (`puzzledp`), Puzzle De Pon! R! (`puzzldpr`), Panic Bomber (`panicbom`), Pop 'n Bounce (`popbounc`), Super Bubble Pop (`sbp`), Spin Master (`spinmast`), Ganryu (`ganryu`), Zupapa! (`zupapa`), Neo Mr. Do! (`neomrdo`), Bang Bead (`bangbead`), Battle Flip Shot (`flipshot`), Gururin (`gururin`), Ghostlop (`ghostlop`), Pochi and Nyaa (`pnyaa`), Puzzled (`joyjoy`), Zintrick (`zintrckb`), Digger Man (`diggerma`), Andro Dunos (`androdun`), Captain Tomaday (`ctomaday`), Choutetsu Brikin'ger (`ironclad`), Last Hope (`lasthope`), Bang Bang Busters (`b2b`), Crossed Swords (`crsword`), Eight Man (`eightman`), Nightmare in the Dark (`nitd`), The Super Spy (`superspy`), Quiz King of Fighters (`quizkof`), Quiz Daisousa Sen (`quizdais`), Quiz Meitantei Neo & Geo (`quizdai2`), Chibi Maruko-chan Deluxe Quiz (`marukodq`) | FinalBurn Neo | see Neo Geo games done one by one | score |
 | Windjammers (`wjammers`), Neo Turf Masters (`turfmast`), Super Sidekicks 3 (`ssideki3`), The Ultimate 11 (`ssideki4`), Baseball Stars 2 (`bstars2`), Street Hoop (`strhoop`), Neo Drift Out (`neodrift`), Riding Hero (`ridhero`), Thrash Rally (`trally`), Super Sidekicks (`ssideki`), Super Sidekicks 2 (`ssideki2`), Tecmo World Soccer '96 (`twsoc96`), Goal! Goal! Goal! (`goalx3`), Neo-Geo Cup '98 (`neocup98`), Soccer Brawl (`socbrawl`), Football Frenzy (`fbfrenzy`), Pleasure Goal (`pgoal`), Baseball Stars Professional (`bstars`), 2020 Super Baseball (`2020bb`), Top Player's Golf (`tpgolf`), Power Spikes II (`pspikes2`), Over Top (`overtop`), Stakes Winner (`stakwin`), Stakes Winner 2 (`stakwin2`), Jockey Grand Prix (`jockeygp`), The Irritating Maze (`irrmaze`), Minasan no Okagesamadesu! (`minasan`), Mahjong Kyo Retsuden (`mahretsu`), Janshin Densetsu (`janshin`), Bakatonosama Mahjong Manyuuki (`bakatono`), Idol Mahjong Final Romance 2 (`froman2b`), Shougi no Tatsujin (`moshougi`) | FinalBurn Neo | see Neo Geo games done one by one | nothing |
 | All other Neo Geo games | FinalBurn Neo | scene by genre (credits with MAME) | score, and credits if the game keeps a copy of them |
@@ -437,7 +437,7 @@ The Metal Slug and Metal Slug 3 scores are already in their files, found with `l
 
 ### Fighting games
 
-Each Neo Geo fighting game has its own file in `games\`, official variants included (Japanese, Korean, prototype). The addresses come from the FinalBurn Neo cheats, peon2's FinalBurn Neo training scripts and the MAME 2003-Plus cheat database, checked against the cheat collection of MAME (mamecheat.co.uk). It gives the super gauge of Art of Fighting and Art of Fighting 2, Garou, King of Fighters '96, Ninja Master's, the three Real Bout Fatal Fury, Rage of the Dragons, Samurai Shodown III, IV, V and V Special and World Heroes Perfect, shown under the fighters on the HD screen, the characters of Fatal Fury 2 and the timer of Karnov's Revenge. The score is known for the King of Fighters games and for Samurai Shodown II. The public RetroAchievements scripts on GitHub give it for Fatal Fury 3, Galaxy Fight, Karnov's Revenge, Real Bout Fatal Fury Special and The Last Blade 1 and 2 (to be checked in game), with the rounds won of Fatal Fury 3 and Karnov's Revenge, gold stars under the health bars on the HD screen. For the others, learn it with `learn.bat` (`score=...` and `score2=...`).
+Each Neo Geo fighting game has its own file in `games\`, official variants included (Japanese, Korean, prototype). The addresses come from the FinalBurn Neo cheats, peon2's FinalBurn Neo training scripts and the MAME 2003-Plus cheat database, checked against the cheat collection of MAME (mamecheat.co.uk). It gives the super gauge of Art of Fighting and Art of Fighting 2, Garou, King of Fighters '96, Ninja Master's, the three Real Bout Fatal Fury, Rage of the Dragons, Samurai Shodown III, IV, V and V Special and World Heroes Perfect, shown under the fighters on the HD screen, the characters of Fatal Fury 2 and the timer of Karnov's Revenge. The score is known for the King of Fighters games and for Samurai Shodown II. RetroAchievements gives it for Art of Fighting, Fatal Fury 1, 2, 3 and Special, Galaxy Fight, Garou, Karnov's Revenge, King of Fighters '94 and 2003, Rage of the Dragons, Real Bout Fatal Fury 1 and Special, Samurai Shodown, The Last Blade 1 and 2 and Waku Waku 7 (its public scripts on GitHub and the data `tools/ra_notes.py` downloads, to be checked in game), with the rounds won of Fatal Fury 3 and Karnov's Revenge, gold stars under the health bars on the HD screen. For the others, learn it with `learn.bat` (`score=...` and `score2=...`).
 
 When a health bar, a timer or a name does not match the screen, run `test_retroarch.bat` during a fight and post the result in a GitHub issue.
 
@@ -445,20 +445,20 @@ When a health bar, a timer or a name does not match the screen, run `test_retroa
 |---|---|---|---|---|---|
 | 3 Count Bout | `3countb.json` | - | - | - | to learn |
 | Aggressors of Dark Kombat | `aodk.json` | yes | - | - | to learn |
-| Art of Fighting | `aof.json` | yes | yes | yes (10) | to learn |
+| Art of Fighting | `aof.json` | yes | yes | yes (10) | RetroAchievements, to be checked |
 | Art of Fighting 2 | `aof2.json` | yes | yes | yes (13) | to learn |
 | Art of Fighting 3 | `aof3.json` | yes | yes | yes (10) | to learn |
 | Breakers | `breakers.json` | yes | yes | - | to learn |
 | Breakers Revenge | `breakrev.json` | yes | yes | - | to learn |
 | Double Dragon | `doubledr.json` | yes | yes | yes (14) | to learn |
 | Dragon's Heaven | `dragonsh.json` | - | - | - | to learn |
-| Fatal Fury | `fatfury1.json` | yes | yes | yes (14) | to learn |
-| Fatal Fury 2 | `fatfury2.json` | yes | yes | - | to learn |
+| Fatal Fury | `fatfury1.json` | yes | yes | yes (14) | RetroAchievements, to be checked |
+| Fatal Fury 2 | `fatfury2.json` | yes | yes | - | RetroAchievements, to be checked |
 | Fatal Fury 3 | `fatfury3.json` | yes | yes | yes (13) | RetroAchievements, to be checked |
-| Fatal Fury Special | `fatfursp.json` | yes | yes | - | to learn |
+| Fatal Fury Special | `fatfursp.json` | yes | yes | - | RetroAchievements, to be checked |
 | Fight Fever | `fightfev.json` | yes | yes | yes (10) | to learn |
 | Galaxy Fight | `galaxyfg.json` | yes | - | - | RetroAchievements, to be checked |
-| Garou | `garou.json` | yes | yes | yes (14) | to learn |
+| Garou | `garou.json` | yes | yes | yes (14) | RetroAchievements, to be checked |
 | Kabuki Klash | `kabukikl.json` | yes | yes | - | to learn |
 | Karnov's Revenge | `karnovr.json` | yes | - | yes (14) | RetroAchievements, to be checked |
 | King of the Monsters | `kotm.json` | yes | - | - | to learn |
@@ -467,12 +467,12 @@ When a health bar, a timer or a name does not match the screen, run `test_retroa
 | Legend of Success Joe | `legendos.json` | yes | - | - | to learn |
 | Matrimelee | `matrim.json` | yes | yes | - | to learn |
 | Ninja Master's | `ninjamas.json` | yes | yes | - | to learn |
-| Rage of the Dragons | `rotd.json` | yes | yes | - | to learn |
+| Rage of the Dragons | `rotd.json` | yes | yes | - | RetroAchievements, to be checked |
 | Ragnagard | `ragnagrd.json` | yes | - | - | to learn |
-| Real Bout Fatal Fury | `rbff1.json` | yes | yes | yes (16) | to learn |
+| Real Bout Fatal Fury | `rbff1.json` | yes | yes | yes (16) | RetroAchievements, to be checked |
 | Real Bout Fatal Fury 2 | `rbff2.json` | yes | yes | yes (23) | to learn |
 | Real Bout Fatal Fury Special | `rbffspec.json` | yes | yes | yes (20) | RetroAchievements, to be checked |
-| Samurai Shodown | `samsho.json` | yes | yes | yes (13) | to learn |
+| Samurai Shodown | `samsho.json` | yes | yes | yes (13) | RetroAchievements, to be checked |
 | Samurai Shodown II | `samsho2.json` | yes | yes | yes (17) | yes |
 | Samurai Shodown III | `samsho3.json` | yes | yes | yes (14) | to learn |
 | Samurai Shodown IV | `samsho4.json` | yes | yes | yes (18) | to learn |
@@ -481,7 +481,7 @@ When a health bar, a timer or a name does not match the screen, run `test_retroa
 | Savage Reign | `savagere.json` | - | - | - | to learn |
 | SNK vs. Capcom | `svc.json` | yes | yes | yes (36) | to learn |
 | SNK vs. Capcom (JAMMA PCB) | `svcpcb.json` | yes | yes | yes (36) | to learn |
-| The King of Fighters '94 | `kof94.json` | yes | yes | - | to learn |
+| The King of Fighters '94 | `kof94.json` | yes | yes | - | RetroAchievements, to be checked |
 | The King of Fighters '95 | `kof95.json` | yes | yes | - | to learn |
 | The King of Fighters '96 | `kof96.json` | yes | yes | yes (29) | assumed, to be checked |
 | The King of Fighters '97 | `kof97.json` | yes | yes | yes (32) | assumed, to be checked |
@@ -495,7 +495,7 @@ When a health bar, a timer or a name does not match the screen, run `test_retroa
 | The Last Blade | `lastblad.json` | yes | yes | yes (15) | RetroAchievements, to be checked |
 | The Last Blade 2 | `lastbld2.json` | yes | yes | yes (20) | RetroAchievements, to be checked |
 | Voltage Fighter Gowcaizer | `gowcaizr.json` | yes | yes | yes (12) | to learn |
-| Waku Waku 7 | `wakuwak7.json` | yes | yes | yes (9) | to learn |
+| Waku Waku 7 | `wakuwak7.json` | yes | yes | yes (9) | RetroAchievements, to be checked |
 | World Heroes | `wh1.json` | yes | yes | yes (9) | to learn |
 | World Heroes 2 | `wh2.json` | yes | yes | yes (16) | to learn |
 | World Heroes 2 Jet | `wh2j.json` | yes | yes | yes (17) | to learn |
@@ -665,7 +665,7 @@ Your own animations (the GIFs of DOFLinx or of the Pixelcade, for example) can r
 | Idol Mahjong Final Romance 2 | `froman2b.json` | the tiles | the green felt in its wooden frame and the orange tile backs as in the game. The hidden hand of the opponent at the top, the tiles thrown in the middle, our hand of thirteen tiles at the bottom. A tile is drawn, a tile is thrown, now and then a hand wins with RON or TSUMO, and the boxes of points on the right follow our own game |
 | Shougi no Tatsujin | `moshougi.json` | the wooden board | the rocky coast by the sea as in the game, the wooden board and its two stands, the opponent's at the top left and ours at the bottom right. Our own pieces move one by one, a piece taken goes onto the stand of the one who took it, each player's clock runs |
 
-- The values come from the FinalBurn Neo and MAME 2003-Plus cheats, checked against the cheat collection of MAME (mamecheat.co.uk), which adds the timer of Football Frenzy and The Irritating Maze and the lives and bombs of player 2 in Zed Blade. They still have to be confirmed in game (`test_retroarch.bat` shows them). The score of Blazing Star, Puzzle Bobble, Shock Troopers, Pulstar, Magical Drop III, Sengoku 3, Top Hunter, Last Resort, the two Aero Fighters, Strikers 1945 Plus, Super Dodge Ball, Neo Bomberman, League Bowling, Magician Lord, NAM-1975, Cyber-Lip, Ghost Pilots, Alpha Mission II, Viewpoint, Zed Blade, Shock Troopers 2nd Squad, Robo Army, Burning Fight, Mutation Nation, Sengoku, Sengoku 2, Ninja Combat, Ninja Commando, Blue's Journey, Puzzle Bobble 2, Magical Drop II, Money Puzzle Exchanger, Puzzle De Pon!, Puzzle De Pon! R!, Panic Bomber, Pop 'n Bounce, Super Bubble Pop, Spin Master, Ganryu, Zupapa!, Neo Mr. Do!, Bang Bead, Battle Flip Shot, Gururin, Ghostlop, Pochi and Nyaa, Puzzled, Zintrick, Digger Man, Andro Dunos, Captain Tomaday, Choutetsu Brikin'ger, Last Hope, Bang Bang Busters, Crossed Swords, Eight Man, Nightmare in the Dark, The Super Spy, Quiz King of Fighters, Quiz Daisousa Sen, Quiz Meitantei Neo & Geo and Chibi Maruko-chan Deluxe Quiz is in no database, learn it with `learn.bat` (see Learning the score). Until then, the title scrolls in its place on the panel. The score of Prehistoric Isle 2 comes from a public RetroAchievements script on GitHub, to be checked in game.
+- The values come from the FinalBurn Neo and MAME 2003-Plus cheats, checked against the cheat collection of MAME (mamecheat.co.uk), which adds the timer of Football Frenzy and The Irritating Maze and the lives and bombs of player 2 in Zed Blade. They still have to be confirmed in game (`test_retroarch.bat` shows them). The score of Top Hunter, Strikers 1945 Plus, Super Dodge Ball, Neo Bomberman, League Bowling, NAM-1975, Alpha Mission II, Zed Blade, Robo Army, Sengoku, Sengoku 2, Ninja Combat, Ninja Commando, Puzzle Bobble 2, Puzzle De Pon!, Puzzle De Pon! R!, Panic Bomber, Pop 'n Bounce, Super Bubble Pop, Ganryu, Neo Mr. Do!, Battle Flip Shot, Gururin, Ghostlop, Pochi and Nyaa, Puzzled, Zintrick, Digger Man, Andro Dunos, Captain Tomaday, Choutetsu Brikin'ger, Last Hope, Bang Bang Busters, Crossed Swords, Nightmare in the Dark, The Super Spy, Quiz King of Fighters, Quiz Daisousa Sen, Quiz Meitantei Neo & Geo and Chibi Maruko-chan Deluxe Quiz is in no database, learn it with `learn.bat` (see Learning the score). Until then, the title scrolls in its place on the panel. RetroAchievements (its public scripts on GitHub and the data `tools/ra_notes.py` downloads) gives the score of Blazing Star, Puzzle Bobble, Shock Troopers, Pulstar, Magical Drop III, Sengoku 3, Last Resort, Aero Fighters 2, Aero Fighters 3, Magician Lord, Cyber-Lip, Ghost Pilots, Viewpoint, Prehistoric Isle 2, Shock Troopers 2nd Squad, Burning Fight, Mutation Nation, Blue's Journey, Magical Drop II, Money Puzzle Exchanger, Spin Master, Zupapa!, Bang Bead and Eight Man, to be checked in game.
 - When the stick and the buttons can be read (the Neo Geo BIOS keeps them, with MAME as with RetroArch), the ships of Blazing Star, Pulstar, Last Resort, Viewpoint, Zed Blade and Prehistoric Isle 2, the planes of the Aero Fighters, Strikers 1945 Plus, Ghost Pilots and Alpha Mission II, the commando of Shock Troopers 2nd Squad and the ninja of Ninja Commando (up and down), the hunters of Top Hunter, the witches of Twinkle Star Sprites, the arrows of Puzzle Bobble, Puzzle Bobble 2 and the two Puzzle De Pon!, the jesters of Magical Drop II and III and the piggy banks of Money Puzzle Exchanger follow them. Button A fires in Blazing Star, Pulstar, Last Resort, the Aero Fighters, the two Shock Troopers and Ninja Commando, and strikes in Sengoku 3 and Top Hunter. In Top Hunter, up and down jump from one lane to the other and B jumps. In Last Resort, button B launches the unit. In Magical Drop II and III and Money Puzzle Exchanger, button A grabs the drops or the coins and B throws them back. As long as the player has not touched them, the scene plays by itself. On the panel of the fifteen shoot'em ups, the ship follows the stick and fires with button A too.
 - With nobody playing, the coin screen, as for the fighting games (see Coin screen).
 - `demo_neogeo.bat` shows them without playing. Pick the game in the list, or give it directly, `demo_neogeo.bat wjammers` for example.
@@ -694,7 +694,7 @@ Neo Geo games known to MAME (clones included) get a shared scene based on their 
 
 ### Capcom CPS1, CPS2 and CPS3 games
 
-Every Capcom CPS1, CPS2 and CPS3 game of FinalBurn Neo is recognized, with MAME as with RetroArch. That makes 88 games and their 942 sets. A version, a bootleg or a hack takes the file of its original game, with its own name when it has one (Street Fighter II' Magic Delta Turbo, for example). A version whose own cheats put a value elsewhere reads it there, in the `"per_game"` section of the file (the second revision of JoJo's Venture, Quiz & Dragons' Japanese resale, the US Eco Fighters). The files are made by `tools/cps_games.py` from the list and the cheat database of FinalBurn Neo, completed by MAME's (the cheat collection of mamecheat.co.uk). MAME gives Street Fighter Zero (CPS Changer) all its values, the credits of Final Fight and Varth, and the characters of JoJo's Venture. The public RetroAchievements scripts on GitHub give the score of Night Warriors, Street Fighter Alpha (both players), Street Fighter Alpha 3, Street Fighter III 3rd Strike, The Punisher and Quiz & Dragons (both players), and the rounds won of Marvel Super Heroes, Street Fighter Alpha 3 and X-Men vs. Street Fighter, to be checked in game.
+Every Capcom CPS1, CPS2 and CPS3 game of FinalBurn Neo is recognized, with MAME as with RetroArch. That makes 88 games and their 942 sets. A version, a bootleg or a hack takes the file of its original game, with its own name when it has one (Street Fighter II' Magic Delta Turbo, for example). A version whose own cheats put a value elsewhere reads it there, in the `"per_game"` section of the file (the second revision of JoJo's Venture, Quiz & Dragons' Japanese resale, the US Eco Fighters). The files are made by `tools/cps_games.py` from the list and the cheat database of FinalBurn Neo, completed by MAME's (the cheat collection of mamecheat.co.uk). MAME gives Street Fighter Zero (CPS Changer) all its values, the credits of Final Fight and Varth, and the characters of JoJo's Venture. RetroAchievements (its public scripts on GitHub and the data `tools/ra_notes.py` downloads) gives the score of 1941, 19XX, Three Wonders, Armored Warriors, Battle Circuit, Cadillacs and Dinosaurs, Capcom Sports Club, Captain Commando, Eco Fighters, Final Fight, JoJo's Bizarre Adventure, Knights of the Round, Mega Man 1 and 2, Mighty! Pang, Night Warriors, Pang! 3, Progear, Quiz & Dragons, Street Fighter Alpha, Street Fighter Alpha 3, Street Fighter II' Hyper Fighting, Street Fighter III 3rd Strike, Strider, Super Gem Fighter, Super Puzzle Fighter II Turbo, The Punisher, U.N. Squadron and Warriors of Fate, and the rounds won of Marvel Super Heroes, Street Fighter Alpha 3 and X-Men vs. Street Fighter, to be checked in game.
 
 ![Four Capcom fighting games on their stages, HD display](docs/images/hd_capcom_stages.jpg)
 
@@ -841,7 +841,7 @@ Like the Neo Geo games, the other Capcom games got a panel scene and an animated
 Every Cave game of FinalBurn Neo is recognized, with MAME as with RetroArch. That makes 37 games and their 158 sets. The games of the Cave board with its 68000 (DonPachi, DoDonPachi, ESP Ra.De., Dangun Feveron, Guwange, Puzzle Uo Poko), the games Cave made for the IGS PGM (DoDonPachi Dai-Ou-Jou, Ketsui, Espgaluda, and DoDonPachi II that IGS made under Cave's licence), the games of Cave's own CV1000 board with its SH-3 (Mushihime-sama, Espgaluda II, Ibara, Pink Sweets, Muchi Muchi Pork!, Deathsmiles, DoDonPachi Dai-Fukkatsu, SaiDaiOuJou, Akai Katana...), and the games other companies made on the Cave board (Power Instinct 2, Sailor Moon, Air Gallet, Hotdog Storm, Mazinger Z...). A version, a bootleg or a hack takes the file of its original game. Progear, made by Cave for Capcom's CPS2, is with the Capcom games. The files are made by `tools/cave_games.py` from the list and the cheat database of FinalBurn Neo, completed by MAME's (the cheat collection of mamecheat.co.uk), which knows more for many games.
 
 - **What is read.** The credits, the lives, the bombs and in DoDonPachi and Dai-Ou-Jou their slots (three at the start, one more for each ship lost, six at most), the shot level, the combo gauge that drains, the ship chosen (TYPE-A, TYPE-B, TYPE-C), the stage or the round, the hero of Guwange and his energy, the multiplier of ESP Ra.De., the spirit stones of Espgaluda, the energy of Deathsmiles, the loop of DonPachi and DoDonPachi (cheat databases of FinalBurn Neo and MAME). The fighting games read the health of each player and the timer, the beat'em ups the health and the lives.
-- **What to learn.** The score and the hit counter are not in the cheat databases. Learn them with `learn.bat` (Learning the score, below), `score=` and `score2=`, `hits=` for the number of the HIT counter, `stage=` for the stage. DoDonPachi's are already learned on a cabinet, the score of each player with the continues used as its last digit as the game shows it, the hit counter of each player, the credits. The CV1000 games read their credits, lives and bombs from MAME's cheats, their score is still to learn, except Puzzle! Mushihime-Tama's that a public RetroAchievements script on GitHub gives.
+- **What to learn.** The score and the hit counter are not in the cheat databases. Learn them with `learn.bat` (Learning the score, below), `score=` and `score2=`, `hits=` for the number of the HIT counter, `stage=` for the stage. DoDonPachi's are already learned on a cabinet, the score of each player with the continues used as its last digit as the game shows it, the hit counter of each player, the credits. The CV1000 games read their credits, lives and bombs from MAME's cheats, their score is still to learn. RetroAchievements gives the score of DonPachi, ESP Ra.De., Dangun Feveron (the sum of its stages), Puzzle Uo Poko, Gaia Crusaders, Power Instinct 2, Gogetsuji Legends, Sailor Moon, Ketsui, Akai Katana, Deathsmiles and its MegaBlack Label, and Puzzle! Mushihime-Tama, to be checked in game.
 - **Versions.** A version whose own cheats put its values elsewhere reads them there, each value where the same cheat of that version writes (Dai-Ou-Jou V100 and its Black Label, Guwange Special, the first versions of DoDonPachi II), in the `"per_game"` section of the file. A value its cheats do not give is left to learn rather than read at a wrong place. The world version of Dai-Ou-Jou (DoDonPachi III) has its own cheats in MAME, its credits, lives and bombs are read there and its shot level and combo gauge are left to learn.
 - **RetroArch.** FinalBurn Neo core. The 64 KB of the 68000's work RAM of the Cave board, from 0x100000 (0x200000 in Guwange, 0x300000 in Hotdog Storm and Koro Koro Quest, 0x340000 in Crusher Makochan, 0x400000 in Power Instinct 2 and Gogetsuji Legends), the 128 KB of the PGM from 0x800000, and the CV1000's RAM from 0xC000000, as far as the values of the game go (2 MB for most of them, up to 6 MB for Muchi Muchi Pork! and Dai-Fukkatsu). The bytes are swapped in 16-bit words, and ArcadeDMD puts them back in order. Metamoqester keeps its values out of this RAM and is read with MAME only.
 - **Credits and who plays.** Like the Capcom games. A game whose credits are not read counts them from the coin buttons (`coin_buttons.bat`). Once the score is read, player 1 plays while it moves, and the coin screen comes back 10 seconds after it stops. Until then the game stays on its game scene.
@@ -853,29 +853,29 @@ Every Cave game of FinalBurn Neo is recognized, with MAME as with RetroArch. Tha
 | Game | Board | File | Sets | Read (cheat database) | HD scene |
 |---|---|---|---|---|---|
 | Air Gallet | Cave | `agallet.json` | 12 | credits, lives, bombs, shot level | its own |
-| Akai Katana | CV1000 | `akatana.json` | 1 | to learn | its own |
-| Bishoujo Senshi Sailor Moon | Cave | `sailormn.json` | 34 | credits, lives, health, timer | panels |
+| Akai Katana | CV1000 | `akatana.json` | 1 | score (RetroAchievements) | its own |
+| Bishoujo Senshi Sailor Moon | Cave | `sailormn.json` | 34 | credits, lives, health, timer, score (RetroAchievements) | panels |
 | Crusher Makochan | Cave | `crusherm.json` | 1 | to learn | - |
-| Deathsmiles | CV1000 | `deathsml.json` | 1 | credits, energy | its own |
-| Deathsmiles MegaBlack Label | CV1000 | `dsmbl.json` | 1 | credits, energy | its own |
+| Deathsmiles | CV1000 | `deathsml.json` | 1 | credits, energy, score (RetroAchievements) | its own |
+| Deathsmiles MegaBlack Label | CV1000 | `dsmbl.json` | 1 | credits, energy, score (RetroAchievements) | its own |
 | DoDonPachi | Cave | `ddonpach.json` | 3 | credits, score, hit counter (learned on a cabinet), lives, bombs, bomb slots, shot level, combo gauge, ship, stage, loop | its own |
 | DoDonPachi Dai-Fukkatsu Black Label | CV1000 | `dfkbl.json` | 1 | credits, lives, bombs | its own |
 | DoDonPachi Dai-Fukkatsu Ver 1.5 | CV1000 | `ddpdfk.json` | 2 | credits, lives, bombs | its own |
 | DoDonPachi Dai-Ou-Jou | PGM | `ddp3.json` | 9 | credits, lives, bombs, bomb slots, shot level, combo gauge | its own |
 | DoDonPachi II - Bee Storm | PGM | `ddp2.json` | 18 | credits, lives, bombs, shot level, combo gauge, stage | its own |
 | DoDonPachi SaiDaiOuJou | CV1000 | `ddpsdoj.json` | 2 | to learn | its own |
-| DonPachi | Cave | `donpachi.json` | 5 | credits, lives, bombs, shot level, combo gauge, area, loop | its own |
-| ESP Ra.De. - A.D.2018 Tokyo | Cave | `esprade.json` | 3 | credits, lives, bombs, shot level, multiplier | its own |
+| DonPachi | Cave | `donpachi.json` | 5 | credits, lives, bombs, shot level, combo gauge, area, loop, score (RetroAchievements) | its own |
+| ESP Ra.De. - A.D.2018 Tokyo | Cave | `esprade.json` | 3 | credits, lives, bombs, shot level, multiplier, score and stage (RetroAchievements) | its own |
 | Espgaluda | PGM | `espgal.json` | 2 | credits, lives, shot level, spirit stones | its own |
 | Espgaluda II | CV1000 | `espgal2.json` | 3 | credits, lives, bombs | its own |
-| Fever SOS | Cave | `feversos.json` | 2 | credits, lives, bombs, shot level, ship, round | its own |
-| Gaia Crusaders | Cave | `gaia.json` | 1 | credits, lives, stage, health, timer | panels |
-| Gogetsuji Legends | Cave | `plegends.json` | 3 | credits, shot level, health, timer | fight |
+| Fever SOS | Cave | `feversos.json` | 2 | credits, lives, bombs, shot level, ship, round, score (RetroAchievements) | its own |
+| Gaia Crusaders | Cave | `gaia.json` | 1 | credits, lives, stage, health, timer, score (RetroAchievements) | panels |
+| Gogetsuji Legends | Cave | `plegends.json` | 3 | credits, shot level, health, timer, score (RetroAchievements) | fight |
 | Guwange | Cave | `guwange.json` | 2 | credits, bombs, shot level, combo gauge, energy, hero | its own |
 | Hotdog Storm - The First Supersonics | Cave | `hotdogst.json` | 1 | credits, lives, bombs, shot level | its own |
 | Ibara | CV1000 | `ibara.json` | 2 | credits, lives, bombs | its own |
 | Ibara Kuro Black Label | CV1000 | `ibarablk.json` | 2 | credits, lives, bombs | its own |
-| Ketsui: Kizuna Jigoku Tachi | PGM | `ket.json` | 16 | credits, lives, bombs, shot level, combo gauge | its own |
+| Ketsui: Kizuna Jigoku Tachi | PGM | `ket.json` | 16 | credits, lives, bombs, shot level, combo gauge, score (RetroAchievements) | its own |
 | Koro Koro Quest | Cave | `korokoro.json` | 1 | credits, round | - |
 | Mazinger Z | Cave | `mazinger.json` | 2 | credits, bombs, shot level, energy | its own |
 | Metamoqester | Cave | `metmqstr.json` | 2 | MAME only | fight |
@@ -885,8 +885,8 @@ Every Cave game of FinalBurn Neo is recognized, with MAME as with RetroArch. Tha
 | Mushihime-Sama Futari Ver 1.5 | CV1000 | `futari15.json` | 3 | credits, lives, bombs | its own |
 | Mushihime-Sama Matsuri Ver 1.5 | CV1000 | `matsuri15.json` | 1 | to learn | its own |
 | Pink Sweets: Ibara Sorekara | CV1000 | `pinkswts.json` | 5 | credits, lives | its own |
-| Power Instinct 2 | Cave | `pwrinst2.json` | 5 | credits, health, timer | fight |
-| Puzzle Uo Poko | Cave | `uopoko.json` | 2 | credits, stage, bubble | its own |
+| Power Instinct 2 | Cave | `pwrinst2.json` | 5 | credits, health, timer, score (RetroAchievements) | fight |
+| Puzzle Uo Poko | Cave | `uopoko.json` | 2 | credits, stage, bubble, score (RetroAchievements) | its own |
 | Puzzle! Mushihime-Tama | CV1000 | `mushitam.json` | 2 | credits, lives, score | its own |
 | Thunder Heroes | Cave | `theroes.json` | 2 | credits, lives, stage, health, timer | panels |
 

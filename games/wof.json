@@ -95,16 +95,18 @@
         "note": "lives of player 2 (FBNeo cheat database, Infinite Lives PL2)"
       },
       "score": {
-        "addr": "",
+        "addr": "0xFF7F8C",
         "type": "bcd",
-        "bytes": 4,
-        "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+        "bytes": 3,
+        "mult": 100,
+        "note": "player 1 score, BCD, its last two digits always 0 (RetroAchievements rich presence and code notes, from tools/ra_notes.py), to confirm in game"
       },
       "score_p2": {
-        "addr": "",
+        "addr": "0xFF7F90",
         "type": "bcd",
-        "bytes": 4,
-        "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+        "bytes": 3,
+        "mult": 100,
+        "note": "player 2 score, BCD, its last two digits always 0 (RetroAchievements rich presence and code notes, from tools/ra_notes.py), to confirm in game"
       }
     }
   },

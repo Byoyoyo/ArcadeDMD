@@ -84,10 +84,10 @@
     "max": 99
    },
    "score": {
-    "addr": "",
+    "addr": "0x106B36",
     "type": "bcd",
     "bytes": 4,
-    "note": "to find with learn.bat"
+    "note": "player 1 score, BCD (RetroAchievements leaderboards, from tools/ra_notes.py), to confirm in game"
    },
    "score_p2": {
     "addr": "",

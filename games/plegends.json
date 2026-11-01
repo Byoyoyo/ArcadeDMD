@@ -72,12 +72,18 @@
         "round": 1,
         "min": 0,
         "max": 100
+      },
+      "score": {
+        "addr": "0x400354",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 1 score, BCD (RetroAchievements leaderboards and code notes, from tools/ra_notes.py), to confirm in game"
       }
     }
   },
   "activity": {
-    "values": ["time", "health", "health_p2"],
-    "moving": ["time", "health", "health_p2"],
+    "values": ["time", "health", "health_p2", "score"],
+    "moving": ["time", "score", "health", "health_p2"],
     "seconds": 10,
     "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
   },

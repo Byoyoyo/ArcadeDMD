@@ -85,6 +85,12 @@
         "addr": "0x102101",
         "type": "u8",
         "note": "player 2 or computer character (FBNeo cheat database, Select Character PL2)"
+      },
+      "score": {
+        "addr": "0x1094C0",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 1 score, BCD (RetroAchievements leaderboard \"Factory Sealed Beryl\" and code notes, from tools/ra_notes.py), to confirm in game"
       }
     }
   },
@@ -111,8 +117,8 @@
     }
   },
   "activity": {
-    "values": ["time", "health", "health_p2", "lives", "lives_p2"],
-    "moving": ["time"],
+    "values": ["time", "health", "health_p2", "lives", "lives_p2", "score"],
+    "moving": ["time", "score"],
     "seconds": 10,
     "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
   },

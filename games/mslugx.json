@@ -20,16 +20,16 @@
     "cpu": ":maincpu",
     "values": {
       "score": {
-        "addr": "",
+        "addr": "0x10C46A",
         "type": "bcd",
         "bytes": 4,
-        "note": "to find with learn.bat"
+        "note": "player 1 score, BCD (RetroAchievements leaderboard \"MSX Hi-Score\" and code notes, from tools/ra_notes.py), to confirm in game"
       },
       "score_p2": {
-        "addr": "",
+        "addr": "0x10C472",
         "type": "bcd",
         "bytes": 4,
-        "note": "player 2, to find with learn.bat (two-player game, score_p2=...)"
+        "note": "player 2 score, BCD (RetroAchievements leaderboard \"MSX Hi-Score\" and code notes, from tools/ra_notes.py), to confirm in game"
       },
       "lives": {
         "addr": "0x101288",

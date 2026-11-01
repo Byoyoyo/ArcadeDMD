@@ -287,7 +287,12 @@ def hand_clones(fam):
 REF = {"ddp3": "ddpdoj"}
 # values made from others while the game runs ("tag" of the game file): DoDonPachi shows the continues used as the last
 # digit of the score, the game keeps the tens apart / valeurs faites d'autres valeurs pendant le jeu
-TAGS = {"ddonpach": {"score": {"sum": ["_score10", "_cont"]}, "score_p2": {"sum": ["_score10_p2", "_cont_p2"]}}}
+TAGS = {"ddonpach": {"score": {"sum": ["_score10", "_cont"]}, "score_p2": {"sum": ["_score10_p2", "_cont_p2"]}},
+        # the protection's ARM keeps Ketsui's score as a little-endian 32-bit number: two words for the 68000
+        # l'ARM de la protection garde le score de Ketsui en 32 bits petit-boutiste : deux mots pour le 68000
+        "ket": {"score": {"sum": ["_score_hi", "_score_lo"]}},
+        # Dangun Feveron keeps a score per stage, the game's is their sum / un score par niveau, celui du jeu en est la somme
+        "feversos": {"score": {"sum": [f"_score_s{i}" for i in range(1, 6)]}}}
 LEARNED = "learned on the cabinet with learn.bat (1.31)"
 
 

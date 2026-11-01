@@ -47,16 +47,16 @@
         "zero_from": "0x81C2"
       },
       "score": {
-        "addr": "",
-        "type": "bcd",
+        "addr": "0xC388F60",
+        "type": "be",
         "bytes": 4,
-        "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+        "note": "player 1 score, a 32-bit number (RetroAchievements rich presence and code notes, from tools/ra_notes.py), to confirm in game"
       },
       "score_p2": {
-        "addr": "",
-        "type": "bcd",
+        "addr": "0xC389090",
+        "type": "be",
         "bytes": 4,
-        "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+        "note": "player 2 score, a 32-bit number (RetroAchievements rich presence and code notes, from tools/ra_notes.py), to confirm in game"
       }
     }
   },

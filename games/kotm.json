@@ -78,10 +78,10 @@
     "note": "player 2 health in %, full = 0x3C"
    },
    "score": {
-    "addr": "",
+    "addr": "0x101FF4",
     "type": "bcd",
     "bytes": 4,
-    "note": "to find with learn.bat"
+    "note": "player 1 score, BCD (RetroAchievements leaderboard \"Best Monsters\" and rich presence, from tools/ra_notes.py), to confirm in game"
    },
    "score_p2": {
     "addr": "",

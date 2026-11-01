@@ -1,6 +1,6 @@
 {
   "title": "Ketsui: Kizuna Jigoku Tachi",
-  "note": "Shoot'em up by Cave (PGM): credits, lives, lives_p2, bombs, bombs_p2, power, power_p2, combo, combo_p2 (FinalBurn Neo cheat database). Made by tools/cave_games.py.",
+  "note": "Shoot'em up by Cave (PGM): credits, lives, lives_p2, bombs, bombs_p2, power, power_p2, combo, combo_p2, score (FinalBurn Neo cheat database). Made by tools/cave_games.py.",
   "generated": "tools/cave_games.py",
   "cave": "PGM",
   "match": [
@@ -84,17 +84,24 @@
         "min": 0,
         "max": 100
       },
-      "score": {
-        "addr": "",
-        "type": "bcd",
-        "bytes": 4,
-        "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
-      },
       "score_p2": {
         "addr": "",
         "type": "bcd",
         "bytes": 4,
         "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+      },
+      "_score_hi": {
+        "addr": "0x81A642",
+        "type": "be",
+        "bytes": 2,
+        "mult": 65536,
+        "note": "player 1 score, its high word: the protection's ARM keeps it as a little-endian 32-bit number, read as two words (RetroAchievements rich presence, from tools/ra_notes.py, tag score), to confirm in game"
+      },
+      "_score_lo": {
+        "addr": "0x81A640",
+        "type": "be",
+        "bytes": 2,
+        "note": "player 1 score, its low word (RetroAchievements rich presence, from tools/ra_notes.py, tag score)"
       }
     }
   },
@@ -219,6 +226,11 @@
         "every": 3600.0,
         "start": 3600.0
       }
+    }
+  },
+  "tag": {
+    "score": {
+      "sum": ["_score_hi", "_score_lo"]
     }
   }
 }

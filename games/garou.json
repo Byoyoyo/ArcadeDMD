@@ -88,10 +88,10 @@
     "note": "timer (BCD)"
    },
    "score": {
-    "addr": "",
+    "addr": "0x10E00C",
     "type": "bcd",
     "bytes": 4,
-    "note": "to find with learn.bat"
+    "note": "player 1 score, BCD (RetroAchievements leaderboard \"MOTW Highest Score\" and rich presence, from tools/ra_notes.py), to confirm in game"
    },
    "score_p2": {
     "addr": "",

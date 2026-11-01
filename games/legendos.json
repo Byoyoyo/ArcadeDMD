@@ -76,10 +76,11 @@
     "note": "player 2 health in %, full = 0x78"
    },
    "score": {
-    "addr": "",
-    "type": "bcd",
-    "bytes": 4,
-    "note": "to find with learn.bat"
+    "addr": "0x100384",
+    "type": "be",
+    "bytes": 2,
+    "mult": 100,
+    "note": "player 1 score, a 16-bit number times 100 (RetroAchievements leaderboard \"Score Attack\" and its code notes, from tools/ra_notes.py), to confirm in game"
    },
    "score_p2": {
     "addr": "",

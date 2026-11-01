@@ -22,10 +22,10 @@
   "cpu": ":maincpu",
   "values": {
    "score": {
-    "addr": "",
+    "addr": "0x1030A0",
     "type": "bcd",
     "bytes": 4,
-    "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+    "note": "player 1 score, BCD (RetroAchievements leaderboard \"Top Score\", from tools/ra_notes.py), to confirm in game"
    },
    "score_p2": {
     "addr": "",

@@ -41,10 +41,10 @@
         "note": "bubble of player 2 (FBNeo cheat database, Select Current Bubble PL2)"
       },
       "score": {
-        "addr": "",
-        "type": "bcd",
+        "addr": "0x100218",
+        "type": "be",
         "bytes": 4,
-        "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+        "note": "player 1 score, a 32-bit number (RetroAchievements leaderboard \"Best Score\" and code notes, from tools/ra_notes.py), to confirm in game"
       },
       "score_p2": {
         "addr": "",
