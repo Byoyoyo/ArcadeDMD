@@ -186,6 +186,17 @@ def _resolve(expr, values, depth=0):
         if not parts or any(p is None or isinstance(p, bool) for p in parts):
             return None
         return ",".join(str(int(p)) if isinstance(p, float) and p.is_integer() else str(p) for p in parts)
+    if "team" in expr:
+        # a team of fighters who take turns (Marvel vs. Capcom): [[on screen, health, what to give], ...]. The one on
+        # screen and still standing, else the first one still standing, else the first one.
+        # une équipe qui se relaie : celui à l'écran et encore debout, sinon le premier encore debout, sinon le premier
+        team = [m for m in expr.get("team") or [] if isinstance(m, list) and len(m) == 3]
+        if not team:
+            return None
+        alive = [m for m in team if (_resolve(m[1], values, depth + 1) or 0) > 0]
+        on = [m for m in alive if _resolve(m[0], values, depth + 1) == 1]
+        pick = on[0] if on else (alive[0] if alive else team[0])
+        return _resolve(pick[2], values, depth + 1)
     if "find" in expr:
         lst = expr.get("find")
         target = _resolve(expr.get("eq"), values, depth + 1)
@@ -196,6 +207,11 @@ def _resolve(expr, values, depth=0):
                 return i
         return None
     return None
+
+
+def resolve_value(expr, values):
+    """The value of one expression of a game file ("derived", "tag"), or None. / La valeur d'une expression."""
+    return _resolve(expr, values)
 
 
 def derive(specs, values):

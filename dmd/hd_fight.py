@@ -150,6 +150,8 @@ class FightFX:
         self.prev_time = None
         self.rounds = {"p1": None, "p2": None}     # rounds won read in the game / rounds gagnés lus dans le jeu
         self.round_t = {"p1": -99.0, "p2": -99.0}
+        self.live_t = -99.0                        # when somebody began to play / quand quelqu'un s'est mis à jouer
+        self.zero_t = {}                           # when each bar fell to 0 / quand chaque barre est tombée à 0
 
     def round_glow(self, side, now):
         """1 when the side just won a round, down to 0 in 1.5 s (its last star glows). / L'étoile du round gagné brille."""
@@ -207,6 +209,8 @@ class FightFX:
             self.bd.set_theme(stages[stable_index(key, len(stages))], now, wipe=0)
             self.bd.prebuild(stages)                                  # les autres stages se préparent en arrière-plan
         self.fx.update(now)
+        if self.idle and not idle:
+            self.live_t = now                                         # START pressed: the game clears its fighters
         self.idle = idle
         if idle:
             self._idle(vals, stages)
@@ -246,10 +250,19 @@ class FightFX:
         h1, h2 = _n(vals.get("health")), _n(vals.get("health_p2"))
         self.health = {"p1": h1, "p2": h2}
         t = _n(vals.get("time"))
+        o1, o2 = self.prev.get("p1"), self.prev.get("p2")
+        # both bars emptied at once while neither was low: the game clears its fighters (select screen after START, end
+        # of a game), not a DOUBLE K.O. / les deux barres vidées d'un coup sans être basses : le jeu vide ses combattants
+        cleared = (None not in (h1, h2, o1, o2) and h1 <= 0 and h2 <= 0 and o1 > 0 and o2 > 0 and max(o1, o2) > 50)
         for side, h in (("p1", h1), ("p2", h2)):
             old = self.prev.get(side)
             if h is not None and old is not None:
                 if h < old:
+                    if h <= 0 and (cleared or old >= 90 or now - self.live_t < 2.5):
+                        continue                                      # a bar emptied, no blow did it / sans coup
+                    other = self.zero_t.get("p2" if side == "p1" else "p1")
+                    if h <= 0 and other is not None and now - other > 1.0:
+                        continue                                      # the round was over: the winner's bar cleared
                     self._hit(side, old, h, now)
                 elif old <= 0 < h and now - self.fight_t > 2.0:     # combattant suivant ou nouveau round
                     self._fight(now)
@@ -260,6 +273,11 @@ class FightFX:
             if h1 != h2:
                 self.win = ["p1" if h1 > h2 else "p2", now + 1.0, False, False]
         self.prev_time = t
+        for side, h in (("p1", h1), ("p2", h2)):
+            if h is not None and h <= 0:
+                self.zero_t.setdefault(side, now)
+            else:
+                self.zero_t.pop(side, None)
         self._rounds(vals, now)
         if self.win is not None and not self.win[3] and now >= self.win[1]:
             self._celebrate(*self.win[:3])

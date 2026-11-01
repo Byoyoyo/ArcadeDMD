@@ -271,7 +271,7 @@ class HDRenderer:
             if c.strip():
                 self.put(screen, self.text(c, key, size, color, glow), x0 + (pen + l) * scale, y + (t - top) * scale,
                          scale=scale)
-            pen += adv * scale
+            pen += adv                                            # scaled once, above / agrandi une seule fois
         return total
 
     # ------------------------------------------------------------ éléments fixes
@@ -330,7 +330,9 @@ class HDRenderer:
 
         line = Image.new("RGBA", (w, h), (0, 0, 0, 0))
         ImageDraw.Draw(line).line(shape + [shape[0]], fill=CREAM + (255,), width=max(2, self.S(4)))
-        b = {"back": solid((70, 12, 14)), "trail": solid((255, 235, 235)), "line": self._surf(line),
+        # the empty part stays dark and neutral: a nearly empty bar must not look full and red (X-Men, Seb's cabinet)
+        # la partie vide reste sombre et neutre : une barre presque vide ne doit pas paraître pleine et rouge
+        b = {"back": solid((24, 26, 34)), "trail": solid((255, 235, 235)), "line": self._surf(line),
              "fill": {k: gradient(*v) for k, v in BARS.items()}}
         self.bars[key] = b
         return b
@@ -684,6 +686,8 @@ class HDRenderer:
         if h1 is not None and h2 is not None:
             self.draw_rounds(screen, vals, S(40) + bw, int(cx + S(160)), now)
         ko = h1 is not None and h2 is not None and (h1 <= 0 or h2 <= 0)
+        if ko and h1 <= 0 and h2 <= 0 and not (self.fight is not None and now - self.fight.ko_t < 3.0):
+            ko = False                    # both bars empty without a K.O.: the select screen / l'écran de sélection
         t = _num(vals.get("time"))
         if ko:
             ks = self.fight.ko_scale(now) if self.fight is not None else 1.0
@@ -717,7 +721,7 @@ class HDRenderer:
             if team:
                 self.draw_team(screen, team, S(44) if side == "p1" else W - S(44), S(372), side, room)
             else:
-                self.draw_super(screen, vals, side, now, room)
+                self.draw_super(screen, vals, side, now, room, self._level_top(eng, side))
         credits = _num(vals.get("credits"))
         if credits is not None:                               # big enough to read, on a dark pill / lisibles, sur une pastille
             t = self.text(tr(f"CRÉDITS {int(credits):02d}", f"CREDITS {int(credits):02d}"), "xbold", S(44), AMBER, 0.3)
@@ -754,15 +758,30 @@ class HDRenderer:
                     pg.draw.polygon(screen, (40, 32, 20), pts)
                     pg.draw.polygon(screen, (110, 90, 50), pts, max(1, S(2)))
 
-    def draw_super(self, screen, vals, side, now, room):
+    @staticmethod
+    def _level_top(eng, side):
+        """The top level of the super gauge in the game file ("max" of power_level), or None. / Le niveau le plus haut."""
+        lib = getattr(eng, "library", None)
+        g = lib.get((eng.state.meta or {}).get("game") or "") if lib is not None else None
+        spec = (((g or {}).get("memory") or {}).get("values") or {}).get("power_level" if side == "p1" else "power_level_p2")
+        return _num(spec.get("max")) if isinstance(spec, dict) else None
+
+    def draw_super(self, screen, vals, side, now, room, top=None):
         """Super gauge of the Capcom fighting games (Alpha, Marvel, Street Fighter III...) under the fighter: it fills up,
-        turns gold and says MAX when full. / Jauge de super sous le combattant : elle se remplit, dorée et MAX quand pleine."""
+        turns gold and says MAX when full. With a level (the Marvel games, X-Men), the bar of the current level and the
+        level beside it (POWER 1, POWER 2), full with POWER MAX at the top level (top).
+        / Jauge de super sous le combattant : elle se remplit, dorée et MAX quand pleine. Avec un niveau (les Marvel,
+        X-Men), la barre du niveau en cours et le niveau à côté, comme le jeu, pleine au niveau le plus haut."""
         p = _num(vals.get("power" if side == "p1" else "power_p2"))
         if p is None:
             return
         S, pg, W = self.S, self.pg, self.W
         f = max(0.0, min(1.0, p / 100.0))
-        lab = self.text("SUPER", "black", S(30), (120, 190, 255), glow=0)
+        lv = _num(vals.get("power_level" if side == "p1" else "power_level_p2"))
+        if lv is not None and top and lv >= top:
+            f = 1.0                                       # top level: the game keeps the bar full / niveau le plus haut
+        word = "SUPER" if lv is None else ("POWER MAX" if top and lv >= top else f"POWER {int(lv)}")
+        lab = self.text(word, "black", S(30), (120, 190, 255), glow=0)
         w, h = int(min(room - lab["w"] - S(60), S(520))), S(24)
         y = S(380)
         if side == "p1":

@@ -53,7 +53,8 @@
         "round": 1,
         "min": 0,
         "max": 100,
-        "note": "vital in %, full = 6 (FinalBurn Neo cheats, Infinite Energy, to be confirmed in game)"
+        "note": "vital in %, full = 6 (FinalBurn Neo cheats, Infinite Energy, to be confirmed in game)",
+        "zero_from": "0x83"
       },
       "hero": {
         "addr": "0xFF8386",

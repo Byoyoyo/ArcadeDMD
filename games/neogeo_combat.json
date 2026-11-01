@@ -1332,12 +1332,28 @@
        "not": {
         "any": [
          {
-          "var": "health",
-          "eq": 0
+          "all": [
+           {
+            "var": "health",
+            "eq": 0
+           },
+           {
+            "var": "health_p2",
+            "gt": 0
+           }
+          ]
          },
          {
-          "var": "health_p2",
-          "eq": 0
+          "all": [
+           {
+            "var": "health_p2",
+            "eq": 0
+           },
+           {
+            "var": "health",
+            "gt": 0
+           }
+          ]
          }
         ]
        }
@@ -1364,12 +1380,28 @@
       {
        "any": [
         {
-         "var": "health",
-         "eq": 0
+         "all": [
+          {
+           "var": "health",
+           "eq": 0
+          },
+          {
+           "var": "health_p2",
+           "gt": 0
+          }
+         ]
         },
         {
-         "var": "health_p2",
-         "eq": 0
+         "all": [
+          {
+           "var": "health_p2",
+           "eq": 0
+          },
+          {
+           "var": "health",
+           "gt": 0
+          }
+         ]
         }
        ]
       }

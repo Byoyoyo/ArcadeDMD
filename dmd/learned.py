@@ -88,6 +88,24 @@ def _core(d):
     return {k: v for k, v in d.items() if k != "note"} if isinstance(d, dict) else {}
 
 
+def _addr(a):
+    try:
+        s = str(a).strip().lower()
+        return int(s, 16) if s.startswith("0x") else int(s)
+    except ValueError:
+        return None
+
+
+def not_learned(spec, d):
+    """True when the game file says this learned address is not the right one ("not_learned": addresses learn.bat
+    finds, where the game keeps something else, such as the score of the last player who scored).
+    / L'adresse apprise est une de celles que le fichier du jeu écarte."""
+    if not isinstance(spec, dict) or not isinstance(d, dict) or d.get("ptr"):
+        return False
+    bad = {_addr(a) for a in (spec.get("not_learned") or [])}
+    return bool(bad) and _addr(d.get("addr")) in bad
+
+
 def _about_learning(note):
     """Note that mentions the learning tool, in French or English ("à trouver avec apprendre.bat",
     "to find with learn.bat", "found with learn.bat"...)."""
@@ -126,10 +144,14 @@ def restore(root, log=print):
         vals = cfg.setdefault("memory", {}).setdefault("values", {})
         changed = []
         obsolete = []
+        wrong = []
         for name, d in (data.get("values") or {}).items():
             if not isinstance(d, dict) or not d.get("addr"):
                 continue
             cur = vals.get(name)
+            if not_learned(cur, d):
+                wrong.append(name)                # the game file has the right one / le fichier du jeu a la bonne
+                continue
             if _core(cur) == _core(d):
                 continue
             if isinstance(cur, dict) and cur.get("ptr") and cur.get("addr") and not d.get("ptr"):
@@ -142,6 +164,18 @@ def restore(root, log=print):
                 new["note"] = note
             vals[name] = new
             changed.append(name)
+        if wrong:
+            for name in wrong:
+                data["values"].pop(name, None)
+            try:
+                _write(path, data)
+                names = ", ".join(wrong)
+                log(tr(f"learned/{key}.json : {names} retiré, l'adresse apprise n'était pas la bonne "
+                       "(le fichier du jeu a la bonne)",
+                       f"learned/{key}.json: {names} removed, the learned address was not the right one "
+                       "(the game file has it)"))
+            except OSError:
+                pass
         if obsolete:
             for name in obsolete:
                 data["values"].pop(name, None)

@@ -4,7 +4,7 @@ Game by game, what ArcadeDMD already knows how to show, and what comes next. Upd
 
 Jeu par jeu, ce qu'ArcadeDMD sait déjà afficher, et ce qui vient ensuite. Mis à jour à chaque version.
 
-Up to date with version 1.30.0. / À jour de la version 1.30.0.
+Up to date with version 1.30.1. / À jour de la version 1.30.1.
 
 For each game / Pour chaque jeu
 - **Values / Valeurs.** What is read from the game's memory, such as each player's score, lives, bombs, level or health. / Ce qui est lu dans la mémoire du jeu, comme le score de chaque joueur, les vies, les bombes, le niveau ou la vie.

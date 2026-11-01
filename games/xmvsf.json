@@ -1,6 +1,6 @@
 {
   "title": "X-Men Vs. Street Fighter",
-  "note": "Capcom CPS2 fighting game: health, health_p2, time, power, power_p2, 19 characters (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "note": "Capcom CPS2 fighting game: health, health_p2, time, power, power_level, power_p2, power_level_p2, 19 characters (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
   "generated": "tools/cps_games.py",
   "cps": "CPS2",
   "match": [
@@ -25,26 +25,6 @@
   "memory": {
     "cpu": ":maincpu",
     "values": {
-      "health": {
-        "addr": "0xFF4211",
-        "type": "u8",
-        "note": "player 1 health in %, full = 0x90 (FBNeo cheat database, Infinite Energy (Active Char) PL1)",
-        "mult": 0.694444,
-        "round": 1,
-        "min": 0,
-        "max": 100,
-        "zero_from": "0xC8"
-      },
-      "health_p2": {
-        "addr": "0xFF4611",
-        "type": "u8",
-        "note": "player 2 health in %, full = 0x90 (FBNeo cheat database, Infinite Energy (Active Char) PL2)",
-        "mult": 0.694444,
-        "round": 1,
-        "min": 0,
-        "max": 100,
-        "zero_from": "0xC8"
-      },
       "time": {
         "addr": "0xFF5008",
         "type": "bcd",
@@ -52,22 +32,34 @@
         "note": "timer (FBNeo cheat database, Infinite Time)"
       },
       "power": {
-        "addr": "0xFF4214",
+        "addr": "0xFF4213",
         "type": "u8",
-        "note": "super gauge of player 1 in %, full = 0x3 (FBNeo cheat database)",
-        "mult": 33.333333,
+        "note": "super gauge of player 1 in % of the current level, full = 0x90 (FBNeo cheat database)",
+        "mult": 0.694444,
         "round": 1,
         "min": 0,
         "max": 100
       },
-      "power_p2": {
-        "addr": "0xFF4614",
+      "power_level": {
+        "addr": "0xFF4214",
         "type": "u8",
-        "note": "super gauge of player 2 in %, full = 0x3 (FBNeo cheat database)",
-        "mult": 33.333333,
+        "note": "super gauge level of player 1, 3 at most (FBNeo cheat database)",
+        "max": 3
+      },
+      "power_p2": {
+        "addr": "0xFF4613",
+        "type": "u8",
+        "note": "super gauge of player 2 in % of the current level, full = 0x90 (FBNeo cheat database)",
+        "mult": 0.694444,
         "round": 1,
         "min": 0,
         "max": 100
+      },
+      "power_level_p2": {
+        "addr": "0xFF4614",
+        "type": "u8",
+        "note": "super gauge level of player 2, 3 at most (FBNeo cheat database)",
+        "max": 3
       },
       "_p1_chr": {
         "addr": "0xFF4053",
@@ -78,14 +70,99 @@
         "addr": "0xFF4453",
         "type": "u8",
         "note": "player 2 or computer character (FBNeo cheat database, Select Character (Active Char) PL2)"
+      },
+      "score": {
+        "addr": "0xFF4204",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 1 score, found with learn.bat under RetroArch on a cabinet"
+      },
+      "score_p2": {
+        "addr": "0xFF4604",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 2 score, found with learn.bat under RetroArch on a cabinet, 0x400 further like his health"
+      },
+      "_p1_ctl": {
+        "addr": "0xFF4003",
+        "type": "u8",
+        "note": "player 1 controlled by a human (1) or the computer, found in RAM captures on a cabinet (a game on each side)",
+        "human": 1
+      },
+      "_p2_ctl": {
+        "addr": "0xFF4403",
+        "type": "u8",
+        "note": "player 2 controlled by a human (1) or the computer, found in RAM captures on a cabinet (a game on each side)",
+        "human": 1
+      },
+      "_p1_hp1": {
+        "addr": "0xFF4211",
+        "type": "u8",
+        "note": "player 1 health in %, full = 0x90 (FBNeo cheat database, Infinite Energy (Active Char) PL1)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xC8"
+      },
+      "_p1_hp2": {
+        "addr": "0xFF4A11",
+        "type": "u8",
+        "note": "player 1 health of his second fighter in %, full = 0x90 (FBNeo cheat database, Infinite Energy (Active Char) PL1)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xC8"
+      },
+      "_p1_chr2": {
+        "addr": "0xFF4853",
+        "type": "u8",
+        "note": "player 1, character of his second fighter, the first one +0x800"
+      },
+      "_p2_hp1": {
+        "addr": "0xFF4611",
+        "type": "u8",
+        "note": "player 2 health in %, full = 0x90 (FBNeo cheat database, Infinite Energy (Active Char) PL2)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xC8"
+      },
+      "_p2_hp2": {
+        "addr": "0xFF4E11",
+        "type": "u8",
+        "note": "player 2 health of his second fighter in %, full = 0x90 (FBNeo cheat database, Infinite Energy (Active Char) PL2)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xC8"
+      },
+      "_p2_chr2": {
+        "addr": "0xFF4C53",
+        "type": "u8",
+        "note": "player 2, character of his second fighter, the first one +0x800"
       }
     }
   },
   "activity": {
-    "values": ["time", "health", "health_p2"],
-    "moving": ["time", "health", "health_p2"],
+    "values": ["time", "health", "health_p2", "score", "score_p2"],
+    "moving": ["time", "score", "score_p2", "health", "health_p2"],
     "seconds": 10,
-    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
+    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)",
+    "human": {
+      "p1": [
+        "_p1_ctl",
+        1
+      ],
+      "p2": [
+        "_p2_ctl",
+        1
+      ]
+    },
+    "cpu_scores": true
   },
   "demo": {
     "credits": 2,
@@ -94,12 +171,25 @@
     "health": 100,
     "health_p2": 100,
     "time": 99,
+    "power_level": 1,
+    "power_level_p2": 1,
     "_p1_chr": 0,
     "_p2_chr": 2
   },
   "derived": {
     "p1_char": {
-      "value": "_p1_chr",
+      "team": [
+        [
+          1,
+          "_p1_hp1",
+          "_p1_chr"
+        ],
+        [
+          0,
+          "_p1_hp2",
+          "_p1_chr2"
+        ]
+      ],
       "names": {
         "0": "WOLVERINE",
         "2": "CYCLOPS",
@@ -123,7 +213,18 @@
       }
     },
     "p2_char": {
-      "value": "_p2_chr",
+      "team": [
+        [
+          1,
+          "_p2_hp1",
+          "_p2_chr"
+        ],
+        [
+          0,
+          "_p2_hp2",
+          "_p2_chr2"
+        ]
+      ],
       "names": {
         "0": "WOLVERINE",
         "2": "CYCLOPS",
@@ -150,5 +251,35 @@
   "hd": {
     "stages": ["fight_lab", "fight_city", "space", "fight_ruins", "fight_snow", "fight_factory", "fight_harbor", "fight_desert"],
     "note": "HD themes of the fights (one per game, no stage value known), made by tools/cps_games.py"
+  },
+  "tag": {
+    "health": {
+      "team": [
+        [
+          1,
+          "_p1_hp1",
+          "_p1_hp1"
+        ],
+        [
+          0,
+          "_p1_hp2",
+          "_p1_hp2"
+        ]
+      ]
+    },
+    "health_p2": {
+      "team": [
+        [
+          1,
+          "_p2_hp1",
+          "_p2_hp1"
+        ],
+        [
+          0,
+          "_p2_hp2",
+          "_p2_hp2"
+        ]
+      ]
+    }
   }
 }
