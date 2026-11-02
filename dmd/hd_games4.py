@@ -18,10 +18,10 @@ from .i18n import tr
 
 
 # ============================================================================ Strikers 1945 Plus
-# Each plane in the colours its sprite has in the game, read on photos of the plane select screen (1.31): its body, its
-# wings and its marks. The XP-55 Ascender, hidden behind the "?", has not been seen yet: bare metal until then.
-# Chaque avion aux couleurs de son sprite dans le jeu, lues sur des photos de l'écran de choix des avions : le corps, les
-# ailes et les marques. L'Ascender, caché derrière le « ? », n'a pas encore été vu : métal nu en attendant.
+# Each plane in the colours its sprite has in the game, read on photos of the plane select screen and of the XP-55
+# Ascender in game, the plane hidden behind the "?" (1.31): its body, its wings and its marks.
+# Chaque avion aux couleurs de son sprite dans le jeu, lues sur des photos de l'écran de choix des avions et de l'Ascender
+# en jeu, l'avion caché derrière le « ? » : le corps, les ailes et les marques.
 S45_PAINT = {
     1: ((222, 230, 240), (204, 214, 228), (36, 118, 226)),     # P-38 Lightning: white, blue engines / blanc, moteurs bleus
     2: ((34, 126, 214), (28, 110, 198), (226, 52, 52)),        # F5U: blue, red tail tips / bleu, bouts de queue rouges
@@ -29,7 +29,7 @@ S45_PAINT = {
     4: ((150, 196, 34), (132, 178, 30), (236, 244, 196)),      # Ta-152: lime green / vert anis
     5: ((30, 164, 116), (34, 172, 128), (240, 176, 32)),       # Zero: emerald, yellow leading edges / émeraude, bords jaunes
     6: ((222, 40, 34), (206, 36, 32), (250, 198, 40)),         # Fiat G.56: red, yellow nose / rouge, nez jaune
-    7: ((176, 184, 196), (160, 168, 182), (220, 60, 50)),      # XP-55 Ascender: not seen yet / pas encore vu
+    7: ((206, 172, 130), (190, 154, 114), (242, 232, 210)),    # XP-55 Ascender: light brown, pale fins / marron clair
 }
 
 
@@ -38,7 +38,7 @@ def s45_plane_draw(kind, body, accent, dark=(26, 24, 22), wing=None):
     (two booms), 2 F5U (a round wing, two big propellers), 3 Spitfire (elliptic wings), 4 Ta-152 (long wings), 5 Zero,
     6 Fiat G.56, 7 a canard plane with its propeller at the back. The wings take `wing` (else the body a little darker),
     the marks take `accent` where the game has them: the engines and wing tips of the P-38, the tail tips of the F5U, the
-    leading edges of the Zero, the nose of the Fiat, a stripe at the wing tips of the others.
+    leading edges of the Zero, the nose of the Fiat, the fins of the Ascender, a stripe at the wing tips of the others.
     / Les avions vus du dessus, d'après les vrais. Les ailes prennent `wing`, les marques `accent` là où le jeu les a."""
     def fn(d, W, H):
         line = dark + (255,)
@@ -116,10 +116,11 @@ def s45_plane_draw(kind, body, accent, dark=(26, 24, 22), wing=None):
                 def m(y):
                     return 0.5 + sgn * (y - 0.5)
                 _shape(d, P([(0.42, m(0.46)), (0.2, m(0.06)), (0.12, m(0.06)), (0.18, m(0.46))]), sh, line, ow)
+                _shape(d, P([(0.24, m(0.1)), (0.08, m(0.1)), (0.08, m(0.03)), (0.24, m(0.03))]), acc, line, ow)   # its fins
                 d.line(P([(0.18, m(0.28)), (0.28, m(0.28))]), fill=line, width=max(2, int(H * 0.03)))
                 _shape(d, P([(0.84, m(0.47)), (0.78, m(0.36)), (0.74, m(0.36)), (0.76, m(0.47))]), sh, line, ow)
             fuselage(0.08, 0.96, 0.06)
-            canopy(0.62)
+            canopy(0.47)                                               # just ahead of the wings, as in the game
             disc(0.06, 0.5, 0.2)
         else:
             span = {3: 0.47, 4: 0.48, 5: 0.46, 6: 0.44}[k]
