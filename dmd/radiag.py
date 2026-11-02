@@ -40,9 +40,12 @@ LABELS = {"lives": ("vies", "lives"), "lives_p2": ("vies J2", "P2 lives"), "bomb
           "stones": ("pierres d'esprit", "spirit stones"), "stones_p2": ("pierres d'esprit J2", "P2 spirit stones"),
           "energy": ("énergie J1 %", "P1 energy %"), "energy_p2": ("énergie J2 %", "P2 energy %"), "char": ("héros J1", "P1 hero"),
           "char_p2": ("héros J2", "P2 hero"), "bubble": ("bulle", "bubble"), "bubble_p2": ("bulle J2", "P2 bubble"),
+          "angle": ("flèche du lanceur", "launcher's arrow"), "angle_p2": ("flèche du lanceur J2", "P2 launcher's arrow"),
           # Metal Slug's grenades on screen, DoDonPachi's stage scroll and game state (1.31) / grenades, défilement, état
           "grenades_out": ("grenades en l'air", "grenades out"), "grenades_out_p2": ("grenades en l'air J2", "P2 grenades out"),
-          "distance": ("défilement du niveau", "stage scroll"), "phase": ("état du jeu", "game state")}
+          "distance": ("défilement du niveau", "stage scroll"), "phase": ("état du jeu", "game state"),
+          # DoDonPachi's boss and the WARNING of the game (1.31) / le boss de DoDonPachi et le WARNING du jeu
+          "boss": ("boss", "boss"), "boss_name": ("nom du boss", "boss name"), "warning": ("WARNING du jeu", "game's WARNING")}
 
 
 HIDDEN = {"p1_mode", "p2_mode", "p1_input", "p2_input",     # BIOS : état des joueurs et commandes, utiles à la scène seulement

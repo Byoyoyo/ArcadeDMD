@@ -228,6 +228,23 @@ def _resolve(expr, values, depth=0):
         if any(isinstance(x, bool) or not isinstance(x, (int, float)) for x in (a, b)):
             return None
         return 1 if a >= b else 0
+    if "eq" in expr and "find" not in expr:
+        # 1 when both are equal, else 0 (DoDonPachi: the routine of its WARNING) / 1 quand les deux sont égaux, sinon 0
+        pair = expr.get("eq")
+        if not isinstance(pair, list) or len(pair) != 2:
+            return None
+        a, b = (_resolve(x, values, depth + 1) for x in pair)
+        if any(isinstance(x, bool) or not isinstance(x, (int, float)) for x in (a, b)):
+            return None
+        return 1 if a == b else 0
+    if "first" in expr:
+        # the first of them that is known (DoDonPachi: its boss from the WARNING, else from where its stage stops)
+        # la première qui est connue
+        for x in expr.get("first") or []:
+            v = _resolve(x, values, depth + 1)
+            if v is not None and not isinstance(v, bool):
+                return v
+        return None
     if "rise" in expr:
         # 1 while "rise" is 1, once "from" has been 1 since the last "reset" (DoDonPachi: the boss once the stage was seen
         # scrolling toward it in a game going on, not a distance left over from the stage or the game before). The only

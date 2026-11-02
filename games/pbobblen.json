@@ -86,6 +86,16 @@
     "type": "u8",
     "note": "player 2 next bubble (FinalBurn Neo cheats)"
    },
+   "angle": {
+    "addr": "0x108262",
+    "type": "s16",
+    "note": "the launcher's arrow as the game turns it, 256 steps per turn: 0 straight up, -60 far left, 60 far right (84 degrees). Learned on a cabinet (1.31, seven captures each with its photo, -60, -29, -9, 0, 7, 35, 60). The HD scene turns its arrow and sends its bubbles with it"
+   },
+   "angle_p2": {
+    "addr": "0x1082FE",
+    "type": "s16",
+    "note": "player 2's arrow, 0x9C further like the scores (0x10820A, 0x1082A6). It moved between -60 and 60 in the VS captures of 2 November (45, -5, -23, 15) and stays 0 in a one-player game, to confirm in a VS game"
+   },
    "credits": {
     "addr": "0xD00034",
     "type": "bcd",

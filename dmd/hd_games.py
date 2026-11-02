@@ -1039,12 +1039,15 @@ class PuzzleBobbleScene(GameScene):
     PILLS = True
     BANNERS = GameScene.BANNERS + tuple((f"ROUND {n}", GOLD) for n in range(1, 10))
     R = 26                                                     # bubble in the launcher / bulle dans le lanceur
+    TURN = 360 / 256                                           # the game turns its arrow by 256 steps per turn / 256 pas par tour
+    SWING = 60 * TURN                                          # as far as the game turns it (84 degrees) / aussi loin que le jeu
 
     def __init__(self, hd, rng=None):
         super().__init__(hd, rng)
         self.flying = []
         self.slide = {"p1": -99.0, "p2": -99.0}
-        self.angle = {"p1": 0.0, "p2": 0.0}
+        self.angle = {"p1": 0.0, "p2": 0.0}                  # the arrow drawn / la flèche dessinée
+        self.aim = {"p1": None, "p2": None}                  # the game's arrow when it is read / la flèche du jeu, lue
         self.boards = {side: Board(self, self.launcher_xy(side)[0]) for side in ("p1", "p2")}
         self.win_t = {"p1": -99.0, "p2": -99.0}               # when each player last won a VS match / dernière victoire
         self.matches = 0                                     # (tests)
@@ -1082,14 +1085,21 @@ class PuzzleBobbleScene(GameScene):
         dt = self.dt
         for side, suf in (("p1", ""), ("p2", "_p2")):
             st = self.stick(vals, side)
-            if st is not None:                                         # left / right turn the arrow
-                self.angle[side] = _clamp(self.angle[side] + st[0] * 75 * dt, -72.0, 72.0)
+            aim = _n(vals.get("angle" + suf))
+            if aim is not None and abs(aim) <= 64:                     # the game's own arrow (1.31), 256 steps per turn
+                self.aim[side] = aim * self.TURN
+                k = 1.0 - math.exp(-dt / 0.06)                         # read a few times a second: it glides there
+                self.angle[side] += (self.aim[side] - self.angle[side]) * k
+            elif st is not None:                                       # left / right turn the arrow
+                self.aim[side] = None
+                self.angle[side] = _clamp(self.angle[side] + st[0] * 75 * dt, -self.SWING, self.SWING)
             else:
+                self.aim[side] = None
                 self.angle[side] = 52 * math.sin(now * 0.8 + (0 if side == "p1" else 2.0))
             ch = self.changed(vals, "bubble" + suf)
-            if ch:                                                     # the bubble leaves the launcher
+            if ch:                                                     # the bubble leaves the launcher, where the game aims
                 x, y = self.launcher_xy(side)
-                a = math.radians(self.angle[side])
+                a = math.radians(self.angle[side] if self.aim[side] is None else self.aim[side])
                 v = 1700 * self.s
                 self.flying.append({"c": ch[0], "x": x, "y": y, "vx": math.sin(a) * v, "vy": -math.cos(a) * v, "t0": now, "side": side})
                 self.slide[side] = now
@@ -1142,7 +1152,7 @@ class PuzzleBobbleScene(GameScene):
             if (f["x"] < lo and f["vx"] < 0) or (f["x"] > hi and f["vx"] > 0):
                 f["vx"] = -f["vx"]
                 f["x"] = _clamp(f["x"], lo, hi)
-            if board.hits(f["x"], f["y"]) or now - f["t0"] > 1.6:
+            if board.hits(f["x"], f["y"]) or now - f["t0"] > 3.0:     # aimed far to the side, it climbs slowly
                 for i, (x, y, c) in enumerate(board.stick(f["x"], f["y"], f["c"])):
                     self.fx.later(0.03 * i, self._burst, x, y, c)
                 if board.low() >= 6:                                   # the board reached the launcher: it clears
@@ -1166,7 +1176,7 @@ class PuzzleBobbleScene(GameScene):
             screen.blit(base, (int(x - base.get_width() / 2), int(y - base.get_height() / 2)))
             arrow = self.rotated("arrow", self.img("arrow", S(40), S(330), arrow_draw), -self.angle[side], 2)
             screen.blit(arrow, (int(x - arrow.get_width() / 2), int(y - arrow.get_height() / 2)))
-            nx, ny = x + d * S(150), S(418)
+            nx, ny = x + d * S(228), S(418)                         # clear of the arrow aimed far to the side
             if cur is not None:
                 k = _clamp((now - self.slide[side]) / 0.2)               # the next bubble rolls into the launcher
                 cx, cy = nx + (x - nx) * k, ny + (y - ny) * k - math.sin(k * math.pi) * S(40)

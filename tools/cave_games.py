@@ -175,7 +175,19 @@ def hand(fam):
             "_state": v(0x1017A7, "game state: 0 both players, 7 player 1, 6 player 2 (playing, results, ending), 8 continue, 0x0B ship "
                                   "select, 5 demo, 1 and 4 the title before and after a coin, 2 the ranking, 0x0C and 0x0D the logos "
                                   "(RetroAchievements code notes, Game State, and its rich presence). Checked in captures taken on the "
-                                  "cabinet: 7 with player 1 alone, 0 with both, 6 once player 1's game was over")},
+                                  "cabinet: 7 with player 1 alone, 0 with both, 6 once player 1's game was over"),
+            # who is out of the game, one bit each, also at the ship select where nobody has ships yet (tags p1_mode, p2_mode)
+            # qui est hors du jeu, un bit chacun, aussi au choix du vaisseau où personne n'a encore de vaisseaux
+            "_players": v(0x1017A9, "players' flags, 0x80 a game going on, 0x10 player 1 out of it, 0x20 player 2 out of it (27 captures "
+                                    "taken on the cabinet: 0xE0 with player 1 alone, 0x80 with both, 0x90 with player 2 alone, 0 at the "
+                                    "title)"),
+            "_out_p1": v(0x1017A9, "player 1 out of the game, the bit 0x10 of the players' flags", mask=0x10, shift=4),
+            "_out_p2": v(0x1017A9, "player 2 out of the game, the bit 0x20 of the players' flags", mask=0x20, shift=5),
+            # the routine the stage runs, an address of the World program (derived warning) / la routine que suit le niveau
+            "_stage_task": v(0x1013FC, "routine the stage runs, an address in the World program: 0x6DA98 while the WARNING of a boss "
+                                       "shows, 0x6DB82 while the carrier drops the ship at the start of stage 1, others while the stage "
+                                       "scrolls and during the boss fights (captures taken on the cabinet: the WARNING of the first three "
+                                       "bosses, 0x6DA98 each time and never in the 23 other captures)", "be", 4)},
         "donpachi": {
             "bombs": v(0x10217B, f"bombs of player 1 ({SRC}, Infinite Bombs PL1)"),
             "bombs_p2": v(0x1021BB, f"bombs of player 2 ({SRC}, Infinite Bombs PL2)"),
@@ -307,16 +319,24 @@ def hand_clones(fam):
 # the version whose cheats the values of hand() were read from, when it is not the parent: the others, the parent too, get
 # theirs where their own cheats write / la version dont les codes ont donné les valeurs de hand(), quand ce n'est pas le parent
 REF = {"ddp3": "ddpdoj"}
+# values a version does not have, its program being another one: the routine addresses read in DoDonPachi are those of the
+# World program (ddonpach), the Japanese one and the Arrange version keep theirs elsewhere. Their boss comes where the stage
+# stops scrolling. / valeurs qu'une version n'a pas, son programme étant un autre
+OFF = {"ddonpach": {x: {"_stage_task": {"addr": "", "type": "be", "bytes": 4,
+                                        "note": "the routines of this version's program are elsewhere, not read: the boss comes "
+                                                "where its stage stops scrolling"}} for x in ("ddonpachj", "ddonpacha")}}
 
 
 def ddp_mode(lives, score, alone, other_alone):
     """p1_mode or p2_mode of DoDonPachi, from its game state (_state) and the ships each player has, the ship in play counted
-    (lives 0 and more): 0 both players, 7 player 1, 6 player 2, 8 continue for a player who has scored, 0x0B the ship select
-    where a player who came in has his ships (player 1 when nobody has any yet). Nothing is guessed from what moves, as the
-    RetroAchievements rich presence does it. / p1_mode ou p2_mode de DoDonPachi, d'après l'état du jeu et les vaisseaux de
-    chaque joueur, rien n'est deviné d'après ce qui bouge."""
+    (lives 0 and more): 0 both players, 7 player 1, 6 player 2, 8 continue for a player who has scored. At the ship select (0x0B)
+    nobody has ships yet: the players' flags say who came in once the game has set them (0x80), else player 1. Nothing is
+    guessed from what moves, as the RetroAchievements rich presence does it. / p1_mode ou p2_mode de DoDonPachi, d'après l'état
+    du jeu et les vaisseaux de chaque joueur ; au choix du vaisseau, les drapeaux des joueurs disent qui est arrivé."""
     has = {"ge": [lives, 0]}
-    select = {"pick": [1, {"ge": ["lives", 0]}], "at": {"ge": ["lives_p2", 0]}} if lives == "lives" else has
+    out = "_out_p1" if lives == "lives" else "_out_p2"
+    before = {"pick": [1, {"ge": ["lives", 0]}], "at": {"ge": ["lives_p2", 0]}} if lives == "lives" else has
+    select = {"first": [{"pick": [before, {"pick": [1, 0], "at": out}], "at": {"ge": ["_players", 0x80]}}, before]}
     by_state = [has, 0, 0, 0, 0, 0, 0, 0, {"pick": [0, 2], "at": {"ge": [score, 1]}}, 0, 0, select, 0, 0]
     by_state[alone], by_state[other_alone] = 1, 0
     return {"pick": by_state, "at": "_state"}
@@ -341,22 +361,36 @@ DDP_BOSS_AT = (0x200, 0x160, 0x1B0, 0x200, 0x250, 0x121)
 DDP_BOSS_LEAD = 14
 
 
-def ddp_boss():
-    """DoDonPachi's boss: 1 from its WARNING, a little before the stage stops scrolling, the true last boss of the second loop at
-    once. Only once the stage was seen scrolling toward it in a game going on ("rise"): a distance left over from the stage or
-    the game before is not a boss. Back to 0 out of a game and when the results show.
-    / Le boss : 1 dès son WARNING, un peu avant l'arrêt du niveau, une fois le niveau vu défiler vers lui en pleine partie."""
-    warn = [None] + [a - DDP_BOSS_LEAD for a in DDP_BOSS_AT] + [{"pick": [100000, 0], "at": "loop"}]
-    seen = [None] + [{"pick": [1, 0], "at": {"ge": ["distance", a - DDP_BOSS_LEAD]}} for a in DDP_BOSS_AT] + [1]
+# the routine the World program runs while the WARNING of a boss shows (_stage_task) / la routine du WARNING
+DDP_WARNING = 0x6DA98
+
+
+def ddp_reset():
+    """1 out of a game and while the results or the ending show. / 1 hors d'une partie et pendant les résultats ou la fin."""
     out_of_play = [0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1]       # by _state: no game going on / pas de partie en cours
     results = [0, 0, 0, 1, 1]                                       # by phase: the results, the ending / les résultats, la fin
-    return {"rise": {"ge": ["distance", {"pick": warn, "at": "stage"}]}, "from": {"pick": seen, "at": "stage"},
-            "reset": {"ge": [{"sum": [{"pick": out_of_play, "at": "_state"}, {"pick": results, "at": "phase"}]}, 1]}}
+    return {"ge": [{"sum": [{"pick": out_of_play, "at": "_state"}, {"pick": results, "at": "phase"}]}, 1]}
+
+
+def ddp_boss():
+    """DoDonPachi's boss, 1 from its WARNING until the results of the stage. In the World program, from the WARNING of the game
+    itself, its routine read in _stage_task: the carrier that drops the ship at the start of stage 1 is no boss. In the other
+    versions, whose routines are elsewhere, a little before the stage stops scrolling, once the stage was seen scrolling toward
+    it in a game going on ("rise"), the true last boss of the second loop at once. / Le boss, de son WARNING aux résultats : le
+    WARNING du jeu lui-même dans le programme mondial, ailleurs un peu avant l'arrêt du niveau."""
+    warning = {"eq": ["_stage_task", DDP_WARNING]}
+    by_warning = {"rise": {"ge": [warning, 0]}, "from": warning, "reset": ddp_reset()}
+    warn = [None] + [a - DDP_BOSS_LEAD for a in DDP_BOSS_AT] + [{"pick": [100000, 0], "at": "loop"}]
+    seen = [None] + [{"pick": [1, 0], "at": {"ge": ["distance", a - DDP_BOSS_LEAD]}} for a in DDP_BOSS_AT] + [1]
+    by_scroll = {"rise": {"ge": ["distance", {"pick": warn, "at": "stage"}]}, "from": {"pick": seen, "at": "stage"},
+                 "reset": ddp_reset()}
+    return {"first": [by_warning, by_scroll]}
 
 
 # values made from others for the scenes ("derived"): DoDonPachi's boss (ddp_boss) and its name (DoDonPachi Database of
 # BeeStorm, Japanese Wikipedia) / valeurs faites d'autres valeurs pour les scènes : le boss de DoDonPachi et son nom
 DERIVED = {"ddonpach": {
+    "warning": {"eq": ["_stage_task", DDP_WARNING]},
     "boss": ddp_boss(),
     "boss_name": {"value": "stage", "names": {"1": "SUZAKU", "2": "SENKOU", "3": "KAKOU", "4": "RAIKOU", "5": "RANKOU", "6": "RYUUKOU",
                                               "7": "HIBACHI"}}}}
@@ -676,6 +710,9 @@ def build(fbneo, cheats_dir, games_dir, mame_path=""):
             diff = {k: v for k, v in clones.get(x, {}).items() if k not in kept}
             if not diff:
                 diff = clone_values(x, vals, kept, cs, load_cs, fam, name)
+            off = OFF.get(name, {}).get(x)
+            if off:                                  # another program: not read there / un autre programme : pas lu là
+                diff = dict(diff or {}, **off)
             if diff:
                 per[x] = diff
         if per:

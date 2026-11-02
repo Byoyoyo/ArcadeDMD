@@ -160,6 +160,31 @@
         "addr": "0x1017A7",
         "type": "u8",
         "note": "game state: 0 both players, 7 player 1, 6 player 2 (playing, results, ending), 8 continue, 0x0B ship select, 5 demo, 1 and 4 the title before and after a coin, 2 the ranking, 0x0C and 0x0D the logos (RetroAchievements code notes, Game State, and its rich presence). Checked in captures taken on the cabinet: 7 with player 1 alone, 0 with both, 6 once player 1's game was over"
+      },
+      "_players": {
+        "addr": "0x1017A9",
+        "type": "u8",
+        "note": "players' flags, 0x80 a game going on, 0x10 player 1 out of it, 0x20 player 2 out of it (27 captures taken on the cabinet: 0xE0 with player 1 alone, 0x80 with both, 0x90 with player 2 alone, 0 at the title)"
+      },
+      "_out_p1": {
+        "addr": "0x1017A9",
+        "type": "u8",
+        "note": "player 1 out of the game, the bit 0x10 of the players' flags",
+        "mask": 16,
+        "shift": 4
+      },
+      "_out_p2": {
+        "addr": "0x1017A9",
+        "type": "u8",
+        "note": "player 2 out of the game, the bit 0x20 of the players' flags",
+        "mask": 32,
+        "shift": 5
+      },
+      "_stage_task": {
+        "addr": "0x1013FC",
+        "type": "be",
+        "bytes": 4,
+        "note": "routine the stage runs, an address in the World program: 0x6DA98 while the WARNING of a boss shows, 0x6DB82 while the carrier drops the ship at the start of stage 1, others while the stage scrolls and during the boss fights (captures taken on the cabinet: the WARNING of the first three bosses, 0x6DA98 each time and never in the 23 other captures)"
       }
     }
   },
@@ -181,147 +206,208 @@
       }
     },
     "boss": {
-      "rise": {
-        "ge": [
-          "distance",
-          {
-            "pick": [
-              null,
-              498,
-              338,
-              418,
-              498,
-              578,
-              275,
+      "first": [
+        {
+          "rise": {
+            "ge": [
               {
-                "pick": [
-                  100000,
-                  0
-                ],
-                "at": "loop"
-              }
-            ],
-            "at": "stage"
-          }
-        ]
-      },
-      "from": {
-        "pick": [
-          null,
-          {
-            "pick": [
-              1,
-              0
-            ],
-            "at": {
-              "ge": [
-                "distance",
-                498
-              ]
-            }
-          },
-          {
-            "pick": [
-              1,
-              0
-            ],
-            "at": {
-              "ge": [
-                "distance",
-                338
-              ]
-            }
-          },
-          {
-            "pick": [
-              1,
-              0
-            ],
-            "at": {
-              "ge": [
-                "distance",
-                418
-              ]
-            }
-          },
-          {
-            "pick": [
-              1,
-              0
-            ],
-            "at": {
-              "ge": [
-                "distance",
-                498
-              ]
-            }
-          },
-          {
-            "pick": [
-              1,
-              0
-            ],
-            "at": {
-              "ge": [
-                "distance",
-                578
-              ]
-            }
-          },
-          {
-            "pick": [
-              1,
-              0
-            ],
-            "at": {
-              "ge": [
-                "distance",
-                275
-              ]
-            }
-          },
-          1
-        ],
-        "at": "stage"
-      },
-      "reset": {
-        "ge": [
-          {
-            "sum": [
-              {
-                "pick": [
-                  0,
-                  1,
-                  1,
-                  1,
-                  1,
-                  1,
-                  0,
-                  0,
-                  0,
-                  1,
-                  1,
-                  1,
-                  1,
-                  1
-                ],
-                "at": "_state"
+                "eq": [
+                  "_stage_task",
+                  449176
+                ]
               },
+              0
+            ]
+          },
+          "from": {
+            "eq": [
+              "_stage_task",
+              449176
+            ]
+          },
+          "reset": {
+            "ge": [
+              {
+                "sum": [
+                  {
+                    "pick": [
+                      0,
+                      1,
+                      1,
+                      1,
+                      1,
+                      1,
+                      0,
+                      0,
+                      0,
+                      1,
+                      1,
+                      1,
+                      1,
+                      1
+                    ],
+                    "at": "_state"
+                  },
+                  {
+                    "pick": [
+                      0,
+                      0,
+                      0,
+                      1,
+                      1
+                    ],
+                    "at": "phase"
+                  }
+                ]
+              },
+              1
+            ]
+          }
+        },
+        {
+          "rise": {
+            "ge": [
+              "distance",
               {
                 "pick": [
-                  0,
-                  0,
-                  0,
-                  1,
-                  1
+                  null,
+                  498,
+                  338,
+                  418,
+                  498,
+                  578,
+                  275,
+                  {
+                    "pick": [
+                      100000,
+                      0
+                    ],
+                    "at": "loop"
+                  }
                 ],
-                "at": "phase"
+                "at": "stage"
               }
             ]
           },
-          1
-        ]
-      }
+          "from": {
+            "pick": [
+              null,
+              {
+                "pick": [
+                  1,
+                  0
+                ],
+                "at": {
+                  "ge": [
+                    "distance",
+                    498
+                  ]
+                }
+              },
+              {
+                "pick": [
+                  1,
+                  0
+                ],
+                "at": {
+                  "ge": [
+                    "distance",
+                    338
+                  ]
+                }
+              },
+              {
+                "pick": [
+                  1,
+                  0
+                ],
+                "at": {
+                  "ge": [
+                    "distance",
+                    418
+                  ]
+                }
+              },
+              {
+                "pick": [
+                  1,
+                  0
+                ],
+                "at": {
+                  "ge": [
+                    "distance",
+                    498
+                  ]
+                }
+              },
+              {
+                "pick": [
+                  1,
+                  0
+                ],
+                "at": {
+                  "ge": [
+                    "distance",
+                    578
+                  ]
+                }
+              },
+              {
+                "pick": [
+                  1,
+                  0
+                ],
+                "at": {
+                  "ge": [
+                    "distance",
+                    275
+                  ]
+                }
+              },
+              1
+            ],
+            "at": "stage"
+          },
+          "reset": {
+            "ge": [
+              {
+                "sum": [
+                  {
+                    "pick": [
+                      0,
+                      1,
+                      1,
+                      1,
+                      1,
+                      1,
+                      0,
+                      0,
+                      0,
+                      1,
+                      1,
+                      1,
+                      1,
+                      1
+                    ],
+                    "at": "_state"
+                  },
+                  {
+                    "pick": [
+                      0,
+                      0,
+                      0,
+                      1,
+                      1
+                    ],
+                    "at": "phase"
+                  }
+                ]
+              },
+              1
+            ]
+          }
+        }
+      ]
     },
     "boss_name": {
       "value": "stage",
@@ -334,6 +420,12 @@
         "6": "RYUUKOU",
         "7": "HIBACHI"
       }
+    },
+    "warning": {
+      "eq": [
+        "_stage_task",
+        449176
+      ]
     }
   },
   "hd": {
@@ -550,21 +642,59 @@
         0,
         0,
         {
-          "pick": [
-            1,
+          "first": [
             {
-              "ge": [
-                "lives",
-                0
-              ]
+              "pick": [
+                {
+                  "pick": [
+                    1,
+                    {
+                      "ge": [
+                        "lives",
+                        0
+                      ]
+                    }
+                  ],
+                  "at": {
+                    "ge": [
+                      "lives_p2",
+                      0
+                    ]
+                  }
+                },
+                {
+                  "pick": [
+                    1,
+                    0
+                  ],
+                  "at": "_out_p1"
+                }
+              ],
+              "at": {
+                "ge": [
+                  "_players",
+                  128
+                ]
+              }
+            },
+            {
+              "pick": [
+                1,
+                {
+                  "ge": [
+                    "lives",
+                    0
+                  ]
+                }
+              ],
+              "at": {
+                "ge": [
+                  "lives_p2",
+                  0
+                ]
+              }
             }
-          ],
-          "at": {
-            "ge": [
-              "lives_p2",
-              0
-            ]
-          }
+          ]
         },
         0,
         0
@@ -601,15 +731,60 @@
         0,
         0,
         {
-          "ge": [
-            "lives_p2",
-            0
+          "first": [
+            {
+              "pick": [
+                {
+                  "ge": [
+                    "lives_p2",
+                    0
+                  ]
+                },
+                {
+                  "pick": [
+                    1,
+                    0
+                  ],
+                  "at": "_out_p2"
+                }
+              ],
+              "at": {
+                "ge": [
+                  "_players",
+                  128
+                ]
+              }
+            },
+            {
+              "ge": [
+                "lives_p2",
+                0
+              ]
+            }
           ]
         },
         0,
         0
       ],
       "at": "_state"
+    }
+  },
+  "per_game": {
+    "ddonpacha": {
+      "_stage_task": {
+        "addr": "",
+        "type": "be",
+        "bytes": 4,
+        "note": "the routines of this version's program are elsewhere, not read: the boss comes where its stage stops scrolling"
+      }
+    },
+    "ddonpachj": {
+      "_stage_task": {
+        "addr": "",
+        "type": "be",
+        "bytes": 4,
+        "note": "the routines of this version's program are elsewhere, not read: the boss comes where its stage stops scrolling"
+      }
     }
   }
 }
