@@ -1,11 +1,11 @@
-"""Backdrops of DoDonPachi's six stages (1.31), seen from the sky, after the maps of the stages Seb sent: the base on the red
-cratered ground, the dark forest crossed by giant branches, the blue peaks under the clouds, the base then the ruined city,
+"""Backdrops of DoDonPachi's six stages (1.31), seen from the sky, after the maps of the stages Seb sent and numbered: the dark
+forest crossed by giant branches, the base on the red cratered ground, the blue peaks under the clouds, the base then the ruined city,
 the great grey machine and its green channels, the orange and purple hive and its honeycomb grates. The game scrolls up,
 the marquee to the right: what lies along a stage lies along the screen. The same places, colours and mood, drawn by the
 program: no image comes from the game. The backdrops register in hd_bg.BUILDERS when this module is imported (by hd_cave).
 
-Décors des six niveaux de DoDonPachi (1.31), vus du ciel, d'après les cartes des niveaux envoyées par Seb : la base sur le
-sol rouge et ses cratères, la forêt sombre traversée de branches géantes, les pics bleus sous les nuages, la base puis la
+Décors des six niveaux de DoDonPachi (1.31), vus du ciel, d'après les cartes des niveaux envoyées et numérotées par Seb : la
+forêt sombre traversée de branches géantes, la base sur le sol rouge et ses cratères, les pics bleus sous les nuages, la base puis la
 ville en ruines, la grande machine grise et ses canaux verts, la ruche orange et violette et ses grilles en alvéoles. Les
 mêmes lieux, couleurs et ambiance, dessinés par le programme : aucune image ne vient du jeu.
 """
@@ -50,11 +50,11 @@ def _result(p, sky, lights=None, amb=None, tw=None):
     return {"sky": Image.new("RGB", (p.W // 2 if tw is None else p.W // 2, p.h), sky), "layers": [layer], "tw": p.W, "amb": amb or {}}
 
 
-# ---------------------------------------------------------------------------- 1 the base / la base
+# ---------------------------------------------------------------------------- 2 the base / la base
 def build_ddp_base(W, H, s, seed=3101):
-    """Stage 1: a military base on a red planet. Concrete pads and hangars with red, yellow and lilac roofs, a wide
+    """Stage 2: a military base on a red planet. Concrete pads and hangars with red, yellow and lilac roofs, a wide
     runway along the screen with its cyan guide line and arrows, a great gate; then the rust-red ground and its craters,
-    landing pads with teal rims, a sunken blue dock. / Niveau 1 : une base militaire sur une planète rouge, hangars, piste
+    landing pads with teal rims, a sunken blue dock. / Niveau 2 : une base militaire sur une planète rouge, hangars, piste
     et sa ligne cyan, un grand portail, puis le sol rouille et ses cratères, des pistes rondes et un bassin bleu."""
     rng = random.Random(seed)
     tw = 2 * W
@@ -123,7 +123,7 @@ def build_ddp_base(W, H, s, seed=3101):
     return {"sky": Image.new("RGB", (W, H), red), "layers": [{"img": _done(p), "y": 0, "f": 1.0, "stage": "far"}], "tw": tw, "amb": {}}
 
 
-# ---------------------------------------------------------------------------- 2 the forest / la forêt
+# ---------------------------------------------------------------------------- 1 the forest / la forêt
 def _branch(p, pts, width, s, rng):
     """A giant branch: its shadow on the trees, the pale wood, a lighter ridge, streaks of bark. / Une branche géante."""
     shadow = [(x + 16 * s, y + 18 * s) for x, y in pts]
@@ -136,8 +136,8 @@ def _branch(p, pts, width, s, rng):
 
 
 def build_ddp_forest(W, H, s, seed=3102):
-    """Stage 2: a dark forest seen from the sky, a deep canopy of blue-green trees, giant pale branches crossing it, the
-    long one along the screen where the tanks go, the shadows they cast, wrecks lost under the leaves. / Niveau 2 : une
+    """Stage 1: a dark forest seen from the sky, a deep canopy of blue-green trees, giant pale branches crossing it, the
+    long one along the screen where the tanks go, the shadows they cast, wrecks lost under the leaves. / Niveau 1 : une
     forêt sombre vue du ciel, des branches géantes qui la traversent, leurs ombres, des épaves sous les feuilles."""
     rng = random.Random(seed)
     tw = 2 * W
@@ -418,7 +418,7 @@ def build_ddp_nest(W, H, s, seed=3106):
             "tw": tw, "amb": {"window": (255, 70, 60)}}
 
 
-THEMES = ("ddp_base", "ddp_forest", "ddp_peaks", "ddp_ruins", "ddp_station", "ddp_nest")
+THEMES = ("ddp_forest", "ddp_base", "ddp_peaks", "ddp_ruins", "ddp_station", "ddp_nest")      # stages 1 to 6 / niveaux 1 à 6
 LANES = {"ddp_base": BASE_ROAD, "ddp_forest": FOREST_BRANCH, "ddp_peaks": PEAK_VALLEY, "ddp_ruins": RUIN_ROAD,
          "ddp_station": STATION_CHANNELS, "ddp_nest": NEST_LANES}
 hd_bg.BUILDERS.update({"ddp_base": build_ddp_base, "ddp_forest": build_ddp_forest, "ddp_peaks": build_ddp_peaks,

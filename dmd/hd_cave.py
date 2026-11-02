@@ -1747,9 +1747,9 @@ class DoDonPachiScene(CaveShooterScene):
     / DoDonPachi comme dans le jeu : les trois vaisseaux lus dans le jeu avec leur laser, ses six niveaux d'après les
     cartes du jeu et un boss à nous pour chacun dans la couleur dominante du sien, chaque joueur en grand dans un
     panneau, le compteur de coups et sa jauge, les bombes et leurs places, la vie du boss, les étoiles d'or."""
-    THEME = "ddp_base"
-    # its six stages after their maps (Seb, 1.31), the last stage of the second loop in the hive / ses six niveaux
-    STAGES = ("ddp_base", "ddp_forest", "ddp_peaks", "ddp_ruins", "ddp_station", "ddp_nest", "ddp_nest")
+    THEME = "ddp_forest"
+    # its six stages after their maps, numbered by Seb (1.31), the last stage of the second loop in the hive / ses six niveaux
+    STAGES = ("ddp_forest", "ddp_base", "ddp_peaks", "ddp_ruins", "ddp_station", "ddp_nest", "ddp_nest")
     BULLETS = (PINK, BLUE)
     BIG_HUD = True                                     # each player in big in a panel, the action behind (1.31) / en grand
     BOSSES = DDP_BOSSES                                # its boss at each stage (1.31) / son boss à chaque niveau
