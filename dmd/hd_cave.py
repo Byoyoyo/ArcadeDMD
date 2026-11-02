@@ -495,6 +495,8 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         # the full life of the boss of each stage, kept when the scene starts again after a continue or the boss comes back:
         # the game keeps its damage (Seb, 1.31) / la vie pleine du boss de chaque niveau, gardée après une continue
         self.boss_tops = {}
+        self.life_read = False                         # the game gives its boss's life (DoDonPachi) / le jeu donne sa vie
+        self.boss_backs = 0                            # (tests)
         for P in self.ships.values():
             P.update({"mode": "shot", "mode_t": 0.0, "laser_t": -99.0, "tgt": None, "opt": 0.0})
         self.bd.prebuild([t for t in self.STAGES if t != self.THEME])
@@ -619,8 +621,19 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         if self.boss is not None and self.boss["down"] is None and self.boss["leave"] is None and vals.get("phase") in (3, 4):
             self.boss_down(now)                                        # the results of the stage, the ending: it fell / il est tombé
         hp, B = _n(vals.get("boss_hp")), self.boss_up()
+        key = (_n(vals.get(self.STAGE_KEY)), _n(vals.get("loop")))
+        if (B is None and hp is not None and hp > 0 and key in self.boss_tops and _n(vals.get("boss")) == 1
+                and vals.get("phase") not in (3, 4)):
+            # the game still fights this boss and its life has not run out (else it would not be known any more): back on
+            # our screen, whatever took it away / le jeu se bat encore contre ce boss et sa vie n'est pas épuisée : il revient
+            if self.boss is None:
+                self.boss_arrives(vals, now, quiet=True)
+                self.boss_backs += 1
+            elif self.boss["down"] is None:                            # it was going away: it turns back / il faisait demi-tour
+                self.boss["leave"] = None
+                self.boss_backs += 1
+            B = self.boss_up()
         if B is not None and hp is not None:                           # its life read in the game (1.31) / sa vie lue dans le jeu
-            key = (_n(vals.get(self.STAGE_KEY)), _n(vals.get("loop")))
             if hp > 0:
                 top = max(B.get("top") or 0, self.boss_tops.get(key, 0))
                 if hp > top:                                           # full when it comes, or a new form / pleine à son arrivée
@@ -899,8 +912,13 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
 
     def score_kill(self, side, gain, ratio, now):
         super().score_kill(side, gain, ratio, now)
-        if ratio >= 6 and self.boss_up() is not None:                   # the boss of the stage falls / le boss tombe
-            self.boss_down(now, side)
+        if ratio >= 6 and self.boss_up() is not None:
+            if self.life_read:
+                # its life read in the game says when it falls: a big gain during the fight is a bomb that blows up its
+                # turrets or the enemies around (Seb, 1.31 test 16), and its bullets keep flying
+                # sa vie lue dans le jeu dit quand il tombe : un gros gain pendant le combat, c'est une bombe
+                return
+            self.boss_down(now, side)                                   # the boss of the stage falls / le boss tombe
         if ratio >= 6 and self.bullets:                                 # a boss: the gold stars / un boss : les étoiles d'or
             self.cancel(side, now)
             self.fx.flash((255, 240, 200), 0.15, 0.35)
@@ -1035,6 +1053,7 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         show as +n; the points that come without a hit (a medal, a boss, the bonus of the stage) go as before: a big blast
         or the bonus counted. / Des points marqués. Avec le compteur de coups lu, les ennemis détruits viennent de lui et
         leurs points s'affichent en +n ; les autres points (médaille, boss, bonus du niveau) comme avant."""
+        self.life_read = vals.get("boss_hp") is not None
         chained = {}
         for name, side, hname in (("score", "p1", "hits"), ("score_p2", "p2", "hits_p2")):
             ch, hc = self.changed(vals, name), self.changed(vals, hname)
