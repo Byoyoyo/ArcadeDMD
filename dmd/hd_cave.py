@@ -222,6 +222,9 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
     LASER_TYPES = (0, 1, 2)                            # ships that use the laser when the fire is held / ceux qui ont un laser
     BOSS = ((112, 56, 70), (255, 70, 40))              # the boss of a stage, a big machine of our own / le boss d'un niveau
     BOSS_SIZE = (400, 320)
+    BIG_HUD = False                                    # the information big, the action behind it (DoDonPachi, 1.31) / infos en grand
+    VEIL = (125, 55)                                   # darkness over the action: at the sides, in the middle / voile
+    BOSS_HP_MIN = 200                                  # a boss's life is at least that much (else another enemy) / au moins
 
     def __init__(self, hd, rng=None):
         super().__init__(hd, rng)
@@ -371,6 +374,17 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
             self.boss["leave"] = now                                   # the stage goes on without it / il s'en va
         if self.boss is not None and self.boss["down"] is None and self.boss["leave"] is None and vals.get("phase") in (3, 4):
             self.boss_down(now)                                        # the results of the stage, the ending: it fell / il est tombé
+        hp, B = _n(vals.get("boss_hp")), self.boss_up()
+        if B is not None and hp is not None:                           # its life read in the game (1.31) / sa vie lue dans le jeu
+            if hp > 0:
+                if hp > (B.get("top") or 0):                           # full when it comes, or a new form / pleine à son arrivée
+                    B["top"] = hp
+                elif hp < (B.get("life") or hp):
+                    B["hit"] = B["lhit"] = now
+                B["life"] = hp
+            elif (B.get("top") or 0) >= self.BOSS_HP_MIN:              # a boss's life, gone: it falls with the game's
+                B["life"] = 0
+                self.boss_down(now)
         B = self.boss
         if B is not None and B.get("warn") and not B.get("logged"):   # the stage stops scrolling for its boss / il s'arrête
             d = _n(vals.get("distance"))
@@ -661,7 +675,7 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
                      "down": None, "name": name}
         self.next_enemy = max(self.next_enemy, now + 4.0)
         if quiet:
-            self.boss["x"] = self.W * 0.76
+            self.boss["x"] = self.W * (0.5 if self.BIG_HUD else 0.76)
             return
         self.boss_alerts += 1
         d = _n(vals.get("distance"))
@@ -743,14 +757,14 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         if B is None:
             return
         S, dt = self.S, self.dt
-        hold = self.W * 0.76
+        hold = self.W * (0.5 if self.BIG_HUD else 0.76)
         if B["leave"] is not None:
             B["x"] += 300 * self.s * dt
             if B["x"] > self.W + S(320):
                 self.boss = None
                 return
-        elif B["x"] > hold:
-            B["x"] = max(hold, B["x"] - 260 * self.s * dt)
+        elif B["x"] > hold:                                             # further to come in the middle: faster / plus vite
+            B["x"] = max(hold, B["x"] - (340 if self.BIG_HUD else 260) * self.s * dt)
         B["yy"] = B["y"] + math.sin(now * 0.8) * S(24)
         if not self.SIDE:
             sh = self.boss_surf(True)
@@ -985,7 +999,11 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         self.draw_stars(screen, now)
         self.draw_waves(screen, now)
         self.draw_over(screen, vals, now)
-        self.status(screen, eng, vals, logo, now)
+        if self.BIG_HUD:
+            self.veil(screen)
+            self.big_status(screen, eng, vals, logo, now)
+        else:
+            self.status(screen, eng, vals, logo, now)
         self.extra_hud(screen, vals, now)
 
     def draw_over(self, screen, vals, now):
@@ -1326,6 +1344,151 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         if two:
             self.bombs_row(screen, vals, "p2", now)                     # the credits: GameScene, as in Metal Slug
 
+    # -- the information in big, the action behind it (DoDonPachi, 1.31) / les informations en grand, l'action derrière
+    def veil(self, screen):
+        """A dark veil over the action, darker at the sides where the panels are. / Un voile sombre sur l'action."""
+        W, H = screen.get_size()
+        key = ("veil", W, H) + tuple(self.VEIL)
+        v = self.imgs.get(key)
+        if v is None:
+            v = self.pg.Surface((W, H), self.pg.SRCALPHA)
+            side, mid = self.VEIL
+            for x in range(W):
+                k = min(1.0, abs(x - W / 2) / (W / 2) * 1.5)
+                self.pg.draw.line(v, (6, 6, 16, int(mid + (side - mid) * k * k)), (x, 0), (x, H))
+            self.imgs[key] = v
+        screen.blit(v, (0, 0))
+
+    def big_status(self, screen, eng, vals, logo, now):
+        S, W, hd = self.S, self.W, self.hd
+        hd.draw_logo(screen, logo, W / 2, S(8), S(380), S(80), now)
+        two = self.p2_in(vals)
+        one = self.p1_in(vals) or not two
+        for side, on in (("p1", one), ("p2", two)):
+            if on:
+                self.big_panel(screen, eng, vals, side, now)
+            else:
+                word, col = self.invite(vals, now)
+                right = side == "p2"
+                self.label(screen, word, W - S(30) if right else S(30), S(62), 56, col, align="right" if right else "left")
+        self.big_middle(screen, vals, now)
+
+    def big_panel(self, screen, eng, vals, side, now):
+        """One player in big in a glass panel: 1P and the ship, the score, the ships left and the shot level, the hit
+        counter and its gauge, the bombs and their slots. / Un joueur en grand dans un panneau de verre."""
+        S, W, H, hd, pg = self.S, self.W, self.H, self.hd, self.pg
+        right = side == "p2"
+        suf = "_p2" if right else ""
+        col = (255, 120, 200) if right else (255, 210, 70)
+        PW = S(590)
+        x0 = W - S(12) - PW if right else S(12)
+        self.box(screen, x0, S(8), PW, H - S(16), _mix(col, (0, 0, 0), 0.4), fill=(6, 8, 18, 95), radius=26, width=2)
+        pad = S(26)
+        near, far = (x0 + PW - pad, x0 + pad) if right else (x0 + pad, x0 + PW - pad)
+        an, af = ("right", "left") if right else ("left", "right")
+        sgn = -1 if right else 1
+        self.text(screen, self.TAGS[1 if right else 0], near, S(12), 34, col, align=an)
+        if vals.get("ship" + suf) is not None:
+            name = self.SHIP_NAMES.get(self.ship_kind(vals, side))
+            if name:
+                self.text(screen, name, far, S(22), 30, CREAM, align=af, glow=0.2)
+        sc = _n(vals.get("score" + suf))
+        if sc is not None:                                            # the score, as big as it fits / aussi grand que possible
+            size = S(104)
+            w = hd.text(str(int(sc)), "black", size, WHITE)["w"]
+            if w > PW - 2 * pad:
+                size = int(size * (PW - 2 * pad) / w)
+            hd._score(screen, eng, "score" + suf, near, S(56), an, size)
+        y = S(196)
+        lives = _n(vals.get("lives" + suf))
+        if lives is not None and lives > 0:
+            kind = self.ship_kind(vals, side)
+            icon = self.img(("cavelifebig", side, kind), S(66), S(57), self.plane_fn(side, kind))
+            for i in range(min(6, int(lives))):
+                x = near + sgn * i * S(70) - (S(66) if right else 0)
+                screen.blit(icon, (int(x), int(y - S(28))))
+        v = _n(vals.get("power" + suf))
+        if v is not None:
+            lit, total = self.power_cases(vals, side, v)
+            total = max(1, min(10, total or 1))
+            lit = min(lit, total)
+            top = lit >= total
+            cw, gap = S(30), S(8)
+            body = total * cw + (total - 1) * gap
+            bx = far - body if not right else far
+            for i in range(total):
+                on = i < lit
+                c = _mix(GOLD, WHITE, 0.5 + 0.5 * math.sin(now * 10)) if top else ((255, 210, 70) if on else (58, 46, 26))
+                cx = int(bx + i * (cw + gap))
+                pg.draw.rect(screen, c, (cx, int(y - S(15)), cw, S(30)), border_radius=S(6))
+            word = "MAX" if top else "POWER"
+            lx = bx - S(14) if not right else bx + body + S(14)
+            self.text(screen, word, lx, y, 30 if top else 24, GOLD if top else CREAM, key="black" if top else "bold",
+                      align="right" if not right else "left", valign="middle", glow=0.3 if top else 0)
+        hits, gauge = _n(vals.get("hits" + suf)), _n(vals.get("combo" + suf))
+        y = S(282)
+        if hits is not None:
+            k = max(0.0, 1 - (now - self.hitpop[side]) / 0.25)
+            num = hd.text(str(int(hits)), "stencil", S(86), (255, 230, 90), 0.7)
+            word = hd.text("HIT", "stencil", S(42), (255, 150, 60), 0.5)
+            w = num["w"] + S(10) + word["w"]
+            xs = near - w if right else near
+            hd.put(screen, num, xs, y, "left", "middle", scale=1 + 0.2 * k)
+            hd.put(screen, word, xs + num["w"] + S(10), y + S(14), "left", "middle")
+            if self.maxhit[side] > 0:
+                self.text(screen, f"MAX {self.maxhit[side]}", far, y + S(6), 30, CREAM, align=af, valign="middle", glow=0.2)
+        if gauge is not None:
+            gw = PW - 2 * pad
+            gx = near - gw if right else near
+            frac = _clamp(gauge / 100.0)
+            pg.draw.rect(screen, (30, 20, 16), (int(gx), int(y + S(44)), gw, S(16)), border_radius=S(8))
+            if frac > 0:
+                fw = max(S(16), int(gw * frac))
+                pg.draw.rect(screen, (255, int(120 + 110 * frac), 40), (int(gx + gw - fw if right else gx), int(y + S(44)), fw, S(16)),
+                             border_radius=S(8))
+            pg.draw.rect(screen, (150, 110, 60), (int(gx), int(y + S(44)), gw, S(16)), max(1, S(2)), border_radius=S(8))
+        n, slots = _n(vals.get("bombs" + suf)), _n(vals.get("bombs_max" + suf))
+        if n is not None:
+            n = max(0, int(n))
+            total = min(8, max(n, int(slots)) if slots is not None else n)
+            full = self.img(("capsulebig", True), S(40), S(58), capsule_draw(self.BOMB_COLOR, True))
+            empty = self.img(("capsulebig", False), S(40), S(58), capsule_draw(self.BOMB_COLOR, False))
+            step, y = S(50), H - S(54)
+            for i in range(total):
+                x = near + sgn * i * step - (S(40) if right else 0)
+                screen.blit(full if i < n else empty, (int(x), int(y - S(29))))
+                if i < n:
+                    self.text(screen, "B", x + S(20), y + S(2), 28, (90, 40, 10), align="center", valign="middle", glow=0)
+            if slots is not None and n >= int(slots) > 0:
+                self.text(screen, "MAX", far, y, 40, GOLD, align=af, valign="middle", glow=0.4, scale=1 + 0.06 * math.sin(now * 8))
+
+    def big_middle(self, screen, vals, now):
+        """Between the panels: the stage, or the boss's name and its life in a long gauge. / Entre les panneaux : le niveau,
+        ou le nom du boss et sa vie dans une longue jauge."""
+        S, W = self.S, self.W
+        cx = W / 2
+        B = self.boss_up()
+        if B is not None:
+            top, life = B.get("top"), B.get("life")
+            top = top if top and top >= self.BOSS_HP_MIN else None
+            bw = S(580)
+            self.box(screen, cx - bw / 2 - S(16), S(98), bw + S(32), S(126 if top else 74), (150, 40, 30), fill=(8, 6, 14, 200),
+                     radius=18, width=2)
+            self.text(screen, B.get("name") or "BOSS", cx, S(134), 50, GOLD, key="stencil", align="center", valign="middle", glow=0.5)
+            if top and life is not None:
+                frac = _clamp(life / float(top))
+                c = _mix((255, 60, 40), (255, 210, 60), frac)
+                if now - (B.get("lhit") or -99.0) < 0.08:
+                    c = _mix(c, WHITE, 0.7)
+                self.bar(screen, cx - bw / 2, S(170), bw, S(34), frac, c, back=(46, 14, 14))
+            return
+        st = _n(vals.get(self.STAGE_KEY))
+        if st is not None and st > 0:
+            self.label(screen, f"{self.STAGE_WORD} {int(st)}", cx, S(140), 54, CREAM, key="stencil", align="center", alpha=170)
+            loop = _n(vals.get("loop"))
+            if loop is not None and loop >= 1:
+                self.text(screen, tr("2E BOUCLE", "2ND LOOP"), cx, S(184), 28, GOLD, align="center", valign="middle", glow=0.3)
+
 
 # ============================================================================ DoDonPachi
 class DoDonPachiScene(CaveShooterScene):
@@ -1339,6 +1502,7 @@ class DoDonPachiScene(CaveShooterScene):
     THEME = "ddp_country"
     STAGES = ("ddp_country", "af_city", "ddp_dock", "s45_ground", "ddp_fortress", "ddp_hive", "am_fortress")
     BULLETS = (PINK, BLUE)
+    BIG_HUD = True                                     # each player in big in a panel, the action behind (1.31) / en grand
 
 
 class DonPachiScene(CaveShooterScene):
@@ -1380,6 +1544,7 @@ class DoDonPachi2Scene(DoDonPachiScene):
     STAGES = ("c44_sea", "ddp_country", "af_city", "ddp_fortress", "ddp_hive", "am_fortress")
     BULLETS = ((255, 110, 60), (80, 190, 255))
     DENSITY = 0.9
+    BIG_HUD = False                                    # the HUD it had, until asked / le HUD qu'il avait
 
 
 # ============================================================================ ESP Ra.De.

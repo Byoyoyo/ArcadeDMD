@@ -556,12 +556,17 @@ class GaugeEl(Element):
     """Barre de vie (jeux de combat) : var / max, accrochée d'un côté comme dans le jeu.
 
     anchor "right" : la barre reste collée à droite et se vide par la gauche (joueur 1),
-    anchor "left" : l'inverse (joueur 2). low_at : sous ce rapport, couleur low."""
+    anchor "left" : l'inverse (joueur 2). low_at : sous ce rapport, couleur low.
+    max "peak" (1.31) : la barre pleine est la plus haute valeur vue depuis qu'elle s'affiche, pour une vie dont le
+    maximum change (le boss de DoDonPachi) ; cachée plus d'une demi-seconde, elle repart de zéro.
+    / max "peak": full is the highest value seen since it shows, for a life whose top changes (DoDonPachi's boss)."""
 
     def __init__(self, spec, root, log):
         super().__init__(spec, root, log)
         self.var = spec.get("var", "health")
-        self.max = float(spec.get("max", 100))
+        self.peak = spec.get("max") == "peak"
+        self.max = 0.0 if self.peak else float(spec.get("max", 100))
+        self.seen_t = None                              # dernière image dessinée (max "peak") / last image drawn
         self.x, self.y = int(spec.get("x", 0)), int(spec.get("y", 0))
         self.w, self.h = max(1, int(spec.get("w", 50))), max(1, int(spec.get("h", 5)))
         self.anchor = spec.get("anchor", "left")
@@ -574,10 +579,20 @@ class GaugeEl(Element):
         self.bevel = parse_color(spec.get("bevel"), None) if spec.get("bevel") else None
         self.shade = spec.get("shade", True)              # première ligne un peu plus claire
 
+    def restart(self):
+        super().restart()
+        if self.peak:
+            self.max, self.seen_t = 0.0, None
+
     def render(self, ctx):
         v = ctx.state.values.get(self.var)
         if not isinstance(v, (int, float)):
             return
+        if self.peak:                                   # a new life once it was hidden a while / une nouvelle vie après une pause
+            if self.seen_t is None or not 0 <= ctx.t - self.seen_t <= 0.5:
+                self.max = 0.0
+            self.seen_t = ctx.t
+            self.max = max(self.max, float(v))
         r = max(0.0, min(1.0, v / self.max)) if self.max > 0 else 0.0
         n = int(round(r * self.w))
         col = self.low if r <= self.low_at else self.color

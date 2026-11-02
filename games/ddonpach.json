@@ -185,6 +185,18 @@
         "type": "be",
         "bytes": 4,
         "note": "routine the stage runs, an address in the World program: 0x6DA98 while the WARNING of a boss shows, 0x6DB82 while the carrier drops the ship at the start of stage 1, others while the stage scrolls and during the boss fights (captures taken on the cabinet: the WARNING of the first three bosses, 0x6DA98 each time and never in the 23 other captures)"
+      },
+      "_boss_hp": {
+        "addr": "0x10019A",
+        "type": "be",
+        "bytes": 2,
+        "note": "life of the boss of stages 1 to 5 and 7 once it is entirely on the screen (FBNeo cheat database and MAME's, Kill Boss with 1 hit Now!: FinalBurn Neo writes 0 at 0x10019A, MAME 0 at the 32-bit 0x100198), to confirm in game"
+      },
+      "_boss_hp_b": {
+        "addr": "0x10015A",
+        "type": "be",
+        "bytes": 2,
+        "note": "life of the boss of stage 6 and of the second boss of stage 7, 0x40 before (MAME cheat database, Kill Boss with 1 hit Now!: 0 at the 32-bit 0x100158 from the stage read 5), to confirm in game"
       }
     }
   },
@@ -426,6 +438,10 @@
         "_stage_task",
         449176
       ]
+    },
+    "boss_hp": {
+      "pick": ["_boss_hp", "_boss_hp", "_boss_hp", "_boss_hp", "_boss_hp", "_boss_hp", "_boss_hp_b", "_boss_hp"],
+      "at": "stage"
     }
   },
   "hd": {

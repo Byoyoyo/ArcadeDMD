@@ -253,6 +253,33 @@
         }
       },
       {
+        "type": "gauge",
+        "var": "boss_hp",
+        "max": "peak",
+        "x": 1,
+        "y": 24,
+        "w": 126,
+        "h": 2,
+        "anchor": "left",
+        "color": "#ff5a2a",
+        "low": "#ff2418",
+        "low_at": 0.25,
+        "back": "#2a0a06",
+        "shade": false,
+        "when": {
+          "all": [
+            {
+              "var": "boss",
+              "eq": 1
+            },
+            {
+              "var": "boss_hp",
+              "gt": 0
+            }
+          ]
+        }
+      },
+      {
         "type": "events",
         "events": [
           {

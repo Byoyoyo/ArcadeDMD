@@ -76,6 +76,11 @@ CAVE_SHOOT = [
      "when": {"all": [{"var": "bombs", "ge_var": "bombs_max"}, {"var": "bombs_max", "gt": 0}]}},
     {"type": "gauge", "var": "combo", "max": 100, "x": 66, "y": 28, "w": 61, "h": 3, "anchor": "left", "color": "#ff9a30", "low": "#ff9a30",
      "low_at": 0, "back": "#2a1c08", "shade": False, "when": {"has": "combo"}},
+    # the boss's life read in the game (DoDonPachi, 1.31), a thin bar above the bombs, full at the highest life seen
+    # la vie du boss lue dans le jeu, une barre fine au-dessus des bombes, pleine à la plus haute vie vue
+    {"type": "gauge", "var": "boss_hp", "max": "peak", "x": 1, "y": 24, "w": 126, "h": 2, "anchor": "left", "color": "#ff5a2a",
+     "low": "#ff2418", "low_at": 0.25, "back": "#2a0a06", "shade": False,
+     "when": {"all": [{"var": "boss", "eq": 1}, {"var": "boss_hp", "gt": 0}]}},
     # the boss comes (a game that says it, DoDonPachi): WARNING! then its name / le boss arrive : WARNING! puis son nom
     {"type": "events", "events": [
         {"on": "boss", "change": "up", "to": [1], "text": "WARNING!", "color": "#ff3c30", "font": "9x15B", "ms": 1300, "priority": 6},
@@ -187,7 +192,15 @@ def hand(fam):
             "_stage_task": v(0x1013FC, "routine the stage runs, an address in the World program: 0x6DA98 while the WARNING of a boss "
                                        "shows, 0x6DB82 while the carrier drops the ship at the start of stage 1, others while the stage "
                                        "scrolls and during the boss fights (captures taken on the cabinet: the WARNING of the first three "
-                                       "bosses, 0x6DA98 each time and never in the 23 other captures)", "be", 4)},
+                                       "bosses, 0x6DA98 each time and never in the 23 other captures)", "be", 4),
+            # the life of the boss on the screen, where the cheat that kills it in one hit writes (derived boss_hp)
+            # la vie du boss à l'écran, là où écrit le code qui le tue d'un coup
+            "_boss_hp": v(0x10019A, f"life of the boss of stages 1 to 5 and 7 once it is entirely on the screen ({SRC} and MAME's, "
+                                    "Kill Boss with 1 hit Now!: FinalBurn Neo writes 0 at 0x10019A, MAME 0 at the 32-bit 0x100198), "
+                                    "to confirm in game", "be", 2),
+            "_boss_hp_b": v(0x10015A, "life of the boss of stage 6 and of the second boss of stage 7, 0x40 before (MAME cheat "
+                                      "database, Kill Boss with 1 hit Now!: 0 at the 32-bit 0x100158 from the stage read 5), to "
+                                      "confirm in game", "be", 2)},
         "donpachi": {
             "bombs": v(0x10217B, f"bombs of player 1 ({SRC}, Infinite Bombs PL1)"),
             "bombs_p2": v(0x1021BB, f"bombs of player 2 ({SRC}, Infinite Bombs PL2)"),
@@ -392,6 +405,8 @@ def ddp_boss():
 DERIVED = {"ddonpach": {
     "warning": {"eq": ["_stage_task", DDP_WARNING]},
     "boss": ddp_boss(),
+    # the boss's life: stage 6 keeps it 0x40 before the others (the stage read plus one picks it) / la vie du boss
+    "boss_hp": {"pick": ["_boss_hp"] * 6 + ["_boss_hp_b", "_boss_hp"], "at": "stage"},
     "boss_name": {"value": "stage", "names": {"1": "SUZAKU", "2": "SENKOU", "3": "KAKOU", "4": "RAIKOU", "5": "RANKOU", "6": "RYUUKOU",
                                               "7": "HIBACHI"}}}}
 
