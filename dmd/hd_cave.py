@@ -28,13 +28,15 @@ from .hd_games6 import PuzzleBobble2Scene
 from .hd_games13 import _CpsShooter, pg_plane_draw
 from .hd_panels import VIE, PanelScene, _g
 from .hd_themes17 import DDP_ROAD, DOCK_ROAD, HIVE_LANES, NEON_LANES, VILLAGE_PATHS
+from .hd_themes31 import LANES as DDP_LANES
 from .i18n import tr
 
 LINE = DARK + (255,)
 PINK, BLUE, ORANGE, VIOLET = (255, 70, 170), (70, 170, 255), (255, 150, 40), (190, 90, 255)
 MAX_BULLETS = 300
 # the roads of the backdrops where the tanks drive / les routes des décors où roulent les chars
-LANES = {"ddp_country": DDP_ROAD, "ddp_dock": DOCK_ROAD, "ddp_hive": HIVE_LANES, "fv_neon": NEON_LANES, "gu_village": VILLAGE_PATHS}
+LANES = {"ddp_country": DDP_ROAD, "ddp_dock": DOCK_ROAD, "ddp_hive": HIVE_LANES, "fv_neon": NEON_LANES, "gu_village": VILLAGE_PATHS,
+         **DDP_LANES}
 
 
 def _c(col, a=255):
@@ -143,6 +145,243 @@ def gunship_draw(body, accent):
     return fn
 
 
+# ============================================================================ the bosses of DoDonPachi / les boss de DoDonPachi
+# One machine of our own per stage, seen from above, nose to the left, in the dominant colour of the boss of the game
+# (photos sent by Seb). Only the kind of machine and the colour are kept, the shapes are ours.
+# Une machine à nous par niveau, vue du dessus, nez à gauche, dans la couleur dominante du boss du jeu ; seuls le genre
+# d'engin et la couleur sont gardés, les formes sont à nous.
+def _boss_paint(body, accent):
+    return (_c(body), _c(_mix(body, (0, 0, 0), 0.34)), _c(_mix(body, WHITE, 0.3)), _c(accent), _c(_mix(body, (0, 0, 0), 0.55)))
+
+
+def _glow_dot(d, x, y, r, col, W, H):
+    d.ellipse([(x - r) * W, y * H - r * W, (x + r) * W, y * H + r * W], fill=_c(_mix(col, (0, 0, 0), 0.2)), outline=LINE,
+              width=max(1, _ow(W) // 2))
+    d.ellipse([(x - r * 0.5) * W, y * H - r * 0.5 * W, (x + r * 0.2) * W, y * H + r * 0.2 * W], fill=_c(_mix(col, WHITE, 0.6)))
+
+
+def _turret(d, x, y, r, sh, acc, W, H, barrels=1, length=0.12):
+    ow = _ow(W)
+    for k in range(barrels):
+        dy = (k - (barrels - 1) / 2) * r * 0.55
+        d.line([(x * W, (y * H + dy * W)), ((x - r - length) * W, (y * H + dy * W))], fill=LINE, width=max(3, int(W * 0.018)))
+        d.line([(x * W, (y * H + dy * W)), ((x - r - length + 0.006) * W, (y * H + dy * W))], fill=(170, 174, 182, 255),
+               width=max(1, int(W * 0.008)))
+    d.ellipse([(x - r) * W, y * H - r * W, (x + r) * W, y * H + r * W], fill=sh, outline=LINE, width=ow)
+    d.ellipse([(x - r * 0.45) * W, y * H - r * 0.45 * W, (x + r * 0.45) * W, y * H + r * 0.45 * W], fill=acc)
+
+
+def wing_boss_draw(body, accent):
+    """Stage 1: a flying-wing bomber, a broad swept wing, four engines at its back, two turrets.
+    / Niveau 1 : une aile volante, large aile en flèche, quatre réacteurs à l'arrière, deux tourelles."""
+    def fn(d, W, H):
+        ow = _ow(W)
+        b, sh, lt, acc, dk = _boss_paint(body, accent)
+        for y in (0.16, 0.33, 0.67, 0.84):                                                    # engines / réacteurs
+            d.rounded_rectangle([0.7 * W, (y - 0.055) * H, 0.99 * W, (y + 0.055) * H], radius=H * 0.04, fill=dk, outline=LINE, width=ow)
+            d.ellipse([0.95 * W, (y - 0.04) * H, 1.0 * W, (y + 0.04) * H], fill=(255, 170, 70, 255))
+        _poly(d, [(0.03, 0.5), (0.6, 0.03), (0.86, 0.06), (0.76, 0.5), (0.86, 0.94), (0.6, 0.97)], W, H, b, LINE, ow)
+        _poly(d, [(0.6, 0.03), (0.86, 0.06), (0.76, 0.5), (0.86, 0.94), (0.6, 0.97), (0.66, 0.5)], W, H, sh, LINE, ow)
+        for sgn in (1, -1):
+            d.line([(0.1 * W, (0.5 + sgn * 0.05) * H), (0.58 * W, (0.5 + sgn * 0.43) * H)], fill=acc, width=max(3, int(H * 0.03)))
+            _poly(d, [(0.36, 0.5 + sgn * 0.12), (0.5, 0.5 + sgn * 0.3), (0.56, 0.5 + sgn * 0.28), (0.46, 0.5 + sgn * 0.12)], W, H, lt)
+        _poly(d, [(0.05, 0.5), (0.18, 0.43), (0.66, 0.42), (0.72, 0.5), (0.66, 0.58), (0.18, 0.57)], W, H, lt, LINE, ow)
+        d.ellipse([0.1 * W, 0.45 * H, 0.24 * W, 0.55 * H], fill=(40, 60, 70, 255), outline=LINE, width=ow)
+        d.ellipse([0.13 * W, 0.465 * H, 0.18 * W, 0.49 * H], fill=(170, 230, 240, 255))
+        for y in (0.3, 0.7):
+            _turret(d, 0.42, y, 0.055, sh, acc, W, H, 2, 0.06)
+    return fn
+
+
+def tank_boss_draw(body, accent):
+    """Stage 2: a huge tank, four tracks, a big turret with twin guns, small turrets on its deck.
+    / Niveau 2 : un énorme char, quatre chenilles, une grosse tourelle à deux canons, de petites tourelles sur le pont."""
+    def fn(d, W, H):
+        ow = _ow(W)
+        b, sh, lt, acc, dk = _boss_paint(body, accent)
+        for y0, y1 in ((0.0, 0.17), (0.19, 0.3), (0.7, 0.81), (0.83, 1.0)):                    # tracks / chenilles
+            d.rounded_rectangle([0.14 * W, y0 * H, 0.98 * W, y1 * H], radius=H * 0.04, fill=(48, 46, 40, 255), outline=LINE, width=ow)
+            for i in range(14):
+                x = 0.17 + i * 0.058
+                d.line([(x * W, (y0 + 0.015) * H), (x * W, (y1 - 0.015) * H)], fill=(84, 80, 70, 255), width=max(1, ow))
+        d.rounded_rectangle([0.08 * W, 0.12 * H, 0.94 * W, 0.88 * H], radius=H * 0.08, fill=b, outline=LINE, width=ow)
+        _poly(d, [(0.03, 0.3), (0.12, 0.16), (0.12, 0.84), (0.03, 0.7)], W, H, sh, LINE, ow)
+        for y in (0.2, 0.8):
+            d.line([(0.12 * W, y * H), (0.9 * W, y * H)], fill=acc, width=max(3, int(H * 0.025)))
+        for x in (0.3, 0.76):
+            d.line([(x * W, 0.22 * H), (x * W, 0.78 * H)], fill=sh, width=max(1, ow))
+        d.rounded_rectangle([0.4 * W, 0.3 * H, 0.74 * W, 0.7 * H], radius=H * 0.1, fill=lt, outline=LINE, width=ow)
+        for y in (0.43, 0.57):                                                                # twin guns / deux canons
+            d.rectangle([0.0, (y - 0.025) * H, 0.44 * W, (y + 0.025) * H], fill=dk, outline=LINE, width=ow)
+            d.rectangle([0.0, (y - 0.035) * H, 0.05 * W, (y + 0.035) * H], fill=dk, outline=LINE, width=ow)
+        d.ellipse([0.5 * W, 0.4 * H, 0.64 * W, 0.6 * H], fill=sh, outline=LINE, width=ow)
+        _glow_dot(d, 0.57, 0.5, 0.03, accent, W, H)
+        for x, y in ((0.24, 0.32), (0.24, 0.68), (0.84, 0.36), (0.84, 0.64)):
+            _turret(d, x, y, 0.035, sh, acc, W, H, 1, 0.04)
+    return fn
+
+
+def saucer_boss_draw(body, accent):
+    """Stage 3: a great saucer, a ring of turrets, a dome in the middle, its bridge and gun toward the front.
+    / Niveau 3 : une grande soucoupe, un anneau de tourelles, un dôme au milieu, sa passerelle et son canon devant."""
+    def fn(d, W, H):
+        ow = _ow(W)
+        b, sh, lt, acc, dk = _boss_paint(body, accent)
+        cx, cy, R = 0.54, 0.5, 0.48                                                           # in H units / en hauteurs
+        def circ(r, fill, outline=LINE, width=ow):
+            d.ellipse([cx * W - r * H, (cy - r) * H, cx * W + r * H, (cy + r) * H], fill=fill, outline=outline, width=width)
+        d.rounded_rectangle([0.04 * W, 0.44 * H, 0.3 * W, 0.56 * H], radius=H * 0.03, fill=dk, outline=LINE, width=ow)
+        d.rectangle([0.0, 0.47 * H, 0.08 * W, 0.53 * H], fill=dk, outline=LINE, width=ow)
+        circ(R, sh)
+        circ(R * 0.93, b)
+        circ(R * 0.74, None, acc, max(3, int(H * 0.03)))
+        for i in range(10):                                                                   # ring of turrets / anneau
+            a = i / 10 * math.tau + 0.31
+            x, y = cx + math.cos(a) * R * 0.84 * H / W, cy + math.sin(a) * R * 0.84
+            d.ellipse([x * W - 0.035 * H, (y - 0.035) * H, x * W + 0.035 * H, (y + 0.035) * H], fill=sh, outline=LINE, width=ow)
+            d.ellipse([x * W - 0.016 * H, (y - 0.016) * H, x * W + 0.016 * H, (y + 0.016) * H], fill=acc)
+        circ(R * 0.6, lt)
+        for i in range(6):
+            a = i / 6 * math.tau
+            d.line([(cx * W + math.cos(a) * R * 0.36 * H, (cy + math.sin(a) * R * 0.36) * H),
+                    (cx * W + math.cos(a) * R * 0.58 * H, (cy + math.sin(a) * R * 0.58) * H)], fill=sh, width=max(1, ow))
+        circ(R * 0.34, sh)
+        circ(R * 0.26, (90, 200, 230, 255))
+        d.ellipse([cx * W - R * 0.16 * H, (cy - R * 0.18) * H, cx * W - R * 0.02 * H, (cy - R * 0.06) * H], fill=(220, 250, 255, 220))
+    return fn
+
+
+def lancer_boss_draw(body, accent):
+    """Stage 4: a heavy gunship, a long hull, wings swept forward, a big gun in the nose, three engines.
+    / Niveau 4 : une lourde canonnière, longue coque, ailes en flèche inversée, gros canon dans le nez, trois réacteurs."""
+    def fn(d, W, H):
+        ow = _ow(W)
+        b, sh, lt, acc, dk = _boss_paint(body, accent)
+        for sgn in (1, -1):
+            _poly(d, [(0.42, 0.5 + sgn * 0.1), (0.3, 0.5 + sgn * 0.47), (0.44, 0.5 + sgn * 0.47), (0.7, 0.5 + sgn * 0.12)], W, H, sh, LINE, ow)
+            d.line([(0.36 * W, (0.5 + sgn * 0.4) * H), (0.54 * W, (0.5 + sgn * 0.14) * H)], fill=acc, width=max(3, int(H * 0.028)))
+            d.rounded_rectangle([0.26 * W, (0.5 + sgn * 0.44 - 0.04) * H, 0.4 * W, (0.5 + sgn * 0.44 + 0.04) * H], radius=H * 0.03,
+                                fill=dk, outline=LINE, width=ow)
+            _poly(d, [(0.8, 0.5 + sgn * 0.1), (0.94, 0.5 + sgn * 0.3), (0.99, 0.5 + sgn * 0.3), (0.92, 0.5 + sgn * 0.1)], W, H, sh, LINE, ow)
+        for y in (0.4, 0.5, 0.6):
+            d.ellipse([0.93 * W, (y - 0.035) * H, 1.0 * W, (y + 0.035) * H], fill=(255, 170, 70, 255), outline=LINE, width=ow)
+        _poly(d, [(0.06, 0.5), (0.16, 0.38), (0.88, 0.33), (0.96, 0.4), (0.96, 0.6), (0.88, 0.67), (0.16, 0.62)], W, H, b, LINE, ow)
+        _poly(d, [(0.16, 0.44), (0.86, 0.4), (0.86, 0.46), (0.16, 0.48)], W, H, lt)
+        d.rectangle([0.0, 0.47 * H, 0.1 * W, 0.53 * H], fill=dk, outline=LINE, width=ow)
+        d.ellipse([0.02 * W, 0.44 * H, 0.08 * W, 0.56 * H], fill=dk, outline=LINE, width=ow)
+        for x in (0.34, 0.5, 0.66):
+            d.line([(x * W, 0.36 * H), (x * W, 0.64 * H)], fill=sh, width=max(1, ow))
+        d.line([(0.18 * W, 0.56 * H), (0.84 * W, 0.6 * H)], fill=acc, width=max(2, int(H * 0.02)))
+        _turret(d, 0.44, 0.5, 0.06, sh, acc, W, H, 2, 0.05)
+        _turret(d, 0.72, 0.5, 0.05, sh, acc, W, H, 1, 0.04)
+        d.ellipse([0.14 * W, 0.45 * H, 0.26 * W, 0.55 * H], fill=(40, 60, 80, 255), outline=LINE, width=ow)
+    return fn
+
+
+def battleship_boss_draw(body, accent):
+    """Stage 5: a flying battleship, a long hull, three gun turrets in a line, its bridge, the engines at the stern.
+    / Niveau 5 : un cuirassé volant, longue coque, trois tourelles en ligne, sa passerelle, les moteurs à la poupe."""
+    def fn(d, W, H):
+        ow = _ow(W)
+        b, sh, lt, acc, dk = _boss_paint(body, accent)
+        for sgn in (1, -1):                                                                    # side wings / ailerons
+            _poly(d, [(0.56, 0.5 + sgn * 0.2), (0.7, 0.5 + sgn * 0.46), (0.86, 0.5 + sgn * 0.46), (0.82, 0.5 + sgn * 0.2)], W, H, sh, LINE, ow)
+            d.ellipse([0.68 * W, (0.5 + sgn * 0.42 - 0.04) * H, 0.76 * W, (0.5 + sgn * 0.42 + 0.04) * H], fill=acc, outline=LINE, width=ow)
+        _poly(d, [(0.0, 0.5), (0.14, 0.3), (0.9, 0.24), (0.98, 0.3), (0.98, 0.7), (0.9, 0.76), (0.14, 0.7)], W, H, b, LINE, ow)
+        _poly(d, [(0.12, 0.5), (0.2, 0.38), (0.86, 0.34), (0.86, 0.66), (0.2, 0.62)], W, H, lt, LINE, ow)
+        for sgn in (1, -1):
+            d.line([(0.06 * W, (0.5 + sgn * 0.1) * H), (0.16 * W, (0.5 + sgn * 0.21) * H), (0.94 * W, (0.5 + sgn * 0.24) * H)],
+                   fill=acc, width=max(3, int(H * 0.022)))
+        d.rounded_rectangle([0.5 * W, 0.4 * H, 0.64 * W, 0.6 * H], radius=H * 0.03, fill=sh, outline=LINE, width=ow)    # bridge
+        d.rounded_rectangle([0.53 * W, 0.44 * H, 0.61 * W, 0.56 * H], radius=H * 0.02, fill=b, outline=LINE, width=ow)
+        d.rectangle([0.555 * W, 0.47 * H, 0.585 * W, 0.53 * H], fill=(120, 210, 240, 255))
+        for x in (0.22, 0.36, 0.76):
+            _turret(d, x, 0.5, 0.055, sh, acc, W, H, 3 if x < 0.3 else 2, 0.06)
+        for y in (0.38, 0.5, 0.62):
+            d.ellipse([0.95 * W, (y - 0.04) * H, 1.0 * W, (y + 0.04) * H], fill=(255, 170, 70, 255), outline=LINE, width=ow)
+    return fn
+
+
+def fortress_boss_draw(body, accent, core):
+    """Stage 6: a hexagonal flying fortress, a turret at each corner, armour plates, its reactor glowing in the middle.
+    / Niveau 6 : une forteresse volante hexagonale, une tourelle à chaque coin, des plaques, son réacteur qui luit."""
+    def fn(d, W, H):
+        ow = _ow(W)
+        b, sh, lt, acc, dk = _boss_paint(body, accent)
+        cx, cy = 0.5, 0.5
+
+        def hexa(r, k=1.0):
+            return [(cx + math.cos(i / 6 * math.tau) * r * k * H / W, cy + math.sin(i / 6 * math.tau) * r) for i in range(6)]
+        for sgn in (1, -1):                                                                    # armour plates / plaques
+            d.rounded_rectangle([0.24 * W, (0.5 + sgn * 0.44 - 0.06) * H, 0.76 * W, (0.5 + sgn * 0.44 + 0.06) * H], radius=H * 0.03,
+                                fill=sh, outline=LINE, width=ow)
+            d.line([(0.28 * W, (0.5 + sgn * 0.44) * H), (0.72 * W, (0.5 + sgn * 0.44) * H)], fill=acc, width=max(2, int(H * 0.02)))
+        _poly(d, hexa(0.47), W, H, b, LINE, ow)
+        _poly(d, hexa(0.34), W, H, lt, LINE, ow)
+        for i in range(6):
+            a = i / 6 * math.tau
+            d.line([((cx + math.cos(a) * 0.34 * H / W) * W, (cy + math.sin(a) * 0.34) * H),
+                    ((cx + math.cos(a) * 0.47 * H / W) * W, (cy + math.sin(a) * 0.47) * H)], fill=acc, width=max(2, int(H * 0.018)))
+        for i in range(6):
+            a = i / 6 * math.tau + math.tau / 12
+            _turret(d, cx + math.cos(a) * 0.4 * H / W, cy + math.sin(a) * 0.4, 0.04, sh, acc, W, H, 1, 0.04)
+        _poly(d, hexa(0.17), W, H, dk, LINE, ow)
+        d.ellipse([cx * W - 0.12 * H, (cy - 0.12) * H, cx * W + 0.12 * H, (cy + 0.12) * H], fill=_c(core), outline=LINE, width=ow)
+        d.ellipse([cx * W - 0.06 * H, (cy - 0.07) * H, cx * W + 0.01 * H, (cy - 0.01) * H], fill=_c(_mix(core, WHITE, 0.7)))
+        d.rectangle([0.0, 0.46 * H, (cx - 0.4 * H / W) * W, 0.54 * H], fill=dk, outline=LINE, width=ow)
+    return fn
+
+
+def crescent_boss_draw(body, accent, core):
+    """The last stage: a machine of our own, a thick armoured crescent open toward the front, a gun at each tip, turrets
+    along it, its core glowing in the middle, held by three struts. / Le dernier niveau : une machine à nous, un épais
+    croissant blindé ouvert vers l'avant, un canon à chaque pointe, des tourelles dessus, son cœur qui luit au milieu."""
+    def fn(d, W, H):
+        ow = _ow(W)
+        b, sh, lt, acc, dk = _boss_paint(body, accent)
+        cx, cy = 0.56, 0.5
+        R, r = 0.48, 0.3                                                                      # in H units / en hauteurs
+
+        def ring(rad, a0, a1, n=40):
+            return [((cx * W + math.cos(math.radians(a0 + (a1 - a0) * i / n)) * rad * H) / W,
+                     cy + math.sin(math.radians(a0 + (a1 - a0) * i / n)) * rad) for i in range(n + 1)]
+        for a in (90, 210, 330):                                                               # struts / bras
+            d.line([(cx * W, cy * H), (cx * W + math.cos(math.radians(a)) * r * H, (cy + math.sin(math.radians(a)) * r) * H)],
+                   fill=LINE, width=max(5, int(H * 0.05)))
+            d.line([(cx * W, cy * H), (cx * W + math.cos(math.radians(a)) * r * H, (cy + math.sin(math.radians(a)) * r) * H)],
+                   fill=dk, width=max(3, int(H * 0.03)))
+        outer, inner = ring(R, 215, 505), ring(r, 505, 215)
+        _poly(d, outer + inner, W, H, b, LINE, ow)
+        _poly(d, ring(R * 0.93, 225, 495) + ring(r * 1.12, 495, 225), W, H, lt)
+        d.line([((cx * W + math.cos(math.radians(a)) * (R + r) / 2 * H), (cy + math.sin(math.radians(a)) * (R + r) / 2) * H)
+                for a in range(225, 496, 6)], fill=acc, width=max(2, int(H * 0.022)))
+        for sgn in (1, -1):                                                                    # guns at the tips / canons
+            a = math.radians(215 if sgn < 0 else 505)
+            tx, ty = cx * W + math.cos(a) * (R + r) / 2 * H, (cy + math.sin(a) * (R + r) / 2) * H
+            d.rectangle([tx - 0.2 * W, ty - 0.025 * H, tx + 0.02 * W, ty + 0.025 * H], fill=dk, outline=LINE, width=ow)
+            d.ellipse([tx - 0.05 * H, ty - 0.05 * H, tx + 0.05 * H, ty + 0.05 * H], fill=sh, outline=LINE, width=ow)
+        for a in (260, 320, 400, 460):
+            ar = math.radians(a)
+            _turret(d, (cx * W + math.cos(ar) * (R + r) / 2 * H) / W, cy + math.sin(ar) * (R + r) / 2, 0.032, sh, acc, W, H, 1, 0.03)
+        d.ellipse([cx * W - 0.16 * H, (cy - 0.16) * H, cx * W + 0.16 * H, (cy + 0.16) * H], fill=dk, outline=LINE, width=ow)
+        d.ellipse([cx * W - 0.11 * H, (cy - 0.11) * H, cx * W + 0.11 * H, (cy + 0.11) * H], fill=_c(core), outline=LINE, width=ow)
+        d.ellipse([cx * W - 0.07 * H, (cy - 0.08) * H, cx * W - 0.01 * H, (cy - 0.02) * H], fill=_c(_mix(core, WHITE, 0.7)))
+    return fn
+
+
+# the boss of each stage of DoDonPachi: its kind of machine and the dominant colour of the game's (Seb's photos)
+# le boss de chaque niveau : son genre d'engin et la couleur dominante de celui du jeu
+DDP_BOSSES = (
+    wing_boss_draw((86, 136, 70), (236, 204, 52)),               # 1 SUZAKU, green / vert
+    tank_boss_draw((178, 164, 78), (236, 104, 40)),              # 2 SENKOU, khaki gold / kaki doré
+    saucer_boss_draw((206, 186, 146), (240, 136, 44)),           # 3 KAKOU, sand / sable
+    lancer_boss_draw((138, 86, 148), (240, 196, 50)),            # 4 RAIKOU, purple / violet
+    battleship_boss_draw((118, 158, 206), (242, 136, 44)),       # 5 RANKOU, light blue / bleu clair
+    fortress_boss_draw((40, 96, 128), (232, 194, 64), (255, 90, 120)),   # 6 RYUUKOU, deep blue / bleu profond
+    crescent_boss_draw((222, 182, 44), (70, 70, 80), (255, 70, 50)),     # 7 HIBACHI, gold / or
+)
+
+
 def turret_draw(d, W, H):
     """A gun turret on the ground of our own seen from above, its barrel to the left. / Une tourelle au sol à nous."""
     ow = _ow(W)
@@ -222,6 +461,7 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
     LASER_TYPES = (0, 1, 2)                            # ships that use the laser when the fire is held / ceux qui ont un laser
     BOSS = ((112, 56, 70), (255, 70, 40))              # the boss of a stage, a big machine of our own / le boss d'un niveau
     BOSS_SIZE = (400, 320)
+    BOSSES = None                                      # one machine per stage (DoDonPachi) / une machine par niveau
     BIG_HUD = False                                    # the information big, the action behind it (DoDonPachi, 1.31) / infos en grand
     VEIL = (125, 55)                                   # darkness over the action: at the sides, in the middle / voile
     BOSS_HP_MIN = 200                                  # a boss's life is at least that much (else another enemy) / au moins
@@ -671,7 +911,9 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         S = self.S
         name = vals.get("boss_name")
         name = name if isinstance(name, str) and name else None
-        self.boss = {"x": self.W + S(300), "y": S(236), "yy": S(236), "hit": -99.0, "hp": 1e9, "gun": now + 2.6, "leave": None,
+        st = _n(vals.get(self.STAGE_KEY))
+        kind = (max(1, int(st)) - 1) % len(self.BOSSES) if self.BOSSES and st is not None else None
+        self.boss = {"x": self.W + S(300), "y": S(236), "yy": S(236), "hit": -99.0, "hp": 1e9, "gun": now + 2.6, "leave": None, "kind": kind,
                      "down": None, "name": name}
         self.next_enemy = max(self.next_enemy, now + 4.0)
         if quiet:
@@ -740,11 +982,14 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         self.boss = None
 
     def boss_surf(self, shadow=False):
-        key = ("boss", shadow)
+        B = self.boss
+        k = (B or {}).get("kind")
+        key = ("boss", shadow, k)
         s = self.imgs.get(key)
         if s is None:
             S = self.S
-            s = self.img(("bossimg",), S(self.BOSS_SIZE[0]), S(self.BOSS_SIZE[1]), gunship_draw(*self.BOSS))
+            fn = self.BOSSES[k] if self.BOSSES and k is not None else gunship_draw(*self.BOSS)
+            s = self.img(("bossimg", k), S(self.BOSS_SIZE[0]), S(self.BOSS_SIZE[1]), fn)
             if shadow:
                 s = self.shadow_of(self.pg, s, 70)
             self.imgs[key] = s
@@ -1496,15 +1741,18 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
 class DoDonPachiScene(CaveShooterScene):
     """DoDonPachi (1997), as in the game: the three ships read in the game, the red fighter of the focused shot, the
     helicopter whose guns follow its turns, the blue fighter of the spread, each with its laser when the fire is held;
-    the stages in the spirit of the game (the countryside and its highway, the city, the harbour and its docks, the
-    ruins, the fortress, the honeycomb hive, the last fortress in space); the hit counter and its gauge that drains,
-    the bombs and their slots, MAX when they are full, the gold stars when a boss falls. / DoDonPachi comme dans le
-    jeu : les trois vaisseaux lus dans le jeu avec leur laser, les niveaux dans l'esprit du jeu, le compteur de coups et
-    sa jauge, les bombes et leurs places, MAX quand tout est plein, les étoiles d'or quand un boss tombe."""
-    THEME = "ddp_country"
-    STAGES = ("ddp_country", "af_city", "ddp_dock", "s45_ground", "ddp_fortress", "ddp_hive", "am_fortress")
+    its six stages after the maps of the game's (hd_themes31) and a boss of our own for each in the dominant colour of
+    the game's (1.31); each player in big in a panel, the action behind; the hit counter and its gauge that drains,
+    the bombs and their slots, MAX when they are full, the boss's life, the gold stars when a boss falls.
+    / DoDonPachi comme dans le jeu : les trois vaisseaux lus dans le jeu avec leur laser, ses six niveaux d'après les
+    cartes du jeu et un boss à nous pour chacun dans la couleur dominante du sien, chaque joueur en grand dans un
+    panneau, le compteur de coups et sa jauge, les bombes et leurs places, la vie du boss, les étoiles d'or."""
+    THEME = "ddp_base"
+    # its six stages after their maps (Seb, 1.31), the last stage of the second loop in the hive / ses six niveaux
+    STAGES = ("ddp_base", "ddp_forest", "ddp_peaks", "ddp_ruins", "ddp_station", "ddp_nest", "ddp_nest")
     BULLETS = (PINK, BLUE)
     BIG_HUD = True                                     # each player in big in a panel, the action behind (1.31) / en grand
+    BOSSES = DDP_BOSSES                                # its boss at each stage (1.31) / son boss à chaque niveau
 
 
 class DonPachiScene(CaveShooterScene):
@@ -1547,6 +1795,7 @@ class DoDonPachi2Scene(DoDonPachiScene):
     BULLETS = ((255, 110, 60), (80, 190, 255))
     DENSITY = 0.9
     BIG_HUD = False                                    # the HUD it had, until asked / le HUD qu'il avait
+    BOSSES = None                                      # its own bosses are not DoDonPachi's / ses boss ne sont pas ceux de DoDonPachi
 
 
 # ============================================================================ ESP Ra.De.
