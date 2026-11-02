@@ -43,6 +43,26 @@ def _light(c, k=0.3):
     return tuple(int(v + (255 - v) * k) for v in c[:3])
 
 
+def _in_game_order(res, dx):
+    """The game scrolls up, from the bottom of a stage to its top; the marquee shows it from left to right. The parts of a
+    backdrop drawn in the other order are turned round the loop: the tile slides dx to the right, what goes out comes back on
+    the left, the lamps follow. / Le jeu défile vers le haut, du bas du niveau à son haut ; le marquee le montre de gauche à
+    droite. Les parties d'un décor dessinées dans l'autre ordre font le tour de la boucle : l'image glisse de dx vers la
+    droite, ce qui sort revient à gauche, les lampes suivent."""
+    tw = res["tw"]
+    dx = int(round(dx)) % tw
+    for layer in res["layers"]:
+        img = layer["img"]
+        out = Image.new(img.mode, img.size)
+        out.paste(img.crop((tw - dx, 0, tw, img.height)), (0, 0))
+        out.paste(img.crop((0, 0, tw - dx, img.height)), (dx, 0))
+        layer["img"] = out
+        for key in ("lights", "blinks"):
+            if layer.get(key):
+                layer[key] = [((x + dx) % tw, y) for x, y in layer[key]]
+    return res
+
+
 def _result(p, sky, lights=None, amb=None, tw=None):
     layer = {"img": _done(p), "y": 0, "f": 1.0, "stage": "far"}
     if lights:
@@ -87,8 +107,10 @@ def build_ddp_base(W, H, s, seed=3101):
     _rect(p, dx + 110 * s, 200 * s, dx + 190 * s, 270 * s, (200, 204, 210, 255), (40, 44, 50, 255), 2.5 * s)
     # the base: concrete, hangars, the runway / la base : béton, hangars, la piste
     edge = [(base, 0)] + [(base + rng.uniform(-30, 30) * s, y * s) for y in range(40, int(H / s), 60)] + [(base, H)]
-    p.poly([(0, 0)] + edge + [(0, H)], (138, 146, 140, 255))
+    near = [(0, 0)] + [(rng.uniform(-36, 4) * s, y * s) for y in range(40, int(H / s), 60)] + [(0, H)]   # where the craters end
+    p.poly(near + edge[::-1], (138, 146, 140, 255))
     p.line(edge, (90, 96, 92, 255), 5 * s)
+    p.line(near, (90, 96, 92, 255), 5 * s)
     for i in range(int(base / (160 * s))):                             # concrete slabs / dalles
         p.line([(i * 160 * s, 0), (i * 160 * s, H)], (122, 130, 124, 255), 1.6 * s)
     roofs = ((196, 64, 60), (206, 190, 96), (156, 150, 204), (82, 164, 172), (170, 172, 176))
@@ -120,7 +142,8 @@ def build_ddp_base(W, H, s, seed=3101):
             (gx + 44 * s, 330 * s), (gx + 44 * s, 150 * s)], (200, 50, 46, 255), (60, 20, 20, 255), 2 * s)
     _rect(p, gx - 14 * s, (top - 10) * s, gx + 134 * s, (top - 2) * s, (230, 170, 40, 255))
     _rect(p, gx - 14 * s, (bot + 2) * s, gx + 134 * s, (bot + 10) * s, (230, 170, 40, 255))
-    return {"sky": Image.new("RGB", (W, H), red), "layers": [{"img": _done(p), "y": 0, "f": 1.0, "stage": "far"}], "tw": tw, "amb": {}}
+    res = {"sky": Image.new("RGB", (W, H), red), "layers": [{"img": _done(p), "y": 0, "f": 1.0, "stage": "far"}], "tw": tw, "amb": {}}
+    return _in_game_order(res, tw - base)                              # the craters, then the base and its gate / les cratères, puis la base
 
 
 # ---------------------------------------------------------------------------- 1 the forest / la forêt
@@ -286,7 +309,8 @@ def build_ddp_ruins(W, H, s, seed=3104):
                (50, 50, 48, 255), 2 * s)
         if rng.random() < 0.4:
             p.disc(x, rng.uniform(top, bot) * s, rng.uniform(4, 9) * s, (66, 84, 80, 255), (34, 40, 40, 255), 1.4 * s)
-    return {"sky": Image.new("RGB", (W, H), dirt), "layers": [{"img": _done(p), "y": 0, "f": 1.0, "stage": "far"}], "tw": tw, "amb": {}}
+    res = {"sky": Image.new("RGB", (W, H), dirt), "layers": [{"img": _done(p), "y": 0, "f": 1.0, "stage": "far"}], "tw": tw, "amb": {}}
+    return _in_game_order(res, tw - base)                              # the ruins, then the highway and the base / les ruines, puis la base
 
 
 # ---------------------------------------------------------------------------- 5 the station / la station
@@ -414,8 +438,9 @@ def build_ddp_nest(W, H, s, seed=3106):
         for k in range(int(tw / (60 * s))):
             p.line([(k * 60 * s, ch * s), (k * 60 * s + 26 * s, ch * s)], (230, 170, 60, 255), 2 * s)
     p.line([(half, 0), (half, H)], (60, 40, 50, 255), 10 * s)
-    return {"sky": Image.new("RGB", (W, H), orange), "layers": [{"img": _done(p), "y": 0, "f": 1.0, "stage": "far", "lights": lights}],
-            "tw": tw, "amb": {"window": (255, 70, 60)}}
+    res = {"sky": Image.new("RGB", (W, H), orange), "layers": [{"img": _done(p), "y": 0, "f": 1.0, "stage": "far", "lights": lights}],
+           "tw": tw, "amb": {"window": (255, 70, 60)}}
+    return _in_game_order(res, tw - half)                              # the lilac part, then the orange one / le lilas, puis l'orange
 
 
 THEMES = ("ddp_forest", "ddp_base", "ddp_peaks", "ddp_ruins", "ddp_station", "ddp_nest")      # stages 1 to 6 / niveaux 1 à 6
