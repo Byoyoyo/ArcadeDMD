@@ -98,7 +98,11 @@
         "addr": "0x10C2FD",
         "type": "u8",
         "add": 1,
-        "note": "mission number, 0-based in RAM (cheat database \"Select Starting Mission\"), to be confirmed in game"
+        "valid": [
+          1,
+          6
+        ],
+        "note": "mission number, 0-based in RAM (cheat database \"Select Starting Mission\"), to be confirmed in game, missions 1 to 6: another value is not read (Metal Slug read 183 while it booted)"
       },
       "credits": {
         "addr": "0xD00034",

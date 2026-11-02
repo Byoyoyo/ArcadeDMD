@@ -220,6 +220,8 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
     SIZES = {"jet": (84, 70), "prop": (84, 70), "heli": (112, 72), "bomber": (190, 150)}
     ROTOR = True                                       # the enemy helicopters turn their rotor / rotor des hélicoptères
     LASER_TYPES = (0, 1, 2)                            # ships that use the laser when the fire is held / ceux qui ont un laser
+    BOSS = ((112, 56, 70), (255, 70, 40))              # the boss of a stage, a big machine of our own / le boss d'un niveau
+    BOSS_SIZE = (400, 320)
 
     def __init__(self, hd, rng=None):
         super().__init__(hd, rng)
@@ -244,6 +246,9 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         self.chain_kills = 0                           # (tests)
         self.chain_sparks = 0
         self.loops = 0
+        self.boss = None                               # the boss of the stage on the screen (a game that says it) / le boss
+        self.boss_alerts = 0                           # (tests)
+        self.boss_downs = 0
         for P in self.ships.values():
             P.update({"mode": "shot", "mode_t": 0.0, "laser_t": -99.0, "tgt": None, "opt": 0.0})
         self.bd.prebuild([t for t in self.STAGES if t != self.THEME])
@@ -319,6 +324,9 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         super().restart(vals, now)
         self.bullets, self.stars, self.spirals = [], [], []
         self.maxhit = {"p1": 0, "p2": 0}
+        self.boss = None
+        if _n(vals.get("boss")) == 1:                                   # back during a boss fight / en plein combat de boss
+            self.boss_arrives(vals, now, quiet=True)
         st = _n(vals.get(self.STAGE_KEY))
         if st is not None:
             self.bd.set_theme(self.stage_theme(st), now, 0.0)
@@ -356,6 +364,13 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
                 self.slam(f"{self.STAGE_WORD} {int(ch[1])}", GOLD, now, 2.0, sub=sub)
             self.boost = (3.0, now + 2.0)
             self.bullets, self.spirals = [], []
+        ch = self.changed(vals, "boss")
+        if ch and ch[1] == 1 and self.boss is None:                    # the boss of the stage comes / le boss arrive
+            self.boss_arrives(vals, now)
+        elif ch and ch[1] != 1 and self.boss is not None and self.boss["down"] is None:
+            self.boss["leave"] = now                                   # the stage goes on without it / il s'en va
+        if self.boss is not None and self.boss["down"] is None and self.boss["leave"] is None and vals.get("phase") in (3, 4):
+            self.boss_down(now)                                        # the results of the stage, the ending: it fell / il est tombé
         ch = self.changed(vals, "loop")
         if ch and ch[1] > ch[0]:                                       # the second loop begins / la 2e boucle commence
             self.loops += 1
@@ -446,6 +461,11 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
             r = reach * (2.2 if e.get("type") == "bomber" else 1.0)
             if abs(e.get("yy", e["y"]) - ly) < r and (target is None or e["x"] < target["x"]):
                 target = e
+        B = self.boss_up()
+        if B is not None and B["x"] > x0:                               # the boss takes our shots / le boss encaisse
+            ly = y0 + (y1 - y0) * (B["x"] - x0) / max(1, x1 - x0)
+            if abs(B["yy"] - ly) < reach * 4.5 and (target is None or B["x"] - self.S(140) < target["x"]):
+                target = B
         return target
 
     def laser_hit(self, side, now):
@@ -547,6 +567,21 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
                 else:
                     self.fan(x, y, int(5 * d) | 1, 50, 240, 1)
                 e["gun"] = now + rng.uniform(0.7, 1.4) / d
+        B = self.boss_up()
+        if B is not None and B["x"] < W - S(60) and now >= B["gun"]:   # the boss: thick rings, twin spirals, fans
+            x, y = B["x"] - S(70), B["yy"]                             # le boss : anneaux serrés, spirales jumelles, éventails
+            k = rng.random()
+            if k < 0.35:
+                ph = rng.uniform(0, math.tau)
+                for j in range(3):
+                    self.fx.later(j * 0.22, self.ring, x, y, int(28 * d), 170 + j * 30, j % 2, ph + j * 0.1)
+            elif k < 0.7:
+                for turn in (-0.35, 0.35):
+                    self.spirals.append([x, y, rng.uniform(0, math.tau), turn, 5 if d >= 1 else 3, now + 2.4, now, 210, rng.choice((0, 1)), B])
+            else:
+                for j in range(4):
+                    self.fx.later(j * 0.14, self.fan, x, y, int(11 * d) | 1, 80, 250 + j * 35, 4)
+            B["gun"] = now + rng.uniform(1.3, 2.0) / d
         for g in self.ground:                                          # the tanks lob slow orbs / les chars : sphères lentes
             if g.get("dead"):
                 continue
@@ -593,9 +628,113 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
 
     def score_kill(self, side, gain, ratio, now):
         super().score_kill(side, gain, ratio, now)
+        if ratio >= 6 and self.boss_up() is not None:                   # the boss of the stage falls / le boss tombe
+            self.boss_down(now, side)
         if ratio >= 6 and self.bullets:                                 # a boss: the gold stars / un boss : les étoiles d'or
             self.cancel(side, now)
             self.fx.flash((255, 240, 200), 0.15, 0.35)
+
+    # -- the boss of the stage, when the game says it comes (DoDonPachi) / le boss du niveau, quand le jeu le dit
+    def boss_up(self):
+        """The boss on the screen, still fighting, else None. / Le boss à l'écran, encore au combat."""
+        B = self.boss
+        return B if B is not None and B["down"] is None and B["leave"] is None else None
+
+    def boss_arrives(self, vals, now, quiet=False):
+        """The boss of the stage comes: WARNING with the red alarm, then its name, while a big machine of our own comes in
+        from the right and holds there, firing its rings and spirals. The others make room. quiet: back during the fight,
+        it is already there. / Le boss arrive : WARNING et l'alarme rouge, puis son nom, une grosse machine entre par la
+        droite et tient sa place en tirant ses anneaux et ses spirales."""
+        S = self.S
+        name = vals.get("boss_name")
+        name = name if isinstance(name, str) and name else None
+        self.boss = {"x": self.W + S(300), "y": S(236), "yy": S(236), "hit": -99.0, "hp": 1e9, "gun": now + 2.6, "leave": None,
+                     "down": None, "name": name}
+        self.next_enemy = max(self.next_enemy, now + 4.0)
+        if quiet:
+            self.boss["x"] = self.W * 0.76
+            return
+        self.boss_alerts += 1
+        self.slam("WARNING", (255, 60, 50), now, 1.5, sub=tr("UN BOSS APPROCHE", "A BOSS IS COMING"))
+        for i in range(3):
+            self.fx.later(i * 0.5, self.fx.flash, (255, 40, 30), 0.22, 0.3)
+        self.fx.shake(5, 1.4)
+        if name:
+            self.fx.later(1.45, self._boss_banner, name)
+
+    def _boss_banner(self, name):
+        if self.boss is not None and self.boss["down"] is None:
+            self.slam(name, GOLD, self.fx.now, 2.4, sub="BOSS")
+
+    def boss_down(self, now, side="p1"):
+        """The boss falls: blasts all over it, the screen shakes, its bullets turn into gold stars, a last big blast and a
+        white flash. / Le boss tombe : des explosions partout sur lui, l'écran tremble, ses boulettes en étoiles d'or."""
+        B = self.boss
+        if B is None or B["down"] is not None:
+            return
+        B["down"] = now
+        B["dead"] = True                                                 # its spirals stop / ses spirales s'arrêtent
+        self.boss_downs += 1
+        fx, S, rng = self.fx, self.S, self.rng
+        w, h = S(self.BOSS_SIZE[0]), S(self.BOSS_SIZE[1])
+        for i in range(12):
+            fx.later(i * 0.13, self._boss_blast, rng.uniform(-0.4, 0.4) * w, rng.uniform(-0.32, 0.32) * h, rng.uniform(0.8, 1.4))
+        fx.later(1.65, self._boss_last)
+        fx.shake(16, 1.8)
+        self.cancel(side, now)
+
+    def _boss_blast(self, dx, dy, size):
+        B = self.boss
+        if B is not None:
+            self.fx.explosion(B["x"] + dx, B["yy"] + dy, size, False)
+
+    def _boss_last(self):
+        B = self.boss
+        if B is None:
+            return
+        self.fx.explosion(B["x"], B["yy"], 2.2, False)
+        self.fx.glow(B["x"], B["yy"], 60, 700, (255, 220, 160), 0.6, "front", 0.7, 0.0)
+        self.fx.flash((255, 250, 235), 0.6, 0.6)
+        self.fx.shake(24, 1.0)
+        self.boss = None
+
+    def boss_surf(self, shadow=False):
+        key = ("boss", shadow)
+        s = self.imgs.get(key)
+        if s is None:
+            S = self.S
+            s = self.img(("bossimg",), S(self.BOSS_SIZE[0]), S(self.BOSS_SIZE[1]), gunship_draw(*self.BOSS))
+            if shadow:
+                s = self.shadow_of(self.pg, s, 70)
+            self.imgs[key] = s
+        return s
+
+    def draw_boss(self, screen, now):
+        """The boss comes in from the right, holds at three quarters of the screen, sways; it flickers as it falls, goes
+        away to the right when the stage goes on without it. / Le boss entre par la droite, tient sa place, se balance."""
+        B = self.boss
+        if B is None:
+            return
+        S, dt = self.S, self.dt
+        hold = self.W * 0.76
+        if B["leave"] is not None:
+            B["x"] += 300 * self.s * dt
+            if B["x"] > self.W + S(320):
+                self.boss = None
+                return
+        elif B["x"] > hold:
+            B["x"] = max(hold, B["x"] - 260 * self.s * dt)
+        B["yy"] = B["y"] + math.sin(now * 0.8) * S(24)
+        if not self.SIDE:
+            sh = self.boss_surf(True)
+            screen.blit(sh, (int(B["x"] + S(70) - sh.get_width() / 2), int(B["yy"] + S(64) - sh.get_height() / 2)))
+        if B["down"] is not None and int((now - B["down"]) * 18) % 2 == 0:
+            return                                                       # it flickers as it falls / il clignote en tombant
+        img = self.boss_surf()
+        screen.blit(img, (int(B["x"] - img.get_width() / 2), int(B["yy"] - img.get_height() / 2)))
+        if now - B["hit"] < 0.06:
+            g = self.fx.sp.glow(S(120), (255, 255, 255), 6, hot=0.5)
+            screen.blit(g, (int(B["x"] - S(120) - g.get_width() / 2), int(B["yy"] - g.get_height() / 2)), special_flags=self.pg.BLEND_RGB_ADD)
 
     def score_events(self, vals, now):
         """Points scored. With the hit counter read, the enemies destroyed come from it (chain_kill) and their points only
@@ -645,8 +784,18 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
 
     def kill_one(self, side):
         """One enemy blown up for the chain: the one hit, else the nearest ahead; a big one only takes a hit until its last.
-        / Un ennemi détruit pour la chaîne : celui touché, sinon le plus proche devant ; un gros encaisse jusqu'au bout."""
+        During a boss fight the hits are on the boss. / Un ennemi détruit pour la chaîne : celui touché, sinon le plus proche
+        devant ; un gros encaisse jusqu'au bout. Pendant le combat contre le boss, les coups sont pour lui."""
         fx, S, now = self.fx, self.S, self.fx.now
+        B = self.boss_up()
+        if B is not None and B["x"] < self.W - S(80):
+            x = B["x"] - S(self.rng.uniform(40, 150))
+            y = B["yy"] + S(self.rng.uniform(-90, 90))
+            B["hit"] = now
+            self.kill_xy[side] = (x, y)
+            fx.sparks(x, y, 8, (255, 230, 160), (200, 700), (120, 240), (0.15, 0.4), 0, "front", 3, 22)
+            fx.small_blast(x, y, 0.7, "front")
+            return
         e = self.kill_target(side, now)
         if e is None:
             spot = self.no_target_kill(side, now)
@@ -708,6 +857,11 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         for e in self.enemies:
             if not e.get("dead"):
                 fx.later(0.3 + rng.uniform(0, 0.5), self._boom, e)
+        B = self.boss_up()
+        if B is not None:                                                # the boss takes it and holds / le boss encaisse
+            w, h = S(self.BOSS_SIZE[0]), S(self.BOSS_SIZE[1])
+            for i in range(5):
+                fx.later(0.35 + i * 0.12, self._boss_blast, rng.uniform(-0.35, 0.35) * w, rng.uniform(-0.3, 0.3) * h, 0.9)
         for g in self.ground:
             if not g.get("dead") and self.gx(g) > x:
                 fx.later(0.4 + rng.uniform(0, 0.4), self._ground_boom, g)
@@ -766,6 +920,7 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
             keep.append(g)
             screen.blit(gimg, (int(x - gimg.get_width() / 2), int(g["y"] - gimg.get_height() / 2)))
         self.ground = keep
+        self.draw_boss(screen, now)
         keep = []
         for e in self.enemies:                                          # their shadows first / leurs ombres d'abord
             if e.get("dead"):

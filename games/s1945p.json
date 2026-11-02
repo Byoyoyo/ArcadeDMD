@@ -20,16 +20,16 @@
   "cpu": ":maincpu",
   "values": {
    "score": {
-    "addr": "0x1000E0",
+    "addr": "",
     "type": "bcd",
     "bytes": 4,
-    "note": "player 1 score, BCD (RetroAchievements code notes, Score Part 4 down to Part 1, laid out as the scores the same author noted in Last Resort, Aero Fighters 2 and Metal Slug 3), to confirm in game"
+    "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
    },
    "score_p2": {
-    "addr": "0x10013C",
+    "addr": "",
     "type": "bcd",
     "bytes": 4,
-    "note": "player 2 score, BCD, 0x5C after player 1's as its lives, bombs, power, plane and super shots (FinalBurn Neo cheats), to confirm in game"
+    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
    },
    "p1_input": {
     "addr": "0x10FD96",

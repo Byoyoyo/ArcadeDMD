@@ -11,7 +11,9 @@ Scène HD des Metal Slug : deux panneaux de soldat, décor animé, et un effet p
 Ce que fait chaque valeur lue dans la mémoire du jeu
 - munitions qui baissent : tirs (flamme à la bouche du canon, traçantes vers le décor, douilles éjectées) ;
   le style suit l'arme (mitraillette, fusil à pompe, lance-roquettes, lance-flammes, laser) ;
-- bombes qui baissent : la grenade quitte sa rangée, part en cloche et explose dans le décor ;
+- bombes qui baissent : la grenade quitte sa rangée, part en cloche, rebondit une fois et explose au second
+  rebond, comme dans le jeu ; quand le jeu dit ses grenades à l'écran (grenades_out, Metal Slug), elle explose au
+  moment même où celle du jeu explose, sur un ennemi touché comme au sol ;
 - arme qui change : la carte de l'arme s'illumine, la jauge se remplit ;
 - vie perdue : le casque tombe, le panneau rougit et tremble ; vie gagnée : « 1UP » ;
 - prisonniers libérés, crédits, score qui défile, chrono qui passe au rouge, mission suivante (changement de décor),
@@ -441,6 +443,9 @@ class Player:
         self.over_t = None
         self.move = 0.0
         self.flying = 0                 # grenades en vol (icônes déjà parties)
+        self.live = []                  # grenades of the HD screen waiting for the game's own to blow up / en attente
+        self.out_ok = False             # the game's grenades on screen are read and follow the throws / suivies
+        self.early = 0                  # the game's grenade blew up before ours left the hand / partie trop tôt
         self.tank = False               # dans un véhicule / in a vehicle
         self.tank_t = -99.0             # monté dans le char / got in
         self.tank_hit_t = -99.0         # coup reçu par le char / hit taken by the tank
@@ -450,6 +455,9 @@ class Player:
 class MetalSlugScene:
     FPS = 50
     SLIDE_EVERY = 9.0                   # écran d'attente : un décor toutes les 9 secondes
+    GRENADE_FLIGHT = 0.62               # seconds of the grenade's arc before it touches the ground / avant le sol
+    GRENADE_BOUNCE = 0.55               # its bounce: it lands again about a second after the throw / second rebond vers 1 s
+    GRENADE_WAIT = 2.0                  # waiting for the game's own explosion, at most / attente de l'explosion du jeu
 
     def __init__(self, hd, rng=None, threaded=True):
         self.hd, self.pg, self.s = hd, hd.pg, hd.s
@@ -740,7 +748,7 @@ class MetalSlugScene:
             return
         quiet = now < P.sync_until
         cur = {b: _n(self.get(vals, side, b)) for b in ("score", "lives", "bombs", "ammo", "weapon", "prisoners", "vehicle",
-                                                          "vehicle_hp", "vehicle_ammo")}
+                                                          "vehicle_hp", "vehicle_ammo", "grenades_out")}
         inp = _n(vals.get("p1_input" if side == "p1" else "p2_input"))
         old = P.seen
         P.seen = dict(cur, input=inp)
@@ -792,6 +800,14 @@ class MetalSlugScene:
                 P.bomb_add = (now, b - bo)
                 self.fx.text(tr(f"+{b - bo} BOMBES", f"+{b - bo} BOMBS"), self._bomb_xy(side, 0)[0] + (self.S(120) if side == "p1" else -self.S(120)),
                              self.S(340), GOLD, 36, life=1.2)
+        go, goo = cur["grenades_out"], old.get("grenades_out")
+        if go is not None and goo is not None:
+            if go > goo:                                   # the game's grenade left the hand: wait for its explosion
+                P.out_ok = True                            # la grenade du jeu est partie : on attend son explosion
+                for g in P.live:
+                    g.life = max(g.life, self.fx.now - g.t0 + self.GRENADE_WAIT)
+            elif go < goo and P.out_ok:                    # it blew up, on an enemy or at its second bounce / elle explose
+                self._explode_live(P, goo - go)
         pr, po = cur["prisoners"], old.get("prisoners")
         if pr is not None and po is not None and pr > po:
             P.prison_t = now
@@ -1024,14 +1040,47 @@ class MetalSlugScene:
         self.fx.shake(4, 0.2)
 
     def _throw(self, side, P, index):
+        """The grenade leaves its row in an arc, bounces once and blows up as it lands again, as in the game (about a second
+        after the throw). When the game's grenades on screen are read, it waits for the game's own to blow up instead,
+        on an enemy hit on the way as on the ground, two seconds at most. / La grenade part en cloche, rebondit une fois et
+        explose en retombant, comme dans le jeu ; quand on lit les grenades du jeu, elle attend que celle du jeu explose."""
         x, y = self._bomb_xy(side, index)
         d = 1 if side == "p1" else -1
         tx = self.W / 2 + d * self.rng.uniform(-80, 220) * self.s
         ty = self.H * 0.74 + self.rng.uniform(-8, 26) * self.s
         P.bomb_t = self.fx.now
         self.fx.glow(x, y, 6, 40, GOLD, 0.25)
-        self.fx.projectile("grenade", x, y, tx, ty, 0.62, 170, self._boom, spin=d * 620, kind="proj", trail=0.03)
         P.flying = max(0, P.flying - 1)
+        if P.early > 0:                                    # the game's one already blew up / celle du jeu a déjà explosé
+            P.early -= 1
+            self._boom(x + (tx - x) * 0.3, y - self.S(60))
+            return
+        g = self.fx.projectile("grenade", x, y, tx, ty, self.GRENADE_FLIGHT, 170, None, spin=d * 620, kind="proj", trail=0.03)
+        g.floor, g.bounce = ty, self.GRENADE_BOUNCE
+        land = g.vy + g.ay * self.GRENADE_FLIGHT           # its speed as it lands the first time / en touchant le sol
+        g.life = self.GRENADE_FLIGHT + 2 * land * self.GRENADE_BOUNCE / g.ay     # the second landing / le second rebond
+        if P.out_ok:
+            g.life = self.GRENADE_WAIT                     # the game tells when it blows up / le jeu dit quand
+        g.on_end = (self._boom_live, (P, g))
+        P.live.append(g)
+
+    def _boom_live(self, P, g):
+        """A grenade of the HD screen blows up where it is. / Une grenade explose là où elle est."""
+        if g in P.live:
+            P.live.remove(g)
+        g.on_end = None
+        g.dead = True
+        self._boom(g.x, g.y)
+
+    def _explode_live(self, P, n):
+        """The game's grenades blew up: as many of ours, the oldest first, where they are. One that has not left the hand
+        yet blows up as soon as it does. / Les grenades du jeu ont explosé : autant des nôtres, les plus anciennes d'abord."""
+        for _ in range(int(n)):
+            live = [g for g in P.live if not g.dead]
+            if live:
+                self._boom_live(P, live[0])
+            elif P.flying > 0:
+                P.early += 1
 
     def _boom(self, x, y):
         """A grenade blows up, player 1's or player 2's: the explosion, the whole screen shakes hard and lights up orange; a

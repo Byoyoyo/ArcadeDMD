@@ -333,6 +333,12 @@ local function make_reader(space, def)
 	local add = def.add or 0
 	local vmin = tonumber(def.min)
 	local vmax = tonumber(def.max)
+	-- "valid" : les valeurs que le jeu peut avoir, une autre n'est pas lue / the values the game can have
+	local vlo, vhi
+	if type(def.valid) == "table" then
+		vlo = tonumber(def.valid[1])
+		vhi = tonumber(def.valid[2])
+	end
 	local mask = parse_addr(def.mask)
 	local shift = math.tointeger(def.shift)
 	local zero = parse_addr(def.zero_from)    -- a bar gone below zero reads 0xFF...: empty / une barre passee sous zero
@@ -395,6 +401,7 @@ local function make_reader(space, def)
 		if shift then v = v >> shift end
 		if zero and v >= zero then return vmin or 0 end
 		v = v * mult + add
+		if (vlo and v < vlo) or (vhi and v > vhi) then return nil end
 		if vmin and v < vmin then v = vmin end
 		if vmax and v > vmax then v = vmax end
 		if math.type(v) == "float" and v == math.floor(v) then v = math.tointeger(v) or v end

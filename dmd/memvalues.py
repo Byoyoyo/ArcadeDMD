@@ -8,6 +8,8 @@ Les définitions sont celles de games/*.json, rubrique memory.values :
   {"addr": "0xFFFE26", "type": "be", "bytes": 4, "mult": 10}
 Types : u8, u16, u32, s8, s16, be, le, bcd, bcd_le, digits, digits_le.
 "zero_from": a raw value from which the value reads its "min" (a health bar gone below zero, 0xFF in a byte).
+"valid": [lo, hi], the values the game can really have: another one is not read (RAM not set yet while the game boots,
+Metal Slug's mission 183 before mission 1), the value keeps the last one read. / les valeurs possibles, une autre n'est pas lue.
 """
 
 
@@ -127,6 +129,11 @@ def decode(d, getb, big_endian=True):
     digits = d.get("round")
     if isinstance(digits, int) and not isinstance(digits, bool):
         v = round(v, digits)                    # a percentage of a full bar / un pourcentage de barre pleine
+    ok = d.get("valid")
+    if isinstance(ok, list) and len(ok) == 2:   # a value the game cannot have: not read / une valeur impossible : pas lue
+        vlo, vhi = ok
+        if (isinstance(vlo, (int, float)) and v < vlo) or (isinstance(vhi, (int, float)) and v > vhi):
+            return None
     lo, hi = d.get("min"), d.get("max")
     if isinstance(lo, (int, float)) and v < lo:
         v = lo
@@ -204,6 +211,14 @@ def _resolve(expr, values, depth=0):
         on = [m for m in alive if _resolve(m[0], values, depth + 1) == 1]
         pick = on[0] if on else (alive[0] if alive else team[0])
         return _resolve(pick[2], values, depth + 1)
+    if "ge" in expr:                          # 1 when the first is at least the second, else 0 (DoDonPachi: the boss comes
+        pair = expr.get("ge")                 # where its stage stops scrolling) / 1 quand le premier atteint le second
+        if not isinstance(pair, list) or len(pair) != 2:
+            return None
+        a, b = (_resolve(x, values, depth + 1) for x in pair)
+        if any(isinstance(x, bool) or not isinstance(x, (int, float)) for x in (a, b)):
+            return None
+        return 1 if a >= b else 0
     if "find" in expr:
         lst = expr.get("find")
         target = _resolve(expr.get("eq"), values, depth + 1)

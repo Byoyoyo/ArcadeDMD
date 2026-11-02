@@ -76,6 +76,11 @@ CAVE_SHOOT = [
      "when": {"all": [{"var": "bombs", "ge_var": "bombs_max"}, {"var": "bombs_max", "gt": 0}]}},
     {"type": "gauge", "var": "combo", "max": 100, "x": 66, "y": 28, "w": 61, "h": 3, "anchor": "left", "color": "#ff9a30", "low": "#ff9a30",
      "low_at": 0, "back": "#2a1c08", "shade": False, "when": {"has": "combo"}},
+    # the boss comes (a game that says it, DoDonPachi): WARNING! then its name / le boss arrive : WARNING! puis son nom
+    {"type": "events", "events": [
+        {"on": "boss", "change": "up", "to": [1], "text": "WARNING!", "color": "#ff3c30", "font": "9x15B", "ms": 1300, "priority": 6},
+        {"on": "boss", "change": "up", "to": [1], "text": "{boss_name}", "color": "#ffd040", "font": "9x15B", "ms": 2200, "priority": 5.9,
+         "when": {"has": "boss_name"}}]},
 ]
 
 
@@ -125,6 +130,12 @@ def hand(fam):
         return out
     return {
         "ddonpach": {
+            # the game counts the ship in play too: the ships left, as the game shows them (2 at the start), are one less
+            # le jeu compte aussi le vaisseau en jeu : ceux qui restent, comme le jeu les montre, sont un de moins
+            "lives": v(0x101965, f"ships left of player 1 as the game shows them, 2 at the start: the game counts the ship in play "
+                                 f"too, one less is read, -1 once the game is over ({SRC}, Infinite Lives PL1; RetroAchievements "
+                                 "code notes, Lives - P1, 0 when the game is over), seen on the cabinet", add=-1),
+            "lives_p2": v(0x101967, f"ships left of player 2, as player 1's ({SRC}, Infinite Lives PL2)", add=-1),
             "bombs": v(0x102CB0, f"bombs of player 1, 6 at most ({SRC}, Infinite Bombs PL1, the first byte)"),
             "bombs_max": v(0x102CB1, f"bomb slots of player 1: 3 at the start, one more for each ship lost, 6 at most ({SRC}, "
                                      "Infinite Bombs PL1, the second byte, capacity in MAME's notes)"),
@@ -153,7 +164,13 @@ def hand(fam):
             "hits_p2": v(0x101816, f"hit counter of player 2 as the game shows it, {LEARNED}", "bcd", 2),
             "stage": v(0x101979, "stage, the value read plus one (MAME cheat database: Select Level to follow Level 1 writes it, "
                                  "Kill Boss with 1 hit tests it), checked on the cabinet", add=1),
-            "loop": v(0x10197A, "loop, 0 the first and 1 the second (MAME cheat database, Select Level to follow Level 1)", "u16", 2)},
+            "loop": v(0x10197A, "loop, 0 the first and 1 the second (MAME cheat database, Select Level to follow Level 1)", "u16", 2),
+            # the boss of each stage comes where its stage stops scrolling (derived boss) / le boss arrive où le niveau s'arrête
+            "distance": v(0x10198E, "how far the stage has scrolled, from 0 at its start: it stops where the boss comes, 0x200, 0x160, "
+                                    "0x1B0, 0x200, 0x250 and 0x121 for stages 1 to 6 (RetroAchievements code notes, Distance into current "
+                                    "stage, and its achievements for the bosses)", "be", 2),
+            "phase": v(0x1017A4, "game state, 3 while the results of a stage show, 4 for the ending (RetroAchievements code notes, Game "
+                                 "State)")},
         "donpachi": {
             "bombs": v(0x10217B, f"bombs of player 1 ({SRC}, Infinite Bombs PL1)"),
             "bombs_p2": v(0x1021BB, f"bombs of player 2 ({SRC}, Infinite Bombs PL2)"),
@@ -294,6 +311,16 @@ TAGS = {"ddonpach": {"score": {"sum": ["_score10", "_cont"]}, "score_p2": {"sum"
         # Dangun Feveron keeps a score per stage, the game's is their sum / un score par niveau, celui du jeu en est la somme
         "feversos": {"score": {"sum": [f"_score_s{i}" for i in range(1, 6)]}}}
 LEARNED = "learned on the cabinet with learn.bat (1.31)"
+
+
+# values made from others for the scenes ("derived"): DoDonPachi's boss is there once the stage has scrolled to it, the true
+# last boss of the second loop at once; its name (DoDonPachi Database of BeeStorm, Japanese Wikipedia)
+# valeurs faites d'autres valeurs pour les scènes : le boss de DoDonPachi est là quand le niveau a défilé jusqu'à lui
+DERIVED = {"ddonpach": {
+    "boss": {"ge": ["distance", {"pick": [None, 0x200, 0x160, 0x1B0, 0x200, 0x250, 0x121, {"pick": [100000, 0], "at": "loop"}],
+                                 "at": "stage"}]},
+    "boss_name": {"value": "stage", "names": {"1": "SUZAKU", "2": "SENKOU", "3": "KAKOU", "4": "RAIKOU", "5": "RANKOU", "6": "RYUUKOU",
+                                              "7": "HIBACHI"}}}}
 
 
 # names of the values that tell a choice / noms des valeurs qui disent un choix
@@ -628,6 +655,8 @@ def build(fbneo, cheats_dir, games_dir, mame_path=""):
         dv.update(derived)
         for out, (src, names) in NAMES.get(name, {}).items():
             dv[out] = {"value": src, "names": names}
+        for out, spec in DERIVED.get(name, {}).items():
+            dv[out] = spec
         for k in list(dv):                           # names of a value no longer read / noms d'une valeur plus lue
             spec = dv[k] if isinstance(dv[k], dict) else {}
             used = [spec["value"]] if isinstance(spec.get("value"), str) else [x for x in spec.get("join") or [] if isinstance(x, str)]

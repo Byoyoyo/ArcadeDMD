@@ -251,6 +251,38 @@
         "when": {
           "has": "combo"
         }
+      },
+      {
+        "type": "events",
+        "events": [
+          {
+            "on": "boss",
+            "change": "up",
+            "to": [
+              1
+            ],
+            "text": "WARNING!",
+            "color": "#ff3c30",
+            "font": "9x15B",
+            "ms": 1300,
+            "priority": 6
+          },
+          {
+            "on": "boss",
+            "change": "up",
+            "to": [
+              1
+            ],
+            "text": "{boss_name}",
+            "color": "#ffd040",
+            "font": "9x15B",
+            "ms": 2200,
+            "priority": 5.9,
+            "when": {
+              "has": "boss_name"
+            }
+          }
+        ]
       }
     ]
   }
