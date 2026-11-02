@@ -492,6 +492,9 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         self.boss = None                               # the boss of the stage on the screen (a game that says it) / le boss
         self.boss_alerts = 0                           # (tests)
         self.boss_downs = 0
+        # the full life of the boss of each stage, kept when the scene starts again after a continue or the boss comes back:
+        # the game keeps its damage (Seb, 1.31) / la vie pleine du boss de chaque niveau, gardée après une continue
+        self.boss_tops = {}
         for P in self.ships.values():
             P.update({"mode": "shot", "mode_t": 0.0, "laser_t": -99.0, "tgt": None, "opt": 0.0})
         self.bd.prebuild([t for t in self.STAGES if t != self.THEME])
@@ -600,6 +603,7 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         loop = _n(vals.get("loop"))
         ch = self.changed(vals, self.STAGE_KEY)
         if ch and ch[1] > 0:                                           # a new stage / un nouveau niveau
+            self.boss_tops = {}
             self.stage_banners += 1
             self.bd.set_theme(self.stage_theme(ch[1]), now, 1.4)
             if self.STAGE_KEY != "round":                              # ROUND n is already slammed / déjà annoncé
@@ -616,14 +620,18 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
             self.boss_down(now)                                        # the results of the stage, the ending: it fell / il est tombé
         hp, B = _n(vals.get("boss_hp")), self.boss_up()
         if B is not None and hp is not None:                           # its life read in the game (1.31) / sa vie lue dans le jeu
+            key = (_n(vals.get(self.STAGE_KEY)), _n(vals.get("loop")))
             if hp > 0:
-                if hp > (B.get("top") or 0):                           # full when it comes, or a new form / pleine à son arrivée
-                    B["top"] = hp
+                top = max(B.get("top") or 0, self.boss_tops.get(key, 0))
+                if hp > top:                                           # full when it comes, or a new form / pleine à son arrivée
+                    top = hp
                 elif hp < (B.get("life") or hp):
                     B["hit"] = B["lhit"] = now
+                B["top"] = self.boss_tops[key] = top                   # still known after a continue / connue après une continue
                 B["life"] = hp
             elif (B.get("top") or 0) >= self.BOSS_HP_MIN:              # a boss's life, gone: it falls with the game's
                 B["life"] = 0
+                self.boss_tops.pop(key, None)                          # the next one starts afresh / le suivant repart de zéro
                 self.boss_down(now)
         B = self.boss
         if B is not None and B.get("warn") and not B.get("logged"):   # the stage stops scrolling for its boss / il s'arrête

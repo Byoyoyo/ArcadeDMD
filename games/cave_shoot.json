@@ -256,6 +256,7 @@
         "type": "gauge",
         "var": "boss_hp",
         "max": "peak",
+        "peak_hold": 60,
         "x": 1,
         "y": 24,
         "w": 126,

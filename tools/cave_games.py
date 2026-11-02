@@ -76,9 +76,9 @@ CAVE_SHOOT = [
      "when": {"all": [{"var": "bombs", "ge_var": "bombs_max"}, {"var": "bombs_max", "gt": 0}]}},
     {"type": "gauge", "var": "combo", "max": 100, "x": 66, "y": 28, "w": 61, "h": 3, "anchor": "left", "color": "#ff9a30", "low": "#ff9a30",
      "low_at": 0, "back": "#2a1c08", "shade": False, "when": {"has": "combo"}},
-    # the boss's life read in the game (DoDonPachi, 1.31), a thin bar above the bombs, full at the highest life seen
-    # la vie du boss lue dans le jeu, une barre fine au-dessus des bombes, pleine à la plus haute vie vue
-    {"type": "gauge", "var": "boss_hp", "max": "peak", "x": 1, "y": 24, "w": 126, "h": 2, "anchor": "left", "color": "#ff5a2a",
+    # the boss's life read in the game (DoDonPachi, 1.31), a thin bar above the bombs, full at the highest life seen, kept
+    # through a continue (a minute) / la vie du boss, une barre fine au-dessus des bombes, gardée pendant une continue
+    {"type": "gauge", "var": "boss_hp", "max": "peak", "peak_hold": 60, "x": 1, "y": 24, "w": 126, "h": 2, "anchor": "left", "color": "#ff5a2a",
      "low": "#ff2418", "low_at": 0.25, "back": "#2a0a06", "shade": False,
      "when": {"all": [{"var": "boss", "eq": 1}, {"var": "boss_hp", "gt": 0}]}},
     # the boss comes (a game that says it, DoDonPachi): WARNING! then its name / le boss arrive : WARNING! puis son nom
