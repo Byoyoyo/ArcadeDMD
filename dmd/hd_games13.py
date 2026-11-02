@@ -299,11 +299,14 @@ class _CpsShooter:
     p2_joins = 0                                       # (tests)
 
     def p2_in(self, vals):
-        """Player 2 plays: his mode says so (MAME with a BIOS), or, with no BIOS on a CPS, his values moved not long ago.
-        His score that goes up, a life or a bomb spent, a hit taken. Not a reset, a new game empties or fills them for both
-        players. / Le joueur 2 joue : son score monte, une vie ou une bombe en moins, un coup reçu, il y a peu."""
+        """Player 2 plays: his mode says so (MAME with a BIOS, or the game state of DoDonPachi read in the game, which then
+        decides alone), or, with no BIOS on a CPS, his values moved not long ago. His score that goes up, a life or a bomb
+        spent, a hit taken. Not a reset, a new game empties or fills them for both players. / Le joueur 2 joue : son mode le
+        dit (l'état du jeu de DoDonPachi décide alors seul), ou son score monte, une vie ou une bombe en moins, il y a peu."""
         if vals.get("p2_mode") in (1, 2):
             return True
+        if vals.get("p2_mode") is not None and vals.get("_state") is not None:
+            return False                             # the game says who plays (DoDonPachi, 1.31) / le jeu dit qui joue
         return self.fx.now - self.p2_seen < self.P2_WAIT
 
     def update(self, vals, now):

@@ -20,16 +20,16 @@
   "cpu": ":maincpu",
   "values": {
    "score": {
-    "addr": "",
-    "type": "bcd",
+    "addr": "0x1000E0",
+    "type": "be",
     "bytes": 4,
-    "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+    "note": "player 1 score, a 32-bit binary number, learned on a cabinet with learn.bat (1.31). The address is the one of RetroAchievements' code notes (Score Part 4 down to Part 1), the score is not BCD as first read there"
    },
    "score_p2": {
-    "addr": "",
-    "type": "bcd",
+    "addr": "0x10013C",
+    "type": "be",
     "bytes": 4,
-    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+    "note": "player 2 score, a 32-bit binary number 0x5C after player 1's as its lives, bombs, power, plane and super shots, learned on a cabinet with learn.bat (1.31)"
    },
    "p1_input": {
     "addr": "0x10FD96",

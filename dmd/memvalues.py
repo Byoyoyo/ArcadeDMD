@@ -170,6 +170,15 @@ def game_values(game, system="", parent=""):
 # names : nombre lu -> texte affiché (sans correspondance, la valeur reste vide)
 #         {"en": [...], "fr": [...]} : les noms dans chaque langue (club de golf, terrain, arme...)
 
+# what each "rise" expression has seen, by the expression itself / ce que chaque expression "rise" a vu
+_SEEN = {}
+
+
+def forget_seen():
+    """A new game: the "rise" expressions start again from nothing. / Une nouvelle partie : tout est oublié."""
+    _SEEN.clear()
+
+
 def _resolve(expr, values, depth=0):
     if depth > 8:
         return None
@@ -219,6 +228,22 @@ def _resolve(expr, values, depth=0):
         if any(isinstance(x, bool) or not isinstance(x, (int, float)) for x in (a, b)):
             return None
         return 1 if a >= b else 0
+    if "rise" in expr:
+        # 1 while "rise" is 1, once "from" has been 1 since the last "reset" (DoDonPachi: the boss once the stage was seen
+        # scrolling toward it in a game going on, not a distance left over from the stage or the game before). The only
+        # expression that remembers, from one reading to the next. / 1 tant que "rise" vaut 1, une fois "from" vu à 1
+        # depuis le dernier "reset" ; la seule expression qui se souvient d'une lecture à l'autre.
+        st = _SEEN.get(id(expr))
+        if st is None or st[0] is not expr:
+            st = _SEEN[id(expr)] = [expr, False]
+        if _resolve(expr.get("reset"), values, depth + 1) == 1:
+            st[1] = False
+        if _resolve(expr.get("from"), values, depth + 1) == 1:
+            st[1] = True
+        up = _resolve(expr.get("rise"), values, depth + 1)
+        if up is None or isinstance(up, bool):
+            return None
+        return 1 if st[1] and up == 1 else 0
     if "find" in expr:
         lst = expr.get("find")
         target = _resolve(expr.get("eq"), values, depth + 1)

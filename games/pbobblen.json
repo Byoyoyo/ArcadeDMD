@@ -55,14 +55,16 @@
     "note": "game mode, 0 one player, 1 VS between two players (RetroAchievements code notes, from tools/ra_notes.py; captures taken in a VS game read 1), it stays 1 after the VS demo"
    },
    "wins": {
-    "addr": "0x102297",
+    "addr": "0x102275",
     "type": "u8",
-    "note": "VS, matches won by player 1 (found in captures taken in a VS game: with player 2's it adds up to the matches played at 0x10228F, and it is player 2's that rose when player 1's bubble turned black), to confirm in game"
+    "note": "VS, matches won by player 1 as the game shows them, learned on a cabinet with learn.bat (1.31: 0-0, 0-2 then 1-2, each typed as the game showed it). The game sets it back to 0 when a human then beats the computer. 0x102297, read until then, did not follow it. The other bytes that followed it in those captures are set aside",
+    "not_learned": ["0x101477", "0x1025DB", "0x1056DA", "0x108235"]
    },
    "wins_p2": {
-    "addr": "0x102299",
+    "addr": "0x102277",
     "type": "u8",
-    "note": "VS, matches won by player 2 (same captures, same check), to confirm in game"
+    "note": "VS, matches won by player 2 as the game shows them, learned on a cabinet with learn.bat (1.31, the same captures), two bytes after player 1's. The other bytes that followed it are set aside",
+    "not_learned": ["0x105ACF", "0x106DFF"]
    },
    "bubble": {
     "addr": "0x10821F",

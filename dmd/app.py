@@ -21,7 +21,7 @@ from .scene import Scene, Ctx, GameState, LogoIntro
 from .outputs import ZeDMDOutput, PreviewOutput, GifRecorder, NullOutput
 from .pixelcade import PixelcadeOutput, guess_pixelcade_dir, list_ports
 from .retroarch import RetroArchSource
-from .memvalues import derive, game_values, resolve_value
+from .memvalues import derive, forget_seen, game_values, resolve_value
 from .coinbuttons import CoinButtons, mvs_rates, side_word
 from .neocoins import NeoCoins
 from .textfiles import TextFiles
@@ -675,6 +675,7 @@ class Engine:
             meta["pixelcade"] = self.pixelcade_dir
         self.state.reset(meta)
         self.derived = g.get("derived") if isinstance(g.get("derived"), dict) else None
+        forget_seen()                 # a boss seen coming in the game before is not this one / rien de la partie d'avant
         names = meta.get("values") if isinstance(meta.get("values"), list) else []
         # a team that takes turns (Marvel vs. Capcom): the health of the fighter on screen, made from values read
         # une équipe qui se relaie : la vie du combattant à l'écran, faite à partir des valeurs lues

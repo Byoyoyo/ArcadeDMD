@@ -2742,7 +2742,12 @@ class AeroFightersScene(BlazingStarScene):
                     screen.blit(fl, (int(x - S(74) - fl.get_width()), int(y + dy - fl.get_height() / 2)), special_flags=add)
             img = self.rotated(("planer", side, kind), self.plane_surf(side, kind), _clamp(-P["vy"] * 8, -14, 14), 2)
             screen.blit(img, (int(x - img.get_width() / 2), int(y - img.get_height() / 2)))
+        self.plane_tags(screen, vals, planes, now)
         self.status(screen, eng, vals, logo, now)
+
+    def plane_tags(self, screen, vals, planes, now):
+        """Drawn over the planes once they are all drawn (Strikers 1945 Plus: 1P and 2P when both fly the same plane).
+        / Dessiné sur les avions une fois tous dessinés."""
 
     def life_icon(self, side, vals):
         key = ("aflife", side, self.kind(vals, side))

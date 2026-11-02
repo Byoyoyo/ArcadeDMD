@@ -170,7 +170,12 @@ def hand(fam):
                                     "0x1B0, 0x200, 0x250 and 0x121 for stages 1 to 6 (RetroAchievements code notes, Distance into current "
                                     "stage, and its achievements for the bosses)", "be", 2),
             "phase": v(0x1017A4, "game state, 3 while the results of a stage show, 4 for the ending (RetroAchievements code notes, Game "
-                                 "State)")},
+                                 "State)"),
+            # who plays, said by the game itself (tags p1_mode and p2_mode) / qui joue, dit par le jeu lui-même
+            "_state": v(0x1017A7, "game state: 0 both players, 7 player 1, 6 player 2 (playing, results, ending), 8 continue, 0x0B ship "
+                                  "select, 5 demo, 1 and 4 the title before and after a coin, 2 the ranking, 0x0C and 0x0D the logos "
+                                  "(RetroAchievements code notes, Game State, and its rich presence). Checked in captures taken on the "
+                                  "cabinet: 7 with player 1 alone, 0 with both, 6 once player 1's game was over")},
         "donpachi": {
             "bombs": v(0x10217B, f"bombs of player 1 ({SRC}, Infinite Bombs PL1)"),
             "bombs_p2": v(0x1021BB, f"bombs of player 2 ({SRC}, Infinite Bombs PL2)"),
@@ -302,9 +307,25 @@ def hand_clones(fam):
 # the version whose cheats the values of hand() were read from, when it is not the parent: the others, the parent too, get
 # theirs where their own cheats write / la version dont les codes ont donné les valeurs de hand(), quand ce n'est pas le parent
 REF = {"ddp3": "ddpdoj"}
+
+
+def ddp_mode(lives, score, alone, other_alone):
+    """p1_mode or p2_mode of DoDonPachi, from its game state (_state) and the ships each player has, the ship in play counted
+    (lives 0 and more): 0 both players, 7 player 1, 6 player 2, 8 continue for a player who has scored, 0x0B the ship select
+    where a player who came in has his ships (player 1 when nobody has any yet). Nothing is guessed from what moves, as the
+    RetroAchievements rich presence does it. / p1_mode ou p2_mode de DoDonPachi, d'après l'état du jeu et les vaisseaux de
+    chaque joueur, rien n'est deviné d'après ce qui bouge."""
+    has = {"ge": [lives, 0]}
+    select = {"pick": [1, {"ge": ["lives", 0]}], "at": {"ge": ["lives_p2", 0]}} if lives == "lives" else has
+    by_state = [has, 0, 0, 0, 0, 0, 0, 0, {"pick": [0, 2], "at": {"ge": [score, 1]}}, 0, 0, select, 0, 0]
+    by_state[alone], by_state[other_alone] = 1, 0
+    return {"pick": by_state, "at": "_state"}
+
+
 # values made from others while the game runs ("tag" of the game file): DoDonPachi shows the continues used as the last
-# digit of the score, the game keeps the tens apart / valeurs faites d'autres valeurs pendant le jeu
-TAGS = {"ddonpach": {"score": {"sum": ["_score10", "_cont"]}, "score_p2": {"sum": ["_score10_p2", "_cont_p2"]}},
+# digit of the score, the game keeps the tens apart, and says who plays / valeurs faites d'autres valeurs pendant le jeu
+TAGS = {"ddonpach": {"score": {"sum": ["_score10", "_cont"]}, "score_p2": {"sum": ["_score10_p2", "_cont_p2"]},
+                     "p1_mode": ddp_mode("lives", "_score10", 7, 6), "p2_mode": ddp_mode("lives_p2", "_score10_p2", 6, 7)},
         # the protection's ARM keeps Ketsui's score as a little-endian 32-bit number: two words for the 68000
         # l'ARM de la protection garde le score de Ketsui en 32 bits petit-boutiste : deux mots pour le 68000
         "ket": {"score": {"sum": ["_score_hi", "_score_lo"]}},
@@ -313,12 +334,30 @@ TAGS = {"ddonpach": {"score": {"sum": ["_score10", "_cont"]}, "score_p2": {"sum"
 LEARNED = "learned on the cabinet with learn.bat (1.31)"
 
 
-# values made from others for the scenes ("derived"): DoDonPachi's boss is there once the stage has scrolled to it, the true
-# last boss of the second loop at once; its name (DoDonPachi Database of BeeStorm, Japanese Wikipedia)
-# valeurs faites d'autres valeurs pour les scènes : le boss de DoDonPachi est là quand le niveau a défilé jusqu'à lui
+# where each stage of DoDonPachi stops scrolling for its boss (RetroAchievements code notes and achievements), and how many
+# steps before it the boss is announced: the game shows its WARNING a few seconds before (14 steps, about 3.7 s at a step of
+# 16 pixels scrolled one pixel a frame) / où chaque niveau s'arrête pour son boss, et combien de pas avant il est annoncé
+DDP_BOSS_AT = (0x200, 0x160, 0x1B0, 0x200, 0x250, 0x121)
+DDP_BOSS_LEAD = 14
+
+
+def ddp_boss():
+    """DoDonPachi's boss: 1 from its WARNING, a little before the stage stops scrolling, the true last boss of the second loop at
+    once. Only once the stage was seen scrolling toward it in a game going on ("rise"): a distance left over from the stage or
+    the game before is not a boss. Back to 0 out of a game and when the results show.
+    / Le boss : 1 dès son WARNING, un peu avant l'arrêt du niveau, une fois le niveau vu défiler vers lui en pleine partie."""
+    warn = [None] + [a - DDP_BOSS_LEAD for a in DDP_BOSS_AT] + [{"pick": [100000, 0], "at": "loop"}]
+    seen = [None] + [{"pick": [1, 0], "at": {"ge": ["distance", a - DDP_BOSS_LEAD]}} for a in DDP_BOSS_AT] + [1]
+    out_of_play = [0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1]       # by _state: no game going on / pas de partie en cours
+    results = [0, 0, 0, 1, 1]                                       # by phase: the results, the ending / les résultats, la fin
+    return {"rise": {"ge": ["distance", {"pick": warn, "at": "stage"}]}, "from": {"pick": seen, "at": "stage"},
+            "reset": {"ge": [{"sum": [{"pick": out_of_play, "at": "_state"}, {"pick": results, "at": "phase"}]}, 1]}}
+
+
+# values made from others for the scenes ("derived"): DoDonPachi's boss (ddp_boss) and its name (DoDonPachi Database of
+# BeeStorm, Japanese Wikipedia) / valeurs faites d'autres valeurs pour les scènes : le boss de DoDonPachi et son nom
 DERIVED = {"ddonpach": {
-    "boss": {"ge": ["distance", {"pick": [None, 0x200, 0x160, 0x1B0, 0x200, 0x250, 0x121, {"pick": [100000, 0], "at": "loop"}],
-                                 "at": "stage"}]},
+    "boss": ddp_boss(),
     "boss_name": {"value": "stage", "names": {"1": "SUZAKU", "2": "SENKOU", "3": "KAKOU", "4": "RAIKOU", "5": "RANKOU", "6": "RYUUKOU",
                                               "7": "HIBACHI"}}}}
 
@@ -674,7 +713,7 @@ def build(fbneo, cheats_dir, games_dir, mame_path=""):
                  if k in merged or k in tags]
         moving = [k for k in ("time", "_time", "score", "score_p2") + (("health", "health_p2") if scene == "cave_combat" else ())
                   if k in merged or k in tags]
-        if moving:
+        if moving and "p1_mode" not in tags:         # the game says who plays: nothing to guess / le jeu dit qui joue
             d["activity"] = {"values": watch, "moving": moving, "seconds": 10,
                              "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of "
                                      "the moving ones is read (lives or bombs alone change too seldom)"}

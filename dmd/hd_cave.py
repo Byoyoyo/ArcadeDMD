@@ -371,6 +371,15 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
             self.boss["leave"] = now                                   # the stage goes on without it / il s'en va
         if self.boss is not None and self.boss["down"] is None and self.boss["leave"] is None and vals.get("phase") in (3, 4):
             self.boss_down(now)                                        # the results of the stage, the ending: it fell / il est tombé
+        B = self.boss
+        if B is not None and B.get("warn") and not B.get("logged"):   # the stage stops scrolling for its boss / il s'arrête
+            d = _n(vals.get("distance"))
+            t0, d0, last, moved = B["warn"]
+            if d is not None and d != last:
+                B["warn"] = (t0, d0, d, now)
+            elif now - moved >= 1.0:
+                B["logged"] = True
+                self.log_boss(vals, d0, last, moved - t0)
         ch = self.changed(vals, "loop")
         if ch and ch[1] > ch[0]:                                       # the second loop begins / la 2e boucle commence
             self.loops += 1
@@ -655,6 +664,9 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
             self.boss["x"] = self.W * 0.76
             return
         self.boss_alerts += 1
+        d = _n(vals.get("distance"))
+        if d is not None:                     # to tell in the log when the stage stops / pour dire quand le niveau s'arrête
+            self.boss["warn"] = (now, d, d, now)
         self.slam("WARNING", (255, 60, 50), now, 1.5, sub=tr("UN BOSS APPROCHE", "A BOSS IS COMING"))
         for i in range(3):
             self.fx.later(i * 0.5, self.fx.flash, (255, 40, 30), 0.22, 0.3)
@@ -665,6 +677,21 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
     def _boss_banner(self, name):
         if self.boss is not None and self.boss["down"] is None:
             self.slam(name, GOLD, self.fx.now, 2.4, sub="BOSS")
+
+    def log_boss(self, vals, d0, d1, secs):
+        """In the log: where our WARNING came and how long before the stage stopped scrolling for its boss, to set how early
+        it comes (1.31). / Dans le journal : où est venu notre WARNING et combien de temps avant l'arrêt du niveau."""
+        self.boss_logs = getattr(self, "boss_logs", 0) + 1
+        if self.boss_logs > 12:
+            return
+        st = _n(vals.get("stage"))
+        st = "?" if st is None else int(st)
+        name = vals.get("boss_name") if isinstance(vals.get("boss_name"), str) else "?"
+        speed = f"{(d1 - d0) / secs:.1f}" if secs > 0.05 else "?"
+        self.hd.log(tr(f"boss {name} du niveau {st} : WARNING à la distance {int(d0)}, le niveau s'arrête à {int(d1)} {secs:.1f} s "
+                       f"plus tard ({speed} pas par seconde)",
+                       f"boss {name} of stage {st}: WARNING at distance {int(d0)}, the stage stops at {int(d1)} {secs:.1f} s later "
+                       f"({speed} steps a second)"))
 
     def boss_down(self, now, side="p1"):
         """The boss falls: blasts all over it, the screen shakes, its bullets turn into gold stars, a last big blast and a
@@ -1277,19 +1304,25 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         places en bas, le vaisseau choisi, 2P à droite, les crédits au milieu."""
         S, W, H, hd = self.S, self.W, self.H, self.hd
         hd.draw_logo(screen, logo, W / 2, S(8), S(460), S(96), now)
-        self.score_tag(screen, eng, vals, "p1", now)
-        self.hit_counter(screen, vals, "p1", now)
         two = self.p2_in(vals)
+        one = self.p1_in(vals) or not two          # player 1's side, unless only player 2 plays / sauf si seul le joueur 2 joue
+        if one:
+            self.score_tag(screen, eng, vals, "p1", now)
+            self.hit_counter(screen, vals, "p1", now)
+        else:                                      # his game is over (DoDonPachi says it, 1.31) / sa partie est finie
+            word, col = self.invite(vals, now)
+            self.label(screen, word, S(24), S(44), 34, col, align="left")
         if two:
             self.score_tag(screen, eng, vals, "p2", now)
             self.hit_counter(screen, vals, "p2", now)
         else:
             word, col = self.invite(vals, now)
             self.label(screen, word, W - S(24), S(44), 34, col, align="right")
-        w1 = self.bombs_row(screen, vals, "p1", now)
-        name = self.SHIP_NAMES.get(self.ship_kind(vals, "p1")) if vals.get("ship") is not None else None
-        if name:
-            self.label(screen, name, S(30) + (w1 or 0) + S(10), H - S(40), 26, CREAM, key="black", alpha=140)
+        if one:
+            w1 = self.bombs_row(screen, vals, "p1", now)
+            name = self.SHIP_NAMES.get(self.ship_kind(vals, "p1")) if vals.get("ship") is not None else None
+            if name:
+                self.label(screen, name, S(30) + (w1 or 0) + S(10), H - S(40), 26, CREAM, key="black", alpha=140)
         if two:
             self.bombs_row(screen, vals, "p2", now)                     # the credits: GameScene, as in Metal Slug
 

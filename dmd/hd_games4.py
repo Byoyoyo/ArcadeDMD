@@ -18,14 +18,34 @@ from .i18n import tr
 
 
 # ============================================================================ Strikers 1945 Plus
-def s45_plane_draw(kind, body, accent, dark=(26, 24, 22)):
+# Each plane in the colours its sprite has in the game, read on photos of the plane select screen (1.31): its body, its
+# wings and its marks. The XP-55 Ascender, hidden behind the "?", has not been seen yet: bare metal until then.
+# Chaque avion aux couleurs de son sprite dans le jeu, lues sur des photos de l'écran de choix des avions : le corps, les
+# ailes et les marques. L'Ascender, caché derrière le « ? », n'a pas encore été vu : métal nu en attendant.
+S45_PAINT = {
+    1: ((222, 230, 240), (204, 214, 228), (36, 118, 226)),     # P-38 Lightning: white, blue engines / blanc, moteurs bleus
+    2: ((34, 126, 214), (28, 110, 198), (226, 52, 52)),        # F5U: blue, red tail tips / bleu, bouts de queue rouges
+    3: ((48, 104, 192), (44, 168, 78), (236, 240, 236)),       # Spitfire: blue body, green wings / corps bleu, ailes vertes
+    4: ((150, 196, 34), (132, 178, 30), (236, 244, 196)),      # Ta-152: lime green / vert anis
+    5: ((30, 164, 116), (34, 172, 128), (240, 176, 32)),       # Zero: emerald, yellow leading edges / émeraude, bords jaunes
+    6: ((222, 40, 34), (206, 36, 32), (250, 198, 40)),         # Fiat G.56: red, yellow nose / rouge, nez jaune
+    7: ((176, 184, 196), (160, 168, 182), (220, 60, 50)),      # XP-55 Ascender: not seen yet / pas encore vu
+}
+
+
+def s45_plane_draw(kind, body, accent, dark=(26, 24, 22), wing=None):
     """The planes of Strikers 1945 Plus seen from above, nose to the right, drawn after the real ones: 1 P-38 Lightning
     (two booms), 2 F5U (a round wing, two big propellers), 3 Spitfire (elliptic wings), 4 Ta-152 (long wings), 5 Zero,
-    6 Fiat G.56, 7 a canard plane with its propeller at the back. / Les avions vus du dessus, d'après les vrais."""
+    6 Fiat G.56, 7 a canard plane with its propeller at the back. The wings take `wing` (else the body a little darker),
+    the marks take `accent` where the game has them: the engines and wing tips of the P-38, the tail tips of the F5U, the
+    leading edges of the Zero, the nose of the Fiat, a stripe at the wing tips of the others.
+    / Les avions vus du dessus, d'après les vrais. Les ailes prennent `wing`, les marques `accent` là où le jeu les a."""
     def fn(d, W, H):
         line = dark + (255,)
         ow = max(1.0, W * 0.012)
-        b, sh, lt = body + (255,), _mix(body, (0, 0, 0), 0.25) + (255,), _mix(body, WHITE, 0.35) + (255,)
+        wc = wing if wing is not None else _mix(body, (0, 0, 0), 0.25)
+        b, sh, lt = body + (255,), wc + (255,), _mix(body, WHITE, 0.35) + (255,)
+        wlt = _mix(wc, WHITE, 0.35) + (255,)
         acc = accent + (255,)
         prop = (230, 230, 236, 90)
 
@@ -45,7 +65,7 @@ def s45_plane_draw(kind, body, accent, dark=(26, 24, 22)):
                          (x1 - 0.07, 0.5 + w)]), b, line, ow)
             d.polygon(P([(x1 - 0.08, 0.5 - w * 0.5), (x0 + 0.08, 0.5 - w * 0.3), (x0 + 0.08, 0.5 - w * 0.05), (x1 - 0.08, 0.5 - w * 0.1)]), fill=lt)
 
-        def wings(front, back, tip_f, tip_b, span, round_tip=False):
+        def wings(front, back, tip_f, tip_b, span, round_tip=False, marks="tips"):
             for sgn in (1, -1):
                 def m(y):
                     return 0.5 + sgn * (y - 0.5)
@@ -54,9 +74,14 @@ def s45_plane_draw(kind, body, accent, dark=(26, 24, 22)):
                     pts = [(front, m(0.47)), (tip_f, m(0.5 - span + 0.04)), ((tip_f + tip_b) / 2, m(0.5 - span)), (tip_b, m(0.5 - span + 0.04)),
                            (back, m(0.47))]
                 _shape(d, P(pts), sh, line, ow)
-                d.line(P([(front - 0.01, m(0.45)), (tip_f - 0.005, m(0.5 - span + 0.05))]), fill=lt, width=max(1, int(H * 0.012)))
-                d.line(P([((tip_f + tip_b) / 2 - 0.02, m(0.5 - span + 0.07)), ((tip_f + tip_b) / 2 + 0.02, m(0.5 - span + 0.07))]), fill=acc,
-                       width=max(2, int(H * 0.03)))
+                d.line(P([(front - 0.01, m(0.45)), (tip_f - 0.005, m(0.5 - span + 0.05))]), fill=wlt, width=max(1, int(H * 0.012)))
+                if marks == "edge":                    # the leading edge near the body (Zero) / le bord d'attaque près du corps
+                    k_ = 0.45
+                    d.line(P([(front - 0.012, m(0.46)), (front + (tip_f - front) * k_ - 0.012, m(0.46 + (0.5 - span - 0.46) * k_))]),
+                           fill=acc, width=max(2, int(H * 0.035)))
+                elif marks == "tips":
+                    d.line(P([((tip_f + tip_b) / 2 - 0.02, m(0.5 - span + 0.07)), ((tip_f + tip_b) / 2 + 0.02, m(0.5 - span + 0.07))]),
+                           fill=acc, width=max(2, int(H * 0.03)))
 
         def tail(x, span, w=0.08):
             for sgn in (1, -1):
@@ -65,21 +90,26 @@ def s45_plane_draw(kind, body, accent, dark=(26, 24, 22)):
         if k == 1:                                                     # P-38 : deux poutres
             for y in (0.3, 0.7):
                 _shape(d, P([(0.8, y), (0.74, y - 0.05), (0.1, y - 0.03), (0.06, y), (0.1, y + 0.03), (0.74, y + 0.05)]), b, line, ow)
+                _shape(d, P([(0.8, y), (0.74, y - 0.05), (0.64, y - 0.046), (0.64, y + 0.046), (0.74, y + 0.05)]), acc, line, ow)
                 d.line(P([(0.06, y), (0.18, y)]), fill=line, width=max(2, int(H * 0.03)))
                 disc(0.82, y, 0.15)
             _shape(d, P([(0.62, 0.02), (0.5, 0.02), (0.5, 0.98), (0.62, 0.98)]), sh, line, ow)
+            for y0, y1 in ((0.02, 0.08), (0.92, 0.98)):                # blue wing tips / bouts d'ailes bleus
+                _shape(d, P([(0.62, y0), (0.5, y0), (0.5, y1), (0.62, y1)]), acc, line, ow)
             _shape(d, P([(0.16, 0.26), (0.08, 0.26), (0.08, 0.74), (0.16, 0.74)]), sh, line, ow)
             fuselage(0.4, 0.9, 0.06)
             canopy(0.66)
             d.ellipse(P([(0.86, 0.48), (0.9, 0.52)])[0] + P([(0.86, 0.48), (0.9, 0.52)])[1], fill=(200, 230, 255, 255))
         elif k == 2:                                                   # F5U : aile ronde, deux grosses hélices
+            _shape(d, P([(0.22, 0.3), (0.06, 0.3), (0.06, 0.7), (0.22, 0.7)]), sh, line, ow)       # its tail / sa queue
+            for y0, y1 in ((0.3, 0.37), (0.63, 0.7)):                  # red tips, as in the game / bouts rouges
+                _shape(d, P([(0.2, y0), (0.06, y0), (0.06, y1), (0.2, y1)]), acc, line, ow)
             d.ellipse(P([(0.22, 0.12), (0.84, 0.88)])[0] + P([(0.22, 0.12), (0.84, 0.88)])[1], fill=b, outline=line, width=int(ow))
             d.chord(P([(0.26, 0.16), (0.8, 0.84)])[0] + P([(0.26, 0.16), (0.8, 0.84)])[1], 200, 320, fill=lt)
             for y in (0.26, 0.74):
                 disc(0.84, y, 0.22)
             for y in (0.42, 0.58):
                 d.line(P([(0.08, y), (0.26, y)]), fill=line, width=max(2, int(H * 0.03)))
-            _shape(d, P([(0.24, 0.44), (0.06, 0.44), (0.06, 0.56), (0.24, 0.56)]), sh, line, ow)
             canopy(0.6, 0.1)
         elif k == 7:                                                   # canard, hélice à l'arrière
             for sgn in (1, -1):
@@ -100,15 +130,18 @@ def s45_plane_draw(kind, body, accent, dark=(26, 24, 22)):
                 wings(0.58, 0.48, 0.55, 0.5, span)
                 tail(0.04, 0.16)
             elif k == 5:
-                wings(0.6, 0.44, 0.56, 0.5, span, round_tip=True)
+                wings(0.6, 0.44, 0.56, 0.5, span, round_tip=True, marks="edge")
                 tail(0.06, 0.17)
             else:
-                wings(0.6, 0.44, 0.55, 0.49, span)
+                wings(0.6, 0.44, 0.55, 0.49, span, marks="")
                 tail(0.06, 0.16)
                 d.rectangle(P([(0.42, 0.535), (0.56, 0.56)])[0] + P([(0.42, 0.535), (0.56, 0.56)])[1], fill=(50, 50, 50, 255))
-            fuselage(0.04 if k == 4 else 0.06, 0.97 if k == 4 else 0.93, 0.065)
+            x1 = 0.97 if k == 4 else 0.93
+            fuselage(0.04 if k == 4 else 0.06, x1, 0.065)
+            if k == 6:                                                 # the yellow nose of the Fiat / le nez jaune du Fiat
+                _shape(d, P([(x1, 0.5), (x1 - 0.07, 0.435), (x1 - 0.14, 0.437), (x1 - 0.14, 0.563), (x1 - 0.07, 0.565)]), acc, line, ow)
             canopy(0.56 if k != 4 else 0.52)
-            disc(0.97 if k == 4 else 0.93, 0.5, 0.2)
+            disc(x1, 0.5, 0.2)
     return fn
 
 
@@ -169,15 +202,17 @@ class StrikersScene(AeroFightersScene):
     """Strikers 1945 Plus as in the game: the plane chosen by the player over war-torn ground, its shots, the super shot,
     the bomb that brings a formation of bombers. On the sides, the game's panels: the score, the lives, the bombs and
     the SUPER SHOT box, where the bar fills as the game's own does and the number gives the super shots in stock
-    (1.31). / Comme dans le jeu : l'avion choisi au-dessus d'un sol ravagé, les panneaux sur les côtés. La barre du
-    super tir se remplit comme celle du jeu, le nombre donne les super tirs en réserve."""
+    (1.31). Each plane has the colours of its sprite in the game, for both players, and when both fly the same plane a
+    small 1P or 2P tab tells them apart (1.31). / Comme dans le jeu : l'avion choisi au-dessus d'un sol ravagé, les
+    panneaux sur les côtés. La barre du super tir se remplit comme celle du jeu, le nombre donne les super tirs en réserve.
+    Chaque avion a les couleurs de son sprite dans le jeu, pour les deux joueurs, et quand les deux volent sur le même
+    avion un petit onglet 1P ou 2P les distingue."""
     THEME = "s45_ground"
     SHADE = (60, 60)
     PROP = True
     ACC = {"p1": (250, 220, 120), "p2": (250, 250, 250)}
     BODY = {"p1": (170, 62, 50), "p2": (60, 104, 190)}
-    PAINT = {1: (176, 182, 192), 2: (62, 84, 136), 3: (118, 128, 96), 4: (136, 142, 148), 5: (186, 186, 166), 6: (184, 164, 120),
-             7: (170, 178, 190)}                      # each plane in its real colours / chaque avion dans ses vraies couleurs
+    TAB = {"p1": (40, 100, 210), "p2": (200, 50, 40)}  # the 1P and 2P tabs / les onglets 1P et 2P
     SHOT = {"p1": (255, 236, 130), "p2": (170, 226, 255)}
     SHOT_SIZE = ((6, 64), (9, 90))
     BOMB = ((200, 60, 50), (200, 160, 90))
@@ -205,8 +240,33 @@ class StrikersScene(AeroFightersScene):
         return int(v) if v is not None and 1 <= v <= 7 else 1
 
     def plane_fn(self, side, kind):
-        body = self.PAINT.get(kind, self.BODY[side])
-        return s45_plane_draw(kind, body if side == "p1" else _mix(body, (60, 104, 190), 0.35), self.ACC[side] if side == "p1" else (255, 120, 60))
+        """The plane in the colours of its sprite in the game, the same for both players: who picks the red Fiat flies a
+        red Fiat here too (1.31). / L'avion aux couleurs de son sprite dans le jeu, les mêmes pour les deux joueurs."""
+        body, wing, marks = S45_PAINT.get(kind, S45_PAINT[1])
+        return s45_plane_draw(kind, body, marks, wing=wing)
+
+    def life_icon(self, side, vals):
+        """The plane left in the panel, in its own colours (not lightened as in Aero Fighters, where all are white).
+        / L'avion des vies dans le panneau, dans ses couleurs (pas éclairci comme dans Aero Fighters)."""
+        kind = self.kind(vals, side)
+        key = ("s45life", kind)
+        icon = self.imgs.get(key)
+        if icon is None:
+            icon = self.imgs[key] = self.hd._surf(draw_img(self.S(40), self.S(36), self.plane_fn(side, kind)))
+        return icon
+
+    def plane_tags(self, screen, vals, planes, now):
+        """Both players on the same plane: a small 1P or 2P tab over each, as the cursor of the game's select screen.
+        / Les deux joueurs sur le même avion : un petit onglet 1P ou 2P au-dessus de chacun, comme le curseur du jeu."""
+        if not (self.p1_in(vals) and self.p2_in(vals)) or self.kind(vals, "p1") != self.kind(vals, "p2"):
+            return
+        S = self.S
+        for side, kind, x, y in planes:
+            w, h = S(60), S(30)
+            bx, by = x - w / 2, max(S(4), y - S(92) - h)
+            self.box(screen, bx, by, w, h, _mix(self.TAB[side], WHITE, 0.45), fill=self.TAB[side] + (235,), radius=6)
+            self.text(screen, "1P" if side == "p1" else "2P", x, by + h / 2, 24, (255, 214, 60), key="black", align="center",
+                      valign="middle", glow=0)
 
     def plane_surf(self, side, kind, shadow=False):
         """The planes a little bigger than in Aero Fighters, as in the game. / Les avions un peu plus grands."""
