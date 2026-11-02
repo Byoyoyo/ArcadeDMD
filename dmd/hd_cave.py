@@ -1387,19 +1387,20 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         near, far = (x0 + PW - pad, x0 + pad) if right else (x0 + pad, x0 + PW - pad)
         an, af = ("right", "left") if right else ("left", "right")
         sgn = -1 if right else 1
-        self.text(screen, self.TAGS[1 if right else 0], near, S(12), 34, col, align=an)
+        # the lines spread evenly in the panel, 1P close to its score (Seb, 1.31 test 11) / les lignes réparties dans le panneau
+        self.text(screen, self.TAGS[1 if right else 0], near, S(34), 34, col, align=an)
         if vals.get("ship" + suf) is not None:
             name = self.SHIP_NAMES.get(self.ship_kind(vals, side))
             if name:
-                self.text(screen, name, far, S(22), 30, CREAM, align=af, glow=0.2)
+                self.text(screen, name, far, S(37), 30, CREAM, align=af, glow=0.2)
         sc = _n(vals.get("score" + suf))
         if sc is not None:                                            # the score, as big as it fits / aussi grand que possible
             size = S(104)
             w = hd.text(str(int(sc)), "black", size, WHITE)["w"]
             if w > PW - 2 * pad:
                 size = int(size * (PW - 2 * pad) / w)
-            hd._score(screen, eng, "score" + suf, near, S(56), an, size)
-        y = S(196)
+            hd._score(screen, eng, "score" + suf, near, S(66), an, size)
+        y = S(197)
         lives = _n(vals.get("lives" + suf))
         if lives is not None and lives > 0:
             kind = self.ship_kind(vals, side)
@@ -1426,7 +1427,7 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
             self.text(screen, word, lx, y, 30 if top else 24, GOLD if top else CREAM, key="black" if top else "bold",
                       align="right" if not right else "left", valign="middle", glow=0.3 if top else 0)
         hits, gauge = _n(vals.get("hits" + suf)), _n(vals.get("combo" + suf))
-        y = S(282)
+        y = S(283)
         if hits is not None:
             k = max(0.0, 1 - (now - self.hitpop[side]) / 0.25)
             num = hd.text(str(int(hits)), "stencil", S(86), (255, 230, 90), 0.7)
@@ -1441,19 +1442,20 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
             gw = PW - 2 * pad
             gx = near - gw if right else near
             frac = _clamp(gauge / 100.0)
-            pg.draw.rect(screen, (30, 20, 16), (int(gx), int(y + S(44)), gw, S(16)), border_radius=S(8))
+            gy = y + S(41)
+            pg.draw.rect(screen, (30, 20, 16), (int(gx), int(gy), gw, S(16)), border_radius=S(8))
             if frac > 0:
                 fw = max(S(16), int(gw * frac))
-                pg.draw.rect(screen, (255, int(120 + 110 * frac), 40), (int(gx + gw - fw if right else gx), int(y + S(44)), fw, S(16)),
+                pg.draw.rect(screen, (255, int(120 + 110 * frac), 40), (int(gx + gw - fw if right else gx), int(gy), fw, S(16)),
                              border_radius=S(8))
-            pg.draw.rect(screen, (150, 110, 60), (int(gx), int(y + S(44)), gw, S(16)), max(1, S(2)), border_radius=S(8))
+            pg.draw.rect(screen, (150, 110, 60), (int(gx), int(gy), gw, S(16)), max(1, S(2)), border_radius=S(8))
         n, slots = _n(vals.get("bombs" + suf)), _n(vals.get("bombs_max" + suf))
         if n is not None:
             n = max(0, int(n))
             total = min(8, max(n, int(slots)) if slots is not None else n)
             full = self.img(("capsulebig", True), S(40), S(58), capsule_draw(self.BOMB_COLOR, True))
             empty = self.img(("capsulebig", False), S(40), S(58), capsule_draw(self.BOMB_COLOR, False))
-            step, y = S(50), H - S(54)
+            step, y = S(50), H - S(64)
             for i in range(total):
                 x = near + sgn * i * step - (S(40) if right else 0)
                 screen.blit(full if i < n else empty, (int(x), int(y - S(29))))
