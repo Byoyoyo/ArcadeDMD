@@ -187,16 +187,16 @@
         "note": "routine the stage runs, an address in the World program: 0x6DA98 while the WARNING of a boss shows, 0x6DB82 while the carrier drops the ship at the start of stage 1, others while the stage scrolls and during the boss fights (captures taken on the cabinet: the WARNING of the first three bosses, 0x6DA98 each time and never in the 23 other captures)"
       },
       "_boss_hp": {
-        "addr": "0x10019A",
-        "type": "be",
-        "bytes": 2,
-        "note": "life of the boss of stages 1 to 5 and 7 once it is entirely on the screen (FBNeo cheat database and MAME's, Kill Boss with 1 hit Now!: FinalBurn Neo writes 0 at 0x10019A, MAME 0 at the 32-bit 0x100198), to confirm in game"
+        "addr": "0x100198",
+        "type": "s32",
+        "bytes": 4,
+        "note": "life of the boss of stages 1 to 5 and 7, a signed 32-bit number, learned on the cabinet with learn.bat (1.31: 12 captures of the fight against the boss of stage 1, 0 before it comes, 86016 once it is entirely on the screen, 81294, 50216, 42006, 33910, 23894, 12940, 8772, 850, 369 just before it blows up, -33 after). Where the cheat Kill Boss with 1 hit Now! writes (MAME 0 at the 32-bit 0x100198, FinalBurn Neo 0 at 0x10019A); the word at 0x10019A alone jumped when the life went under 65536"
       },
       "_boss_hp_b": {
-        "addr": "0x10015A",
-        "type": "be",
-        "bytes": 2,
-        "note": "life of the boss of stage 6 and of the second boss of stage 7, 0x40 before (MAME cheat database, Kill Boss with 1 hit Now!: 0 at the 32-bit 0x100158 from the stage read 5), to confirm in game"
+        "addr": "0x100158",
+        "type": "s32",
+        "bytes": 4,
+        "note": "life of the boss of stage 6 and of the second boss of stage 7, a signed 32-bit number 0x40 before (MAME cheat database, Kill Boss with 1 hit Now!: 0 at the 32-bit 0x100158 from the stage read 5), to confirm in game"
       }
     }
   },

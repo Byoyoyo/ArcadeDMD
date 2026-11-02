@@ -195,12 +195,15 @@ def hand(fam):
                                        "bosses, 0x6DA98 each time and never in the 23 other captures)", "be", 4),
             # the life of the boss on the screen, where the cheat that kills it in one hit writes (derived boss_hp)
             # la vie du boss à l'écran, là où écrit le code qui le tue d'un coup
-            "_boss_hp": v(0x10019A, f"life of the boss of stages 1 to 5 and 7 once it is entirely on the screen ({SRC} and MAME's, "
-                                    "Kill Boss with 1 hit Now!: FinalBurn Neo writes 0 at 0x10019A, MAME 0 at the 32-bit 0x100198), "
-                                    "to confirm in game", "be", 2),
-            "_boss_hp_b": v(0x10015A, "life of the boss of stage 6 and of the second boss of stage 7, 0x40 before (MAME cheat "
-                                      "database, Kill Boss with 1 hit Now!: 0 at the 32-bit 0x100158 from the stage read 5), to "
-                                      "confirm in game", "be", 2)},
+            "_boss_hp": v(0x100198, "life of the boss of stages 1 to 5 and 7, a signed 32-bit number, learned on the cabinet with "
+                                    "learn.bat (1.31: 12 captures of the fight against the boss of stage 1, 0 before it comes, 86016 "
+                                    "once it is entirely on the screen, 81294, 50216, 42006, 33910, 23894, 12940, 8772, 850, 369 just "
+                                    "before it blows up, -33 after). Where the cheat Kill Boss with 1 hit Now! writes (MAME 0 at the "
+                                    "32-bit 0x100198, FinalBurn Neo 0 at 0x10019A); the word at 0x10019A alone jumped when the "
+                                    "life went under 65536", "s32", 4),
+            "_boss_hp_b": v(0x100158, "life of the boss of stage 6 and of the second boss of stage 7, a signed 32-bit number 0x40 "
+                                      "before (MAME cheat database, Kill Boss with 1 hit Now!: 0 at the 32-bit 0x100158 from the "
+                                      "stage read 5), to confirm in game", "s32", 4)},
         "donpachi": {
             "bombs": v(0x10217B, f"bombs of player 1 ({SRC}, Infinite Bombs PL1)"),
             "bombs_p2": v(0x1021BB, f"bombs of player 2 ({SRC}, Infinite Bombs PL2)"),

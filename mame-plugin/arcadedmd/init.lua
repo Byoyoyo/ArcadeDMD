@@ -354,6 +354,8 @@ local function make_reader(space, def)
 		raw = function(a) local v = space:read_u8(a) if v >= 0x80 then v = v - 0x100 end return v end
 	elseif t == "s16" then
 		raw = function(a) local v = space:read_u16(a) if v >= 0x8000 then v = v - 0x10000 end return v end
+	elseif t == "s32" then  -- a signed 32-bit number (DoDonPachi's boss life) / un nombre signé de 32 bits
+		raw = function(a) local v = space:read_u32(a) if v >= 0x80000000 then v = v - 0x100000000 end return v end
 	elseif t == "be" or t == "le" then
 		raw = function(a)
 			local v = 0

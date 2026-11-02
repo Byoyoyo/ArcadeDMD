@@ -6,7 +6,8 @@ Décodage des valeurs RAM (score, vies...) à partir d'octets, comme le plugin M
 Les définitions sont celles de games/*.json, rubrique memory.values :
   {"addr": "0x100377", "type": "u8"}
   {"addr": "0xFFFE26", "type": "be", "bytes": 4, "mult": 10}
-Types : u8, u16, u32, s8, s16, be, le, bcd, bcd_le, digits, digits_le.
+Types : u8, u16, u32, s8, s16, s32, be, le, bcd, bcd_le, digits, digits_le (s32 : un nombre signé de 32 bits, la vie du boss de
+DoDonPachi qui passe sous zéro quand il tombe / a signed 32-bit number, DoDonPachi's boss life going below zero as it falls).
 "zero_from": a raw value from which the value reads its "min" (a health bar gone below zero, 0xFF in a byte).
 "valid": [lo, hi], the values the game can really have: another one is not read (RAM not set yet while the game boots,
 Metal Slug's mission 183 before mission 1), the value keeps the last one read. / les valeurs possibles, une autre n'est pas lue.
@@ -87,10 +88,12 @@ def decode(d, getb, big_endian=True):
     raw = [getb(addr + i) for i in range(n)]
     if any(b is None for b in raw):
         return None
-    if t in ("u16", "u32", "s16"):
+    if t in ("u16", "u32", "s16", "s32"):
         v = int.from_bytes(bytes(raw), "big" if big_endian else "little")
         if t == "s16" and v >= 0x8000:
             v -= 0x10000
+        elif t == "s32" and v >= 0x80000000:
+            v -= 0x100000000
     elif t == "u8":
         v = raw[0]
     elif t == "s8":
