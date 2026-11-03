@@ -20,6 +20,10 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - When no desperation move can come out, the panel shows the inputs pressed, as training mode does. Each direction the stick takes and the buttons pressed with it, the newest on the right and lit, the older ones fading, all gone 3 s after the last one. The commands of the desperation moves take their place as soon as one can come out.
 - In Extra, the gauge full is MAX until its bar is empty or a desperation move takes it at once. The commands showed only while the gauge was exactly full, and went away as soon as the bar of MAX began to drain. DM ! (SDM ! with the health in the red) when the gauge falls at once. The gauge full, empty, or taken at once go to the log.
 
+**When a super can come out in Extra** (test 4, Seb never plays Extra)
+- The badge says why a desperation move can come out. MAX in gold, VIE ROUGE in red when the life is nearly empty (a quarter of the bar, to confirm in game, the game raises it for a team that lost a fighter), MAX + VIE ROUGE for an SDM. The panel's edge takes the same colour.
+- While none can come out in Extra, the bar is longer, with how full it is (62 %) and the rule beside it, SUPER À 100 %.
+
 **Read at every frame**
 - A value marked `"fast"` is read at every frame, the stick and buttons here. The MAME plugin reads it at each frame. The RetroArch reader asks for it at each frame between its other reads, and asks for all those at once (RetroArch answers them at the same frame, one block of memory at a time took a frame each). Each change of the stick and buttons keeps the time it was read.
 - When RetroArch closes during a game whose stick is read, the HD screen leaves the game as fast as before (test 2). The values asked together were asked again one by one when no answer came, 3 s or more each time.
@@ -41,6 +45,10 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 **Les touches appuyées, et le MAX d'Extra** (test 3, les premiers combats de Seb)
 - Quand aucun coup désespéré ne peut sortir, le panneau montre les touches appuyées, comme le mode entraînement. Chaque direction du stick et les boutons appuyés avec, la plus récente à droite et éclairée, les plus anciennes plus pâles, le tout parti 3 s après la dernière. Les commandes des coups désespérés prennent leur place dès que l'un d'eux peut sortir.
 - En Extra, la jauge pleine est le MAX jusqu'à ce que sa barre soit vide ou qu'un coup désespéré la prenne d'un coup. Les commandes ne s'affichaient que tant que la jauge était pile pleine, et partaient dès que la barre du MAX commençait à se vider. DM ! (SDM ! avec la vie dans le rouge) quand la jauge tombe d'un coup. La jauge pleine, vide, ou prise d'un coup vont dans le journal.
+
+**Quand un super peut sortir en Extra** (test 4, Seb ne joue jamais en Extra)
+- La pastille dit pourquoi un coup désespéré peut sortir. MAX en doré, VIE ROUGE en rouge quand la vie est presque vide (un quart de la barre, à confirmer en jeu, le jeu le monte pour une équipe qui a perdu un combattant), MAX + VIE ROUGE pour un SDM. Le bord du panneau prend la même couleur.
+- Tant qu'aucun ne peut sortir en Extra, la barre est plus longue, avec son remplissage (62 %) et la règle à côté, SUPER À 100 %.
 
 **Lu à chaque image**
 - Une valeur marquée `"fast"` est lue à chaque image, ici le stick et les boutons. Le plugin MAME la lit à chaque image. La lecture RetroArch la demande à chaque image entre ses autres lectures, et demande alors toutes celles-ci d'un coup (RetroArch y répond à la même image, un bloc de mémoire à la fois prenait une image chacun). Chaque changement du stick et des boutons garde le moment où il a été lu.
