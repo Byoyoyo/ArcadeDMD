@@ -49,7 +49,8 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "player 1 health in %, full = 96 (FinalBurn Neo cheats, Infinite Energy PL1)"
+    "zero_from": "0xB0",
+    "note": "player 1 health in %, full = 96 (FinalBurn Neo cheats, Infinite Energy PL1); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xB0 it reads empty (K.O. audit)"
    },
    "health_p2": {
     "addr": "0x102D13",
@@ -57,7 +58,8 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "player 2 health in %, full = 96 (FinalBurn Neo cheats, Infinite Energy PL2)"
+    "zero_from": "0xB0",
+    "note": "player 2 health in %, full = 96 (FinalBurn Neo cheats, Infinite Energy PL2); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xB0 it reads empty (K.O. audit)"
    },
    "magic": {
     "addr": "0x1083E3",

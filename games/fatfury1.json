@@ -65,15 +65,26 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "player 1 health in %, full = 0x60"
+    "zero_from": "0xB0",
+    "note": "player 1 health in %, full = 0x60; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xB0 it reads empty (K.O. audit)"
    },
-   "health_p2": {
+   "_p2_hp": {
     "addr": "0x1004B8",
     "type": "u8",
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "player 2 health in %, full = 0x60"
+    "zero_from": "0xB0",
+    "note": "player 2's own health, a human playing against player 1 in %, full = 0x60; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xB0 it reads empty (K.O. audit)"
+   },
+   "_cpu_hp": {
+    "addr": "0x1005B8",
+    "type": "u8",
+    "mult": 1.041667,
+    "min": 0,
+    "max": 100,
+    "zero_from": "0xB0",
+    "note": "health of the computer's fighter, a block of its own (FBNeo and MAME cheats, Infinite Energy CPU; RetroAchievements code notes, P2 Health 60 max) in %, the same scale as the players'; when player 2 does not play (1.31.1, K.O. audit: the right bar never moved against the computer)"
    },
    "time": {
     "addr": "0x1042F3",
@@ -103,6 +114,22 @@
     "type": "u8",
     "note": "player 2 or computer character"
    }
+  }
+ },
+ "tag": {
+  "health_p2": {
+   "first": [
+    {
+     "pick": [
+      "_cpu_hp",
+      "_p2_hp",
+      "_p2_hp",
+      "_cpu_hp"
+     ],
+     "at": "p2_mode"
+    },
+    "_cpu_hp"
+   ]
   }
  },
  "derived": {

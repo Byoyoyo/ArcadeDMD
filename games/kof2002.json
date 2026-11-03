@@ -109,7 +109,30 @@
     "addr": "0x10A79A",
     "type": "u8",
     "note": "backdrop of the fight (cheat database \"Select Backdrop\"): 0 Japan, 1 Korea, 2 China, 3 Holland, 4 Cambodia, 5 Mexico, 6 Italy, 7 Rugal, 8 NESTS. Picks the HD theme in \"hd\": \"stages\""
+   },
+   "_screen": {
+    "addr": "0x10858A",
+    "type": "u8",
+    "note": "the screen the game shows (RetroAchievements code notes, 0x858b Game - Screen ID? [8 bits], 0x23 = Select Character 1, 0x2f = Select Character 2); its select screens give VS and no event of a fight (1.31.1, K.O. audit), to confirm in game"
    }
+  }
+ },
+ "derived": {
+  "select": {
+   "sum": [
+    {
+     "eq": [
+      "_screen",
+      35
+     ]
+    },
+    {
+     "eq": [
+      "_screen",
+      47
+     ]
+    }
+   ]
   }
  },
  "demo": {

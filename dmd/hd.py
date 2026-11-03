@@ -702,6 +702,8 @@ class HDRenderer:
             ko = False                    # K.O. shows on the loser's side, the timer stopped here / K.O. du côté du perdant
         if t is not None and self.fight is not None and not self.fight.time_live(now):
             t = None                      # frozen, the last fight's (select screen): VS / figé, celui du combat d'avant
+        if _num(vals.get("select")) == 1:  # a select screen the game says (1.31.1): VS / un écran de sélection que dit le jeu
+            t, ko = None, False
         if ko:
             ks = self.fight.ko_scale(now) if self.fight is not None else 1.0
             self.put(screen, self.text("KO", "black", S(120), (255, 48, 32)), cx, S(220), "center", "middle", scale=ks)

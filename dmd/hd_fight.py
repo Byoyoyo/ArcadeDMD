@@ -93,6 +93,8 @@ class FightFX:
         self.danger_imgs = {}
         self.bands = {}
         self.idle = False
+        self.select = False                                           # a select screen the game says / écran de sélection
+        self.idle_attract = False                                     # nobody plays (the attract screen) / personne ne joue
         self.rays = None
         self._rays()                                                  # préparés d'avance : pas d'à-coup au premier super
         self.warm = self._warm_list()
@@ -225,11 +227,19 @@ class FightFX:
             self.bd.set_theme(stages[stable_index(key, len(stages))], now, wipe=0)
             self.bd.prebuild(stages)                                  # les autres stages se préparent en arrière-plan
         self.fx.update(now)
+        # a select screen the game says (King of Fighters, Real Bout Special: "select", 1.31.1): no fight there, its values
+        # are only followed as on the attract screen / un écran de sélection que dit le jeu : pas de combat, valeurs suivies
+        select = _n(vals.get("select")) == 1
         if self.idle and not idle:
             self.live_t = now                                         # START pressed: the game clears its fighters
-        self.idle = idle
-        if idle:
-            self._idle(vals, stages)
+            if self.select and not select and not self.idle_attract:  # out of the select screen: the fight begins
+                h1, h2 = _n(vals.get("health")), _n(vals.get("health_p2"))
+                if (h1 or 0) > 0 and (h2 or 0) > 0:
+                    self.round_v = _n(vals.get("round"))
+                    self._fight(now)
+        self.idle, self.select, self.idle_attract = idle or select, select, idle
+        if idle or select:
+            self._idle(vals, stages, game)
             return
         p1m, p2m = vals.get("p1_mode"), vals.get("p2_mode")
         self.humans = {"p1": p1m in (1, 2) or p1m is None, "p2": p2m in (1, 2)}
@@ -339,7 +349,7 @@ class FightFX:
             self.win[3] = True
         self.prev["p1"], self.prev["p2"] = h1, h2
 
-    def _idle(self, vals, stages):
+    def _idle(self, vals, stages, game=None):
         """Attract screen: the values are only followed (backdrop of the demo's stage, last health, names),
         so that nothing goes off when the game starts."""
         stage, back = _n(vals.get("stage")), _n(vals.get("backdrop"))
@@ -351,6 +361,8 @@ class FightFX:
             else:
                 self.bd.set_theme(theme, self.fx.now)                   # the demo changes stage: wipe, no banner
             self.stage_v = (stage, back)
+            if _n(vals.get("round")) is not None and stage is None:   # the next match chosen on the select screen: its place
+                self.place_next = self.place(game, pick, theme)
         self.stage_label = None
         self.banner = None
         self.win = None

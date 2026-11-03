@@ -3,6 +3,42 @@
 Newest version first. Each version is in English, then in French.
 La version la plus récente en premier. Chaque version est en anglais, puis en français.
 
+## 1.31.1
+
+### English
+
+**The K.O. of the fighting games**
+
+An audit of every game file with a health bar, 115 games, after The King of Fighters '98 showed no K.O. on Seb's cabinet. RetroAchievements' code notes (downloaded with `tools/ra_notes.py`) and the cheat databases of FinalBurn Neo and MAME were read game by game. Everything below is still to be confirmed in game.
+- A health bar that goes below zero at a K.O. reads empty, not full. In many SNK games the health is a word that a K.O. takes below zero, its byte read 0xFF (the notes say ff = K.O. in Real Bout Fatal Fury 2, SNK vs. Capcom, World Heroes Perfect and 2 Jet, 0xFB in King of the Monsters), which reads far above full and showed a full bar, so no K.O., no WIN and no round was ever seen. 40 Neo Geo fighting games get the rule the Capcom games already had (`"zero_from"`, halfway between full and the top of the byte or word): Art of Fighting 1 to 3, Aggressors of Dark Kombat, Breakers and Breakers Revenge, Fatal Fury 1 to 3 and Special, Fight Fever, Garou, Voltage Fighter Gowcaizer, Kabuki Klash, Kizuna Encounter, King of Fighters '94 and '95, King of the Monsters 1 and 2, The Last Blade 1 and 2, Legend of Success Joe, Matrimelee, Ninja Master's, Real Bout Fatal Fury 1, 2 and Special, Samurai Shodown 1 to 5 and 5 Special, Sengoku 3, SNK vs. Capcom, World Heroes 1, 2, 2 Jet and Perfect. The shared scene of the Neo Geo fighting games keeps the same values for their sets.
+- Rage of the Dragons and Ragnagard read their health as a signed 16-bit word, below zero is empty there (their notes and cheats write it as a word).
+- Six games are left as they are, their full health being 0xFF or a counter of the damage (Galaxy Fight, Karnov's Revenge, Waku Waku 7, Double Dragon, and the Capcom wrestling games whose cheat fills the bar with 0xFF).
+- The computer's health where the game keeps it. Fatal Fury, King of the Monsters and Legend of Success Joe keep the computer's fighter in a block of its own, player 2's block only moves when a human plays there. Against the computer the right bar never moved. It now shows the computer's (`_cpu_hp`), player 2's when he plays (a `"tag"` on `p2_mode`).
+- Rounds won read in 13 more games, gold stars under the bars and the winner of each round: Samurai Shodown III, IV, V and V Special, SNK vs. Capcom, Garou, Real Bout Fatal Fury 1, 2 and Special, Art of Fighting 1 and 2, Kabuki Klash.
+- The round of the match, ROUND n in big letters when a fight begins as in The King of Fighters: Fatal Fury 2 and Special, Real Bout Fatal Fury Special, World Heroes 2 Jet and Perfect (`round`, from 1 in these games, `"add": -1`).
+- The select screens the game tells (The King of Fighters '94, '96, '98, '99 and 2002, Real Bout Fatal Fury Special, a value `select`). There the HD screen shows VS and no event of a fight, the bars the game fills or empties for the next match give neither K.O. nor ROUND, and the fight begins with its ROUND as the screen ends. The panels show VS too.
+- RetroAchievements' notes number the bytes of the Neo Geo's RAM in the other order of each pair, the 68000's byte is the next one (0x8238 in the notes is 0x108239). Every value taken from them follows that rule, checked on the King of Fighters' values learned on a cabinet.
+
+**Version**
+- 1.31.1 in `dmd/app.py` and the MAME plugin.
+
+### Français
+
+**Le K.O. des jeux de combat**
+
+Un audit de chaque fichier de jeu qui a une barre de vie, 115 jeux, après que The King of Fighters '98 n'a montré aucun K.O. sur la borne de Seb. Les notes de code de RetroAchievements (téléchargées avec `tools/ra_notes.py`) et les bases de triche de FinalBurn Neo et de MAME ont été lues jeu par jeu. Tout ce qui suit reste à confirmer en jeu.
+- Une barre de vie qui passe sous zéro au K.O. se lit vide, et plus pleine. Dans beaucoup de jeux SNK la vie est un mot qu'un K.O. fait passer sous zéro, son octet lu 0xFF (les notes disent ff = K.O. dans Real Bout Fatal Fury 2, SNK vs. Capcom, World Heroes Perfect et 2 Jet, 0xFB dans King of the Monsters), ce qui se lit bien au-dessus du plein et affichait une barre pleine, si bien qu'aucun K.O., aucun WIN et aucun round n'était vu. 40 jeux de combat Neo Geo prennent la règle qu'avaient déjà les jeux Capcom (`"zero_from"`, à mi-chemin entre le plein et le haut de l'octet ou du mot), Art of Fighting 1 à 3, Aggressors of Dark Kombat, Breakers et Breakers Revenge, Fatal Fury 1 à 3 et Special, Fight Fever, Garou, Voltage Fighter Gowcaizer, Kabuki Klash, Kizuna Encounter, King of Fighters '94 et '95, King of the Monsters 1 et 2, The Last Blade 1 et 2, Legend of Success Joe, Matrimelee, Ninja Master's, Real Bout Fatal Fury 1, 2 et Special, Samurai Shodown 1 à 5 et 5 Special, Sengoku 3, SNK vs. Capcom, World Heroes 1, 2, 2 Jet et Perfect. La scène commune des jeux de combat Neo Geo garde les mêmes valeurs pour leurs sets.
+- Rage of the Dragons et Ragnagard lisent leur vie en mot signé de 16 bits, sous zéro c'est vide (leurs notes et leurs codes l'écrivent en mot).
+- Six jeux restent tels quels, leur vie pleine valant 0xFF ou comptant les dégâts (Galaxy Fight, Karnov's Revenge, Waku Waku 7, Double Dragon, et les jeux de catch Capcom dont le code remplit la barre avec 0xFF).
+- La vie de l'ordinateur là où le jeu la garde. Fatal Fury, King of the Monsters et Legend of Success Joe gardent le combattant de l'ordinateur dans un bloc à lui, celui du joueur 2 ne bouge que quand un humain y joue. Contre l'ordinateur, la barre de droite ne bougeait jamais. Elle montre maintenant celle de l'ordinateur (`_cpu_hp`), et celle du joueur 2 quand il joue (un `"tag"` sur `p2_mode`).
+- Les rounds gagnés lus dans 13 jeux de plus, étoiles dorées sous les barres et vainqueur de chaque round, Samurai Shodown III, IV, V et V Special, SNK vs. Capcom, Garou, Real Bout Fatal Fury 1, 2 et Special, Art of Fighting 1 et 2, Kabuki Klash.
+- Le round du match, ROUND n en grand quand un combat commence comme dans The King of Fighters, Fatal Fury 2 et Special, Real Bout Fatal Fury Special, World Heroes 2 Jet et Perfect (`round`, à partir de 1 dans ces jeux, `"add": -1`).
+- Les écrans de sélection que dit le jeu (The King of Fighters '94, '96, '98, '99 et 2002, Real Bout Fatal Fury Special, une valeur `select`). L'écran HD y affiche VS et aucun événement de combat, les barres que le jeu remplit ou vide pour le match suivant ne donnent ni K.O. ni ROUND, et le combat commence avec son ROUND quand l'écran se termine. Les dalles affichent VS aussi.
+- Les notes de RetroAchievements numérotent les octets de la RAM de la Neo Geo dans l'autre ordre de chaque paire, l'octet du 68000 est le voisin (0x8238 dans les notes, c'est 0x108239). Chaque valeur qui en vient suit cette règle, vérifiée sur les valeurs des King of Fighters apprises sur une borne.
+
+**Version**
+- 1.31.1 dans `dmd/app.py` et le plugin MAME.
+
 ## 1.31.0
 
 ### English

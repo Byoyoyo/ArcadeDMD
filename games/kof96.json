@@ -204,6 +204,11 @@
     "round": 1,
     "min": 0,
     "max": 100
+   },
+   "_screen": {
+    "addr": "0x108502",
+    "type": "u16",
+    "note": "the screen the game shows (RetroAchievements code notes, 0x8502 Screen ID (16bit)?, bb7e = Character select, f2e6 = Fighting); its select screens give VS and no event of a fight (1.31.1, K.O. audit), to confirm in game"
    }
   }
  },
@@ -299,6 +304,12 @@
     "27": "CHIZURU",
     "28": "GOENITZ"
    }
+  },
+  "select": {
+   "eq": [
+    "_screen",
+    47998
+   ]
   }
  },
  "demo": {

@@ -204,6 +204,11 @@
     "addr": "0x10A7AE",
     "type": "u8",
     "note": "backdrop of the fight (cheat database \"Select Backdrop\"): 0 Park, 1 Alley, 2 Airport, 3 Museum, 4 Sewage System, 5 Temple. Picks the HD theme in \"hd\": \"stages\""
+   },
+   "_screen": {
+    "addr": "0x108502",
+    "type": "u16",
+    "note": "the screen the game shows (RetroAchievements code notes, 0x8502 Game - Program State [16 bits], 2cf0 = Character selection screen, 65da = Order select, 9486 = Fighting); its select screens give VS and no event of a fight (1.31.1, K.O. audit), to confirm in game"
    }
   }
  },
@@ -311,6 +316,22 @@
     "32": "KRIZALID",
     "33": "KYO-2"
    }
+  },
+  "select": {
+   "sum": [
+    {
+     "eq": [
+      "_screen",
+      11504
+     ]
+    },
+    {
+     "eq": [
+      "_screen",
+      26074
+     ]
+    }
+   ]
   }
  },
  "demo": {

@@ -74,7 +74,8 @@
     "mult": 0.78125,
     "min": 0,
     "max": 100,
-    "note": "player 1 health in %, full = 0x80, inside the fighter object (address read at 0x100A46)"
+    "zero_from": "0xC0",
+    "note": "player 1 health in %, full = 0x80, inside the fighter object (address read at 0x100A46); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1 (RetroAchievements code notes, a 16-bit word): from 0xC0 it reads empty (K.O. audit)"
    },
    "health_p2": {
     "ptr": "0x100A4A",
@@ -87,7 +88,8 @@
     "mult": 0.78125,
     "min": 0,
     "max": 100,
-    "note": "player 2 health in %, full = 0x80, inside the fighter object (address read at 0x100A4A)"
+    "zero_from": "0xC0",
+    "note": "player 2 health in %, full = 0x80, inside the fighter object (address read at 0x100A4A); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1 (RetroAchievements code notes, a 16-bit word): from 0xC0 it reads empty (K.O. audit)"
    },
    "time": {
     "addr": "0x100AC6",

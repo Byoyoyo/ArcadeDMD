@@ -62,20 +62,20 @@
     "note": "BIOS_MVS_FLAG: 0 home console (AES, no coins), otherwise arcade (MVS)"
    },
    "health": {
-    "addr": "0x1024CF",
-    "type": "u8",
+    "addr": "0x1024CE",
+    "type": "s16",
     "mult": 0.555556,
     "min": 0,
     "max": 100,
-    "note": "player 1 health in %, full = 0xB4"
+    "note": "player 1 health in %, full = 0xB4; read as a signed 16-bit word since 1.31.1 (a 16-bit word, its full value depends on the character (RetroAchievements code notes)): a K.O. below zero reads empty, it read full by its low byte (K.O. audit)"
    },
    "health_p2": {
-    "addr": "0x102357",
-    "type": "u8",
+    "addr": "0x102356",
+    "type": "s16",
     "mult": 0.555556,
     "min": 0,
     "max": 100,
-    "note": "player 2 health in %, full = 0xB4"
+    "note": "player 2 health in %, full = 0xB4; read as a signed 16-bit word since 1.31.1 (a 16-bit word, its full value depends on the character (RetroAchievements code notes)): a K.O. below zero reads empty, it read full by its low byte (K.O. audit)"
    },
    "time": {
     "addr": "0x106B11",

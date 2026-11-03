@@ -192,10 +192,16 @@
     "addr": "0x10A7EA",
     "type": "u8",
     "note": "backdrop of the fight (cheat database \"Select Backdrop\"): 0 Japan (Street), 1 China, 2 Korea, 3 Mid-East, 4 Spain, 5 USA (Yard), 6 Japan (Temple), 7 USA (Wharf), 8 Blacknoah. Picks the HD theme in \"hd\": \"stages\""
+   },
+   "_screen": {
+    "addr": "0x108502",
+    "type": "u16",
+    "note": "the screen the game shows (RetroAchievements code notes, 0x8502 Screen ID (16bits), 77b2 = Character selection screen, b3a0 = Order select, e8be = Fighting); its select screens give VS and no event of a fight (1.31.1, K.O. audit), to confirm in game"
    }
   }
  },
  "derived": {
+  "select": {"sum": [{"eq": ["_screen", 30642]}, {"eq": ["_screen", 45984]}]},
   "p1_char": {
    "pick": [
     "_p1_ch0",
