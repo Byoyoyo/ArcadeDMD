@@ -39,6 +39,14 @@ CREAM = (238, 228, 208)
 # temps après que les barres se sont remplies ; GO 6,5 s après ROUND, et les entrées des combattants avant au premier round
 FIGHT_WAIT = 12.0         # its first second counted down tells it / sa première seconde décomptée le dit
 FIGHT_WAIT_SUB = 20.0     # its fraction of a second moving tells it at once / sa fraction de seconde le dit tout de suite
+# The King of Fighters '97 and '98 keep the state of the fight ("_fight_state"): 0x18 when READY comes, the fight (bit 1,
+# 0x1A) when GO is over and the timer runs. GO comes 1.15 s after READY, 0.65 s before the timer (Seb's video, 1.31.1)
+# l'état du combat : 0x18 quand READY arrive, le combat (bit 1) quand GO est fini et que le chrono tourne ; GO vient
+# 1,15 s après READY, 0,65 s avant le chrono (la vidéo de Seb)
+READY_STATE = 0x18
+READY_GO = 1.15
+READY_MIN = 2.5           # READY never comes sooner after the bars filled / READY ne vient jamais plus tôt
+MATCH_END = 5.5           # the winner of a match in big letters, this long (Seb, 1.31.1) / le vainqueur du match, ce temps
 CONFETTI = ((255, 80, 80), (255, 210, 60), (80, 220, 255), (120, 255, 140), (255, 120, 220), (255, 255, 255))
 
 # place shown under STAGE n, for each theme ("fight_city" uses "city") / nom du lieu sous STAGE n
@@ -189,6 +197,10 @@ class FightFX:
         self.run_t = -99.0                         # when the timer was last seen counting down / quand il a décompté
         self.sub_prev = None                       # the timer's fraction of a second ("_time_sub") / sa fraction de seconde
         self.sub_moves = []                        # when it changed lately / quand elle a changé dernièrement
+        self.fs_prev = None                        # the fight's state last read ("_fight_state") / l'état du combat
+        self.round_t0 = None                       # when the bars of this round filled / quand les barres se sont remplies
+        self.fight_why = ""                        # what gave FIGHT ! (log) / ce qui a donné FIGHT !
+        self.run_logged = True                     # the timer's start of this round logged / le départ du chrono noté
 
     def round_glow(self, side, now):
         """1 when the side just won a round, down to 0 in 1.5 s (its last star glows). / L'étoile du round gagné brille."""
@@ -369,15 +381,32 @@ class FightFX:
             if len(self.sub_moves) >= 3:
                 self.run_t = now
         self.sub_prev = sub
+        fs = _n(vals.get("_fight_state"))
+        if fs is not None and fs != self.fs_prev:
+            fs = int(fs)
+            if self.fs_prev is not None and self.round_t0 is not None:
+                dt = now - self.round_t0
+                self.hd.log(tr(f"Combat, état 0x{fs:02X} à {dt:.2f} s du début du round",
+                               f"Fight, state 0x{fs:02X} at {dt:.2f} s from the round's start"))
+            if fs & 0x02:                                             # the fight runs / le combat a commencé
+                self.run_t = now
+            elif fs == READY_STATE and self.fight_wait is not None and now - self.fight_wait[1] >= READY_MIN:
+                self.fight_t = min(self.fight_t, max(self.fight_wait[0], now + READY_GO))   # GO after READY
+                self.fight_why = "READY"
+            self.fs_prev = fs
         if self.fight_wait is not None:
             earliest, since = self.fight_wait
             if self.run_t > since:                                    # GO: the timer runs / le chrono tourne
-                self.fight_t = max(now, earliest)
+                self.fight_t = min(self.fight_t, max(now, earliest))
                 self.fight_wait = None
-                self._go(self.fight_t, now)
-            elif now >= self.fight_t:                                 # never ran (infinite time) / jamais lancé
+                self._go(self.fight_t, now, tr("chrono lancé", "timer running"))
+            elif now >= self.fight_t:                                 # READY, or never ran (infinite time) / jamais lancé
                 self.fight_wait = None
-                self._go(self.fight_t, now)
+                self._go(self.fight_t, now, "READY + 1,15 s" if self.fight_why == "READY" else tr("délai maximum", "longest wait"))
+        if not self.run_logged and self.run_t > (self.round_t0 or 0) and self.fs_prev is not None:
+            self.run_logged = True                                    # its start, to set READY_GO / son départ
+            self.hd.log(tr(f"Combat, le chrono démarre à {self.run_t - self.round_t0:.2f} s du début du round",
+                           f"Fight, the timer starts at {self.run_t - self.round_t0:.2f} s from the round's start"))
         if (t is not None and self.prev_time is not None and t <= 0 < self.prev_time <= 2 and counting and now - self.ko_t > 2.0
                 and (h1 or 0) > 0 and (h2 or 0) > 0):
             self.banner = ("TIME UP", GOLD, now, 1.6)                 # chrono à zéro sans K.O.
@@ -389,7 +418,7 @@ class FightFX:
                 idx = self.lost_go.get(loser)
                 if idx is not None and idx >= 2 and (self.round_v is None or self.round_v >= 2):
                     self.out = (self.win[0], loser, now + 3.8)
-                    self.ko_until = now + 3.8 + 3.2
+                    self.ko_until = now + 3.8 + MATCH_END
                     self.fx.later(3.8, self._confetti, 0, self.W, 150)
         self.prev_time = t
         for side, h in (("p1", h1), ("p2", h2)):
@@ -513,10 +542,11 @@ class FightFX:
                 if self.next_wait.get(victim) is not None:               # its next fighter counted just before
                     self.next_wait[victim] = now                         # son suivant, compté juste avant
                 idx = self.lost_go.get(victim)
-                if idx is not None and idx >= 2 and (self.round_v is None or self.round_v >= 2):
+                raw = self.lost_raw.get(victim)                          # counted just before: its third / son troisième
+                if ((idx is not None and idx >= 2) or (raw is not None and raw >= 3)) and (self.round_v is None or self.round_v >= 2):
                     later = 4.4 if perfect else 2.7                          # after the WIN, and the PERFECT / après
                     self.out = (attacker, victim, now + later)             # its third fighter: the team is out / éliminée
-                    self.ko_until = now + later + 3.2
+                    self.ko_until = now + later + MATCH_END
                     self.fx.later(later, self._confetti, 0, self.W, 150)
 
     def _confetti(self, x0, x1, n):
@@ -556,6 +586,9 @@ class FightFX:
         # Fighters '98 it came with the names of the fighters, 5 s before READY and GO) / FIGHT ! avec le FIGHT ou le GO du
         # jeu, quand le chrono du round se met à décompter après ROUND n ; sans chrono lu, tout de suite (il venait avec
         # les noms des combattants, 5 s avant READY et GO)
+        self.round_t0 = now
+        self.fight_why = ""
+        self.run_logged = False
         if self.timer_read:
             self.fight_wait = (start, now)
             self.fight_t = max(start + 1.0, now + (FIGHT_WAIT_SUB if self.sub_read else FIGHT_WAIT))
@@ -569,8 +602,11 @@ class FightFX:
         self.first = False
         self.win = None
 
-    def _go(self, t, now):
+    def _go(self, t, now, why=""):
         """The shock wave of FIGHT ! when it comes. / L'onde de choc de FIGHT ! quand il arrive."""
+        if why and self.fs_prev is not None and self.round_t0 is not None:      # the games that keep their state (log)
+            self.hd.log(tr(f"Combat, FIGHT ! à {t - self.round_t0:.2f} s du début du round ({why})",
+                           f"Fight, FIGHT ! at {t - self.round_t0:.2f} s from the round's start ({why})"))
         self.fx.later(max(0.0, t - now), self.bd.excite, 0.8)
         cx, cy = self.W / 2, self.hd.S(240)
         r = self.fx.add(Particle("ring", cx, cy, t + 0.12, 0.5, "front"))
@@ -746,7 +782,7 @@ class FightFX:
         if self.out is None:
             return
         win, lose, t0 = self.out
-        k, dur = now - t0, 3.2
+        k, dur = now - t0, MATCH_END
         if k < 0 or k > dur:
             return
         hd, S, W = self.hd, self.hd.S, self.W

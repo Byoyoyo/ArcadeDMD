@@ -66,7 +66,8 @@
     "min": 0,
     "max": 100,
     "zero_from": "0x80",
-    "note": "player 1 health in %, full = 0x66; a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (Seb, 1.31): from 0x80 it reads empty"
+    "add": 1,
+    "note": "player 1 health in %, full = 0x66; a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (Seb, 1.31): from 0x80 it reads empty; 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)"
    },
    "health_p2": {
     "addr": "0x108439",
@@ -75,7 +76,8 @@
     "min": 0,
     "max": 100,
     "zero_from": "0x80",
-    "note": "player 2 health in %, full = 0x66; a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (Seb, 1.31): from 0x80 it reads empty"
+    "add": 1,
+    "note": "player 2 health in %, full = 0x66; a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (Seb, 1.31): from 0x80 it reads empty; 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)"
    },
    "time": {
     "addr": "0x10A7D2",

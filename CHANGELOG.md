@@ -27,6 +27,11 @@ An audit of every game file with a health bar, 115 games, after The King of Figh
 - The last fighter of a team lost on time ends the match too, TIME UP, the WIN, then the winner in big letters.
 - Samurai Shodown V Special read the frames of its timer's second as its timer. It reads its seconds (BCD at 0x10836A, RetroAchievements code notes).
 
+**A fighter at 0 still stands, the end of a match, FIGHT ! with GO** (test 3, Seb's second match of The King of Fighters '98)
+- In The King of Fighters '96 to 2002 a fighter at 0 still fights, only a bar below zero is a K.O. (RetroAchievements code notes of '98, 0x0000 = lowest possible health while alive, underflows when dead). 0 reads 1 (`"add": 1`). It gave a K.O. and the WIN in the middle of a fight (Andy at 0 after a blow blocked), and a fighter at 0 made the K.O. of the other one look like the end of a round already over, so the match was not ended.
+- The end of a match stays 5.5 s (3.2 s before). A team is out also when its count says its three fighters are beaten, read a moment before the K.O.
+- The King of Fighters '97 and '98 read the state of the fight (`_fight_state` at 0x10A786, RetroAchievements code notes of '97, the MAME cheat Hide Background of '98). FIGHT ! comes 1.15 s after READY (0x18), with GO. With the timer it came 0.65 s after GO, a second late with the reading. The changes of this state, FIGHT ! and the start of the timer go to the log, to set this delay on a cabinet.
+
 **Version**
 - 1.31.1 in `dmd/app.py` and the MAME plugin.
 
@@ -51,6 +56,11 @@ Un audit de chaque fichier de jeu qui a une barre de vie, 115 jeux, après que T
 - Pour la même raison, le bandeau du combattant suivant venait avant le K.O. et par-dessus, et son nom et son équipe remplaçaient tout de suite ceux du battu. Les deux attendent maintenant le K.O. et le WIN, 3 s au plus (un round perdu au temps).
 - Le dernier combattant d'une équipe perdu au temps finit aussi le match, TIME UP, le WIN, puis le vainqueur en grand.
 - Samurai Shodown V Special lisait les images de la seconde de son chrono comme son chrono. Il lit ses secondes (en BCD à 0x10836A, notes de code de RetroAchievements).
+
+**Un combattant à 0 est encore debout, la fin d'un match, FIGHT ! avec GO** (test 3, le deuxième match de Seb sur The King of Fighters '98)
+- Dans The King of Fighters '96 à 2002, un combattant à 0 se bat encore, seule une barre passée sous zéro est un K.O. (notes de code de RetroAchievements du '98, 0x0000 = la vie la plus basse encore en vie, sous zéro à la mort). 0 se lit 1 (`"add": 1`). Il donnait un K.O. et le WIN en plein combat (Andy à 0 après un coup gardé), et un combattant à 0 faisait prendre le K.O. de l'autre pour la fin d'un round déjà fini, si bien que le match ne finissait pas.
+- La fin d'un match reste 5,5 s (3,2 s avant). Une équipe est éliminée aussi quand son compte dit que ses trois combattants sont battus, lu juste avant le K.O.
+- The King of Fighters '97 et '98 lisent l'état du combat (`_fight_state` à 0x10A786, notes de code de RetroAchievements du '97, le code MAME Hide Background du '98). FIGHT ! vient 1,15 s après READY (0x18), avec GO. Avec le chrono, il venait 0,65 s après GO, une seconde de retard avec la lecture. Les changements de cet état, FIGHT ! et le départ du chrono vont dans le journal, pour régler ce délai sur une borne.
 
 **Version**
 - 1.31.1 dans `dmd/app.py` et le plugin MAME.

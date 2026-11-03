@@ -2425,8 +2425,9 @@
     "mult": 0.980392,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 102 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit)",
-    "zero_from": "0x80"
+    "note": "health bar in %, full = 102 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit); 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)",
+    "zero_from": "0x80",
+    "add": 1
    },
    "health_p2": {
     "addr": "0x108439",
@@ -2434,8 +2435,9 @@
     "mult": 0.980392,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 102 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit)",
-    "zero_from": "0x80"
+    "note": "health bar in %, full = 102 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit); 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)",
+    "zero_from": "0x80",
+    "add": 1
    },
    "time": {
     "addr": "0x10A7E6",
@@ -2451,8 +2453,9 @@
     "mult": 0.980392,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 102 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit)",
-    "zero_from": "0x80"
+    "note": "health bar in %, full = 102 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit); 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)",
+    "zero_from": "0x80",
+    "add": 1
    },
    "health_p2": {
     "addr": "0x108439",
@@ -2460,8 +2463,9 @@
     "mult": 0.980392,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 102 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit)",
-    "zero_from": "0x80"
+    "note": "health bar in %, full = 102 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit); 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)",
+    "zero_from": "0x80",
+    "add": 1
    },
    "score": {
     "addr": "0x1081FC",
@@ -2535,8 +2539,9 @@
     "mult": 0.970874,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 103 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit)",
-    "zero_from": "0x80"
+    "note": "health bar in %, full = 103 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit); 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)",
+    "zero_from": "0x80",
+    "add": 1
    },
    "health_p2": {
     "addr": "0x108439",
@@ -2544,8 +2549,9 @@
     "mult": 0.970874,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 103 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit)",
-    "zero_from": "0x80"
+    "note": "health bar in %, full = 103 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit); 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)",
+    "zero_from": "0x80",
+    "add": 1
    },
    "time": {
     "addr": "0x10A836",
@@ -2561,8 +2567,9 @@
     "mult": 0.970874,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 103 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit)",
-    "zero_from": "0x80"
+    "note": "health bar in %, full = 103 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit); 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)",
+    "zero_from": "0x80",
+    "add": 1
    },
    "health_p2": {
     "addr": "0x108439",
@@ -2570,8 +2577,9 @@
     "mult": 0.970874,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 103 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit)",
-    "zero_from": "0x80"
+    "note": "health bar in %, full = 103 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit); 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)",
+    "zero_from": "0x80",
+    "add": 1
    },
    "time": {
     "addr": "0x10A83A",
@@ -2587,8 +2595,9 @@
     "mult": 0.970874,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 103 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit)",
-    "zero_from": "0x80"
+    "note": "health bar in %, full = 103 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit); 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)",
+    "zero_from": "0x80",
+    "add": 1
    },
    "health_p2": {
     "addr": "0x108439",
@@ -2596,8 +2605,9 @@
     "mult": 0.970874,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 103 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit)",
-    "zero_from": "0x80"
+    "note": "health bar in %, full = 103 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit); 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)",
+    "zero_from": "0x80",
+    "add": 1
    },
    "time": {
     "addr": "0x10A83A",
@@ -2613,8 +2623,9 @@
     "mult": 0.990099,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 101 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit)",
-    "zero_from": "0x80"
+    "note": "health bar in %, full = 101 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit); 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)",
+    "zero_from": "0x80",
+    "add": 1
    },
    "health_p2": {
     "addr": "0x108439",
@@ -2622,8 +2633,9 @@
     "mult": 0.990099,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 101 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit)",
-    "zero_from": "0x80"
+    "note": "health bar in %, full = 101 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit); 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)",
+    "zero_from": "0x80",
+    "add": 1
    },
    "time": {
     "addr": "0x10A7E6",
