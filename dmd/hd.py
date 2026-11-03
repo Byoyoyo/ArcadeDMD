@@ -124,20 +124,28 @@ class HDRenderer:
             self.dim = max(0, min(80, int((cfg or {}).get("dim", 30))))
         except (TypeError, ValueError):
             self.dim = 30
+        # the fighting games darker still, their names, bars and buttons over the stage (Seb, 1.32 test 5, "dim_fight")
+        # les jeux de combat plus sombres encore, leurs noms, barres et boutons par-dessus le décor
+        try:
+            self.dim_fight = max(0, min(80, int((cfg or {}).get("dim_fight", 50))))
+        except (TypeError, ValueError):
+            self.dim_fight = 50
         self.dim_veils = {}
         self.credit_pills = {}
         self.fight_cbar = None        # the credits of the fights, as in Metal Slug / les crédits des combats
 
     # ------------------------------------------------------------ outils
-    def dim_veil(self, size):
-        """The dark veil laid on every backdrop, or None. / Le voile sombre posé sur chaque décor, ou None."""
-        if self.dim <= 0:
+    def dim_veil(self, size, level=None):
+        """The dark veil laid on every backdrop, or None. level: its own darkness, in percent (the fights).
+        / Le voile sombre posé sur chaque décor, ou None. level : son propre assombrissement, en pour cent."""
+        level = self.dim if level is None else level
+        if level <= 0:
             return None
-        v = self.dim_veils.get(size)
+        v = self.dim_veils.get((size, level))
         if v is None:
-            v = self.dim_veils[size] = self.pg.Surface(size).convert()
+            v = self.dim_veils[(size, level)] = self.pg.Surface(size).convert()
             v.fill((0, 0, 0))
-            v.set_alpha(int(self.dim * 255 / 100))
+            v.set_alpha(int(level * 255 / 100))
         return v
 
     def S(self, v):

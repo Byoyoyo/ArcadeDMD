@@ -227,7 +227,7 @@ The logo comes from your LaunchBox Clear Logo images. ArcadeDMD finds the Launch
 - Fighting games. At the top, each player's score, or CHALLENGER and BEAT BY in a VS match. In the middle, the health bars, with a light trail showing the hit just taken, and the timer or KO. At the bottom, P1, P2 or CPU with the current fighter, the full team in King of Fighters '96 to 2000 (fighters already beaten are crossed out), and the credits as in Metal Slug, the coin with the symbol of `config.json` in its gold-edged pill.
 - Other games. The logo, each player's score, then at the bottom the weapon, lives, bombs, time and credits when they are known.
 - Nobody playing. A large logo, and INSERT COIN or the credits. In the fighting games, the logo sits between two coin doors (Coin screen, section 7).
-- The animated backdrops are a little darker, so that the information stands out. `"dim": 30` in the `preview` section sets it, from 0 (as drawn) to 80 percent.
+- The animated backdrops are a little darker, so that the information stands out. `"dim": 30` in the `preview` section sets it, from 0 (as drawn) to 80 percent. The fighting games have their own, darker (`"dim_fight": 50`, since 1.32), their names, health bars and panels over the stage.
 
 The Pixelcade and ZeDMD panels keep the scene at 128 x 32, which is their LED resolution.
 

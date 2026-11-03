@@ -960,7 +960,8 @@ class Backdrop:
                 screen.blit(g, (x - g.get_width() // 2, self.H // 2 - g.get_height() // 2), special_flags=self.pg.BLEND_RGB_ADD)
         # a little darker: the information stands out. A scene that lays its own veil (the panels) takes this one in it.
         # un peu plus sombre : les infos ressortent. Une scène qui pose son propre voile (les panneaux) l'y inclut.
-        veil = self.hd.dim_veil(screen.get_size()) if hasattr(self.hd, "dim_veil") and not getattr(self, "own_veil", False) else None
+        veil = (self.hd.dim_veil(screen.get_size(), getattr(self, "dim", None)) if hasattr(self.hd, "dim_veil")
+                and not getattr(self, "own_veil", False) else None)
         if veil is not None:
             screen.blit(veil, (0, 0))
 

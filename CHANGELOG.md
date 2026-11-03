@@ -24,6 +24,9 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - The badge says why a desperation move can come out. MAX in gold, VIE ROUGE in red when the life is nearly empty (a quarter of the bar, to confirm in game, the game raises it for a team that lost a fighter), MAX + VIE ROUGE for an SDM. The panel's edge takes the same colour.
 - While none can come out in Extra, the bar is longer, with how full it is (62 %) and the rule beside it, SUPER À 100 %.
 
+**The stage darker under the fights** (test 5, Seb)
+- The backdrop of the fighting games is darker, 50 % instead of 30 %, the names, health bars and buttons stood out too little over it. `"dim_fight"` in the `preview` section sets it, from 0 to 80, the other scenes keep `"dim"`.
+
 **Read at every frame**
 - A value marked `"fast"` is read at every frame, the stick and buttons here. The MAME plugin reads it at each frame. The RetroArch reader asks for it at each frame between its other reads, and asks for all those at once (RetroArch answers them at the same frame, one block of memory at a time took a frame each). Each change of the stick and buttons keeps the time it was read.
 - When RetroArch closes during a game whose stick is read, the HD screen leaves the game as fast as before (test 2). The values asked together were asked again one by one when no answer came, 3 s or more each time.
@@ -49,6 +52,9 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 **Quand un super peut sortir en Extra** (test 4, Seb ne joue jamais en Extra)
 - La pastille dit pourquoi un coup désespéré peut sortir. MAX en doré, VIE ROUGE en rouge quand la vie est presque vide (un quart de la barre, à confirmer en jeu, le jeu le monte pour une équipe qui a perdu un combattant), MAX + VIE ROUGE pour un SDM. Le bord du panneau prend la même couleur.
 - Tant qu'aucun ne peut sortir en Extra, la barre est plus longue, avec son remplissage (62 %) et la règle à côté, SUPER À 100 %.
+
+**Le décor plus sombre sous les combats** (test 5, Seb)
+- Le décor des jeux de combat est plus sombre, 50 % au lieu de 30 %, les noms, barres de vie et boutons ne ressortaient pas assez dessus. `"dim_fight"` dans la section `preview` le règle, de 0 à 80, les autres scènes gardent `"dim"`.
 
 **Lu à chaque image**
 - Une valeur marquée `"fast"` est lue à chaque image, ici le stick et les boutons. Le plugin MAME la lit à chaque image. La lecture RetroArch la demande à chaque image entre ses autres lectures, et demande alors toutes celles-ci d'un coup (RetroArch y répond à la même image, un bloc de mémoire à la fois prenait une image chacun). Chaque changement du stick et des boutons garde le moment où il a été lu.

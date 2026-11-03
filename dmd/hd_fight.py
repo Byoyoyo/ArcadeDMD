@@ -98,6 +98,7 @@ class FightFX:
         self.fx = FX(hd, random.Random(self.rng.random()))
         self.bd = Backdrop(hd, "arena", random.Random(self.rng.random()), threaded=False)
         self.bd.static = True
+        self.bd.dim = getattr(hd, "dim_fight", None)                   # darker under the fight (1.32) / plus sombre
         self.buf = None
         self.dark = None
         self.key = None
