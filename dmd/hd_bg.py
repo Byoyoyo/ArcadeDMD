@@ -23,6 +23,11 @@ from PIL import Image, ImageChops, ImageDraw, ImageFilter
 from .hd_fx import FX, Particle
 
 THEMES = ("desert", "jungle", "snow")
+# the fights: a bright stage (daytime) is darkened more than its "dim_fight", down to this brightness (0 to 255), at most
+# DIM_MAX percent (1.32 test 9b, Seb: the names and bars over the market in the sun) / un décor clair est assombri plus
+# que son « dim_fight », jusqu'à cette clarté, au plus DIM_MAX pour cent
+DIM_TARGET = 36
+DIM_MAX = 80
 
 
 # ---------------------------------------------------------------------------- outils de dessin
@@ -927,11 +932,56 @@ class Backdrop:
         layers += [self._layer(L) for L in raw["layers"][len(layers):]]
         b = {"sky": hd._surf(raw["sky"]), "layers": layers, "tw": raw["tw"], "amb": raw["amb"],
              "imgs": {k: hd._surf(v) for k, v in (raw["amb"].get("images") or {}).items()},
-             "skies": {k: hd._surf(v) for k, v in (raw["amb"].get("skies") or {}).items()}}
+             "skies": {k: hd._surf(v) for k, v in (raw["amb"].get("skies") or {}).items()},
+             "lum": self._luminance(raw)}
         if raw["amb"].get("plane"):
             b["plane"] = hd._surf(plane_img(self.s, raw["amb"]["plane_color"], raw["amb"]["plane"]))
         self.built[name] = b
         return b
+
+    @staticmethod
+    def _luminance(raw):
+        """How bright the backdrop is, 0 to 255, for each of its skies (the looks of the stage): a small composite of
+        its layers. The fights darken the bright stages more (1.32 test 9b, Seb). / La clarté du décor, pour chacun de ses
+        ciels : les combats assombrissent davantage les décors clairs."""
+        out = {}
+        W, H = raw["sky"].size
+        k = 160.0 / max(1, W)
+        size = (max(1, int(W * k)), max(1, int(H * k)))
+        tints = raw["amb"].get("tints") or {}
+        for key, sky in [(None, raw["sky"])] + list((raw["amb"].get("skies") or {}).items()):
+            comp = sky.resize(size, Image.BILINEAR).convert("RGBA")
+            tint = tints.get(key)
+            for L in raw["layers"]:
+                img = L.get("img")
+                if img is None or L.get("only"):
+                    continue
+                th = img.resize((max(1, int(img.width * k)), max(1, int(img.height * k))), Image.BILINEAR).convert("RGBA")
+                if tint:
+                    rgb = ImageChops.multiply(th.convert("RGB"), Image.new("RGB", th.size, tuple(tint)))
+                    th = Image.merge("RGBA", (*rgb.split(), th.getchannel("A")))
+                comp.alpha_composite(th, (0, int(L["y"] * k)))
+            g = comp.convert("L")
+            out[key] = sum(i * c for i, c in enumerate(g.histogram())) / max(1, g.width * g.height)
+        return out
+
+    def dim_level(self):
+        """The darkening laid on this backdrop, in percent: its own, raised for a bright stage so that every stage comes
+        out about as dark under the names and bars (DIM_TARGET). / L'assombrissement : le sien, monté pour un décor clair."""
+        level = getattr(self, "dim", None)
+        if level is None or level <= 0:
+            return level
+        b = self.built.get(self.theme)
+        lum = (b or {}).get("lum")
+        if not lum:
+            return level
+        now_l = lum.get(self._time(self.cur_look), lum.get(None, 0))
+        if self.look_prev is not None:
+            prev_l = lum.get(self._time(self.look_prev), lum.get(None, 0))
+            now_l = now_l * self.look_k + prev_l * (1 - self.look_k)
+        if now_l <= 0:
+            return level
+        return int(max(level, min(DIM_MAX, 100 * (1 - DIM_TARGET / now_l))))
 
     def set_theme(self, name, now, wipe=1.1):
         if name not in BUILDERS or name == self.theme:
@@ -1012,7 +1062,7 @@ class Backdrop:
                 screen.blit(g, (x - g.get_width() // 2, self.H // 2 - g.get_height() // 2), special_flags=self.pg.BLEND_RGB_ADD)
         # a little darker: the information stands out. A scene that lays its own veil (the panels) takes this one in it.
         # un peu plus sombre : les infos ressortent. Une scène qui pose son propre voile (les panneaux) l'y inclut.
-        veil = (self.hd.dim_veil(screen.get_size(), getattr(self, "dim", None)) if hasattr(self.hd, "dim_veil")
+        veil = (self.hd.dim_veil(screen.get_size(), self.dim_level()) if hasattr(self.hd, "dim_veil")
                 and not getattr(self, "own_veil", False) else None)
         if veil is not None:
             screen.blit(veil, (0, 0))

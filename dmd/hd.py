@@ -127,9 +127,9 @@ class HDRenderer:
         # the fighting games darker still, their names, bars and buttons over the stage (Seb, 1.32 test 5, "dim_fight")
         # les jeux de combat plus sombres encore, leurs noms, barres et boutons par-dessus le décor
         try:
-            self.dim_fight = max(0, min(80, int((cfg or {}).get("dim_fight", 50))))
+            self.dim_fight = max(0, min(80, int((cfg or {}).get("dim_fight", 55))))
         except (TypeError, ValueError):
-            self.dim_fight = 50
+            self.dim_fight = 55
         self.dim_veils = {}
         self.credit_pills = {}
         self.fight_cbar = None        # the credits of the fights, as in Metal Slug / les crédits des combats
