@@ -149,6 +149,57 @@ class RetroArchClient:
         return data if len(data) == n else None
 
 
+    def read_many(self, reqs, window=24):
+        """{address: bytes or None} for [(address, n)...]. The requests go out a window at a time: RetroArch answers
+        all those waiting at each image, where one at a time takes an image each (2 MB of a CV1000 took a minute). A
+        reply is known by its address. What did not come back is asked again one by one.
+        / Les demandes partent par fenêtres : RetroArch répond à toutes celles qui attendent à chaque image. Une réponse
+        se reconnaît à son adresse, ce qui n'est pas revenu est redemandé une par une."""
+        out = {}
+        try:
+            if self.sock is None:
+                self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s = self.sock
+            try:
+                s.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 1 << 20)   # room for the replies / place pour les réponses
+            except OSError:
+                pass
+            s.setblocking(False)
+            try:
+                while True:
+                    s.recv(65535)
+            except OSError:
+                pass
+            s.settimeout(self.timeout)
+            for i in range(0, len(reqs), window):
+                want = {}
+                for a, n in reqs[i:i + window]:
+                    want["READ_CORE_RAM %x " % a] = (a, n)
+                    s.sendto(("READ_CORE_RAM %x %d\n" % (a, n)).encode("ascii"), self.addr)
+                end = time.monotonic() + max(self.timeout, 0.5)
+                while want and time.monotonic() < end:
+                    try:
+                        reply = s.recv(65535).decode("utf-8", "replace").strip() + " "
+                    except socket.timeout:
+                        break
+                    for prefix in want:
+                        if reply.startswith(prefix):
+                            a, n = want.pop(prefix)
+                            rest = reply[len(prefix):].split()
+                            try:
+                                data = bytes(int(x, 16) for x in rest) if rest and rest[0] != "-1" else None
+                            except ValueError:
+                                data = None
+                            out[a] = data if data is not None and len(data) == n else None
+                            break
+        except OSError:
+            self.close()
+        for a, n in reqs:
+            if out.get(a) is None:
+                out[a] = self.read(a, n)
+        return out
+
+
 def failure_kind(reply):
     """« muet » sans réponse, « refus » pour -1 (le cœur ne donne pas sa mémoire), « bizarre » sinon."""
     if reply is None:
@@ -273,11 +324,20 @@ class Layout:
         return (lo + 1) & ~(self.align - 1)
 
     def capture(self, client):
-        """Toute la RAM lisible, dans l'ordre du processeur, ou None."""
+        """Toute la RAM lisible, dans l'ordre du processeur, ou None. Une grande RAM (le CV1000 de Cave) se lit par
+        fenêtres de demandes (read_many), une petite une demande à la fois, comme toujours."""
         size = self.readable_size(client)
         if size <= 0:
             return None
         out = bytearray()
+        if size > 0x20000 and hasattr(client, "read_many"):
+            reqs = [(off, min(CHUNK, size - off)) for off in range(0, size, CHUNK)]
+            got = client.read_many(reqs)
+            for off, n in reqs:
+                if got.get(off) is None:
+                    return None
+                out += got[off]
+            return self._unswap(bytes(out))
         for off in range(0, size, CHUNK):
             data = client.read(off, min(CHUNK, size - off))
             if data is None:

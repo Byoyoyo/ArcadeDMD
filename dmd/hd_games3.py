@@ -1297,6 +1297,7 @@ class BaseballScene(GameScene):
     """Baseball seen from behind home plate. The balls, strikes and outs read in memory make the pitches: the ball
     goes into the mitt, the umpire calls the strike, the batter hits, a fielder catches. The runs read in memory send
     the ball far and the runners home. / Le baseball vu de derrière le marbre."""
+    CREDITS = (-420, None)                                # the batter stands in the middle / le frappeur est au milieu
     THEME = "ballpark"
     STATIC = True
     SHADE = (90, 0)
@@ -2741,7 +2742,12 @@ class AeroFightersScene(BlazingStarScene):
                     screen.blit(fl, (int(x - S(74) - fl.get_width()), int(y + dy - fl.get_height() / 2)), special_flags=add)
             img = self.rotated(("planer", side, kind), self.plane_surf(side, kind), _clamp(-P["vy"] * 8, -14, 14), 2)
             screen.blit(img, (int(x - img.get_width() / 2), int(y - img.get_height() / 2)))
+        self.plane_tags(screen, vals, planes, now)
         self.status(screen, eng, vals, logo, now)
+
+    def plane_tags(self, screen, vals, planes, now):
+        """Drawn over the planes once they are all drawn (Strikers 1945 Plus: 1P and 2P when both fly the same plane).
+        / Dessiné sur les avions une fois tous dessinés."""
 
     def life_icon(self, side, vals):
         key = ("aflife", side, self.kind(vals, side))
@@ -2817,7 +2823,13 @@ class AeroFightersScene(BlazingStarScene):
                               scale=1 + 0.08 * math.sin(now * 10))
 
     def power_max(self, vals, side):
-        return 3
+        """The top shot level: the game file's ("max"), 3 when it does not say. / Le niveau de tir le plus haut."""
+        top = _n(self.tops.get("power" + ("" if side == "p1" else "_p2")))
+        return int(top) if top is not None and top > 0 else 3
+
+    def power_cases(self, vals, side, v):
+        """As many cases lit as the shot level, as many cases as its top, as on the HUD. / Comme sur le HUD."""
+        return max(0, int(v)), self.power_max(vals, side)
 
 
 class AeroFighters2Scene(AeroFightersScene):

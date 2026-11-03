@@ -86,16 +86,16 @@
     "note": "timer (BCD)"
    },
    "score": {
-    "addr": "",
+    "addr": "0x100452",
     "type": "bcd",
     "bytes": 4,
-    "note": "to find with learn.bat"
+    "note": "player 1 score, BCD (RetroAchievements code notes, from tools/ra_notes.py), to confirm in game"
    },
    "score_p2": {
-    "addr": "",
+    "addr": "0x100552",
     "type": "bcd",
     "bytes": 4,
-    "note": "player 2, to find with learn.bat (two-player game, score2=...)"
+    "note": "player 2 score, BCD (RetroAchievements code notes, from tools/ra_notes.py), to confirm in game"
    },
    "_p1_chr": {
     "addr": "0x100445",

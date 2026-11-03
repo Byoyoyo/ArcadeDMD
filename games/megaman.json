@@ -48,12 +48,24 @@
         "type": "bcd",
         "bytes": 1,
         "note": "part of the timer only (FBNeo cheat database, Infinite Time writes 45), read to see that the game runs, not shown"
+      },
+      "score": {
+        "addr": "0xFF8390",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 1 score, BCD (RetroAchievements leaderboards and code notes, from tools/ra_notes.py), to confirm in game"
+      },
+      "score_p2": {
+        "addr": "0xFF8790",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 2 score, BCD (RetroAchievements leaderboards and code notes, from tools/ra_notes.py), to confirm in game"
       }
     }
   },
   "activity": {
-    "values": ["_time", "health", "health_p2"],
-    "moving": ["_time", "health", "health_p2"],
+    "values": ["_time", "health", "health_p2", "score", "score_p2"],
+    "moving": ["_time", "score", "score_p2", "health", "health_p2"],
     "seconds": 10,
     "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
   },

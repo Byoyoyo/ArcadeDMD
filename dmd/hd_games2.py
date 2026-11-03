@@ -315,7 +315,7 @@ class PulstarScene(BlazingStarScene):
         if st >= 1 and _n(vals.get("stage")) is not None:              # stage and its name
             name = vals.get("stage_name") if isinstance(vals.get("stage_name"), str) else ""
             txt = (tr("STAGE FINAL", "FINAL STAGE") if st >= 8 else f"STAGE {st}") + (f"  ·  {name}" if name else "")
-            self.label(screen, txt, W / 2, S(412), 30, GOLD, key="xbold", align="center", alpha=130)
+            self.label(screen, txt, W / 2, S(338), 30, GOLD, key="xbold", align="center", alpha=130)
 
 
 # ============================================================================ Magical Drop III
@@ -550,6 +550,8 @@ class DropField:
 class MagicalDropScene(GameScene):
     """Two fields of drops under a tarot sky, the cards of the two players in the middle. The quota going down pops
     drops, the level rising pushes a row, the card shown flips. / Deux champs de gouttes, les cartes au milieu."""
+    CREDITS = (0.5, 320)                                  # between VS and LV, the quotas take the bottom / entre VS et LV
+    CREDITS_K = 0.8
     THEME = "tarot"
     STATIC = True
     SHADE = (140, 70)

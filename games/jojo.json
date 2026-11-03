@@ -1,6 +1,6 @@
 {
   "title": "JoJo's Venture",
-  "note": "Capcom CPS3 fighting game: health, health_p2, time, credits, power, power_p2 (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "note": "Capcom CPS3 fighting game: health, health_p2, time, credits, power, power_p2, 16 characters (FinalBurn Neo and MAME cheat databases). Made by tools/cps_games.py.",
   "generated": "tools/cps_games.py",
   "cps": "CPS3",
   "match": [
@@ -71,6 +71,16 @@
         "round": 1,
         "min": 0,
         "max": 100
+      },
+      "_p1_chr": {
+        "addr": "0x203047F",
+        "type": "u8",
+        "note": "player 1 character (MAME cheat database, Select Character PL1)"
+      },
+      "_p2_chr": {
+        "addr": "0x2030887",
+        "type": "u8",
+        "note": "player 2 or computer character (MAME cheat database, Select Character PL2)"
       }
     }
   },
@@ -86,7 +96,9 @@
     "p2_mode": 0,
     "health": 100,
     "health_p2": 100,
-    "time": 99
+    "time": 99,
+    "_p1_chr": 0,
+    "_p2_chr": 1
   },
   "hd": {
     "stages": ["fight_city", "fight_desert", "fight_harbor", "fight_gothic", "fight_ruins"],
@@ -241,6 +253,77 @@
         "round": 1,
         "min": 0,
         "max": 100
+      }
+    },
+    "jojour2": {
+      "health": {
+        "addr": "0x2030589",
+        "type": "u8",
+        "note": "player 1 health in %, full = 0x90 (MAME cheat database, Infinite Energy PL1)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xC8"
+      },
+      "health_p2": {
+        "addr": "0x2030991",
+        "type": "u8",
+        "note": "player 2 health in %, full = 0x90 (MAME cheat database, Infinite Energy PL2)",
+        "mult": 0.694444,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0xC8"
+      },
+      "credits": {
+        "addr": "0x2068CAC",
+        "type": "u8",
+        "note": "credits (MAME cheat database, Infinite Credits)"
+      }
+    }
+  },
+  "derived": {
+    "p1_char": {
+      "value": "_p1_chr",
+      "names": {
+        "0": "JOUTARO",
+        "1": "KAKYOUIN",
+        "2": "AVDOL",
+        "3": "POLNAREFF",
+        "4": "J.JOSTER",
+        "5": "IGGI",
+        "6": "ALESSY",
+        "7": "CHACA",
+        "8": "D'BO",
+        "9": "N'DOUL",
+        "10": "MIDLER",
+        "11": "DIO",
+        "12": "VANILLA ICE",
+        "13": "DEATH 13",
+        "14": "J.K.DIO",
+        "15": "H.K.JOSEPH"
+      }
+    },
+    "p2_char": {
+      "value": "_p2_chr",
+      "names": {
+        "0": "JOUTARO",
+        "1": "KAKYOUIN",
+        "2": "AVDOL",
+        "3": "POLNAREFF",
+        "4": "J.JOSTER",
+        "5": "IGGI",
+        "6": "ALESSY",
+        "7": "CHACA",
+        "8": "D'BO",
+        "9": "N'DOUL",
+        "10": "MIDLER",
+        "11": "DIO",
+        "12": "VANILLA ICE",
+        "13": "DEATH 13",
+        "14": "J.K.DIO",
+        "15": "H.K.JOSEPH"
       }
     }
   }

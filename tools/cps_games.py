@@ -2,15 +2,18 @@
 
 From the list of FinalBurn Neo (src/burn/drv/capcom/d_cps1.cpp, d_cps2.cpp, d_cps2_custom.cpp, src/burn/drv/cps3/d_cps3.cpp)
 each original game gets its file, with every version, bootleg and hack of it, for MAME as for RetroArch. From the cheat
-database of FinalBurn Neo (FBNeo-cheats, cheats/<game>.ini) it takes what the cheats write: the health of each player
+database of FinalBurn Neo (FBNeo-cheats, cheats/<game>.ini), completed by MAME's (mamecheat.co.uk, the XML files of its
+cheat.7z, read by tools/mame_cheats.py, 1.31), it takes what the cheats write: the health of each player
 and its full value, the timer, the credits, the lives, the bombs, the super gauge, the characters and their names. The
 genre of FinalBurn Neo picks the shared scene (games/cps_combat.json, cps_action.json, cps_shoot.json, cps_reflexion.json,
 made here from the Neo Geo ones). A file that was changed by hand keeps its scene and what the tool does not make.
 
 Construit les fichiers des jeux Capcom CPS1, CPS2 et CPS3 à partir de FinalBurn Neo : la liste des jeux avec leurs
-versions, bootlegs et hacks, et ce qu'écrivent les codes de triche (vie, chrono, crédits, vies, bombes, jauge, persos).
+versions, bootlegs et hacks, et ce qu'écrivent les codes de triche de FinalBurn Neo, complétés par ceux de MAME (vie,
+chrono, crédits, vies, bombes, jauge, persos).
 
-usage: python tools/cps_games.py FBNEO_SOURCE_FOLDER FBNEO_CHEATS_FOLDER
+usage: python tools/cps_games.py FBNEO_SOURCE_FOLDER FBNEO_CHEATS_FOLDER [MAME_CHEATS]
+       MAME_CHEATS: the folder of the XML files of MAME's cheat.7z, or cheat.7z itself (pip install py7zr)
 """
 import json
 import os
@@ -131,8 +134,12 @@ def bcd_like(v):
     return v not in (0x63, 0x3C, 0x5A, 0x64) and all(int(c, 16) <= 9 for c in f"{v:x}")
 
 
+# the RAM FinalBurn Neo gives RetroArch, per family (tools/cave_games.py adds its own) / la RAM partagée, par famille
+WINDOWS = {"CPS1": (0xFF0000, 0x10000), "CPS2": (0xFF0000, 0x10000), "CPS3": (0x2000000, 0x80000)}
+
+
 def visible(addr, fam):
-    lo, size = (0x2000000, 0x80000) if fam == "CPS3" else (0xFF0000, 0x10000)
+    lo, size = WINDOWS.get(fam, (0xFF0000, 0x10000))
     return lo <= addr < lo + size
 
 
@@ -254,6 +261,11 @@ LEVEL_SHOWN_FROM = {"xmcota": 1}
 FULL = {"sf2": 0x90, "nwarr": 0x90}
 
 
+def srcof(c):
+    """Where a cheat comes from: FinalBurn Neo's database, or MAME's (tools/mame_cheats.py). / D'où vient un code."""
+    return c.get("src") or "FBNeo cheat database"
+
+
 def values_from_cheats(cs, fam, name=""):
     found = {}
     for c in cs:
@@ -261,7 +273,6 @@ def values_from_cheats(cs, fam, name=""):
             if key not in found and pat.match(c["name"]):
                 found[key] = c
     vals, derived, got = {}, {}, []
-    src = "FBNeo cheat database"
     for key in ("health", "health_p2"):
         w = word(enabled(found[key])) if key in found else None
         drain = found.get("_drain" if key == "health" else "_drain_p2")
@@ -271,7 +282,7 @@ def values_from_cheats(cs, fam, name=""):
         if w and w[2] > 0:
             addr, n, full = w
             v = value(addr, n, fam, "be" if n > 1 else "u8",
-                      f"{'player 1' if key == 'health' else 'player 2'} health in %, full = 0x{full:X} ({src}, {found[key]['name']})")
+                      f"{'player 1' if key == 'health' else 'player 2'} health in %, full = 0x{full:X} ({srcof(found[key])}, {found[key]['name']})")
             v.update({"mult": round(100.0 / full, 6), "round": 1, "min": 0, "max": 100})
             # gone below zero at a K.O. (Street Fighter II): 0xFF... reads an empty bar, not a full one. Not when the cheat
             # fills the bar with 0xFF itself (Slam Masters), a full bar would read empty.
@@ -284,31 +295,42 @@ def values_from_cheats(cs, fam, name=""):
         t = enabled(found[key]) if key in found else None
         if t:
             vals[key] = value(t[0][1], 1, fam, "u8", f"rounds won by {'player 1' if key == 'rounds' else 'player 2'} "
-                                                     f"({src}, {found[key]['name']})")
+                                                     f"({srcof(found[key])}, {found[key]['name']})")
     for key in ("_p1_ctl", "_p2_ctl"):               # a human or the computer / un humain ou l'ordinateur
         c = found.get(key)
         human = [o for o in (c or {}).get("options", []) if o["triples"] and re.search(r"user|human", o["label"], re.I)]
         if human and len(human[0]["triples"]) == 1:
             addr, val = human[0]["triples"][0][1], human[0]["triples"][0][2]
             who = "player 1" if key == "_p1_ctl" else "player 2"
-            v = value(addr, 1, fam, "u8", f"{who} controlled by a human ({val}) or the computer ({src}, {c['name']})")
+            v = value(addr, 1, fam, "u8", f"{who} controlled by a human ({val}) or the computer ({srcof(c)}, {c['name']})")
             v["human"] = val
             vals[key] = v
     if "time" in found:
         t = enabled(found["time"])
         if t and t[0][2] > 0:
-            key, spec = timer(t, fam, src)
+            key, spec = timer(t, fam, srcof(found["time"]))
             vals[key] = spec
     if "credits" in found:
         t = enabled(found["credits"])
         if t:
             kind = "bcd" if t[0][2] > 9 and bcd_like(t[0][2]) else "u8"
-            vals["credits"] = value(t[0][1], 1, fam, kind, f"credits ({src}, {found['credits']['name']})")
+            vals["credits"] = value(t[0][1], 1, fam, kind, f"credits ({srcof(found['credits'])}, {found['credits']['name']})")
     for key in ("lives", "lives_p2", "bombs"):
         if key in found:
             t = enabled(found[key])
             if t:
-                vals[key] = value(t[0][1], 1, fam, "u8", f"{key.replace('_p2', ' of player 2')} ({src}, {found[key]['name']})")
+                note = f"{key.replace('_p2', ' of player 2')} ({srcof(found[key])}, {found[key]['name']})"
+                w = word(t) if found[key].get("src") else None
+                if w and w[1] == 2:
+                    # MAME writes a word: the count in it (0x0006), the count then its slots (0x0606) or a gauge (0x0FA0), left out
+                    # MAME écrit un mot : le nombre dedans, le nombre puis ses places, ou une jauge, laissée de côté
+                    hi = w[2] >> 8
+                    if hi == 0:
+                        vals[key] = value(w[0], 2, fam, "be", note)
+                    elif hi <= 9:
+                        vals[key] = value(w[0], 1, fam, "u8", note)
+                    continue
+                vals[key] = value(t[0][1], 1, fam, "u8", note)
     for key in ("power", "power_p2"):
         who = "player 1" if key == "power" else "player 2"
         t = enabled(found[key]) if key in found else []
@@ -318,11 +340,11 @@ def values_from_cheats(cs, fam, name=""):
             # a level and the bar inside it (Marvel Super Heroes, X-Men, X-Men vs. Street Fighter): the bar of the
             # current level, like the game, and the level beside it / le niveau et la barre de ce niveau, comme le jeu
             faddr, full = fill[0][1], fill[0][2]
-            v = value(faddr, 1, fam, "u8", f"super gauge of {who} in % of the current level, full = 0x{full:X} ({src})")
+            v = value(faddr, 1, fam, "u8", f"super gauge of {who} in % of the current level, full = 0x{full:X} ({srcof(found[key])})")
             v.update({"mult": round(100.0 / full, 6), "round": 1, "min": 0, "max": 100})
             vals[key] = v
             add = LEVEL_SHOWN_FROM.get(name, 0)
-            lvl = value(lv[0][1], 1, fam, "u8", f"super gauge level of {who}, {lv[0][2] + add} at most ({src})")
+            lvl = value(lv[0][1], 1, fam, "u8", f"super gauge level of {who}, {lv[0][2] + add} at most ({srcof(found[key])})")
             if add:
                 lvl["add"] = add
             lvl["max"] = lv[0][2] + add
@@ -332,7 +354,7 @@ def values_from_cheats(cs, fam, name=""):
         if w and w[2] > 0:
             addr, n, full = w
             v = value(addr, n, fam, "be" if n > 1 else "u8",
-                      f"super gauge of {'player 1' if key == 'power' else 'player 2'} in %, full = 0x{full:X} ({src})")
+                      f"super gauge of {'player 1' if key == 'power' else 'player 2'} in %, full = 0x{full:X} ({srcof(found[key])})")
             v.update({"mult": round(100.0 / full, 6), "round": 1, "min": 0, "max": 100})
             vals[key] = v
     for key, out in (("_p1_chr", "p1_char"), ("_p2_chr", "p2_char")):
@@ -340,13 +362,13 @@ def values_from_cheats(cs, fam, name=""):
             who = "player 1" if key == "_p1_chr" else "player 2 or computer"
             addr, names = names_of(found[key])
             if names:
-                vals[key] = value(addr, 1, fam, "u8", f"{who} character ({src}, {found[key]['name']})")
+                vals[key] = value(addr, 1, fam, "u8", f"{who} character ({srcof(found[key])}, {found[key]['name']})")
                 derived[out] = {"value": key, "names": names}
                 continue
             addrs, names = pair_names_of(found[key])
             if names:                                # the character told by two bytes / le personnage dit par deux octets
-                vals[key] = value(addrs[0], 1, fam, "u8", f"{who} character, first byte ({src}, {found[key]['name']})")
-                vals[key + "2"] = value(addrs[1], 1, fam, "u8", f"{who} character, second byte ({src}, {found[key]['name']})")
+                vals[key] = value(addrs[0], 1, fam, "u8", f"{who} character, first byte ({srcof(found[key])}, {found[key]['name']})")
+                vals[key + "2"] = value(addrs[1], 1, fam, "u8", f"{who} character, second byte ({srcof(found[key])}, {found[key]['name']})")
                 derived[out] = {"join": [key, key + "2"], "names": names}
     for k in vals:
         if not k.startswith("_"):
@@ -482,7 +504,7 @@ def stages_from_cheats(cs, fam):
                 theme, place = looks.get(v) or ((stages[-1], places[-1]) if stages else looks[min(looks)])
                 stages.append(theme)
                 places.append(place)
-            val = value(addr, 1, fam, "u8", f"stage backdrop, picks the HD theme in hd.stages (FBNeo cheat database, {c['name']})")
+            val = value(addr, 1, fam, "u8", f"stage backdrop, picks the HD theme in hd.stages ({srcof(c)}, {c['name']})")
             hd = {"stages": stages, "places": places,
                   "note": f"HD theme and place shown for each backdrop value (index = value), made by {TOOL} from the stages of the "
                           "cheat database, see README, HD themes"}
@@ -527,9 +549,10 @@ ROUND_LAYERS = [
      "colors": {"#": "#ffd040"}, "empty": "#3a2a10", "when": {"all": [{"has": "rounds_p2"}, {"has": ["health", "health_p2"]}]}}]
 
 
-def make_templates(games_dir):
-    """games/cps_*.json: the shared scenes, the Neo Geo ones with the title where they said NEO GEO."""
-    for key, src in TEMPLATES.items():
+def make_templates(games_dir, templates=None, maker="Capcom CPS", tool=TOOL):
+    """games/cps_*.json: the shared scenes, the Neo Geo ones with the title where they said NEO GEO. tools/cave_games.py
+    makes games/cave_*.json the same way. / Les scènes communes, faites des scènes Neo Geo avec le titre du jeu."""
+    for key, src in (templates or TEMPLATES).items():
         d = load(os.path.join(games_dir, src + ".json")) or {}
         layers = json.loads(json.dumps((d.get("scene") or {}).get("layers") or []))
         out = []
@@ -543,18 +566,19 @@ def make_templates(games_dir):
                 if ly["when"] is None:
                     ly.pop("when")
             out.append(ly)
-        if key == "cps_combat":
+        if key.endswith("_combat"):
             out[1:1] = SUPER_LAYERS
             bars = [i for i, ly in enumerate(out) if ly.get("type") == "gauge" and ly.get("var") == "health_p2"]
             if bars:
                 out[bars[0] + 1:bars[0] + 1] = ROUND_LAYERS
         dump(os.path.join(games_dir, key + ".json"), {
-            "note": f"Shared scene of the Capcom CPS games ({key.split('_')[-1] if '_' in key else 'action'}), made by {TOOL} "
+            "note": f"Shared scene of the {maker} games ({key.split('_')[-1] if '_' in key else 'action'}), made by {tool} "
                     f"from games/{src}.json. The games take it with scene_from.",
-            "generated": TOOL, "scene": {"layers": out}})
+            "generated": tool, "scene": {"layers": out}})
 
 
-def build(fbneo, cheats_dir, games_dir):
+def build(fbneo, cheats_dir, games_dir, mame_path=""):
+    from mame_cheats import MameCheats, merge as merge_cheats
     ds = []
     for rel in DRIVERS:
         path = os.path.join(fbneo, rel)
@@ -571,16 +595,25 @@ def build(fbneo, cheats_dir, games_dir):
     groups = {}
     for d in ds:
         groups.setdefault(root(d)["name"], []).append(d)
+    mame = MameCheats(mame_path)
+    mame.preload([d["name"] for d in ds])
+    loaded = {}
+
+    def load_cs(x):
+        """The cheats of a version: FinalBurn Neo's, then MAME's it does not have. / Les codes d'une version."""
+        if x not in loaded:
+            loaded[x] = merge_cheats(cheats(os.path.join(cheats_dir, x + ".ini")), mame.get(x))
+        return loaded[x]
     make_templates(games_dir)
     report = []
     for name in sorted(groups):
         p = by[name]
         fam = family(p)
         sets = [name] + sorted(x["name"] for x in groups[name] if x["name"] != name)
-        cs = cheats(os.path.join(cheats_dir, name + ".ini"))
+        cs = load_cs(name)
         if not cs:                                   # a version that has cheats / une version qui en a
             for x in sets[1:]:
-                cs = cheats(os.path.join(cheats_dir, x + ".ini"))
+                cs = load_cs(x)
                 if cs:
                     break
         vals, derived, got = values_from_cheats(cs, fam, name)
@@ -600,8 +633,10 @@ def build(fbneo, cheats_dir, games_dir):
         d["title"] = d.get("title_hand") or title
         kind = {"cps_combat": "fighting game", "cps_shoot": "shoot'em up", "cps_reflexion": "puzzle, quiz or other game",
                 "cps_action": "action game"}[scene]
+        dbs = " and ".join(db for db, word in (("FinalBurn Neo", "FBNeo cheat database"), ("MAME", "MAME cheat database"))
+                           if any(word in str(v.get("note", "")) for v in vals.values())) or "FinalBurn Neo"
         d["note"] = (f"Capcom {fam} {kind}: " + (", ".join(got) if got else "no value known yet")
-                     + f" (FinalBurn Neo cheat database). Made by {TOOL}.")
+                     + f" ({dbs} cheat database{'s' if ' and ' in dbs else ''}). Made by {TOOL}.")
         d["generated"] = TOOL
         d["cps"] = fam
         d["match"] = [{"system": sets}]
@@ -613,8 +648,9 @@ def build(fbneo, cheats_dir, games_dir):
         if "scene" not in d:
             d["scene_from"] = scene
         mem = d.get("memory") if isinstance(d.get("memory"), dict) else {}
-        hand = {k: v for k, v in (mem.get("values") or {}).items()
-                if not (isinstance(v, dict) and "FBNeo cheat database" in str(v.get("note", "")))}
+        hand = {k: v for k, v in (mem.get("values") or {}).items()     # not made from a cheat database / pas d'une base
+                if not (isinstance(v, dict) and ("FBNeo cheat database" in str(v.get("note", ""))
+                                                 or "MAME cheat database" in str(v.get("note", ""))))}
         merged = dict(vals)
         merged.update(hand)                          # learned or set by hand wins / ce qui est appris passe avant
         for key, a in zip(("rounds", "rounds_p2"), ROUNDS.get(name, ())):
@@ -626,7 +662,7 @@ def build(fbneo, cheats_dir, games_dir):
         # les versions dont les propres codes de triche mettent une valeur ailleurs : lue là pour cette version
         per = {}
         for x in sets[1:]:
-            xc = cheats(os.path.join(cheats_dir, x + ".ini"))
+            xc = load_cs(x)
             if xc:
                 xv = values_from_cheats(xc, fam, name)[0]
                 diff = {k: v for k, v in xv.items() if k in vals and k not in hand and v.get("addr") != vals[k].get("addr")}
@@ -766,7 +802,7 @@ def main(argv):
     if len(argv) < 3:
         print(__doc__)
         return 2
-    report = build(argv[1], argv[2], os.path.join(ROOT, "games"))
+    report = build(argv[1], argv[2], os.path.join(ROOT, "games"), argv[3] if len(argv) > 3 else "")
     print("\n".join(report))
     print(len(report), "games")
     return 0

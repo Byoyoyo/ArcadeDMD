@@ -1,0 +1,40 @@
+{
+  "title": "Koro Koro Quest",
+  "note": "Action game on the Cave board (CAVE): credits, round (FinalBurn Neo cheat database). Made by tools/cave_games.py.",
+  "generated": "tools/cave_games.py",
+  "cave": "CAVE",
+  "match": [
+    {
+      "system": ["korokoro"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0x300000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: Cave 68000 work RAM from 0x300000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["korokoro"]
+  },
+  "scene_from": "cave_action",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "credits": {
+        "addr": "0x30029D",
+        "type": "u8",
+        "note": "credits (FBNeo cheat database, Infinite Credits)"
+      },
+      "round": {
+        "addr": "0x30029B",
+        "type": "u8",
+        "note": "round, the value read plus one (FBNeo cheat database, Select Starting Round)",
+        "add": 1
+      }
+    }
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0
+  }
+}

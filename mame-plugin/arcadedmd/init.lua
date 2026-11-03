@@ -13,7 +13,7 @@
 
 local exports = {
 	name = "arcadedmd",
-	version = "1.30.1",
+	version = "1.31.0",
 	description = "ArcadeDMD",
 	license = "MIT",
 	author = { name = "Byoyoyo" } }
@@ -333,6 +333,12 @@ local function make_reader(space, def)
 	local add = def.add or 0
 	local vmin = tonumber(def.min)
 	local vmax = tonumber(def.max)
+	-- "valid" : les valeurs que le jeu peut avoir, une autre n'est pas lue / the values the game can have
+	local vlo, vhi
+	if type(def.valid) == "table" then
+		vlo = tonumber(def.valid[1])
+		vhi = tonumber(def.valid[2])
+	end
 	local mask = parse_addr(def.mask)
 	local shift = math.tointeger(def.shift)
 	local zero = parse_addr(def.zero_from)    -- a bar gone below zero reads 0xFF...: empty / une barre passee sous zero
@@ -348,6 +354,8 @@ local function make_reader(space, def)
 		raw = function(a) local v = space:read_u8(a) if v >= 0x80 then v = v - 0x100 end return v end
 	elseif t == "s16" then
 		raw = function(a) local v = space:read_u16(a) if v >= 0x8000 then v = v - 0x10000 end return v end
+	elseif t == "s32" then  -- a signed 32-bit number (DoDonPachi's boss life) / un nombre signé de 32 bits
+		raw = function(a) local v = space:read_u32(a) if v >= 0x80000000 then v = v - 0x100000000 end return v end
 	elseif t == "be" or t == "le" then
 		raw = function(a)
 			local v = 0
@@ -395,6 +403,7 @@ local function make_reader(space, def)
 		if shift then v = v >> shift end
 		if zero and v >= zero then return vmin or 0 end
 		v = v * mult + add
+		if (vlo and v < vlo) or (vhi and v > vhi) then return nil end
 		if vmin and v < vmin then v = vmin end
 		if vmax and v > vmax then v = vmax end
 		if math.type(v) == "float" and v == math.floor(v) then v = math.tointeger(v) or v end

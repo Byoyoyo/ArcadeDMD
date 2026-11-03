@@ -18,14 +18,34 @@ from .i18n import tr
 
 
 # ============================================================================ Strikers 1945 Plus
-def s45_plane_draw(kind, body, accent, dark=(26, 24, 22)):
+# Each plane in the colours its sprite has in the game, read on photos of the plane select screen and of the XP-55
+# Ascender in game, the plane hidden behind the "?" (1.31): its body, its wings and its marks.
+# Chaque avion aux couleurs de son sprite dans le jeu, lues sur des photos de l'écran de choix des avions et de l'Ascender
+# en jeu, l'avion caché derrière le « ? » : le corps, les ailes et les marques.
+S45_PAINT = {
+    1: ((222, 230, 240), (204, 214, 228), (36, 118, 226)),     # P-38 Lightning: white, blue engines / blanc, moteurs bleus
+    2: ((34, 126, 214), (28, 110, 198), (226, 52, 52)),        # F5U: blue, red tail tips / bleu, bouts de queue rouges
+    3: ((48, 104, 192), (44, 168, 78), (236, 240, 236)),       # Spitfire: blue body, green wings / corps bleu, ailes vertes
+    4: ((150, 196, 34), (132, 178, 30), (236, 244, 196)),      # Ta-152: lime green / vert anis
+    5: ((30, 164, 116), (34, 172, 128), (240, 176, 32)),       # Zero: emerald, yellow leading edges / émeraude, bords jaunes
+    6: ((222, 40, 34), (206, 36, 32), (250, 198, 40)),         # Fiat G.56: red, yellow nose / rouge, nez jaune
+    7: ((206, 172, 130), (190, 154, 114), (242, 232, 210)),    # XP-55 Ascender: light brown, pale fins / marron clair
+}
+
+
+def s45_plane_draw(kind, body, accent, dark=(26, 24, 22), wing=None):
     """The planes of Strikers 1945 Plus seen from above, nose to the right, drawn after the real ones: 1 P-38 Lightning
     (two booms), 2 F5U (a round wing, two big propellers), 3 Spitfire (elliptic wings), 4 Ta-152 (long wings), 5 Zero,
-    6 Fiat G.56, 7 a canard plane with its propeller at the back. / Les avions vus du dessus, d'après les vrais."""
+    6 Fiat G.56, 7 a canard plane with its propeller at the back. The wings take `wing` (else the body a little darker),
+    the marks take `accent` where the game has them: the engines and wing tips of the P-38, the tail tips of the F5U, the
+    leading edges of the Zero, the nose of the Fiat, the fins of the Ascender, a stripe at the wing tips of the others.
+    / Les avions vus du dessus, d'après les vrais. Les ailes prennent `wing`, les marques `accent` là où le jeu les a."""
     def fn(d, W, H):
         line = dark + (255,)
         ow = max(1.0, W * 0.012)
-        b, sh, lt = body + (255,), _mix(body, (0, 0, 0), 0.25) + (255,), _mix(body, WHITE, 0.35) + (255,)
+        wc = wing if wing is not None else _mix(body, (0, 0, 0), 0.25)
+        b, sh, lt = body + (255,), wc + (255,), _mix(body, WHITE, 0.35) + (255,)
+        wlt = _mix(wc, WHITE, 0.35) + (255,)
         acc = accent + (255,)
         prop = (230, 230, 236, 90)
 
@@ -45,7 +65,7 @@ def s45_plane_draw(kind, body, accent, dark=(26, 24, 22)):
                          (x1 - 0.07, 0.5 + w)]), b, line, ow)
             d.polygon(P([(x1 - 0.08, 0.5 - w * 0.5), (x0 + 0.08, 0.5 - w * 0.3), (x0 + 0.08, 0.5 - w * 0.05), (x1 - 0.08, 0.5 - w * 0.1)]), fill=lt)
 
-        def wings(front, back, tip_f, tip_b, span, round_tip=False):
+        def wings(front, back, tip_f, tip_b, span, round_tip=False, marks="tips"):
             for sgn in (1, -1):
                 def m(y):
                     return 0.5 + sgn * (y - 0.5)
@@ -54,9 +74,14 @@ def s45_plane_draw(kind, body, accent, dark=(26, 24, 22)):
                     pts = [(front, m(0.47)), (tip_f, m(0.5 - span + 0.04)), ((tip_f + tip_b) / 2, m(0.5 - span)), (tip_b, m(0.5 - span + 0.04)),
                            (back, m(0.47))]
                 _shape(d, P(pts), sh, line, ow)
-                d.line(P([(front - 0.01, m(0.45)), (tip_f - 0.005, m(0.5 - span + 0.05))]), fill=lt, width=max(1, int(H * 0.012)))
-                d.line(P([((tip_f + tip_b) / 2 - 0.02, m(0.5 - span + 0.07)), ((tip_f + tip_b) / 2 + 0.02, m(0.5 - span + 0.07))]), fill=acc,
-                       width=max(2, int(H * 0.03)))
+                d.line(P([(front - 0.01, m(0.45)), (tip_f - 0.005, m(0.5 - span + 0.05))]), fill=wlt, width=max(1, int(H * 0.012)))
+                if marks == "edge":                    # the leading edge near the body (Zero) / le bord d'attaque près du corps
+                    k_ = 0.45
+                    d.line(P([(front - 0.012, m(0.46)), (front + (tip_f - front) * k_ - 0.012, m(0.46 + (0.5 - span - 0.46) * k_))]),
+                           fill=acc, width=max(2, int(H * 0.035)))
+                elif marks == "tips":
+                    d.line(P([((tip_f + tip_b) / 2 - 0.02, m(0.5 - span + 0.07)), ((tip_f + tip_b) / 2 + 0.02, m(0.5 - span + 0.07))]),
+                           fill=acc, width=max(2, int(H * 0.03)))
 
         def tail(x, span, w=0.08):
             for sgn in (1, -1):
@@ -65,31 +90,37 @@ def s45_plane_draw(kind, body, accent, dark=(26, 24, 22)):
         if k == 1:                                                     # P-38 : deux poutres
             for y in (0.3, 0.7):
                 _shape(d, P([(0.8, y), (0.74, y - 0.05), (0.1, y - 0.03), (0.06, y), (0.1, y + 0.03), (0.74, y + 0.05)]), b, line, ow)
+                _shape(d, P([(0.8, y), (0.74, y - 0.05), (0.64, y - 0.046), (0.64, y + 0.046), (0.74, y + 0.05)]), acc, line, ow)
                 d.line(P([(0.06, y), (0.18, y)]), fill=line, width=max(2, int(H * 0.03)))
                 disc(0.82, y, 0.15)
             _shape(d, P([(0.62, 0.02), (0.5, 0.02), (0.5, 0.98), (0.62, 0.98)]), sh, line, ow)
+            for y0, y1 in ((0.02, 0.08), (0.92, 0.98)):                # blue wing tips / bouts d'ailes bleus
+                _shape(d, P([(0.62, y0), (0.5, y0), (0.5, y1), (0.62, y1)]), acc, line, ow)
             _shape(d, P([(0.16, 0.26), (0.08, 0.26), (0.08, 0.74), (0.16, 0.74)]), sh, line, ow)
             fuselage(0.4, 0.9, 0.06)
             canopy(0.66)
             d.ellipse(P([(0.86, 0.48), (0.9, 0.52)])[0] + P([(0.86, 0.48), (0.9, 0.52)])[1], fill=(200, 230, 255, 255))
         elif k == 2:                                                   # F5U : aile ronde, deux grosses hélices
+            _shape(d, P([(0.22, 0.3), (0.06, 0.3), (0.06, 0.7), (0.22, 0.7)]), sh, line, ow)       # its tail / sa queue
+            for y0, y1 in ((0.3, 0.37), (0.63, 0.7)):                  # red tips, as in the game / bouts rouges
+                _shape(d, P([(0.2, y0), (0.06, y0), (0.06, y1), (0.2, y1)]), acc, line, ow)
             d.ellipse(P([(0.22, 0.12), (0.84, 0.88)])[0] + P([(0.22, 0.12), (0.84, 0.88)])[1], fill=b, outline=line, width=int(ow))
             d.chord(P([(0.26, 0.16), (0.8, 0.84)])[0] + P([(0.26, 0.16), (0.8, 0.84)])[1], 200, 320, fill=lt)
             for y in (0.26, 0.74):
                 disc(0.84, y, 0.22)
             for y in (0.42, 0.58):
                 d.line(P([(0.08, y), (0.26, y)]), fill=line, width=max(2, int(H * 0.03)))
-            _shape(d, P([(0.24, 0.44), (0.06, 0.44), (0.06, 0.56), (0.24, 0.56)]), sh, line, ow)
             canopy(0.6, 0.1)
         elif k == 7:                                                   # canard, hélice à l'arrière
             for sgn in (1, -1):
                 def m(y):
                     return 0.5 + sgn * (y - 0.5)
                 _shape(d, P([(0.42, m(0.46)), (0.2, m(0.06)), (0.12, m(0.06)), (0.18, m(0.46))]), sh, line, ow)
+                _shape(d, P([(0.24, m(0.1)), (0.08, m(0.1)), (0.08, m(0.03)), (0.24, m(0.03))]), acc, line, ow)   # its fins
                 d.line(P([(0.18, m(0.28)), (0.28, m(0.28))]), fill=line, width=max(2, int(H * 0.03)))
                 _shape(d, P([(0.84, m(0.47)), (0.78, m(0.36)), (0.74, m(0.36)), (0.76, m(0.47))]), sh, line, ow)
             fuselage(0.08, 0.96, 0.06)
-            canopy(0.62)
+            canopy(0.47)                                               # just ahead of the wings, as in the game
             disc(0.06, 0.5, 0.2)
         else:
             span = {3: 0.47, 4: 0.48, 5: 0.46, 6: 0.44}[k]
@@ -100,15 +131,18 @@ def s45_plane_draw(kind, body, accent, dark=(26, 24, 22)):
                 wings(0.58, 0.48, 0.55, 0.5, span)
                 tail(0.04, 0.16)
             elif k == 5:
-                wings(0.6, 0.44, 0.56, 0.5, span, round_tip=True)
+                wings(0.6, 0.44, 0.56, 0.5, span, round_tip=True, marks="edge")
                 tail(0.06, 0.17)
             else:
-                wings(0.6, 0.44, 0.55, 0.49, span)
+                wings(0.6, 0.44, 0.55, 0.49, span, marks="")
                 tail(0.06, 0.16)
                 d.rectangle(P([(0.42, 0.535), (0.56, 0.56)])[0] + P([(0.42, 0.535), (0.56, 0.56)])[1], fill=(50, 50, 50, 255))
-            fuselage(0.04 if k == 4 else 0.06, 0.97 if k == 4 else 0.93, 0.065)
+            x1 = 0.97 if k == 4 else 0.93
+            fuselage(0.04 if k == 4 else 0.06, x1, 0.065)
+            if k == 6:                                                 # the yellow nose of the Fiat / le nez jaune du Fiat
+                _shape(d, P([(x1, 0.5), (x1 - 0.07, 0.435), (x1 - 0.14, 0.437), (x1 - 0.14, 0.563), (x1 - 0.07, 0.565)]), acc, line, ow)
             canopy(0.56 if k != 4 else 0.52)
-            disc(0.97 if k == 4 else 0.93, 0.5, 0.2)
+            disc(x1, 0.5, 0.2)
     return fn
 
 
@@ -117,17 +151,69 @@ def s45_bomber_draw(d, W, H):
     bomber_draw(d, W, H)
 
 
+class BarFill:
+    """How full a bar of the game is when its full value is not known (the super shot bar of Strikers 1945 Plus, 1.31).
+    At rest it is the lowest value seen. Full is `floor` above the rest until a first fill ends, then the highest value
+    a fill reached, read twice in a row so that a value misread once does not count. A fill ends when the bar falls
+    back under half its height. / Le remplissage d'une barre du jeu dont on ne connaît pas la valeur pleine : au repos
+    la plus basse vue, pleine à floor au-dessus jusqu'à la fin d'un premier remplissage, puis la plus haute atteinte,
+    lue deux fois de suite pour qu'un raté ne compte pas. Un remplissage finit quand la barre retombe sous sa moitié."""
+
+    def __init__(self, floor=255):
+        self.floor = floor
+        self.lo = None
+        self.prev = None
+        self.top = None                                 # the highest value of the fill going on / du remplissage en cours
+        self.full = None                                # the highest of the fills that ended / des remplissages finis
+        self.fills = 0                                  # fills seen (tests) / remplissages vus (tests)
+
+    def span(self):
+        lo = self.lo or 0
+        top = lo if self.top is None else self.top
+        if self.full is None:
+            return max(self.floor, top - lo)
+        return max(1, self.full - lo, top - lo)
+
+    def feed(self, v):
+        """A value read. Returns the highest value of the fill that just ended, else None. / Une valeur lue ; rend le
+        sommet du remplissage qui vient de finir."""
+        if v is None:
+            return None
+        if self.lo is None or v < self.lo:
+            self.lo = v
+        seen = v if self.prev is None else min(v, self.prev)          # read twice in a row / lue deux fois de suite
+        self.prev = v
+        if self.top is None or seen > self.top:
+            self.top = seen
+        h = self.top - self.lo
+        if h >= 4 and v < self.top - h / 2:                           # the bar fell back / la barre retombe
+            peak, self.top = self.top, v
+            self.full = peak if self.full is None else max(self.full, peak)
+            self.fills += 1
+            return peak
+        return None
+
+    def frac(self, v):
+        if v is None or self.lo is None:
+            return 0.0
+        return _clamp((v - self.lo) / self.span())
+
+
 class StrikersScene(AeroFightersScene):
     """Strikers 1945 Plus as in the game: the plane chosen by the player over war-torn ground, its shots, the super shot,
     the bomb that brings a formation of bombers. On the sides, the game's panels: the score, the lives, the bombs and
-    the super shot gauge. / Comme dans le jeu : l'avion choisi au-dessus d'un sol ravagé, les panneaux sur les côtés."""
+    the SUPER SHOT box, where the bar fills as the game's own does and the number gives the super shots in stock
+    (1.31). Each plane has the colours of its sprite in the game, for both players, and when both fly the same plane a
+    small 1P or 2P tab tells them apart (1.31). / Comme dans le jeu : l'avion choisi au-dessus d'un sol ravagé, les
+    panneaux sur les côtés. La barre du super tir se remplit comme celle du jeu, le nombre donne les super tirs en réserve.
+    Chaque avion a les couleurs de son sprite dans le jeu, pour les deux joueurs, et quand les deux volent sur le même
+    avion un petit onglet 1P ou 2P les distingue."""
     THEME = "s45_ground"
     SHADE = (60, 60)
     PROP = True
     ACC = {"p1": (250, 220, 120), "p2": (250, 250, 250)}
     BODY = {"p1": (170, 62, 50), "p2": (60, 104, 190)}
-    PAINT = {1: (176, 182, 192), 2: (62, 84, 136), 3: (118, 128, 96), 4: (136, 142, 148), 5: (186, 186, 166), 6: (184, 164, 120),
-             7: (170, 178, 190)}                      # each plane in its real colours / chaque avion dans ses vraies couleurs
+    TAB = {"p1": (40, 100, 210), "p2": (200, 50, 40)}  # the 1P and 2P tabs / les onglets 1P et 2P
     SHOT = {"p1": (255, 236, 130), "p2": (170, 226, 255)}
     SHOT_SIZE = ((6, 64), (9, 90))
     BOMB = ((200, 60, 50), (200, 160, 90))
@@ -139,14 +225,49 @@ class StrikersScene(AeroFightersScene):
         super().__init__(hd, rng)
         self.supers = 0                                 # super shots shown (tests)
         self.raids = 0                                  # bombs shown as a formation of bombers (tests)
+        # the super shot bar of each player, its full value learned in game and kept from one game to the next
+        # la barre du super tir de chaque joueur, sa valeur pleine apprise en jeu et gardée d'une partie à l'autre
+        self.bars = {"p1": BarFill(), "p2": BarFill()}
+        self.fill = {"p1": 0.0, "p2": 0.0}              # how full it shows / son remplissage à l'écran
+        self.stock_t = {"p1": -99.0, "p2": -99.0}       # when a super shot was earned / quand un super tir est gagné
+        self.bar_logs = 0
+
+    def restart(self, vals, now):
+        super().restart(vals, now)
+        self.fill = {"p1": 0.0, "p2": 0.0}
 
     def kind(self, vals, side):
         v = _n(vals.get("plane" if side == "p1" else "plane_p2"))
         return int(v) if v is not None and 1 <= v <= 7 else 1
 
     def plane_fn(self, side, kind):
-        body = self.PAINT.get(kind, self.BODY[side])
-        return s45_plane_draw(kind, body if side == "p1" else _mix(body, (60, 104, 190), 0.35), self.ACC[side] if side == "p1" else (255, 120, 60))
+        """The plane in the colours of its sprite in the game, the same for both players: who picks the red Fiat flies a
+        red Fiat here too (1.31). / L'avion aux couleurs de son sprite dans le jeu, les mêmes pour les deux joueurs."""
+        body, wing, marks = S45_PAINT.get(kind, S45_PAINT[1])
+        return s45_plane_draw(kind, body, marks, wing=wing)
+
+    def life_icon(self, side, vals):
+        """The plane left in the panel, in its own colours (not lightened as in Aero Fighters, where all are white).
+        / L'avion des vies dans le panneau, dans ses couleurs (pas éclairci comme dans Aero Fighters)."""
+        kind = self.kind(vals, side)
+        key = ("s45life", kind)
+        icon = self.imgs.get(key)
+        if icon is None:
+            icon = self.imgs[key] = self.hd._surf(draw_img(self.S(40), self.S(36), self.plane_fn(side, kind)))
+        return icon
+
+    def plane_tags(self, screen, vals, planes, now):
+        """Both players on the same plane: a small 1P or 2P tab over each, as the cursor of the game's select screen.
+        / Les deux joueurs sur le même avion : un petit onglet 1P ou 2P au-dessus de chacun, comme le curseur du jeu."""
+        if not (self.p1_in(vals) and self.p2_in(vals)) or self.kind(vals, "p1") != self.kind(vals, "p2"):
+            return
+        S = self.S
+        for side, kind, x, y in planes:
+            w, h = S(60), S(30)
+            bx, by = x - w / 2, max(S(4), y - S(92) - h)
+            self.box(screen, bx, by, w, h, _mix(self.TAB[side], WHITE, 0.45), fill=self.TAB[side] + (235,), radius=6)
+            self.text(screen, "1P" if side == "p1" else "2P", x, by + h / 2, 24, (255, 214, 60), key="black", align="center",
+                      valign="middle", glow=0)
 
     def plane_surf(self, side, kind, shadow=False):
         """The planes a little bigger than in Aero Fighters, as in the game. / Les avions un peu plus grands."""
@@ -180,7 +301,28 @@ class StrikersScene(AeroFightersScene):
                 continue
             ch = self.changed(vals, "super" + suf)
             if ch and ch[1] < ch[0] and now - P["t_dead"] > 1.2:
-                self.super_shot(side, now)
+                self.super_shot(side, now)                  # one less in stock: the super shot leaves / un de moins : il part
+            elif ch and ch[1] > ch[0]:
+                self.stock_t[side] = now                    # one more: the number jumps / un de plus : le nombre saute
+            v = _n(vals.get("charge" + suf))
+            if v is not None:
+                bar = self.bars[side]
+                peak = bar.feed(v)
+                if peak is not None:
+                    self.log_bar(side, bar, peak, v, _n(vals.get("super" + suf)))
+                self.fill[side] += (bar.frac(v) - self.fill[side]) * min(1.0, self.dt * 14)
+
+    def log_bar(self, side, bar, peak, v, stock):
+        """The first fills of the bar go in the log, with the values read, to know its full value for sure.
+        / Les premiers remplissages de la barre vont dans le journal, pour connaître sûrement sa valeur pleine."""
+        if self.bar_logs >= 8:
+            return
+        self.bar_logs += 1
+        n = "?" if stock is None else int(stock)
+        self.hd.log(tr(f"Strikers 1945 Plus, barre du super tir {'J1' if side == 'p1' else 'J2'} : de {int(bar.lo)} à {int(peak)} "
+                       f"(0x{int(peak):04X}), retombée à {int(v)}, {n} super tirs en réserve",
+                       f"Strikers 1945 Plus, {side.upper()} super shot bar: from {int(bar.lo)} to {int(peak)} (0x{int(peak):04X}), "
+                       f"back to {int(v)}, {n} super shots in stock"))
 
     def super_shot(self, side, now):
         """The super shot: a long blast of light in front of the plane, everything in its way blows up.
@@ -294,15 +436,29 @@ class StrikersScene(AeroFightersScene):
                 screen.blit(bimg, (int(x0 + S(40)), S(224) - int(S(6) * k)))
                 self.text(screen, str(int(bombs)), x0 + pw - S(40), S(244), 44, (255, 170, 60), key="stencil", align="right", valign="middle")
             sup = _n(vals.get("super" + suf))
-            if sup is not None:                                        # SUPER SHOT, a column of segments
+            chg = _n(vals.get("charge" + suf))
+            if sup is not None or chg is not None:                     # SUPER SHOT, a column of segments
                 self.box(screen, x0 + S(14), S(276), pw - S(28), S(170), (60, 46, 30), fill=(30, 22, 12, 230), radius=8)
                 self.text(screen, "SUPER", x0 + S(26), S(296), 24, (255, 170, 60), key="black", valign="middle", glow=0.2)
                 self.text(screen, "SHOT", x0 + S(26), S(322), 24, (255, 170, 60), key="black", valign="middle", glow=0.2)
-                n = int(_clamp(sup, 0, 8))
+                if chg is None:                                        # no bar read: the super shots in stock light it
+                    lit, full = int(_clamp(sup, 0, 8)), False
+                else:                                                  # the bar of the game fills it, the stock beside
+                    lit, full = self.fill[side] * 8, self.fill[side] > 0.985
+                    if sup is not None:
+                        b = max(0.0, 1 - (now - self.stock_t[side]) / 0.4)
+                        self.text(screen, f"×{int(sup)}", x0 + pw - S(28), S(309), 40, _mix((255, 170, 60), (255, 244, 200), b),
+                                  key="stencil", align="right", valign="middle", glow=0.3, scale=1 + 0.35 * b)
+                on = (255, 176, 40)
+                if full:                                               # full: it glows / pleine : elle brille
+                    on = _mix((255, 226, 130), WHITE, 0.25 + 0.25 * math.sin(now * 12))
+                    g = self.fx.sp.glow(S(46), (255, 200, 90), 5, hot=0.3)
+                    screen.blit(g, (int(x0 + pw - S(62) - g.get_width() / 2), int(S(385) - g.get_height() / 2)),
+                                special_flags=pg.BLEND_RGB_ADD)
                 for i in range(8):
-                    on = i < n
                     yy = S(430) - i * S(13)
-                    pg.draw.rect(screen, (255, 176, 40) if on else (70, 50, 20), (int(x0 + pw - S(90)), yy, S(56), S(9)), border_radius=S(2))
+                    pg.draw.rect(screen, _mix((70, 50, 20), on, _clamp(lit - i)), (int(x0 + pw - S(90)), yy, S(56), S(9)),
+                                 border_radius=S(2))
             pwr = _n(vals.get("power" + suf))
             if pwr is not None:                                        # the power of the shots, next to the super shot gauge
                 self.text(screen, "POW", x0 + S(26), S(368), 20, CREAM, key="bold", valign="middle", glow=0)
@@ -311,7 +467,7 @@ class StrikersScene(AeroFightersScene):
                     pg.draw.rect(screen, (255, 210, 70) if on else (58, 46, 26), (int(x0 + S(28) + i * S(22)), S(386), S(16), S(46)), border_radius=S(3))
         plane = vals.get("plane_name")
         if isinstance(plane, str) and plane and self.p1_in(vals):
-            self.label(screen, plane, W / 2, S(420), 26, GOLD, key="xbold", align="center", alpha=130)
+            self.label(screen, plane, W / 2, S(344), 26, GOLD, key="xbold", align="center", alpha=130)
 
 
 # ============================================================================ Street Hoop
@@ -422,6 +578,7 @@ class StreetHoopScene(GameScene):
     points, dunks), the other team then takes the ball back. The points of both teams at the top, the clock in its
     orange box at the bottom between the two SUPER SHOT gauges, 1P above the player's man.
     / Le basket de rue comme dans le jeu : trois contre trois sur un demi-terrain, le panier à droite."""
+    CREDITS = (250, None)                                 # the clock and the super shots / le chrono et les super tirs
     THEME = "hoop_park"
     STATIC = True
     SHADE = (60, 70)
@@ -2042,6 +2199,7 @@ class LeagueBowlingScene(GameScene):
     with their own pins. Each time the game's shot clock starts again, the bowler throws: the ball hooks down the lane
     and the pins fly, STRIKE! or SPARE! now and then. TIME and the score at the top, as in the game.
     / Le bowling comme dans le jeu : la piste vue de derrière le joueur, les quilles au fond, STRIKE !"""
+    CREDITS = (-420, None)                                # the bowler is in the middle / le joueur est au milieu
     THEME = "lb_lanes"
     STATIC = True
     SHADE = (60, 40)

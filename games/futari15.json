@@ -1,0 +1,168 @@
+{
+  "title": "Mushihime-Sama Futari Ver 1.5",
+  "note": "Shoot'em up by Cave (CV1000): credits, lives, lives_p2, bombs, bombs_p2 (MAME cheat database). Made by tools/cave_games.py.",
+  "generated": "tools/cave_games.py",
+  "cave": "CV1000",
+  "match": [
+    {
+      "system": ["futari15", "futari10", "futari15a"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xC000000",
+    "ram_size": "0x400000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CV1000 SH-3 RAM from 0xC000000, the first 4 MB of its 8, as far as the values of the game go, bytes swapped within 16-bit words",
+    "content": ["futari15", "futari10", "futari15a"]
+  },
+  "titles": {
+    "futari10": "Mushihime-Sama Futari Ver 1.0"
+  },
+  "scene_from": "cave_shoot",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "credits": {
+        "addr": "0xC0601E7",
+        "type": "u8",
+        "note": "credits (MAME cheat database, Infinite Credits)"
+      },
+      "lives": {
+        "addr": "0xC38AABF",
+        "type": "u8",
+        "note": "lives (MAME cheat database, Infinite Lives PL1)"
+      },
+      "lives_p2": {
+        "addr": "0xC38AB77",
+        "type": "u8",
+        "note": "lives of player 2 (MAME cheat database, Infinite Lives PL2)"
+      },
+      "bombs": {
+        "addr": "0xC38AAC2",
+        "type": "u8",
+        "note": "bombs (MAME cheat database, Infinite Bombs PL1)"
+      },
+      "bombs_p2": {
+        "addr": "0xC38AB7A",
+        "type": "u8",
+        "note": "bombs of player 2 (MAME cheat database, Infinite Bombs PL2)"
+      },
+      "score": {
+        "addr": "",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+      },
+      "score_p2": {
+        "addr": "",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+      }
+    }
+  },
+  "hd": {
+    "scene": "futari15"
+  },
+  "activity": {
+    "values": ["lives", "lives_p2", "bombs", "bombs_p2", "score", "score_p2"],
+    "moving": ["score", "score_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
+  },
+  "demo": {
+    "attract": true,
+    "credits": 0,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "score": 0,
+    "lives": 3,
+    "bombs": 3,
+    "score_p2": 0,
+    "lives_p2": 0,
+    "bombs_p2": 0,
+    "sim": {
+      "bombs": {
+        "cycle": [
+          3,
+          3,
+          2,
+          2,
+          1,
+          2,
+          3,
+          3
+        ],
+        "every": 6.0,
+        "start": 9.0
+      },
+      "score_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "lives_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "bombs_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      }
+    }
+  },
+  "per_game": {
+    "futari10": {
+      "lives": {
+        "addr": "0xC3883DF",
+        "type": "u8",
+        "note": "lives (MAME cheat database, Infinite Lives PL1) (futari10: its own cheats)"
+      },
+      "lives_p2": {
+        "addr": "0xC388497",
+        "type": "u8",
+        "note": "lives of player 2 (MAME cheat database, Infinite Lives PL2) (futari10: its own cheats)"
+      },
+      "bombs": {
+        "addr": "0xC3883E2",
+        "type": "u8",
+        "note": "bombs (MAME cheat database, Infinite Bombs PL1) (futari10: its own cheats)"
+      },
+      "bombs_p2": {
+        "addr": "0xC38849A",
+        "type": "u8",
+        "note": "bombs of player 2 (MAME cheat database, Infinite Bombs PL2) (futari10: its own cheats)"
+      }
+    },
+    "futari15a": {
+      "lives": {
+        "addr": "0xC38AAAF",
+        "type": "u8",
+        "note": "lives (MAME cheat database, Infinite Lives PL1) (futari15a: its own cheats)"
+      },
+      "lives_p2": {
+        "addr": "0xC38AB67",
+        "type": "u8",
+        "note": "lives of player 2 (MAME cheat database, Infinite Lives PL2) (futari15a: its own cheats)"
+      },
+      "bombs": {
+        "addr": "0xC38AAB2",
+        "type": "u8",
+        "note": "bombs (MAME cheat database, Infinite Bombs PL1) (futari15a: its own cheats)"
+      },
+      "bombs_p2": {
+        "addr": "0xC38AB6A",
+        "type": "u8",
+        "note": "bombs of player 2 (MAME cheat database, Infinite Bombs PL2) (futari15a: its own cheats)"
+      }
+    }
+  }
+}

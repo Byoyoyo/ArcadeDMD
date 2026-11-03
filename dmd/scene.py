@@ -206,6 +206,9 @@ def check_when(cond, state, now=None):
             return v < cond["lt"]
         if "le" in cond:
             return v <= cond["le"]
+        if "ge_var" in cond:                         # at least another value (bombs at their slots) / au moins une autre valeur
+            other = state.values.get(cond["ge_var"])
+            return isinstance(other, (int, float)) and isinstance(v, (int, float)) and v >= other
         return True
     return True
 
@@ -553,12 +556,19 @@ class GaugeEl(Element):
     """Barre de vie (jeux de combat) : var / max, accrochée d'un côté comme dans le jeu.
 
     anchor "right" : la barre reste collée à droite et se vide par la gauche (joueur 1),
-    anchor "left" : l'inverse (joueur 2). low_at : sous ce rapport, couleur low."""
+    anchor "left" : l'inverse (joueur 2). low_at : sous ce rapport, couleur low.
+    max "peak" (1.31) : la barre pleine est la plus haute valeur vue depuis qu'elle s'affiche, pour une vie dont le
+    maximum change (le boss de DoDonPachi) ; cachée plus de peak_hold secondes (une demi-seconde par défaut), elle repart
+    de zéro. / max "peak": full is the highest value seen since it shows, for a life whose top changes (DoDonPachi's
+    boss); hidden longer than peak_hold seconds (half a second by default), it starts again."""
 
     def __init__(self, spec, root, log):
         super().__init__(spec, root, log)
         self.var = spec.get("var", "health")
-        self.max = float(spec.get("max", 100))
+        self.peak = spec.get("max") == "peak"
+        self.max = 0.0 if self.peak else float(spec.get("max", 100))
+        self.seen_t = None                              # dernière image dessinée (max "peak") / last image drawn
+        self.hold = float(spec.get("peak_hold", 0.5))
         self.x, self.y = int(spec.get("x", 0)), int(spec.get("y", 0))
         self.w, self.h = max(1, int(spec.get("w", 50))), max(1, int(spec.get("h", 5)))
         self.anchor = spec.get("anchor", "left")
@@ -571,10 +581,20 @@ class GaugeEl(Element):
         self.bevel = parse_color(spec.get("bevel"), None) if spec.get("bevel") else None
         self.shade = spec.get("shade", True)              # première ligne un peu plus claire
 
+    def restart(self):
+        super().restart()
+        if self.peak:
+            self.max, self.seen_t = 0.0, None
+
     def render(self, ctx):
         v = ctx.state.values.get(self.var)
         if not isinstance(v, (int, float)):
             return
+        if self.peak:                                   # a new life once it was hidden a while / une nouvelle vie après une pause
+            if self.seen_t is None or not 0 <= ctx.t - self.seen_t <= self.hold:
+                self.max = 0.0
+            self.seen_t = ctx.t
+            self.max = max(self.max, float(v))
         r = max(0.0, min(1.0, v / self.max)) if self.max > 0 else 0.0
         n = int(round(r * self.w))
         col = self.low if r <= self.low_at else self.color
@@ -1358,8 +1378,10 @@ class IconsEl(Element):
     """A small drawing repeated for a value: lives as ships, bombs, power pips.
     "pattern": rows of characters, "." empty, other characters colored by "colors" (or "color").
     "max": at most this many, "empty": color of the slots left (up to max), "align": "left" or "right".
+    "slots": a value that says how many slots there are, the empty ones shown up to it (the bomb slots of DoDonPachi).
 
-    Un petit dessin répété autant de fois que la valeur : vies en vaisseaux, bombes, niveaux de puissance."""
+    Un petit dessin répété autant de fois que la valeur : vies en vaisseaux, bombes, niveaux de puissance. "slots" : la
+    valeur qui dit combien il y a de places, les vides montrées jusque-là (les places de bombes de DoDonPachi)."""
 
     def __init__(self, spec, root, log):
         super().__init__(spec, root, log)
@@ -1378,6 +1400,9 @@ class IconsEl(Element):
         mx = int(s.get("max", 8))
         n = max(0, min(n, mx))
         slots = mx if self.empty is not None else n
+        if self.empty is not None and isinstance(s.get("slots"), str):
+            k = _int_value(ctx, s["slots"])
+            slots = n if k is None else max(n, min(k, mx))
         gap = int(s.get("gap", 1))
         x0, y0 = int(s.get("x", 0)), int(s.get("y", 0))
         right = s.get("align") == "right"

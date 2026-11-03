@@ -1,0 +1,71 @@
+{
+  "title": "Puzzle Uo Poko",
+  "note": "Puzzle game by Cave (CAVE): credits, stage, bubble, bubble_p2 (FinalBurn Neo cheat database). Made by tools/cave_games.py.",
+  "generated": "tools/cave_games.py",
+  "cave": "CAVE",
+  "match": [
+    {
+      "system": ["uopoko", "uopokoj"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0x100000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: Cave 68000 work RAM from 0x100000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["uopoko", "uopokoj"]
+  },
+  "scene_from": "cave_reflexion",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "credits": {
+        "addr": "0x100195",
+        "type": "u8",
+        "note": "credits (FBNeo cheat database, Infinite Credits)"
+      },
+      "stage": {
+        "addr": "0x100203",
+        "type": "u8",
+        "note": "stage, the value read plus one (FBNeo cheat database, Select Starting Stage)",
+        "add": 1
+      },
+      "bubble": {
+        "addr": "0x1022F1",
+        "type": "u8",
+        "note": "bubble of player 1 ready to shoot: 0x80 magenta to 0x87 orange (FBNeo cheat database, Select Current Bubble PL1)"
+      },
+      "bubble_p2": {
+        "addr": "0x1022F3",
+        "type": "u8",
+        "note": "bubble of player 2 (FBNeo cheat database, Select Current Bubble PL2)"
+      },
+      "score": {
+        "addr": "0x100218",
+        "type": "be",
+        "bytes": 4,
+        "note": "player 1 score, a 32-bit number (RetroAchievements leaderboard \"Best Score\" and code notes, from tools/ra_notes.py), to confirm in game"
+      },
+      "score_p2": {
+        "addr": "",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+      }
+    }
+  },
+  "hd": {
+    "scene": "uopoko"
+  },
+  "activity": {
+    "values": ["score", "score_p2"],
+    "moving": ["score", "score_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0
+  }
+}

@@ -22,10 +22,11 @@
   "cpu": ":maincpu",
   "values": {
    "score": {
-    "addr": "",
+    "addr": "0x100CA1",
     "type": "bcd",
-    "bytes": 4,
-    "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+    "bytes": 3,
+    "mult": 10,
+    "note": "player 1 score, BCD, its last digit always 0 (RetroAchievements leaderboard \"Best Magicians\" and rich presence, from tools/ra_notes.py), to confirm in game"
    },
    "score_p2": {
     "addr": "",

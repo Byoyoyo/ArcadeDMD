@@ -24,6 +24,7 @@ from collections import OrderedDict
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 from .hd_coin import CoinDoors, coin_rates
+from .hd_credits import CreditsBar
 from .hd_fight import FightFX
 from .hd_games import SCENES as _SCENES_117
 from .hd_games2 import SCENES as _SCENES_118
@@ -39,6 +40,7 @@ from .hd_games11 import SCENES as _SCENES_127
 from .hd_games13 import SCENES as _SCENES_CPS_SHOOT
 from .hd_games14 import SCENES as _SCENES_CPS_ACTION
 from .hd_games16 import SCENES as _SCENES_CPS_SMALL
+from .hd_cave import SCENES as _SCENES_CAVE
 from .hd_panels import SCENES as _SCENES_CPS_PANELS
 from .hd_mslug import MetalSlugScene, family
 from .i18n import tr
@@ -58,7 +60,8 @@ GAME_SCENES = dict(_SCENES_117, **_SCENES_118, **_SCENES_119, **_SCENES_120, **_
                    **_SCENES_124, **_SCENES_125, **_SCENES_126,
                    **_SCENES_127,     # Neo Geo games done one by one
                    **_SCENES_CPS_SHOOT, **_SCENES_CPS_ACTION,
-                   **_SCENES_CPS_SMALL)     # Capcom CPS games done one by one
+                   **_SCENES_CPS_SMALL,     # Capcom CPS games done one by one
+                   **_SCENES_CAVE)          # the Cave games (1.31)
 GAME_SCENES.update(_SCENES_CPS_PANELS)       # the Capcom games with characters, shown like Metal Slug (1.30)
 MSLUG_WEAPONS = {0: ("PISTOLET", "HANDGUN"), 1: ("FUSIL À POMPE", "SHOTGUN"), 2: ("LANCE-FLAMMES", "FLAMETHROWER"),
                  3: ("LANCE-ROQUETTES", "ROCKET LAUNCHER"), 4: ("MITRAILLETTE", "MACHINE GUN")}
@@ -122,6 +125,7 @@ class HDRenderer:
             self.dim = 30
         self.dim_veils = {}
         self.credit_pills = {}
+        self.fight_cbar = None        # the credits of the fights, as in Metal Slug / les crédits des combats
 
     # ------------------------------------------------------------ outils
     def dim_veil(self, size):
@@ -592,7 +596,7 @@ class HDRenderer:
             self.game_scene[1].render(screen, eng, now, self.logo_for(meta, title))
             return
         self.FPS = HDRenderer.FPS
-        fight = (g.get("scene_from") or key) in ("neogeo_combat", "cps_combat") or ("health" in vals and "health_p2" in vals)
+        fight = (g.get("scene_from") or key) in ("neogeo_combat", "cps_combat", "cave_combat") or ("health" in vals and "health_p2" in vals)
         logo = self.logo_for(meta, title)
         if fight and self.themed:                             # combat : salle de tournoi, étincelles, combos, K.O.
             if self.fight is None:
@@ -644,6 +648,10 @@ class HDRenderer:
         known = p1m is not None
         p1_in = p1m in (1, 2) or not known
         p2_in = p2m in (1, 2)
+        if self.fight is not None:                            # the coins put in fall onto the credits during a fight
+            if self.fight_cbar is None or self.fight_cbar.fx is not self.fight.fx:
+                self.fight_cbar = CreditsBar(self, self.fight.fx)
+            self.fight_cbar.watch(_num(vals.get("credits")), now, drop=not (known and not p1_in and not p2_in))
         if known and not p1_in and not p2_in:                 # personne ne joue : démo du jeu
             self.draw_logo(screen, logo, W / 2, S(190), S(1000), S(220), now, valign="middle")
             if self.coins_on:                                 # monnayeurs, pièces, crédits, boutons START
@@ -686,9 +694,14 @@ class HDRenderer:
         if h1 is not None and h2 is not None:
             self.draw_rounds(screen, vals, S(40) + bw, int(cx + S(160)), now)
         ko = h1 is not None and h2 is not None and (h1 <= 0 or h2 <= 0)
-        if ko and h1 <= 0 and h2 <= 0 and not (self.fight is not None and now - self.fight.ko_t < 3.0):
-            ko = False                    # both bars empty without a K.O.: the select screen / l'écran de sélection
         t = _num(vals.get("time"))
+        if h1 is not None and h2 is not None and h1 <= 0 and h2 <= 0 and not (self.fight is not None and now - self.fight.ko_t < 3.0):
+            ko = False                    # both bars empty without a K.O.: the select screen / l'écran de sélection
+            t = None                      # VS, not the timer of the last fight / VS, pas le chrono du combat d'avant
+        if ko and self.fight is not None and self.fight.side_ko(now):
+            ko = False                    # K.O. shows on the loser's side, the timer stopped here / K.O. du côté du perdant
+        if t is not None and self.fight is not None and not self.fight.time_live(now):
+            t = None                      # frozen, the last fight's (select screen): VS / figé, celui du combat d'avant
         if ko:
             ks = self.fight.ko_scale(now) if self.fight is not None else 1.0
             self.put(screen, self.text("KO", "black", S(120), (255, 48, 32)), cx, S(220), "center", "middle", scale=ks)
@@ -723,7 +736,10 @@ class HDRenderer:
             else:
                 self.draw_super(screen, vals, side, now, room, self._level_top(eng, side))
         credits = _num(vals.get("credits"))
-        if credits is not None:                               # big enough to read, on a dark pill / lisibles, sur une pastille
+        if credits is not None and self.fight_cbar is not None:  # as in Metal Slug: the coin (€), CRÉDITS 07 / comme Metal Slug
+            self.fight_cbar.set_symbol((getattr(eng, "cfg", None) or {}).get("coin_symbol", "€"))
+            self.fight_cbar.draw(screen, credits, cx, S(338), now, 0.85)
+        elif credits is not None:                             # big enough to read, on a dark pill / lisibles, sur une pastille
             t = self.text(tr(f"CRÉDITS {int(credits):02d}", f"CREDITS {int(credits):02d}"), "xbold", S(44), AMBER, 0.3)
             w, h = t["w"] + S(56), S(64)
             pill = self.credit_pills.get((w, h))

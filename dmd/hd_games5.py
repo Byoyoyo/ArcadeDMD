@@ -92,6 +92,7 @@ class NamScene(GameScene):
     (then the jungle and its river), the enemies run along the road, tanks and helicopters cross. The bullets, the
     grenades and the weapon read in the game are shown, a grenade blows up where the crosshair is.
     / Notre soldat vu de dos tire dans la ville en feu, comme dans le jeu."""
+    CREDITS = (-420, None)                                # our soldier is in the middle / notre soldat est au milieu
     THEME = "nam_city"
     SHADE = (90, 60)
     EXPLOSIONS = True
@@ -970,6 +971,11 @@ class ZedBladeScene(SideShooterScene):
             for e in self.enemies:
                 if not e.get("dead"):
                     fx.later(0.4, self._boom, e)
+        ch = self.changed(vals, "shot_level")
+        if ch and ch[1] > ch[0] and self.ships["p1"]["in"]:                    # LEVEL-1 to 4, as on the HUD / comme le HUD
+            x, y = self.pos("p1", now)
+            top = _n(self.tops.get("shot_level"))
+            self.power_pop(x, y - self.S(64), int(ch[1]) + 1, int(top) + 1 if top is not None else 4)
 
     def status(self, screen, eng, vals, logo, now):
         """As in the game: 1P- in red and the score, 2P- in blue, the bombs at the bottom left.
@@ -998,7 +1004,7 @@ class ZedBladeScene(SideShooterScene):
                 pg.draw.ellipse(screen, (250, 200, 60), (x + S(10), H - S(26), S(16), S(10)))
         lv = _n(vals.get("shot_level"))
         if lv is not None:
-            self.label(screen, f"LEVEL-{int(lv) + 1}", W / 2, H - S(30), 28, WHITE, align="center")
+            self.label(screen, f"LEVEL-{int(lv) + 1}", W / 2, H - S(100), 28, WHITE, align="center")
 
 
 class PrehistoricIsle2Scene(SideShooterScene):

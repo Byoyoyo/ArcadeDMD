@@ -1,0 +1,258 @@
+{
+  "title": "Fever SOS",
+  "note": "Shoot'em up by Cave (CAVE): credits, lives, lives_p2, bombs, round, bombs_p2, power, power_p2, ship, ship_p2, mode, score (FinalBurn Neo cheat database). Made by tools/cave_games.py.",
+  "generated": "tools/cave_games.py",
+  "cave": "CAVE",
+  "match": [
+    {
+      "system": ["feversos", "dfeveron"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0x100000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: Cave 68000 work RAM from 0x100000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["feversos", "dfeveron"]
+  },
+  "titles": {
+    "dfeveron": "Dangun Feveron"
+  },
+  "scene_from": "cave_shoot",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "credits": {
+        "addr": "0x101731",
+        "type": "u8",
+        "note": "credits (FBNeo cheat database, Infinite Credits)"
+      },
+      "lives": {
+        "addr": "0x1052C5",
+        "type": "u8",
+        "note": "lives (FBNeo cheat database, Infinite Lives PL1)"
+      },
+      "lives_p2": {
+        "addr": "0x1052C7",
+        "type": "u8",
+        "note": "lives of player 2 (FBNeo cheat database, Infinite Lives PL2)"
+      },
+      "bombs": {
+        "addr": "0x105A3B",
+        "type": "u8",
+        "note": "bombs of player 1, 3 at most (FBNeo cheat database, Infinite Bombs PL1)"
+      },
+      "round": {
+        "addr": "0x1052D9",
+        "type": "u8",
+        "note": "round, the value read plus one (FBNeo cheat database, Select Starting Round)",
+        "add": 1
+      },
+      "bombs_p2": {
+        "addr": "0x105A7B",
+        "type": "u8",
+        "note": "bombs of player 2 (FBNeo cheat database, Infinite Bombs PL2)"
+      },
+      "power": {
+        "addr": "0x105A35",
+        "type": "u8",
+        "note": "shot level of player 1, 6 at most (FBNeo cheat database, Maximum Fire Power PL1, the first byte)",
+        "max": 6
+      },
+      "power_p2": {
+        "addr": "0x105A75",
+        "type": "u8",
+        "note": "shot level of player 2 (FBNeo cheat database, Maximum Fire Power PL2)",
+        "max": 6
+      },
+      "ship": {
+        "addr": "0x105A36",
+        "type": "u8",
+        "note": "fighter of player 1: 0 type A (concentrated shot), 8 type B (3-way), 16 type C (wide) (FBNeo cheat database, Select Fighter Type PL1)"
+      },
+      "ship_p2": {
+        "addr": "0x105A76",
+        "type": "u8",
+        "note": "fighter of player 2 (FBNeo cheat database, Select Fighter Type PL2)"
+      },
+      "mode": {
+        "addr": "0x105105",
+        "type": "u8",
+        "note": "game mode: 0 normal, 1 time attack (FBNeo cheat database, Select Game Mode)"
+      },
+      "score_p2": {
+        "addr": "",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+      },
+      "_score_s1": {
+        "addr": "0x103FAE",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 1 score of stage 1, BCD: the score is the sum of the stages (RetroAchievements leaderboards and code notes, from tools/ra_notes.py, tag score), to confirm in game"
+      },
+      "_score_s2": {
+        "addr": "0x103FB2",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 1 score of stage 2, BCD: the score is the sum of the stages (RetroAchievements leaderboards and code notes, from tools/ra_notes.py, tag score), to confirm in game"
+      },
+      "_score_s3": {
+        "addr": "0x103FB6",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 1 score of stage 3, BCD: the score is the sum of the stages (RetroAchievements leaderboards and code notes, from tools/ra_notes.py, tag score), to confirm in game"
+      },
+      "_score_s4": {
+        "addr": "0x103FBA",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 1 score of stage 4, BCD: the score is the sum of the stages (RetroAchievements leaderboards and code notes, from tools/ra_notes.py, tag score), to confirm in game"
+      },
+      "_score_s5": {
+        "addr": "0x103FBE",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 1 score of stage 5, BCD: the score is the sum of the stages (RetroAchievements leaderboards and code notes, from tools/ra_notes.py, tag score), to confirm in game"
+      }
+    }
+  },
+  "derived": {
+    "p1_ship": {
+      "value": "ship",
+      "names": {
+        "0": "TYPE-A",
+        "8": "TYPE-B",
+        "16": "TYPE-C"
+      }
+    },
+    "p2_ship": {
+      "value": "ship_p2",
+      "names": {
+        "0": "TYPE-A",
+        "8": "TYPE-B",
+        "16": "TYPE-C"
+      }
+    }
+  },
+  "hd": {
+    "scene": "feversos"
+  },
+  "activity": {
+    "values": ["lives", "lives_p2", "bombs", "bombs_p2", "score", "score_p2"],
+    "moving": ["score", "score_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
+  },
+  "demo": {
+    "attract": true,
+    "credits": 0,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "score": 0,
+    "lives": 3,
+    "bombs": 3,
+    "power": 1,
+    "ship": 0,
+    "round": 1,
+    "score_p2": 0,
+    "lives_p2": 0,
+    "bombs_p2": 0,
+    "power_p2": 0,
+    "ship_p2": 0,
+    "sim": {
+      "bombs": {
+        "cycle": [
+          3,
+          3,
+          2,
+          2,
+          1,
+          2,
+          3,
+          3
+        ],
+        "every": 6.0,
+        "start": 9.0
+      },
+      "power": {
+        "cycle": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          6,
+          6,
+          1
+        ],
+        "every": 7.0,
+        "start": 6.0
+      },
+      "ship": {
+        "cycle": [
+          0,
+          8,
+          16
+        ],
+        "every": 40.0,
+        "start": 40.0
+      },
+      "round": {
+        "cycle": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "every": 30.0,
+        "start": 30.0
+      },
+      "score_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "lives_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "bombs_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "power_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "ship_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      }
+    }
+  },
+  "tag": {
+    "score": {
+      "sum": ["_score_s1", "_score_s2", "_score_s3", "_score_s4", "_score_s5"]
+    }
+  }
+}

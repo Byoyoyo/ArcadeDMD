@@ -28,10 +28,12 @@
   "cpu": ":maincpu",
   "values": {
    "score": {
-    "addr": "",
+    "addr": "0x10C004",
     "type": "bcd",
     "bytes": 4,
-    "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+    "mult": 0.1,
+    "round": 0,
+    "note": "player 1 score, BCD, kept by the game with a 0 too many, a tenth of it (RetroAchievements leaderboard \"Toughest Fighters\" and its code notes, from tools/ra_notes.py), to confirm in game"
    },
    "score_p2": {
     "addr": "",

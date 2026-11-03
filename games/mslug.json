@@ -61,6 +61,16 @@
         "type": "u8",
         "note": "player 2 bombs, 0xA0 after player 1's (cheat database, Infinite Bombs PL2)"
       },
+      "grenades_out": {
+        "addr": "0x1004C1",
+        "type": "u8",
+        "note": "player 1 grenades on screen: one more when a grenade leaves the hand, one less when it blows up, on an enemy or at its second bounce (RetroAchievements code notes, P1 - Grenades On Screen)"
+      },
+      "grenades_out_p2": {
+        "addr": "0x100561",
+        "type": "u8",
+        "note": "player 2 grenades on screen, 0xA0 after player 1's as its bombs, to confirm in game"
+      },
       "ammo": {
         "addr": "0x1004C2",
         "type": "be",
@@ -184,7 +194,11 @@
         "addr": "0x10E3B7",
         "type": "u8",
         "add": 1,
-        "note": "mission number, 0-based in RAM (cheat database \"Select starting mission\")"
+        "valid": [
+          1,
+          6
+        ],
+        "note": "mission number, 0-based in RAM (cheat database \"Select starting mission\"), missions 1 to 6: another value is not read (Metal Slug read 183 while it booted)"
       },
       "p1_input": {
         "addr": "0x10FD96",

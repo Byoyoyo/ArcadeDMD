@@ -1,0 +1,65 @@
+{
+  "title": "DoDonPachi SaiDaiOuJou",
+  "note": "Shoot'em up by Cave (CV1000): no value known yet. Made by tools/cave_games.py.",
+  "generated": "tools/cave_games.py",
+  "cave": "CV1000",
+  "match": [
+    {
+      "system": ["ddpsdoj", "sdojak"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0xC000000",
+    "ram_size": "0x200000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: CV1000 SH-3 RAM from 0xC000000, the first 2 MB of its 8, as far as the values of the game go, bytes swapped within 16-bit words",
+    "content": ["ddpsdoj", "sdojak"]
+  },
+  "titles": {
+    "sdojak": "DoDonPachi SaiDaiOuJou & Knuckles"
+  },
+  "scene_from": "cave_shoot",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "score": {
+        "addr": "",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+      },
+      "score_p2": {
+        "addr": "",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+      }
+    }
+  },
+  "hd": {
+    "scene": "ddpsdoj"
+  },
+  "activity": {
+    "values": ["score", "score_p2"],
+    "moving": ["score", "score_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
+  },
+  "demo": {
+    "attract": true,
+    "credits": 0,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "score": 0,
+    "score_p2": 0,
+    "sim": {
+      "score_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      }
+    }
+  }
+}

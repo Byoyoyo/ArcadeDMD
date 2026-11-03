@@ -1,0 +1,47 @@
+{
+  "title": "Crusher Makochan",
+  "note": "Puzzle game on the Cave board (CAVE): no value known yet. Made by tools/cave_games.py.",
+  "generated": "tools/cave_games.py",
+  "cave": "CAVE",
+  "match": [
+    {
+      "system": ["crusherm"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0x340000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: Cave 68000 work RAM from 0x340000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["crusherm"]
+  },
+  "scene_from": "cave_reflexion",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "score": {
+        "addr": "",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+      },
+      "score_p2": {
+        "addr": "",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+      }
+    }
+  },
+  "activity": {
+    "values": ["score", "score_p2"],
+    "moving": ["score", "score_p2"],
+    "seconds": 10,
+    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
+  },
+  "demo": {
+    "credits": 2,
+    "p1_mode": 1,
+    "p2_mode": 0
+  }
+}

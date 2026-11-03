@@ -14,7 +14,7 @@ import time
 from . import wincore
 from .i18n import tr
 from .learn import load_games
-from .memvalues import derive, game_values, value_span
+from .memvalues import derive, game_values, resolve_value, value_span
 from .retroarch import (RetroArchClient, core_label, explain_failure, find_core, layout_for, resolve,
                         read_values, too_old)
 
@@ -31,7 +31,22 @@ LABELS = {"lives": ("vies", "lives"), "lives_p2": ("vies J2", "P2 lives"), "bomb
           "weapon_p2": ("arme J2", "P2 weapon"), "health": ("vie J1 %", "P1 health %"), "health_p2": ("vie J2 %", "P2 health %"),
           "p1_char": ("perso J1", "P1 character"), "p2_char": ("perso J2", "P2 character"),
           "beat": ("BEAT BY J1", "BEAT BY P1"), "beat_p2": ("BEAT BY J2", "BEAT BY P2"),
-          "mission": ("mission", "mission"), "stage": ("stage", "stage"), "backdrop": ("décor", "backdrop")}
+          "mission": ("mission", "mission"), "stage": ("stage", "stage"), "backdrop": ("décor", "backdrop"),
+          # the Cave games (1.31) / les jeux Cave
+          "bombs_max": ("places de bombes", "bomb slots"), "bombs_max_p2": ("places de bombes J2", "P2 bomb slots"),
+          "combo": ("jauge de combo %", "combo gauge %"), "combo_p2": ("jauge de combo J2 %", "P2 combo gauge %"),
+          "power": ("puissance", "power"), "power_p2": ("puissance J2", "P2 power"), "ship": ("vaisseau", "ship"),
+          "ship_p2": ("vaisseau J2", "P2 ship"), "round": ("round", "round"), "multiplier": ("multiplicateur", "multiplier"),
+          "stones": ("pierres d'esprit", "spirit stones"), "stones_p2": ("pierres d'esprit J2", "P2 spirit stones"),
+          "energy": ("énergie J1 %", "P1 energy %"), "energy_p2": ("énergie J2 %", "P2 energy %"), "char": ("héros J1", "P1 hero"),
+          "char_p2": ("héros J2", "P2 hero"), "bubble": ("bulle", "bubble"), "bubble_p2": ("bulle J2", "P2 bubble"),
+          "angle": ("flèche du lanceur", "launcher's arrow"), "angle_p2": ("flèche du lanceur J2", "P2 launcher's arrow"),
+          # Metal Slug's grenades on screen, DoDonPachi's stage scroll and game state (1.31) / grenades, défilement, état
+          "grenades_out": ("grenades en l'air", "grenades out"), "grenades_out_p2": ("grenades en l'air J2", "P2 grenades out"),
+          "distance": ("défilement du niveau", "stage scroll"), "phase": ("état du jeu", "game state"),
+          # DoDonPachi's boss and the WARNING of the game (1.31) / le boss de DoDonPachi et le WARNING du jeu
+          "boss": ("boss", "boss"), "boss_name": ("nom du boss", "boss name"), "warning": ("WARNING du jeu", "game's WARNING"),
+          "boss_hp": ("vie du boss", "boss life")}
 
 
 HIDDEN = {"p1_mode", "p2_mode", "p1_input", "p2_input",     # BIOS : état des joueurs et commandes, utiles à la scène seulement
@@ -178,6 +193,11 @@ def report(root, client, st, port, say):
             else:
                 outside.append(name)
         vals = read_values(client, layout, defs) if defs else {}
+        tag = game.get("tag") if isinstance(game.get("tag"), dict) else {}
+        for k, spec in tag.items():                                 # made from others (DoDonPachi's score) / fait d'autres
+            v = resolve_value(spec, vals)
+            if v is not None:
+                vals[k] = v
         for k, v in derive(game.get("derived"), vals).items():     # personnage en train de se battre...
             if v is not None:
                 vals[k] = v

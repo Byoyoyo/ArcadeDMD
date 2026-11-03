@@ -91,6 +91,7 @@ class FightFX:
         for i, col in enumerate(CONFETTI):
             self.fx.sp.register(f"conf{i}", confetti_img(col, self.s))
         self.danger_imgs = {}
+        self.bands = {}
         self.idle = False
         self.rays = None
         self._rays()                                                  # préparés d'avance : pas d'à-coup au premier super
@@ -152,6 +153,21 @@ class FightFX:
         self.round_t = {"p1": -99.0, "p2": -99.0}
         self.live_t = -99.0                        # when somebody began to play / quand quelqu'un s'est mis à jouer
         self.zero_t = {}                           # when each bar fell to 0 / quand chaque barre est tombée à 0
+        # 1.31, the rounds of a King of Fighters match (Seb) / les rounds d'un match de King of Fighters
+        self.round_v = None                        # the round of the match read in the game, from 0 / le round du match
+        self.round_show = -99.0                     # when ROUND n shows, before FIGHT ! / quand ROUND n s'affiche
+        self.round_sub = ""                        # the place of a new match under its first round / le lieu sous ROUND 1
+        self.place_next = ""                       # the place of the match to come / le lieu du match qui vient
+        self.ko_side = None                        # (loser, t): K.O. in red on its half / K.O. en rouge de son côté
+        self.win_side = None                       # (winner, t): WIN in gold on its half / WIN doré de son côté
+        self.ko_until = -99.0                      # until the K.O. and the WIN are over / jusqu'à la fin du K.O. et du WIN
+        self.out = None                            # (winner, loser, t): a team eliminated, the match won / une équipe éliminée
+        self.lost = {"p1": None, "p2": None}       # fighters of each team beaten, read while its bar is up / déjà battus
+        self.lost_raw = {"p1": None, "p2": None}   # the same, as last read / tel que lu la dernière fois
+        self.humans = {"p1": True, "p2": False}    # who plays, the other side is the computer / qui joue
+        self.time_seen = -99.0                     # when the timer last moved / quand le chrono a bougé
+        self.time_tick = -99.0                     # when it last counted a second down / quand il a décompté une seconde
+        self.time_reset = False                    # put back to 0 at a round's start, not shown / remis à 0, pas affiché
 
     def round_glow(self, side, now):
         """1 when the side just won a round, down to 0 in 1.5 s (its last star glows). / L'étoile du round gagné brille."""
@@ -215,13 +231,28 @@ class FightFX:
         if idle:
             self._idle(vals, stages)
             return
-        # "stage": match number in the run, from 0 (cheat "Select Current Round"), shown as STAGE n.
+        p1m, p2m = vals.get("p1_mode"), vals.get("p2_mode")
+        self.humans = {"p1": p1m in (1, 2) or p1m is None, "p2": p2m in (1, 2)}
+        # "round": the round of a King of Fighters match, from 0, one more at each K.O. (cheat "Select Current Round"),
+        # shown as ROUND n when the next fight begins (1.31) / le round du match, ROUND n quand le combat suivant commence
+        self.round_v = _n(vals.get("round"))
+        # "stage": match number in the run, from 0 (Rage of the Dragons, cheat "Select Stage"), shown as STAGE n.
         # "backdrop": backdrop of the fight (cheat "Select Backdrop"), picks the theme in the game's "hd" list.
         stage = _n(vals.get("stage"))
         back = _n(vals.get("backdrop"))
         pick = back if back is not None else stage
         sig = (stage, back)
-        if pick is not None and sig != self.stage_v:
+        if pick is not None and sig != self.stage_v and self.round_v is not None and stage is None:
+            # a game that counts its rounds: the new backdrop at once, its place under the ROUND 1 of the match
+            # un jeu qui compte ses rounds : le nouveau décor tout de suite, son lieu sous le ROUND 1 du match
+            theme = stages[int(pick) % len(stages)]
+            if self.stage_v is None:
+                self.bd.set_theme(theme, now, wipe=0)
+            elif theme != self.bd.theme:
+                self.bd.set_theme(theme, now)
+            self.place_next = self.place(game, pick, theme)
+            self.stage_v = sig
+        elif pick is not None and sig != self.stage_v:
             theme = stages[int(pick) % len(stages)]
             place = self.place(game, pick, theme)
             label = (f"STAGE {int(stage) + 1}", place) if stage is not None else (place, "")
@@ -239,14 +270,24 @@ class FightFX:
                 self.stage_label = label
                 self.stage_changed = changed
             self.stage_v = sig
+        team = any(_n(vals.get(k)) is not None for k in ("_p1_lost", "_p2_lost"))
         for side in ("p1", "p2"):                                     # combattant suivant (équipes des KOF)
             name = vals.get(side + "_char")
+            lr = _n(vals.get("_p1_lost" if side == "p1" else "_p2_lost"))
             if isinstance(name, str) and name:
                 old = self.chars.get(side)
-                if old and name != old and now - self.stage_t > 2.5:     # pas au changement de stage (nouvelle équipe)
+                if team:
+                    # one more fighter of its team beaten: the next one comes, once the K.O. and the WIN are over (1.31)
+                    # un combattant de plus battu : le suivant entre, une fois le K.O. et le WIN finis
+                    prev = self.lost_raw.get(side)
+                    if old and name != old and prev is not None and lr is not None and lr == prev + 1:
+                        self.next_t[side] = max(now, self.ko_until)
+                        self.next_name[side] = name
+                elif old and name != old and now - self.stage_t > 2.5:   # pas au changement de stage (nouvelle équipe)
                     self.next_t[side] = now
                     self.next_name[side] = name
                 self.chars[side] = name
+            self.lost_raw[side] = lr
         h1, h2 = _n(vals.get("health")), _n(vals.get("health_p2"))
         self.health = {"p1": h1, "p2": h2}
         t = _n(vals.get("time"))
@@ -268,16 +309,30 @@ class FightFX:
                     self._fight(now)
         if h1 is not None and h2 is not None and self.prev.get("p1") is None and h1 >= 100 and h2 >= 100 and (t is None or t >= 50):
             self._fight(now)                                          # début de round vu en arrivant (ou barres qui apparaissent)
-        if t is not None and self.prev_time is not None and t <= 0 < self.prev_time and (h1 or 0) > 0 and (h2 or 0) > 0:
+        # TIME UP only when the timer counted down to 0, a second after another: at the start of a round King of Fighters
+        # puts it back to 0 before its 60 or 90 seconds (Seb, 1.31) / seulement quand le chrono a décompté jusqu'à 0 ;
+        # au début d'un round, King of Fighters le remet à 0 avant ses 60 ou 90 secondes
+        counting = now - self.time_tick < 2.5
+        if t is not None and t != self.prev_time:
+            step = self.prev_time is not None and t == self.prev_time - 1
+            if step:
+                self.time_tick = now
+            self.time_seen = now
+            self.time_reset = t <= 0 and not step                     # put back to 0, not counted down / remis à 0
+        if (t is not None and self.prev_time is not None and t <= 0 < self.prev_time <= 2 and counting and now - self.ko_t > 2.0
+                and (h1 or 0) > 0 and (h2 or 0) > 0):
             self.banner = ("TIME UP", GOLD, now, 1.6)                 # chrono à zéro sans K.O.
-            if h1 != h2:
-                self.win = ["p1" if h1 > h2 else "p2", now + 1.0, False, False]
+            self.ko_until = now + 1.7
+            if h1 != h2:                                              # WIN once TIME UP is over / WIN après TIME UP
+                self.win = ["p1" if h1 > h2 else "p2", now + 1.7, False, False]
         self.prev_time = t
         for side, h in (("p1", h1), ("p2", h2)):
             if h is not None and h <= 0:
                 self.zero_t.setdefault(side, now)
             else:
                 self.zero_t.pop(side, None)
+                if h is not None:                                     # its fighter, still standing / encore debout
+                    self.lost[side] = self.lost_raw.get(side)
         self._rounds(vals, now)
         if self.win is not None and not self.win[3] and now >= self.win[1]:
             self._celebrate(*self.win[:3])
@@ -299,10 +354,13 @@ class FightFX:
         self.stage_label = None
         self.banner = None
         self.win = None
+        self.ko_side = self.win_side = self.out = None
+        self.round_show = -99.0
         for side in ("p1", "p2"):
             name = vals.get(side + "_char")
             if isinstance(name, str) and name:
                 self.chars[side] = name
+            self.lost[side] = self.lost_raw[side] = _n(vals.get("_p1_lost" if side == "p1" else "_p2_lost"))
         h1, h2 = _n(vals.get("health")), _n(vals.get("health_p2"))
         self.health = {"p1": h1, "p2": h2}
         self.prev["p1"], self.prev["p2"] = h1, h2
@@ -362,33 +420,55 @@ class FightFX:
             other = self.health.get(attacker)
             if other is not None and other <= 0:
                 self.banner = ("DOUBLE K.O.", RED, now + 0.5, 1.6)
+                self.ko_until = now + 2.2
             else:
                 perfect = other is not None and other >= 99
-                self.win = [attacker, now + 0.8, perfect, False]
+                # K.O. in big red letters on the loser's side, then WIN on the winner's (Seb, 1.31), PERFECT after them;
+                # the next fighter waits until they are over / K.O. en grosses lettres rouges du côté du perdant, puis WIN
+                # du côté du gagnant, PERFECT après ; le combattant suivant attend qu'ils soient finis
+                self.ko_side = (victim, now)
+                self.ko_until = now + (4.4 if perfect else 2.7)
+                self.win = [attacker, now + 0.6, perfect, False]
+                idx = self.lost.get(victim)
+                if idx is not None and idx >= 2 and (self.round_v is None or self.round_v >= 2):
+                    later = 4.4 if perfect else 2.7                          # after the WIN, and the PERFECT / après
+                    self.out = (attacker, victim, now + later)             # its third fighter: the team is out / éliminée
+                    self.ko_until = now + later + 3.2
+                    self.fx.later(later, self._confetti, 0, self.W, 150)
 
-    def _celebrate(self, side, t, perfect):
-        """Le vainqueur : confettis au-dessus de son côté, WIN, PERFECT si aucun coup reçu."""
-        fx, rng, S = self.fx, self.rng, self.hd.S
-        x, y, w, h = self.geom()[side]
-        for i in range(70):
-            p = fx.obj(f"conf{rng.randint(0, len(CONFETTI) - 1)}", x + rng.uniform(0, w), -rng.uniform(10, 120) * self.s,
+    def _confetti(self, x0, x1, n):
+        fx, rng = self.fx, self.rng
+        for i in range(n):
+            p = fx.obj(f"conf{rng.randint(0, len(CONFETTI) - 1)}", rng.uniform(x0, x1), -rng.uniform(10, 120) * self.s,
                        rng.uniform(-60, 60), rng.uniform(80, 200), gravity=60, vrot=rng.uniform(-500, 500), life=rng.uniform(2.6, 3.6),
                        rot=rng.uniform(0, 360))
             p.wob = rng.uniform(40, 90) * self.s
             p.drag = 0.4
+
+    def _celebrate(self, side, t, perfect):
+        """Le vainqueur : confettis au-dessus de son côté, WIN en grand de son côté, PERFECT si aucun coup reçu."""
+        x, y, w, h = self.geom()[side]
+        self._confetti(x, x + w, 70)
         old_t = self.combo_txt.get(side)
         if old_t is not None:
             old_t.dead = True
-        fx.text("WIN !", x + w / 2, S(140), GOLD, 72, life=1.8, rise=12)
+        now = self.fx.now
+        self.win_side = (side, now)
+        self.ko_until = max(self.ko_until, now + 2.1)
         self.bd.excite(1.5)
         if perfect:
-            self.banner = ("PERFECT !", GOLD, self.fx.now + 0.2, 1.6)
+            self.banner = ("PERFECT !", GOLD, now + 2.1, 1.6)         # once the WIN is over / une fois le WIN fini
 
     def _fight(self, now):
-        # pas en même temps que le bandeau du stage ou le nom du combattant suivant
-        busy = max([self.stage_t + 1.95 if now - self.stage_t < 2.0 else -99.0] +
+        # pas en même temps que le bandeau du stage, le K.O. et le WIN, ou le nom du combattant suivant
+        busy = max([self.stage_t + 1.95 if now - self.stage_t < 2.0 else -99.0, self.ko_until if now < self.ko_until else -99.0] +
                    [t + 1.75 for t in self.next_t.values() if -0.1 <= now - t < 1.75 or 0 < t - now < 2.5])
-        self.fight_t = max(now, busy)
+        start = max(now, busy)
+        if self.round_v is not None:                                  # ROUND n, then FIGHT ! / ROUND n, puis FIGHT !
+            self.round_show = start
+            self.round_sub, self.place_next = self.place_next, ""     # a new match: its place / un nouveau match : son lieu
+            start += 1.35
+        self.fight_t = start
         self.first = False
         self.win = None
         self.bd.excite(0.8)
@@ -503,16 +583,93 @@ class FightFX:
         screen.blit(bar, (0, S(y - 65)))
         hd.put(screen, hd.text(text, "stencil", S(size), color, glow=0.8), W / 2, S(y), "center", "middle", scale=scale, alpha=alpha)
 
+    def _slam_sub(self, screen, title, sub, color, t0, dur, now, alone=(96, 228)):
+        """A banner with a line under it (STAGE 2 and its place, ROUND 1 and the place of the match). alone: size and
+        height of the title without a line. / Un bandeau avec une ligne dessous."""
+        k = now - t0
+        if k < 0 or k > dur:
+            return
+        size, y = (96, 228) if sub else alone
+        self._slam(screen, title, color, t0, dur, now, size=size, y=y)
+        a = 1.0 if k < dur - 0.25 else max(0.0, (dur - k) / 0.25)
+        if sub and k > 0.12:
+            self.hd.put(screen, self.hd.text(sub, "stencil", self.hd.S(36), GOLD, glow=0.5), self.W / 2, self.hd.S(282),
+                        "center", "middle", alpha=a)
+
+    def _band(self, w, h):
+        key = (w, h)
+        band = self.bands.get(key)
+        if band is None:
+            band = self.bands[key] = self.pg.Surface((w, h)).convert()
+            band.fill((6, 4, 10))
+        return band
+
+    def _side_slam(self, screen, text, color, side, t0, dur, now, size=124):
+        """A word slammed onto one side of the screen, over its health bar: K.O. on the loser's, WIN on the winner's.
+        / Un mot plaqué d'un côté de l'écran, sur sa barre de vie : K.O. chez le perdant, WIN chez le gagnant."""
+        k = now - t0
+        if k < 0 or k > dur:
+            return
+        hd, S = self.hd, self.hd.S
+        x, y, w, h = self.geom()[side]
+        cx, cy = x + w / 2, S(200)                                      # over the bar, above the name / au-dessus du nom
+        scale = 2.2 - 1.2 * (1 - (1 - min(1.0, k / 0.18)) ** 3)
+        alpha = 1.0 if k < dur - 0.3 else max(0.0, (dur - k) / 0.3)
+        band = self._band(w + S(40), S(132))
+        band.set_alpha(int(205 * alpha))
+        screen.blit(band, (int(x - S(20)), int(cy - S(66))))
+        hd.put(screen, hd.text(text, "stencil", S(size), color, glow=0.8), cx, cy, "center", "middle", scale=scale, alpha=alpha)
+
+    def side_ko(self, now):
+        """True while K.O. shows on the loser's side (the middle shows the stopped timer, not a second K.O.).
+        / Vrai tant que K.O. s'affiche du côté du perdant."""
+        return self.ko_side is not None and 0 <= now - self.ko_side[1] < 2.4
+
+    def time_live(self, now):
+        """The timer moved a moment ago. Frozen for 6 s, it is the last fight's (the select screen), and put back to 0 at the
+        start of a round it was not counted down: not shown (Seb, 1.31). / Le chrono a bougé il y a peu ; figé 6 s, c'est
+        celui du combat d'avant (écran de sélection), et remis à 0 au début d'un round il n'a pas été décompté : pas affiché."""
+        return now - self.time_seen < 6.0 and not self.time_reset
+
+    def tag(self, side):
+        return ("P1" if side == "p1" else "P2") if self.humans.get(side) else "CPU"
+
+    def _match_end(self, screen, now):
+        """A team eliminated: the winner in big letters, the loser's team out under it (Seb, 1.31).
+        / Une équipe éliminée : le vainqueur en grand, l'équipe du perdant éliminée dessous."""
+        if self.out is None:
+            return
+        win, lose, t0 = self.out
+        k, dur = now - t0, 3.2
+        if k < 0 or k > dur:
+            return
+        hd, S, W = self.hd, self.hd.S, self.W
+        alpha = 1.0 if k < dur - 0.3 else max(0.0, (dur - k) / 0.3)
+        band = self._band(W, S(190))
+        band.set_alpha(int(220 * alpha))
+        screen.blit(band, (0, S(140)))
+        title = tr(f"VICTOIRE {self.tag(win)}", f"{self.tag(win)} WINS")
+        start = max(1.2, min(2.0, W * 0.9 / max(1, hd.text_width(title, "stencil", S(110)))))
+        scale = start - (start - 1.0) * min(1.0, k / 0.18)
+        hd.put(screen, hd.text(title, "stencil", S(110), GOLD, glow=0.9), W / 2, S(212), "center", "middle", scale=scale, alpha=alpha)
+        if k > 0.35:
+            sub = tr(f"ÉQUIPE {self.tag(lose)} ÉLIMINÉE", f"{self.tag(lose)} TEAM ELIMINATED")
+            hd.put(screen, hd.text(sub, "stencil", S(54), RED, glow=0.6), W / 2, S(292), "center", "middle",
+                   alpha=alpha * min(1.0, (k - 0.35) / 0.2))
+
     def _banners(self, screen, now):
-        if self.stage_label is not None and 0 <= now - self.stage_t - 0.3 <= 1.6:
-            k = now - self.stage_t - 0.3
+        if self.stage_label is not None:
             title, place = self.stage_label
-            self._slam(screen, title, CREAM, self.stage_t + 0.3, 1.6, now, size=96, y=228)
-            a = 1.0 if k < 1.35 else max(0.0, (1.6 - k) / 0.25)
-            if k > 0.12 and place:
-                self.hd.put(screen, self.hd.text(place, "stencil", self.hd.S(36), GOLD, glow=0.5), self.W / 2, self.hd.S(282),
-                            "center", "middle", alpha=a)
+            self._slam_sub(screen, title, place, CREAM, self.stage_t + 0.3, 1.6, now)
+        if self.round_v is not None:                                  # ROUND n, its round read in the game (1.31)
+            self._slam_sub(screen, f"ROUND {int(self.round_v) + 1}", self.round_sub, GOLD, self.round_show + 0.1, 1.25, now,
+                           alone=(112, 240))
         self._slam(screen, "FIGHT !", GOLD, self.fight_t + 0.1, 1.15, now)
+        if self.ko_side is not None:
+            self._side_slam(screen, "K.O.", RED, self.ko_side[0], self.ko_side[1], 2.4, now)
+        if self.win_side is not None:
+            self._side_slam(screen, "WIN", GOLD, self.win_side[0], self.win_side[1], 2.0, now)
+        self._match_end(screen, now)
         if self.banner is not None:
             text, col, t0, dur = self.banner
             self._slam(screen, text, col, t0, dur, now)

@@ -20,16 +20,16 @@
   "cpu": ":maincpu",
   "values": {
    "score": {
-    "addr": "",
-    "type": "bcd",
+    "addr": "0x1000E0",
+    "type": "be",
     "bytes": 4,
-    "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+    "note": "player 1 score, a 32-bit binary number, learned on a cabinet with learn.bat (1.31). The address is the one of RetroAchievements' code notes (Score Part 4 down to Part 1), the score is not BCD as first read there"
    },
    "score_p2": {
-    "addr": "",
-    "type": "bcd",
+    "addr": "0x10013C",
+    "type": "be",
     "bytes": 4,
-    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+    "note": "player 2 score, a 32-bit binary number 0x5C after player 1's as its lives, bombs, power, plane and super shots, learned on a cabinet with learn.bat (1.31)"
    },
    "p1_input": {
     "addr": "0x10FD96",
@@ -77,13 +77,25 @@
     "addr": "0x1000F5",
     "type": "u8",
     "max": 8,
-    "note": "player 1 super shot gauge, 8 when full (FinalBurn Neo cheats, Infinite Super Shot PL1)"
+    "note": "player 1 super shots in stock, each plane has its own maximum (MAME cheats: different planes can have a different number; FinalBurn Neo cheats, Infinite Super Shot PL1 writes 8)"
    },
    "super_p2": {
     "addr": "0x100151",
     "type": "u8",
     "max": 8,
-    "note": "player 2 super shot gauge (FinalBurn Neo cheats, Infinite Super Shot PL2)"
+    "note": "player 2 super shots in stock (FinalBurn Neo cheats, Infinite Super Shot PL2)"
+   },
+   "charge": {
+    "addr": "0x1000F6",
+    "type": "be",
+    "bytes": 2,
+    "note": "player 1 super shot bar, the bar of the game that fills: its first byte for the RetroAchievements code notes (P1 power shot bar), its second one kept full by FinalBurn Neo's cheat Infinite Super Shot PL1 (fix). Read as one 16-bit number whose full value the HD scene learns in game, to confirm"
+   },
+   "charge_p2": {
+    "addr": "0x100152",
+    "type": "be",
+    "bytes": 2,
+    "note": "player 2 super shot bar, 0x5C further (FinalBurn Neo cheats, Infinite Super Shot PL2 (fix) writes 0x100153)"
    },
    "plane": {
     "addr": "0x1000E7",
@@ -146,7 +158,8 @@
   "lives": 3,
   "bombs": 2,
   "power": 0,
-  "super": 0,
+  "super": 1,
+  "charge": 0,
   "plane": 1,
   "score": 0,
   "sim": {
@@ -166,20 +179,37 @@
    },
    "super": {
     "cycle": [
-     0,
+     1,
      1,
      2,
+     2,
      3,
-     4,
-     5,
-     6,
-     7,
-     8,
-     8,
+     3,
+     2,
+     2,
+     1
+    ],
+    "every": 3.25,
+    "start": 4.0
+   },
+   "charge": {
+    "cycle": [
+     0,
+     0,
+     0,
+     0,
+     30,
+     65,
+     100,
+     135,
+     170,
+     205,
+     240,
+     255,
      0
     ],
-    "every": 1.1,
-    "start": 2.0
+    "every": 0.25,
+    "start": 1.0
    },
    "bombs": {
     "cycle": [
@@ -1868,9 +1898,7 @@
      {
       "on": "super",
       "change": "down",
-      "from": [
-       8
-      ],
+      "step": 1,
       "when": {
        "var": "p1_mode",
        "eq": 1
@@ -2083,9 +2111,7 @@
      {
       "on": "super_p2",
       "change": "down",
-      "from": [
-       8
-      ],
+      "step": 1,
       "when": {
        "var": "p2_mode",
        "eq": 1

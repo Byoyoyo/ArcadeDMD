@@ -648,9 +648,12 @@ class AndroDunosScene(SideShooterScene):
         super().update(vals, now)
         for lab, name, col, mx in ADW:
             ch = self.changed(vals, name)
-            if ch and ch[1] > ch[0] and self.ships["p1"]["in"]:
+            if ch and ch[1] > ch[0] and self.ships["p1"]["in"]:                # the level reached under it / le niveau atteint
                 x, y = self.pos("p1", now)
-                self.popup(f"{lab} UP", x, max(self.S(180), y - self.S(70)), col, 32)
+                y = max(self.S(196), y - self.S(70))
+                self.popup(f"{lab} MAX" if ch[1] >= mx else f"{lab} UP", x, y, col, 32)
+                if ch[1] < mx:
+                    self.popup(f"LV {int(ch[1])}/{mx}", x, y + self.S(32), CREAM, 24)
 
     def status(self, screen, eng, vals, logo, now):
         S, W, H, hd = self.S, self.W, self.H, self.hd

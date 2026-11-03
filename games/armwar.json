@@ -63,10 +63,10 @@
         "note": "player 2 or computer character (FBNeo cheat database, Select Character PL2)"
       },
       "score": {
-        "addr": "",
+        "addr": "0xFF971A",
         "type": "bcd",
         "bytes": 4,
-        "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+        "note": "player 1 score, BCD (RetroAchievements leaderboards, from tools/ra_notes.py), to confirm in game"
       },
       "score_p2": {
         "addr": "",

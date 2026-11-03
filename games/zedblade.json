@@ -99,6 +99,16 @@
     "addr": "0x10FD82",
     "type": "u8",
     "note": "BIOS_MVS_FLAG: 0 home console (AES, no coins), otherwise arcade (MVS)"
+   },
+   "lives_p2": {
+    "addr": "0x100029",
+    "type": "u8",
+    "note": "lives of player 2 (MAME cheat database, Infinite Lives PL2)"
+   },
+   "bombs_p2": {
+    "addr": "0x10002F",
+    "type": "u8",
+    "note": "bombs of player 2 (MAME cheat database, Infinite Bombs PL2)"
    }
   }
  },

@@ -1,6 +1,6 @@
 {
  "title": "Garou",
- "note": "Neo Geo fighting game: health, timer, 14 characters.",
+ "note": "Neo Geo fighting game: health, timer, 14 characters, super gauge (MAME cheat database).",
  "match": [
   {
    "system": [
@@ -88,10 +88,10 @@
     "note": "timer (BCD)"
    },
    "score": {
-    "addr": "",
+    "addr": "0x10E00C",
     "type": "bcd",
     "bytes": 4,
-    "note": "to find with learn.bat"
+    "note": "player 1 score, BCD (RetroAchievements leaderboard \"MOTW Highest Score\" and rich presence, from tools/ra_notes.py), to confirm in game"
    },
    "score_p2": {
     "addr": "",
@@ -113,6 +113,24 @@
     "addr": "0x107435",
     "type": "u8",
     "note": "backdrop of the fight (cheat database \"Select Backdrop\"): 0 Freight Express, 1 Live House Old Line, 2 Oriental Casino Woo, 3 Yok Chong Market, 4 Philanthropy Belfry, 5 Barbaroi Falls, 6 Blue Wave Harbor, 7 Sarah Forest, 8 5th Ave. and 2nd St., 9 Slam Free Field, 10 Universal Arena, 11 S.S.P. Maneuver Field, 12 Mansion Basement, 13 Mansion. Picks the HD theme in \"hd\": \"stages\""
+   },
+   "power": {
+    "addr": "0x1004BE",
+    "type": "u8",
+    "note": "super gauge of player 1 in %, full = 0x80 (MAME cheat database)",
+    "mult": 0.78125,
+    "round": 1,
+    "min": 0,
+    "max": 100
+   },
+   "power_p2": {
+    "addr": "0x1005BE",
+    "type": "u8",
+    "note": "super gauge of player 2 in %, full = 0x80 (MAME cheat database)",
+    "mult": 0.78125,
+    "round": 1,
+    "min": 0,
+    "max": 100
    }
   }
  },

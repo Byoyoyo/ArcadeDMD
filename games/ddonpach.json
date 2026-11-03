@@ -1,0 +1,806 @@
+{
+  "title": "DoDonPachi",
+  "note": "Shoot'em up by Cave (CAVE): lives, lives_p2, bombs, bombs_p2, bombs_max, bombs_max_p2, power, power_p2, combo, combo_p2, ship, ship_p2, credits, hits, hits_p2, stage, loop, distance, phase, score, score_p2, p1_mode, p2_mode (FinalBurn Neo and MAME cheat databases). Made by tools/cave_games.py.",
+  "generated": "tools/cave_games.py",
+  "cave": "CAVE",
+  "match": [
+    {
+      "system": ["ddonpach", "ddonpacha", "ddonpachj"]
+    }
+  ],
+  "retroarch": {
+    "ram_base": "0x100000",
+    "ram_size": "0x10000",
+    "swap16": true,
+    "note": "FinalBurn Neo core: Cave 68000 work RAM from 0x100000 (64 KB), bytes swapped within 16-bit words",
+    "content": ["ddonpach", "ddonpacha", "ddonpachj"]
+  },
+  "scene_from": "cave_shoot",
+  "memory": {
+    "cpu": ":maincpu",
+    "values": {
+      "lives": {
+        "addr": "0x101965",
+        "type": "u8",
+        "note": "ships left of player 1 as the game shows them, 2 at the start: the game counts the ship in play too, one less is read, -1 once the game is over (FBNeo cheat database, Infinite Lives PL1; RetroAchievements code notes, Lives - P1, 0 when the game is over), seen on the cabinet",
+        "add": -1
+      },
+      "lives_p2": {
+        "addr": "0x101967",
+        "type": "u8",
+        "note": "ships left of player 2, as player 1's (FBNeo cheat database, Infinite Lives PL2)",
+        "add": -1
+      },
+      "bombs": {
+        "addr": "0x102CB0",
+        "type": "u8",
+        "note": "bombs of player 1, 6 at most (FBNeo cheat database, Infinite Bombs PL1, the first byte)"
+      },
+      "bombs_p2": {
+        "addr": "0x102CF0",
+        "type": "u8",
+        "note": "bombs of player 2 (FBNeo cheat database, Infinite Bombs PL2)"
+      },
+      "bombs_max": {
+        "addr": "0x102CB1",
+        "type": "u8",
+        "note": "bomb slots of player 1: 3 at the start, one more for each ship lost, 6 at most (FBNeo cheat database, Infinite Bombs PL1, the second byte, capacity in MAME's notes)"
+      },
+      "bombs_max_p2": {
+        "addr": "0x102CF1",
+        "type": "u8",
+        "note": "bomb slots of player 2 (FBNeo cheat database, Infinite Bombs PL2, the second byte)"
+      },
+      "power": {
+        "addr": "0x102CAD",
+        "type": "u8",
+        "note": "shot level of player 1, 0 to 4 (FBNeo cheat database, Maximum Shot PL1, the first byte): it keeps the level while the ship blows up and comes back, the second byte drops to 0 meanwhile (captures from the cabinet)",
+        "max": 4
+      },
+      "power_p2": {
+        "addr": "0x102CED",
+        "type": "u8",
+        "note": "shot level of player 2 (FBNeo cheat database, Maximum Shot PL2, the first byte)",
+        "max": 4
+      },
+      "combo": {
+        "addr": "0x1017D1",
+        "type": "u8",
+        "note": "combo gauge of player 1, full = 0x37: it drains, each enemy destroyed fills it (FBNeo cheat database, Maximum Combo PL1)",
+        "mult": 1.818182,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "combo_p2": {
+        "addr": "0x1017FB",
+        "type": "u8",
+        "note": "combo gauge of player 2, full = 0x37 (FBNeo cheat database, Maximum Combo PL2)",
+        "mult": 1.818182,
+        "round": 1,
+        "min": 0,
+        "max": 100
+      },
+      "ship": {
+        "addr": "0x102D1D",
+        "type": "u8",
+        "note": "ship of player 1: 0 type A (red fighter), 1 type B (helicopter), 2 type C (blue fighter) (FBNeo cheat database, Select Option Type PL1)"
+      },
+      "ship_p2": {
+        "addr": "0x102D5D",
+        "type": "u8",
+        "note": "ship of player 2 (FBNeo cheat database, Select Option Type PL2)"
+      },
+      "credits": {
+        "addr": "0x1013AB",
+        "type": "u8",
+        "note": "credits, learned on the cabinet with learn.bat (1.31): one less for each START and each continue. 0x100F83 matches the coins put in but never goes down, learn.bat sets it aside",
+        "not_learned": ["0x100F83"]
+      },
+      "_score10": {
+        "addr": "0x10161E",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 1 score without its last digit, learned on the cabinet with learn.bat (1.31): the game shows the continues used as the last digit (tag score)",
+        "mult": 10
+      },
+      "_cont": {
+        "addr": "0x10174F",
+        "type": "u8",
+        "note": "continues used by player 1, the last digit of the score as the game shows it, learned on the cabinet with learn.bat (1.31)"
+      },
+      "_score10_p2": {
+        "addr": "0x101622",
+        "type": "bcd",
+        "bytes": 4,
+        "note": "player 2 score without its last digit, learned on the cabinet with learn.bat (1.31) (tag score_p2)",
+        "mult": 10
+      },
+      "_cont_p2": {
+        "addr": "0x101753",
+        "type": "u8",
+        "note": "continues used by player 2, learned on the cabinet with learn.bat (1.31)"
+      },
+      "hits": {
+        "addr": "0x1017EC",
+        "type": "bcd",
+        "bytes": 2,
+        "note": "hit counter of player 1 as the game shows it, it stays after a chain until the next one, learned on the cabinet with learn.bat (1.31)"
+      },
+      "hits_p2": {
+        "addr": "0x101816",
+        "type": "bcd",
+        "bytes": 2,
+        "note": "hit counter of player 2 as the game shows it, learned on the cabinet with learn.bat (1.31)"
+      },
+      "stage": {
+        "addr": "0x101979",
+        "type": "u8",
+        "note": "stage, the value read plus one (MAME cheat database: Select Level to follow Level 1 writes it, Kill Boss with 1 hit tests it), checked on the cabinet",
+        "add": 1
+      },
+      "loop": {
+        "addr": "0x10197A",
+        "type": "u16",
+        "bytes": 2,
+        "note": "loop, 0 the first and 1 the second (MAME cheat database, Select Level to follow Level 1)"
+      },
+      "distance": {
+        "addr": "0x10198E",
+        "type": "be",
+        "bytes": 2,
+        "note": "how far the stage has scrolled, from 0 at its start: it stops where the boss comes, 0x200, 0x160, 0x1B0, 0x200, 0x250 and 0x121 for stages 1 to 6 (RetroAchievements code notes, Distance into current stage, and its achievements for the bosses)"
+      },
+      "phase": {
+        "addr": "0x1017A4",
+        "type": "u8",
+        "note": "game state, 3 while the results of a stage show, 4 for the ending (RetroAchievements code notes, Game State)"
+      },
+      "_state": {
+        "addr": "0x1017A7",
+        "type": "u8",
+        "note": "game state: 0 both players, 7 player 1, 6 player 2 (playing, results, ending), 8 continue, 0x0B ship select, 5 demo, 1 and 4 the title before and after a coin, 2 the ranking, 0x0C and 0x0D the logos (RetroAchievements code notes, Game State, and its rich presence). Checked in captures taken on the cabinet: 7 with player 1 alone, 0 with both, 6 once player 1's game was over"
+      },
+      "_players": {
+        "addr": "0x1017A9",
+        "type": "u8",
+        "note": "players' flags, 0x80 a game going on, 0x10 player 1 out of it, 0x20 player 2 out of it (27 captures taken on the cabinet: 0xE0 with player 1 alone, 0x80 with both, 0x90 with player 2 alone, 0 at the title)"
+      },
+      "_out_p1": {
+        "addr": "0x1017A9",
+        "type": "u8",
+        "note": "player 1 out of the game, the bit 0x10 of the players' flags",
+        "mask": 16,
+        "shift": 4
+      },
+      "_out_p2": {
+        "addr": "0x1017A9",
+        "type": "u8",
+        "note": "player 2 out of the game, the bit 0x20 of the players' flags",
+        "mask": 32,
+        "shift": 5
+      },
+      "_stage_task": {
+        "addr": "0x1013FC",
+        "type": "be",
+        "bytes": 4,
+        "note": "routine the stage runs, an address in the World program: 0x6DA98 while the WARNING of a boss shows, 0x6DB82 while the carrier drops the ship at the start of stage 1, others while the stage scrolls and during the boss fights (captures taken on the cabinet: the WARNING of the first three bosses, 0x6DA98 each time and never in the 23 other captures)"
+      },
+      "_boss_hp": {
+        "addr": "0x100198",
+        "type": "s32",
+        "bytes": 4,
+        "note": "life of the boss of stages 1 to 5 and 7, a signed 32-bit number, learned on the cabinet with learn.bat (1.31: 12 captures of the fight against the boss of stage 1, 0 before it comes, 86016 once it is entirely on the screen, 81294, 50216, 42006, 33910, 23894, 12940, 8772, 850, 369 just before it blows up, -33 after). Where the cheat Kill Boss with 1 hit Now! writes (MAME 0 at the 32-bit 0x100198, FinalBurn Neo 0 at 0x10019A); the word at 0x10019A alone jumped when the life went under 65536"
+      },
+      "_boss_hp_b": {
+        "addr": "0x100158",
+        "type": "s32",
+        "bytes": 4,
+        "note": "life of the boss of stage 6 and of the second boss of stage 7, a signed 32-bit number 0x40 before (MAME cheat database, Kill Boss with 1 hit Now!: 0 at the 32-bit 0x100158 from the stage read 5), to confirm in game"
+      }
+    }
+  },
+  "derived": {
+    "p1_ship": {
+      "value": "ship",
+      "names": {
+        "0": "TYPE-A",
+        "1": "TYPE-B",
+        "2": "TYPE-C"
+      }
+    },
+    "p2_ship": {
+      "value": "ship_p2",
+      "names": {
+        "0": "TYPE-A",
+        "1": "TYPE-B",
+        "2": "TYPE-C"
+      }
+    },
+    "boss": {
+      "first": [
+        {
+          "rise": {
+            "ge": [
+              {
+                "eq": [
+                  "_stage_task",
+                  449176
+                ]
+              },
+              0
+            ]
+          },
+          "from": {
+            "eq": [
+              "_stage_task",
+              449176
+            ]
+          },
+          "reset": {
+            "ge": [
+              {
+                "sum": [
+                  {
+                    "pick": [
+                      0,
+                      1,
+                      1,
+                      1,
+                      1,
+                      1,
+                      0,
+                      0,
+                      0,
+                      1,
+                      1,
+                      1,
+                      1,
+                      1
+                    ],
+                    "at": "_state"
+                  },
+                  {
+                    "pick": [
+                      0,
+                      0,
+                      0,
+                      1,
+                      1
+                    ],
+                    "at": "phase"
+                  }
+                ]
+              },
+              1
+            ]
+          }
+        },
+        {
+          "rise": {
+            "ge": [
+              "distance",
+              {
+                "pick": [
+                  null,
+                  498,
+                  338,
+                  418,
+                  498,
+                  578,
+                  275,
+                  {
+                    "pick": [
+                      100000,
+                      0
+                    ],
+                    "at": "loop"
+                  }
+                ],
+                "at": "stage"
+              }
+            ]
+          },
+          "from": {
+            "pick": [
+              null,
+              {
+                "pick": [
+                  1,
+                  0
+                ],
+                "at": {
+                  "ge": [
+                    "distance",
+                    498
+                  ]
+                }
+              },
+              {
+                "pick": [
+                  1,
+                  0
+                ],
+                "at": {
+                  "ge": [
+                    "distance",
+                    338
+                  ]
+                }
+              },
+              {
+                "pick": [
+                  1,
+                  0
+                ],
+                "at": {
+                  "ge": [
+                    "distance",
+                    418
+                  ]
+                }
+              },
+              {
+                "pick": [
+                  1,
+                  0
+                ],
+                "at": {
+                  "ge": [
+                    "distance",
+                    498
+                  ]
+                }
+              },
+              {
+                "pick": [
+                  1,
+                  0
+                ],
+                "at": {
+                  "ge": [
+                    "distance",
+                    578
+                  ]
+                }
+              },
+              {
+                "pick": [
+                  1,
+                  0
+                ],
+                "at": {
+                  "ge": [
+                    "distance",
+                    275
+                  ]
+                }
+              },
+              1
+            ],
+            "at": "stage"
+          },
+          "reset": {
+            "ge": [
+              {
+                "sum": [
+                  {
+                    "pick": [
+                      0,
+                      1,
+                      1,
+                      1,
+                      1,
+                      1,
+                      0,
+                      0,
+                      0,
+                      1,
+                      1,
+                      1,
+                      1,
+                      1
+                    ],
+                    "at": "_state"
+                  },
+                  {
+                    "pick": [
+                      0,
+                      0,
+                      0,
+                      1,
+                      1
+                    ],
+                    "at": "phase"
+                  }
+                ]
+              },
+              1
+            ]
+          }
+        }
+      ]
+    },
+    "boss_name": {
+      "value": "stage",
+      "names": {
+        "1": "SUZAKU",
+        "2": "SENKOU",
+        "3": "KAKOU",
+        "4": "RAIKOU",
+        "5": "RANKOU",
+        "6": "RYUUKOU",
+        "7": "HIBACHI"
+      }
+    },
+    "warning": {
+      "eq": [
+        "_stage_task",
+        449176
+      ]
+    },
+    "boss_hp": {
+      "pick": ["_boss_hp", "_boss_hp", "_boss_hp", "_boss_hp", "_boss_hp", "_boss_hp", "_boss_hp_b", "_boss_hp"],
+      "at": "stage"
+    }
+  },
+  "hd": {
+    "scene": "ddonpach"
+  },
+  "demo": {
+    "attract": true,
+    "credits": 0,
+    "p1_mode": 1,
+    "p2_mode": 0,
+    "score": 0,
+    "lives": 3,
+    "bombs": 3,
+    "bombs_max": 3,
+    "power": 1,
+    "combo": 0,
+    "hits": 0,
+    "ship": 0,
+    "stage": 1,
+    "lives_p2": 0,
+    "bombs_p2": 0,
+    "bombs_max_p2": 0,
+    "power_p2": 0,
+    "combo_p2": 0,
+    "hits_p2": 0,
+    "ship_p2": 0,
+    "sim": {
+      "bombs": {
+        "cycle": [
+          3,
+          3,
+          2,
+          2,
+          1,
+          2,
+          3,
+          3
+        ],
+        "every": 6.0,
+        "start": 9.0
+      },
+      "bombs_max": {
+        "cycle": [
+          3,
+          4,
+          4,
+          5,
+          6,
+          6,
+          3
+        ],
+        "every": 14.0,
+        "start": 22.0
+      },
+      "power": {
+        "cycle": [
+          1,
+          2,
+          3,
+          4,
+          4,
+          4,
+          1
+        ],
+        "every": 7.0,
+        "start": 6.0
+      },
+      "combo": {
+        "cycle": [
+          100,
+          92,
+          84,
+          100,
+          94,
+          86,
+          78,
+          100,
+          96,
+          88,
+          80,
+          72,
+          100,
+          90,
+          80,
+          70,
+          58,
+          46,
+          34,
+          22,
+          10,
+          0,
+          0,
+          0
+        ],
+        "every": 0.25,
+        "start": 4.0
+      },
+      "hits": {
+        "count": [
+          0,
+          180,
+          3
+        ],
+        "every": 0.3,
+        "start": 4.0
+      },
+      "ship": {
+        "cycle": [
+          0,
+          1,
+          2
+        ],
+        "every": 40.0,
+        "start": 40.0
+      },
+      "stage": {
+        "cycle": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "every": 30.0,
+        "start": 30.0
+      },
+      "lives_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "bombs_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "bombs_max_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "power_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "combo_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "hits_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      },
+      "ship_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 3600.0,
+        "start": 3600.0
+      }
+    }
+  },
+  "tag": {
+    "score": {
+      "sum": ["_score10", "_cont"]
+    },
+    "score_p2": {
+      "sum": ["_score10_p2", "_cont_p2"]
+    },
+    "p1_mode": {
+      "pick": [
+        {
+          "ge": [
+            "lives",
+            0
+          ]
+        },
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        {
+          "pick": [
+            0,
+            2
+          ],
+          "at": {
+            "ge": [
+              "_score10",
+              1
+            ]
+          }
+        },
+        0,
+        0,
+        {
+          "first": [
+            {
+              "pick": [
+                {
+                  "pick": [
+                    1,
+                    {
+                      "ge": [
+                        "lives",
+                        0
+                      ]
+                    }
+                  ],
+                  "at": {
+                    "ge": [
+                      "lives_p2",
+                      0
+                    ]
+                  }
+                },
+                {
+                  "pick": [
+                    1,
+                    0
+                  ],
+                  "at": "_out_p1"
+                }
+              ],
+              "at": {
+                "ge": [
+                  "_players",
+                  128
+                ]
+              }
+            },
+            {
+              "pick": [
+                1,
+                {
+                  "ge": [
+                    "lives",
+                    0
+                  ]
+                }
+              ],
+              "at": {
+                "ge": [
+                  "lives_p2",
+                  0
+                ]
+              }
+            }
+          ]
+        },
+        0,
+        0
+      ],
+      "at": "_state"
+    },
+    "p2_mode": {
+      "pick": [
+        {
+          "ge": [
+            "lives_p2",
+            0
+          ]
+        },
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        {
+          "pick": [
+            0,
+            2
+          ],
+          "at": {
+            "ge": [
+              "_score10_p2",
+              1
+            ]
+          }
+        },
+        0,
+        0,
+        {
+          "first": [
+            {
+              "pick": [
+                {
+                  "ge": [
+                    "lives_p2",
+                    0
+                  ]
+                },
+                {
+                  "pick": [
+                    1,
+                    0
+                  ],
+                  "at": "_out_p2"
+                }
+              ],
+              "at": {
+                "ge": [
+                  "_players",
+                  128
+                ]
+              }
+            },
+            {
+              "ge": [
+                "lives_p2",
+                0
+              ]
+            }
+          ]
+        },
+        0,
+        0
+      ],
+      "at": "_state"
+    }
+  },
+  "per_game": {
+    "ddonpacha": {
+      "_stage_task": {
+        "addr": "",
+        "type": "be",
+        "bytes": 4,
+        "note": "the routines of this version's program are elsewhere, not read: the boss comes where its stage stops scrolling"
+      }
+    },
+    "ddonpachj": {
+      "_stage_task": {
+        "addr": "",
+        "type": "be",
+        "bytes": 4,
+        "note": "the routines of this version's program are elsewhere, not read: the boss comes where its stage stops scrolling"
+      }
+    }
+  }
+}

@@ -6,8 +6,11 @@ Décodage des valeurs RAM (score, vies...) à partir d'octets, comme le plugin M
 Les définitions sont celles de games/*.json, rubrique memory.values :
   {"addr": "0x100377", "type": "u8"}
   {"addr": "0xFFFE26", "type": "be", "bytes": 4, "mult": 10}
-Types : u8, u16, u32, s8, s16, be, le, bcd, bcd_le, digits, digits_le.
+Types : u8, u16, u32, s8, s16, s32, be, le, bcd, bcd_le, digits, digits_le (s32 : un nombre signé de 32 bits, la vie du boss de
+DoDonPachi qui passe sous zéro quand il tombe / a signed 32-bit number, DoDonPachi's boss life going below zero as it falls).
 "zero_from": a raw value from which the value reads its "min" (a health bar gone below zero, 0xFF in a byte).
+"valid": [lo, hi], the values the game can really have: another one is not read (RAM not set yet while the game boots,
+Metal Slug's mission 183 before mission 1), the value keeps the last one read. / les valeurs possibles, une autre n'est pas lue.
 """
 
 
@@ -85,10 +88,12 @@ def decode(d, getb, big_endian=True):
     raw = [getb(addr + i) for i in range(n)]
     if any(b is None for b in raw):
         return None
-    if t in ("u16", "u32", "s16"):
+    if t in ("u16", "u32", "s16", "s32"):
         v = int.from_bytes(bytes(raw), "big" if big_endian else "little")
         if t == "s16" and v >= 0x8000:
             v -= 0x10000
+        elif t == "s32" and v >= 0x80000000:
+            v -= 0x100000000
     elif t == "u8":
         v = raw[0]
     elif t == "s8":
@@ -127,6 +132,11 @@ def decode(d, getb, big_endian=True):
     digits = d.get("round")
     if isinstance(digits, int) and not isinstance(digits, bool):
         v = round(v, digits)                    # a percentage of a full bar / un pourcentage de barre pleine
+    ok = d.get("valid")
+    if isinstance(ok, list) and len(ok) == 2:   # a value the game cannot have: not read / une valeur impossible : pas lue
+        vlo, vhi = ok
+        if (isinstance(vlo, (int, float)) and v < vlo) or (isinstance(vhi, (int, float)) and v > vhi):
+            return None
     lo, hi = d.get("min"), d.get("max")
     if isinstance(lo, (int, float)) and v < lo:
         v = lo
@@ -159,8 +169,18 @@ def game_values(game, system="", parent=""):
 #               "names": {"0": "KYO", "10": "RALF", ...}}
 # pick : l'élément de la liste désigné par "at" (un nom de valeur, un nombre ou un autre calcul)
 # find : la position dans la liste de la valeur égale à "eq"
+# sum : les nombres ajoutés (le score de DoDonPachi, ses dizaines et le nombre de continues en dernier chiffre)
 # names : nombre lu -> texte affiché (sans correspondance, la valeur reste vide)
 #         {"en": [...], "fr": [...]} : les noms dans chaque langue (club de golf, terrain, arme...)
+
+# what each "rise" expression has seen, by the expression itself / ce que chaque expression "rise" a vu
+_SEEN = {}
+
+
+def forget_seen():
+    """A new game: the "rise" expressions start again from nothing. / Une nouvelle partie : tout est oublié."""
+    _SEEN.clear()
+
 
 def _resolve(expr, values, depth=0):
     if depth > 8:
@@ -175,6 +195,12 @@ def _resolve(expr, values, depth=0):
         return None
     if "value" in expr:                       # une valeur lue telle quelle (le plus souvent avec "names")
         return _resolve(expr.get("value"), values, depth + 1)
+    if "sum" in expr:                         # several numbers added (DoDonPachi: its score, then the continues as last digit)
+        parts = [_resolve(x, values, depth + 1) for x in expr.get("sum") or []]   # des nombres ajoutés
+        if not parts or any(isinstance(p, bool) or not isinstance(p, (int, float)) for p in parts):
+            return None
+        total = sum(parts)
+        return int(total) if isinstance(total, float) and total.is_integer() else total
     if "pick" in expr:
         lst = expr.get("pick")
         idx = _resolve(expr.get("at"), values, depth + 1)
@@ -197,6 +223,47 @@ def _resolve(expr, values, depth=0):
         on = [m for m in alive if _resolve(m[0], values, depth + 1) == 1]
         pick = on[0] if on else (alive[0] if alive else team[0])
         return _resolve(pick[2], values, depth + 1)
+    if "ge" in expr:                          # 1 when the first is at least the second, else 0 (DoDonPachi: the boss comes
+        pair = expr.get("ge")                 # where its stage stops scrolling) / 1 quand le premier atteint le second
+        if not isinstance(pair, list) or len(pair) != 2:
+            return None
+        a, b = (_resolve(x, values, depth + 1) for x in pair)
+        if any(isinstance(x, bool) or not isinstance(x, (int, float)) for x in (a, b)):
+            return None
+        return 1 if a >= b else 0
+    if "eq" in expr and "find" not in expr:
+        # 1 when both are equal, else 0 (DoDonPachi: the routine of its WARNING) / 1 quand les deux sont égaux, sinon 0
+        pair = expr.get("eq")
+        if not isinstance(pair, list) or len(pair) != 2:
+            return None
+        a, b = (_resolve(x, values, depth + 1) for x in pair)
+        if any(isinstance(x, bool) or not isinstance(x, (int, float)) for x in (a, b)):
+            return None
+        return 1 if a == b else 0
+    if "first" in expr:
+        # the first of them that is known (DoDonPachi: its boss from the WARNING, else from where its stage stops)
+        # la première qui est connue
+        for x in expr.get("first") or []:
+            v = _resolve(x, values, depth + 1)
+            if v is not None and not isinstance(v, bool):
+                return v
+        return None
+    if "rise" in expr:
+        # 1 while "rise" is 1, once "from" has been 1 since the last "reset" (DoDonPachi: the boss once the stage was seen
+        # scrolling toward it in a game going on, not a distance left over from the stage or the game before). The only
+        # expression that remembers, from one reading to the next. / 1 tant que "rise" vaut 1, une fois "from" vu à 1
+        # depuis le dernier "reset" ; la seule expression qui se souvient d'une lecture à l'autre.
+        st = _SEEN.get(id(expr))
+        if st is None or st[0] is not expr:
+            st = _SEEN[id(expr)] = [expr, False]
+        if _resolve(expr.get("reset"), values, depth + 1) == 1:
+            st[1] = False
+        if _resolve(expr.get("from"), values, depth + 1) == 1:
+            st[1] = True
+        up = _resolve(expr.get("rise"), values, depth + 1)
+        if up is None or isinstance(up, bool):
+            return None
+        return 1 if st[1] and up == 1 else 0
     if "find" in expr:
         lst = expr.get("find")
         target = _resolve(expr.get("eq"), values, depth + 1)

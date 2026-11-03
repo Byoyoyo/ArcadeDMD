@@ -128,6 +128,33 @@ def save(root, key, values, retroarch=None):
     return path
 
 
+def _rename(key, path, data, vals, log=print):
+    """A value learned under a slip of a name the game file does not have (scores2 typed for score2) goes under the right
+    name, once: the learned file is written again. / Une valeur apprise sous un nom mal tapé passe sous le bon nom."""
+    from .learn import canonical, typed_name
+    learned = data.get("values")
+    if not isinstance(learned, dict):
+        return
+    moved = []
+    for name in list(learned):
+        right = canonical(name)
+        if name in vals or right == name or right not in vals:
+            continue
+        d = learned.pop(name)
+        if right not in learned:                       # one learned under the right name stays / celle du bon nom reste
+            learned[right] = d
+        moved.append((name, right))
+    if not moved:
+        return
+    try:
+        _write(path, data)
+    except OSError:
+        return
+    for name, right in moved:
+        log(tr(f"learned/{key}.json : {name} appris sous le nom {typed_name(right)}",
+               f"learned/{key}.json: {name} learned under the name {typed_name(right)}"))
+
+
 def restore(root, log=print):
     """Remet dans games/*.json les adresses apprises qu'une mise à jour a remplacées. Renvoie les jeux modifiés."""
     migrate(root, log)
@@ -145,6 +172,7 @@ def restore(root, log=print):
         changed = []
         obsolete = []
         wrong = []
+        _rename(key, path, data, vals, log)
         for name, d in (data.get("values") or {}).items():
             if not isinstance(d, dict) or not d.get("addr"):
                 continue

@@ -166,6 +166,7 @@ class SuperSpyScene(GameScene):
     is a shot. 1P and the score, the floor and its arrows, the energy, the weapon and its ammunition.
     / Le couloir de l'immeuble, un combattant masqué à nous face à nous, nos poings frappent d'en bas ; l'énergie lue
     dans le jeu baisse quand il nous touche, une balle dépensée est un tir, comme dans le jeu."""
+    CREDITS = (360, None)                                 # our fists are in the middle / nos poings sont au milieu
     THEME = "ss_corridor"
     STATIC = True
     SHADE = (60, 40)
@@ -293,6 +294,7 @@ class QuizScene(GameScene):
     cross when it is wrong. The lives and the score read in the game decide right or wrong. The questions are our own.
     / Un quiz : le décor en haut et deux visages à nous, le panneau de la question et ses quatre réponses, le temps qui
     passe, un grand rond si c'est juste, une grande croix si c'est faux. Les questions sont à nous."""
+    CREDITS = (-470, 176)                                 # the answers fill the bottom / les réponses remplissent le bas
     THEME = "qz_arena"
     STATIC = True
     SHADE = (40, 0)
@@ -477,6 +479,7 @@ class MahjongScene(GameScene):
     and now and then a hand wins. The points and the time read in the game where they are known.
     / Une partie de mahjong : le tapis, la main cachée de l'adversaire en haut, les tuiles jetées au milieu, notre main de
     treize tuiles en bas ; une tuile est piochée, une tuile est jetée, et de temps en temps une main gagne."""
+    CREDITS = (-310, None)                                # the hand fills the bottom middle / la main occupe le bas
     THEME = "mj_green"
     STATIC = True
     SHADE = (0, 0)
@@ -716,6 +719,7 @@ class ShogiScene(GameScene):
     our own move one by one, a piece taken goes to the stand of the one who took it, each player's clock runs.
     / La côte rocheuse, le plateau de bois et ses deux supports ; nos pièces avancent une à une, une pièce prise va sur
     le support de celui qui l'a prise, la pendule de chaque joueur tourne, comme dans le jeu."""
+    CREDITS = (360, None)                                 # the board is in the middle / le plateau est au milieu
     THEME = "sh_coast"
     STATIC = True
     SHADE = (0, 0)
