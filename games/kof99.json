@@ -75,7 +75,8 @@
     "mult": 0.990099,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 101 (cheat database)"
+    "zero_from": "0x80",
+    "note": "health bar in %, full = 101 (cheat database); a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (Seb, 1.31): from 0x80 it reads empty"
    },
    "health_p2": {
     "addr": "0x108439",
@@ -83,7 +84,8 @@
     "mult": 0.990099,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 101 (cheat database)"
+    "zero_from": "0x80",
+    "note": "health bar in %, full = 101 (cheat database); a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (Seb, 1.31): from 0x80 it reads empty"
    },
    "time": {
     "addr": "0x10A7E6",
