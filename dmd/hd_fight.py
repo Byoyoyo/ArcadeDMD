@@ -26,6 +26,7 @@ from PIL import Image, ImageDraw, ImageFilter
 from . import hd_stages
 from .hd_bg import Backdrop
 from .hd_fx import FX, Particle
+from .hd_moves import Moves
 from .hd_themes15 import CPS_STAGES
 from .i18n import tr
 
@@ -47,6 +48,7 @@ READY_STATE = 0x18
 READY_GO = 1.15
 READY_MIN = 2.5           # READY never comes sooner after the bars filled / READY ne vient jamais plus tôt
 MATCH_END = 5.5           # the winner of a match in big letters, this long (Seb, 1.31.1) / le vainqueur du match, ce temps
+VS_FORGET = 20.0          # the wins of two humans forgotten when one of them left that long ago (1.32) / victoires oubliées
 CONFETTI = ((255, 80, 80), (255, 210, 60), (80, 220, 255), (120, 255, 140), (255, 120, 220), (255, 255, 255))
 
 # place shown under STAGE n, for each theme ("fight_city" uses "city") / nom du lieu sous STAGE n
@@ -111,6 +113,7 @@ class FightFX:
         self.idle_attract = False                                     # nobody plays (the attract screen) / personne ne joue
         self.rays = None
         self._rays()                                                  # préparés d'avance : pas d'à-coup au premier super
+        self.moves = Moves(hd)                                        # the desperation moves (1.32) / les coups désespérés
         self.warm = self._warm_list()
 
     def _warm_list(self):
@@ -201,6 +204,11 @@ class FightFX:
         self.round_t0 = None                       # when the bars of this round filled / quand les barres se sont remplies
         self.fight_why = ""                        # what gave FIGHT ! (log) / ce qui a donné FIGHT !
         self.run_logged = True                     # the timer's start of this round logged / le départ du chrono noté
+        # 1.32, the matches won by each of two humans (Seb, as in Puzzle Bobble) / les matchs gagnés par chacun de deux humains
+        self.wins = {"p1": 0, "p2": 0}
+        self.win_pop = {"p1": None, "p2": None}    # when one more came, its number pops / quand il en vient un, il grossit
+        self.win_add = None                        # (winner, t): counted when VICTOIRE shows / compté quand VICTOIRE s'affiche
+        self.vs_t = -99.0                          # when both players were last human / quand les deux étaient humains
 
     def round_glow(self, side, now):
         """1 when the side just won a round, down to 0 in 1.5 s (its last star glows). / L'étoile du round gagné brille."""
@@ -248,9 +256,11 @@ class FightFX:
         return {"p1": (S(40), S(176), bw, S(50)), "p2": (int(cx + S(160)), S(176), bw, S(50)), "cx": cx}
 
     # ------------------------------------------------------------ ce qui a changé
-    def update(self, vals, now, key, game=None, idle=False):
+    def update(self, vals, now, key, game=None, idle=False, hist=None):
         """idle: nobody plays, the game's own demo runs behind the attract screen. Its fights change the health
-        bars, but no spark, banner or K.O. is shown for them. / Personne ne joue : pas d'effet pour la démo du jeu."""
+        bars, but no spark, banner or K.O. is shown for them. hist: the stick and buttons read ("_in_p1", "_in_p2"),
+        for the desperation moves (1.32). / Personne ne joue : pas d'effet pour la démo du jeu. hist : le stick et les
+        boutons lus, pour les coups désespérés."""
         stages = self.stages(game)
         if key != self.key:
             self.key = key
@@ -258,6 +268,7 @@ class FightFX:
             self.bd.set_theme(stages[stable_index(key, len(stages))], now, wipe=0)
             self.bd.prebuild(stages)                                  # les autres stages se préparent en arrière-plan
         self.fx.update(now)
+        self._vs(vals, now)
         # a select screen the game says (King of Fighters, Real Bout Special: "select", 1.31.1): no fight there, its values
         # are only followed as on the attract screen / un écran de sélection que dit le jeu : pas de combat, valeurs suivies
         select = _n(vals.get("select")) == 1
@@ -273,9 +284,12 @@ class FightFX:
         self.idle, self.select, self.idle_attract = idle or select, select, idle
         if idle or select:
             self._idle(vals, stages, game)
+            self.moves.skip(hist)                                     # no fight: the inputs only followed / suivies
             return
         p1m, p2m = vals.get("p1_mode"), vals.get("p2_mode")
         self.humans = {"p1": p1m in (1, 2) or p1m is None, "p2": p2m in (1, 2)}
+        if isinstance((game or {}).get("moves"), dict):
+            self.moves.update(vals, hist, now, key, game, self.humans)
         # "round": the round of a King of Fighters match, from 0, one more at each K.O. (cheat "Select Current Round"),
         # shown as ROUND n when the next fight begins (1.31) / le round du match, ROUND n quand le combat suivant commence
         self.round_v = _n(vals.get("round"))
@@ -417,9 +431,7 @@ class FightFX:
                 loser = "p2" if h1 > h2 else "p1"
                 idx = self.lost_go.get(loser)
                 if idx is not None and idx >= 2 and (self.round_v is None or self.round_v >= 2):
-                    self.out = (self.win[0], loser, now + 3.8)
-                    self.ko_until = now + 3.8 + MATCH_END
-                    self.fx.later(3.8, self._confetti, 0, self.W, 150)
+                    self._match_won(self.win[0], loser, now, 3.8)
         self.prev_time = t
         for side, h in (("p1", h1), ("p2", h2)):
             if h is not None and h <= 0:
@@ -544,10 +556,44 @@ class FightFX:
                 idx = self.lost_go.get(victim)
                 raw = self.lost_raw.get(victim)                          # counted just before: its third / son troisième
                 if ((idx is not None and idx >= 2) or (raw is not None and raw >= 3)) and (self.round_v is None or self.round_v >= 2):
-                    later = 4.4 if perfect else 2.7                          # after the WIN, and the PERFECT / après
-                    self.out = (attacker, victim, now + later)             # its third fighter: the team is out / éliminée
-                    self.ko_until = now + later + MATCH_END
-                    self.fx.later(later, self._confetti, 0, self.W, 150)
+                    self._match_won(attacker, victim, now, 4.4 if perfect else 2.7)   # its third fighter: the team is
+                    # out, after the WIN and the PERFECT / son troisième combattant : l'équipe est éliminée, après le WIN
+
+    def _match_won(self, winner, loser, now, later):
+        """A team eliminated: VICTOIRE and the confetti once the WIN is over, one more match won for a human against a
+        human (1.32). / Une équipe éliminée : VICTOIRE et les confettis après le WIN, un match gagné de plus entre humains."""
+        if self.out is not None and -1.0 < now + later - self.out[2] < MATCH_END:
+            return                                                    # the same match / le même match
+        self.out = (winner, loser, now + later)
+        self.ko_until = now + later + MATCH_END
+        self.fx.later(later, self._confetti, 0, self.W, 150)
+        if self.humans.get("p1") and self.humans.get("p2"):
+            self.win_add = (winner, now + later)
+
+    def _vs(self, vals, now):
+        """The matches won by each of two humans: one more when VICTOIRE shows, all forgotten once one of them left
+        VS_FORGET ago. / Les matchs gagnés par chacun : un de plus quand VICTOIRE s'affiche, oubliés quand l'un est parti."""
+        if self.win_add is not None and now >= self.win_add[1]:
+            side = self.win_add[0]
+            self.wins[side] += 1
+            self.win_pop[side] = now
+            self.win_add = None
+            self.hd.log(tr(f"Combat, victoires P1 {self.wins['p1']} P2 {self.wins['p2']}",
+                           f"Fight, wins P1 {self.wins['p1']} P2 {self.wins['p2']}"))
+        p1m, p2m = vals.get("p1_mode"), vals.get("p2_mode")
+        if p1m in (1, 2) and p2m in (1, 2):
+            self.vs_t = now
+        elif now - self.vs_t > VS_FORGET and (self.wins["p1"] or self.wins["p2"]):
+            self.wins = {"p1": 0, "p2": 0}
+            self.hd.log(tr("Combat, victoires remises à zéro (un joueur est parti)", "Fight, wins back to 0 (a player left)"))
+
+    def vs_on(self):
+        """Two humans play: their wins under the credits. / Deux humains jouent : leurs victoires sous les crédits."""
+        return bool(self.humans.get("p1") and self.humans.get("p2")) and not self.idle_attract
+
+    def panel_on(self, side):
+        """The panel of the desperation moves under a human's name, during a fight. / Le panneau, pendant un combat."""
+        return bool(self.humans.get(side)) and not self.idle
 
     def _confetti(self, x0, x1, n):
         fx, rng = self.fx, self.rng

@@ -25,6 +25,7 @@ class GameState:
         self.changed_at = {}
         self.meta = {}
         self.events = []          # (nom, ancienne valeur, nouvelle valeur, t) pour les effets
+        self.hist = {}            # "_in_" values, the stick and buttons: [(t, value)] in order / l'historique des touches
         self.paused = False
 
     def reset(self, meta=None):
@@ -32,15 +33,22 @@ class GameState:
         self.prev.clear()
         self.changed_at.clear()
         self.events.clear()
+        self.hist.clear()
         self.meta = dict(meta or {})
         self.paused = False
 
-    def update(self, name, value, now, quiet=False):
+    def update(self, name, value, now, quiet=False, at=None):
         old = self.values.get(name)
         if old == value:
             return
         self.prev[name] = old
         self.values[name] = value
+        if name.startswith("_in_"):           # every change of the stick and buttons, with the time it was read (1.32)
+            h = self.hist.setdefault(name, [])  # chaque changement du stick et des boutons, au moment de sa lecture
+            n = h[-1][0] + 1 if h else 1      # counted, the oldest go / numérotés, les plus anciens s'en vont
+            h.append((n, at if at is not None else time.monotonic(), value))   # the HD screen's clock / l'horloge HD
+            if len(h) > 96:
+                del h[:len(h) - 96]
         if not quiet:
             self.changed_at[name] = now
             if old is not None:

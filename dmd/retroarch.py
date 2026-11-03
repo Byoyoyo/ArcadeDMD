@@ -308,6 +308,37 @@ class Layout:
             pos += n
         return self.base + lo, self._unswap(bytes(out))
 
+    def read_cpu_many(self, client, spans):
+        """read_cpu for several spans, the requests sent together: RetroArch answers them all at its next image, where
+        one at a time takes an image each (1.32, the stick read between). [(address, bytes)] or None.
+        / read_cpu pour plusieurs plages, les demandes envoyées ensemble : RetroArch y répond à la même image."""
+        plan, reqs = [], []
+        for start, end in spans:
+            lo, hi = start - self.base, end - self.base
+            if self.align > 1:
+                lo &= ~(self.align - 1)
+                hi |= self.align - 1
+            if lo < 0 or hi >= self.size:
+                return None
+            parts, pos = [], lo
+            while pos <= hi:
+                n = min(CHUNK - (pos % CHUNK), hi - pos + 1)
+                parts.append((pos, n))
+                pos += n
+            plan.append((lo, parts))
+            reqs += parts
+        got = client.read_many(reqs)
+        out = []
+        for lo, parts in plan:
+            data = bytearray()
+            for pos, n in parts:
+                d = got.get(pos)
+                if d is None:
+                    return None
+                data += d
+            out.append((self.base + lo, self._unswap(bytes(data))))
+        return out
+
     def readable_size(self, client):
         """Taille réellement lisible (sondage octet par octet, sans jamais lire hors de la RAM)."""
         if client.read(self.size - 1, 1) is not None:
@@ -460,14 +491,21 @@ def make_clusters(defs, gap=64, maxspan=512):
     return [tuple(x) for x in out]
 
 
-def read_values(client, layout, defs, clusters=None):
-    """{nom: valeur} lues dans RetroArch, ou None si la lecture échoue."""
-    bufs = []
-    for start, end in (clusters if clusters is not None else make_clusters(defs) if defs else []):
-        r = layout.read_cpu(client, start, end)
-        if r is None:
+def read_values(client, layout, defs, clusters=None, batch=False):
+    """{nom: valeur} lues dans RetroArch, ou None si la lecture échoue. batch: the requests sent together, answered at
+    the same image (1.32) / les demandes envoyées ensemble, servies à la même image."""
+    spans = clusters if clusters is not None else make_clusters(defs) if defs else []
+    if batch and len(spans) > 1 and hasattr(client, "read_many"):
+        bufs = layout.read_cpu_many(client, spans)
+        if bufs is None:
             return None
-        bufs.append(r)
+    else:
+        bufs = []
+        for start, end in spans:
+            r = layout.read_cpu(client, start, end)
+            if r is None:
+                return None
+            bufs.append(r)
 
     def getb(a):
         for base, data in bufs:
@@ -493,6 +531,11 @@ def read_values(client, layout, defs, clusters=None):
         if v is not None:
             vals[name] = v
     return vals
+
+
+# between two reads of the stick: RetroArch answers at its next image, the read itself keeps the pace of the game
+# entre deux lectures du stick : RetroArch répond à l'image suivante, la lecture suit d'elle-même le rythme du jeu
+FAST_POLL = 0.001
 
 
 class RetroArchSource:
@@ -571,11 +614,33 @@ class RetroArchSource:
                             self._emit({"t": "pause" if paused else "resume"})
                 if self.session:
                     self._poll_values()
+                    s = self.session
+                    if s and s.get("fast") and not s.get("paused") and not s.get("fails"):
+                        if self._poll_fast(time.monotonic() + self.poll):
+                            continue                      # the stick read until now / le stick lu jusqu'ici
             except Exception as e:          # le moteur doit continuer quoi qu'il arrive
                 self.log(tr(f"RetroArch : erreur {e!r}", f"RetroArch: error {e!r}"))
                 self.session = None
                 self.stop_ev.wait(2.0)
             self.stop_ev.wait(self.poll)
+
+    def _poll_fast(self, until):
+        """The stick and buttons until the next read of everything, once an image (RetroArch answers once an image),
+        each change sent with the time it was read. / Le stick et les boutons jusqu'à la prochaine lecture de tout,
+        une fois par image, chaque changement envoyé avec le moment de sa lecture."""
+        s = self.session
+        done = False
+        while not self.stop_ev.is_set() and time.monotonic() < until:
+            vals = read_values(self.client, s["layout"], s["fast"], s["fast_clusters"])
+            if vals is None:
+                break
+            done = True
+            changed = {k: v for k, v in vals.items() if s["last"].get(k) != v}
+            if changed:
+                s["last"].update(changed)
+                self._emit({"t": "v", "v": changed, "at": time.monotonic()})
+            self.stop_ev.wait(FAST_POLL)
+        return done
 
     def _begin(self, st):
         key, game, parent, own = resolve(self.library.games, st["content"], st["system"])
@@ -601,8 +666,12 @@ class RetroArchSource:
                         f"RetroArch: {key or st['content']} keeps its values outside the memory RetroArch shares "
                         f"({', '.join(sorted(mame))}), nothing is read. Launch this game with MAME to see everything."))
         core = find_core(st["content"])
+        # the stick and buttons ("fast"): read at every image between the other reads, a quarter circle lasts a few
+        # images only (1.32) / le stick et les boutons, lus à chaque image entre les autres lectures
+        fast = {n: d for n, d in defs.items() if d.get("fast")}
         self.session = {"ident": (st["system"], st["content"]), "key": key or "", "layout": layout,
                         "defs": defs, "clusters": make_clusters(defs) if defs else [], "last": {},
+                        "fast": fast, "fast_clusters": make_clusters(fast) if fast else [],
                         "last_hb": 0.0, "paused": False, "fails": 0, "warned": False, "retry_at": 0.0,
                         "core": core, "mt": getattr(self.library, "mtimes", {}).get(key) if key else None}
         title = own or game_title(game, parent or st["content"])
@@ -637,7 +706,9 @@ class RetroArchSource:
         s = self.session
         now = time.monotonic()
         if s["clusters"] and now >= s["retry_at"]:
-            vals = read_values(self.client, s["layout"], s["defs"], s["clusters"])
+            # with the stick to read (1.32), everything at the same image, then the stick at every image until the next
+            # read / avec le stick à lire, tout à la même image, puis le stick à chaque image jusqu'à la lecture suivante
+            vals = read_values(self.client, s["layout"], s["defs"], s["clusters"], batch=bool(s.get("fast")))
             if vals is None:
                 s["fails"] += 1
                 self.check_now = True
@@ -660,7 +731,7 @@ class RetroArchSource:
                 changed = {k: v for k, v in vals.items() if s["last"].get(k) != v}
                 if changed:
                     s["last"].update(changed)
-                    self._emit({"t": "v", "v": changed})
+                    self._emit({"t": "v", "v": changed, "at": time.monotonic()})
         if now - s["last_hb"] >= 2.0:
             s["last_hb"] = now
             self._emit({"t": "hb", "v": dict(s["last"])})
