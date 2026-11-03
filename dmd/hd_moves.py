@@ -36,6 +36,8 @@ NEAR = 0.75           # RATÉ only for a near miss (a step or so), not for a spe
 CONFIRM = 0.8         # the game takes its stock that soon after the button / le jeu prend son stock aussi vite
 SHOW = 1.6            # RATÉ, DM ! or SDM ! stays that long / reste affiché ce temps
 MAX_LONG = 15.0       # MAX over at the latest / le MAX fini au plus tard
+EXTRA_LONG = 30.0     # MAX of Extra over at the latest, else when its gauge is empty / le MAX d'Extra, au plus tard
+INPUT_KEEP = 3.0      # the inputs shown that long after the last one, then they fade / les touches restent ce temps
 RED_HEALTH = 25       # Extra: the desperation moves are free with the health this low / gratuits avec si peu de vie
 FULL_POW = 0xA0       # the gauge full (MAX in Extra) / la jauge pleine
 
@@ -118,6 +120,8 @@ class Side:
         self.maxv = None
         self.max_on = None           # since when MAX is on (A+B+C and a stock gone) / depuis quand le MAX est lancé
         self.max_seen = False        # its timer (the candidate "_maxv") seen running / son chrono vu tourner
+        self.max_extra = False       # the MAX of Extra: the gauge full, over once it is empty / le MAX d'Extra
+        self.groups = []             # (t, direction or None, [buttons]) the inputs as training mode shows them
         self.abc_t = -99.0
         self.press = None            # (t, buttons) the last button pressed / le dernier bouton appuyé
         self.attempt = None          # (t, row, states, full, mirrored) a button after a motion, the game not heard yet
@@ -167,6 +171,7 @@ class Moves:
                 sd.seen = entries[-1][0]
             sd.attempt = sd.result = sd.live = None
             sd.max_on = None
+            sd.groups = []
 
     def update(self, vals, hist, now, key, game, humans):
         if key != self.key:
@@ -220,12 +225,27 @@ class Moves:
         if maxv is not None and sd.maxv is not None and (maxv == 0) != (sd.maxv == 0):
             self.log(f"Combat, {tag} MAX ? _maxv 0x{int(sd.maxv):02X} -> 0x{int(maxv):02X}",
                      f"Fight, {tag} MAX? _maxv 0x{int(sd.maxv):02X} -> 0x{int(maxv):02X}")
-        if mode == 1 and pow_ is not None and sd.pow is not None and sd.pow >= FULL_POW > pow_ + 0x40:
-            self._spent(side, sd, now, vals, game)                # Extra: the full gauge used / la jauge pleine utilisée
+        if mode == 1 and pow_ is not None:
+            # Extra: the gauge full is MAX, until it is empty or a desperation move uses it all at once (1.32 test 3)
+            # Extra : la jauge pleine, c'est le MAX, jusqu'à ce qu'elle soit vide ou qu'un coup désespéré la prenne d'un coup
+            if pow_ >= FULL_POW and (sd.pow is None or sd.pow < FULL_POW) and sd.max_on is None:
+                sd.max_on, sd.max_seen, sd.max_extra = now, False, True
+                self.log(f"Combat, {tag} jauge pleine, MAX (0x{int(pow_):02X})", f"Fight, {tag} gauge full, MAX (0x{int(pow_):02X})")
+            elif sd.max_on is not None and sd.max_extra and sd.pow is not None and sd.pow - pow_ >= 0x20:
+                self.log(f"Combat, {tag} jauge 0x{int(sd.pow):02X} -> 0x{int(pow_):02X} d'un coup",
+                         f"Fight, {tag} gauge 0x{int(sd.pow):02X} -> 0x{int(pow_):02X} at once")
+                self._spent(side, sd, now, vals, game)            # used by a desperation move / prise par un coup
+                sd.max_on = None
+            elif sd.max_on is not None and sd.max_extra and pow_ <= 0x04:
+                sd.max_on = None
+                self.log(f"Combat, {tag} fin du MAX (jauge vide)", f"Fight, {tag} MAX over (gauge empty)")
         if sd.max_on is not None:
             if maxv:
                 sd.max_seen = True
-            over = now - sd.max_on > MAX_LONG or (sd.max_seen and maxv == 0)
+            if sd.max_extra:
+                over = now - sd.max_on > EXTRA_LONG
+            else:
+                over = now - sd.max_on > MAX_LONG or (sd.max_seen and maxv == 0)
             if over:
                 sd.max_on = None
                 self.log(f"Combat, {tag} fin du MAX", f"Fight, {tag} MAX over")
@@ -241,13 +261,15 @@ class Moves:
             sd.dirs, sd.prev_btn = [], set()
             self.log(f"Combat, {side.upper()} touches à l'envers (0 = appuyé)", f"Fight, {side.upper()} inputs inverted (0 = pressed)")
         d = stick(v, sd.low)
-        if not sd.dirs or sd.dirs[-1][1] != d:
+        moved = not sd.dirs or sd.dirs[-1][1] != d
+        if moved:
             sd.dirs.append((t, d))
             if len(sd.dirs) > 48:
                 del sd.dirs[:len(sd.dirs) - 48]
         btn = pressed(v, sd.low)
         new = btn - sd.prev_btn
         sd.prev_btn = btn
+        self._group(sd, t, d, new, moved)
         if not new:
             return
         if {"A", "B", "C"} <= btn:
@@ -259,6 +281,22 @@ class Moves:
             sd.attempt = (t,) + att
             sd.result = None
 
+    @staticmethod
+    def _group(sd, t, d, new, moved):
+        """The inputs as training mode shows them: each direction the stick takes, the buttons pressed with it.
+        / Les touches comme le mode entraînement : chaque direction du stick, les boutons appuyés avec."""
+        g = sd.groups
+        if moved and d != 5:
+            g.append((t, d, []))
+        if new:
+            b = sorted(new)
+            if g and t - g[-1][0] <= 0.12 and (not g[-1][2] or t - g[-1][0] <= 0.05):
+                g[-1] = (g[-1][0], g[-1][1], sorted(set(g[-1][2]) | set(b)))   # pressed with it / appuyés avec
+            else:
+                g.append((t, d if d != 5 else None, b))
+        if len(g) > 24:
+            del g[:len(g) - 24]
+
     def _spent(self, side, sd, now, vals, game=None):
         """The game took a stock (or the full gauge in Extra): MAX after A+B+C, else the desperation move tried just
         before. A stock can also go to a guard cancel: nothing then. / Le jeu a pris un stock : le MAX après A+B+C,
@@ -267,7 +305,7 @@ class Moves:
         att = sd.attempt
         if now - sd.abc_t < CONFIRM and (att is None or att[0] < sd.abc_t + 0.1):
             if _n(vals.get("_pmode" + ("" if side == "p1" else "_p2"))) != 1:
-                sd.max_on, sd.max_seen = now, False               # A+B+C took a stock: MAX / le MAX
+                sd.max_on, sd.max_seen, sd.max_extra = now, False, False   # A+B+C took a stock: MAX / le MAX
                 self.log(f"Combat, {tag} lance le MAX", f"Fight, {tag} goes MAX")
             return
         if att is None or now - att[0] > CONFIRM + 0.6:
@@ -291,8 +329,8 @@ class Moves:
         word = "SDM !" if sdm else "DM !"
         sd.result = (now, row, word, GOLD if sdm else CREAM, ["ok"] * len(states), mir)
         sd.attempt = None
-        if sdm:
-            sd.max_on = None                                      # an SDM ends MAX / un SDM finit le MAX
+        if sdm or extra:
+            sd.max_on = None                                      # an SDM ends MAX, Extra's is used / le MAX fini
         self._log_try(side, vals, None, row, states, word.rstrip(" !"))
 
     def _log_try(self, side, vals, game, row, states, word):
@@ -349,11 +387,11 @@ class Moves:
         / Un coup désespéré peut sortir."""
         sd = self.sides[side]
         suf = "" if side == "p1" else "_p2"
+        if sd.max_on is not None:
+            return True
         if _n(vals.get("_pmode" + suf)) == 1:                     # Extra
             pow_ = _n(vals.get("_pow" + suf))
             return (pow_ is not None and pow_ >= FULL_POW) or (health is not None and 0 < health <= RED_HEALTH)
-        if sd.max_on is not None:
-            return True
         stock = _stock(vals, suf)
         return stock is not None and stock >= 1
 
@@ -444,7 +482,7 @@ def _plate(moves, hd, w, h, edge, radius, fill=(6, 8, 18, 215)):
 
 def panel_height(hd, n):
     S = hd.S
-    return S(22) + n * (S(34) if n <= 2 else S(27)) if n else S(46)
+    return S(22) + n * (S(34) if n <= 2 else S(27)) if n else S(58)
 
 
 def draw_panel(hd, screen, moves, side, vals, game, name, x0, x1, y0, now, lost, health):
@@ -483,7 +521,7 @@ def draw_panel(hd, screen, moves, side, vals, game, name, x0, x1, y0, now, lost,
         screen.blit(b, (int(x0 + S(14)), int(y0 - bh / 2)))
         hd.put(screen, t, x0 + S(14) + bw / 2, y0, "center", "middle")
     # the gauge as the game shows it: the bar, then a square per stock / la jauge comme dans le jeu
-    gy = y0 + (S(38) if n else S(26))
+    gy = y0 + S(38) if n else y0 + S(33)
     fill = max(0.0, min(1.0, (pow_ or 0) / FULL_POW))
     gbw, gbh = S(72), S(18)
     q = S(22)
@@ -512,10 +550,11 @@ def draw_panel(hd, screen, moves, side, vals, game, name, x0, x1, y0, now, lost,
         pg.draw.rect(screen, (150, 170, 210), rc, max(1, S(2)), border_radius=S(2))
         x += q + S(5)
     gauge_end = x
-    if not n:
-        return h
     names = (game or {}).get("buttons") if isinstance(game, dict) else None
     names = names if isinstance(names, dict) else {}
+    if not n:                                                     # no desperation move now: the inputs pressed, as
+        draw_inputs(hd, screen, moves, sd, names, gauge_end + S(26), x1 - S(16), gy, now)   # training mode shows them
+        return h
     lines = []
     for k, (nm, cmd, btn) in enumerate(rows):
         states, tag, tcol, mir = moves.row_states(side, k, len(cmd), now)
@@ -565,6 +604,51 @@ def draw_panel(hd, screen, moves, side, vals, game, name, x0, x1, y0, now, lost,
         if tag:
             hd.put(screen, hd.text(tag, "black", S(21), tcol, glow=0.4), x + S(6), y, "left", "middle")
     return h
+
+
+def draw_inputs(hd, screen, moves, sd, names, xa, xb, y, now):
+    """The inputs of a player as training mode shows them (Seb, 1.32 test 3): each direction of the stick and the buttons
+    pressed with it, the newest on the right and lit, the older ones fading, all gone a moment after the last one.
+    / Les touches d'un joueur comme le mode entraînement : chaque direction et les boutons appuyés avec, la plus récente à
+    droite et éclairée, les plus anciennes plus pâles, le tout parti un moment après la dernière."""
+    S = hd.S
+    groups = sd.groups
+    if not groups:
+        return
+    idle = now - groups[-1][0]
+    fade = 1.0 if idle < INPUT_KEEP else max(0.0, 1.0 - (idle - INPUT_KEEP) / 0.6)
+    if fade <= 0:
+        return
+    r, sp, gg = S(14), S(4), S(12)
+    slot = 2 * r + sp
+    chosen, room = [], xb - xa
+    for g in reversed(groups):                                    # the newest that fit / les plus récentes qui tiennent
+        w = ((1 if g[1] else 0) + len(g[2])) * slot - sp
+        if w <= 0:
+            continue
+        need = w + (gg if chosen else 0)
+        if need > room:
+            break
+        chosen.append((g, w))
+        room -= need
+    chosen.reverse()
+    x = xb - sum(w for _, w in chosen) - gg * max(0, len(chosen) - 1)
+    for i, ((t, d, btns), w) in enumerate(chosen):
+        age = len(chosen) - 1 - i
+        alpha = int((255 if age == 0 else max(110, 230 - 16 * age)) * fade)
+        if age == 0 and now - t < 0.5:                            # the last one lit a moment / la dernière éclairée
+            glow = _plate(moves, hd, int(w + S(14)), int(2 * r + S(12)), GOLD, r + S(6), fill=(255, 214, 120, 60))
+            glow.set_alpha(int(255 * (1 - (now - t) / 0.5)))
+            screen.blit(glow, (int(x - S(7)), int(y - r - S(6))))
+        cx = x + r
+        if d:
+            arrow(hd, screen, cx, y, r, d, GOLD if age == 0 else (150, 160, 190), alpha=alpha, moves=moves)
+            cx += slot
+        for b in btns:
+            if b in BTN_COL:
+                button(hd, screen, cx, y, r, b, names, alpha=alpha, moves=moves)
+                cx += slot
+        x += w + gg
 
 
 def draw_wins(hd, screen, moves, w1, w2, cx, cy, now, pops=None):
