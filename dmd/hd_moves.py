@@ -36,6 +36,7 @@ NEAR = 0.75           # RATÉ only for a near miss (a step or so), not for a spe
 CONFIRM = 0.8         # the game takes its stock that soon after the button / le jeu prend son stock aussi vite
 SHOW = 1.6            # RATÉ, DM ! or SDM ! stays that long / reste affiché ce temps
 MAX_LONG = 15.0       # MAX over at the latest / le MAX fini au plus tard
+MAX_CHECK = 0.6       # the byte of MAX ("_maxv") moves that soon after A+B+C, or it was not MAX / sinon ce n'était pas le MAX
 EXTRA_LONG = 30.0     # MAX of Extra over at the latest, else when its gauge is empty / le MAX d'Extra, au plus tard
 INPUT_KEEP = 3.0      # the inputs shown that long after the last one, then they fade / les touches restent ce temps
 RED_HEALTH = 25       # Extra: the desperation moves are free with the health this low / gratuits avec si peu de vie
@@ -122,6 +123,7 @@ class Side:
         self.max_seen = False        # its timer (the candidate "_maxv") seen running / son chrono vu tourner
         self.max_extra = False       # the MAX of Extra: the gauge full, over once it is empty / le MAX d'Extra
         self.max_low = None          # the gauge at its lowest during MAX (Advanced) / la jauge au plus bas pendant le MAX
+        self.max_try = None          # (t, _maxv before) A+B+C took a stock, MAX to confirm / MAX à confirmer
         self.max_log = -99.0         # when MAX was last written in the log / quand le MAX a été noté
         self.groups = []             # (t, direction or None, [buttons]) the inputs as training mode shows them
         self.abc_t = -99.0
@@ -241,6 +243,14 @@ class Moves:
             elif sd.max_on is not None and sd.max_extra and pow_ <= 0x04:
                 sd.max_on = None
                 self.log(f"Combat, {tag} fin du MAX (jauge vide)", f"Fight, {tag} MAX over (gauge empty)")
+        if sd.max_try is not None:                                    # MAX to confirm: its byte moved / son octet a bougé
+            t0, mv0 = sd.max_try
+            if maxv is not None and maxv and maxv != mv0:
+                self._max_on(side, sd, t0, vals)
+            elif now - t0 > MAX_CHECK:
+                sd.max_try = None
+                self.log(f"Combat, {tag} pas de MAX (_maxv 0x{int(maxv or 0):02X} n'a pas bougé)",
+                         f"Fight, {tag} no MAX (_maxv 0x{int(maxv or 0):02X} did not move)")
         if sd.max_on is not None:
             if maxv:
                 sd.max_seen = True
@@ -329,12 +339,16 @@ class Moves:
         att = sd.attempt
         if now - sd.abc_t < CONFIRM and (att is None or att[0] < sd.abc_t + 0.1):
             if _n(vals.get("_pmode" + ("" if side == "p1" else "_p2"))) != 1:
-                sd.max_on, sd.max_seen, sd.max_extra = now, False, False   # A+B+C took a stock: MAX / le MAX
-                sd.max_low, sd.max_log = None, now
+                # A+B+C took a stock: MAX, once its byte moved (Seb, 1.32 test 8, MAX lit with no stock and no MAX)
+                # A+B+C a pris un stock : le MAX, une fois que son octet a bougé (MAX allumé sans stock ni MAX)
                 suf = "" if side == "p1" else "_p2"
-                pv, mv = int(_n(vals.get("_pow" + suf)) or 0), int(_n(vals.get("_maxv" + suf)) or 0)
-                self.log(f"Combat, {tag} lance le MAX (jauge 0x{pv:02X}, _maxv 0x{mv:02X})",
-                         f"Fight, {tag} goes MAX (gauge 0x{pv:02X}, _maxv 0x{mv:02X})")
+                mv = _n(vals.get("_maxv" + suf))
+                if mv is None or (mv and mv != (sd.maxv or 0)):
+                    self._max_on(side, sd, now, vals)
+                else:
+                    sd.max_try = (now, sd.maxv or 0)
+                    self.log(f"Combat, {tag} A+B+C et un stock pris, MAX à confirmer (_maxv 0x{int(mv):02X})",
+                             f"Fight, {tag} A+B+C and a stock taken, MAX to confirm (_maxv 0x{int(mv):02X})")
             return
         if att is None or now - att[0] > CONFIRM + 0.6:
             # no attempt seen: a shorter form of the command the game takes too, or a step not read. The last button
@@ -360,6 +374,15 @@ class Moves:
         if sdm or extra:
             sd.max_on = None                                      # an SDM ends MAX, Extra's is used / le MAX fini
         self._log_try(side, vals, None, row, states, word.rstrip(" !"))
+
+    def _max_on(self, side, sd, now, vals):
+        """MAX in Advanced. / Le MAX en Advanced."""
+        tag, suf = side.upper(), "" if side == "p1" else "_p2"
+        sd.max_on, sd.max_seen, sd.max_extra = now, False, False
+        sd.max_low, sd.max_log, sd.max_try = None, now, None
+        pv, mv = int(_n(vals.get("_pow" + suf)) or 0), int(_n(vals.get("_maxv" + suf)) or 0)
+        self.log(f"Combat, {tag} lance le MAX (jauge 0x{pv:02X}, _maxv 0x{mv:02X})",
+                 f"Fight, {tag} goes MAX (gauge 0x{pv:02X}, _maxv 0x{mv:02X})")
 
     def _log_try(self, side, vals, game, row, states, word):
         missed = [i + 1 for i, s in enumerate(states) if s == "miss"]
@@ -513,6 +536,32 @@ def panel_height(hd, n):
     return S(22) + n * (S(34) if n <= 2 else S(27)) if n else S(58)
 
 
+def stock_slots(stock, lost, extra):
+    """The squares of the stocks in Advanced: 3, one more for each teammate beaten. / 3 carrés, un de plus par équipier battu."""
+    if extra or stock is None:
+        return 0
+    return min(5, max(int(stock), 3 + int(lost or 0)))
+
+
+def badge(stock, slots, extra, maxed, red):
+    """The badge says why a desperation move can come out (1.32 test 4): MAX when every stock is lit, as the game says it,
+    MAX ACTIVÉ for the MAX of A+B+C (Seb, test 8). / La pastille dit pourquoi un coup peut sortir : MAX quand tous les
+    stocks sont allumés, comme le dit le jeu, MAX ACTIVÉ pour le MAX de A+B+C. Returns (word, colour, ink)."""
+    if maxed and red:
+        return "MAX + VIE ROUGE", GOLD, (40, 24, 0)
+    if maxed and not extra:
+        return tr("MAX ACTIVÉ", "MAX ON"), GOLD, (40, 24, 0)
+    if maxed or (slots and stock >= slots):
+        return "MAX", GOLD, (40, 24, 0)
+    if red:
+        return "VIE ROUGE", (230, 50, 40), WHITE
+    if extra:
+        return "EXTRA", CREAM, (10, 14, 28)
+    if stock is not None:
+        return f"{int(stock)} STOCK" + ("S" if stock > 1 else ""), CREAM, (10, 14, 28)
+    return None, None, None
+
+
 def draw_panel(hd, screen, moves, side, vals, game, name, x0, x1, y0, now, lost, health):
     """The panel of a player under his name, as in the mockup Seb chose (B): the badge (STOCK, EXTRA, MAX), the gauge
     as the game shows it, and the desperation moves when one can come out, their arrows facing the other fighter.
@@ -534,19 +583,8 @@ def draw_panel(hd, screen, moves, side, vals, game, name, x0, x1, y0, now, lost,
     red = extra and health is not None and 0 < health <= RED_HEALTH  # Extra: the life flashing red / la vie en rouge
     edge = GOLD if maxed else (230, 60, 40) if red else (120, 90, 40)
     screen.blit(_plate(moves, hd, int(x1 - x0), int(h), edge, S(18)), (int(x0), int(y0)))
-    # the badge says why a desperation move can come out (1.32 test 4) / la pastille dit pourquoi un coup peut sortir
-    if maxed and red:
-        word, bcol, ink = "MAX + VIE ROUGE", GOLD, (40, 24, 0)
-    elif maxed:
-        word, bcol, ink = "MAX", GOLD, (40, 24, 0)
-    elif red:
-        word, bcol, ink = "VIE ROUGE", (230, 50, 40), WHITE
-    elif extra:
-        word, bcol, ink = "EXTRA", CREAM, (10, 14, 28)
-    elif stock is not None:
-        word, bcol, ink = f"{int(stock)} STOCK" + ("S" if stock > 1 else ""), CREAM, (10, 14, 28)
-    else:
-        word = None
+    slots = stock_slots(stock, lost, extra)
+    word, bcol, ink = badge(stock, slots, extra, maxed, red)
     if word:
         t = hd.text(word, "black", S(20), ink, glow=0)
         bw, bh = int(t["w"] + S(20)), S(26)
@@ -558,9 +596,6 @@ def draw_panel(hd, screen, moves, side, vals, game, name, x0, x1, y0, now, lost,
     fill = max(0.0, min(1.0, (pow_ or 0) / FULL_POW))
     gbw, gbh = (S(150) if extra and not n else S(72)), S(18)    # Extra has no squares: a longer bar / une barre plus longue
     q = S(22)
-    slots = 0
-    if not extra and stock is not None:                           # 3 squares, one more for each teammate beaten
-        slots = min(5, max(int(stock), 3 + int(lost or 0)))       # 3 carrés, un de plus par équipier battu
     gx = x0 + S(18)
     pg.draw.rect(screen, (24, 26, 40), (gx, gy - gbh / 2, gbw, gbh), border_radius=S(3))
     fw = int(gbw * fill)

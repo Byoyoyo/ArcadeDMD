@@ -45,6 +45,9 @@ FIGHT_WAIT_SUB = 20.0     # its fraction of a second moving tells it at once / s
 # l'état du combat : 0x18 quand READY arrive, le combat (bit 1) quand GO est fini et que le chrono tourne ; GO vient
 # 1,15 s après READY, 0,65 s avant le chrono (la vidéo de Seb)
 READY_STATE = 0x18
+# its round starting (0x01, RetroAchievements code notes of '97: Starting next round): ROUND n and the next fighter then,
+# as the game shows them (1.32 test 8, Seb's video) / le round qui commence : ROUND n et le combattant suivant à ce moment
+ROUND_STATE = 0x01
 READY_GO = 1.15
 READY_MIN = 2.5           # READY never comes sooner after the bars filled / READY ne vient jamais plus tôt
 MATCH_END = 5.5           # the winner of a match in big letters, this long (Seb, 1.31.1) / le vainqueur du match, ce temps
@@ -102,6 +105,7 @@ class FightFX:
         self.bd = Backdrop(hd, "arena", random.Random(self.rng.random()), threaded=False)
         self.bd.static = True
         self.bd.dim = getattr(hd, "dim_fight", None)                   # darker under the fight (1.32) / plus sombre
+        self.bd.no_neons = True                                       # no shop signs at the level of the names (Seb, 1.32)
         self.buf = None
         self.dark = None
         self.key = None
@@ -218,6 +222,9 @@ class FightFX:
         self.sel_t = -99.0                         # since when / depuis quand
         self.sel_on = False                        # as it counts, once it lasted SELECT_HOLD / tel qu'il compte
         self.time_stale = None                     # the last match's timer, not shown in the new one / le chrono d'avant
+        self.fs_known = False                      # the game keeps the state of the fight / le jeu garde l'état du combat
+        self.new_match = False                     # a select screen since the last round / une sélection depuis
+        self.next_round = {"p1": False, "p2": False}   # its next fighter shown when the round starts / au début du round
 
     def round_glow(self, side, now):
         """1 when the side just won a round, down to 0 in 1.5 s (its last star glows). / L'étoile du round gagné brille."""
@@ -281,18 +288,26 @@ class FightFX:
         # a select screen the game says (King of Fighters, Real Bout Special: "select", 1.31.1): no fight there, its values
         # are only followed as on the attract screen / un écran de sélection que dit le jeu : pas de combat, valeurs suivies
         raw = _n(vals.get("select")) == 1
+        fs_now = _n(vals.get("_fight_state"))
         if raw != self.sel_raw:
             self.sel_raw, self.sel_t = raw, now
-        if now - self.sel_t >= SELECT_HOLD or self.sel_raw is None:
+        # the round starting ends the select screen at once: ROUND n as the game shows it (1.32 test 8)
+        # le round qui commence finit l'écran de sélection tout de suite : ROUND n quand le jeu le montre
+        if now - self.sel_t >= SELECT_HOLD or self.sel_raw is None or (not raw and fs_now == ROUND_STATE):
             self.sel_on = raw
         select = self.sel_on
+        self.fs_known = fs_now is not None
+        if self.idle and not (idle or select) and self.fs_known:
+            self.fs_prev = 0                                          # out of a select screen: no fight before it, its
+            # round starting is seen even if it came with the screen / pas de combat avant : son round qui commence est vu
         self.sub_read = _n(vals.get("_time_sub")) is not None
         self.timer_read = self.sub_read or _n(vals.get("time")) is not None
         if self.idle and not idle:
             self.live_t = now                                         # START pressed: the game clears its fighters
-            if self.select and not select and not self.idle_attract:  # out of the select screen: the fight begins
-                h1, h2 = _n(vals.get("health")), _n(vals.get("health_p2"))
-                if (h1 or 0) > 0 and (h2 or 0) > 0:
+            if self.select and not select and not self.idle_attract and not self.fs_known:   # out of the select screen:
+                h1, h2 = _n(vals.get("health")), _n(vals.get("health_p2"))                   # the fight begins
+                if (h1 or 0) > 0 and (h2 or 0) > 0:                                          # (the state of the fight
+                    # says it in the games that keep it) / la fin de la sélection, le combat commence (l'état le dit)
                     self.round_v = _n(vals.get("round"))
                     self.time_stale = _n(vals.get("time"))           # the last match's, until the game sets its own
                     self._fight(now)                                  # celui du match d'avant, jusqu'au nouveau
@@ -359,7 +374,10 @@ class FightFX:
                         self.next_name[side] = name
                         if self.hold[side] is None:
                             self.hold[side] = (old, prev)
-                        if self.ko_side is not None and self.ko_side[0] == side and 0 <= now - self.ko_side[1] < 3.0:
+                        if self.fs_known:                                     # the next round says when it comes
+                            self.next_wait[side] = now + 60.0                 # (Seb, 1.32 test 8, not at the K.O.)
+                            self.next_round[side] = True                      # le round suivant dit quand il entre
+                        elif self.ko_side is not None and self.ko_side[0] == side and 0 <= now - self.ko_side[1] < 3.0:
                             self.next_t[side] = max(now, self.ko_until)       # its K.O. already seen / déjà vu
                         else:
                             self.next_wait[side] = now + 3.0
@@ -386,9 +404,10 @@ class FightFX:
                     if h <= 0 and other is not None and now - other > 1.0:
                         continue                                      # the round was over: the winner's bar cleared
                     self._hit(side, old, h, now)
-                elif old <= 0 < h and now - self.fight_t > 2.0:     # combattant suivant ou nouveau round
-                    self._fight(now)
-        if h1 is not None and h2 is not None and self.prev.get("p1") is None and h1 >= 100 and h2 >= 100 and (t is None or t >= 50):
+                elif old <= 0 < h and now - self.fight_t > 2.0 and not self.fs_known:   # combattant suivant ou nouveau
+                    self._fight(now)                                                      # round (sans l'état du combat)
+        if (h1 is not None and h2 is not None and self.prev.get("p1") is None and h1 >= 100 and h2 >= 100 and (t is None or t >= 50)
+                and not self.fs_known):
             self._fight(now)                                          # début de round vu en arrivant (ou barres qui apparaissent)
         # TIME UP only when the timer counted down to 0, a second after another: at the start of a round King of Fighters
         # puts it back to 0 before its 60 or 90 seconds (Seb, 1.31) / seulement quand le chrono a décompté jusqu'à 0 ;
@@ -419,6 +438,16 @@ class FightFX:
                 dt = now - self.round_t0
                 self.hd.log(tr(f"Combat, état 0x{fs:02X} à {dt:.2f} s du début du round",
                                f"Fight, state 0x{fs:02X} at {dt:.2f} s from the round's start"))
+            if fs == ROUND_STATE and self.fs_prev is not None:          # the round starts: ROUND n, as the game shows it
+                self.round_v = _n(vals.get("round"))                    # le round commence : ROUND n, comme le jeu
+                if self.new_match:                                      # the last match's timer, until the game sets its
+                    self.time_stale, self.new_match = t, False          # own / celui du match d'avant, jusqu'au sien
+                self._fight(now)
+                for side in ("p1", "p2"):                               # its next fighter, after ROUND n / son suivant
+                    if self.next_round[side]:
+                        self.next_round[side] = False
+                        self.next_wait[side] = None
+                        self.next_t[side] = self.round_show + 1.4
             if fs & 0x02:                                             # the fight runs / le combat a commencé
                 self.run_t = now
             elif fs == READY_STATE and self.fight_wait is not None and now - self.fight_wait[1] >= READY_MIN:
@@ -504,6 +533,8 @@ class FightFX:
             self.lost_raw[side] = _n(vals.get("_p1_lost" if side == "p1" else "_p2_lost"))
             self.lost_go[side] = None
             self.next_wait[side] = self.hold[side] = None
+            self.next_round[side] = False
+        self.new_match = True
         h1, h2 = _n(vals.get("health")), _n(vals.get("health_p2"))
         self.health = {"p1": h1, "p2": h2}
         self.prev["p1"], self.prev["p2"] = h1, h2
@@ -572,8 +603,8 @@ class FightFX:
                 self.ko_side = (victim, now)
                 self.ko_until = now + (4.4 if perfect else 2.7)
                 self.win = [attacker, now + 0.6, perfect, False]
-                if self.next_wait.get(victim) is not None:               # its next fighter counted just before
-                    self.next_wait[victim] = now                         # son suivant, compté juste avant
+                if self.next_wait.get(victim) is not None and not self.next_round.get(victim):   # its next fighter counted
+                    self.next_wait[victim] = now                         # just before / son suivant, compté juste avant
                 idx = self.lost_go.get(victim)
                 raw = self.lost_raw.get(victim)                          # counted just before: its third / son troisième
                 if ((idx is not None and idx >= 2) or (raw is not None and raw >= 3)) and (self.round_v is None or self.round_v >= 2):

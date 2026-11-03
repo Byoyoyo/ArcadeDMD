@@ -38,6 +38,19 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - The game neither fills its gauge nor gives a stock during MAX. A stock gained, or the gauge filling again, now ends MAX on the HD screen. It could stay lit up to 15 s after the game's.
 - A+B+C, the start of MAX with the gauge, and MAX once a second go to the log, to set its end on a cabinet.
 
+**ROUND and FIGHT ! when the game shows them** (test 8, Seb's second video, all of it late in test 7)
+- The fight's screen (0xE8BE) only comes once GO is over, not during the entrances of the fighters. Test 6 waited for it, ROUND n came at GO and FIGHT ! 1.5 s after. ROUND n now comes when the game starts its round (the state of the fight at 0x01, RetroAchievements code notes of '97), at once, and FIGHT ! 1.15 s after READY (0x18), as before test 6.
+- The select screens are the character select, the order select, and any screen where the game has no fight going (its state at 0). HOW TO PLAY, THE NEXT COMPETITOR and BATTLE IN still start nothing. A state at 0 for less than 0.4 s between two rounds ends nothing, and the round starting ends the select screen at once.
+- The next fighter's band (ENTRE EN SCÈNE) comes 1.4 s after ROUND n, when the game shows him, no longer just after the K.O. The beaten one's name stays until then.
+- The changes of the state of the fight still go to the log (`Combat, état 0x..`), to check them on a cabinet.
+
+**MAX as the game says it** (test 8, Seb's photo and video, MAX lit with no stock)
+- The badge says MAX when every square of the gauge is lit, as the game does. MAX ACTIVÉ is the MAX of A+B+C, in gold.
+- MAX ACTIVÉ now waits for the byte of MAX (0x1081EA) to move within 0.6 s of A+B+C taking a stock. A stock taken by a desperation move just after A+B+C pressed by chance lit MAX. If the byte does not move, the log says `pas de MAX`, and the commands keep the stocks left.
+
+**No shop signs under the fights** (test 8, Seb)
+- The shop signs of the city backdrop that lit up at the level of the names (the white rectangles) no longer show under the fights and select screens. The other scenes keep them.
+
 **Read at every frame**
 - A value marked `"fast"` is read at every frame, the stick and buttons here. The MAME plugin reads it at each frame. The RetroArch reader asks for it at each frame between its other reads, and asks for all those at once (RetroArch answers them at the same frame, one block of memory at a time took a frame each). Each change of the stick and buttons keeps the time it was read.
 - When RetroArch closes during a game whose stick is read, the HD screen leaves the game as fast as before (test 2). The values asked together were asked again one by one when no answer came, 3 s or more each time.
@@ -77,6 +90,19 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 **La fin du MAX en Advanced** (test 7, la photo de Seb, MAX allumé alors que le jeu n'y était plus)
 - Le jeu ne remplit pas sa jauge et ne donne pas de stock pendant le MAX. Un stock gagné, ou la jauge qui se remplit à nouveau, finit maintenant le MAX sur l'écran HD. Il pouvait rester allumé jusqu'à 15 s après celui du jeu.
 - A+B+C, le début du MAX avec la jauge, et le MAX une fois par seconde vont dans le journal, pour régler sa fin sur une borne.
+
+**ROUND et FIGHT ! quand le jeu les montre** (test 8, la deuxième vidéo de Seb, tout était en retard dans le test 7)
+- L'écran du combat (0xE8BE) ne vient qu'une fois GO fini, pas pendant l'entrée des combattants. Le test 6 l'attendait, ROUND n venait à GO et FIGHT ! 1,5 s après. ROUND n vient maintenant quand le jeu commence son round (l'état du combat à 0x01, notes de code de RetroAchievements de '97), tout de suite, et FIGHT ! 1,15 s après READY (0x18), comme avant le test 6.
+- Les écrans de sélection sont la sélection des personnages, celle de l'ordre, et tout écran où le jeu n'a pas de combat en cours (son état à 0). HOW TO PLAY, THE NEXT COMPETITOR et BATTLE IN ne lancent toujours rien. Un état à 0 pendant moins de 0,4 s entre deux rounds ne finit rien, et le round qui commence finit l'écran de sélection tout de suite.
+- Le bandeau du combattant suivant (ENTRE EN SCÈNE) vient 1,4 s après ROUND n, quand le jeu le montre, et plus juste après le K.O. Le nom du battu reste jusque-là.
+- Les changements d'état du combat vont toujours dans le journal (`Combat, état 0x..`), pour les vérifier sur une borne.
+
+**Le MAX comme le dit le jeu** (test 8, la photo et la vidéo de Seb, MAX allumé sans stock)
+- La pastille dit MAX quand tous les carrés de la jauge sont allumés, comme le jeu. MAX ACTIVÉ est le MAX de A+B+C, en doré.
+- MAX ACTIVÉ attend maintenant que l'octet du MAX (0x1081EA) bouge dans les 0,6 s après que A+B+C a pris un stock. Un stock pris par un coup désespéré juste après un A+B+C appuyé par hasard allumait le MAX. Si l'octet ne bouge pas, le journal dit `pas de MAX`, et les commandes suivent les stocks qui restent.
+
+**Plus d'enseignes sous les combats** (test 8, Seb)
+- Les enseignes du décor de la ville qui s'allumaient à hauteur des noms (les rectangles blancs) ne s'affichent plus sous les combats et les écrans de sélection. Les autres scènes les gardent.
 
 **Lu à chaque image**
 - Une valeur marquée `"fast"` est lue à chaque image, ici le stick et les boutons. Le plugin MAME la lit à chaque image. La lecture RetroArch la demande à chaque image entre ses autres lectures, et demande alors toutes celles-ci d'un coup (RetroArch y répond à la même image, un bloc de mémoire à la fois prenait une image chacun). Chaque changement du stick et des boutons garde le moment où il a été lu.
