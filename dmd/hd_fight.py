@@ -306,14 +306,23 @@ class FightFX:
         # the screens between the select and the first round, or after a match, are select screens too (1.32 test 8b,
         # Seb's log) / sans combat (0) tant qu'aucun match n'est en cours : les écrans entre la sélection et le premier
         # round, ou après un match, sont aussi des écrans de sélection
+        r1 = False
         if self.fs_known and int(fs_now) == 0 and not self.in_round:
-            raw = True
+            # a first round's intro: the game sets its timer (0 -> 60) when the stage appears, ROUND 1 just after on its
+            # screen, READY 6 s later (Seb's log, 1.32 test 8d) / l'intro d'un premier round : le jeu met son chrono quand
+            # le décor apparaît, ROUND 1 juste après à son écran, READY 6 s plus tard
+            tv, tv0 = _n(vals.get("time")), self.tv_prev
+            if not jsel and not idle and tv is not None and tv0 is not None and tv > tv0 and tv >= 30:
+                self.in_round, self.match_done, r1 = True, False, True
+            else:
+                raw = True
         if not idle:
             self._log_screens(vals, fs_now, raw)
         if raw != self.sel_raw:
             self.sel_raw, self.sel_t = raw, now
-        # READY of a first round ends those screens at once: ROUND 1 then / READY d'un premier round les finit tout de suite
-        if now - self.sel_t >= SELECT_HOLD or self.sel_raw is None or (not raw and fs_now == READY_STATE):
+        # the intro or READY of a first round ends those screens at once: ROUND 1 then / l'intro ou READY d'un premier
+        # round finit ces écrans tout de suite : ROUND 1 alors
+        if now - self.sel_t >= SELECT_HOLD or self.sel_raw is None or (not raw and (fs_now == READY_STATE or r1)):
             self.sel_on = raw
         select = self.sel_on
         if self.idle and not (idle or select) and self.fs_known:
@@ -335,6 +344,9 @@ class FightFX:
             self._idle(vals, stages, game)
             self.moves.skip(hist)                                     # no fight: the inputs only followed / suivies
             return
+        if r1:                                                        # the first round's intro: ROUND 1 / l'intro : ROUND 1
+            self.round_v = _n(vals.get("round"))
+            self._fight(now)
         p1m, p2m = vals.get("p1_mode"), vals.get("p2_mode")
         self.humans = {"p1": p1m in (1, 2) or p1m is None, "p2": p2m in (1, 2)}
         if isinstance((game or {}).get("moves"), dict):
