@@ -34,6 +34,10 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - The last match's timer (44) no longer shows at the start of the next one, until the game sets its own or GO comes.
 - The winner of the match (VICTOIRE, the team eliminated) stays its 5.5 s over the screen of his quotes, which now is a select screen.
 
+**MAX over in Advanced** (test 7, Seb's photo, MAX lit while the game was out of it)
+- The game neither fills its gauge nor gives a stock during MAX. A stock gained, or the gauge filling again, now ends MAX on the HD screen. It could stay lit up to 15 s after the game's.
+- A+B+C, the start of MAX with the gauge, and MAX once a second go to the log, to set its end on a cabinet.
+
 **Read at every frame**
 - A value marked `"fast"` is read at every frame, the stick and buttons here. The MAME plugin reads it at each frame. The RetroArch reader asks for it at each frame between its other reads, and asks for all those at once (RetroArch answers them at the same frame, one block of memory at a time took a frame each). Each change of the stick and buttons keeps the time it was read.
 - When RetroArch closes during a game whose stick is read, the HD screen leaves the game as fast as before (test 2). The values asked together were asked again one by one when no answer came, 3 s or more each time.
@@ -69,6 +73,10 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - VS ne s'affiche plus un instant juste après FIGHT !, le chrono étant immobile depuis 6 s pendant l'entrée des combattants. FIGHT ! compte comme un chrono qui bouge.
 - Le chrono du match d'avant (44) ne s'affiche plus au début du suivant, tant que le jeu n'a pas mis le sien ou que GO n'est pas venu.
 - Le vainqueur du match (VICTOIRE, l'équipe éliminée) reste ses 5,5 s par-dessus l'écran de ses répliques, qui est maintenant un écran de sélection.
+
+**La fin du MAX en Advanced** (test 7, la photo de Seb, MAX allumé alors que le jeu n'y était plus)
+- Le jeu ne remplit pas sa jauge et ne donne pas de stock pendant le MAX. Un stock gagné, ou la jauge qui se remplit à nouveau, finit maintenant le MAX sur l'écran HD. Il pouvait rester allumé jusqu'à 15 s après celui du jeu.
+- A+B+C, le début du MAX avec la jauge, et le MAX une fois par seconde vont dans le journal, pour régler sa fin sur une borne.
 
 **Lu à chaque image**
 - Une valeur marquée `"fast"` est lue à chaque image, ici le stick et les boutons. Le plugin MAME la lit à chaque image. La lecture RetroArch la demande à chaque image entre ses autres lectures, et demande alors toutes celles-ci d'un coup (RetroArch y répond à la même image, un bloc de mémoire à la fois prenait une image chacun). Chaque changement du stick et des boutons garde le moment où il a été lu.

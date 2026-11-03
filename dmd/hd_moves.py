@@ -121,6 +121,8 @@ class Side:
         self.max_on = None           # since when MAX is on (A+B+C and a stock gone) / depuis quand le MAX est lancé
         self.max_seen = False        # its timer (the candidate "_maxv") seen running / son chrono vu tourner
         self.max_extra = False       # the MAX of Extra: the gauge full, over once it is empty / le MAX d'Extra
+        self.max_low = None          # the gauge at its lowest during MAX (Advanced) / la jauge au plus bas pendant le MAX
+        self.max_log = -99.0         # when MAX was last written in the log / quand le MAX a été noté
         self.groups = []             # (t, direction or None, [buttons]) the inputs as training mode shows them
         self.abc_t = -99.0
         self.press = None            # (t, buttons) the last button pressed / le dernier bouton appuyé
@@ -242,13 +244,33 @@ class Moves:
         if sd.max_on is not None:
             if maxv:
                 sd.max_seen = True
+            why = None
             if sd.max_extra:
-                over = now - sd.max_on > EXTRA_LONG
+                if now - sd.max_on > EXTRA_LONG:
+                    why = tr("au plus tard", "at the latest")
             else:
-                over = now - sd.max_on > MAX_LONG or (sd.max_seen and maxv == 0)
-            if over:
-                sd.max_on = None
-                self.log(f"Combat, {tag} fin du MAX", f"Fight, {tag} MAX over")
+                # Advanced: the game does not fill its gauge nor give a stock during MAX. A stock gained, or the gauge
+                # filling again, is MAX over (Seb, 1.32 test 7, MAX stayed lit after the game's)
+                # Advanced : le jeu ne remplit pas sa jauge et ne donne pas de stock pendant le MAX. Un stock gagné, ou la
+                # jauge qui se remplit à nouveau, c'est la fin du MAX (le MAX restait allumé après celui du jeu)
+                if pow_ is not None and now - sd.max_on > 0.5:
+                    sd.max_low = pow_ if sd.max_low is None else min(sd.max_low, pow_)
+                if now - sd.max_on > MAX_LONG:
+                    why = tr("au plus tard", "at the latest")
+                elif sd.max_seen and maxv == 0:
+                    why = "_maxv 0"
+                elif stock is not None and sd.stock is not None and stock > sd.stock:
+                    why = tr("un stock gagné", "a stock gained")
+                elif pow_ is not None and sd.max_low is not None and pow_ >= sd.max_low + 0x10:
+                    why = tr(f"la jauge se remplit (0x{int(sd.max_low):02X} -> 0x{int(pow_):02X})",
+                             f"the gauge fills (0x{int(sd.max_low):02X} -> 0x{int(pow_):02X})")
+            if why is None and now - sd.max_log >= 1.0:               # MAX in the log once a second, to set its end
+                sd.max_log = now                                      # le MAX noté une fois par seconde, pour régler sa fin
+                self.log(f"Combat, {tag} MAX depuis {now - sd.max_on:.1f} s (jauge 0x{int(pow_ or 0):02X}, _maxv 0x{int(maxv or 0):02X})",
+                         f"Fight, {tag} MAX for {now - sd.max_on:.1f} s (gauge 0x{int(pow_ or 0):02X}, _maxv 0x{int(maxv or 0):02X})")
+            if why is not None:
+                sd.max_on, sd.max_low = None, None
+                self.log(f"Combat, {tag} fin du MAX ({why})", f"Fight, {tag} MAX over ({why})")
         sd.stock, sd.pow, sd.mode, sd.maxv = (stock if stock is not None else sd.stock, pow_ if pow_ is not None else sd.pow,
                                               mode if mode is not None else sd.mode, maxv if maxv is not None else sd.maxv)
 
@@ -273,6 +295,8 @@ class Moves:
         if not new:
             return
         if {"A", "B", "C"} <= btn:
+            if t - sd.abc_t > 2.0:
+                self.log(f"Combat, {side.upper()} A+B+C", f"Fight, {side.upper()} A+B+C")
             sd.abc_t = t                                          # A+B+C: MAX asked / MAX demandé
             return
         sd.press = (t, new)
@@ -306,7 +330,11 @@ class Moves:
         if now - sd.abc_t < CONFIRM and (att is None or att[0] < sd.abc_t + 0.1):
             if _n(vals.get("_pmode" + ("" if side == "p1" else "_p2"))) != 1:
                 sd.max_on, sd.max_seen, sd.max_extra = now, False, False   # A+B+C took a stock: MAX / le MAX
-                self.log(f"Combat, {tag} lance le MAX", f"Fight, {tag} goes MAX")
+                sd.max_low, sd.max_log = None, now
+                suf = "" if side == "p1" else "_p2"
+                pv, mv = int(_n(vals.get("_pow" + suf)) or 0), int(_n(vals.get("_maxv" + suf)) or 0)
+                self.log(f"Combat, {tag} lance le MAX (jauge 0x{pv:02X}, _maxv 0x{mv:02X})",
+                         f"Fight, {tag} goes MAX (gauge 0x{pv:02X}, _maxv 0x{mv:02X})")
             return
         if att is None or now - att[0] > CONFIRM + 0.6:
             # no attempt seen: a shorter form of the command the game takes too, or a step not read. The last button
