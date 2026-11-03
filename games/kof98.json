@@ -101,7 +101,7 @@
    "_fight_state": {
     "addr": "0x10A786",
     "type": "u8",
-    "note": "the state of the fight, as in The King of Fighters '97 (RetroAchievements code notes, 0xa787 Fight - State: 0x18 Ready, 0x1a fighting; the MAME cheat Hide Background reads it as not 0 during a match); READY at 0x18, FIGHT ! with GO 1.15 s later (1.31.1, Seb's video), its changes written in the log"
+    "note": "the state of the fight, as in The King of Fighters '97 (RetroAchievements code notes, 0xa787 Fight - State: 0x18 Ready, 0x1a fighting; the MAME cheat Hide Background reads it as not 0 during a match); READY at 0x18, FIGHT ! with GO 1.15 s later (1.31.1, Seb's video); Seb's log (1.32 test 8b): 0x1A during the fight (0x02 a moment in a super's freeze), 0x18 also at TIME UP, 0x19 and 0x01 by turns after a K.O. then 0x01, 0 when the next round's intro starts (ROUND n) and between the select screens and a first round; its changes written in the log"
    },
    "score": {
     "addr": "0x1081FC",
@@ -265,7 +265,7 @@
   }
  },
  "derived": {
-  "select": {"sum": [{"eq": ["_screen", 30642]}, {"eq": ["_screen", 45984]}, {"first": [{"eq": ["_fight_state", 0]}, 0]}], "names": {"0": 0, "1": 1, "2": 1}, "note": "1 on the character select and the order select (0x77B2, 0xB3A0), and wherever the fight has no state (0, RetroAchievements code notes of '97: None), the screens between them and the fight (THE NEXT COMPETITOR, BATTLE IN) that gave ROUND 1 several times in Seb's video; the fight's screen (0xE8BE) only comes after GO, its intro has the state of the fight (1.32 test 8)"},
+  "select": {"sum": [{"eq": ["_screen", 30642]}, {"eq": ["_screen", 45984]}], "names": {"0": 0, "1": 1, "2": 1}, "note": "1 on the character select and the order select (0x77B2, 0xB3A0); the screens between them and the first round, and after a match, have no fight going (_fight_state 0) and are select screens too for ArcadeDMD, the next rounds' intros start at 0 after a K.O. (0x19 and 0x01) (Seb's log, 1.32 test 8b)"},
   "p1_char": {
    "pick": [
     "_p1_ch0",

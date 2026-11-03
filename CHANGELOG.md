@@ -38,11 +38,11 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - The game neither fills its gauge nor gives a stock during MAX. A stock gained, or the gauge filling again, now ends MAX on the HD screen. It could stay lit up to 15 s after the game's.
 - A+B+C, the start of MAX with the gauge, and MAX once a second go to the log, to set its end on a cabinet.
 
-**ROUND and FIGHT ! when the game shows them** (test 8, Seb's second video, all of it late in test 7)
-- The fight's screen (0xE8BE) only comes once GO is over, not during the entrances of the fighters. Test 6 waited for it, ROUND n came at GO and FIGHT ! 1.5 s after. ROUND n now comes when the game starts its round (the state of the fight at 0x01, RetroAchievements code notes of '97), at once, and FIGHT ! 1.15 s after READY (0x18), as before test 6.
-- The select screens are the character select, the order select, and any screen where the game has no fight going (its state at 0). HOW TO PLAY, THE NEXT COMPETITOR and BATTLE IN still start nothing. A state at 0 for less than 0.4 s between two rounds ends nothing, and the round starting ends the select screen at once.
-- The next fighter's band (ENTRE EN SCÈNE) comes 1.4 s after ROUND n, when the game shows him, no longer just after the K.O. The beaten one's name stays until then.
-- The changes of the state of the fight still go to the log (`Combat, état 0x..`), to check them on a cabinet.
+**ROUND and FIGHT ! when the game shows them** (tests 8 and 8b, Seb's second video and his log, all of it late in test 7)
+- The fight's screen (0xE8BE) only comes once GO is over, not during the entrances of the fighters. Test 6 waited for it, ROUND n came at GO and FIGHT ! 1.5 s after.
+- Seb's log shows the states of the fight of The King of Fighters '98. 0x1A during the fight (0x02 a moment in a super's freeze), after a K.O. 0x19 and 0x01 by turns, then 0x01, and 0 when the next round's intro starts, when the game shows ROUND n. READY (0x18) comes 4 to 5 s later. Test 8 took 0x01 for the round's start (the notes of '97), so ROUND came at the K.O. ROUND n now comes when the intro starts, the next fighter's band (ENTRE EN SCÈNE) 1.4 s after it when the game shows him, and FIGHT ! 1.15 s after READY, with GO. The beaten one's name stays until the band.
+- Between the select screens and a first round the state stays at 0, nothing tells the intro of the round. Those screens, and the ones after a match, are select screens (VS, no event of a fight), and ROUND 1 comes at READY, FIGHT ! 1.35 s after it with GO. HOW TO PLAY, THE NEXT COMPETITOR and BATTLE IN still start nothing. The select rule of the game file is back to the character select and the order select.
+- The log notes the state of the fight, the screen of the game and its timer set again outside the fights, to find on a cabinet what tells the intro of a first round.
 
 **MAX as the game says it** (test 8, Seb's photo and video, MAX lit with no stock)
 - The badge says MAX when every square of the gauge is lit, as the game does. MAX ACTIVÉ is the MAX of A+B+C, in gold.
@@ -91,11 +91,11 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - Le jeu ne remplit pas sa jauge et ne donne pas de stock pendant le MAX. Un stock gagné, ou la jauge qui se remplit à nouveau, finit maintenant le MAX sur l'écran HD. Il pouvait rester allumé jusqu'à 15 s après celui du jeu.
 - A+B+C, le début du MAX avec la jauge, et le MAX une fois par seconde vont dans le journal, pour régler sa fin sur une borne.
 
-**ROUND et FIGHT ! quand le jeu les montre** (test 8, la deuxième vidéo de Seb, tout était en retard dans le test 7)
-- L'écran du combat (0xE8BE) ne vient qu'une fois GO fini, pas pendant l'entrée des combattants. Le test 6 l'attendait, ROUND n venait à GO et FIGHT ! 1,5 s après. ROUND n vient maintenant quand le jeu commence son round (l'état du combat à 0x01, notes de code de RetroAchievements de '97), tout de suite, et FIGHT ! 1,15 s après READY (0x18), comme avant le test 6.
-- Les écrans de sélection sont la sélection des personnages, celle de l'ordre, et tout écran où le jeu n'a pas de combat en cours (son état à 0). HOW TO PLAY, THE NEXT COMPETITOR et BATTLE IN ne lancent toujours rien. Un état à 0 pendant moins de 0,4 s entre deux rounds ne finit rien, et le round qui commence finit l'écran de sélection tout de suite.
-- Le bandeau du combattant suivant (ENTRE EN SCÈNE) vient 1,4 s après ROUND n, quand le jeu le montre, et plus juste après le K.O. Le nom du battu reste jusque-là.
-- Les changements d'état du combat vont toujours dans le journal (`Combat, état 0x..`), pour les vérifier sur une borne.
+**ROUND et FIGHT ! quand le jeu les montre** (tests 8 et 8b, la deuxième vidéo de Seb et son journal, tout était en retard dans le test 7)
+- L'écran du combat (0xE8BE) ne vient qu'une fois GO fini, pas pendant l'entrée des combattants. Le test 6 l'attendait, ROUND n venait à GO et FIGHT ! 1,5 s après.
+- Le journal de Seb montre les états du combat de The King of Fighters '98. 0x1A pendant le combat (0x02 un instant pendant le gel d'un super), après un K.O. 0x19 et 0x01 tour à tour, puis 0x01, et 0 quand l'intro du round suivant commence, quand le jeu affiche ROUND n. READY (0x18) vient 4 à 5 s plus tard. Le test 8 prenait 0x01 pour le début du round (les notes de '97), ROUND venait donc au K.O. ROUND n vient maintenant quand l'intro commence, le bandeau du combattant suivant (ENTRE EN SCÈNE) 1,4 s après quand le jeu le montre, et FIGHT ! 1,15 s après READY, avec GO. Le nom du battu reste jusqu'au bandeau.
+- Entre les écrans de sélection et un premier round l'état reste à 0, rien ne dit l'intro du round. Ces écrans, et ceux d'après un match, sont des écrans de sélection (VS, aucun événement de combat), et ROUND 1 vient à READY, FIGHT ! 1,35 s après avec GO. HOW TO PLAY, THE NEXT COMPETITOR et BATTLE IN ne lancent toujours rien. La règle select du fichier du jeu revient à la sélection des personnages et à celle de l'ordre.
+- Le journal note l'état du combat, l'écran du jeu et son chrono remis hors des combats, pour trouver sur une borne ce qui dit l'intro d'un premier round.
 
 **Le MAX comme le dit le jeu** (test 8, la photo et la vidéo de Seb, MAX allumé sans stock)
 - La pastille dit MAX quand tous les carrés de la jauge sont allumés, comme le jeu. MAX ACTIVÉ est le MAX de A+B+C, en doré.

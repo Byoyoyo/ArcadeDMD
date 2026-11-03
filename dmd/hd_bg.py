@@ -843,6 +843,15 @@ class Backdrop:
         self.amb_state = {}
         self.exc = 0.3                # excitation du public (salle de tournoi), monte avec les coups
         self.static = False           # True : le décor ne défile pas (jeux de combat)
+        # the round of the fight, for the stages whose look changes with it (1.32 test 9) / le round, pour les décors qui
+        # changent avec lui : l'heure du jour, ce qui s'y montre
+        self.round = None
+        self.look_prev = None         # the look before, while it fades out / le look d'avant, pendant qu'il s'efface
+        self.look_t = -99.0
+        self.look_fade = 1.5
+        self.cur_look = None          # the look drawn, for the hooks / le look dessiné, pour les animations
+        self.look_k = 1.0
+        self._lbuf = None             # the layers of a tinted look, before their tint / les plans avant leur teinte
         if threaded:                                         # les autres décors se préparent en arrière-plan
             self.prebuild(THEMES)
 
@@ -917,7 +926,8 @@ class Backdrop:
         layers = self.parts.pop(name, [])
         layers += [self._layer(L) for L in raw["layers"][len(layers):]]
         b = {"sky": hd._surf(raw["sky"]), "layers": layers, "tw": raw["tw"], "amb": raw["amb"],
-             "imgs": {k: hd._surf(v) for k, v in (raw["amb"].get("images") or {}).items()}}
+             "imgs": {k: hd._surf(v) for k, v in (raw["amb"].get("images") or {}).items()},
+             "skies": {k: hd._surf(v) for k, v in (raw["amb"].get("skies") or {}).items()}}
         if raw["amb"].get("plane"):
             b["plane"] = hd._surf(plane_img(self.s, raw["amb"]["plane_color"], raw["amb"]["plane"]))
         self.built[name] = b
@@ -936,6 +946,45 @@ class Backdrop:
         self.wipe = (old, now, wipe)
         self.theme = name
         self.amb_state = {}
+        self.look_prev = None
+
+    # -- the looks of a stage, round after round (1.32 test 9) / les looks d'un décor, round après round
+    @staticmethod
+    def look_of(amb, rnd):
+        """The look of a stage for this round (from 0), its last one after: "night", "day+wagon"... or None.
+        / Le look d'un décor pour ce round, son dernier ensuite."""
+        looks = amb.get("looks")
+        if not looks:
+            return None
+        return looks[min(max(0, int(rnd or 0)), len(looks) - 1)]
+
+    @staticmethod
+    def _time(look):
+        return look.split("+")[0] if look else None
+
+    @staticmethod
+    def _shown(L, look):
+        only = L.get("only")
+        if not only:
+            return 1.0
+        flags = look.split("+") if look else ()
+        return 1.0 if any(f in flags for f in (only if isinstance(only, (tuple, list)) else (only,))) else 0.0
+
+    def set_round(self, rnd, now, fade=1.5):
+        """The round of the fight (from 0) when ROUND n shows: a stage whose look changes with the rounds (the time of
+        day, a fog, the cars...) fades to its new one, as the game does between its rounds. / Le round du combat quand
+        ROUND n s'affiche : un décor qui change avec les rounds passe doucement au nouveau look, comme le jeu."""
+        rnd = None if rnd is None else max(0, int(rnd))
+        if rnd == self.round:
+            return
+        b = self.built.get(self.theme)
+        old = self.look_of(b["amb"], self.round) if b else None
+        self.round = rnd
+        new = self.look_of(b["amb"], rnd) if b else None
+        if fade and fade > 0.02 and old != new:
+            self.look_prev, self.look_t, self.look_fade = old, now, fade
+        else:
+            self.look_prev = None
 
     # -- dessin
     def draw(self, screen, now, move=0.0):
@@ -945,6 +994,9 @@ class Backdrop:
         target = 0.0 if self.static else (0.25 + 1.25 * max(0.0, move) - 0.35 * max(0.0, -move)) * 70 * self.s
         self.speed += (target - self.speed) * min(1.0, dt * 2.5)
         self.scroll += self.speed * dt
+        b = self.built.get(self.theme)
+        if b is not None and b["amb"].get("drift"):                 # a stage that moves by itself (the boat in China)
+            self.scroll += b["amb"]["drift"] * self.s * dt          # un décor qui avance tout seul (le bateau en Chine)
         self.exc = 0.3 + (self.exc - 0.3) * max(0.0, 1 - dt * 0.7)
         self.fx.update(now)
         self._draw_theme(screen, self.theme, now, dt)
@@ -970,15 +1022,48 @@ class Backdrop:
 
     def _draw_theme(self, screen, name, now, dt):
         b = self._get(name)
-        screen.blit(b["sky"], (0, 0))
         amb = b["amb"]
+        # the look of this round, and the one before while it fades out / le look du round, et celui d'avant qui s'efface
+        look = self.look_of(amb, self.round)
+        prev, k = None, 1.0
+        if self.look_prev is not None and name == self.theme and amb.get("looks"):
+            k = (now - self.look_t) / max(0.05, self.look_fade)
+            if k >= 1.0:
+                self.look_prev, k = None, 1.0
+            else:
+                prev, k = self.look_prev, k * k * (3 - 2 * k)
+        self.cur_look, self.look_k = look, k
+        skies = b.get("skies") or {}
+        sky = skies.get(self._time(look)) or b["sky"]
+        old_sky = (skies.get(self._time(prev)) or b["sky"]) if prev is not None else sky
+        if old_sky is not sky:                                       # the sky of the new look comes over the old one
+            screen.blit(old_sky, (0, 0))
+            sky.set_alpha(int(255 * k))
+            screen.blit(sky, (0, 0))
+            sky.set_alpha(None)
+        else:
+            screen.blit(sky, (0, 0))
+        tints = amb.get("tints") or {}
+        tint = None
+        if tints:
+            t1 = tints.get(self._time(look)) or (255, 255, 255)
+            t0 = (tints.get(self._time(prev)) or (255, 255, 255)) if prev is not None else t1
+            tint = mix(t0, t1, k)
+            if tint == (255, 255, 255):
+                tint = None
+        scr = screen
+        if tint is not None:                                         # the layers tinted, not the sky (its own look)
+            if self._lbuf is None or self._lbuf.get_size() != screen.get_size():   # les plans teintés, pas le ciel
+                self._lbuf = self.pg.Surface(screen.get_size(), self.pg.SRCALPHA)
+            self._lbuf.fill((0, 0, 0, 0))
+            screen = self._lbuf
         st = self.amb_state.setdefault(name, {"next_boom": now + 1.5, "next_plane": now + 4.0, "plane": None,
                                               "bolt": None, "next_bolt": now + 6.0, "drops": None, "flies": None,
                                               "flakes": None, "dust": None})
-        self._stars(screen, amb, now)
+        self._stars(scr, amb, now)
         hooks = amb.get("hooks") or {}
         for fn in hooks.get("sky", ()):
-            fn(self, screen, b, None, now, dt)
+            fn(self, scr, b, None, now, dt)
         tw = b["tw"]
         for L in b["layers"]:
             stage = L["stage"]
@@ -986,6 +1071,11 @@ class Backdrop:
                 self._plane(screen, b, st, now, dt)
             surf = L["surf"]
             x = self._layer_x(L, tw)
+            vis = 1.0
+            if L.get("only"):                                        # a layer of some looks only / de certains looks
+                vis = self._shown(L, look) * k + (self._shown(L, prev) * (1 - k) if prev is not None else 0.0)
+                if vis <= 0.01:
+                    continue
             if L["kind"] == "aurora":
                 self._aurora(screen, surf, x, tw, now)
             else:
@@ -993,9 +1083,13 @@ class Backdrop:
                 y = L["y"]
                 if L.get("bob"):                                     # le public bouge, plus fort quand ça cogne
                     y += int(abs(math.sin(now * 6.5 + L.get("phase", 0))) * L["bob"] * self.s * min(2.0, self.exc))
+                if vis < 0.99:
+                    surf.set_alpha(int(255 * vis))
                 screen.blit(surf, (int(x), y))
                 if x + w < self.W:
                     screen.blit(surf, (int(x + w), y))
+                if vis < 0.99:
+                    surf.set_alpha(None)
             if stage == "far":
                 self._lights(screen, amb, L, tw, now)
                 self._horizon(screen, amb, st, now, L, tw)
@@ -1010,7 +1104,11 @@ class Backdrop:
                 self._lights(screen, amb, L, tw, now)
             for fn in hooks.get(stage, ()):
                 fn(self, screen, b, L, now, dt)
-        for fn in hooks.get("front", ()):
+        if screen is not scr:                                        # the tint of the look, then over the sky
+            screen.fill(tint + (255,), special_flags=self.pg.BLEND_RGBA_MULT)   # la teinte du look, puis sur le ciel
+            scr.blit(screen, (0, 0))
+            screen = scr
+        for fn in hooks.get("front", ()):                            # lights and glows, not tinted / non teintés
             fn(self, screen, b, None, now, dt)
         self._weather(screen, amb, st, now, dt)
         if amb.get("crowd"):
