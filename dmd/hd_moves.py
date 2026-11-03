@@ -119,6 +119,7 @@ class Side:
         self.max_on = None           # since when MAX is on (A+B+C and a stock gone) / depuis quand le MAX est lancé
         self.max_seen = False        # its timer (the candidate "_maxv") seen running / son chrono vu tourner
         self.abc_t = -99.0
+        self.press = None            # (t, buttons) the last button pressed / le dernier bouton appuyé
         self.attempt = None          # (t, row, states, full, mirrored) a button after a motion, the game not heard yet
         self.result = None           # (t, row, text, colour, states, mirrored) RATÉ, DM !, SDM !
         self.live = None             # (row, states, mirrored) what the stick is doing now / ce que fait le stick
@@ -183,7 +184,7 @@ class Moves:
                     self._input(side, sd, t, int(v), game, vals)
             if entries:
                 sd.seen = max(sd.seen, entries[-1][0])
-            self._gauge(side, sd, vals, suf, now)
+            self._gauge(side, sd, vals, suf, now, game)
             # the motion going on, lit as it goes / le geste en cours, allumé au fur et à mesure
             sd.live = self._best(side, sd, now, game, vals, final=False) if humans.get(side) else None
             if sd.attempt is not None and now - sd.attempt[0] > CONFIRM:
@@ -199,7 +200,7 @@ class Moves:
                     sd.result = (t, row, None, None, states, mir)  # word (too slow, or the stock read elsewhere)
                     self._log_try(side, vals, game, row, states, tr("complet, rien de pris", "complete, nothing taken"))
 
-    def _gauge(self, side, sd, vals, suf, now):
+    def _gauge(self, side, sd, vals, suf, now, game=None):
         """The stock, the gauge, the mode and the candidate MAX timer: what the game took. / Ce que le jeu a pris."""
         pow_, mode, maxv, raw = (_n(vals.get(k + suf)) for k in ("_pow", "_pmode", "_maxv", "_stock"))
         stock = _stock(vals, suf)
@@ -215,12 +216,12 @@ class Moves:
             self.log(f"Combat, {tag} stock {int(sd.stock)} -> {int(stock)} (jauge 0x{int(pow_ or 0):02X})",
                      f"Fight, {tag} stock {int(sd.stock)} -> {int(stock)} (gauge 0x{int(pow_ or 0):02X})")
             if stock < sd.stock:
-                self._spent(side, sd, now, vals)
+                self._spent(side, sd, now, vals, game)
         if maxv is not None and sd.maxv is not None and (maxv == 0) != (sd.maxv == 0):
             self.log(f"Combat, {tag} MAX ? _maxv 0x{int(sd.maxv):02X} -> 0x{int(maxv):02X}",
                      f"Fight, {tag} MAX? _maxv 0x{int(sd.maxv):02X} -> 0x{int(maxv):02X}")
         if mode == 1 and pow_ is not None and sd.pow is not None and sd.pow >= FULL_POW > pow_ + 0x40:
-            self._spent(side, sd, now, vals)                      # Extra: the full gauge used / la jauge pleine utilisée
+            self._spent(side, sd, now, vals, game)                # Extra: the full gauge used / la jauge pleine utilisée
         if sd.max_on is not None:
             if maxv:
                 sd.max_seen = True
@@ -252,12 +253,13 @@ class Moves:
         if {"A", "B", "C"} <= btn:
             sd.abc_t = t                                          # A+B+C: MAX asked / MAX demandé
             return
+        sd.press = (t, new)
         att = self._best(side, sd, t, game, vals, final=True, buttons=new)
         if att is not None:
             sd.attempt = (t,) + att
             sd.result = None
 
-    def _spent(self, side, sd, now, vals):
+    def _spent(self, side, sd, now, vals, game=None):
         """The game took a stock (or the full gauge in Extra): MAX after A+B+C, else the desperation move tried just
         before. A stock can also go to a guard cancel: nothing then. / Le jeu a pris un stock : le MAX après A+B+C,
         sinon le coup désespéré tenté juste avant ; un stock peut aussi partir dans une garde annulée."""
@@ -269,7 +271,16 @@ class Moves:
                 self.log(f"Combat, {tag} lance le MAX", f"Fight, {tag} goes MAX")
             return
         if att is None or now - att[0] > CONFIRM + 0.6:
-            return
+            # no attempt seen: a shorter form of the command the game takes too, or a step not read. The last button
+            # pressed, looked at more leniently / pas de tentative vue : une forme plus courte que le jeu prend aussi,
+            # ou une étape pas lue ; le dernier bouton appuyé, regardé avec plus d'indulgence
+            p = sd.press
+            if p is None or now - p[0] > CONFIRM + 0.6:
+                return
+            found = self._best(side, sd, p[0], game, vals, final=True, buttons=p[1], need=0.4)
+            if found is None:
+                return
+            att = (p[0],) + found
         t, row, states, full, mir = att
         extra = _n(vals.get("_pmode" + ("" if side == "p1" else "_p2"))) == 1
         if extra:
@@ -289,7 +300,7 @@ class Moves:
         self.log(f"Combat, {side.upper()} {word}, ligne {row + 1}" + (f", étape(s) manquée(s) {missed}" if missed else ""),
                  f"Fight, {side.upper()} {word}, row {row + 1}" + (f", step(s) missed {missed}" if missed else ""))
 
-    def _best(self, side, sd, now, game, vals, final, buttons=None):
+    def _best(self, side, sd, now, game, vals, final, buttons=None, need=NEAR):
         """The desperation move the stick is doing: the most steps done, in order, either way round (the fighter can
         face both ways). / Le coup que fait le stick : le plus d'étapes faites, dans l'ordre, dans un sens ou l'autre."""
         rows = self.rows(game, vals.get(side + "_char"))
@@ -325,7 +336,7 @@ class Moves:
             return None
         (score, _), k, hit, mir = best
         if final:
-            if score < NEAR:
+            if score < need:
                 return None
             return k, ["ok" if h else "miss" for h in hit], all(hit), mir
         if score < 0.34:                                          # live: the steps done so far, nothing crossed
@@ -516,11 +527,16 @@ def draw_panel(hd, screen, moves, side, vals, game, name, x0, x1, y0, now, lost,
     tagw = max(hd.text_width(w, "black", S(21)) for w in ("RATÉ", "DM !", "SDM !")) + S(8)
     cx0 = x0 + S(352)
 
-    def width(r):
-        return max(len(st) * (2 * r + S(5)) + r * 1.6 + S(6) + len(bt) * (2 * r + S(5)) for _, st, _, _, _, bt in lines)
-    while r > S(9) and cx0 + width(r) + tagw > x1 - S(12):
+    def width(r, sp):
+        return max(len(st) * (2 * r + sp) + r * 1.6 + S(6) + len(bt) * (2 * r + sp) for _, st, _, _, _, bt in lines)
+    sp = S(5)                                                     # the room between two arrows / l'écart entre deux flèches
+    while r > S(11) and cx0 + width(r, sp) + tagw > x1 - S(12):
         r -= 1
-    slot, plus = 2 * r + S(5), r * 1.6 + S(6)
+    if cx0 + width(r, sp) + tagw > x1 - S(12):                    # two motions in a row (hcb hcb): closer together
+        sp = max(1, S(2))                                         # deux gestes à la suite : plus serrées
+        while r > S(8) and cx0 + width(r, sp) + tagw > x1 - S(12):
+            r -= 1
+    slot, plus = 2 * r + sp, r * 1.6 + S(6)
     # the names in one size, between the gauge and the commands / les noms d'une même taille, entre la jauge et les commandes
     room = cx0 - S(12) - (gauge_end + S(10))
     nsize = min([hd.fit_size(nm, "xbold", S(17), room, S(11)) for nm, *_ in lines if nm] or [S(17)])
