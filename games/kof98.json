@@ -208,7 +208,7 @@
    "_screen": {
     "addr": "0x108502",
     "type": "u16",
-    "note": "the screen the game shows (RetroAchievements code notes, 0x8502 Screen ID (16bits), 77b2 = Character selection screen, b3a0 = Order select, e8be = Fighting); its select screens give VS and no event of a fight (1.31.1, K.O. audit), to confirm in game"
+    "note": "the screen the game shows (RetroAchievements code notes, 0x8502 Screen ID (16bits), 77b2 = Character selection screen, b3a0 = Order select, e8be = Fighting); every screen but the fight gives VS and no event of a fight (1.32, Seb's video, the select screens only in 1.31.1)"
    },
    "_in_p1": {
     "addr": "0x10FD96",
@@ -265,7 +265,7 @@
   }
  },
  "derived": {
-  "select": {"sum": [{"eq": ["_screen", 30642]}, {"eq": ["_screen", 45984]}]},
+  "select": {"eq": ["_screen", 59582], "names": {"0": 1, "1": 0}, "note": "1 on every screen but the fight (0xE8BE): the select screens, and the ones between them and the fight (THE NEXT COMPETITOR, BATTLE IN, the winner's quotes) that gave ROUND 1 several times in Seb's video (1.32)"},
   "p1_char": {
    "pick": [
     "_p1_ch0",

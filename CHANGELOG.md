@@ -27,6 +27,13 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 **The stage darker under the fights** (test 5, Seb)
 - The backdrop of the fighting games is darker, 50 % instead of 30 %, the names, health bars and buttons stood out too little over it. `"dim_fight"` in the `preview` section sets it, from 0 to 80, the other scenes keep `"dim"`.
 
+**ROUND 1 once, at the fight** (test 6, Seb's video of The King of Fighters '98)
+- Between the select screens and the fight the game shows other screens, HOW TO PLAY, THE NEXT COMPETITOR, the order select, BATTLE IN CHINA. Only the character select and the order select were told, and each of the others started a fight on the HD screen, ROUND 1 with the sweep of the stage changing, then the last match's timer. Every screen but the fight's (0xE8BE, RetroAchievements code notes) is now a select screen, VS in the middle and no event of a fight, and ROUND 1 comes once, when the fight's screen appears. The sweep of the next stage comes on BATTLE IN, where the game shows it.
+- A screen, of the select or of the fight, counts once it lasted 0.4 s. A screen of a moment neither starts nor ends a fight.
+- VS no longer shows for a moment just after FIGHT !, the timer having stood still for 6 s during the entrances of the fighters. FIGHT ! counts as the timer moving.
+- The last match's timer (44) no longer shows at the start of the next one, until the game sets its own or GO comes.
+- The winner of the match (VICTOIRE, the team eliminated) stays its 5.5 s over the screen of his quotes, which now is a select screen.
+
 **Read at every frame**
 - A value marked `"fast"` is read at every frame, the stick and buttons here. The MAME plugin reads it at each frame. The RetroArch reader asks for it at each frame between its other reads, and asks for all those at once (RetroArch answers them at the same frame, one block of memory at a time took a frame each). Each change of the stick and buttons keeps the time it was read.
 - When RetroArch closes during a game whose stick is read, the HD screen leaves the game as fast as before (test 2). The values asked together were asked again one by one when no answer came, 3 s or more each time.
@@ -55,6 +62,13 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 
 **Le décor plus sombre sous les combats** (test 5, Seb)
 - Le décor des jeux de combat est plus sombre, 50 % au lieu de 30 %, les noms, barres de vie et boutons ne ressortaient pas assez dessus. `"dim_fight"` dans la section `preview` le règle, de 0 à 80, les autres scènes gardent `"dim"`.
+
+**ROUND 1 une seule fois, au combat** (test 6, la vidéo de Seb sur The King of Fighters '98)
+- Entre les écrans de sélection et le combat, le jeu montre d'autres écrans, HOW TO PLAY, THE NEXT COMPETITOR, la sélection de l'ordre, BATTLE IN CHINA. Seules la sélection des personnages et celle de l'ordre étaient dites, et chacun des autres lançait un combat sur l'écran HD, ROUND 1 avec le balayage du décor qui change, puis le chrono du match d'avant. Tout écran autre que celui du combat (0xE8BE, notes de code de RetroAchievements) est maintenant un écran de sélection, VS au milieu et aucun événement de combat, et ROUND 1 vient une fois, quand l'écran du combat apparaît. Le balayage du décor suivant vient sur BATTLE IN, là où le jeu le montre.
+- Un écran, de sélection ou de combat, compte une fois qu'il a duré 0,4 s. Un écran d'un instant ne lance ni ne finit un combat.
+- VS ne s'affiche plus un instant juste après FIGHT !, le chrono étant immobile depuis 6 s pendant l'entrée des combattants. FIGHT ! compte comme un chrono qui bouge.
+- Le chrono du match d'avant (44) ne s'affiche plus au début du suivant, tant que le jeu n'a pas mis le sien ou que GO n'est pas venu.
+- Le vainqueur du match (VICTOIRE, l'équipe éliminée) reste ses 5,5 s par-dessus l'écran de ses répliques, qui est maintenant un écran de sélection.
 
 **Lu à chaque image**
 - Une valeur marquée `"fast"` est lue à chaque image, ici le stick et les boutons. Le plugin MAME la lit à chaque image. La lecture RetroArch la demande à chaque image entre ses autres lectures, et demande alors toutes celles-ci d'un coup (RetroArch y répond à la même image, un bloc de mémoire à la fois prenait une image chacun). Chaque changement du stick et des boutons garde le moment où il a été lu.
