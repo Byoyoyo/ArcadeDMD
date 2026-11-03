@@ -28,6 +28,7 @@ from .hd_bg import Backdrop
 from .hd_fx import FX, Particle
 from .hd_moves import Moves
 from .hd_themes15 import CPS_STAGES
+from . import hd_themes18  # noqa: F401  the stages of The King of Fighters '98 / les décors de KOF '98
 from .i18n import tr
 
 GOLD = (255, 214, 120)
@@ -68,7 +69,10 @@ STAGE_NAMES = {"arena": ("ARÈNE", "ARENA"), "city": ("VILLE", "CITY"), "temple"
                "snow": ("MONTAGNE", "MOUNTAIN"), "jungle": ("JUNGLE", "JUNGLE"), "base": ("BASE", "BASE"),
                "city_war": ("CHAMP DE BATAILLE", "BATTLEFIELD"), "castle": ("CHÂTEAU", "CASTLE"), "market": ("MARCHÉ", "MARKET"),
                "factory": ("ACIÉRIE", "STEEL MILL"), "gothic": ("MANOIR", "MANOR"), "palace": ("PALAIS", "PALACE"),
-               "thai": ("TEMPLE D'OR", "GOLDEN TEMPLE"), "lab": ("LABORATOIRE", "LABORATORY")}
+               "thai": ("TEMPLE D'OR", "GOLDEN TEMPLE"), "lab": ("LABORATOIRE", "LABORATORY"),
+               "kof_osaka": ("OSAKA", "OSAKA"), "kof_china": ("CHINE", "CHINA"), "kof_korea": ("CORÉE", "KOREA"),
+               "kof_mideast": ("MOYEN-ORIENT", "MIDDLE EAST"), "kof_spain": ("ESPAGNE", "SPAIN"), "kof_yard": ("DÉPÔT", "TRAIN YARD"),
+               "kof_dojo": ("DOJO", "DOJO"), "kof_wharf": ("QUAI", "WHARF"), "kof_noah": ("BLACK NOAH", "BLACK NOAH")}
 
 
 def stage_name(theme):

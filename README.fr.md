@@ -285,10 +285,10 @@ Ces adresses viennent des bases de triche et restent à confirmer en jeu (`test_
 Chaque fichier de jeu dit quel décor HD va avec chaque décor du jeu, dans l'ordre de leurs numéros. Par exemple, dans `games\kof98.json`
 
 ```json
-"hd": {"stages": ["fight_city", "fight_jungle", "fight_snow", "fight_desert", "fight_ruins", "arena", "fight_temple", "fight_harbor", "base"]}
+"hd": {"stages": ["fight_kof_osaka", "fight_kof_china", "fight_kof_korea", "fight_kof_mideast", "fight_kof_spain", "fight_kof_yard", "fight_kof_dojo", "fight_kof_wharf", "fight_kof_noah"]}
 ```
 
-Le décor 0 (Japon, rue) donne la ville la nuit, le 3 (Moyen-Orient) le désert, le 7 (USA, quai) le port, et ainsi de suite. La note de la valeur `backdrop` liste les décors du jeu. Change la liste à ton goût, le moteur recharge le fichier tout seul.
+Le décor 0 (Japon, rue) donne la rue sous le viaduc à Osaka, le 3 (Moyen-Orient) le marché, le 7 (USA, quai) le quai devenu une casse, et ainsi de suite. Ces neuf décors de The King of Fighters '98 (depuis la 1.32) sont dessinés d'après les lieux du jeu, chacun change avec les rounds comme dans le jeu (l'heure du jour, une brume, un wagon, les voitures, la lumière). La note de la valeur `backdrop` liste les décors du jeu. Change la liste à ton goût, le moteur recharge le fichier tout seul.
 
 | Décor | Ce qu'il montre |
 |---|---|
@@ -307,6 +307,15 @@ Le décor 0 (Japon, rue) donne la ville la nuit, le 3 (Moyen-Orient) le désert,
 | `fight_thai` | temple d'or au bord du fleuve, lanternes qui s'envolent, reflets sur l'eau |
 | `fight_lab` | laboratoire, cuves lumineuses, écrans |
 | `fight_airbase` (ou `fight_base`) | base aérienne au crépuscule, hangars, avions, balises de piste |
+| `fight_kof_osaka` | The King of Fighters '98, Japon : sous le viaduc à Osaka la nuit, les voitures et leurs phares (l'embouteillage à partir du troisième round), le passage piéton |
+| `fight_kof_china` | The King of Fighters '98, Chine : le bateau sur la rivière entre les piliers de pierre, un temple, puis une cascade, puis la brume, les falaises qui défilent |
+| `fight_kof_korea` | The King of Fighters '98, Corée : le port au soleil, les maisons, les bateaux, le pont rouge vers le pavillon, les mouettes |
+| `fight_kof_mideast` | The King of Fighters '98, Moyen-Orient : le marché, les maisons-tours, les cuivres qui brillent, les tapis |
+| `fight_kof_spain` | The King of Fighters '98, Espagne : la cour des Lions, sa fontaine, le jour puis le couchant puis la nuit, les lanternes, le chat blanc |
+| `fight_kof_yard` | The King of Fighters '98, États-Unis : le dépôt de trains, les locomotives, l'enseigne MOTEL, le wagon, le couchant à partir du troisième round |
+| `fight_kof_dojo` | The King of Fighters '98, Japon : le dojo en ruine dans la forêt, la nuit puis l'aube puis le matin puis le jour, les lucioles |
+| `fight_kof_wharf` | The King of Fighters '98, États-Unis : le quai devenu une casse, le panier de basket, le couchant puis la nuit puis la brume |
+| `fight_kof_noah` | The King of Fighters '98, le Black Noah : la salle sous la mer, requins et méduses derrière la vitre, plus bleue à chaque round |
 
 Un fichier de jeu Capcom peut aussi donner le lieu affiché sous le bandeau du décor, en français et en anglais, un par valeur de `backdrop` (`"places": [["CHINE", "CHINA"], ...]`). Sans lui, c'est le lieu du décor HD qui s'affiche.
 

@@ -285,10 +285,10 @@ These addresses come from the cheat databases and still have to be confirmed in 
 Each game file says which background goes with each backdrop, in the order of the backdrop numbers. For example, in `games\kof98.json`
 
 ```json
-"hd": {"stages": ["fight_city", "fight_jungle", "fight_snow", "fight_desert", "fight_ruins", "arena", "fight_temple", "fight_harbor", "base"]}
+"hd": {"stages": ["fight_kof_osaka", "fight_kof_china", "fight_kof_korea", "fight_kof_mideast", "fight_kof_spain", "fight_kof_yard", "fight_kof_dojo", "fight_kof_wharf", "fight_kof_noah"]}
 ```
 
-Backdrop 0 (Japan, street) gets the city at night, 3 (Mid-East) the desert, 7 (USA, wharf) the harbor, and so on. The note of the `backdrop` value lists the game's backdrops. Change the list to your taste, the engine reloads the file by itself.
+Backdrop 0 (Japan, street) gets the street under the viaduct in Osaka, 3 (Mid-East) the market, 7 (USA, wharf) the wharf turned junkyard, and so on. These nine stages of The King of Fighters '98 (since 1.32) are drawn from the game's places, each changing with the rounds as in the game (the time of day, a fog, a wagon, the cars, the light). The note of the `backdrop` value lists the game's backdrops. Change the list to your taste, the engine reloads the file by itself.
 
 | Background | What it shows |
 |---|---|
@@ -307,6 +307,15 @@ Backdrop 0 (Japan, street) gets the city at night, 3 (Mid-East) the desert, 7 (U
 | `fight_thai` | golden temple on its river, sky lanterns, glints on the water |
 | `fight_lab` | laboratory, glowing tanks, screens |
 | `fight_airbase` (or `fight_base`) | air base at dusk, hangars, jets, runway lights |
+| `fight_kof_osaka` | The King of Fighters '98, Japan: under the viaduct in Osaka at night, cars and their headlights (the jam from the third round), the crossing |
+| `fight_kof_china` | The King of Fighters '98, China: the boat on the river among the stone pillars, a temple, then a waterfall, then the fog, the cliffs going by |
+| `fight_kof_korea` | The King of Fighters '98, Korea: the harbor in the sun, the houses, the boats, the red bridge to the pavilion, the gulls |
+| `fight_kof_mideast` | The King of Fighters '98, Middle East: the market, tower houses, copper pots that glint, carpets |
+| `fight_kof_spain` | The King of Fighters '98, Spain: the Court of the Lions, its fountain, day then sunset then night, the lanterns, the white cat |
+| `fight_kof_yard` | The King of Fighters '98, USA: the train yard, the engines, the MOTEL sign, the wagon, the sunset from the third round |
+| `fight_kof_dojo` | The King of Fighters '98, Japan: the ruined dojo in the forest, night then dawn then morning then day, the fireflies |
+| `fight_kof_wharf` | The King of Fighters '98, USA: the wharf turned junkyard, the basketball hoop, sunset then night then fog |
+| `fight_kof_noah` | The King of Fighters '98, the Black Noah: the hall under the sea, sharks and jellyfish behind the window, bluer at each round |
 
 A Capcom game file can also give the place shown under the stage banner, in French and English, one per backdrop value (`"places": [["CHINE", "CHINA"], ...]`). Without it, the place of the background is shown.
 
