@@ -356,7 +356,12 @@ class Simulator:
         if self.ko_until is not None:
             if t >= self.ko_until:                      # nouveau round
                 self.kos += 1
-                if self.kos % 2 == 0:                   # new stage: round number and backdrop change
+                team = "_p1_lost" in self.values and "_p2_lost" in self.values
+                if team and max(self.values["_p1_lost"], self.values["_p2_lost"]) >= 3:
+                    for r in ("_p1_lost", "_p2_lost", "round"):     # a team out: a new match (King of Fighters)
+                        if r in self.values:
+                            self._set(r, 0, t)
+                if (team and self.values["_p1_lost"] == 0 and self.values["_p2_lost"] == 0) or (not team and self.kos % 2 == 0):
                     for r in ("rounds", "rounds_p2"):       # a new match / un nouveau match
                         if r in self.values:
                             self._set(r, 0, t)
@@ -380,6 +385,11 @@ class Simulator:
             won = "rounds_p2" if n == "health" else "rounds"        # the other one won the round / l'autre a gagné le round
             if won in self.values:
                 self._set(won, self.values[won] + 1, t)
+            if "round" in self.values:                              # the round of the match (King of Fighters)
+                self._set("round", self.values["round"] + 1, t)
+            lost = "_p1_lost" if n == "health" else "_p2_lost"      # one more of its team beaten / un de plus battu
+            if lost in self.values and "_p1_lost" in self.values and "_p2_lost" in self.values:
+                self._set(lost, min(3, self.values[lost] + 1), t)
         self.fight_next = t + self.rng.uniform(0.6, 2.2)
 
     def _attract(self, t):

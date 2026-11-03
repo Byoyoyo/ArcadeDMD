@@ -694,9 +694,14 @@ class HDRenderer:
         if h1 is not None and h2 is not None:
             self.draw_rounds(screen, vals, S(40) + bw, int(cx + S(160)), now)
         ko = h1 is not None and h2 is not None and (h1 <= 0 or h2 <= 0)
-        if ko and h1 <= 0 and h2 <= 0 and not (self.fight is not None and now - self.fight.ko_t < 3.0):
-            ko = False                    # both bars empty without a K.O.: the select screen / l'écran de sélection
         t = _num(vals.get("time"))
+        if h1 is not None and h2 is not None and h1 <= 0 and h2 <= 0 and not (self.fight is not None and now - self.fight.ko_t < 3.0):
+            ko = False                    # both bars empty without a K.O.: the select screen / l'écran de sélection
+            t = None                      # VS, not the timer of the last fight / VS, pas le chrono du combat d'avant
+        if ko and self.fight is not None and self.fight.side_ko(now):
+            ko = False                    # K.O. shows on the loser's side, the timer stopped here / K.O. du côté du perdant
+        if t is not None and self.fight is not None and not self.fight.time_live(now):
+            t = None                      # frozen, the last fight's (select screen): VS / figé, celui du combat d'avant
         if ko:
             ks = self.fight.ko_scale(now) if self.fight is not None else 1.0
             self.put(screen, self.text("KO", "black", S(120), (255, 48, 32)), cx, S(220), "center", "middle", scale=ks)

@@ -931,6 +931,12 @@
               "has": "time"
             },
             {
+              "changed_within": {
+                "var": "time",
+                "ms": 6000
+              }
+            },
+            {
               "has": ["health", "health_p2"]
             },
             {
@@ -959,6 +965,20 @@
                         "gt": 0
                       }
                     ]
+                  }
+                ]
+              }
+            },
+            {
+              "not": {
+                "all": [
+                  {
+                    "var": "health",
+                    "le": 0
+                  },
+                  {
+                    "var": "health_p2",
+                    "le": 0
                   }
                 ]
               }
@@ -1019,9 +1039,74 @@
         "text": "VS",
         "color": "#ffa830",
         "when": {
-          "not": {
-            "has": "health"
-          }
+          "any": [
+            {
+              "not": {
+                "has": "health"
+              }
+            },
+            {
+              "all": [
+                {
+                  "has": ["time", "health", "health_p2"]
+                },
+                {
+                  "not": {
+                    "any": [
+                      {
+                        "all": [
+                          {
+                            "var": "health",
+                            "eq": 0
+                          },
+                          {
+                            "var": "health_p2",
+                            "gt": 0
+                          }
+                        ]
+                      },
+                      {
+                        "all": [
+                          {
+                            "var": "health_p2",
+                            "eq": 0
+                          },
+                          {
+                            "var": "health",
+                            "gt": 0
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "any": [
+                    {
+                      "not": {
+                        "changed_within": {
+                          "var": "time",
+                          "ms": 6000
+                        }
+                      }
+                    },
+                    {
+                      "all": [
+                        {
+                          "var": "health",
+                          "le": 0
+                        },
+                        {
+                          "var": "health_p2",
+                          "le": 0
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       },
       {

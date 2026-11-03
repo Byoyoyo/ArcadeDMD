@@ -98,7 +98,7 @@
    "stage": {
     "addr": "0x106909",
     "type": "u8",
-    "note": "match number in the run, from 0 (cheat database \"Select Current Round\"), shown as STAGE n"
+    "note": "match number in the run, from 0 (cheat database \"Select Stage\", 1 to 8), shown as STAGE n"
    },
    "backdrop": {
     "addr": "0x106B97",
