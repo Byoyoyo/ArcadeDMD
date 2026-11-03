@@ -95,6 +95,11 @@
     "bytes": 1,
     "note": "timer (BCD)"
    },
+   "_time_sub": {
+    "addr": "0x108369",
+    "type": "u8",
+    "note": "the timer's fraction of a second (RetroAchievements code notes, 0x8368 Timer (Milliseconds)), it moves at every frame once the round's timer runs, FIGHT ! waits for it to come with the game's own FIGHT or GO (1.31.1)"
+   },
    "score": {
     "addr": "",
     "type": "bcd",

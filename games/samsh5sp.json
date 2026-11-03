@@ -92,10 +92,15 @@
     "note": "rounds won by player 2 (RetroAchievements code notes, 0x8675 [8-bit] P2 Rounds Won, the byte next to it in the 68000's order), gold stars under the bars and the winner of a round; to confirm in game (1.31.1, K.O. audit)"
    },
    "time": {
+    "addr": "0x10836A",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "timer (RetroAchievements code notes, 0x836b Battle Timer, BCD); it read the byte next to it before 1.31.1, the frames of the second"
+   },
+   "_time_sub": {
     "addr": "0x10836B",
     "type": "u8",
-    "note": "timer",
-    "max": 99
+    "note": "the timer's fraction of a second (RetroAchievements code notes, 0x836a Battle Timer Frames), it moves at every frame once the round's timer runs, FIGHT ! waits for it to come with the game's own FIGHT or GO (1.31.1)"
    },
    "score": {
     "addr": "",

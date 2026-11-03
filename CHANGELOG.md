@@ -19,6 +19,14 @@ An audit of every game file with a health bar, 115 games, after The King of Figh
 - The select screens the game tells (The King of Fighters '94, '96, '98, '99 and 2002, Real Bout Fatal Fury Special, a value `select`). There the HD screen shows VS and no event of a fight, the bars the game fills or empties for the next match give neither K.O. nor ROUND, and the fight begins with its ROUND as the screen ends. The panels show VS too.
 - RetroAchievements' notes number the bytes of the Neo Geo's RAM in the other order of each pair, the 68000's byte is the next one (0x8238 in the notes is 0x108239). Every value taken from them follows that rule, checked on the King of Fighters' values learned on a cabinet.
 
+**FIGHT ! with the game's GO, and the fighters a team has lost** (test 2, Seb's video of The King of Fighters '98)
+- FIGHT ! comes with the game's own FIGHT or GO, when the round's timer starts counting down. Its fraction of a second (`_time_sub`, RetroAchievements code notes, read in The King of Fighters '96, '97, '98 and 2003, Real Bout Fatal Fury and Special, Fatal Fury 1, 2 and Special, Samurai Shodown III, IV and V Special) moves at every frame once it runs, other games wait for their first second counted down. FIGHT ! came 1.35 s after ROUND, with the names of the fighters, 5 s before READY and GO. A timer set to infinite gives it 20 s after the bars filled (12 s without the fraction, the entrances of the fighters before a first round wait for GO too), a game that reads no timer shows it at once as before. The shock wave of FIGHT ! comes with it.
+- While a round waits for its GO, the HD screen keeps its timer. VS showed during READY and GO, the timer having stood still for 6 s.
+- The King of Fighters counts a K.O. a moment before the bar of the beaten fighter reads empty. A team out is now told by the fighters it had lost when the fight began (GO). The count read with the bar still up already had this K.O., and a team was eliminated after its second fighter (CPU WINS, P1 TEAM ELIMINATED in the middle of a match).
+- For the same reason the band of the next fighter came before the K.O. and over it, and his name and his team replaced the beaten fighter's at once. Both wait for the K.O. and the WIN now, 3 s at most (a round lost on time).
+- The last fighter of a team lost on time ends the match too, TIME UP, the WIN, then the winner in big letters.
+- Samurai Shodown V Special read the frames of its timer's second as its timer. It reads its seconds (BCD at 0x10836A, RetroAchievements code notes).
+
 **Version**
 - 1.31.1 in `dmd/app.py` and the MAME plugin.
 
@@ -35,6 +43,14 @@ Un audit de chaque fichier de jeu qui a une barre de vie, 115 jeux, après que T
 - Le round du match, ROUND n en grand quand un combat commence comme dans The King of Fighters, Fatal Fury 2 et Special, Real Bout Fatal Fury Special, World Heroes 2 Jet et Perfect (`round`, à partir de 1 dans ces jeux, `"add": -1`).
 - Les écrans de sélection que dit le jeu (The King of Fighters '94, '96, '98, '99 et 2002, Real Bout Fatal Fury Special, une valeur `select`). L'écran HD y affiche VS et aucun événement de combat, les barres que le jeu remplit ou vide pour le match suivant ne donnent ni K.O. ni ROUND, et le combat commence avec son ROUND quand l'écran se termine. Les dalles affichent VS aussi.
 - Les notes de RetroAchievements numérotent les octets de la RAM de la Neo Geo dans l'autre ordre de chaque paire, l'octet du 68000 est le voisin (0x8238 dans les notes, c'est 0x108239). Chaque valeur qui en vient suit cette règle, vérifiée sur les valeurs des King of Fighters apprises sur une borne.
+
+**FIGHT ! avec le GO du jeu, et les combattants qu'une équipe a perdus** (test 2, la vidéo de Seb sur The King of Fighters '98)
+- FIGHT ! vient avec le FIGHT ou le GO du jeu, quand le chrono du round se met à décompter. Sa fraction de seconde (`_time_sub`, notes de code de RetroAchievements, lue dans The King of Fighters '96, '97, '98 et 2003, Real Bout Fatal Fury et Special, Fatal Fury 1, 2 et Special, Samurai Shodown III, IV et V Special) bouge à chaque image dès qu'il tourne, les autres jeux attendent leur première seconde décomptée. FIGHT ! venait 1,35 s après ROUND, avec les noms des combattants, 5 s avant READY et GO. Un chrono réglé sur l'infini le donne 20 s après que les barres se sont remplies (12 s sans la fraction, les entrées des combattants avant un premier round attendent aussi le GO), un jeu qui ne lit pas de chrono le montre tout de suite comme avant. L'onde de choc de FIGHT ! vient avec lui.
+- Tant qu'un round attend son GO, l'écran HD garde son chrono. VS s'affichait pendant READY et GO, le chrono étant immobile depuis 6 s.
+- The King of Fighters compte un K.O. juste avant que la barre du combattant battu se lise vide. Une équipe éliminée se dit maintenant d'après les combattants qu'elle avait perdus au début du combat (GO). Le compte lu barre encore levée avait déjà ce K.O., et une équipe était éliminée après son deuxième combattant (VICTOIRE CPU, ÉQUIPE P1 ÉLIMINÉE en plein match).
+- Pour la même raison, le bandeau du combattant suivant venait avant le K.O. et par-dessus, et son nom et son équipe remplaçaient tout de suite ceux du battu. Les deux attendent maintenant le K.O. et le WIN, 3 s au plus (un round perdu au temps).
+- Le dernier combattant d'une équipe perdu au temps finit aussi le match, TIME UP, le WIN, puis le vainqueur en grand.
+- Samurai Shodown V Special lisait les images de la seconde de son chrono comme son chrono. Il lit ses secondes (en BCD à 0x10836A, notes de code de RetroAchievements).
 
 **Version**
 - 1.31.1 dans `dmd/app.py` et le plugin MAME.

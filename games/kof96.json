@@ -85,6 +85,11 @@
     "bytes": 1,
     "note": "timer (cheat database)"
    },
+   "_time_sub": {
+    "addr": "0x10A837",
+    "type": "u8",
+    "note": "the timer's fraction of a second (RetroAchievements code notes, 0xa836 Timer: Millseconds), it moves at every frame once the round's timer runs, FIGHT ! waits for it to come with the game's own FIGHT or GO (1.31.1)"
+   },
    "score": {
     "addr": "0x1081FC",
     "type": "bcd",

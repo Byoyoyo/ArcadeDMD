@@ -720,6 +720,9 @@ class HDRenderer:
             human = p1_in if side == "p1" else p2_in
             tag = ("P1" if side == "p1" else "P2") if human else "CPU"
             name = vals.get(side + "_char")
+            held = self.fight.held(side) if self.fight is not None else None
+            if held is not None:                  # its next fighter waits for this one's K.O. / le suivant attend son K.O.
+                name = held[0]
             tsize = S(76)
             tw = self.text(tag, "black", tsize, AMBER)["w"]
             nsize = self.fit_size(str(name), "black", S(76), room - tw - S(40), S(30)) if name else tsize
@@ -833,6 +836,9 @@ class HDRenderer:
         chars = [vals.get(f"_{side}_ch{i}") for i in range(4)]
         orders = [vals.get(f"_{side}_ord{i}") for i in range(3)]
         lost = _num(vals.get(f"_{side}_lost"))
+        held = self.fight.held(side) if self.fight is not None else None
+        if held is not None and held[1] is not None:  # the one beaten falls first / celui qui est battu tombe d'abord
+            lost = held[1]
         if lost is None or any(o is None for o in orders):
             return None
         out = []
