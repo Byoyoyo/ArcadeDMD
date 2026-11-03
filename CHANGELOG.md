@@ -44,9 +44,9 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - Between the select screens and a first round the state stays at 0, nothing tells the intro of the round. Those screens, and the ones after a match, are select screens (VS, no event of a fight), and ROUND 1 comes at READY, FIGHT ! 1.35 s after it with GO. HOW TO PLAY, THE NEXT COMPETITOR and BATTLE IN still start nothing. The select rule of the game file is back to the character select and the order select.
 - The log notes the state of the fight, the screen of the game and its timer set again outside the fights, to find on a cabinet what tells the intro of a first round.
 
-**MAX as the game says it** (test 8, Seb's photo and video, MAX lit with no stock)
-- The badge says MAX when every square of the gauge is lit, as the game does. MAX ACTIVÉ is the MAX of A+B+C, in gold.
-- MAX ACTIVÉ now waits for the byte of MAX (0x1081EA) to move within 0.6 s of A+B+C taking a stock. A stock taken by a desperation move just after A+B+C pressed by chance lit MAX. If the byte does not move, the log says `pas de MAX`, and the commands keep the stocks left.
+**MAX as the game says it** (tests 8 and 8c, Seb's photos and log, MAX lit with no stock, then at the life in the red)
+- The badge says MAX when every stock is lit, as the game does beside its gauge, and MAX ACTIVÉ for the MAX of Advanced.
+- MAX ACTIVÉ follows the MAX timer of the game (0x1081EA, the MAME cheat Infinite Power holds it at 0x40). In Seb's log the CPU's MAX set it to 0x3F and it counted down, a desperation move or a guard cancel set it only to 0x01. MAX lasts while it is at 2 or more, whatever the buttons, and the bar of the panel shows it running out, as the game does. A stock taken just after A+B+C pressed by chance, by a guard cancel while blocking in the red, lit MAX with no stock and the commands. A desperation move in MAX, its timer falling to 0, gives SDM !.
 
 **No shop signs under the fights** (test 8, Seb)
 - The shop signs of the city backdrop that lit up at the level of the names (the white rectangles) no longer show under the fights and select screens. The other scenes keep them.
@@ -97,9 +97,9 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - Entre les écrans de sélection et un premier round l'état reste à 0, rien ne dit l'intro du round. Ces écrans, et ceux d'après un match, sont des écrans de sélection (VS, aucun événement de combat), et ROUND 1 vient à READY, FIGHT ! 1,35 s après avec GO. HOW TO PLAY, THE NEXT COMPETITOR et BATTLE IN ne lancent toujours rien. La règle select du fichier du jeu revient à la sélection des personnages et à celle de l'ordre.
 - Le journal note l'état du combat, l'écran du jeu et son chrono remis hors des combats, pour trouver sur une borne ce qui dit l'intro d'un premier round.
 
-**Le MAX comme le dit le jeu** (test 8, la photo et la vidéo de Seb, MAX allumé sans stock)
-- La pastille dit MAX quand tous les carrés de la jauge sont allumés, comme le jeu. MAX ACTIVÉ est le MAX de A+B+C, en doré.
-- MAX ACTIVÉ attend maintenant que l'octet du MAX (0x1081EA) bouge dans les 0,6 s après que A+B+C a pris un stock. Un stock pris par un coup désespéré juste après un A+B+C appuyé par hasard allumait le MAX. Si l'octet ne bouge pas, le journal dit `pas de MAX`, et les commandes suivent les stocks qui restent.
+**Le MAX comme le dit le jeu** (tests 8 et 8c, les photos et le journal de Seb, MAX allumé sans stock, puis dans le rouge)
+- La pastille dit MAX quand tous les stocks sont allumés, comme le jeu à côté de sa jauge, et MAX ACTIVÉ pour le MAX d'Advanced.
+- MAX ACTIVÉ suit le chrono du MAX du jeu (0x1081EA, le code MAME Infinite Power le tient à 0x40). Dans le journal de Seb, le MAX de l'ordinateur l'a mis à 0x3F et il a décompté, un coup désespéré ou une garde annulée seulement à 0x01. Le MAX dure tant qu'il est à 2 ou plus, quels que soient les boutons, et la barre du panneau le montre se vider, comme le jeu. Un stock pris juste après un A+B+C appuyé par hasard, par une garde annulée en bloquant dans le rouge, allumait MAX sans stock avec les commandes. Un coup désespéré en MAX, son chrono qui tombe à 0, donne SDM !.
 
 **Plus d'enseignes sous les combats** (test 8, Seb)
 - Les enseignes du décor de la ville qui s'allumaient à hauteur des noms (les rectangles blancs) ne s'affichent plus sous les combats et les écrans de sélection. Les autres scènes les gardent.

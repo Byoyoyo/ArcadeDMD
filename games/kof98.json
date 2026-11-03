@@ -255,12 +255,12 @@
    "_maxv": {
     "addr": "0x1081EA",
     "type": "u8",
-    "note": "P1 MAX, maybe its timer (MAME cheat Infinite Power writes 0x40 there): when it falls back to 0 after A+B+C, MAX is over; its changes to and from 0 written in the log (1.32), to confirm"
+    "note": "P1 MAX timer of Advanced: the MAME cheat Infinite Power holds it at 0x40; in Seb's log the CPU's MAX set it to 0x3F and it counted down, a desperation move or a guard cancel only to 0x01, the next round back to 0; MAX while it is at 2 or more, whatever the buttons (1.32 test 8c)"
    },
    "_maxv_p2": {
     "addr": "0x1083EA",
     "type": "u8",
-    "note": "P2 MAX, the P1 one + 0x200, to confirm"
+    "note": "P2 MAX timer of Advanced, the P1 one + 0x200 (0x3F at the CPU's MAX in Seb's log)"
    }
   }
  },

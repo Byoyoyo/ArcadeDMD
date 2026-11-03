@@ -36,7 +36,12 @@ NEAR = 0.75           # RATÉ only for a near miss (a step or so), not for a spe
 CONFIRM = 0.8         # the game takes its stock that soon after the button / le jeu prend son stock aussi vite
 SHOW = 1.6            # RATÉ, DM ! or SDM ! stays that long / reste affiché ce temps
 MAX_LONG = 15.0       # MAX over at the latest / le MAX fini au plus tard
-MAX_CHECK = 0.6       # the byte of MAX ("_maxv") moves that soon after A+B+C, or it was not MAX / sinon ce n'était pas le MAX
+# the MAX timer of Advanced (0x1081EA, "_maxv"): the MAME cheat Infinite Power holds it at 0x40; in Seb's log the CPU's MAX
+# set it to 0x3F and it counted down, a desperation move or a guard cancel only to 0x01 (1.32 test 8c). MAX while it is
+# at 2 or more / le chrono du MAX d'Advanced : le code MAME Infinite Power le tient à 0x40 ; dans le log de Seb, le MAX de
+# l'ordinateur l'a mis à 0x3F et il a décompté, un coup désespéré ou une garde annulée seulement à 0x01. MAX dès 2
+MAXV_ON = 2
+MAXV_FULL = 0x40
 EXTRA_LONG = 30.0     # MAX of Extra over at the latest, else when its gauge is empty / le MAX d'Extra, au plus tard
 INPUT_KEEP = 3.0      # the inputs shown that long after the last one, then they fade / les touches restent ce temps
 RED_HEALTH = 25       # Extra: the desperation moves are free with the health this low / gratuits avec si peu de vie
@@ -123,7 +128,6 @@ class Side:
         self.max_seen = False        # its timer (the candidate "_maxv") seen running / son chrono vu tourner
         self.max_extra = False       # the MAX of Extra: the gauge full, over once it is empty / le MAX d'Extra
         self.max_low = None          # the gauge at its lowest during MAX (Advanced) / la jauge au plus bas pendant le MAX
-        self.max_try = None          # (t, _maxv before) A+B+C took a stock, MAX to confirm / MAX à confirmer
         self.max_log = -99.0         # when MAX was last written in the log / quand le MAX a été noté
         self.groups = []             # (t, direction or None, [buttons]) the inputs as training mode shows them
         self.abc_t = -99.0
@@ -243,15 +247,22 @@ class Moves:
             elif sd.max_on is not None and sd.max_extra and pow_ <= 0x04:
                 sd.max_on = None
                 self.log(f"Combat, {tag} fin du MAX (jauge vide)", f"Fight, {tag} MAX over (gauge empty)")
-        if sd.max_try is not None:                                    # MAX to confirm: its byte moved / son octet a bougé
-            t0, mv0 = sd.max_try
-            if maxv is not None and maxv and maxv != mv0:
-                self._max_on(side, sd, t0, vals)
-            elif now - t0 > MAX_CHECK:
-                sd.max_try = None
-                self.log(f"Combat, {tag} pas de MAX (_maxv 0x{int(maxv or 0):02X} n'a pas bougé)",
-                         f"Fight, {tag} no MAX (_maxv 0x{int(maxv or 0):02X} did not move)")
-        if sd.max_on is not None:
+        if mode != 1 and maxv is not None:
+            # Advanced: MAX while its timer runs, whatever the buttons (1.32 test 8c) / MAX tant que son chrono tourne
+            on = maxv >= MAXV_ON
+            if on and (sd.max_on is None or sd.max_extra) and (sd.maxv is None or maxv > sd.maxv):   # set again (not the
+                # end of the one an SDM just used) / remis (pas la fin de celui qu'un SDM vient de prendre)
+                sd.max_on, sd.max_seen, sd.max_extra = now, True, False
+                sd.max_low, sd.max_log = None, now
+                self.log(f"Combat, {tag} MAX (_maxv 0x{int(maxv):02X}, jauge 0x{int(pow_ or 0):02X})",
+                         f"Fight, {tag} MAX (_maxv 0x{int(maxv):02X}, gauge 0x{int(pow_ or 0):02X})")
+            elif not on and sd.max_on is not None and not sd.max_extra:
+                att = sd.attempt
+                if att is not None and now - att[0] < CONFIRM + 0.3:  # a desperation move in MAX: SDM !, MAX over
+                    self._spent(side, sd, now, vals, game)            # un coup désespéré en MAX : SDM !, fin du MAX
+                sd.max_on = None
+                self.log(f"Combat, {tag} fin du MAX (_maxv 0x{int(maxv):02X})", f"Fight, {tag} MAX over (_maxv 0x{int(maxv):02X})")
+        if sd.max_on is not None and (maxv is None or sd.max_extra):
             if maxv:
                 sd.max_seen = True
             why = None
@@ -338,18 +349,20 @@ class Moves:
         tag = side.upper()
         att = sd.attempt
         if now - sd.abc_t < CONFIRM and (att is None or att[0] < sd.abc_t + 0.1):
-            if _n(vals.get("_pmode" + ("" if side == "p1" else "_p2"))) != 1:
-                # A+B+C took a stock: MAX, once its byte moved (Seb, 1.32 test 8, MAX lit with no stock and no MAX)
-                # A+B+C a pris un stock : le MAX, une fois que son octet a bougé (MAX allumé sans stock ni MAX)
-                suf = "" if side == "p1" else "_p2"
-                mv = _n(vals.get("_maxv" + suf))
-                if mv is None or (mv and mv != (sd.maxv or 0)):
-                    self._max_on(side, sd, now, vals)
-                else:
-                    sd.max_try = (now, sd.maxv or 0)
-                    self.log(f"Combat, {tag} A+B+C et un stock pris, MAX à confirmer (_maxv 0x{int(mv):02X})",
-                             f"Fight, {tag} A+B+C and a stock taken, MAX to confirm (_maxv 0x{int(mv):02X})")
-            return
+            if _n(vals.get("_pmode" + ("" if side == "p1" else "_p2"))) == 1:
+                return                                            # Extra: A+B+C charges the gauge / charge la jauge
+            mv = _n(vals.get("_maxv" + ("" if side == "p1" else "_p2")))
+            if mv is None:
+                self._max_on(side, sd, now, vals)                 # no MAX timer read: A+B+C and a stock, MAX
+                return
+            if mv >= MAXV_ON:
+                return                                            # its timer says MAX / son chrono dit le MAX
+            # A+B+C, a stock taken, and no MAX: a guard cancel or a desperation move (Seb, 1.32 test 8b, MAX lit at
+            # the life in the red) / pas de MAX : une garde annulée ou un coup désespéré (MAX allumé dans le rouge)
+            self.log(f"Combat, {tag} A+B+C et un stock pris sans MAX (_maxv 0x{int(mv):02X})",
+                     f"Fight, {tag} A+B+C and a stock taken, no MAX (_maxv 0x{int(mv):02X})")
+            if att is None or now - att[0] > CONFIRM + 0.6:
+                return                                            # no desperation move tried: a guard cancel / garde annulée
         if att is None or now - att[0] > CONFIRM + 0.6:
             # no attempt seen: a shorter form of the command the game takes too, or a step not read. The last button
             # pressed, looked at more leniently / pas de tentative vue : une forme plus courte que le jeu prend aussi,
@@ -379,7 +392,7 @@ class Moves:
         """MAX in Advanced. / Le MAX en Advanced."""
         tag, suf = side.upper(), "" if side == "p1" else "_p2"
         sd.max_on, sd.max_seen, sd.max_extra = now, False, False
-        sd.max_low, sd.max_log, sd.max_try = None, now, None
+        sd.max_low, sd.max_log = None, now
         pv, mv = int(_n(vals.get("_pow" + suf)) or 0), int(_n(vals.get("_maxv" + suf)) or 0)
         self.log(f"Combat, {tag} lance le MAX (jauge 0x{pv:02X}, _maxv 0x{mv:02X})",
                  f"Fight, {tag} goes MAX (gauge 0x{pv:02X}, _maxv 0x{mv:02X})")
@@ -594,6 +607,9 @@ def draw_panel(hd, screen, moves, side, vals, game, name, x0, x1, y0, now, lost,
     # the gauge as the game shows it: the bar, then a square per stock / la jauge comme dans le jeu
     gy = y0 + S(38) if n else y0 + S(33)
     fill = max(0.0, min(1.0, (pow_ or 0) / FULL_POW))
+    mv = _n(vals.get("_maxv" + suf))
+    if maxed and not extra and mv is not None:                    # MAX: its timer in the bar, as the game shows it
+        fill = max(0.0, min(1.0, mv / MAXV_FULL))                 # le MAX : son chrono dans la barre, comme le jeu
     gbw, gbh = (S(150) if extra and not n else S(72)), S(18)    # Extra has no squares: a longer bar / une barre plus longue
     q = S(22)
     gx = x0 + S(18)
