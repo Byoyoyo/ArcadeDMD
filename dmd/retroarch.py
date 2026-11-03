@@ -149,6 +149,50 @@ class RetroArchClient:
         return data if len(data) == n else None
 
 
+    def read_batch(self, reqs):
+        """{address: bytes or None} for a few [(address, n)...] sent together, RetroArch answering them at the same image
+        (the values of a game read with its stick, 1.32). Unlike read_many, nothing is asked again one by one: a
+        RetroArch that stopped answering is seen in its usual time. / Quelques demandes envoyées ensemble, servies à la
+        même image ; rien n'est redemandé une par une, un RetroArch qui ne répond plus se voit dans le temps habituel."""
+        out = {}
+        try:
+            if self.sock is None:
+                self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s = self.sock
+            s.setblocking(False)
+            try:
+                while True:
+                    s.recv(65535)                 # late replies / les réponses en retard
+            except OSError:
+                pass
+            s.settimeout(self.timeout)
+            want = {}
+            for a, n in reqs:
+                want["READ_CORE_RAM %x " % a] = (a, n)
+                s.sendto(("READ_CORE_RAM %x %d\n" % (a, n)).encode("ascii"), self.addr)
+            end = time.monotonic() + self.timeout
+            while want and time.monotonic() < end:
+                try:
+                    reply = s.recv(65535).decode("utf-8", "replace").strip() + " "
+                except socket.timeout:
+                    break
+                for prefix in want:
+                    if reply.startswith(prefix):
+                        a, n = want.pop(prefix)
+                        rest = reply[len(prefix):].split()
+                        self.last_reply = reply.strip()
+                        try:
+                            data = bytes(int(x, 16) for x in rest) if rest and rest[0] != "-1" else None
+                        except ValueError:
+                            data = None
+                        out[a] = data if data is not None and len(data) == n else None
+                        break
+        except OSError:
+            self.close()                          # Windows: nobody listens there any more / plus personne n'écoute
+        if not out:
+            self.last_reply = None
+        return out
+
     def read_many(self, reqs, window=24):
         """{address: bytes or None} for [(address, n)...]. The requests go out a window at a time: RetroArch answers
         all those waiting at each image, where one at a time takes an image each (2 MB of a CV1000 took a minute). A
@@ -327,7 +371,7 @@ class Layout:
                 pos += n
             plan.append((lo, parts))
             reqs += parts
-        got = client.read_many(reqs)
+        got = client.read_batch(reqs) if hasattr(client, "read_batch") else client.read_many(reqs)
         out = []
         for lo, parts in plan:
             data = bytearray()
@@ -495,7 +539,7 @@ def read_values(client, layout, defs, clusters=None, batch=False):
     """{nom: valeur} lues dans RetroArch, ou None si la lecture échoue. batch: the requests sent together, answered at
     the same image (1.32) / les demandes envoyées ensemble, servies à la même image."""
     spans = clusters if clusters is not None else make_clusters(defs) if defs else []
-    if batch and len(spans) > 1 and hasattr(client, "read_many"):
+    if batch and len(spans) > 1 and (hasattr(client, "read_batch") or hasattr(client, "read_many")):
         bufs = layout.read_cpu_many(client, spans)
         if bufs is None:
             return None
@@ -633,6 +677,7 @@ class RetroArchSource:
         while not self.stop_ev.is_set() and time.monotonic() < until:
             vals = read_values(self.client, s["layout"], s["fast"], s["fast_clusters"])
             if vals is None:
+                self.check_now = True             # RetroArch closed, maybe / RetroArch fermé, peut-être
                 break
             done = True
             changed = {k: v for k, v in vals.items() if s["last"].get(k) != v}

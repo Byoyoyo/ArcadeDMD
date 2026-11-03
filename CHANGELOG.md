@@ -18,6 +18,7 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 
 **Read at every frame**
 - A value marked `"fast"` is read at every frame, the stick and buttons here. The MAME plugin reads it at each frame. The RetroArch reader asks for it at each frame between its other reads, and asks for all those at once (RetroArch answers them at the same frame, one block of memory at a time took a frame each). Each change of the stick and buttons keeps the time it was read.
+- When RetroArch closes during a game whose stick is read, the HD screen leaves the game as fast as before (test 2). The values asked together were asked again one by one when no answer came, 3 s or more each time.
 
 **Version**
 - 1.32.0 in `dmd/app.py` and the MAME plugin.
@@ -35,6 +36,7 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 
 **Lu à chaque image**
 - Une valeur marquée `"fast"` est lue à chaque image, ici le stick et les boutons. Le plugin MAME la lit à chaque image. La lecture RetroArch la demande à chaque image entre ses autres lectures, et demande alors toutes celles-ci d'un coup (RetroArch y répond à la même image, un bloc de mémoire à la fois prenait une image chacun). Chaque changement du stick et des boutons garde le moment où il a été lu.
+- Quand RetroArch se ferme pendant un jeu dont le stick est lu, l'écran HD sort du jeu aussi vite qu'avant (test 2). Les valeurs demandées ensemble étaient redemandées une par une faute de réponse, 3 s ou plus à chaque fois.
 
 **Version**
 - 1.32.0 dans `dmd/app.py` et le plugin MAME.
