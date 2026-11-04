@@ -54,6 +54,8 @@ def files():
             rel = os.path.relpath(os.path.join(base, n), ROOT).replace(os.sep, "/")
             if n in EXCLUDE_FILES or n.endswith(EXCLUDE_EXT) or n.startswith("."):
                 continue
+            if rel.startswith("sprites/wjammers/") or rel.startswith("sprites/mslug_tank"):   # the owner's own pictures
+                continue
             out.append(rel)
     return out
 

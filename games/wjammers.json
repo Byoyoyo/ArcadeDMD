@@ -200,6 +200,11 @@
      5
     ],
     "note": "player 2's or the computer's character, same codes (RetroAchievements 0x31e; Wessel then Biaggi in Seb's capture of 19:51, while 0x1004FE stayed at 0)"
+   },
+   "bios_country": {
+    "addr": "0x10FD83",
+    "type": "u8",
+    "note": "BIOS_COUNTRY_CODE: 0 Japan, 1 USA, 2 Europe (neogeodev). In Japan the fourth player is Beeho Yoo of Korea, elsewhere Steve Miller of England (Seb's cabinet shows the Korean flag, 1.33 test 17)"
    }
   }
  },
@@ -455,7 +460,8 @@
   "disc_state": 48,
   "disc_last": 12,
   "p1_state": 0,
-  "p2_state": 0
+  "p2_state": 0,
+  "bios_country": 2
  },
  "scene": {
   "layers": [
@@ -964,23 +970,23 @@
   "p1_name": {
    "value": "p1_chr",
    "names": [
-    "SCOTT",
-    "COSTA",
-    "WESSEL",
-    "MILLER",
-    "BIAGGI",
-    "MITA"
+    "G. SCOTT",
+    "J. COSTA",
+    "K. WESSEL",
+    "S. MILLER",
+    "L. BIAGGI",
+    "H. MITA"
    ]
   },
   "p2_name": {
    "value": "p2_chr",
    "names": [
-    "SCOTT",
-    "COSTA",
-    "WESSEL",
-    "MILLER",
-    "BIAGGI",
-    "MITA"
+    "G. SCOTT",
+    "J. COSTA",
+    "K. WESSEL",
+    "S. MILLER",
+    "L. BIAGGI",
+    "H. MITA"
    ]
   },
   "p1_nation": {
@@ -990,7 +996,7 @@
      "USA",
      "SPAIN",
      "GERMANY",
-     "UK",
+     "ENGLAND",
      "ITALY",
      "JAPAN"
     ],
@@ -998,7 +1004,7 @@
      "USA",
      "ESPAGNE",
      "ALLEMAGNE",
-     "ROYAUME-UNI",
+     "ANGLETERRE",
      "ITALIE",
      "JAPON"
     ]
@@ -1011,7 +1017,7 @@
      "USA",
      "SPAIN",
      "GERMANY",
-     "UK",
+     "ENGLAND",
      "ITALY",
      "JAPAN"
     ],
@@ -1019,7 +1025,7 @@
      "USA",
      "ESPAGNE",
      "ALLEMAGNE",
-     "ROYAUME-UNI",
+     "ANGLETERRE",
      "ITALIE",
      "JAPON"
     ]

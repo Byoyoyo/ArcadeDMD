@@ -295,6 +295,7 @@ class FX:
         self.parts = []
         self.timers = []
         self.shakes = []
+        self.kicks = []                                          # pushes of the whole image, one way (1.33) / poussées
         self.flashes = []
         self.now = 0.0
         self.last = None
@@ -350,6 +351,7 @@ class FX:
             alive = alive[-self.MAX:]
         self.parts = alive
         self.shakes = [sh for sh in self.shakes if now - sh[0] < sh[2]]
+        self.kicks = [kc for kc in self.kicks if now - kc[0] < kc[3]]
         self.flashes = [f for f in self.flashes if now - f[0] < f[2]]
 
     def later(self, delay, fn, *args):
@@ -363,15 +365,26 @@ class FX:
     def shake(self, amp, dur):
         self.shakes.append((self.now, amp * self.s, dur))
 
+    def kick(self, dx, dy, dur=0.4):
+        """The whole image pushed one way, then springing back (a disc into the back wall, 1.33). / L'image poussée
+        d'un côté, puis qui revient en ressort (un disque dans le mur du fond)."""
+        self.kicks.append((self.now, dx * self.s, dy * self.s, dur))
+
     def offset(self):
-        if not self.shakes:
+        if not self.shakes and not self.kicks:
             return 0, 0
         a = 0.0
         for t0, amp, dur in self.shakes:
             k = 1 - (self.now - t0) / dur
             a += amp * k * k
         n = self.now
-        return int(round(a * math.sin(n * 71.0) * 0.9)), int(round(a * math.cos(n * 53.0) * 0.6))
+        ox, oy = a * math.sin(n * 71.0) * 0.9, a * math.cos(n * 53.0) * 0.6
+        for t0, dx, dy, dur in self.kicks:
+            k = min(1.0, max(0.0, (n - t0) / dur))
+            w = (1 - k) ** 2 * math.cos(k * 3 * math.pi)            # out, back past the middle, settled / part, revient
+            ox += dx * w
+            oy += dy * w
+        return int(round(ox)), int(round(oy))
 
     def flash(self, color, strength, dur):
         """Toute l'image s'éclaire un instant (strength : 0 à 1)."""
