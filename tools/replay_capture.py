@@ -158,6 +158,15 @@ def replay(path, show_values=False, step=1 / 60, frames=(), out_dir=None):
                 if on != state["scene"].get("_charge_" + side, False):
                     state["scene"]["_charge_" + side] = on
                     note(t, f"  {side} {'charge son super' if on else 'fin de la charge'}")
+            for side in ("p1", "p2"):                                # CONTINUE ? shown or hidden (1.33 test 20)
+                shown = vals.get(side + "_mode") == 2 and sc.banner is None and sc.continue_shown(side, vals, 1000.0 + t)
+                if shown != state["scene"].get("_cont_" + side, False):
+                    state["scene"]["_cont_" + side] = shown
+                    note(t, f"  CONTINUE ? {side} {'affiché' if shown else 'caché'}")
+            wins = getattr(sc, "wins", None)
+            if wins and (wins["p1"], wins["p2"]) != state["scene"].get("_wins", (0, 0)):
+                state["scene"]["_wins"] = (wins["p1"], wins["p2"])
+                note(t, f"MATCHS {wins['p1']} - {wins['p2']}")
             t = round(t + step, 5)
             continue
         # the events / les événements

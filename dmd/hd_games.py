@@ -389,6 +389,11 @@ class GameScene:
         x = self.W * x if 0 < x <= 1 else (self.W + self.S(x) if x < 0 else self.S(x))
         return x, (self.H - self.S(44) if y is None else self.S(y))
 
+    def continue_shown(self, side, vals, now):
+        """Whether CONTINUE ? is shown while the game says the player may continue; a scene may know better (the game
+        went on with the player while the BIOS still says it). / Si CONTINUE ? s'affiche ; une scène peut savoir mieux."""
+        return True
+
     def draw_credits(self, screen, eng, vals, now):
         """The coin (€) and CRÉDITS 07 in their pill, as in Metal Slug; the coins put in fall onto it.
         / La pièce et CRÉDITS 07 dans leur pastille, comme dans Metal Slug ; les pièces mises tombent dessus."""
@@ -495,7 +500,7 @@ class GameScene:
             self.draw_hud(target, eng, vals, logo, now)
             self.draw_credits(target, eng, vals, now)
             for side, x in (("p1", self.W * 0.27), ("p2", self.W * 0.73)):     # continue countdown of the game
-                if vals.get(side + "_mode") == 2 and self.banner is None:
+                if vals.get(side + "_mode") == 2 and self.banner is None and self.continue_shown(side, vals, now):
                     k = 0.6 + 0.4 * (0.5 + 0.5 * math.sin(now * 6))
                     self.label(target, "CONTINUE ?", x, self.S(self.CONTINUE_Y), 60, GOLD, key="stencil", align="center", alpha=190, fade=k)
         self.fx.draw(target, "front")
@@ -1347,6 +1352,13 @@ class WindjammersScene(GameScene):
         self.wake = []                                       # the disc's last places, its speed streak / son sillage
         self.slams = []                                      # WIN, SUPER !: big words on a side, slammed in / claqués
         self.own = {}                                        # the owner's pictures of the players, or False / ses images
+        # CONTINUE ? (1.33 test 20, Seb): the game keeps the BIOS word at 2 through the character and court selects
+        # once the player has continued; the word stays shown until the game moves on / le mot du BIOS reste à 2
+        self.cont = {"p1": None, "p2": None}                 # (chars, court, time) when CONTINUE began, or None
+        self.cont_done = {"p1": False, "p2": False}
+        # the matches won by two humans, as the fighting games count them (1.33 test 20, Seb) / les matchs gagnés
+        self.wins = {"p1": 0, "p2": 0}
+        self.p2_left = None                                  # when player 2 left, his wins forgotten later / parti
 
     def always(self, vals, now):
         court = _n(vals.get("court"))
@@ -1374,6 +1386,8 @@ class WindjammersScene(GameScene):
         self.tokens = {"p1": None, "p2": None}
         self.charge = {"p1": None, "p2": None}
         self.super, self.super_end, self.trail, self.wake, self.slams = None, -99.0, [], [], []
+        self.cont, self.cont_done = {"p1": None, "p2": None}, {"p1": False, "p2": False}
+        self.wins, self.p2_left = {"p1": 0, "p2": 0}, None
 
     # ------------------------------------------------------------------ the court's geometry / la géométrie du terrain
     def court_pos(self, gx, gy):
@@ -1437,6 +1451,15 @@ class WindjammersScene(GameScene):
             else:
                 self.track = None
         live = self.tracking(now)
+        for side in ("p1", "p2"):
+            if vals.get(side + "_mode") != 2:
+                self.cont[side] = None
+        if self.p2_in(vals):                                            # two humans: their wins kept / leurs victoires
+            self.p2_left = None
+        elif self.p2_left is None:
+            self.p2_left = now
+        elif now - self.p2_left > 20.0 and (self.wins["p1"] or self.wins["p2"]):
+            self.wins = {"p1": 0, "p2": 0}
         for side in ("p1", "p2"):                                       # the players charging their super
             st = _n(vals.get(side + "_state"))
             charging = st is not None and (int(st) >> 8) & 0xFF == self.CHARGING
@@ -1485,10 +1508,26 @@ class WindjammersScene(GameScene):
                                          "pts": pts, "name": name, "zone": (top + third * zone, top + third * (zone + 1))})
                 self.rally = None
                 self.pause = now + 1.4
-        for name, side in (("sets", "p1"), ("sets_p2", "p2")):          # a set won, the match won / un set, le match
+        won = []                                                        # a set won, the match won / un set, le match
+        for name, side in (("sets", "p1"), ("sets_p2", "p2")):
             ch = self.changed(vals, name)
             if ch and ch[1] > ch[0] and ch[1] <= 3:
-                self.set_won(side, int(ch[1]), vals, now)
+                won.append((int(ch[1]), side))
+        if len(won) == 2:                                               # both at once (the game writes the lost set late,
+            won = [max(won)]                                            # Seb's capture of 22:14): the higher count won
+        for n, side in won:
+            self.set_won(side, n, vals, now)
+
+    def continue_shown(self, side, vals, now):
+        """CONTINUE ? until the game moves on (a character or the court chosen again, the timer set): the player has
+        continued even if the BIOS word still says 2 (Seb's capture of 22:14, 28 s). / Jusqu'à ce que le jeu avance."""
+        snap = (_n(vals.get("p1_chr")), _n(vals.get("p2_chr")), _n(vals.get("court")), _n(vals.get("time")))
+        if self.cont[side] is None:
+            self.cont[side] = snap
+            self.cont_done[side] = False
+        elif snap != self.cont[side]:
+            self.cont_done[side] = True
+        return not self.cont_done[side]
 
     def player_name(self, vals, side):
         """The player's name as the game has it, else P1 / P2 / CPU. / Le nom du joueur, sinon P1, P2, CPU."""
@@ -1575,7 +1614,10 @@ class WindjammersScene(GameScene):
             elif not p2:
                 text, sub, c = tr("VICTOIRE", "VICTORY"), tr(f"{who} GAGNE LE MATCH", f"{who} WINS THE MATCH"), col
             else:
-                text, sub, c = who, tr("GAGNE LE MATCH", "WINS THE MATCH"), col
+                self.wins[side] += 1
+                text = who
+                sub = tr(f"GAGNE LE MATCH   {self.wins['p1']} - {self.wins['p2']}", f"WINS THE MATCH   {self.wins['p1']} - {self.wins['p2']}")
+                c = col
             self.slam(text, c, now + 1.6, 3.0, sub=sub)
             if c is not RED:
                 for i in range(8):                                     # confetti rain for the winner / pluie de confettis
@@ -1914,6 +1956,12 @@ class WindjammersScene(GameScene):
         if tw is not None:                                              # the points to win, top right / les points
             self.text(screen, tr(f"{int(tw)} POINTS POUR GAGNER", f"{int(tw)} POINTS TO WIN"), W - S(24), S(100), 18, (200, 196, 180),
                       key="bold", align="right", glow=0)
+        if p2:                                                          # two humans: the matches won, top right
+            x = W - S(24)
+            x -= self.text(screen, str(self.wins["p2"]), x, S(28), 34, P2C, key="black", align="right", glow=0.3) + S(10)
+            x -= self.text(screen, "-", x, S(28), 34, (200, 196, 180), key="black", align="right", glow=0) + S(10)
+            x -= self.text(screen, str(self.wins["p1"]), x, S(28), 34, P1C, key="black", align="right", glow=0.3) + S(16)
+            self.text(screen, tr("MATCHS", "MATCHES"), x, S(36), 20, (200, 196, 180), key="bold", align="right", glow=0)
         if not p2:
             word, col = self.invite(vals, now)
             self.label(screen, word, W - S(24), S(44), 34, col, align="right")
