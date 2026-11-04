@@ -189,7 +189,7 @@
      0,
      5
     ],
-    "note": "player 1's character, 0 Scott (USA), 1 Costa (Spain), 2 Wessel (Germany), 3 Miller (UK), 4 Biaggi (Italy), 5 Mita (Japan) (RetroAchievements 0x31c, the byte next to it, the code 0, 4, 8... divided by 4; Seb's capture of 19:51, Miller)"
+    "note": "player 1's character, 0 Scott (USA), 1 Costa (Spain), 2 Wessel (Germany), 3 Yoo (Korea; Miller of England on a Japanese BIOS), 4 Biaggi (Italy), 5 Mita (Japan) (RetroAchievements 0x31c, the byte next to it, the code 0, 4, 8... divided by 4; Seb's capture of 19:51)"
    },
    "p2_chr": {
     "addr": "0x10031F",
@@ -204,7 +204,7 @@
    "bios_country": {
     "addr": "0x10FD83",
     "type": "u8",
-    "note": "BIOS_COUNTRY_CODE: 0 Japan, 1 USA, 2 Europe (neogeodev). In Japan the fourth player is Beeho Yoo of Korea, elsewhere Steve Miller of England (Seb's cabinet shows the Korean flag, 1.33 test 17)"
+    "note": "BIOS_COUNTRY_CODE: 0 Japan, 1 USA, 2 Europe (neogeodev). Outside Japan the fourth player is Beeho Yoo of Korea (Seb's cabinet, a Europe BIOS, shows the Korean flag), on a Japanese BIOS Steve Miller of England (MobyGames, 1.33 test 18)"
    }
   }
  },
@@ -973,7 +973,7 @@
     "G. SCOTT",
     "J. COSTA",
     "K. WESSEL",
-    "S. MILLER",
+    "B. YOO",
     "L. BIAGGI",
     "H. MITA"
    ]
@@ -984,7 +984,7 @@
     "G. SCOTT",
     "J. COSTA",
     "K. WESSEL",
-    "S. MILLER",
+    "B. YOO",
     "L. BIAGGI",
     "H. MITA"
    ]
@@ -996,7 +996,7 @@
      "USA",
      "SPAIN",
      "GERMANY",
-     "ENGLAND",
+     "KOREA",
      "ITALY",
      "JAPAN"
     ],
@@ -1004,7 +1004,7 @@
      "USA",
      "ESPAGNE",
      "ALLEMAGNE",
-     "ANGLETERRE",
+     "CORÉE",
      "ITALIE",
      "JAPON"
     ]
@@ -1017,7 +1017,7 @@
      "USA",
      "SPAIN",
      "GERMANY",
-     "ENGLAND",
+     "KOREA",
      "ITALY",
      "JAPAN"
     ],
@@ -1025,7 +1025,7 @@
      "USA",
      "ESPAGNE",
      "ALLEMAGNE",
-     "ANGLETERRE",
+     "CORÉE",
      "ITALIE",
      "JAPON"
     ]

@@ -25,6 +25,7 @@ swap16 : le cœur range la RAM du 68000 par mots de 16 bits inversés (FBNeo, Ge
 import json
 import os
 import socket
+import subprocess
 import threading
 import time
 
@@ -113,6 +114,17 @@ class RetroArchClient:
     def version(self):
         r = self.cmd("VERSION")
         return r if r and r[:1].isdigit() else None
+
+    def config_param(self, name):
+        """The value of one setting of RetroArch (GET_CONFIG_PARAM), or None. / La valeur d'un réglage, ou None."""
+        r = self.cmd("GET_CONFIG_PARAM " + name, "GET_CONFIG_PARAM")
+        if r is None:
+            return None
+        parts = r.split(" ", 2)
+        if len(parts) < 3 or parts[1] != name:
+            return None
+        v = parts[2].strip()
+        return None if v in ("", "unsupported", "null") else v
 
     def status(self):
         """None sans réponse, sinon {"state", "system", "content", "crc"}."""
@@ -582,6 +594,67 @@ def read_values(client, layout, defs, clusters=None, batch=False):
 FAST_POLL = 0.001
 
 
+def retroarch_exe_dir():
+    """The folder of the RetroArch program running on this machine (Windows), or None. / Le dossier de RetroArch."""
+    if os.name != "nt":
+        return None
+    try:
+        out = subprocess.run(["powershell", "-NoProfile", "-Command",
+                              "(Get-Process retroarch -ErrorAction SilentlyContinue | Select-Object -First 1).Path"],
+                             capture_output=True, text=True, timeout=8, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        path = (out.stdout or "").strip().splitlines()
+        path = path[-1].strip() if path else ""
+        return os.path.dirname(path) if path and os.path.isfile(path) else None
+    except (OSError, subprocess.SubprocessError, ValueError):
+        return None
+
+
+def fbneo_nvram_credits(client, rom, cfg_saves=None, log=None):
+    """The credits an MVS game had when FinalBurn Neo last quit it, read in the backup RAM it saved
+    (<saves>/fbneo/<rom>.fs, the 64 KB of $D00000 with the bytes of each word swapped: $D00034, the credits in BCD, at
+    0x35). The saves folder comes from config.json ("retroarch": {"saves": ...}) or from RetroArch itself
+    (GET_CONFIG_PARAM savefile_directory, a relative one resolved against the running program). None without the file.
+    (1.33, Seb: the guessed credits drifted from the game's, the guess started from ArcadeDMD's own memory of them.)
+    / Les crédits qu'un jeu MVS avait quand FinalBurn Neo l'a quitté, lus dans la mémoire de sauvegarde qu'il écrit."""
+    if not rom:
+        return None
+    dirs = []
+    if cfg_saves and isinstance(cfg_saves, str):
+        dirs.append(cfg_saves)
+    raw = client.config_param("savefile_directory") if client is not None else None
+    if raw:
+        raw = raw.strip('"')
+        if raw.startswith(":"):                          # ":\saves": next to the program / à côté du programme
+            exe = retroarch_exe_dir()
+            if exe:
+                dirs.append(os.path.join(exe, raw[1:].lstrip("\\/")))
+        elif raw.lower() != "default":
+            dirs.append(raw)
+    if not dirs:
+        exe = retroarch_exe_dir()
+        if exe:
+            dirs.append(os.path.join(exe, "saves"))
+    for d in dirs:
+        path = os.path.join(os.path.expandvars(d), "fbneo", rom + ".fs")
+        if not os.path.isfile(path):
+            continue
+        try:
+            with open(path, "rb") as f:
+                data = f.read(0x40)
+        except OSError:
+            continue
+        if len(data) < 0x36:
+            continue
+        b = data[0x35]
+        hi, lo = b >> 4, b & 15
+        if hi > 9 or lo > 9:
+            if callable(log):
+                log(f"{path}: crédits illisibles ({b:#x})")
+            continue
+        return {"credits": hi * 10 + lo, "path": path}
+    return None
+
+
 class RetroArchSource:
     """Surveille RetroArch et envoie au moteur les mêmes événements que le plugin MAME."""
 
@@ -589,6 +662,7 @@ class RetroArchSource:
         self.library = library
         self.q = q
         self.log = log
+        self.cfg = cfg
         self.client = RetroArchClient(cfg.get("host", "127.0.0.1"), cfg.get("port", DEFAULT_PORT))
         self.poll = max(0.05, float(cfg.get("poll_ms", 100)) / 1000.0)
         self.stop_ev = threading.Event()
@@ -722,6 +796,12 @@ class RetroArchSource:
         title = own or game_title(game, parent or st["content"])
         ev = {"t": "start", "game": key or "", "system": st["content"], "description": title,
               "media": [], "values": sorted(defs), "source": "retroarch", "core": st["system"]}
+        if "bios_request" in defs and "credits" not in defs:          # an MVS: its credits left last time, if saved
+            nv = fbneo_nvram_credits(self.client, st["content"], self.cfg.get("saves"), self.log)
+            if nv is not None:
+                ev["nvram_credits"] = nv["credits"]
+                self.log(tr(f"FinalBurn Neo : {nv['credits']} crédit(s) restant(s) la dernière fois, lus dans {nv['path']}",
+                            f"FinalBurn Neo: {nv['credits']} credit(s) left last time, read in {nv['path']}"))
         if parent:
             ev["parent"] = parent
         if own:

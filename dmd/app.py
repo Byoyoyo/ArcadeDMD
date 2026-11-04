@@ -703,7 +703,11 @@ class Engine:
         # restants la dernière fois
         if source in ("plugin", "retroarch") and "credits" not in names and "bios_request" in names:
             same = not intro and self.coin_guess is not None and self.coin_game == key
-            self.coin_guess = self.coin_guess if same else NeoCoins(mvs_rates(self.cfg), self._neo_kept(meta.get("system") or ""))
+            # the credits left last time: those FinalBurn Neo saved if RetroArch tells where (1.33, Seb), else ArcadeDMD's
+            # own count / les crédits restants la dernière fois : ceux sauvés par FinalBurn Neo, sinon le compte maison
+            nv = meta.get("nvram_credits")
+            kept = nv if isinstance(nv, int) and 0 <= nv <= 99 else self._neo_kept(meta.get("system") or "")
+            self.coin_guess = self.coin_guess if same else NeoCoins(mvs_rates(self.cfg), kept)
         else:
             self.coin_guess = None
         # a game without a BIOS that says who plays (CPS): player 1 plays while its values move (timer, health...)

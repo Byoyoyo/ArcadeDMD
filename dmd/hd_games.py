@@ -74,6 +74,7 @@ class GameScene:
                                   # (x, y) a place of the scene's own, None not shown. x: a fraction of the width (0 to 1),
                                   # else from the left edge, or from the right edge when below 0; y: None at the bottom
     CREDITS_K = 0.85              # their size, 1 as in Metal Slug / leur taille
+    CONTINUE_Y = 236              # where CONTINUE ? blinks (middle of the text) / où clignote CONTINUE ?
 
     def __init__(self, hd, rng=None):
         self.hd, self.pg, self.S, self.s = hd, hd.pg, hd.S, hd.s
@@ -494,9 +495,9 @@ class GameScene:
             self.draw_hud(target, eng, vals, logo, now)
             self.draw_credits(target, eng, vals, now)
             for side, x in (("p1", self.W * 0.27), ("p2", self.W * 0.73)):     # continue countdown of the game
-                if vals.get(side + "_mode") == 2:
+                if vals.get(side + "_mode") == 2 and self.banner is None:
                     k = 0.6 + 0.4 * (0.5 + 0.5 * math.sin(now * 6))
-                    self.label(target, "CONTINUE ?", x, self.S(236), 60, GOLD, key="stencil", align="center", alpha=190, fade=k)
+                    self.label(target, "CONTINUE ?", x, self.S(self.CONTINUE_Y), 60, GOLD, key="stencil", align="center", alpha=190, fade=k)
         self.fx.draw(target, "front")
         self.draw_pops(target, now)
         self.draw_banner(target, now)
@@ -1222,11 +1223,67 @@ class PuzzleBobbleScene(GameScene):
 COURTS = (("PLAGE", "BEACH"), ("GAZON", "LAWN"), ("CARRELAGE", "TILES"), ("BÉTON", "CONCRETE"), ("TERRE BATTUE", "CLAY"),
           ("STADE", "STADIUM"))
 # the players by the game's code (RetroAchievements 0x31c, 0x31e, divided by 4; Seb's capture of 2026-11-04 19:51), as the
-# game's select screen names them; on a Japanese BIOS the fourth is Beeho Yoo of Korea (Seb's cabinet) / les joueurs
-PLAYERS = ("G. SCOTT", "J. COSTA", "K. WESSEL", "S. MILLER", "L. BIAGGI", "H. MITA")
-FIGURES = ("scott", "costa", "wessel", "miller", "biaggi", "mita")                     # sprites/wjammers/<name>.png
-NATIONS = (("USA", "USA"), ("ESPAGNE", "SPAIN"), ("ALLEMAGNE", "GERMANY"), ("ANGLETERRE", "ENGLAND"), ("ITALIE", "ITALY"), ("JAPON", "JAPAN"))
+# game's select screen names them. The fourth is Beeho Yoo of Korea outside Japan (Seb's cabinet, a Europe BIOS) and
+# Steve Miller of England on a Japanese BIOS (MobyGames: the export versions replaced him) / les joueurs
+PLAYERS = ("G. SCOTT", "J. COSTA", "K. WESSEL", "B. YOO", "L. BIAGGI", "H. MITA")
+FIGURES = ("scott", "costa", "wessel", "yoo", "biaggi", "mita")                        # sprites/wjammers/<name>.png
+NATIONS = (("USA", "USA"), ("ESPAGNE", "SPAIN"), ("ALLEMAGNE", "GERMANY"), ("CORÉE", "KOREA"), ("ITALIE", "ITALY"), ("JAPON", "JAPAN"))
 SUPERS = ("MISSILE THROW", "ROCKET DIAGONAL", "BLITZKRIEG", "SIDEBURNER", "THUNDER LOOP", "FIRE SNAKE")   # each one's super shot
+
+
+def flag_draw(nation):
+    """A nation's flag, plain and small (own drawing of the well-known designs). / Un drapeau, simple et petit."""
+    def draw(d, W, H):
+        if nation == "JAPAN":
+            d.rectangle([0, 0, W, H], fill=(255, 255, 255))
+            r = H * 0.3
+            d.ellipse([W / 2 - r, H / 2 - r, W / 2 + r, H / 2 + r], fill=(188, 0, 45))
+        elif nation == "SPAIN":
+            d.rectangle([0, 0, W, H], fill=(198, 11, 30))
+            d.rectangle([0, H * 0.25, W, H * 0.75], fill=(255, 196, 0))
+        elif nation == "GERMANY":
+            d.rectangle([0, 0, W, H / 3], fill=(0, 0, 0))
+            d.rectangle([0, H / 3, W, 2 * H / 3], fill=(221, 0, 0))
+            d.rectangle([0, 2 * H / 3, W, H], fill=(255, 206, 0))
+        elif nation == "ITALY":
+            d.rectangle([0, 0, W / 3, H], fill=(0, 146, 70))
+            d.rectangle([W / 3, 0, 2 * W / 3, H], fill=(255, 255, 255))
+            d.rectangle([2 * W / 3, 0, W, H], fill=(206, 43, 55))
+        elif nation == "USA":
+            d.rectangle([0, 0, W, H], fill=(255, 255, 255))
+            for i in range(0, 13, 2):
+                d.rectangle([0, H * i / 13, W, H * (i + 1) / 13], fill=(178, 34, 52))
+            d.rectangle([0, 0, W * 0.4, H * 7 / 13], fill=(60, 59, 110))
+            for j in range(3):
+                for i in range(4):
+                    x, y = W * 0.4 * (i + 0.5 + (j % 2) * 0.5) / 4.5, H * 7 / 13 * (j + 0.5) / 3
+                    d.ellipse([x - W * 0.018, y - W * 0.018, x + W * 0.018, y + W * 0.018], fill=(255, 255, 255))
+        elif nation == "ENGLAND":                                   # the Union Jack / l'Union Jack
+            d.rectangle([0, 0, W, H], fill=(1, 33, 105))
+            lw = max(1, int(H * 0.16))
+            d.line([(0, 0), (W, H)], fill=(255, 255, 255), width=lw)
+            d.line([(W, 0), (0, H)], fill=(255, 255, 255), width=lw)
+            d.line([(0, 0), (W, H)], fill=(200, 16, 46), width=max(1, lw // 3))
+            d.line([(W, 0), (0, H)], fill=(200, 16, 46), width=max(1, lw // 3))
+            d.rectangle([W / 2 - H * 0.16, 0, W / 2 + H * 0.16, H], fill=(255, 255, 255))
+            d.rectangle([0, H / 2 - H * 0.16, W, H / 2 + H * 0.16], fill=(255, 255, 255))
+            d.rectangle([W / 2 - H * 0.1, 0, W / 2 + H * 0.1, H], fill=(200, 16, 46))
+            d.rectangle([0, H / 2 - H * 0.1, W, H / 2 + H * 0.1], fill=(200, 16, 46))
+        elif nation == "KOREA":                                     # the Taegukgi, simplified / le Taegukgi, simplifié
+            d.rectangle([0, 0, W, H], fill=(255, 255, 255))
+            r = H * 0.26
+            cx, cy = W / 2, H / 2
+            d.pieslice([cx - r, cy - r, cx + r, cy + r], 180, 360, fill=(205, 46, 58))
+            d.pieslice([cx - r, cy - r, cx + r, cy + r], 0, 180, fill=(0, 71, 160))
+            d.ellipse([cx - r / 2 - r * 0.5, cy - r / 2, cx - r * 0.5 + r / 2, cy + r / 2], fill=(205, 46, 58))
+            d.ellipse([cx + r * 0.5 - r / 2, cy - r / 2, cx + r * 0.5 + r / 2, cy + r / 2], fill=(0, 71, 160))
+            bw, bh = W * 0.16, max(1, int(H * 0.045))
+            for (fx, fy) in ((0.17, 0.2), (0.83, 0.2), (0.17, 0.8), (0.83, 0.8)):
+                for k in (-1, 0, 1):
+                    d.rectangle([W * fx - bw / 2, H * fy + k * bh * 2.2 - bh / 2, W * fx + bw / 2, H * fy + k * bh * 2.2 + bh / 2],
+                                fill=(0, 0, 0))
+        d.rectangle([0, 0, W - 1, H - 1], outline=(20, 16, 24), width=max(1, int(H * 0.06)))
+    return draw
 
 
 def athlete_draw(col, dark, skin=(238, 198, 160)):
@@ -1265,6 +1322,7 @@ class WindjammersScene(GameScene):
     SHADE = (150, 0)
     PILLS = True
     CREDITS = (150, 120)                                 # top left, off the court: the disc serves at the bottom middle
+    CONTINUE_Y = 330                                     # in the court, under the board / dans le terrain, sous le tableau
     DISC_X = (8, 311)                                    # the disc's x in the game, goal line to goal line
     DISC_Y = (57, 208)                                   # its y, the top wall to the bottom one
     DISC_H = 90                                          # the top of a lob
@@ -1436,8 +1494,8 @@ class WindjammersScene(GameScene):
         """The player's name as the game has it, else P1 / P2 / CPU. / Le nom du joueur, sinon P1, P2, CPU."""
         c = _n(vals.get(side + "_chr"))
         if c is not None and 0 <= int(c) < len(PLAYERS):
-            if int(c) == 3 and _n(vals.get("bios_country")) == 0:       # Japanese BIOS: Beeho Yoo of Korea
-                return "B. YOO"
+            if int(c) == 3 and _n(vals.get("bios_country")) == 0:       # Japanese BIOS: Steve Miller of England
+                return "S. MILLER"
             return PLAYERS[int(c)]
         return "P1" if side == "p1" else ("P2" if self.p2_in(vals) else "CPU")
 
@@ -1446,8 +1504,16 @@ class WindjammersScene(GameScene):
         if c is None or not 0 <= int(c) < len(NATIONS):
             return ""
         if int(c) == 3 and _n(vals.get("bios_country")) == 0:
-            return tr("CORÉE", "KOREA")
+            return tr("ANGLETERRE", "ENGLAND")
         return tr(*NATIONS[int(c)])
+
+    def flag(self, vals, side):
+        """The player's flag, drawn by ArcadeDMD, or None. / Le drapeau du joueur, ou None."""
+        c = _n(vals.get(side + "_chr"))
+        if c is None or not 0 <= int(c) < len(NATIONS):
+            return None
+        nation = "ENGLAND" if int(c) == 3 and _n(vals.get("bios_country")) == 0 else NATIONS[int(c)][1]
+        return self.img(("flag", nation), self.S(42), self.S(28), flag_draw(nation), ss=4)
 
     # ------------------------------------------------------------------ the big words / les grands mots
     def side_slam(self, text, sub, side, col, now, size=110, dur=1.5, delay=0.0):
@@ -1619,6 +1685,8 @@ class WindjammersScene(GameScene):
         """The player's picture: the owner's, else ArcadeDMD's athlete in his colour. / Son image, sinon le dessin."""
         c = _n(vals.get(side + "_chr"))
         own = self.own_figure(FIGURES[int(c)]) if c is not None and 0 <= int(c) < len(FIGURES) else None
+        if own is None and c is not None and int(c) == 3:
+            own = self.own_figure("miller")                          # the same player under his other name
         if own is not None:
             if side == "p2":
                 key = ("own_flip", int(c))
@@ -1793,31 +1861,34 @@ class WindjammersScene(GameScene):
         top right. / Le tableau au-dessus du terrain : nom, pays et score de chacun, les points du set en grand."""
         hd, S, W = self.hd, self.S, self.W
         hd.draw_logo(screen, logo, W / 2, S(4), S(440), S(84), now)
-        bw, bh = S(1000), S(104)
+        bw, bh = S(1180), S(104)
         bx, by = W / 2 - bw / 2, S(96)
         self.box(screen, bx, by, bw, bh, (255, 214, 90))
         p2 = self.p2_in(vals)
-        numw = hd.text_width("00", "black", S(80))
-        for side, name, col, x, align, d in (("p1", "set_points", P1C, bx + S(30), "left", 1), ("p2", "set_points_p2", P2C, bx + bw - S(30), "right", -1)):
+        numw = hd.text_width("00", "black", S(76))
+        for side, name, col, x, align, d in (("p1", "set_points", P1C, bx + S(26), "left", 1), ("p2", "set_points_p2", P2C, bx + bw - S(26), "right", -1)):
             tag = "P1" if side == "p1" else ("P2" if p2 else "CPU")
             who = self.player_name(vals, side)
-            y = by + S(10)
-            if who != tag:                                              # the character's name, his tag small before it
-                tw = self.text(screen, tag, x, y + S(8), 20, col, key="black", align=align, glow=0)
-                self.text(screen, who, x + d * (tw + S(10)), y, 34, col, key="black", align=align, glow=0.3)
+            flag = self.flag(vals, side)
+            y = by + S(12)
+            xx = x
+            if flag is not None:                                        # the flag first, by the edge / le drapeau au bord
+                screen.blit(flag, (int(xx if d > 0 else xx - flag.get_width()), int(y + S(4))))
+                xx += d * (flag.get_width() + S(12))
+            if who != tag:                                              # the tag small, then the name / l'étiquette, le nom
+                tw = self.text(screen, tag, xx, y + S(10), 18, col, key="black", align=align, glow=0)
+                xx += d * (tw + S(8))
+                self.text(screen, who, xx, y, 30, col, key="black", align=align, glow=0.3)
             else:
-                self.text(screen, tag, x, y, 34, col, key="black", align=align, glow=0.3)
-            nation = self.player_nation(vals, side)
-            if nation:
-                self.text(screen, nation, x, by + S(52), 17, (200, 196, 180), key="bold", align=align, glow=0)
-            sc = _n(vals.get("score" if side == "p1" else "score_p2"))
+                self.text(screen, tag, xx, y, 30, col, key="black", align=align, glow=0.3)
+            sc = _n(vals.get("score" if side == "p1" else "score_p2"))  # his score under, small / son score
             if sc is not None:
-                self.text(screen, f"{int(sc):,}".replace(",", " "), x, by + S(74), 20, (235, 232, 215), key="bold", align=align, glow=0)
+                self.text(screen, f"{int(sc):,}".replace(",", " "), x, by + S(60), 22, (235, 232, 215), key="bold", align=align, glow=0)
             nx = W / 2 - d * S(150)                                     # the points of the set, big / les points du set
             v = _n(vals.get(name))
             if v is not None:
                 k = now - self.pop[name]
-                hd.put_number(screen, f"{int(v):02d}", "black", S(80), WHITE if k < 0.35 else col, nx, by + S(40),
+                hd.put_number(screen, f"{int(v):02d}", "black", S(76), WHITE if k < 0.35 else col, nx, by + S(40),
                               "right" if side == "p1" else "left", "middle", scale=1.0 + 0.3 * max(0.0, 1 - k / 0.35))
             n = _n(vals.get("sets" if side == "p1" else "sets_p2"))      # his sets won, gold discs under them / ses sets
             if n is not None:
