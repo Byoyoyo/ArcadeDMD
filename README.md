@@ -299,7 +299,7 @@ Each game file says which background goes with each backdrop, in the order of th
 "hd": {"stages": ["fight_kof_osaka", "fight_kof_china", "fight_kof_korea", "fight_kof_mideast", "fight_kof_spain", "fight_kof_yard", "fight_kof_dojo", "fight_kof_wharf", "fight_kof_noah"]}
 ```
 
-Backdrop 0 (Japan, street) gets the street under the viaduct in Osaka, 3 (Mid-East) the market, 7 (USA, wharf) the wharf turned junkyard, and so on. These nine stages of The King of Fighters '98 (since 1.32) are drawn from the game's places, each changing with the rounds as in the game (the time of day, a fog, a wagon, the cars, the light). The note of the `backdrop` value lists the game's backdrops. Change the list to your taste, the engine reloads the file by itself.
+Backdrop 0 (Japan, street) gets the street under the viaduct in Osaka, 3 (Mid-East) the market, 7 (USA, wharf) the wharf turned junkyard, and so on. These nine stages of The King of Fighters '98 (since 1.32) are drawn from the game's places, each changing with the rounds as in the game (the time of day, a fog, a wagon, the cars, the light). Since 1.33 they are drawn in a cartoon style, every shape inked, the colours bold, flat shadows, banded skies; `"stage_style": "flat"` in the `preview` section gives back the look of 1.32. The note of the `backdrop` value lists the game's backdrops. Change the list to your taste, the engine reloads the file by itself.
 
 | Background | What it shows |
 |---|---|

@@ -35,7 +35,8 @@
       "launchbox": "",
       "coins": true,
       "dim": 30,
-      "dim_fight": 55
+      "dim_fight": 55,
+      "stage_style": "cartoon"
     },
     "pixelcade": {
       "enabled": false,

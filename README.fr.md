@@ -299,7 +299,7 @@ Chaque fichier de jeu dit quel décor HD va avec chaque décor du jeu, dans l'or
 "hd": {"stages": ["fight_kof_osaka", "fight_kof_china", "fight_kof_korea", "fight_kof_mideast", "fight_kof_spain", "fight_kof_yard", "fight_kof_dojo", "fight_kof_wharf", "fight_kof_noah"]}
 ```
 
-Le décor 0 (Japon, rue) donne la rue sous le viaduc à Osaka, le 3 (Moyen-Orient) le marché, le 7 (USA, quai) le quai devenu une casse, et ainsi de suite. Ces neuf décors de The King of Fighters '98 (depuis la 1.32) sont dessinés d'après les lieux du jeu, chacun change avec les rounds comme dans le jeu (l'heure du jour, une brume, un wagon, les voitures, la lumière). La note de la valeur `backdrop` liste les décors du jeu. Change la liste à ton goût, le moteur recharge le fichier tout seul.
+Le décor 0 (Japon, rue) donne la rue sous le viaduc à Osaka, le 3 (Moyen-Orient) le marché, le 7 (USA, quai) le quai devenu une casse, et ainsi de suite. Ces neuf décors de The King of Fighters '98 (depuis la 1.32) sont dessinés d'après les lieux du jeu, chacun change avec les rounds comme dans le jeu (l'heure du jour, une brume, un wagon, les voitures, la lumière). Depuis la 1.33 ils sont dessinés en style cartoon, chaque forme cernée d'un trait, des couleurs franches, des ombres en aplat, des ciels en bandes ; `"stage_style": "flat"` dans la section `preview` redonne le dessin de la 1.32. La note de la valeur `backdrop` liste les décors du jeu. Change la liste à ton goût, le moteur recharge le fichier tout seul.
 
 | Décor | Ce qu'il montre |
 |---|---|

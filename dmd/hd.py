@@ -131,6 +131,11 @@ class HDRenderer:
         except (TypeError, ValueError):
             self.dim_fight = 55
         self.dim_veils = {}
+        # the look of the stages of The King of Fighters '98: "cartoon" (inked, Seb, 1.33) or "flat" (as drawn in 1.32)
+        # le style des décors de KOF '98 : "cartoon" (encré) ou "flat" (tels que dessinés en 1.32)
+        from . import hd_themes18
+        style = str((cfg or {}).get("stage_style", "cartoon")).lower()
+        hd_themes18.STYLE["name"] = style if style in ("cartoon", "flat") else "cartoon"
         self.credit_pills = {}
         self.fight_cbar = None        # the credits of the fights, as in Metal Slug / les crédits des combats
 

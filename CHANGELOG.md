@@ -3,6 +3,26 @@
 Newest version first. Each version is in English, then in French.
 La version la plus récente en premier. Chaque version est en anglais, puis en français.
 
+## 1.33.0
+
+### English
+
+**The stages of The King of Fighters '98 in a cartoon style** (test 1, Seb: the drawn look of 1.32 was too clinical)
+- Every shape of the nine stages is inked with a dark outline, drawn as a hand draws it, the colours are brighter and bolder, a flat shadow lies on the lower part of each shape, the skies are flat bands of colour with round clouds. The textures (paving stones, plaster, lattices) keep no outline, so that they do not turn to noise. The stages keep their rounds (the time of day, the fog, the wagon, the cars) and their animations.
+- `"stage_style"` in the `preview` section of `config.json` picks it: `"cartoon"` (the default) or `"flat"`, the look of 1.32.
+
+**Version**
+- 1.33.0 in `dmd/app.py` and the MAME plugin.
+
+### Français
+
+**Les décors de The King of Fighters '98 en style cartoon** (test 1, Seb : le dessin de la 1.32 faisait trop analytique)
+- Chaque forme des neuf décors est cernée d'un trait d'encre sombre, tracé comme à la main, les couleurs sont plus vives et plus franches, une ombre en aplat couvre le bas de chaque forme, les ciels sont des bandes de couleur plates avec des nuages ronds. Les textures (pavés, enduit, mosaïques) restent sans trait, sinon elles tournent au bruit. Les décors gardent leurs rounds (l'heure du jour, la brume, le wagon, les voitures) et leurs animations.
+- `"stage_style"` dans la section `preview` de `config.json` le choisit : `"cartoon"` (par défaut) ou `"flat"`, le dessin de la 1.32.
+
+**Version**
+- 1.33.0 dans `dmd/app.py` et le plugin MAME.
+
 ## 1.32.0
 
 ### English
