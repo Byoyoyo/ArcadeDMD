@@ -94,62 +94,22 @@
    "_p1_x": {
     "addr": "0x100806",
     "type": "u16",
-    "note": "probe (1.33): player 1 x (RetroAchievements 0x806), to find the disc from the objects' layout"
+    "note": "player 1 x on the court, 29 to 139 (RetroAchievements 0x806; Seb's capture)"
    },
    "_p1_y": {
     "addr": "0x10080A",
     "type": "u16",
-    "note": "probe (1.33): player 1 y (RetroAchievements 0x80a)"
+    "note": "player 1 y, 76 to 188"
    },
    "_p2_x": {
     "addr": "0x100886",
     "type": "u16",
-    "note": "probe (1.33): player 2 x, player 1's + 0x80 as the scores (0x872, 0x8f2)"
+    "note": "player 2 or computer x, 197 to 292 (player 1's block + 0x80)"
    },
    "_p2_y": {
     "addr": "0x10088A",
     "type": "u16",
-    "note": "probe (1.33): player 2 y"
-   },
-   "_obj0_x": {
-    "addr": "0x100906",
-    "type": "u16",
-    "note": "probe (1.33): x of another object of the game (the disc?), one block of 0x80 after the players"
-   },
-   "_obj0_y": {
-    "addr": "0x10090A",
-    "type": "u16",
-    "note": "probe (1.33): its y"
-   },
-   "_obj1_x": {
-    "addr": "0x100986",
-    "type": "u16",
-    "note": "probe (1.33): x of another object of the game (the disc?), one block of 0x80 after the players"
-   },
-   "_obj1_y": {
-    "addr": "0x10098A",
-    "type": "u16",
-    "note": "probe (1.33): its y"
-   },
-   "_obj2_x": {
-    "addr": "0x100A06",
-    "type": "u16",
-    "note": "probe (1.33): x of another object of the game (the disc?), one block of 0x80 after the players"
-   },
-   "_obj2_y": {
-    "addr": "0x100A0A",
-    "type": "u16",
-    "note": "probe (1.33): its y"
-   },
-   "_obj3_x": {
-    "addr": "0x100786",
-    "type": "u16",
-    "note": "probe (1.33): x of another object of the game (the disc?), one block of 0x80 after the players"
-   },
-   "_obj3_y": {
-    "addr": "0x10078A",
-    "type": "u16",
-    "note": "probe (1.33): its y"
+    "note": "player 2 or computer y, 76 to 188"
    },
    "sets": {
     "addr": "0x100872",
@@ -180,6 +140,18 @@
     "type": "bcd",
     "bytes": 3,
     "note": "player 2 score, six digits (RetroAchievements 0x6a, 0x6b and 0x6d)"
+   },
+   "disc_x": {
+    "addr": "0x100A06",
+    "type": "u16",
+    "fast": true,
+    "note": "the disc's x on the court, 8 at the left goal line to 311 at the right one, 160 at the serve (the object block after the players', found with the probes of 1.33 on Seb's capture of 2026-11-04 18:56); read at every image, the HD disc follows it"
+   },
+   "disc_y": {
+    "addr": "0x100A0A",
+    "type": "u16",
+    "fast": true,
+    "note": "the disc's y, 57 (a high lob at the top) to 208 (the bottom), the players between 76 and 188, 192 at the serve"
    }
   }
  },
@@ -779,5 +751,9 @@
    }
   }
  },
- "note": " Probes (1.33) for the players' and the disc's positions, from Seb's capture."
+ "note": "Neo Geo disc game: points of the set, sets won, scores, timer, court, opponent, the disc's position (1.33, Seb's captures).",
+ "capture_renames": {
+  "_obj2_x": "disc_x",
+  "_obj2_y": "disc_y"
+ }
 }

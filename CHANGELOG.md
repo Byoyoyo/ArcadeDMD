@@ -53,6 +53,12 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - The points of the set were read, the sets won were not. They are now (RetroAchievements code notes, Seb's capture), gold discs under P1 and under the opponent on the scoreboard, a match being the best of three.
 - Each player's score (six digits) is read too, small under his name (test 12). Fatal Fury reads player 1's score; player 2's waits for a two-player capture, three probes are set.
 
+**The HD disc follows the game's disc** (test 13, Seb)
+- Seb's capture of 18:56 found the disc's position in memory (`disc_x`, `disc_y` in `games/wjammers.json`, read at every image like the stick). The disc on the HD screen is now where the game's disc is, the goal lines at the edges of the HD court, a serve at the bottom in the middle, eased over a few images; a goal bursts on its goal line and a lob lands where it fell. Without the position (title screen, between sets) the HD disc plays its own rally as before.
+- The credits pill of Windjammers moves to the top left, off the court: the serve is where it was.
+- `tools/replay_capture.py` replays a game that has a scene of its own (Windjammers, Metal Slug...) through that scene, image by image, and notes the points with where the HD disc was. Seb's capture of 18:56 kept and replayed by the tests (33 checks).
+- The disc's colour per court is not read (a palette, not a value); it waits for a photo of each court.
+
 **Version**
 - 1.33.0 in `dmd/app.py` and the MAME plugin.
 
@@ -103,6 +109,12 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 **Windjammers lit les sets gagnés** (test 11, Seb)
 - Les points du set étaient lus, pas les sets gagnés. Ils le sont maintenant (notes RetroAchievements, capture de Seb), des disques dorés sous P1 et sous l'adversaire sur le tableau, un match se jouant en deux sets gagnants.
 - Le score de chaque joueur (six chiffres) est lu aussi, petit sous son nom (test 12). Fatal Fury lit le score du joueur 1, celui du joueur 2 attend une capture à deux joueurs, trois sondes sont posées.
+
+**Le disque HD suit celui du jeu** (test 13, Seb)
+- La capture de Seb de 18 h 56 a trouvé la position du disque en mémoire (`disc_x`, `disc_y` dans `games/wjammers.json`, lus à chaque image comme le stick). Le disque de l'écran HD est maintenant là où est celui du jeu, les lignes de but aux bords du terrain HD, un service en bas au milieu, lissé sur quelques images ; un but éclate sur sa ligne de but et un lob retombe là où il est tombé. Sans la position (écran titre, entre deux sets) le disque HD joue son propre échange comme avant.
+- La pastille des crédits de Windjammers passe en haut à gauche, hors du terrain : le service est là où elle était.
+- `tools/replay_capture.py` rejoue un jeu qui a sa propre scène (Windjammers, Metal Slug...) par cette scène, image par image, et note les points avec la place du disque HD. La capture de Seb de 18 h 56 gardée et rejouée par les tests (33 vérifications).
+- La couleur du disque selon le terrain n'est pas lue (une palette, pas une valeur) ; elle attend une photo de chaque terrain.
 
 **Version**
 - 1.33.0 dans `dmd/app.py` et le plugin MAME.

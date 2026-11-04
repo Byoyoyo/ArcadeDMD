@@ -1234,6 +1234,7 @@ class WindjammersScene(GameScene):
     STATIC = True
     SHADE = (150, 0)
     PILLS = True
+    CREDITS = (150, 120)                                 # top left, off the court: the disc serves at the bottom middle
 
     def __init__(self, hd, rng=None):
         super().__init__(hd, rng)
@@ -1243,6 +1244,10 @@ class WindjammersScene(GameScene):
         self.rally = None
         self.pause = 0.0
         self.court = None
+        # the real disc (1.33, Seb): its position read at every image (disc_x, disc_y), the HD disc drawn between the last
+        # two readings; without it, the rally is played / le vrai disque, lu à chaque image, sinon l'échange est joué
+        self.track = None                                    # (x, y) the last reading / la dernière lecture
+        self.shown = None                                    # (x, y, when drawn) the HD disc, eased to it / le disque HD
 
     def always(self, vals, now):
         court = _n(vals.get("court"))
@@ -1266,14 +1271,57 @@ class WindjammersScene(GameScene):
 
     def restart(self, vals, now):
         self.flights, self.rally, self.goal = [], None, None
+        self.track = self.shown = None
+
+    DISC_X = (8, 311)                                        # the disc's x in the game, goal line to goal line
+    DISC_Y = (57, 208)                                       # its y, a high lob at the top to the bottom
+
+    def disc_pos(self, gx, gy):
+        """The game's disc position on the HD court. / La position du disque du jeu sur le terrain HD."""
+        S, W = self.S, self.W
+        top, bot = self.floor()
+        kx = (gx - self.DISC_X[0]) / (self.DISC_X[1] - self.DISC_X[0])
+        ky = (gy - self.DISC_Y[0]) / (self.DISC_Y[1] - self.DISC_Y[0])
+        return S(48) + (W - 2 * S(48)) * min(1.2, max(-0.2, kx)), top + S(10) + (bot - top - S(20)) * min(1.1, max(-0.1, ky))
+
+    def tracking(self, now):
+        """The HD disc where the game's is, eased over a few images (a reading at every image, a serve is a jump).
+        Le disque HD là où est celui du jeu, lissé sur quelques images (une lecture par image, un service est un saut)."""
+        if self.track is None:
+            self.shown = None
+            return None
+        x1, y1 = self.track
+        if self.shown is None or abs(x1 - self.shown[0]) + abs(y1 - self.shown[1]) > self.S(500):
+            self.shown = (x1, y1, now)
+            return x1, y1
+        x0, y0, t0 = self.shown
+        k = 1 - math.exp(-max(0.0, now - t0) / 0.045)
+        self.shown = (x0 + (x1 - x0) * k, y0 + (y1 - y0) * k, now)
+        return self.shown[0], self.shown[1]
 
     def update(self, vals, now):
         S, W = self.S, self.W
         top, bot = self.floor()
+        gx, gy = _n(vals.get("disc_x")), _n(vals.get("disc_y"))
+        if gx is not None and gy is not None:
+            # (0, 0), x or y at 0: no disc on the court (title, court intro, between sets) / pas de disque
+            self.track = self.disc_pos(gx, gy) if 0 < gx < 400 and 0 < gy < 300 else None
+        live = self.tracking(now)
         for name, x0, x1 in (("set_points", S(400), W - S(48)), ("set_points_p2", W - S(400), S(48))):
             ch = self.changed(vals, name)
             if ch and ch[1] > ch[0]:
                 pts = int(ch[1] - ch[0])
+                if live is not None:
+                    # the real disc is there: the burst where it is, a goal on its goal line (the reading is a little
+                    # behind the game) / le vrai disque est là : l'éclat où il est, un but sur sa ligne de but
+                    third = (bot - top) / 3
+                    zone = min(2, max(0, int((live[1] - top) / third)))
+                    gx1 = live[0] if pts == 2 else x1
+                    self.flights.append({"x0": gx1, "y0": live[1], "x1": gx1, "y1": live[1], "t0": now, "dur": 0.01, "pts": pts,
+                                         "name": name, "zone": None if pts == 2 else (top + third * zone, top + third * (zone + 1))})
+                    self.rally = None
+                    self.pause = now + 1.4
+                    continue
                 if pts == 2:                                           # 2 points: the disc falls on the other side
                     x1 = W - S(300) if x1 > W / 2 else S(300)
                     self.flights.append({"x0": x0, "y0": S(350), "x1": x1, "y1": self.rng.uniform(S(320), S(420)), "t0": now,
@@ -1373,7 +1421,10 @@ class WindjammersScene(GameScene):
             self.draw_disc(screen, x, y, 0, now)
             keep.append(f)
         self.flights = keep
-        if not self.flights and now >= self.pause:
+        live = self.tracking(now)
+        if live is not None:                                            # the game's disc, followed / le disque du jeu
+            self.draw_disc(screen, live[0], live[1], 0, now)
+        elif not self.flights and now >= self.pause:
             self.draw_disc(screen, *self._rally(now), now)
         self.scoreboard(screen, vals, logo, now)
 

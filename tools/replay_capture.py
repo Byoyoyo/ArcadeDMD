@@ -32,8 +32,9 @@ def replay(path, show_values=False, step=1 / 60, frames=(), out_dir=None):
     import pygame
     from dmd.canvas import Canvas
     from dmd.capture import read_capture
-    from dmd.hd import HDRenderer
+    from dmd.hd import GAME_SCENES, HDRenderer
     from dmd.hd_fight import FightFX
+    from dmd.hd_mslug import family
     from dmd.memvalues import derive, resolve_value
     from dmd.scene import Ctx, GameState
 
@@ -48,6 +49,10 @@ def replay(path, show_values=False, step=1 / 60, frames=(), out_dir=None):
     derived = game.get("derived") or {}
     tag = game.get("tag") if isinstance(game.get("tag"), dict) else {}
     hd = HDRenderer(pygame, (1920, 460), ROOT, {"logos": False}, lambda *a: None, logos=None)
+    # a game with a scene of its own (Windjammers, Metal Slug...): its scene is drawn at every image, as on the cabinet,
+    # the fight screen otherwise / un jeu avec sa propre scène : elle est dessinée à chaque image, comme sur la borne
+    scene_name = (game.get("hd") or {}).get("scene") if isinstance(game.get("hd"), dict) else None
+    own_scene = scene_name in GAME_SCENES or bool(family(key))
     frames = sorted(float(f) for f in frames)
     out_dir = out_dir or os.path.dirname(os.path.abspath(path))
     stem = os.path.splitext(os.path.basename(path))[0]
@@ -60,7 +65,7 @@ def replay(path, show_values=False, step=1 / 60, frames=(), out_dir=None):
     T = [0.0]
     out = []
     state = {"select": False, "round_show": -99.0, "fight_t": -99.0, "ko": None, "win": None, "banner": None, "out": None,
-             "next": {"p1": -99.0, "p2": -99.0}, "hold": {"p1": None, "p2": None}, "chars": {}, "pick": {}}
+             "next": {"p1": -99.0, "p2": -99.0}, "hold": {"p1": None, "p2": None}, "chars": {}, "pick": {}, "scene": {}}
 
     class _Lib:
         def get(self, k):
@@ -74,17 +79,22 @@ def replay(path, show_values=False, step=1 / 60, frames=(), out_dir=None):
             self.cfg = {"coin_symbol": "€"}
             self.ctx = Ctx(Canvas(), ROOT)
             self.ctx.t = 0.0
+            self.mode = "game"
+            self.intro_serial = 0
+            self.coin_guess = None
 
     eng = _Eng()
+    hd.clock = lambda: 1000.0 + T[0]
 
     def frame(now):
         """The HD screen as it was at now / l'écran HD tel qu'il était"""
         eng.ctx.t = now
-        v = dict(st.values)
-        fx.bd.draw(screen, now)
-        target = fx.begin(screen, now)
-        hd.draw_fight(target, eng, v, None, now)
-        fx.end(screen, target, now)
+        if not own_scene:
+            v = dict(st.values)
+            fx.bd.draw(screen, now)
+            target = fx.begin(screen, now)
+            hd.draw_fight(target, eng, v, None, now)
+            fx.end(screen, target, now)
         name = os.path.join(out_dir, f"{stem}-{now - 1000.0:.1f}.png")
         pygame.image.save(screen, name)
         return name
@@ -118,13 +128,27 @@ def replay(path, show_values=False, step=1 / 60, frames=(), out_dir=None):
         T[0] = t
         eng.ctx.t = 1000.0 + t
         try:
-            fx.update(vals, 1000.0 + t, key, game, idle=HDRenderer._nobody(vals), hist=st.hist)
+            if own_scene:
+                hd.render(screen, eng)                               # the scene sees every change / la scène voit tout
+            else:
+                fx.update(vals, 1000.0 + t, key, game, idle=HDRenderer._nobody(vals), hist=st.hist)
             if frames and t + 1e-9 >= frames[0]:
                 frames.pop(0)
                 note(t, "  image : " + frame(1000.0 + t))
         except Exception as e:                                       # noqa: BLE001
             note(t, f"ERREUR {e!r}")
             break
+        if own_scene:                                                # its scene: the points, where its disc or hero is
+            sc = hd.game_scene[1] if hd.game_scene else hd.mslug
+            for name in ("set_points", "set_points_p2", "sets", "sets_p2", "lives", "score"):
+                v = vals.get(name)
+                if name in vals and v != state["scene"].get(name):
+                    state["scene"][name] = v
+                    track = getattr(sc, "track", None)
+                    where = f" (disque HD à {int(track[0])},{int(track[1])})" if track else ""
+                    note(t, f"  {name} = {v}{where}")
+            t = round(t + step, 5)
+            continue
         # the events / les événements
         if fx.select != state["select"]:
             state["select"] = fx.select
