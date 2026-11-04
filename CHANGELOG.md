@@ -51,6 +51,7 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 
 **Windjammers reads the sets won** (test 11, Seb)
 - The points of the set were read, the sets won were not. They are now (RetroAchievements code notes, Seb's capture), gold discs under P1 and under the opponent on the scoreboard, a match being the best of three.
+- Each player's score (six digits) is read too, small under his name (test 12). Fatal Fury reads player 1's score; player 2's waits for a two-player capture, three probes are set.
 
 **Version**
 - 1.33.0 in `dmd/app.py` and the MAME plugin.
@@ -101,6 +102,7 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 
 **Windjammers lit les sets gagnés** (test 11, Seb)
 - Les points du set étaient lus, pas les sets gagnés. Ils le sont maintenant (notes RetroAchievements, capture de Seb), des disques dorés sous P1 et sous l'adversaire sur le tableau, un match se jouant en deux sets gagnants.
+- Le score de chaque joueur (six chiffres) est lu aussi, petit sous son nom (test 12). Fatal Fury lit le score du joueur 1, celui du joueur 2 attend une capture à deux joueurs, trois sondes sont posées.
 
 **Version**
 - 1.33.0 dans `dmd/app.py` et le plugin MAME.

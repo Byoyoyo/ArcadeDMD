@@ -168,6 +168,18 @@
      3
     ],
     "note": "player 2 or computer sets won (RetroAchievements 0x8f3)"
+   },
+   "score": {
+    "addr": "0x100066",
+    "type": "bcd",
+    "bytes": 3,
+    "note": "player 1 score, six digits (RetroAchievements 0x66, 0x67 and 0x69, the three pairs of digits; the bytes next to them as for the points); shown small under P1 (1.33, Seb)"
+   },
+   "score_p2": {
+    "addr": "0x10006A",
+    "type": "bcd",
+    "bytes": 3,
+    "note": "player 2 score, six digits (RetroAchievements 0x6a, 0x6b and 0x6d)"
    }
   }
  },
@@ -237,7 +249,9 @@
    }
   },
   "sets": 1,
-  "sets_p2": 0
+  "sets_p2": 0,
+  "score": 12300,
+  "score_p2": 4500
  },
  "scene": {
   "layers": [
