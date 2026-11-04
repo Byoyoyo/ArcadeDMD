@@ -158,15 +158,42 @@ def replay(path, show_values=False, step=1 / 60, frames=(), out_dir=None):
                 if on != state["scene"].get("_charge_" + side, False):
                     state["scene"]["_charge_" + side] = on
                     note(t, f"  {side} {'charge son super' if on else 'fin de la charge'}")
-            for side in ("p1", "p2"):                                # CONTINUE ? shown or hidden (1.33 test 20)
-                shown = vals.get(side + "_mode") == 2 and sc.banner is None and sc.continue_shown(side, vals, 1000.0 + t)
-                if shown != state["scene"].get("_cont_" + side, False):
-                    state["scene"]["_cont_" + side] = shown
-                    note(t, f"  CONTINUE ? {side} {'affiché' if shown else 'caché'}")
+            if hasattr(sc, "continue_shown"):                        # CONTINUE ? shown or hidden (1.33 test 20)
+                for side in ("p1", "p2"):
+                    shown = vals.get(side + "_mode") == 2 and sc.banner is None and sc.continue_shown(side, vals, 1000.0 + t)
+                    if shown != state["scene"].get("_cont_" + side, False):
+                        state["scene"]["_cont_" + side] = shown
+                        note(t, f"  CONTINUE ? {side} {'affiché' if shown else 'caché'}")
             wins = getattr(sc, "wins", None)
             if wins and (wins["p1"], wins["p2"]) != state["scene"].get("_wins", (0, 0)):
                 state["scene"]["_wins"] = (wins["p1"], wins["p2"])
                 note(t, f"MATCHS {wins['p1']} - {wins['p2']}")
+            players = getattr(sc, "players", None)                   # Metal Slug: the soldiers, the vehicles, the boss
+            if isinstance(players, dict) and hasattr(sc, "soldier"):  # / les soldats, les véhicules, le boss (test 21)
+                for side, P in players.items():
+                    name = sc.soldier(side, vals) if sc.playing(P) else None
+                    if name != state["scene"].get("_name_" + side):
+                        state["scene"]["_name_" + side] = name
+                        if name:
+                            note(t, f"  {side} {name}")
+                    ride = P.ride if P.tank else None
+                    if ride != state["scene"].get("_ride_" + side):
+                        state["scene"]["_ride_" + side] = ride
+                        note(t, f"  {side} {'monte dans ' + ride.upper() if ride else 'descend du véhicule'}")
+                    pr = vals.get("prisoners" if side == "p1" else "prisoners_p2")
+                    if pr != state["scene"].get("_pr_" + side) and sc.playing(P):
+                        state["scene"]["_pr_" + side] = pr
+                        note(t, f"  {side} prisonniers = {pr}")
+                boss = getattr(sc, "boss", None)
+                bkey = (boss["name"], boss["down"] is not None) if boss else None
+                if bkey != state["scene"].get("_boss"):
+                    state["scene"]["_boss"] = bkey
+                    if boss and boss["down"] is None:
+                        note(t, f"BOSS {boss['name'] or '?'} arrive (vie {boss['top']})")
+                    elif boss:
+                        note(t, f"BOSS {boss['name'] or '?'} détruit")
+                    else:
+                        note(t, "  boss parti")
             t = round(t + step, 5)
             continue
         # the events / les événements

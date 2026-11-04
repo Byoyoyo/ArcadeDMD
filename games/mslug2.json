@@ -38,14 +38,16 @@
         "type": "u8",
         "add": -1,
         "min": 0,
-        "note": "player 1 lives, like the 1UP on screen (the game counts the current life, deduced, to be confirmed)"
+        "note": "player 1 lives, like the 1UP on screen (the game counts the current life; cheat database Infinite Lives PL1; 0xFF between two games, read 0: Seb's capture of 22:24 showed 254 on CONTINUE)",
+        "zero_from": "0x80"
       },
       "lives_p2": {
         "addr": "0x10131E",
         "type": "u8",
         "add": -1,
         "min": 0,
-        "note": "player 2 lives, like the 2UP on screen (the game counts the current life, deduced, to be confirmed)"
+        "note": "player 2 lives, like the 2UP on screen (the game counts the current life; cheat database Infinite Lives PL2; 0xFF between two games, read 0)",
+        "zero_from": "0x80"
       },
       "bombs": {
         "addr": "0x10C348",
@@ -72,12 +74,134 @@
       "weapon": {
         "addr": "0x10C346",
         "type": "u8",
-        "note": "player 1 weapon, 0xFF handgun, 0 shotgun, 1 rocket launcher, 2 flamethrower, 3 heavy machine gun, 4 laser"
+        "note": "player 1 weapon, 0xFF handgun, 0 shotgun, 1 rocket launcher, 2 flamethrower, 3 heavy machine gun, 4 laser (cheat database Select Weapon PL1; Seb's capture of 22:24: 3 with the machine gun)"
       },
       "weapon_p2": {
         "addr": "0x10C347",
         "type": "u8",
         "note": "player 2 weapon"
+      },
+      "p1_chr": {
+        "addr": "0x101274",
+        "type": "u8",
+        "valid": [
+          0,
+          3
+        ],
+        "note": "player 1 soldier: 0 Marco, 1 Tarma, 2 Eri, 3 Fio (RetroAchievements code notes, P1 - Character Selected, address swapped), two bytes before his lives; to confirm in game"
+      },
+      "p2_chr": {
+        "addr": "0x10131C",
+        "type": "u8",
+        "valid": [
+          0,
+          3
+        ],
+        "note": "player 2 soldier, same codes (RetroAchievements code notes, P2 - Character Selected), two bytes before his lives"
+      },
+      "form": {
+        "addr": "0x101525",
+        "type": "u8",
+        "valid": [
+          0,
+          3
+        ],
+        "note": "player 1 body: 0 normal with the handgun, 1 carrying a weapon, 2 fat, 3 mummy (cheat database Select Body Type PL1, RetroAchievements P1 - Forms)"
+      },
+      "form_p2": {
+        "addr": "0x1015CD",
+        "type": "u8",
+        "valid": [
+          0,
+          3
+        ],
+        "note": "player 2 body, same codes (cheat database Select Body Type PL2)"
+      },
+      "prisoners": {
+        "addr": "0x105BDB",
+        "type": "u8",
+        "zero_from": "0x80",
+        "note": "player 1 prisoners rescued in the mission (RetroAchievements code notes, P1 - Prisoners (Mission), address swapped); to confirm in game"
+      },
+      "prisoners_p2": {
+        "addr": "0x105BDF",
+        "type": "u8",
+        "zero_from": "0x80",
+        "note": "player 2 prisoners rescued in the mission (RetroAchievements code notes, P2 - Prisoners (Mission), address swapped)"
+      },
+      "vehicle": {
+        "addr": "0x10E883",
+        "type": "u8",
+        "mask": "0x01",
+        "note": "player 1 in a vehicle (1) or on foot (0): bit 0 (RetroAchievements code notes, P1 - Riding a Vehicle, address swapped), the first word of his vehicle block 0x10E880..0x10E8A3; to confirm in game"
+      },
+      "vehicle_kind": {
+        "addr": "0x10E8A3",
+        "type": "u8",
+        "valid": [
+          0,
+          8
+        ],
+        "note": "player 1 vehicle: 1 Metal Slug (tank), 2 Camel Slug, 3 Slugnoid (the mech, 'Mecha SV' in the notes), 4 Slug Flyer (RetroAchievements code notes, P1 - Last Vehicle Used, address swapped), the last byte of his vehicle block; kept after he leaves it; to confirm in game"
+      },
+      "vehicle_hp": {
+        "addr": "0x10E89B",
+        "type": "u8",
+        "mult": 2.083333,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0x80",
+        "note": "energy of player 1's vehicle in % (full at 0x30 as in Metal Slug; cheat database Infinite Vehicle Energy PL1), shown while he is in it; the camel has no armour"
+      },
+      "vehicle_ammo": {
+        "addr": "0x10E8A1",
+        "type": "u8",
+        "zero_from": "0x80",
+        "note": "cannon shells of player 1's vehicle (cheat database Infinite Vehicle Cannon PL1 writes 10), shown while he is in it"
+      },
+      "vehicle_p2": {
+        "addr": "0x10E8A7",
+        "type": "u8",
+        "mask": "0x01",
+        "note": "player 2 in a vehicle, deduced: his vehicle block is 0x24 further (energy and cannon of the cheat database are 0x10E8BF and 0x10E8C5)"
+      },
+      "vehicle_kind_p2": {
+        "addr": "0x10E8C7",
+        "type": "u8",
+        "valid": [
+          0,
+          8
+        ],
+        "note": "player 2 vehicle, same codes, deduced (0x24 further)"
+      },
+      "vehicle_hp_p2": {
+        "addr": "0x10E8BF",
+        "type": "u8",
+        "mult": 2.083333,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0x80",
+        "note": "energy of player 2's vehicle in % (cheat database Infinite Vehicle Energy PL2)"
+      },
+      "vehicle_ammo_p2": {
+        "addr": "0x10E8C5",
+        "type": "u8",
+        "zero_from": "0x80",
+        "note": "cannon shells of player 2's vehicle (cheat database Infinite Vehicle Cannon PL2)"
+      },
+      "_veh1": {
+        "addr": "0x10E880",
+        "type": "hex",
+        "bytes": 36,
+        "note": "probe (1.33 test 21): player 1's vehicle block as it is, to confirm the riding bit and the kind from a capture"
+      },
+      "_veh2": {
+        "addr": "0x10E8A4",
+        "type": "hex",
+        "bytes": 36,
+        "note": "probe (1.33 test 21): player 2's vehicle block"
       },
       "time": {
         "addr": "0x1013B4",
@@ -152,7 +276,89 @@
     "credits": 2,
     "p1_mode": 1,
     "p2_mode": 0,
-    "time": 60
+    "time": 60,
+    "prisoners": 0,
+    "vehicle": 0,
+    "vehicle_kind": 2,
+    "vehicle_hp": 100,
+    "vehicle_ammo": 10,
+    "vehicle_p2": 0,
+    "vehicle_kind_p2": 1,
+    "vehicle_hp_p2": 100,
+    "vehicle_ammo_p2": 10,
+    "p1_chr": 0,
+    "p2_chr": 3,
+    "sim": {
+      "vehicle": {
+        "cycle": [
+          0,
+          1,
+          1,
+          1,
+          1,
+          0,
+          0
+        ],
+        "every": 5,
+        "start": 8
+      },
+      "vehicle_hp": {
+        "cycle": [
+          100,
+          100,
+          66.7,
+          33.3,
+          0,
+          0,
+          100
+        ],
+        "every": 5,
+        "start": 8
+      },
+      "vehicle_ammo": {
+        "cycle": [
+          10,
+          10,
+          9,
+          8,
+          8,
+          8,
+          10
+        ],
+        "every": 5,
+        "start": 8
+      },
+      "vehicle_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 60
+      },
+      "vehicle_hp_p2": {
+        "cycle": [
+          100
+        ],
+        "every": 60
+      },
+      "vehicle_ammo_p2": {
+        "cycle": [
+          10
+        ],
+        "every": 60
+      },
+      "prisoners": {
+        "count": [
+          0,
+          12,
+          1
+        ],
+        "every": [
+          6,
+          11
+        ],
+        "start": 5
+      }
+    }
   },
   "scene": {
     "layers": [
@@ -1947,5 +2153,25 @@
         ]
       }
     ]
+  },
+  "derived": {
+    "p1_name": {
+      "value": "p1_chr",
+      "names": [
+        "MARCO",
+        "TARMA",
+        "ERI",
+        "FIO"
+      ]
+    },
+    "p2_name": {
+      "value": "p2_chr",
+      "names": [
+        "MARCO",
+        "TARMA",
+        "ERI",
+        "FIO"
+      ]
+    }
   }
 }

@@ -74,12 +74,12 @@
       "weapon": {
         "addr": "0x10EAF3",
         "type": "u8",
-        "note": "player 1 weapon (cheat database codes)"
+        "note": "player 1 weapon (cheat database Select Shot Equipment PL1): 0 handgun, 1 MS cannon, 2 shotgun, 3 rocket launcher, 4 flame shot, 5 heavy machine gun, 6 laser, 7 to 11 the SUPER shotgun, rocket launcher, flame shot, machine gun and laser, 12 enemy chaser, 13 iron lizard, 14 drop shot, 15 super grenade, 0x15 fat enemy chaser"
       },
       "weapon_p2": {
         "addr": "0x10EB01",
         "type": "u8",
-        "note": "player 2 weapon, deduced (same offset as bombs and ammo)"
+        "note": "player 2 weapon, same codes (cheat database Select Shot Equipment PL2)"
       },
       "prisoners": {
         "addr": "0x10ED05",
@@ -90,6 +90,118 @@
         "addr": "0x10ED0D",
         "type": "u8",
         "note": "player 2 rescued prisoners (cheat database, Always have 15 Prisoners PL2)"
+      },
+      "p1_chr": {
+        "addr": "0x100567",
+        "type": "u8",
+        "valid": [
+          0,
+          3
+        ],
+        "note": "player 1 soldier (RetroAchievements code notes, P1 Character, address swapped): 0 Marco, 1 Tarma, 2 Eri, 3 Fio as in Metal Slug 2, the order to confirm in game"
+      },
+      "p2_chr": {
+        "addr": "0x100617",
+        "type": "u8",
+        "valid": [
+          0,
+          3
+        ],
+        "note": "player 2 soldier, deduced: his block is 0xB0 further (lives, invincibility and body of the cheat database)"
+      },
+      "form": {
+        "addr": "0x10058F",
+        "type": "u8",
+        "valid": [
+          0,
+          15
+        ],
+        "note": "player 1 body: 0 or 1 normal, 2 fat, 3 mummy, 4 and 5 diving, 6 snowman, 7 zombie, 8 flying, 10 in space (cheat database Select Body Type PL1, RetroAchievements P1 form)"
+      },
+      "form_p2": {
+        "addr": "0x10063F",
+        "type": "u8",
+        "valid": [
+          0,
+          15
+        ],
+        "note": "player 2 body, same codes (cheat database Select Body Type PL2)"
+      },
+      "vehicle_kind": {
+        "addr": "0x1002C1",
+        "type": "u8",
+        "valid": [
+          0,
+          15
+        ],
+        "note": "player 1 vehicle (RetroAchievements code notes, P1 Vehicle, address swapped, six bytes after his lives): 0 outside the game, 1 on foot, 4 Metal Slug (tank), 6 Slug Flyer, 7 Slug Copter, 8 Slug Mariner (the submarine), 9 Drill Slug, 10 Slugnoid (robot), 11 Astro Slug; the elephant and the ostrich to find; to confirm in game"
+      },
+      "vehicle": {
+        "addr": "0x1002C1",
+        "type": "u8",
+        "add": -1,
+        "min": 0,
+        "valid": [
+          -1,
+          15
+        ],
+        "note": "player 1 in a vehicle: the same byte less one, 0 on foot or outside the game, 3 and more in a vehicle (what the HD screen reads to put him aboard)"
+      },
+      "vehicle_kind_p2": {
+        "addr": "0x100371",
+        "type": "u8",
+        "valid": [
+          0,
+          15
+        ],
+        "note": "player 2 vehicle, same codes, deduced (0xB0 further, six bytes after his lives)"
+      },
+      "vehicle_p2": {
+        "addr": "0x100371",
+        "type": "u8",
+        "add": -1,
+        "min": 0,
+        "valid": [
+          -1,
+          15
+        ],
+        "note": "player 2 in a vehicle, the same byte less one"
+      },
+      "_p1b": {
+        "addr": "0x1002B0",
+        "type": "hex",
+        "bytes": 24,
+        "note": "probe (1.33 test 21): player 1's block around his lives and vehicle, to find the vehicle's energy and missiles from a capture"
+      },
+      "_eq1": {
+        "addr": "0x10EB0C",
+        "type": "hex",
+        "bytes": 16,
+        "note": "probe (1.33 test 21): after the two equipment blocks (weapon, bombs, ammo), where the vehicle's own may be"
+      },
+      "_eq2": {
+        "addr": "0x10EB1C",
+        "type": "hex",
+        "bytes": 16,
+        "note": "probe (1.33 test 21): same, further"
+      },
+      "_eq3": {
+        "addr": "0x10EB2C",
+        "type": "hex",
+        "bytes": 16,
+        "note": "probe (1.33 test 21): same, up to the 'mounting or in vehicle' bit of the RetroAchievements notes (0x10EB3A)"
+      },
+      "_st1": {
+        "addr": "0x10ED00",
+        "type": "hex",
+        "bytes": 24,
+        "note": "probe (1.33 test 21): the status block (prisoners 0x10ED05, 'P1 Vehicle' 0x10ED06 of the notes, score 0x10ED18)"
+      },
+      "_vf1": {
+        "addr": "0x10A090",
+        "type": "hex",
+        "bytes": 16,
+        "note": "probe (1.33 test 21): the 'vehicle flag' of the RetroAchievements notes (0x10A095) and the enemies on screen"
       },
       "time": {
         "addr": "0x10ED78",
@@ -167,6 +279,12 @@
     "p2_mode": 0,
     "time": 60,
     "prisoners": 0,
+    "vehicle": 0,
+    "vehicle_kind": 1,
+    "vehicle_p2": 0,
+    "vehicle_kind_p2": 1,
+    "p1_chr": 0,
+    "p2_chr": 1,
     "sim": {
       "prisoners": {
         "count": [
@@ -179,6 +297,44 @@
           11
         ],
         "start": 5
+      },
+      "vehicle": {
+        "cycle": [
+          0,
+          7,
+          7,
+          7,
+          7,
+          0,
+          0
+        ],
+        "every": 5,
+        "start": 8
+      },
+      "vehicle_kind": {
+        "cycle": [
+          1,
+          8,
+          8,
+          8,
+          8,
+          1,
+          1
+        ],
+        "every": 5,
+        "start": 8
+      },
+      "vehicle_p2": {
+        "cycle": [
+          0
+        ],
+        "every": 60
+      },
+      "vehicle_kind_p2": {
+        "cycle": [
+          1
+        ],
+        "every": 60
       }
     }
   },
@@ -3327,5 +3483,25 @@
         ]
       }
     ]
+  },
+  "derived": {
+    "p1_name": {
+      "value": "p1_chr",
+      "names": [
+        "MARCO",
+        "TARMA",
+        "ERI",
+        "FIO"
+      ]
+    },
+    "p2_name": {
+      "value": "p2_chr",
+      "names": [
+        "MARCO",
+        "TARMA",
+        "ERI",
+        "FIO"
+      ]
+    }
   }
 }

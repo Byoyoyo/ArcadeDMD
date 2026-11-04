@@ -98,6 +98,8 @@ def decode(d, getb, big_endian=True):
         v = raw[0]
     elif t == "s8":
         v = raw[0] - 0x100 if raw[0] >= 0x80 else raw[0]
+    elif t == "hex":                              # a probe: the bytes as they are, to find a value in a capture (1.33)
+        return "".join(f"{b:02x}" for b in raw)   # / une sonde : les octets tels quels, pour trouver une valeur
     elif t in ("be", "le"):
         v = int.from_bytes(bytes(raw), "big" if t == "be" else "little")
     elif t in ("bcd", "bcd_le"):

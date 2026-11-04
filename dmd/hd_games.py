@@ -1358,7 +1358,7 @@ class WindjammersScene(GameScene):
         self.cont_done = {"p1": False, "p2": False}
         # the matches won by two humans, as the fighting games count them (1.33 test 20, Seb) / les matchs gagnés
         self.wins = {"p1": 0, "p2": 0}
-        self.p2_left = None                                  # when player 2 left, his wins forgotten later / parti
+        self.p2_left = None                                  # when everybody left, the wins forgotten later / partis
 
     def always(self, vals, now):
         court = _n(vals.get("court"))
@@ -1454,7 +1454,10 @@ class WindjammersScene(GameScene):
         for side in ("p1", "p2"):
             if vals.get(side + "_mode") != 2:
                 self.cont[side] = None
-        if self.p2_in(vals):                                            # two humans: their wins kept / leurs victoires
+        # two humans: their wins kept as long as somebody plays, even while one of them sits a match out against the
+        # computer (test 21, Seb), forgotten 20 s after the cabinet is back on its title screen
+        # / leurs victoires gardées tant que quelqu'un joue, même si l'un d'eux laisse passer un match contre l'ordinateur
+        if not self.nobody(vals):
             self.p2_left = None
         elif self.p2_left is None:
             self.p2_left = now

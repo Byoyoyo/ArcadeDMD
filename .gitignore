@@ -12,7 +12,8 @@ libzedmd/*.zip
 sprites/sonic*.gif
 sprites/sonic*.png
 sprites/mslug_tank.*
-sprites/wjammers/
+sprites/mslug_tank_hd.*
+sprites/*/
 sprites/neogeo_ship.*
 
 # Python and build files
