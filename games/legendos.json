@@ -65,15 +65,26 @@
     "mult": 0.833333,
     "min": 0,
     "max": 100,
-    "note": "player 1 health in %, full = 0x78"
+    "zero_from": "0xBC",
+    "note": "player 1 health in %, full = 0x78; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xBC it reads empty (K.O. audit)"
    },
-   "health_p2": {
+   "_p2_hp": {
     "addr": "0x100763",
     "type": "u8",
     "mult": 0.833333,
     "min": 0,
     "max": 100,
-    "note": "player 2 health in %, full = 0x78"
+    "zero_from": "0xBC",
+    "note": "player 2's own health, a human playing against player 1 in %, full = 0x78; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xBC it reads empty (K.O. audit)"
+   },
+   "_cpu_hp": {
+    "addr": "0x100463",
+    "type": "u8",
+    "mult": 0.833333,
+    "min": 0,
+    "max": 100,
+    "zero_from": "0xBC",
+    "note": "health of player 1's opponent, the computer (FBNeo cheats, Drain PL1's Opponent's Energy; RetroAchievements code notes, Opponent energy, 0x00 = KO, reliable in the ring matches) in %, the same scale as the players'; when player 2 does not play (1.31.1, K.O. audit: the right bar never moved against the computer)"
    },
    "score": {
     "addr": "0x100384",
@@ -88,6 +99,22 @@
     "bytes": 4,
     "note": "player 2, to find with learn.bat (two-player game, score2=...)"
    }
+  }
+ },
+ "tag": {
+  "health_p2": {
+   "first": [
+    {
+     "pick": [
+      "_cpu_hp",
+      "_p2_hp",
+      "_p2_hp",
+      "_cpu_hp"
+     ],
+     "at": "p2_mode"
+    },
+    "_cpu_hp"
+   ]
   }
  },
  "demo": {

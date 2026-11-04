@@ -34,7 +34,8 @@
       "style": "led",
       "launchbox": "",
       "coins": true,
-      "dim": 30
+      "dim": 30,
+      "dim_fight": 55
     },
     "pixelcade": {
       "enabled": false,

@@ -65,7 +65,8 @@
     "mult": 3.333333,
     "min": 0,
     "max": 100,
-    "note": "player 1 health in %, full = 0x1E"
+    "zero_from": "0x8F",
+    "note": "player 1 health in %, full = 0x1E; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1 (RetroAchievements code notes, its shown health FF = empty): from 0x8F it reads empty (K.O. audit)"
    },
    "health_p2": {
     "addr": "0x107892",
@@ -73,7 +74,8 @@
     "mult": 3.333333,
     "min": 0,
     "max": 100,
-    "note": "player 2 health in %, full = 0x1E"
+    "zero_from": "0x8F",
+    "note": "player 2 health in %, full = 0x1E; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1 (RetroAchievements code notes, its shown health FF = empty): from 0x8F it reads empty (K.O. audit)"
    },
    "time": {
     "addr": "0x107C0B",

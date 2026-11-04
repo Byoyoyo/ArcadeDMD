@@ -13,7 +13,7 @@
 
 local exports = {
 	name = "arcadedmd",
-	version = "1.31.0",
+	version = "1.32.0",
 	description = "ArcadeDMD",
 	license = "MIT",
 	author = { name = "Byoyoyo" } }
@@ -489,7 +489,7 @@ local function start_session()
 			log(tr("aucun CPU a lire pour ", "no CPU to read for ") .. tostring(info.system))
 		end
 	end
-	local readers, names = {}, {}
+	local readers, names, fast = {}, {}, {}
 	-- adresses du fichier, plus celles propres au jeu dans un modele ("per_game", barres de vie...)
 	local values = {}
 	if type(mem.values) == "table" then
@@ -513,6 +513,7 @@ local function start_session()
 					if ok then
 						readers[name] = r
 						names[#names + 1] = name
+						if def.fast then fast[#fast + 1] = name end   -- the stick and buttons, each frame / chaque image
 					else
 						log_error(tr("lecture impossible pour ", "cannot read ") .. name)
 					end
@@ -521,6 +522,7 @@ local function start_session()
 		end
 	end
 	table.sort(names)
+	table.sort(fast)
 	session = {
 		info = info,
 		game = game,
@@ -529,6 +531,7 @@ local function start_session()
 		space = space,
 		readers = readers,
 		names = names,
+		fast = fast,
 		last = {},
 		frame = 0,
 		last_hb = os.time(),
@@ -719,6 +722,21 @@ local function on_frame()
 		for _, f in ipairs(settings.debug_capture_frames) do
 			if session.frame == f then capture() end
 		end
+	end
+
+	-- the stick and buttons at every frame, a quarter circle lasts a few frames (1.32)
+	-- le stick et les boutons a chaque image, un quart de cercle ne dure que quelques images
+	if session.fast and #session.fast > 0 then
+		local fchanged, fany = {}, false
+		for _, name in ipairs(session.fast) do
+			local ok, v = pcall(session.readers[name])
+			if ok and session.last[name] ~= v then
+				fchanged[name] = v
+				session.last[name] = v
+				fany = true
+			end
+		end
+		if fany then emit({ t = "v", v = fchanged }) end
 	end
 
 	if session.frame % settings.poll_frames ~= 0 then return end

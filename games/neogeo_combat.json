@@ -1377,6 +1377,12 @@
          }
         ]
        }
+      },
+      {
+       "not": {
+        "var": "select",
+        "eq": 1
+       }
       }
      ]
     }
@@ -1424,6 +1430,12 @@
          ]
         }
        ]
+      },
+      {
+       "not": {
+        "var": "select",
+        "eq": 1
+       }
       }
      ]
     }
@@ -1505,6 +1517,20 @@
            ]
           }
          ]
+        }
+       ]
+      },
+      {
+       "all": [
+        {
+         "has": [
+          "health",
+          "health_p2"
+         ]
+        },
+        {
+         "var": "select",
+         "eq": 1
         }
        ]
       }
@@ -2060,7 +2086,8 @@
     "mult": 0.032563,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 3071 (cheat database)"
+    "note": "health bar in %, full = 3071 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x85FF it reads empty (K.O. audit)",
+    "zero_from": "0x85FF"
    },
    "health_p2": {
     "addr": "0x100166",
@@ -2069,7 +2096,8 @@
     "mult": 0.032563,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 3071 (cheat database)"
+    "note": "health bar in %, full = 3071 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x85FF it reads empty (K.O. audit)",
+    "zero_from": "0x85FF"
    }
   },
   "aof": {
@@ -2079,7 +2107,8 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 96 (cheat database)"
+    "note": "health bar in %, full = 96 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xB0 it reads empty (K.O. audit)",
+    "zero_from": "0xB0"
    },
    "health_p2": {
     "addr": "0x1093CD",
@@ -2087,7 +2116,8 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 96 (cheat database)"
+    "note": "health bar in %, full = 96 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xB0 it reads empty (K.O. audit)",
+    "zero_from": "0xB0"
    }
   },
   "aof2": {
@@ -2097,7 +2127,8 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 96 (cheat database)"
+    "note": "health bar in %, full = 96 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xB0 it reads empty (K.O. audit)",
+    "zero_from": "0xB0"
    },
    "health_p2": {
     "addr": "0x1093ED",
@@ -2105,7 +2136,8 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 96 (cheat database)"
+    "note": "health bar in %, full = 96 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xB0 it reads empty (K.O. audit)",
+    "zero_from": "0xB0"
    }
   },
   "aof3": {
@@ -2116,7 +2148,8 @@
     "mult": 0.024414,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 4096 (cheat database)"
+    "note": "health bar in %, full = 4096 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x8800 it reads empty (K.O. audit)",
+    "zero_from": "0x8800"
    },
    "health_p2": {
     "addr": "0x100568",
@@ -2125,7 +2158,8 @@
     "mult": 0.024414,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 4096 (cheat database)"
+    "note": "health bar in %, full = 4096 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x8800 it reads empty (K.O. audit)",
+    "zero_from": "0x8800"
    }
   },
   "breakers": {
@@ -2135,7 +2169,8 @@
     "mult": 3.333333,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 30 (cheat database)"
+    "note": "health bar in %, full = 30 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1 (RetroAchievements code notes, its shown health FF = empty): from 0x8F it reads empty (K.O. audit)",
+    "zero_from": "0x8F"
    },
    "health_p2": {
     "addr": "0x107892",
@@ -2143,7 +2178,8 @@
     "mult": 3.333333,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 30 (cheat database)"
+    "note": "health bar in %, full = 30 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1 (RetroAchievements code notes, its shown health FF = empty): from 0x8F it reads empty (K.O. audit)",
+    "zero_from": "0x8F"
    }
   },
   "breakrev": {
@@ -2153,7 +2189,8 @@
     "mult": 3.333333,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 30 (cheat database)"
+    "note": "health bar in %, full = 30 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x8F it reads empty (K.O. audit)",
+    "zero_from": "0x8F"
    },
    "health_p2": {
     "addr": "0x1078AE",
@@ -2161,7 +2198,8 @@
     "mult": 3.333333,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 30 (cheat database)"
+    "note": "health bar in %, full = 30 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x8F it reads empty (K.O. audit)",
+    "zero_from": "0x8F"
    }
   },
   "fatfursp": {
@@ -2171,7 +2209,8 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 96 (cheat database)"
+    "note": "health bar in %, full = 96 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xB0 it reads empty (K.O. audit)",
+    "zero_from": "0xB0"
    },
    "health_p2": {
     "addr": "0x10059A",
@@ -2179,7 +2218,8 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 96 (cheat database)"
+    "note": "health bar in %, full = 96 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xB0 it reads empty (K.O. audit)",
+    "zero_from": "0xB0"
    },
    "time": {
     "addr": "0x10092A",
@@ -2196,7 +2236,8 @@
     "mult": 0.004053,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 24672 (cheat database)"
+    "note": "health bar in %, full = 24672 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xB030 it reads empty (K.O. audit)",
+    "zero_from": "0xB030"
    },
    "health_p2": {
     "addr": "0x1004B8",
@@ -2205,7 +2246,8 @@
     "mult": 0.004053,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 24672 (cheat database)"
+    "note": "health bar in %, full = 24672 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xB030 it reads empty (K.O. audit)",
+    "zero_from": "0xB030"
    },
    "time": {
     "addr": "0x1042F3",
@@ -2221,7 +2263,8 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 96 (cheat database)"
+    "note": "health bar in %, full = 96 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xB0 it reads empty (K.O. audit)",
+    "zero_from": "0xB0"
    },
    "health_p2": {
     "addr": "0x1004CB",
@@ -2229,7 +2272,8 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 96 (cheat database)"
+    "note": "health bar in %, full = 96 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xB0 it reads empty (K.O. audit)",
+    "zero_from": "0xB0"
    },
    "time": {
     "addr": "0x10092A",
@@ -2245,7 +2289,8 @@
     "mult": 0.833333,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 120 (cheat database)"
+    "note": "health bar in %, full = 120 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xBC it reads empty (K.O. audit)",
+    "zero_from": "0xBC"
    },
    "health_p2": {
     "addr": "0x100589",
@@ -2253,7 +2298,8 @@
     "mult": 0.833333,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 120 (cheat database)"
+    "note": "health bar in %, full = 120 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xBC it reads empty (K.O. audit)",
+    "zero_from": "0xBC"
    }
   },
   "fightfev": {
@@ -2263,7 +2309,8 @@
     "mult": 0.833333,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 120 (cheat database)"
+    "note": "health bar in %, full = 120 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xBC it reads empty (K.O. audit)",
+    "zero_from": "0xBC"
    },
    "health_p2": {
     "addr": "0x10C702",
@@ -2271,7 +2318,8 @@
     "mult": 0.833333,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 120 (cheat database)"
+    "note": "health bar in %, full = 120 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xBC it reads empty (K.O. audit)",
+    "zero_from": "0xBC"
    },
    "time": {
     "addr": "0x108110",
@@ -2305,7 +2353,8 @@
     "mult": 0.833333,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 120 (cheat database)"
+    "note": "health bar in %, full = 120 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xBC it reads empty (K.O. audit)",
+    "zero_from": "0xBC"
    },
    "health_p2": {
     "addr": "0x10058E",
@@ -2313,7 +2362,8 @@
     "mult": 0.833333,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 120 (cheat database)"
+    "note": "health bar in %, full = 120 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xBC it reads empty (K.O. audit)",
+    "zero_from": "0xBC"
    },
    "time": {
     "addr": "0x107490",
@@ -2329,7 +2379,8 @@
     "mult": 1.0,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 100 (cheat database)"
+    "note": "health bar in %, full = 100 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xB2 it reads empty (K.O. audit)",
+    "zero_from": "0xB2"
    },
    "health_p2": {
     "addr": "0x1035BF",
@@ -2337,7 +2388,8 @@
     "mult": 1.0,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 100 (cheat database)"
+    "note": "health bar in %, full = 100 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xB2 it reads empty (K.O. audit)",
+    "zero_from": "0xB2"
    }
   },
   "kizuna": {
@@ -2347,7 +2399,8 @@
     "mult": 0.520833,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 192 (cheat database)"
+    "note": "health bar in %, full = 192 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xE0 it reads empty (K.O. audit)",
+    "zero_from": "0xE0"
    },
    "health_p2": {
     "addr": "0x108513",
@@ -2355,7 +2408,8 @@
     "mult": 0.520833,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 192 (cheat database)"
+    "note": "health bar in %, full = 192 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xE0 it reads empty (K.O. audit)",
+    "zero_from": "0xE0"
    },
    "time": {
     "addr": "0x10892A",
@@ -2371,7 +2425,9 @@
     "mult": 0.980392,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 102 (cheat database)"
+    "note": "health bar in %, full = 102 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit); 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)",
+    "zero_from": "0x80",
+    "add": 1
    },
    "health_p2": {
     "addr": "0x108439",
@@ -2379,7 +2435,9 @@
     "mult": 0.980392,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 102 (cheat database)"
+    "note": "health bar in %, full = 102 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit); 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)",
+    "zero_from": "0x80",
+    "add": 1
    },
    "time": {
     "addr": "0x10A7E6",
@@ -2395,7 +2453,9 @@
     "mult": 0.980392,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 102 (cheat database)"
+    "note": "health bar in %, full = 102 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit); 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)",
+    "zero_from": "0x80",
+    "add": 1
    },
    "health_p2": {
     "addr": "0x108439",
@@ -2403,7 +2463,9 @@
     "mult": 0.980392,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 102 (cheat database)"
+    "note": "health bar in %, full = 102 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit); 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)",
+    "zero_from": "0x80",
+    "add": 1
    },
    "score": {
     "addr": "0x1081FC",
@@ -2425,7 +2487,8 @@
     "mult": 0.483092,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 207 (cheat database)"
+    "note": "health bar in %, full = 207 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xE7 it reads empty (K.O. audit)",
+    "zero_from": "0xE7"
    },
    "health_p2": {
     "addr": "0x108421",
@@ -2433,7 +2496,8 @@
     "mult": 0.483092,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 207 (cheat database)"
+    "note": "health bar in %, full = 207 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xE7 it reads empty (K.O. audit)",
+    "zero_from": "0xE7"
    },
    "time": {
     "addr": "0x10882E",
@@ -2449,7 +2513,8 @@
     "mult": 0.483092,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 207 (cheat database)"
+    "note": "health bar in %, full = 207 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xE7 it reads empty (K.O. audit)",
+    "zero_from": "0xE7"
    },
    "health_p2": {
     "addr": "0x108421",
@@ -2457,7 +2522,8 @@
     "mult": 0.483092,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 207 (cheat database)"
+    "note": "health bar in %, full = 207 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xE7 it reads empty (K.O. audit)",
+    "zero_from": "0xE7"
    },
    "time": {
     "addr": "0x10A836",
@@ -2473,7 +2539,9 @@
     "mult": 0.970874,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 103 (cheat database)"
+    "note": "health bar in %, full = 103 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit); 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)",
+    "zero_from": "0x80",
+    "add": 1
    },
    "health_p2": {
     "addr": "0x108439",
@@ -2481,7 +2549,9 @@
     "mult": 0.970874,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 103 (cheat database)"
+    "note": "health bar in %, full = 103 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit); 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)",
+    "zero_from": "0x80",
+    "add": 1
    },
    "time": {
     "addr": "0x10A836",
@@ -2497,7 +2567,9 @@
     "mult": 0.970874,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 103 (cheat database)"
+    "note": "health bar in %, full = 103 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit); 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)",
+    "zero_from": "0x80",
+    "add": 1
    },
    "health_p2": {
     "addr": "0x108439",
@@ -2505,7 +2577,9 @@
     "mult": 0.970874,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 103 (cheat database)"
+    "note": "health bar in %, full = 103 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit); 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)",
+    "zero_from": "0x80",
+    "add": 1
    },
    "time": {
     "addr": "0x10A83A",
@@ -2521,7 +2595,9 @@
     "mult": 0.970874,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 103 (cheat database)"
+    "note": "health bar in %, full = 103 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit); 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)",
+    "zero_from": "0x80",
+    "add": 1
    },
    "health_p2": {
     "addr": "0x108439",
@@ -2529,7 +2605,9 @@
     "mult": 0.970874,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 103 (cheat database)"
+    "note": "health bar in %, full = 103 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit); 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)",
+    "zero_from": "0x80",
+    "add": 1
    },
    "time": {
     "addr": "0x10A83A",
@@ -2545,7 +2623,9 @@
     "mult": 0.990099,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 101 (cheat database)"
+    "note": "health bar in %, full = 101 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit); 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)",
+    "zero_from": "0x80",
+    "add": 1
    },
    "health_p2": {
     "addr": "0x108439",
@@ -2553,7 +2633,9 @@
     "mult": 0.990099,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 101 (cheat database)"
+    "note": "health bar in %, full = 101 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x80 it reads empty (K.O. audit); 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)",
+    "zero_from": "0x80",
+    "add": 1
    },
    "time": {
     "addr": "0x10A7E6",
@@ -2569,7 +2651,8 @@
     "mult": 1.666667,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 60 (cheat database)"
+    "note": "health bar in %, full = 60 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1 (RetroAchievements code notes, max 3c, 0xfb = no energy): from 0x9E it reads empty (K.O. audit)",
+    "zero_from": "0x9E"
    },
    "health_p2": {
     "addr": "0x10216B",
@@ -2577,7 +2660,8 @@
     "mult": 1.666667,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 60 (cheat database)"
+    "note": "health bar in %, full = 60 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1 (RetroAchievements code notes, max 3c, 0xfb = no energy): from 0x9E it reads empty (K.O. audit)",
+    "zero_from": "0x9E"
    }
   },
   "kotm2": {
@@ -2587,7 +2671,8 @@
     "mult": 1.5625,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 64 (cheat database)"
+    "note": "health bar in %, full = 64 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xA0 it reads empty (K.O. audit)",
+    "zero_from": "0xA0"
    },
    "health_p2": {
     "addr": "0x101517",
@@ -2595,7 +2680,8 @@
     "mult": 1.5625,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 64 (cheat database)"
+    "note": "health bar in %, full = 64 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xA0 it reads empty (K.O. audit)",
+    "zero_from": "0xA0"
    },
    "time": {
     "addr": "0x1013D2",
@@ -2611,7 +2697,8 @@
     "mult": 0.833333,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 120 (cheat database)"
+    "note": "health bar in %, full = 120 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xBC it reads empty (K.O. audit)",
+    "zero_from": "0xBC"
    },
    "health_p2": {
     "addr": "0x100763",
@@ -2619,7 +2706,8 @@
     "mult": 0.833333,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 120 (cheat database)"
+    "note": "health bar in %, full = 120 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xBC it reads empty (K.O. audit)",
+    "zero_from": "0xBC"
    }
   },
   "ninjamas": {
@@ -2629,7 +2717,8 @@
     "mult": 0.480769,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 208 (cheat database)"
+    "note": "health bar in %, full = 208 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xE8 it reads empty (K.O. audit)",
+    "zero_from": "0xE8"
    },
    "health_p2": {
     "addr": "0x101050",
@@ -2637,7 +2726,8 @@
     "mult": 0.480769,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 208 (cheat database)"
+    "note": "health bar in %, full = 208 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xE8 it reads empty (K.O. audit)",
+    "zero_from": "0xE8"
    }
   },
   "rbff1": {
@@ -2647,7 +2737,8 @@
     "mult": 0.520833,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 192 (cheat database)"
+    "note": "health bar in %, full = 192 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xE0 it reads empty (K.O. audit)",
+    "zero_from": "0xE0"
    },
    "health_p2": {
     "addr": "0x100589",
@@ -2655,7 +2746,8 @@
     "mult": 0.520833,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 192 (cheat database)"
+    "note": "health bar in %, full = 192 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xE0 it reads empty (K.O. audit)",
+    "zero_from": "0xE0"
    }
   },
   "rbff2": {
@@ -2665,7 +2757,8 @@
     "mult": 0.520833,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 192 (cheat database)"
+    "note": "health bar in %, full = 192 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1 (RetroAchievements code notes, c0 = full, ff = K.O.): from 0xE0 it reads empty (K.O. audit)",
+    "zero_from": "0xE0"
    },
    "health_p2": {
     "addr": "0x10058B",
@@ -2673,7 +2766,8 @@
     "mult": 0.520833,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 192 (cheat database)"
+    "note": "health bar in %, full = 192 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1 (RetroAchievements code notes, c0 = full, ff = K.O.): from 0xE0 it reads empty (K.O. audit)",
+    "zero_from": "0xE0"
    },
    "time": {
     "addr": "0x107C28",
@@ -2689,7 +2783,8 @@
     "mult": 0.520833,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 192 (cheat database)"
+    "note": "health bar in %, full = 192 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xE0 it reads empty (K.O. audit)",
+    "zero_from": "0xE0"
    },
    "health_p2": {
     "addr": "0x10058B",
@@ -2697,7 +2792,8 @@
     "mult": 0.520833,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 192 (cheat database)"
+    "note": "health bar in %, full = 192 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xE0 it reads empty (K.O. audit)",
+    "zero_from": "0xE0"
    },
    "time": {
     "addr": "0x106AB4",
@@ -2713,7 +2809,8 @@
     "mult": 0.78125,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 128 (cheat database)"
+    "note": "health bar in %, full = 128 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xC0 it reads empty (K.O. audit)",
+    "zero_from": "0xC0"
    },
    "health_p2": {
     "addr": "0x108673",
@@ -2721,7 +2818,8 @@
     "mult": 0.78125,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 128 (cheat database)"
+    "note": "health bar in %, full = 128 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xC0 it reads empty (K.O. audit)",
+    "zero_from": "0xC0"
    },
    "time": {
     "addr": "0x10849E",
@@ -2737,7 +2835,8 @@
     "mult": 0.396825,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 252 (cheat database)"
+    "note": "health bar in %, full = 252 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xFE it reads empty (K.O. audit)",
+    "zero_from": "0xFE"
    },
    "health_p2": {
     "addr": "0x108643",
@@ -2745,7 +2844,8 @@
     "mult": 0.396825,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 252 (cheat database)"
+    "note": "health bar in %, full = 252 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xFE it reads empty (K.O. audit)",
+    "zero_from": "0xFE"
    }
   },
   "samsho5": {
@@ -2755,7 +2855,8 @@
     "mult": 0.8,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 125 (cheat database)"
+    "note": "health bar in %, full = 125 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xBE it reads empty (K.O. audit)",
+    "zero_from": "0xBE"
    },
    "health_p2": {
     "addr": "0x108655",
@@ -2763,7 +2864,8 @@
     "mult": 0.8,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 125 (cheat database)"
+    "note": "health bar in %, full = 125 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xBE it reads empty (K.O. audit)",
+    "zero_from": "0xBE"
    }
   },
   "wh2": {
@@ -2773,7 +2875,8 @@
     "mult": 0.787402,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 127 (cheat database)"
+    "note": "health bar in %, full = 127 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xBF it reads empty (K.O. audit)",
+    "zero_from": "0xBF"
    },
    "health_p2": {
     "addr": "0x10610C",
@@ -2781,7 +2884,8 @@
     "mult": 0.787402,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 127 (cheat database)"
+    "note": "health bar in %, full = 127 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xBF it reads empty (K.O. audit)",
+    "zero_from": "0xBF"
    }
   },
   "wh2j": {
@@ -2791,7 +2895,8 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 96 (cheat database)"
+    "note": "health bar in %, full = 96 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1 (RetroAchievements code notes, sets to FF on losing): from 0xB0 it reads empty (K.O. audit)",
+    "zero_from": "0xB0"
    },
    "health_p2": {
     "addr": "0x10610C",
@@ -2799,7 +2904,8 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 96 (cheat database)"
+    "note": "health bar in %, full = 96 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1 (RetroAchievements code notes, sets to FF on losing): from 0xB0 it reads empty (K.O. audit)",
+    "zero_from": "0xB0"
    }
   },
   "whp": {
@@ -2809,7 +2915,8 @@
     "mult": 0.520833,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 192 (cheat database)"
+    "note": "health bar in %, full = 192 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1 (RetroAchievements code notes, C0 = full, FF = dead): from 0xE0 it reads empty (K.O. audit)",
+    "zero_from": "0xE0"
    },
    "health_p2": {
     "addr": "0x10610C",
@@ -2817,7 +2924,8 @@
     "mult": 0.520833,
     "min": 0,
     "max": 100,
-    "note": "health bar in %, full = 192 (cheat database)"
+    "note": "health bar in %, full = 192 (cheat database); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1 (RetroAchievements code notes, C0 = full, FF = dead): from 0xE0 it reads empty (K.O. audit)",
+    "zero_from": "0xE0"
    }
   }
  },

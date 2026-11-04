@@ -65,7 +65,8 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "player 1 health in %, full = 0x60"
+    "zero_from": "0xB0",
+    "note": "player 1 health in %, full = 0x60; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1 (RetroAchievements code notes, sets to FF on losing): from 0xB0 it reads empty (K.O. audit)"
    },
    "health_p2": {
     "addr": "0x10610C",
@@ -73,7 +74,8 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "player 2 health in %, full = 0x60"
+    "zero_from": "0xB0",
+    "note": "player 2 health in %, full = 0x60; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1 (RetroAchievements code notes, sets to FF on losing): from 0xB0 it reads empty (K.O. audit)"
    },
    "time": {
     "addr": "0x10C109",
@@ -102,6 +104,13 @@
     "addr": "0x106104",
     "type": "u8",
     "note": "player 2 or computer character"
+   },
+   "round": {
+    "addr": "0x10C121",
+    "type": "u8",
+    "add": -1,
+    "min": 0,
+    "note": "round of the match, from 1 in the game, read from 0 (RetroAchievements code notes, 0xc120 Current Round, 0x01 = Round 1, 0x02 = Round 2, 0x03 = Round 3), shown as ROUND n when a fight begins; to confirm in game (1.31.1, K.O. audit)"
    }
   }
  },

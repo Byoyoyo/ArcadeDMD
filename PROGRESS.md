@@ -4,7 +4,9 @@ Game by game, what ArcadeDMD already knows how to show, and what comes next. Upd
 
 Jeu par jeu, ce qu'ArcadeDMD sait déjà afficher, et ce qui vient ensuite. Mis à jour à chaque version.
 
-Up to date with version 1.31.0. / À jour de la version 1.31.0.
+Up to date with version 1.32.0. / À jour de la version 1.32.0.
+
+Tuned on a real cabinet, round after round, with videos, photos and logs of the games: The King of Fighters '98 (its nine stages, the desperation moves, ROUND and FIGHT ! with the game, 1.31 to 1.32), Metal Slug 1 to 5 and X, DoDonPachi; learned on a cabinet too: Twinkle Star Sprites, Puzzle Bobble, Marvel vs. Capcom, X-Men vs. Street Fighter, Marvel Super Heroes vs. Street Fighter, X-Men: Children of the Atom, Hyper Street Fighter II, Strikers 1945 Plus, Giga Wing, Mercs. / Réglés sur une vraie borne, round après round, avec des vidéos, des photos et les journaux des jeux : The King of Fighters '98 (ses neuf décors, les coups désespérés, ROUND et FIGHT ! avec le jeu, 1.31 à 1.32), Metal Slug 1 à 5 et X, DoDonPachi ; appris sur une borne aussi : Twinkle Star Sprites, Puzzle Bobble, Marvel vs. Capcom, X-Men vs. Street Fighter, Marvel Super Heroes vs. Street Fighter, X-Men: Children of the Atom, Hyper Street Fighter II, Strikers 1945 Plus, Giga Wing, Mercs.
 
 For each game / Pour chaque jeu
 - **Values / Valeurs.** What is read from the game's memory, such as each player's score, lives, bombs, level or health. / Ce qui est lu dans la mémoire du jeu, comme le score de chaque joueur, les vies, les bombes, le niveau ou la vie.

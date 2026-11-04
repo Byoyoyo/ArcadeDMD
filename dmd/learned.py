@@ -262,7 +262,13 @@ def complete(root, log=print):
         vals = cfg.setdefault("memory", {}).setdefault("values", {})
         if not isinstance(vals, dict):
             continue
-        added = [k for k in game_values(tmpl, system) if k not in vals]
+        # a value the game works out itself ("tag", "derived") is not read raw on top of it
+        # une valeur que le jeu calcule lui-même n'est pas lue telle quelle en plus (vie de l'ordinateur, Fatal Fury)
+        own = set()
+        for sec in ("tag", "derived"):
+            if isinstance(cfg.get(sec), dict):
+                own.update(cfg[sec])
+        added = [k for k in game_values(tmpl, system) if k not in vals and k not in own]
         if not added:
             continue
         tvals = game_values(tmpl, system)

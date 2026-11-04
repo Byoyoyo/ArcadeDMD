@@ -70,7 +70,8 @@
     "min": 0,
     "max": 100,
     "zero_from": "0x80",
-    "note": "health bar in %, full = 103 (cheat database); a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (Seb, 1.31): from 0x80 it reads empty"
+    "add": 1,
+    "note": "health bar in %, full = 103 (cheat database); a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (Seb, 1.31): from 0x80 it reads empty; 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)"
    },
    "health_p2": {
     "addr": "0x108439",
@@ -79,13 +80,24 @@
     "min": 0,
     "max": 100,
     "zero_from": "0x80",
-    "note": "health bar in %, full = 103 (cheat database); a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (Seb, 1.31): from 0x80 it reads empty"
+    "add": 1,
+    "note": "health bar in %, full = 103 (cheat database); a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (Seb, 1.31): from 0x80 it reads empty; 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)"
    },
    "time": {
     "addr": "0x10A83A",
     "type": "bcd",
     "bytes": 1,
     "note": "timer (cheat database)"
+   },
+   "_time_sub": {
+    "addr": "0x10A83B",
+    "type": "u8",
+    "note": "the timer's fraction of a second (RetroAchievements code notes, 0xa83a Round - Time Remaining (frames / 50Hz)), it moves at every frame once the round's timer runs, FIGHT ! waits for it to come with the game's own FIGHT or GO (1.31.1)"
+   },
+   "_fight_state": {
+    "addr": "0x10A786",
+    "type": "u8",
+    "note": "the state of the fight (RetroAchievements code notes, 0xa787 Fight - State: 0x01 starting next round, 0x18 Ready, 0x19 round over, 0x1a fighting); READY at 0x18, FIGHT ! with GO 1.15 s later (1.31.1)"
    },
    "score": {
     "addr": "0x1081FC",

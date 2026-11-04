@@ -65,7 +65,8 @@
     "mult": 0.671141,
     "min": 0,
     "max": 100,
-    "note": "player 1 health in %, full = 0x95"
+    "zero_from": "0xCA",
+    "note": "player 1 health in %, full = 0x95; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xCA it reads empty (K.O. audit)"
    },
    "health_p2": {
     "addr": "0x102E9F",
@@ -73,7 +74,8 @@
     "mult": 0.671141,
     "min": 0,
     "max": 100,
-    "note": "player 2 health in %, full = 0x95"
+    "zero_from": "0xCA",
+    "note": "player 2 health in %, full = 0x95; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xCA it reads empty (K.O. audit)"
    },
    "time": {
     "addr": "0x10B90B",

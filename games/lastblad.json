@@ -75,7 +75,8 @@
     "mult": 0.390625,
     "min": 0,
     "max": 100,
-    "note": "player 1 health in %, full = 0x100, inside the fighter object (address read at 0x10AC98)"
+    "zero_from": "0x8080",
+    "note": "player 1 health in %, full = 0x100, inside the fighter object (address read at 0x10AC98); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x8080 it reads empty (K.O. audit)"
    },
    "health_p2": {
     "ptr": "0x10AC9C",
@@ -89,7 +90,8 @@
     "mult": 0.390625,
     "min": 0,
     "max": 100,
-    "note": "player 2 health in %, full = 0x100, inside the fighter object (address read at 0x10AC9C)"
+    "zero_from": "0x8080",
+    "note": "player 2 health in %, full = 0x100, inside the fighter object (address read at 0x10AC9C); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x8080 it reads empty (K.O. audit)"
    },
    "time": {
     "addr": "0x10E32B",

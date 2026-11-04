@@ -65,7 +65,8 @@
     "mult": 0.483092,
     "min": 0,
     "max": 100,
-    "note": "player 1 health in %, full = 0xCF"
+    "zero_from": "0xE7",
+    "note": "player 1 health in %, full = 0xCF; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xE7 it reads empty (K.O. audit)"
    },
    "health_p2": {
     "addr": "0x108421",
@@ -73,7 +74,8 @@
     "mult": 0.483092,
     "min": 0,
     "max": 100,
-    "note": "player 2 health in %, full = 0xCF"
+    "zero_from": "0xE7",
+    "note": "player 2 health in %, full = 0xCF; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xE7 it reads empty (K.O. audit)"
    },
    "time": {
     "addr": "0x10882E",
@@ -102,7 +104,20 @@
     "addr": "",
     "type": "u8",
     "note": "VS match, player 2 win streak (BEAT BY at the top of the screen), to find with learn.bat (beat2=...)"
+   },
+   "_screen": {
+    "addr": "0x108586",
+    "type": "u16",
+    "note": "the screen the game shows (RetroAchievements code notes, 0x8586 SCREEN ID 16 bit, 7046 = character select screen, 3fec = in game); its select screens give VS and no event of a fight (1.31.1, K.O. audit), to confirm in game"
    }
+  }
+ },
+ "derived": {
+  "select": {
+   "eq": [
+    "_screen",
+    28742
+   ]
   }
  },
  "demo": {

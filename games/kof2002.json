@@ -66,7 +66,8 @@
     "min": 0,
     "max": 100,
     "zero_from": "0x80",
-    "note": "player 1 health in %, full = 0x66; a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (Seb, 1.31): from 0x80 it reads empty"
+    "add": 1,
+    "note": "player 1 health in %, full = 0x66; a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (Seb, 1.31): from 0x80 it reads empty; 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)"
    },
    "health_p2": {
     "addr": "0x108439",
@@ -75,7 +76,8 @@
     "min": 0,
     "max": 100,
     "zero_from": "0x80",
-    "note": "player 2 health in %, full = 0x66; a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (Seb, 1.31): from 0x80 it reads empty"
+    "add": 1,
+    "note": "player 2 health in %, full = 0x66; a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (Seb, 1.31): from 0x80 it reads empty; 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)"
    },
    "time": {
     "addr": "0x10A7D2",
@@ -109,7 +111,30 @@
     "addr": "0x10A79A",
     "type": "u8",
     "note": "backdrop of the fight (cheat database \"Select Backdrop\"): 0 Japan, 1 Korea, 2 China, 3 Holland, 4 Cambodia, 5 Mexico, 6 Italy, 7 Rugal, 8 NESTS. Picks the HD theme in \"hd\": \"stages\""
+   },
+   "_screen": {
+    "addr": "0x10858A",
+    "type": "u8",
+    "note": "the screen the game shows (RetroAchievements code notes, 0x858b Game - Screen ID? [8 bits], 0x23 = Select Character 1, 0x2f = Select Character 2); its select screens give VS and no event of a fight (1.31.1, K.O. audit), to confirm in game"
    }
+  }
+ },
+ "derived": {
+  "select": {
+   "sum": [
+    {
+     "eq": [
+      "_screen",
+      35
+     ]
+    },
+    {
+     "eq": [
+      "_screen",
+      47
+     ]
+    }
+   ]
   }
  },
  "demo": {

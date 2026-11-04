@@ -27,7 +27,7 @@ from .neocoins import NeoCoins
 from .textfiles import TextFiles
 from .i18n import tr
 
-VERSION = "1.31.0"
+VERSION = "1.32.0"
 
 DEFAULT_CONFIG = {
     "language": "auto",
@@ -836,10 +836,11 @@ class Engine:
                     if v is not None:
                         incoming[k] = v
             # état des joueurs d'abord : il dit si un score qui tombe à 0 est une vraie remise à zéro
+            at = ev.get("at")                 # when RetroArch read it (the stick and buttons, 1.32) / quand il l'a lu
             for k, v in sorted(incoming.items(), key=lambda kv: not kv[0].endswith("_mode")):
                 if k in self.hold_zero and self._hold_zero(k, v, now):
                     continue
-                self.state.update(k, v, now, quiet=(t == "hb"))
+                self.state.update(k, v, now, quiet=(t == "hb"), at=at if isinstance(at, (int, float)) else None)
             if self.derived:      # valeurs calculées (nom du personnage en train de se battre...)
                 for k, v in derive(self.derived, self.state.values).items():
                     self.state.update(k, v, now, quiet=(t == "hb"))

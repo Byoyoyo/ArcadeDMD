@@ -65,7 +65,8 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "player 1 health in %, full = 0x60"
+    "zero_from": "0xB0",
+    "note": "player 1 health in %, full = 0x60; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xB0 it reads empty (K.O. audit)"
    },
    "health_p2": {
     "addr": "0x1093CD",
@@ -73,7 +74,18 @@
     "mult": 1.041667,
     "min": 0,
     "max": 100,
-    "note": "player 2 health in %, full = 0x60"
+    "zero_from": "0xB0",
+    "note": "player 2 health in %, full = 0x60; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xB0 it reads empty (K.O. audit)"
+   },
+   "rounds": {
+    "addr": "0x1090E7",
+    "type": "u8",
+    "note": "rounds won by player 1 (RetroAchievements code notes, 0x90e6 Round Win, the byte next to it in the 68000's order), gold stars under the bars and the winner of a round; to confirm in game (1.31.1, K.O. audit)"
+   },
+   "rounds_p2": {
+    "addr": "0x1091E7",
+    "type": "u8",
+    "note": "rounds won by player 2 (RetroAchievements code notes, 0x91e6 Round oponent win, the byte next to it in the 68000's order), gold stars under the bars and the winner of a round; to confirm in game (1.31.1, K.O. audit)"
    },
    "time": {
     "addr": "0x108406",

@@ -3,6 +3,196 @@
 Newest version first. Each version is in English, then in French.
 La version la plus récente en premier. Chaque version est en anglais, puis en français.
 
+## 1.32.0
+
+### English
+
+**The desperation moves under the name, and the wins of two humans** (test 1, The King of Fighters '98, Seb's mockups)
+- Under the name of each human player, a panel, as in the mockup Seb chose. A badge says the stocks (1 STOCK, 2 STOCKS), EXTRA, or MAX in gold. The power gauge is drawn as the game draws it, the bar and a green square per stock, 3 squares for the first fighter of a team and one more for each teammate beaten.
+- When the gauge allows a desperation move (a stock or MAX in Advanced, the full gauge or the health in the red in Extra), the commands of the fighter's ones show in the panel, their arrows facing the other fighter (player 2 on the right faces left). The arrows light up as the stick does them. When a button ends an attempt that missed a step or so, the steps missed are crossed in red and RATÉ shows. DM ! shows once the game took its stock (its full gauge in Extra), SDM ! in MAX (A+B+C took a stock before), and the row stays lit while it shows. A special move (236 and a punch) gives no RATÉ, and neither does a stock taken by a guard cancel. A command done in full that the game did not take stays lit a moment, without a word, and goes to the log (to find the stocks if their address is not the right one).
+- The buttons are drawn in the colours of the Neo Geo (A red, B yellow, C green, D blue) with the names of the game file (`"buttons"`, LP LK HP HK).
+- The team moves to the name's line, small, the beaten ones struck.
+- When two humans play a game of teams, a VICTOIRES pill under the credits counts the matches each one won, P1 on the left and P2 on the right. One more comes when VICTOIRE shows. ArcadeDMD counts them itself, and puts them back to 0 once one of the two left 20 s ago. Against the computer it does not show.
+- New values in The King of Fighters '98, all to confirm in game, their changes written in the log. The stick and buttons of each player (BIOS_P1CURRENT 0x10FD96 and BIOS_P2CURRENT 0x10FD9C, read the other way round if up and down show together), the power gauge (0x1081E8, RetroAchievements code notes, 0xA0 full), the stocks (0x1082E3, the MAME cheat Infinite Power), the mode Advanced or Extra (0x10A84C, next to the team), a byte that may be the MAX timer (0x1081EA), and player 2's in his own block.
+- The commands of the 84 desperation moves of the 38 fighters, 3 at most each (`"moves"` in the game file, numpad notation for a fighter facing right, P for a punch and K for a kick). They come from the MAME command.dat (Progetto-SNAPS, the entry of the original game), checked against the Korean Enha wiki. A shorter form of a command that the game takes too still gives DM ! when the game took its stock.
+
+**The inputs pressed, and Extra's MAX** (test 3, Seb's first fights)
+- When no desperation move can come out, the panel shows the inputs pressed, as training mode does. Each direction the stick takes and the buttons pressed with it, the newest on the right and lit, the older ones fading, all gone 3 s after the last one. The commands of the desperation moves take their place as soon as one can come out.
+- In Extra, the gauge full is MAX until its bar is empty or a desperation move takes it at once. The commands showed only while the gauge was exactly full, and went away as soon as the bar of MAX began to drain. DM ! (SDM ! with the health in the red) when the gauge falls at once. The gauge full, empty, or taken at once go to the log.
+
+**When a super can come out in Extra** (test 4, Seb never plays Extra)
+- The badge says why a desperation move can come out. MAX in gold, VIE ROUGE in red when the life is nearly empty (a quarter of the bar, to confirm in game, the game raises it for a team that lost a fighter), MAX + VIE ROUGE for an SDM. The panel's edge takes the same colour.
+- While none can come out in Extra, the bar is longer, with how full it is (62 %) and the rule beside it, SUPER À 100 %.
+
+**The stage darker under the fights** (test 5, Seb)
+- The backdrop of the fighting games is darker, 50 % instead of 30 %, the names, health bars and buttons stood out too little over it. `"dim_fight"` in the `preview` section sets it, from 0 to 80, the other scenes keep `"dim"`.
+
+**ROUND 1 once, at the fight** (test 6, Seb's video of The King of Fighters '98)
+- Between the select screens and the fight the game shows other screens, HOW TO PLAY, THE NEXT COMPETITOR, the order select, BATTLE IN CHINA. Only the character select and the order select were told, and each of the others started a fight on the HD screen, ROUND 1 with the sweep of the stage changing, then the last match's timer. Every screen but the fight's (0xE8BE, RetroAchievements code notes) is now a select screen, VS in the middle and no event of a fight, and ROUND 1 comes once, when the fight's screen appears. The sweep of the next stage comes on BATTLE IN, where the game shows it.
+- A screen, of the select or of the fight, counts once it lasted 0.4 s. A screen of a moment neither starts nor ends a fight.
+- VS no longer shows for a moment just after FIGHT !, the timer having stood still for 6 s during the entrances of the fighters. FIGHT ! counts as the timer moving.
+- The last match's timer (44) no longer shows at the start of the next one, until the game sets its own or GO comes.
+- The winner of the match (VICTOIRE, the team eliminated) stays its 5.5 s over the screen of his quotes, which now is a select screen.
+
+**MAX over in Advanced** (test 7, Seb's photo, MAX lit while the game was out of it)
+- The game neither fills its gauge nor gives a stock during MAX. A stock gained, or the gauge filling again, now ends MAX on the HD screen. It could stay lit up to 15 s after the game's.
+- A+B+C, the start of MAX with the gauge, and MAX once a second go to the log, to set its end on a cabinet.
+
+**ROUND and FIGHT ! when the game shows them** (tests 8, 8b and 8d, Seb's second video and his logs, all of it late in test 7)
+- The fight's screen (0xE8BE) only comes once GO is over, not during the entrances of the fighters. Test 6 waited for it, ROUND n came at GO and FIGHT ! 1.5 s after.
+- Seb's log shows the states of the fight of The King of Fighters '98. 0x1A during the fight (0x02 a moment in a super's freeze), after a K.O. 0x19 and 0x01 by turns, then 0x01, and 0 when the next round's intro starts, when the game shows ROUND n. READY (0x18) comes 4 to 5 s later. Test 8 took 0x01 for the round's start (the notes of '97), so ROUND came at the K.O. ROUND n now comes when the intro starts, the next fighter's band (ENTRE EN SCÈNE) 1.4 s after it when the game shows him, and FIGHT ! 1.15 s after READY, with GO. The beaten one's name stays until the band.
+- Between the select screens and a first round the state stays at 0. Those screens, and the ones after a match, are select screens (VS, no event of a fight). Seb's second log (test 8d) shows the intro of a first round: the game sets its timer (0 to 60) when the stage appears, READY comes 6 s later. ROUND 1 comes then, FIGHT ! 1.15 s after READY with GO, and at READY if no timer set was seen. HOW TO PLAY, THE NEXT COMPETITOR and BATTLE IN still start nothing. The select rule of the game file is back to the character select and the order select.
+- The log notes the state of the fight, the screen of the game and its timer set again outside the fights, to find on a cabinet what tells the intro of a first round.
+
+**MAX as the game says it** (tests 8 and 8c, Seb's photos and log, MAX lit with no stock, then at the life in the red)
+- The badge says MAX when every stock is lit, as the game does beside its gauge, and MAX ACTIVÉ for the MAX of Advanced.
+- MAX ACTIVÉ follows the MAX timer of the game (0x1081EA, the MAME cheat Infinite Power holds it at 0x40). In Seb's log the CPU's MAX set it to 0x3F and it counted down, a desperation move or a guard cancel set it only to 0x01. MAX lasts while it is at 2 or more, whatever the buttons, and the bar of the panel shows it running out, as the game does. A stock taken just after A+B+C pressed by chance, by a guard cancel while blocking in the red, lit MAX with no stock and the commands. A desperation move in MAX, its timer falling to 0, gives SDM !.
+
+**No shop signs under the fights** (test 8, Seb)
+- The shop signs of the city backdrop that lit up at the level of the names (the white rectangles) no longer show under the fights and select screens. The other scenes keep them.
+
+**The nine stages of The King of Fighters '98** (test 9, Seb's pictures and the descriptions of the stages)
+- Each backdrop of the game has its own stage on the HD screen, drawn by the program from Seb's pictures of the places, no image of the game. Under the viaduct in Osaka at night, the boat on the river among the stone pillars in China, the harbor in Korea, the market in the Middle East, the Court of the Lions in Spain, the train yard and the wharf in the USA, the ruined dojo in the forest in Japan, the Black Noah under the sea.
+- They change with the rounds as the game does, fading into the new look when ROUND n shows. Spain goes from day to sunset at the third round and night at the fourth, its lanterns lit. The dojo is at night, at dawn at the third round, in the morning at the fourth, by day at the fifth, its fireflies gone in the morning. The wharf has its sunset, then the night, then a fog from the fourth round. The train yard gets a wagon at the second round, nearer at the third, gone at the fourth, back at the last, and its sunset from the third. In Osaka the cars are there at the first round, passing at the second, in a jam from the third. In China a temple at the first round, a waterfall at the second, a mountain in the fog at the third and the last. The Black Noah grows bluer at each round.
+- Their animations. The boat in China goes along its cliffs, the fountain of the lions runs (lower at sunset and at night), a white cat crosses the hall now and then, the steam of the black engine, the headlights of the cars, the copper pots and the water that glint, the gulls, the fireflies, the sharks, jellyfish and bubbles behind the window of the Black Noah.
+- The backdrops can now change with the round of the fight (a sky, a tint, layers of some looks only) and move by themselves, for any game file.
+
+**The bright stages darker still** (test 9b, Seb, the information over the stages of The King of Fighters '98)
+- `"dim_fight"` is 55 now, and a bright stage (the market in the sun, the harbor by day) is darkened more than that by itself, up to 80 %, so that every stage comes out about as dark under the names, bars and panels. The stages at night keep the value, and a stage whose look changes with the rounds follows it (the Court of the Lions is darkened more by day than at night).
+
+**Read at every frame**
+- A value marked `"fast"` is read at every frame, the stick and buttons here. The MAME plugin reads it at each frame. The RetroArch reader asks for it at each frame between its other reads, and asks for all those at once (RetroArch answers them at the same frame, one block of memory at a time took a frame each). Each change of the stick and buttons keeps the time it was read.
+- When RetroArch closes during a game whose stick is read, the HD screen leaves the game as fast as before (test 2). The values asked together were asked again one by one when no answer came, 3 s or more each time.
+
+**Version**
+- 1.32.0 in `dmd/app.py` and the MAME plugin.
+- README: the games done with the most care at the top (The King of Fighters '98, Metal Slug, DoDonPachi, and the ones learned on a cabinet), two new pictures of The King of Fighters '98. PROGRESS.md up to date.
+
+### Français
+
+**Les coups désespérés sous le nom, et les victoires de deux humains** (test 1, The King of Fighters '98, les maquettes de Seb)
+- Sous le nom de chaque joueur humain, un panneau, comme sur la maquette que Seb a choisie. Une pastille dit les stocks (1 STOCK, 2 STOCKS), EXTRA, ou MAX en doré. La jauge est dessinée comme dans le jeu, la barre et un carré vert par stock, 3 carrés pour le premier combattant d'une équipe et un de plus pour chaque équipier battu.
+- Quand la jauge permet un coup désespéré (un stock ou le MAX en Advanced, la jauge pleine ou la vie dans le rouge en Extra), les commandes de ceux du combattant s'affichent dans le panneau, leurs flèches tournées vers l'autre combattant (le joueur 2 à droite regarde à gauche). Les flèches s'allument quand le stick les fait. Quand un bouton finit une tentative à qui il manque une étape ou deux, les étapes manquées sont barrées en rouge et RATÉ s'affiche. DM ! s'affiche quand le jeu a pris son stock (sa jauge pleine en Extra), SDM ! en MAX (A+B+C a pris un stock avant), et la ligne reste allumée pendant ce temps. Un coup spécial (236 et un poing) ne donne pas de RATÉ, un stock pris par une garde annulée non plus. Une commande faite en entier que le jeu n'a pas prise reste allumée un moment, sans mot, et va dans le journal (pour trouver les stocks si leur adresse n'est pas la bonne).
+- Les boutons ont les couleurs de la Neo Geo (A rouge, B jaune, C vert, D bleu) et les noms du fichier du jeu (`"buttons"`, LP LK HP HK).
+- L'équipe monte sur la ligne du nom, en petit, les battus barrés.
+- Quand deux humains jouent à un jeu d'équipes, une pastille VICTOIRES sous les crédits compte les matchs gagnés par chacun, P1 à gauche et P2 à droite. Il en vient un de plus quand VICTOIRE s'affiche. ArcadeDMD les compte lui-même, et les remet à 0 quand l'un des deux est parti depuis 20 s. Contre l'ordinateur elle ne s'affiche pas.
+- De nouvelles valeurs dans The King of Fighters '98, toutes à confirmer en jeu, leurs changements écrits dans le journal. Le stick et les boutons de chaque joueur (BIOS_P1CURRENT 0x10FD96 et BIOS_P2CURRENT 0x10FD9C, lus à l'envers si haut et bas viennent ensemble), la jauge (0x1081E8, notes de code de RetroAchievements, 0xA0 pleine), les stocks (0x1082E3, le code MAME Infinite Power), le mode Advanced ou Extra (0x10A84C, à côté de l'équipe), un octet qui pourrait être le chrono du MAX (0x1081EA), et ceux du joueur 2 dans son propre bloc.
+- Les commandes des 84 coups désespérés des 38 combattants, 3 au plus chacun (`"moves"` dans le fichier du jeu, en notation du pavé numérique pour un combattant tourné vers la droite, P pour un poing et K pour un pied). Elles viennent du command.dat de MAME (Progetto-SNAPS, l'entrée du jeu d'origine), vérifiées avec le wiki coréen Enha. Une forme plus courte d'une commande que le jeu prend aussi donne quand même DM ! quand le jeu a pris son stock.
+
+**Les touches appuyées, et le MAX d'Extra** (test 3, les premiers combats de Seb)
+- Quand aucun coup désespéré ne peut sortir, le panneau montre les touches appuyées, comme le mode entraînement. Chaque direction du stick et les boutons appuyés avec, la plus récente à droite et éclairée, les plus anciennes plus pâles, le tout parti 3 s après la dernière. Les commandes des coups désespérés prennent leur place dès que l'un d'eux peut sortir.
+- En Extra, la jauge pleine est le MAX jusqu'à ce que sa barre soit vide ou qu'un coup désespéré la prenne d'un coup. Les commandes ne s'affichaient que tant que la jauge était pile pleine, et partaient dès que la barre du MAX commençait à se vider. DM ! (SDM ! avec la vie dans le rouge) quand la jauge tombe d'un coup. La jauge pleine, vide, ou prise d'un coup vont dans le journal.
+
+**Quand un super peut sortir en Extra** (test 4, Seb ne joue jamais en Extra)
+- La pastille dit pourquoi un coup désespéré peut sortir. MAX en doré, VIE ROUGE en rouge quand la vie est presque vide (un quart de la barre, à confirmer en jeu, le jeu le monte pour une équipe qui a perdu un combattant), MAX + VIE ROUGE pour un SDM. Le bord du panneau prend la même couleur.
+- Tant qu'aucun ne peut sortir en Extra, la barre est plus longue, avec son remplissage (62 %) et la règle à côté, SUPER À 100 %.
+
+**Le décor plus sombre sous les combats** (test 5, Seb)
+- Le décor des jeux de combat est plus sombre, 50 % au lieu de 30 %, les noms, barres de vie et boutons ne ressortaient pas assez dessus. `"dim_fight"` dans la section `preview` le règle, de 0 à 80, les autres scènes gardent `"dim"`.
+
+**ROUND 1 une seule fois, au combat** (test 6, la vidéo de Seb sur The King of Fighters '98)
+- Entre les écrans de sélection et le combat, le jeu montre d'autres écrans, HOW TO PLAY, THE NEXT COMPETITOR, la sélection de l'ordre, BATTLE IN CHINA. Seules la sélection des personnages et celle de l'ordre étaient dites, et chacun des autres lançait un combat sur l'écran HD, ROUND 1 avec le balayage du décor qui change, puis le chrono du match d'avant. Tout écran autre que celui du combat (0xE8BE, notes de code de RetroAchievements) est maintenant un écran de sélection, VS au milieu et aucun événement de combat, et ROUND 1 vient une fois, quand l'écran du combat apparaît. Le balayage du décor suivant vient sur BATTLE IN, là où le jeu le montre.
+- Un écran, de sélection ou de combat, compte une fois qu'il a duré 0,4 s. Un écran d'un instant ne lance ni ne finit un combat.
+- VS ne s'affiche plus un instant juste après FIGHT !, le chrono étant immobile depuis 6 s pendant l'entrée des combattants. FIGHT ! compte comme un chrono qui bouge.
+- Le chrono du match d'avant (44) ne s'affiche plus au début du suivant, tant que le jeu n'a pas mis le sien ou que GO n'est pas venu.
+- Le vainqueur du match (VICTOIRE, l'équipe éliminée) reste ses 5,5 s par-dessus l'écran de ses répliques, qui est maintenant un écran de sélection.
+
+**La fin du MAX en Advanced** (test 7, la photo de Seb, MAX allumé alors que le jeu n'y était plus)
+- Le jeu ne remplit pas sa jauge et ne donne pas de stock pendant le MAX. Un stock gagné, ou la jauge qui se remplit à nouveau, finit maintenant le MAX sur l'écran HD. Il pouvait rester allumé jusqu'à 15 s après celui du jeu.
+- A+B+C, le début du MAX avec la jauge, et le MAX une fois par seconde vont dans le journal, pour régler sa fin sur une borne.
+
+**ROUND et FIGHT ! quand le jeu les montre** (tests 8, 8b et 8d, la deuxième vidéo de Seb et ses journaux, tout était en retard dans le test 7)
+- L'écran du combat (0xE8BE) ne vient qu'une fois GO fini, pas pendant l'entrée des combattants. Le test 6 l'attendait, ROUND n venait à GO et FIGHT ! 1,5 s après.
+- Le journal de Seb montre les états du combat de The King of Fighters '98. 0x1A pendant le combat (0x02 un instant pendant le gel d'un super), après un K.O. 0x19 et 0x01 tour à tour, puis 0x01, et 0 quand l'intro du round suivant commence, quand le jeu affiche ROUND n. READY (0x18) vient 4 à 5 s plus tard. Le test 8 prenait 0x01 pour le début du round (les notes de '97), ROUND venait donc au K.O. ROUND n vient maintenant quand l'intro commence, le bandeau du combattant suivant (ENTRE EN SCÈNE) 1,4 s après quand le jeu le montre, et FIGHT ! 1,15 s après READY, avec GO. Le nom du battu reste jusqu'au bandeau.
+- Entre les écrans de sélection et un premier round l'état reste à 0. Ces écrans, et ceux d'après un match, sont des écrans de sélection (VS, aucun événement de combat). Le deuxième journal de Seb (test 8d) montre l'intro d'un premier round, le jeu met son chrono (de 0 à 60) quand le décor apparaît, READY vient 6 s plus tard. ROUND 1 vient alors, FIGHT ! 1,15 s après READY avec GO, et à READY si aucun chrono remis n'a été vu. HOW TO PLAY, THE NEXT COMPETITOR et BATTLE IN ne lancent toujours rien. La règle select du fichier du jeu revient à la sélection des personnages et à celle de l'ordre.
+- Le journal note l'état du combat, l'écran du jeu et son chrono remis hors des combats, pour trouver sur une borne ce qui dit l'intro d'un premier round.
+
+**Le MAX comme le dit le jeu** (tests 8 et 8c, les photos et le journal de Seb, MAX allumé sans stock, puis dans le rouge)
+- La pastille dit MAX quand tous les stocks sont allumés, comme le jeu à côté de sa jauge, et MAX ACTIVÉ pour le MAX d'Advanced.
+- MAX ACTIVÉ suit le chrono du MAX du jeu (0x1081EA, le code MAME Infinite Power le tient à 0x40). Dans le journal de Seb, le MAX de l'ordinateur l'a mis à 0x3F et il a décompté, un coup désespéré ou une garde annulée seulement à 0x01. Le MAX dure tant qu'il est à 2 ou plus, quels que soient les boutons, et la barre du panneau le montre se vider, comme le jeu. Un stock pris juste après un A+B+C appuyé par hasard, par une garde annulée en bloquant dans le rouge, allumait MAX sans stock avec les commandes. Un coup désespéré en MAX, son chrono qui tombe à 0, donne SDM !.
+
+**Plus d'enseignes sous les combats** (test 8, Seb)
+- Les enseignes du décor de la ville qui s'allumaient à hauteur des noms (les rectangles blancs) ne s'affichent plus sous les combats et les écrans de sélection. Les autres scènes les gardent.
+
+**Les neuf décors de The King of Fighters '98** (test 9, les images de Seb et les descriptions des stages)
+- Chaque décor du jeu a le sien sur l'écran HD, dessiné par le programme d'après les images des lieux envoyées par Seb, aucune image du jeu. Sous le viaduc à Osaka la nuit, le bateau sur la rivière entre les piliers de pierre en Chine, le port en Corée, le marché au Moyen-Orient, la cour des Lions en Espagne, le dépôt de trains et le quai aux États-Unis, le dojo en ruine dans la forêt au Japon, le Black Noah sous la mer.
+- Ils changent avec les rounds comme dans le jeu, en fondu vers le nouveau look quand ROUND n s'affiche. L'Espagne passe du jour au couchant au troisième round et à la nuit au quatrième, ses lanternes allumées. Le dojo est de nuit, à l'aube au troisième round, au matin au quatrième, de jour au cinquième, ses lucioles parties le matin. Le quai a son couchant, puis la nuit, puis une brume à partir du quatrième round. Le dépôt de trains reçoit un wagon au deuxième round, plus près au troisième, parti au quatrième, revenu au dernier, et son couchant à partir du troisième. À Osaka les voitures sont là au premier round, passent au deuxième, en embouteillage à partir du troisième. En Chine un temple au premier round, une cascade au deuxième, une montagne dans la brume au troisième et au dernier. Le Black Noah bleuit à chaque round.
+- Leurs animations. Le bateau de la Chine longe ses falaises, la fontaine aux lions coule (plus bas au couchant et la nuit), un chat blanc traverse la salle de temps en temps, la vapeur de la locomotive noire, les phares des voitures, les cuivres et l'eau qui brillent, les mouettes, les lucioles, les requins, méduses et bulles derrière la vitre du Black Noah.
+- Les décors peuvent maintenant changer avec le round du combat (un ciel, une teinte, des plans de certains looks seulement) et bouger tout seuls, pour tout fichier de jeu.
+
+**Les décors clairs encore plus sombres** (test 9b, Seb, les infos par-dessus les décors de The King of Fighters '98)
+- `"dim_fight"` vaut maintenant 55, et un décor clair (le marché au soleil, le port de jour) est assombri davantage tout seul, jusqu'à 80 %, pour que tous les décors ressortent à peu près aussi sombres sous les noms, les barres et les panneaux. Les décors de nuit gardent la valeur, et un décor dont le look change avec les rounds le suit (la cour des Lions est plus assombrie de jour que la nuit).
+
+**Lu à chaque image**
+- Une valeur marquée `"fast"` est lue à chaque image, ici le stick et les boutons. Le plugin MAME la lit à chaque image. La lecture RetroArch la demande à chaque image entre ses autres lectures, et demande alors toutes celles-ci d'un coup (RetroArch y répond à la même image, un bloc de mémoire à la fois prenait une image chacun). Chaque changement du stick et des boutons garde le moment où il a été lu.
+- Quand RetroArch se ferme pendant un jeu dont le stick est lu, l'écran HD sort du jeu aussi vite qu'avant (test 2). Les valeurs demandées ensemble étaient redemandées une par une faute de réponse, 3 s ou plus à chaque fois.
+
+**Version**
+- 1.32.0 dans `dmd/app.py` et le plugin MAME.
+- README : les jeux les plus soignés en tête (The King of Fighters '98, Metal Slug, DoDonPachi, et ceux appris sur une borne), deux nouvelles images de The King of Fighters '98. PROGRESS.md à jour.
+
+## 1.31.1
+
+### English
+
+**The K.O. of the fighting games**
+
+An audit of every game file with a health bar, 115 games, after The King of Fighters '98 showed no K.O. on Seb's cabinet. RetroAchievements' code notes (downloaded with `tools/ra_notes.py`) and the cheat databases of FinalBurn Neo and MAME were read game by game. Everything below is still to be confirmed in game.
+- A health bar that goes below zero at a K.O. reads empty, not full. In many SNK games the health is a word that a K.O. takes below zero, its byte read 0xFF (the notes say ff = K.O. in Real Bout Fatal Fury 2, SNK vs. Capcom, World Heroes Perfect and 2 Jet, 0xFB in King of the Monsters), which reads far above full and showed a full bar, so no K.O., no WIN and no round was ever seen. 40 Neo Geo fighting games get the rule the Capcom games already had (`"zero_from"`, halfway between full and the top of the byte or word): Art of Fighting 1 to 3, Aggressors of Dark Kombat, Breakers and Breakers Revenge, Fatal Fury 1 to 3 and Special, Fight Fever, Garou, Voltage Fighter Gowcaizer, Kabuki Klash, Kizuna Encounter, King of Fighters '94 and '95, King of the Monsters 1 and 2, The Last Blade 1 and 2, Legend of Success Joe, Matrimelee, Ninja Master's, Real Bout Fatal Fury 1, 2 and Special, Samurai Shodown 1 to 5 and 5 Special, Sengoku 3, SNK vs. Capcom, World Heroes 1, 2, 2 Jet and Perfect. The shared scene of the Neo Geo fighting games keeps the same values for their sets.
+- Rage of the Dragons and Ragnagard read their health as a signed 16-bit word, below zero is empty there (their notes and cheats write it as a word).
+- Six games are left as they are, their full health being 0xFF or a counter of the damage (Galaxy Fight, Karnov's Revenge, Waku Waku 7, Double Dragon, and the Capcom wrestling games whose cheat fills the bar with 0xFF).
+- The computer's health where the game keeps it. Fatal Fury, King of the Monsters and Legend of Success Joe keep the computer's fighter in a block of its own, player 2's block only moves when a human plays there. Against the computer the right bar never moved. It now shows the computer's (`_cpu_hp`), player 2's when he plays (a `"tag"` on `p2_mode`).
+- Rounds won read in 13 more games, gold stars under the bars and the winner of each round: Samurai Shodown III, IV, V and V Special, SNK vs. Capcom, Garou, Real Bout Fatal Fury 1, 2 and Special, Art of Fighting 1 and 2, Kabuki Klash.
+- The round of the match, ROUND n in big letters when a fight begins as in The King of Fighters: Fatal Fury 2 and Special, Real Bout Fatal Fury Special, World Heroes 2 Jet and Perfect (`round`, from 1 in these games, `"add": -1`).
+- The select screens the game tells (The King of Fighters '94, '96, '98, '99 and 2002, Real Bout Fatal Fury Special, a value `select`). There the HD screen shows VS and no event of a fight, the bars the game fills or empties for the next match give neither K.O. nor ROUND, and the fight begins with its ROUND as the screen ends. The panels show VS too.
+- RetroAchievements' notes number the bytes of the Neo Geo's RAM in the other order of each pair, the 68000's byte is the next one (0x8238 in the notes is 0x108239). Every value taken from them follows that rule, checked on the King of Fighters' values learned on a cabinet.
+
+**FIGHT ! with the game's GO, and the fighters a team has lost** (test 2, Seb's video of The King of Fighters '98)
+- FIGHT ! comes with the game's own FIGHT or GO, when the round's timer starts counting down. Its fraction of a second (`_time_sub`, RetroAchievements code notes, read in The King of Fighters '96, '97, '98 and 2003, Real Bout Fatal Fury and Special, Fatal Fury 1, 2 and Special, Samurai Shodown III, IV and V Special) moves at every frame once it runs, other games wait for their first second counted down. FIGHT ! came 1.35 s after ROUND, with the names of the fighters, 5 s before READY and GO. A timer set to infinite gives it 20 s after the bars filled (12 s without the fraction, the entrances of the fighters before a first round wait for GO too), a game that reads no timer shows it at once as before. The shock wave of FIGHT ! comes with it.
+- While a round waits for its GO, the HD screen keeps its timer. VS showed during READY and GO, the timer having stood still for 6 s.
+- The King of Fighters counts a K.O. a moment before the bar of the beaten fighter reads empty. A team out is now told by the fighters it had lost when the fight began (GO). The count read with the bar still up already had this K.O., and a team was eliminated after its second fighter (CPU WINS, P1 TEAM ELIMINATED in the middle of a match).
+- For the same reason the band of the next fighter came before the K.O. and over it, and his name and his team replaced the beaten fighter's at once. Both wait for the K.O. and the WIN now, 3 s at most (a round lost on time).
+- The last fighter of a team lost on time ends the match too, TIME UP, the WIN, then the winner in big letters.
+- Samurai Shodown V Special read the frames of its timer's second as its timer. It reads its seconds (BCD at 0x10836A, RetroAchievements code notes).
+
+**A fighter at 0 still stands, the end of a match, FIGHT ! with GO** (test 3, Seb's second match of The King of Fighters '98)
+- In The King of Fighters '96 to 2002 a fighter at 0 still fights, only a bar below zero is a K.O. (RetroAchievements code notes of '98, 0x0000 = lowest possible health while alive, underflows when dead). 0 reads 1 (`"add": 1`). It gave a K.O. and the WIN in the middle of a fight (Andy at 0 after a blow blocked), and a fighter at 0 made the K.O. of the other one look like the end of a round already over, so the match was not ended.
+- The end of a match stays 5.5 s (3.2 s before). A team is out also when its count says its three fighters are beaten, read a moment before the K.O.
+- The King of Fighters '97 and '98 read the state of the fight (`_fight_state` at 0x10A786, RetroAchievements code notes of '97, the MAME cheat Hide Background of '98). FIGHT ! comes 1.15 s after READY (0x18), with GO. With the timer it came 0.65 s after GO, a second late with the reading. The changes of this state, FIGHT ! and the start of the timer go to the log, to set this delay on a cabinet.
+
+**Version**
+- 1.31.1 in `dmd/app.py` and the MAME plugin.
+
+### Français
+
+**Le K.O. des jeux de combat**
+
+Un audit de chaque fichier de jeu qui a une barre de vie, 115 jeux, après que The King of Fighters '98 n'a montré aucun K.O. sur la borne de Seb. Les notes de code de RetroAchievements (téléchargées avec `tools/ra_notes.py`) et les bases de triche de FinalBurn Neo et de MAME ont été lues jeu par jeu. Tout ce qui suit reste à confirmer en jeu.
+- Une barre de vie qui passe sous zéro au K.O. se lit vide, et plus pleine. Dans beaucoup de jeux SNK la vie est un mot qu'un K.O. fait passer sous zéro, son octet lu 0xFF (les notes disent ff = K.O. dans Real Bout Fatal Fury 2, SNK vs. Capcom, World Heroes Perfect et 2 Jet, 0xFB dans King of the Monsters), ce qui se lit bien au-dessus du plein et affichait une barre pleine, si bien qu'aucun K.O., aucun WIN et aucun round n'était vu. 40 jeux de combat Neo Geo prennent la règle qu'avaient déjà les jeux Capcom (`"zero_from"`, à mi-chemin entre le plein et le haut de l'octet ou du mot), Art of Fighting 1 à 3, Aggressors of Dark Kombat, Breakers et Breakers Revenge, Fatal Fury 1 à 3 et Special, Fight Fever, Garou, Voltage Fighter Gowcaizer, Kabuki Klash, Kizuna Encounter, King of Fighters '94 et '95, King of the Monsters 1 et 2, The Last Blade 1 et 2, Legend of Success Joe, Matrimelee, Ninja Master's, Real Bout Fatal Fury 1, 2 et Special, Samurai Shodown 1 à 5 et 5 Special, Sengoku 3, SNK vs. Capcom, World Heroes 1, 2, 2 Jet et Perfect. La scène commune des jeux de combat Neo Geo garde les mêmes valeurs pour leurs sets.
+- Rage of the Dragons et Ragnagard lisent leur vie en mot signé de 16 bits, sous zéro c'est vide (leurs notes et leurs codes l'écrivent en mot).
+- Six jeux restent tels quels, leur vie pleine valant 0xFF ou comptant les dégâts (Galaxy Fight, Karnov's Revenge, Waku Waku 7, Double Dragon, et les jeux de catch Capcom dont le code remplit la barre avec 0xFF).
+- La vie de l'ordinateur là où le jeu la garde. Fatal Fury, King of the Monsters et Legend of Success Joe gardent le combattant de l'ordinateur dans un bloc à lui, celui du joueur 2 ne bouge que quand un humain y joue. Contre l'ordinateur, la barre de droite ne bougeait jamais. Elle montre maintenant celle de l'ordinateur (`_cpu_hp`), et celle du joueur 2 quand il joue (un `"tag"` sur `p2_mode`).
+- Les rounds gagnés lus dans 13 jeux de plus, étoiles dorées sous les barres et vainqueur de chaque round, Samurai Shodown III, IV, V et V Special, SNK vs. Capcom, Garou, Real Bout Fatal Fury 1, 2 et Special, Art of Fighting 1 et 2, Kabuki Klash.
+- Le round du match, ROUND n en grand quand un combat commence comme dans The King of Fighters, Fatal Fury 2 et Special, Real Bout Fatal Fury Special, World Heroes 2 Jet et Perfect (`round`, à partir de 1 dans ces jeux, `"add": -1`).
+- Les écrans de sélection que dit le jeu (The King of Fighters '94, '96, '98, '99 et 2002, Real Bout Fatal Fury Special, une valeur `select`). L'écran HD y affiche VS et aucun événement de combat, les barres que le jeu remplit ou vide pour le match suivant ne donnent ni K.O. ni ROUND, et le combat commence avec son ROUND quand l'écran se termine. Les dalles affichent VS aussi.
+- Les notes de RetroAchievements numérotent les octets de la RAM de la Neo Geo dans l'autre ordre de chaque paire, l'octet du 68000 est le voisin (0x8238 dans les notes, c'est 0x108239). Chaque valeur qui en vient suit cette règle, vérifiée sur les valeurs des King of Fighters apprises sur une borne.
+
+**FIGHT ! avec le GO du jeu, et les combattants qu'une équipe a perdus** (test 2, la vidéo de Seb sur The King of Fighters '98)
+- FIGHT ! vient avec le FIGHT ou le GO du jeu, quand le chrono du round se met à décompter. Sa fraction de seconde (`_time_sub`, notes de code de RetroAchievements, lue dans The King of Fighters '96, '97, '98 et 2003, Real Bout Fatal Fury et Special, Fatal Fury 1, 2 et Special, Samurai Shodown III, IV et V Special) bouge à chaque image dès qu'il tourne, les autres jeux attendent leur première seconde décomptée. FIGHT ! venait 1,35 s après ROUND, avec les noms des combattants, 5 s avant READY et GO. Un chrono réglé sur l'infini le donne 20 s après que les barres se sont remplies (12 s sans la fraction, les entrées des combattants avant un premier round attendent aussi le GO), un jeu qui ne lit pas de chrono le montre tout de suite comme avant. L'onde de choc de FIGHT ! vient avec lui.
+- Tant qu'un round attend son GO, l'écran HD garde son chrono. VS s'affichait pendant READY et GO, le chrono étant immobile depuis 6 s.
+- The King of Fighters compte un K.O. juste avant que la barre du combattant battu se lise vide. Une équipe éliminée se dit maintenant d'après les combattants qu'elle avait perdus au début du combat (GO). Le compte lu barre encore levée avait déjà ce K.O., et une équipe était éliminée après son deuxième combattant (VICTOIRE CPU, ÉQUIPE P1 ÉLIMINÉE en plein match).
+- Pour la même raison, le bandeau du combattant suivant venait avant le K.O. et par-dessus, et son nom et son équipe remplaçaient tout de suite ceux du battu. Les deux attendent maintenant le K.O. et le WIN, 3 s au plus (un round perdu au temps).
+- Le dernier combattant d'une équipe perdu au temps finit aussi le match, TIME UP, le WIN, puis le vainqueur en grand.
+- Samurai Shodown V Special lisait les images de la seconde de son chrono comme son chrono. Il lit ses secondes (en BCD à 0x10836A, notes de code de RetroAchievements).
+
+**Un combattant à 0 est encore debout, la fin d'un match, FIGHT ! avec GO** (test 3, le deuxième match de Seb sur The King of Fighters '98)
+- Dans The King of Fighters '96 à 2002, un combattant à 0 se bat encore, seule une barre passée sous zéro est un K.O. (notes de code de RetroAchievements du '98, 0x0000 = la vie la plus basse encore en vie, sous zéro à la mort). 0 se lit 1 (`"add": 1`). Il donnait un K.O. et le WIN en plein combat (Andy à 0 après un coup gardé), et un combattant à 0 faisait prendre le K.O. de l'autre pour la fin d'un round déjà fini, si bien que le match ne finissait pas.
+- La fin d'un match reste 5,5 s (3,2 s avant). Une équipe est éliminée aussi quand son compte dit que ses trois combattants sont battus, lu juste avant le K.O.
+- The King of Fighters '97 et '98 lisent l'état du combat (`_fight_state` à 0x10A786, notes de code de RetroAchievements du '97, le code MAME Hide Background du '98). FIGHT ! vient 1,15 s après READY (0x18), avec GO. Avec le chrono, il venait 0,65 s après GO, une seconde de retard avec la lecture. Les changements de cet état, FIGHT ! et le départ du chrono vont dans le journal, pour régler ce délai sur une borne.
+
+**Version**
+- 1.31.1 dans `dmd/app.py` et le plugin MAME.
+
 ## 1.31.0
 
 ### English

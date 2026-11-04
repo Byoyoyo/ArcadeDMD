@@ -42,6 +42,7 @@ from .hd_games14 import SCENES as _SCENES_CPS_ACTION
 from .hd_games16 import SCENES as _SCENES_CPS_SMALL
 from .hd_cave import SCENES as _SCENES_CAVE
 from .hd_panels import SCENES as _SCENES_CPS_PANELS
+from .hd_moves import draw_panel, draw_wins
 from .hd_mslug import MetalSlugScene, family
 from .i18n import tr
 
@@ -123,20 +124,28 @@ class HDRenderer:
             self.dim = max(0, min(80, int((cfg or {}).get("dim", 30))))
         except (TypeError, ValueError):
             self.dim = 30
+        # the fighting games darker still, their names, bars and buttons over the stage (Seb, 1.32 test 5, "dim_fight")
+        # les jeux de combat plus sombres encore, leurs noms, barres et boutons par-dessus le décor
+        try:
+            self.dim_fight = max(0, min(80, int((cfg or {}).get("dim_fight", 55))))
+        except (TypeError, ValueError):
+            self.dim_fight = 55
         self.dim_veils = {}
         self.credit_pills = {}
         self.fight_cbar = None        # the credits of the fights, as in Metal Slug / les crédits des combats
 
     # ------------------------------------------------------------ outils
-    def dim_veil(self, size):
-        """The dark veil laid on every backdrop, or None. / Le voile sombre posé sur chaque décor, ou None."""
-        if self.dim <= 0:
+    def dim_veil(self, size, level=None):
+        """The dark veil laid on every backdrop, or None. level: its own darkness, in percent (the fights).
+        / Le voile sombre posé sur chaque décor, ou None. level : son propre assombrissement, en pour cent."""
+        level = self.dim if level is None else level
+        if level <= 0:
             return None
-        v = self.dim_veils.get(size)
+        v = self.dim_veils.get((size, level))
         if v is None:
-            v = self.dim_veils[size] = self.pg.Surface(size).convert()
+            v = self.dim_veils[(size, level)] = self.pg.Surface(size).convert()
             v.fill((0, 0, 0))
-            v.set_alpha(int(self.dim * 255 / 100))
+            v.set_alpha(int(level * 255 / 100))
         return v
 
     def S(self, v):
@@ -602,7 +611,7 @@ class HDRenderer:
             if self.fight is None:
                 self.fight = FightFX(self)
             self.FPS = MetalSlugScene.FPS
-            self.fight.update(vals, now, key, g, idle=self._nobody(vals))
+            self.fight.update(vals, now, key, g, idle=self._nobody(vals), hist=getattr(st, "hist", None))
             target = self.fight.begin(screen, now)
             self.draw_fight(target, eng, vals, logo, now)
             self.fight.end(screen, target, now)
@@ -702,6 +711,11 @@ class HDRenderer:
             ko = False                    # K.O. shows on the loser's side, the timer stopped here / K.O. du côté du perdant
         if t is not None and self.fight is not None and not self.fight.time_live(now):
             t = None                      # frozen, the last fight's (select screen): VS / figé, celui du combat d'avant
+        sel = _num(vals.get("select")) == 1
+        if self.fight is not None and self.fight.sel_raw is not None:
+            sel = self.fight.sel_on       # once it lasted a moment (1.32) / une fois qu'il a duré un instant
+        if sel:                            # a select screen the game says (1.31.1): VS / un écran de sélection que dit le jeu
+            t, ko = None, False
         if ko:
             ks = self.fight.ko_scale(now) if self.fight is not None else 1.0
             self.put(screen, self.text("KO", "black", S(120), (255, 48, 32)), cx, S(220), "center", "middle", scale=ks)
@@ -714,13 +728,25 @@ class HDRenderer:
             self.put(screen, self.text("VS", "black", S(110), AMBER), cx, S(220), "center", "middle")
         # en bas : qui joue, le combattant en cours, les équipes des King of Fighters
         room = cx - S(120) - S(40)
+        game = self._game(eng)
+        moves = self.fight.moves if self.fight is not None and isinstance(game.get("moves"), dict) else None
         for side in ("p1", "p2"):
             human = p1_in if side == "p1" else p2_in
             tag = ("P1" if side == "p1" else "P2") if human else "CPU"
             name = vals.get(side + "_char")
+            held = self.fight.held(side) if self.fight is not None else None
+            if held is not None:                  # its next fighter waits for this one's K.O. / le suivant attend son K.O.
+                name = held[0]
+            team = self.team(eng, side)
+            # 1.32: under a human's name, the panel of the desperation moves, the team moved up beside the name, small
+            # sous le nom d'un humain, le panneau des coups désespérés, l'équipe montée à côté du nom, en petit
+            panel = moves is not None and human and self.fight.panel_on(side)
             tsize = S(76)
             tw = self.text(tag, "black", tsize, AMBER)["w"]
-            nsize = self.fit_size(str(name), "black", S(76), room - tw - S(40), S(30)) if name else tsize
+            space = room - tw - S(40)
+            if panel and team:                    # the name leaves the team its smallest size / le nom laisse la place
+                space = min(space, int(cx - S(176)) - S(40) - tw - S(40) - S(30) - self._team_w(team, S(16)))
+            nsize = self.fit_size(str(name), "black", S(76), space, S(30)) if name else tsize
             if side == "p1":
                 self.put(screen, self.text(tag, "black", tsize, AMBER), S(40), S(268))
                 if name:
@@ -730,8 +756,18 @@ class HDRenderer:
                 if name:
                     self.put(screen, self.text(str(name), "black", nsize, RED), W - S(40) - tw - S(40),
                              S(268 + (76 - nsize / self.s) * 0.8), "right")
-            team = self.team(eng, side)
-            if team:
+            if panel:
+                nw = self.text(str(name), "black", nsize, RED)["w"] if name else 0
+                if team:
+                    if side == "p1":
+                        self.draw_team_line(screen, team, S(40) + tw + S(40) + nw + S(30), int(cx - S(176)), S(318), side)
+                    else:
+                        self.draw_team_line(screen, team, W - S(40) - tw - S(40) - nw - S(30), int(cx + S(176)), S(318), side)
+                x0, x1 = (S(36), int(cx - S(176))) if side == "p1" else (int(cx + S(176)), W - S(36))
+                lost = sum(1 for _, st in team if st == "done") if team else _num(vals.get(f"_{side}_lost"))
+                health = _num(vals.get("health" if side == "p1" else "health_p2"))
+                draw_panel(self, screen, moves, side, vals, game, name, x0, x1, S(352), now, lost, health)
+            elif team:
                 self.draw_team(screen, team, S(44) if side == "p1" else W - S(44), S(372), side, room)
             else:
                 self.draw_super(screen, vals, side, now, room, self._level_top(eng, side))
@@ -749,6 +785,11 @@ class HDRenderer:
                 self.pg.draw.rect(pill, (120, 90, 40, 255), pill.get_rect(), max(1, S(3)), border_radius=h // 2)
             screen.blit(pill, (int(cx - w / 2), S(338) - h // 2))
             self.put(screen, t, cx, S(338), "center", "middle")
+        f = self.fight
+        if f is not None and f.vs_on() and _num(vals.get("_p1_lost")) is not None:
+            # two humans in a game of teams: the matches each one won, under the credits (1.32, Seb, as in Puzzle Bobble)
+            # deux humains dans un jeu d'équipes : les matchs gagnés par chacun, sous les crédits
+            draw_wins(self, screen, f.moves, f.wins["p1"], f.wins["p2"], cx, S(414), now, f.win_pop)
 
     def draw_rounds(self, screen, vals, x1, x2, now):
         """The rounds won, gold stars under the inner end of each health bar (Street Fighter II, Alpha), the last one
@@ -822,6 +863,40 @@ class HDRenderer:
         if full:
             self.put(screen, self.text("MAX", "black", S(26), MAX_INK, glow=0), x + w / 2, y + h / 2, "center", "middle")
 
+    @staticmethod
+    def _game(eng):
+        """The game file of the game played, or {}. / Le fichier du jeu joué."""
+        lib = getattr(eng, "library", None)
+        g = lib.get((eng.state.meta or {}).get("game") or "") if lib is not None else None
+        return g if isinstance(g, dict) else {}
+
+    def _team_w(self, team, size):
+        return sum(self.text(n, "bold", size, GREY, glow=0)["w"] for n, _ in team) + self.S(16) * (len(team) - 1)
+
+    def draw_team_line(self, screen, team, start, end, y, side):
+        """The team on the name's line, small (1.32): the one fighting in amber, the beaten ones struck. start is beside
+        the name, end how far it may go. / L'équipe sur la ligne du nom, en petit : celui qui se bat en ambre, les battus
+        barrés."""
+        S = self.S
+        room = abs(end - start)
+        size = S(24)
+        while size > S(16) and self._team_w(team, size) > room:
+            size -= 1
+        items = team if side == "p1" else list(reversed(team))
+        x = start
+        for n, state in items:
+            t = self.text(n, "bold", size, AMBER if state == "now" else (150, 156, 175), glow=0)
+            if side == "p1":
+                self.put(screen, t, x, y, "left", "middle")
+                x0, x1 = x, x + t["w"]
+                x += t["w"] + S(16)
+            else:
+                self.put(screen, t, x, y, "right", "middle")
+                x0, x1 = x - t["w"], x
+                x -= t["w"] + S(16)
+            if state == "done":                                     # beaten: struck / battu : barré
+                self.pg.draw.line(screen, (220, 60, 40), (x0, y), (x1, y), max(2, S(3)))
+
     def team(self, eng, side):
         """Équipe King of Fighters dans l'ordre de passage : [(nom, état)], état « done », « now » ou « next »."""
         vals = eng.state.values
@@ -831,6 +906,9 @@ class HDRenderer:
         chars = [vals.get(f"_{side}_ch{i}") for i in range(4)]
         orders = [vals.get(f"_{side}_ord{i}") for i in range(3)]
         lost = _num(vals.get(f"_{side}_lost"))
+        held = self.fight.held(side) if self.fight is not None else None
+        if held is not None and held[1] is not None:  # the one beaten falls first / celui qui est battu tombe d'abord
+            lost = held[1]
         if lost is None or any(o is None for o in orders):
             return None
         out = []
