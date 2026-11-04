@@ -47,7 +47,12 @@ from .hd_mslug import MetalSlugScene, family
 from .i18n import tr
 
 AMBER, RED, CREAM, LINE = (255, 168, 48), (255, 52, 30), (235, 225, 205), (168, 112, 30)
-GREY, DIM = (150, 150, 165), (90, 90, 100)
+GREY = (150, 150, 165)
+# the fighters' names (1.33, Seb): cream letters with a black outline, P1, P2 and the teams outlined too, no glow. They
+# were red with a red glow, which melted into the warm stages. / Les noms des combattants : lettres crème à contour noir,
+# P1, P2 et les équipes aussi, sans lueur. Ils étaient rouges à lueur rouge, fondus dans les décors chauds.
+INK = (10, 8, 14)
+TEAM_GREY, TEAM_DONE = (205, 210, 225), (150, 152, 165)
 MAX_INK = (70, 36, 6)
 BARS = {"g": ((48, 240, 160), (20, 150, 110)), "y": ((255, 214, 60), (190, 130, 20)), "r": ((255, 70, 50), (160, 30, 20))}
 FONT_FILES = {"black": "Inter-Black.otf", "xbold": "Inter-ExtraBold.otf", "bold": "Inter-Bold.otf",
@@ -181,9 +186,10 @@ class HDRenderer:
             self.fonts[k] = f
         return f
 
-    def text(self, text, key, size, color, glow=0.5):
-        """Texte prêt à poser (surface, lueur), gardé en cache."""
-        ck = (text, key, size, color, glow)
+    def text(self, text, key, size, color, glow=0.5, outline=None, stroke=0):
+        """Texte prêt à poser (surface, lueur), gardé en cache. outline et stroke (1.33) : un contour d'une autre
+        couleur, de stroke pixels, autour des lettres ; la largeur donnée reste celle des lettres."""
+        ck = (text, key, size, color, glow, outline, stroke)
         hit = self.cache.get(ck)
         if hit is not None:
             self.cache.move_to_end(ck)
@@ -191,11 +197,19 @@ class HDRenderer:
         f = self.font(key, size)
         l, t, r, b = f.getbbox(text) if text else (0, 0, 1, 1)
         pad = int(size * 0.45) + 4 if glow else 2
+        stroke = int(stroke) if outline is not None else 0
+        pad = max(pad, stroke + 2)
         w, h = max(1, r - l) + 2 * pad, max(1, b - t) + 2 * pad
-        alpha = Image.new("L", (w, h), 0)
-        ImageDraw.Draw(alpha).text((pad - l, pad - t), text, font=f, fill=255)
-        img = Image.new("RGBA", (w, h), tuple(color) + (0,))
-        img.putalpha(alpha)
+        if stroke > 0:                                            # the outline under the letters / le contour sous les lettres
+            img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+            ImageDraw.Draw(img).text((pad - l, pad - t), text, font=f, fill=tuple(color) + (255,), stroke_width=stroke,
+                                     stroke_fill=tuple(outline) + (255,))
+            alpha = img.getchannel("A")
+        else:
+            alpha = Image.new("L", (w, h), 0)
+            ImageDraw.Draw(alpha).text((pad - l, pad - t), text, font=f, fill=255)
+            img = Image.new("RGBA", (w, h), tuple(color) + (0,))
+            img.putalpha(alpha)
         out = {"surf": self._surf(img), "w": r - l, "h": b - t, "pad": pad, "key": ck}
         if glow:
             gl = Image.new("RGB", (w, h))
@@ -749,22 +763,22 @@ class HDRenderer:
             # sous le nom d'un humain, le panneau des coups désespérés, l'équipe montée à côté du nom, en petit
             panel = moves is not None and human and self.fight.panel_on(side)
             tsize = S(76)
-            tw = self.text(tag, "black", tsize, AMBER)["w"]
+            tw = self.tag_text(tag, tsize)["w"]
             space = room - tw - S(40)
             if panel and team:                    # the name leaves the team its smallest size / le nom laisse la place
                 space = min(space, int(cx - S(176)) - S(40) - tw - S(40) - S(30) - self._team_w(team, S(16)))
             nsize = self.fit_size(str(name), "black", S(76), space, S(30)) if name else tsize
             if side == "p1":
-                self.put(screen, self.text(tag, "black", tsize, AMBER), S(40), S(268))
+                self.put(screen, self.tag_text(tag, tsize), S(40), S(268))
                 if name:
-                    self.put(screen, self.text(str(name), "black", nsize, RED), S(40) + tw + S(40), S(268 + (76 - nsize / self.s) * 0.8))
+                    self.put(screen, self.name_text(str(name), nsize), S(40) + tw + S(40), S(268 + (76 - nsize / self.s) * 0.8))
             else:
-                self.put(screen, self.text(tag, "black", tsize, AMBER), W - S(40), S(268), "right")
+                self.put(screen, self.tag_text(tag, tsize), W - S(40), S(268), "right")
                 if name:
-                    self.put(screen, self.text(str(name), "black", nsize, RED), W - S(40) - tw - S(40),
+                    self.put(screen, self.name_text(str(name), nsize), W - S(40) - tw - S(40),
                              S(268 + (76 - nsize / self.s) * 0.8), "right")
             if panel:
-                nw = self.text(str(name), "black", nsize, RED)["w"] if name else 0
+                nw = self.name_text(str(name), nsize)["w"] if name else 0
                 if team:
                     if side == "p1":
                         self.draw_team_line(screen, team, S(40) + tw + S(40) + nw + S(30), int(cx - S(176)), S(318), side)
@@ -797,6 +811,20 @@ class HDRenderer:
             # two humans in a game of teams: the matches each one won, under the credits (1.32, Seb, as in Puzzle Bobble)
             # deux humains dans un jeu d'équipes : les matchs gagnés par chacun, sous les crédits
             draw_wins(self, screen, f.moves, f.wins["p1"], f.wins["p2"], cx, S(414), now, f.win_pop)
+
+    def name_text(self, name, size):
+        """A fighter's name: cream, outlined in black (1.33). / Le nom d'un combattant : crème, contour noir."""
+        return self.text(name, "black", size, CREAM, glow=0, outline=INK, stroke=max(2, self.S(5)))
+
+    def tag_text(self, tag, size):
+        """P1, P2 or CPU beside the name: amber, outlined. / P1, P2 ou CPU à côté du nom : ambre, contour noir."""
+        return self.text(tag, "black", size, AMBER, glow=0, outline=INK, stroke=max(2, self.S(5)))
+
+    def team_text(self, name, size, state):
+        """A team member: the one fighting in amber, the others light grey, the beaten ones duller, all outlined.
+        / Un équipier : celui qui se bat en ambre, les autres gris clair, les battus plus ternes, tous à contour."""
+        col = AMBER if state == "now" else (TEAM_DONE if state == "done" else TEAM_GREY)
+        return self.text(name, "bold", size, col, glow=0, outline=INK, stroke=max(1, self.S(2)))
 
     def draw_rounds(self, screen, vals, x1, x2, now):
         """The rounds won, gold stars under the inner end of each health bar (Street Fighter II, Alpha), the last one
@@ -878,7 +906,7 @@ class HDRenderer:
         return g if isinstance(g, dict) else {}
 
     def _team_w(self, team, size):
-        return sum(self.text(n, "bold", size, GREY, glow=0)["w"] for n, _ in team) + self.S(16) * (len(team) - 1)
+        return sum(self.team_text(n, size, st)["w"] for n, st in team) + self.S(16) * (len(team) - 1)
 
     def draw_team_line(self, screen, team, start, end, y, side):
         """The team on the name's line, small (1.32): the one fighting in amber, the beaten ones struck. start is beside
@@ -892,7 +920,7 @@ class HDRenderer:
         items = team if side == "p1" else list(reversed(team))
         x = start
         for n, state in items:
-            t = self.text(n, "bold", size, AMBER if state == "now" else (150, 156, 175), glow=0)
+            t = self.team_text(n, size, state)
             if side == "p1":
                 self.put(screen, t, x, y, "left", "middle")
                 x0, x1 = x, x + t["w"]
@@ -956,15 +984,14 @@ class HDRenderer:
         size = self.S(30)
         gap = self.S(30)
         while size > self.S(16):
-            total = sum(self.text(n, "bold", size, GREY, glow=0)["w"] for n, _ in team) + gap * (len(team) - 1)
+            total = sum(self.team_text(n, size, st)["w"] for n, st in team) + gap * (len(team) - 1)
             if total <= room:
                 break
             size = int(size * 0.9)
         items = team if side == "p1" else list(reversed(team))
         cx = x
         for n, state in items:
-            col = AMBER if state == "now" else (DIM if state == "done" else GREY)
-            t = self.text(n, "bold", size, col, glow=0)
+            t = self.team_text(n, size, state)
             if side == "p1":
                 self.put(screen, t, cx, y)
                 left = cx

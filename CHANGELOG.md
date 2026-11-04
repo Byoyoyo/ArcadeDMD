@@ -18,6 +18,9 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - During a fighting game, every change of every value read is written with its time to `runtime\captures\<game>-<date>.log`, the stick and buttons at the time they were read, a few hundred KB for a match. `"capture"` in `config.json`: `"fights"` (the default), `"all"` or `"off"`. The log says where the capture went and how many changes it holds.
 - `tools/replay_capture.py` replays a capture through the fight engine, with the game's file as it is now, and prints what the HD screen would have shown, second by second: the select screens, ROUND n, FIGHT !, K.O., WIN, TIME UP, VICTOIRE, the next fighter. One match per game is enough to see what comes at the wrong time, fix the game's file and keep the capture as a test.
 
+**The fighters' names in cream with a black outline** (test 4, Seb: the names were hard to read over the stages)
+- On the fight screen of every fighting game (Neo Geo, Capcom, Cave), the fighter's name is now written in cream letters with a thick black outline, and P1, P2 and CPU in amber with the same outline, no glow. The names were red with a red glow, which melted into the warm stages. The teams of the King of Fighters games (beside the name, or under it against the CPU) take a thin outline too, in a lighter grey, the one fighting in amber, the beaten ones duller and struck.
+
 **Version**
 - 1.33.0 in `dmd/app.py` and the MAME plugin.
 
@@ -33,6 +36,9 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 **Les captures des jeux de combat, pour régler chaque jeu avec un match** (test 3, Seb : les corrections de The King of Fighters '98 à porter sur tous les jeux de combat)
 - Pendant un jeu de combat, chaque changement de chaque valeur lue est écrit avec son heure dans `runtime\captures\<jeu>-<date>.log`, le stick et les boutons à l'heure où ils ont été lus, quelques centaines de Ko par match. `"capture"` dans `config.json` : `"fights"` (par défaut), `"all"` ou `"off"`. Le journal dit où est allée la capture et combien de changements elle tient.
 - `tools/replay_capture.py` rejoue une capture dans le moteur de combat, avec le fichier du jeu tel qu'il est maintenant, et écrit ce que l'écran HD aurait montré, seconde par seconde : les écrans de sélection, ROUND n, FIGHT !, K.O., WIN, TIME UP, VICTOIRE, le combattant suivant. Un match par jeu suffit pour voir ce qui vient au mauvais moment, corriger le fichier du jeu et garder la capture comme test.
+
+**Les noms des combattants en crème à contour noir** (test 4, Seb : les noms se lisaient mal sur les décors)
+- Sur l'écran de combat de tous les jeux de combat (Neo Geo, Capcom, Cave), le nom du combattant s'écrit maintenant en lettres crème cernées d'un trait noir épais, et P1, P2 et CPU en ambre avec le même trait, sans lueur. Les noms étaient rouges à lueur rouge, fondus dans les décors chauds. Les équipes des King of Fighters (à côté du nom, ou dessous face au CPU) prennent aussi un trait fin, en gris plus clair, celui qui se bat en ambre, les battus plus ternes et barrés.
 
 **Version**
 - 1.33.0 dans `dmd/app.py` et le plugin MAME.
