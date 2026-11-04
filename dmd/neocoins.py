@@ -34,6 +34,12 @@ IN_GAME = 2                 # BIOS_USER_MODE
 class NeoCoins:
     SETTLE = 1.5            # seconds of title screen before a countdown that starts again counts as a coin
     PRESSED = 2.0           # what the BIOS shows this long after a button is that coin / la même pièce
+    # 1.33 test 19 (Seb's capture of 21:25): after a game over the BIOS passes by the demo for a few images before asking
+    # the title screen again when credits are left; the demo must last this long before it means no credit is left, and
+    # that title screen, up to this long after the game over, is not a coin / après un game over le BIOS passe par la
+    # démo quelques images avant de redemander l'écran titre s'il reste des crédits
+    DEMO_SETTLE = 1.0
+    OVER_TITLE = 20.0
 
     def __init__(self, rates=(1, 2), kept=0):
         self.notes = []                                  # (fr, en) for the log / pour le journal
@@ -51,6 +57,7 @@ class NeoCoins:
         self.modes = {}
         self.over_at = -99.0
         self.pressed_at = -99.0
+        self.demo_since = None                           # when the demo began / depuis quand la démo
         self.coins = 0                                   # coins seen (tests) / pièces vues (tests)
         # 1.33 test 8 (Seb: a coin pressed too early put ArcadeDMD one credit ahead of the game). A coin before the BIOS
         # is ready is not counted, the BIOS ignores it. A coin during the demo is counted at once but must be seen by the
@@ -138,7 +145,7 @@ class NeoCoins:
             if mode == IN_GAME and isinstance(timer, int) and isinstance(self.timer, int) and timer > self.timer:
                 coin = True                              # set again during a game / remis en pleine partie
         if coin:
-            if now - self.over_at < 8.0 and self.credits > 0:
+            if now - self.over_at < self.OVER_TITLE and self.credits > 0:
                 pass                                     # the title again after a game over, credits left / le titre revient
             elif pressed:
                 pass                                     # the coin of the button just pressed / celle du bouton
@@ -146,8 +153,14 @@ class NeoCoins:
                 self.credits = min(99, self.credits + 1)
                 self.coins += 1
                 self.notes.append(("pièce vue par le BIOS", "coin seen by the BIOS"))
-        if req == DEMO and mode != IN_GAME and not pressed:
-            self.credits = 0                             # back to the demo, no credit left / retour à la démo
+        if req == DEMO and mode != IN_GAME:
+            if self.demo_since is None:
+                self.demo_since = now
+            if now - self.demo_since >= self.DEMO_SETTLE and not pressed and self.credits:
+                self.credits = 0                         # the demo for good: no credit left / la démo pour de bon
+                self.notes.append(("la démo reste : plus de crédit", "the demo stays: no credit left"))
+        else:
+            self.demo_since = None
         for p in ("p1_mode", "p2_mode"):
             v, old = values.get(p), self.modes.get(p)
             if v == 1 and old in (0, 2, 3) and self.credits > 0:
