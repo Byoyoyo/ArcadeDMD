@@ -49,6 +49,9 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - Windjammers: probes for the players' positions and the disc's, to confirm on the next capture.
 - `tools/replay_capture.py` renames the values of an older capture (`capture_renames` in the game file), so that a capture made with probes replays with the file as it is now. Seb's captures of 18:02 (KOF 2002), 18:06 (KOF '98) and 18:08 (Fatal Fury) kept and replayed by the tests (29 checks).
 
+**Windjammers reads the sets won** (test 11, Seb)
+- The points of the set were read, the sets won were not. They are now (RetroAchievements code notes, Seb's capture), gold discs under P1 and under the opponent on the scoreboard, a match being the best of three.
+
 **Version**
 - 1.33.0 in `dmd/app.py` and the MAME plugin.
 
@@ -95,6 +98,9 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - Fatal Fury lit ses rounds gagnés (étoiles dorées), son round (ROUND n du jeu) et le combattant de l'ordinateur (MICHAEL dans la capture de Seb) ; le résultat du round est lu pour les captures. Un jeu à combattant unique montre VICTOIRE après deux rounds gagnés, tels que vus ici, quoi que compte le jeu.
 - Windjammers : des sondes pour les positions des joueurs et du disque, à confirmer sur la prochaine capture.
 - `tools/replay_capture.py` renomme les valeurs d'une capture plus ancienne (`capture_renames` dans le fichier du jeu), pour qu'une capture faite avec des sondes se rejoue avec le fichier tel qu'il est. Les captures de Seb de 18 h 02 (KOF 2002), 18 h 06 (KOF '98) et 18 h 08 (Fatal Fury) gardées et rejouées par les tests (29 vérifications).
+
+**Windjammers lit les sets gagnés** (test 11, Seb)
+- Les points du set étaient lus, pas les sets gagnés. Ils le sont maintenant (notes RetroAchievements, capture de Seb), des disques dorés sous P1 et sous l'adversaire sur le tableau, un match se jouant en deux sets gagnants.
 
 **Version**
 - 1.33.0 dans `dmd/app.py` et le plugin MAME.

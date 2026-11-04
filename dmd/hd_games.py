@@ -1388,6 +1388,18 @@ class WindjammersScene(GameScene):
         right = "P2" if p2 else (tr(*NATIONS[int(cpu) % 6]) if cpu is not None else "CPU")
         self.text(screen, "P1", bx + S(34), by + S(16), 32, P1C)
         self.text(screen, right, bx + bw - S(34), by + S(16), 32, P2C, align="right")
+        # the sets won, gold discs under each side (1.33, Seb): a match is the best of three / les sets gagnés
+        for name, x0, d in (("sets", bx + S(44), 1), ("sets_p2", bx + bw - S(44), -1)):
+            n = _n(vals.get(name))
+            if n is None:
+                continue
+            for i in range(2):
+                cx, cy = int(x0 + d * i * S(30)), int(by + S(64))
+                if i < int(n):
+                    self.pg.draw.circle(screen, (255, 214, 90), (cx, cy), S(10))
+                    self.pg.draw.circle(screen, (120, 80, 10), (cx, cy), S(10), max(1, S(2)))
+                else:
+                    self.pg.draw.circle(screen, (70, 64, 50), (cx, cy), S(10), max(1, S(2)))
         for name, x, col, align in (("set_points", W / 2 - S(110), P1C, "right"), ("set_points_p2", W / 2 + S(110), P2C, "left")):
             v = _n(vals.get(name))
             if v is None:

@@ -150,6 +150,24 @@
     "addr": "0x10078A",
     "type": "u16",
     "note": "probe (1.33): its y"
+   },
+   "sets": {
+    "addr": "0x100872",
+    "type": "u8",
+    "valid": [
+     0,
+     3
+    ],
+    "note": "player 1 sets won (RetroAchievements 0x873 'player 1 sets won', the byte next to it as for the points); shown as gold discs under P1 (1.33, Seb)"
+   },
+   "sets_p2": {
+    "addr": "0x1008F2",
+    "type": "u8",
+    "valid": [
+     0,
+     3
+    ],
+    "note": "player 2 or computer sets won (RetroAchievements 0x8f3)"
    }
   }
  },
@@ -217,7 +235,9 @@
     "every": 16.0,
     "start": 15.0
    }
-  }
+  },
+  "sets": 1,
+  "sets_p2": 0
  },
  "scene": {
   "layers": [
