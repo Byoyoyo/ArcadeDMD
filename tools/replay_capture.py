@@ -147,6 +147,17 @@ def replay(path, show_values=False, step=1 / 60, frames=(), out_dir=None):
                     track = getattr(sc, "track", None)
                     where = f" (disque HD à {int(track[0])},{int(track[1])})" if track else ""
                     note(t, f"  {name} = {v}{where}")
+            sup = getattr(sc, "super", None)                         # Windjammers: the supers, the charges (1.33)
+            sup = sup[0] if isinstance(sup, tuple) else None
+            if sup != state["scene"].get("_super"):
+                state["scene"]["_super"] = sup
+                if sup:
+                    note(t, f"SUPER {sup.upper()}")
+            for side, t0 in (getattr(sc, "charge", None) or {}).items():
+                on = t0 is not None
+                if on != state["scene"].get("_charge_" + side, False):
+                    state["scene"]["_charge_" + side] = on
+                    note(t, f"  {side} {'charge son super' if on else 'fin de la charge'}")
             t = round(t + step, 5)
             continue
         # the events / les événements

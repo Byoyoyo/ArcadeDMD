@@ -59,8 +59,15 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - `tools/replay_capture.py` replays a game that has a scene of its own (Windjammers, Metal Slug...) through that scene, image by image, and notes the points with where the HD disc was. Seb's capture of 18:56 kept and replayed by the tests (33 checks).
 - The disc's colour per court is not read (a palette, not a value); it waits for a photo of each court.
 
-**A super shot on the HD screen** (test 14, Seb)
-- When a player throws his super shot, SUPER ! pops on his side of the court, the screen flashes his colour, the disc bursts and burns a fiery trail in his colour while the shot lasts (`super` and `super_p2` at 1 while it lasts). The address of that value is not known yet: 376 probes over the three object blocks of the game (the players, the disc) wait for a capture where supers are thrown, then the value is set and the probes go.
+**A super shot on the HD screen** (tests 14 and 15, Seb)
+- Seb's capture of 19:51, with 376 probes over the game's object blocks, gave the words that matter: the player's action word (`p1_state`, `p2_state` at 0x1400 while he charges his super under a lob or with the disc floating over him, about 1 s), the disc's state word (`disc_state`, its bit 0x800 while a super shot flies), who threw it (`disc_last`) and the disc's height (`disc_h`, up to 90 at the top of a lob). The probes are gone.
+- While a player charges, his token burns in a ring of flames and the disc floats over him. When the super flies, SUPER ! and the name of his own shot (Fire Snake, Blitzkrieg, Thunder Loop, Sideburner, Rocket Diagonal, Missile Throw) pop on his side, the screen flashes his colour, the disc bursts and burns a trail in his colour while the shot lasts.
+- The two players are on the HD court too, as tokens in their colours (P1, P2 or CPU), their positions read at every image.
+- A lob rises: the HD disc climbs with the game's height, a target pulses on the floor under it, its shadow fades. A fast disc leaves a white-hot streak.
+- A goal is a bigger show: the screen flashes in the scorer's colour, a shock wave and sparks on the goal line, +3 or +5 big in his colour, a longer shake. A set won slams SET ! with the player's name and the sets, the match won VICTOIRE.
+- The scoreboard is redone: the players' names and nations as the game has them (`p1_chr`, `p2_chr`, RetroAchievements), each one's score and sets under his name, the points of the set big in his colour, the timer and the court between them, in a slimmer box that leaves the court free. The computer's team came from 0x1004FE, which was wrong (always 0 in Seb's capture): `cpu_team` is gone, the opponent's character gives his nation.
+- The courts were in the wrong order: the game counts lawn 0, beach 1, tiled 2, stadium 3, clay 4, concrete 5 (RetroAchievements code notes); ArcadeDMD showed the beach for the lawn and concrete for the stadium. Fixed, and the tiled court's goals are 5 points on the sides and 3 in the middle, as in the game.
+- `tools/replay_capture.py` notes the charges and the supers of a Windjammers capture. Seb's capture of 19:51 kept and replayed by the tests (37 checks).
 
 **Version**
 - 1.33.0 in `dmd/app.py` and the MAME plugin.
@@ -119,8 +126,15 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - `tools/replay_capture.py` rejoue un jeu qui a sa propre scène (Windjammers, Metal Slug...) par cette scène, image par image, et note les points avec la place du disque HD. La capture de Seb de 18 h 56 gardée et rejouée par les tests (33 vérifications).
 - La couleur du disque selon le terrain n'est pas lue (une palette, pas une valeur) ; elle attend une photo de chaque terrain.
 
-**Un super sur l'écran HD** (test 14, Seb)
-- Quand un joueur lance son super, SUPER ! surgit de son côté du terrain, l'écran flashe à sa couleur, le disque éclate et traîne du feu à sa couleur tant que le tir dure (`super` et `super_p2` à 1 tant qu'il dure). L'adresse de cette valeur n'est pas encore connue : 376 sondes sur les trois blocs d'objets du jeu (les joueurs, le disque) attendent une capture où des supers sont lancés, puis la valeur est posée et les sondes s'en vont.
+**Un super sur l'écran HD** (tests 14 et 15, Seb)
+- La capture de Seb de 19 h 51, avec 376 sondes sur les blocs d'objets du jeu, a donné les mots qui comptent : le mot d'action du joueur (`p1_state`, `p2_state` à 0x1400 tant qu'il charge son super sous un lob ou avec le disque qui flotte au-dessus de lui, environ 1 s), le mot d'état du disque (`disc_state`, son bit 0x800 tant qu'un super vole), qui l'a lancé (`disc_last`) et la hauteur du disque (`disc_h`, jusqu'à 90 au sommet d'un lob). Les sondes sont retirées.
+- Tant qu'un joueur charge, son jeton brûle dans un anneau de flammes et le disque flotte au-dessus de lui. Quand le super vole, SUPER ! et le nom de son tir à lui (Fire Snake, Blitzkrieg, Thunder Loop, Sideburner, Rocket Diagonal, Missile Throw) surgissent de son côté, l'écran flashe à sa couleur, le disque éclate et traîne du feu à sa couleur tant que le tir dure.
+- Les deux joueurs sont aussi sur le terrain HD, en jetons à leurs couleurs (P1, P2 ou CPU), leurs positions lues à chaque image.
+- Un lob monte : le disque HD grimpe avec la hauteur du jeu, une cible pulse au sol sous lui, son ombre s'efface. Un disque rapide laisse un sillage blanc chaud.
+- Un but fait plus de spectacle : l'écran flashe à la couleur du marqueur, une onde de choc et des étincelles sur la ligne de but, +3 ou +5 en grand à sa couleur, une secousse plus longue. Un set gagné claque SET ! avec le nom du joueur et les sets, le match gagné VICTOIRE.
+- Le tableau des scores est refait : les noms et les pays des joueurs tels que le jeu les a (`p1_chr`, `p2_chr`, RetroAchievements), le score et les sets de chacun sous son nom, les points du set en grand à sa couleur, le chrono et le terrain entre les deux, dans une boîte plus fine qui laisse le terrain libre. L'équipe de l'ordinateur venait de 0x1004FE, qui était faux (toujours 0 dans la capture de Seb) : `cpu_team` disparaît, le personnage de l'adversaire donne son pays.
+- Les terrains étaient dans le mauvais ordre : le jeu compte gazon 0, plage 1, carrelage 2, stade 3, terre battue 4, béton 5 (notes de code RetroAchievements) ; ArcadeDMD montrait la plage pour le gazon et le béton pour le stade. Corrigé, et les buts du terrain carrelé valent 5 points sur les côtés et 3 au milieu, comme dans le jeu.
+- `tools/replay_capture.py` note les charges et les supers d'une capture de Windjammers. La capture de Seb de 19 h 51 gardée et rejouée par les tests (37 vérifications).
 
 **Version**
 - 1.33.0 dans `dmd/app.py` et le plugin MAME.
