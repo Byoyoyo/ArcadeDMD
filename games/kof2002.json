@@ -1,6 +1,6 @@
 {
  "title": "The King of Fighters 2002",
- "note": "Neo Geo fighting game: health, timer, score, the teams and their fighters beaten (1.33, from the RetroAchievements code notes), probes for the state of the fight, the stocks, the order of the team, to confirm from a capture.",
+ "note": "Neo Geo fighting game: health, timer, scores, the teams and their fighters beaten, the fighter on screen with the 41 names, the state of the fight, the power gauges and stocks (1.33, from the RetroAchievements code notes and Seb's captures). The fighting order of a team is not read (no address known), the team line waits for it.",
  "match": [
   {
    "system": [
@@ -120,7 +120,7 @@
    "_p1_lost": {
     "addr": "0x10A7E5",
     "type": "u8",
-    "note": "P1, fighters already beaten (RA 0xa7e4, 'P2 rounds won, actually P1 rounds lost'); on the select screens it counts the picks, then the orders, as in '98 (1.33)"
+    "note": "P1, fighters already beaten (RetroAchievements 0xa7e4 'P2 rounds won, actually P1 rounds lost'); it does not count the picks on the select screens, unlike '98 (Seb's capture of 18:02)"
    },
    "_p1_ch0": {
     "addr": "0x10A7E6",
@@ -136,21 +136,6 @@
     "addr": "0x10A7E8",
     "type": "u8",
     "note": "P1, team character C (RA 0xa7e9 slot 3)"
-   },
-   "_p1_t0": {
-    "addr": "0x10A804",
-    "type": "u8",
-    "note": "probe (1.33): P1 character slot 1 of the second set (RA 0xa805), the team in its fighting order? a capture says"
-   },
-   "_p1_t1": {
-    "addr": "0x10A805",
-    "type": "u8",
-    "note": "probe (1.33): P1 slot 2 of the second set (RA 0xa804)"
-   },
-   "_p1_t2": {
-    "addr": "0x10A806",
-    "type": "u8",
-    "note": "probe (1.33): P1 slot 3 of the second set (RA 0xa807)"
    },
    "_p1_cur": {
     "addr": "0x108171",
@@ -177,50 +162,10 @@
     "type": "u8",
     "note": "P2, team character C (RA 0xa80f slot 3)"
    },
-   "_p2_t0": {
-    "addr": "0x10A82A",
-    "type": "u8",
-    "note": "probe (1.33): P2 slot 1 of the second set, P1's + 0x1E like the first set? a capture says"
-   },
-   "_p2_t1": {
-    "addr": "0x10A82B",
-    "type": "u8",
-    "note": "probe (1.33): P2 slot 2 of the second set"
-   },
-   "_p2_t2": {
-    "addr": "0x10A82C",
-    "type": "u8",
-    "note": "probe (1.33): P2 slot 3 of the second set"
-   },
    "_p2_cur": {
     "addr": "0x108371",
     "type": "u8",
     "note": "P2, the fighter on screen (RA 0x8370 Current Character)"
-   },
-   "_fs_probe": {
-    "addr": "0x10A786",
-    "type": "u8",
-    "note": "probe (1.33): the state of the fight at the same place as in '98 (0x10A786; 2001's notes, 0xa787 Match State bitflags, round finished, started, fighting)? a capture says, then it becomes _fight_state"
-   },
-   "_stock_probe": {
-    "addr": "0x1082E3",
-    "type": "u8",
-    "note": "probe (1.33): P1 stocks (RA 0x82e2 Gauge Level), the same place as in '98"
-   },
-   "_stock2_probe": {
-    "addr": "0x1084E3",
-    "type": "u8",
-    "note": "probe (1.33): P2 stocks, P1's + 0x200"
-   },
-   "_pow_probe": {
-    "addr": "0x1081E8",
-    "type": "u8",
-    "note": "probe (1.33): P1 power gauge at '98's place"
-   },
-   "_pow2_probe": {
-    "addr": "0x1083E8",
-    "type": "u8",
-    "note": "probe (1.33): P2 power gauge at '98's place"
    },
    "_in_p1": {
     "addr": "0x10FD96",
@@ -233,6 +178,39 @@
     "type": "u8",
     "fast": true,
     "note": "BIOS_P2CURRENT: the stick and buttons of player 2, same bits"
+   },
+   "_fight_state": {
+    "addr": "0x10A786",
+    "type": "u8",
+    "note": "the state of the fight, at '98's place (2001's RetroAchievements notes, Match State bitflags): 0 before a round (its intro) and between the screens, 2 once GO is given (bit 1, the fight runs), 1 at a K.O. (round finished); no READY state here (Seb's capture of 2026-11-04 18:02). FIGHT ! comes with 2, ROUND n with 0 after 1, as in '98"
+   },
+   "power": {
+    "addr": "0x1081E8",
+    "type": "u8",
+    "mult": 1.5625,
+    "min": 0,
+    "max": 100,
+    "note": "P1 power gauge in %, at '98's place, full at 0x40 then a stock (Seb's capture of 18:02: 61 then 0 with a stock)"
+   },
+   "power_p2": {
+    "addr": "0x1083E8",
+    "type": "u8",
+    "mult": 1.5625,
+    "min": 0,
+    "max": 100,
+    "note": "P2 power gauge, P1's + 0x200"
+   },
+   "power_level": {
+    "addr": "0x1082E3",
+    "type": "u8",
+    "max": 3,
+    "note": "P1 stocks (RetroAchievements 0x82e2 Gauge Level, at '98's place), 3 at most: POWER MAX"
+   },
+   "power_level_p2": {
+    "addr": "0x1084E3",
+    "type": "u8",
+    "max": 3,
+    "note": "P2 stocks, P1's + 0x200"
    }
   }
  },
@@ -347,60 +325,6 @@
     "40": "KUSANAGI"
    }
   },
-  "_p1_ord0": {
-   "find": [
-    "_p1_ch0",
-    "_p1_ch1",
-    "_p1_ch2"
-   ],
-   "eq": "_p1_t0",
-   "note": "the fighting order, if the second set of slots is the team in order (probe, 1.33)"
-  },
-  "_p1_ord1": {
-   "find": [
-    "_p1_ch0",
-    "_p1_ch1",
-    "_p1_ch2"
-   ],
-   "eq": "_p1_t1",
-   "note": "the fighting order, if the second set of slots is the team in order (probe, 1.33)"
-  },
-  "_p1_ord2": {
-   "find": [
-    "_p1_ch0",
-    "_p1_ch1",
-    "_p1_ch2"
-   ],
-   "eq": "_p1_t2",
-   "note": "the fighting order, if the second set of slots is the team in order (probe, 1.33)"
-  },
-  "_p2_ord0": {
-   "find": [
-    "_p2_ch0",
-    "_p2_ch1",
-    "_p2_ch2"
-   ],
-   "eq": "_p2_t0",
-   "note": "the fighting order, if the second set of slots is the team in order (probe, 1.33)"
-  },
-  "_p2_ord1": {
-   "find": [
-    "_p2_ch0",
-    "_p2_ch1",
-    "_p2_ch2"
-   ],
-   "eq": "_p2_t1",
-   "note": "the fighting order, if the second set of slots is the team in order (probe, 1.33)"
-  },
-  "_p2_ord2": {
-   "find": [
-    "_p2_ch0",
-    "_p2_ch1",
-    "_p2_ch2"
-   ],
-   "eq": "_p2_t2",
-   "note": "the fighting order, if the second set of slots is the team in order (probe, 1.33)"
-  },
   "round": {
    "sum": [
     "_p1_lost",
@@ -424,7 +348,12 @@
   "_p2_ch0": 21,
   "_p2_ch1": 22,
   "_p2_ch2": 23,
-  "_p2_lost": 0
+  "_p2_lost": 0,
+  "_fight_state": 2,
+  "power": 40,
+  "power_p2": 10,
+  "power_level": 1,
+  "power_level_p2": 0
  },
  "hd": {
   "stages": [
@@ -439,5 +368,13 @@
    "arena"
   ],
   "note": "HD screen theme for each backdrop value (index = value), see README, HD themes"
+ },
+ "capture_renames": {
+  "_fs_probe": "_fight_state",
+  "_stock_probe": "power_level",
+  "_stock2_probe": "power_level_p2",
+  "_pow_probe": "power",
+  "_pow2_probe": "power_p2",
+  "note": "values renamed since Seb's captures of 2026-11-04 (probes confirmed), for tools/replay_capture.py"
  }
 }

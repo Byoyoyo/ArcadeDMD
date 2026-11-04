@@ -1,6 +1,6 @@
 {
  "title": "Fatal Fury",
- "note": "Neo Geo fighting game: health, timer, 14 characters.",
+ "note": "Neo Geo fighting game: health, timer, 14 characters, the rounds won and the round (1.33, Seb's captures).",
  "match": [
   {
    "system": [
@@ -122,37 +122,27 @@
    "_cpu_chr": {
     "addr": "0x100531",
     "type": "u8",
-    "note": "the computer's fighter, in its own block like its health (RetroAchievements code notes, 0x530 P2 Character; the 0x1004xx block is a human player 2); to confirm from a capture (1.33)"
+    "note": "the computer's fighter, in its own block like its health (RetroAchievements 0x530 P2 Character; Seb's capture of 18:08: 6, MICHAEL, as on screen)"
    },
-   "_rr_a": {
-    "addr": "0x1042E2",
-    "type": "u8",
-    "note": "probe (1.33): RetroAchievements 0x42e2 Round result (00 draw, 02 P1 won, 06 vs 2P round active, 08 P2 won, 0a vs CPU round active), one byte or the next; a capture says which"
-   },
-   "_rr_b": {
-    "addr": "0x1042E3",
-    "type": "u8",
-    "note": "probe (1.33): the other byte of the round result"
-   },
-   "_rw_a": {
+   "rounds": {
     "addr": "0x1042E6",
     "type": "u8",
-    "note": "probe (1.33): RetroAchievements 0x42e6 P2 won rounds / 0x42e7 P1 won rounds, one byte or the other; a capture says which"
+    "note": "player 1 rounds won (RetroAchievements 0x42e7 P1 won rounds, the byte next to it as for the timer; Seb's capture of 2026-11-04 18:08, the probes)"
    },
-   "_rw_b": {
+   "rounds_p2": {
     "addr": "0x1042E7",
     "type": "u8",
-    "note": "probe (1.33): the other byte of the rounds won"
+    "note": "player 2 or computer rounds won (RetroAchievements 0x42e6; Seb's capture: 1 then 2 as he lost two rounds)"
    },
-   "_rnd_a": {
-    "addr": "0x100024",
-    "type": "u8",
-    "note": "probe (1.33): RetroAchievements 0x24 Round, one byte or the next"
-   },
-   "_rnd_b": {
+   "round": {
     "addr": "0x100025",
     "type": "u8",
-    "note": "probe (1.33): the other byte of the round"
+    "note": "the round of the match, from 0 (RetroAchievements 0x24 Round; Seb's capture: 1 at the second round)"
+   },
+   "_round_result": {
+    "addr": "0x1042E3",
+    "type": "u8",
+    "note": "RetroAchievements 0x42e2 Round result: 0x0a round active against the computer, 0x06 against a human, 0x02 P1 won, 0x08 P2 won, 0x00 draw (Seb's capture: 10 at each round, 8 at each round he lost); read for the captures"
    }
   }
  },
@@ -236,6 +226,16 @@
   "p2_mode": 0,
   "_p1_chr": 1,
   "_p2_chr": 2,
-  "_cpu_chr": 2
+  "_cpu_chr": 2,
+  "rounds": 1,
+  "rounds_p2": 0,
+  "round": 1
+ },
+ "capture_renames": {
+  "_rw_a": "rounds",
+  "_rw_b": "rounds_p2",
+  "_rnd_b": "round",
+  "_rr_b": "_round_result",
+  "note": "values renamed since Seb's captures of 2026-11-04 (probes confirmed), for tools/replay_capture.py"
  }
 }

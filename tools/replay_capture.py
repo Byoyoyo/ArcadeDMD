@@ -42,6 +42,9 @@ def replay(path, show_values=False, step=1 / 60, frames=(), out_dir=None):
     head, rows = read_capture(path)
     key = head.get("game") or ""
     game = json.load(open(os.path.join(ROOT, "games", f"{key}.json"), encoding="utf-8"))
+    renames = game.get("capture_renames") if isinstance(game.get("capture_renames"), dict) else {}
+    if renames:                                                      # values renamed since the capture (probes confirmed)
+        rows = [(t, renames.get(n, n), v) for t, n, v in rows]       # / valeurs renommées depuis la capture
     derived = game.get("derived") or {}
     tag = game.get("tag") if isinstance(game.get("tag"), dict) else {}
     hd = HDRenderer(pygame, (1920, 460), ROOT, {"logos": False}, lambda *a: None, logos=None)

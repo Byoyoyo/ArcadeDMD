@@ -43,6 +43,12 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - Its file read the health, the timer and the scores only. From the RetroAchievements code notes, checked against the capture's timer and screen, it now reads the teams of both sides, their fighters beaten (the select screens count the picks there as in '98), the fighter on screen with the 41 names of the roster, and the round of the match (the fighters beaten on both sides). The HD screen shows the names, the teams, ROUND n, the next fighter, VICTOIRE after the third fighter.
 - Probes to confirm on the next capture: the state of the fight at '98's place (then READY and GO give FIGHT ! as in '98), the stocks and power gauges at '98's places, a second set of team slots that may be the team in its fighting order (then the team shows in order). The stick and buttons are read too, for the captures.
 
+**KOF 2002 and Fatal Fury from Seb's captures with the probes** (test 10)
+- The King of Fighters 2002 keeps the state of its fights at '98's place (0 before a round, 2 once GO is given, 1 at a K.O., no READY): ROUND n comes at the round's intro and FIGHT ! with the game's GO, as in '98. Its power gauges and stocks are at '98's places too, shown as the super gauge with POWER 1 to POWER MAX. The fighter on screen names the sides (the name changes as the next round begins, its band follows ROUND n). The fighting order of a team is not read (no address known), the team line waits for it.
+- Fatal Fury reads its rounds won (gold stars), its round (ROUND n from the game) and the computer's fighter (MICHAEL in Seb's capture); the round's result is read for the captures. A game of single fighters shows VICTOIRE after two rounds won, as seen here, whatever the game counts.
+- Windjammers: probes for the players' positions and the disc's, to confirm on the next capture.
+- `tools/replay_capture.py` renames the values of an older capture (`capture_renames` in the game file), so that a capture made with probes replays with the file as it is now. Seb's captures of 18:02 (KOF 2002), 18:06 (KOF '98) and 18:08 (Fatal Fury) kept and replayed by the tests (29 checks).
+
 **Version**
 - 1.33.0 in `dmd/app.py` and the MAME plugin.
 
@@ -83,6 +89,12 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 **The King of Fighters 2002 en route vers le niveau de '98** (test 9, la capture de Seb)
 - Son fichier ne lisait que la vie, le chrono et les scores. D'après les notes RetroAchievements, vérifiées contre le chrono et l'écran de la capture, il lit maintenant les équipes des deux côtés, leurs combattants battus (les écrans de sélection y comptent les choix comme en '98), le combattant à l'écran avec les 41 noms du jeu, et le round du match (les battus des deux côtés). L'écran HD montre les noms, les équipes, ROUND n, le combattant suivant, VICTOIRE après le troisième.
 - Des sondes à confirmer sur la prochaine capture : l'état du combat à la place de '98 (alors READY et GO donnent FIGHT ! comme en '98), les stocks et jauges aux places de '98, un second jeu de cases qui serait l'équipe dans l'ordre de passage (alors l'équipe s'affiche dans l'ordre). Le stick et les boutons sont lus aussi, pour les captures.
+
+**KOF 2002 et Fatal Fury d'après les captures de Seb avec les sondes** (test 10)
+- The King of Fighters 2002 garde l'état de ses combats à la place de '98 (0 avant un round, 2 une fois GO donné, 1 au K.O., pas de READY) : ROUND n vient à l'intro du round et FIGHT ! avec le GO du jeu, comme en '98. Ses jauges et stocks sont aussi aux places de '98, montrés en jauge de super avec POWER 1 à POWER MAX. Le combattant à l'écran nomme les côtés (le nom change au début du round suivant, son bandeau suit ROUND n). L'ordre de passage d'une équipe n'est pas lu (pas d'adresse connue), la ligne de l'équipe l'attend.
+- Fatal Fury lit ses rounds gagnés (étoiles dorées), son round (ROUND n du jeu) et le combattant de l'ordinateur (MICHAEL dans la capture de Seb) ; le résultat du round est lu pour les captures. Un jeu à combattant unique montre VICTOIRE après deux rounds gagnés, tels que vus ici, quoi que compte le jeu.
+- Windjammers : des sondes pour les positions des joueurs et du disque, à confirmer sur la prochaine capture.
+- `tools/replay_capture.py` renomme les valeurs d'une capture plus ancienne (`capture_renames` dans le fichier du jeu), pour qu'une capture faite avec des sondes se rejoue avec le fichier tel qu'il est. Les captures de Seb de 18 h 02 (KOF 2002), 18 h 06 (KOF '98) et 18 h 08 (Fatal Fury) gardées et rejouées par les tests (29 vérifications).
 
 **Version**
 - 1.33.0 dans `dmd/app.py` et le plugin MAME.

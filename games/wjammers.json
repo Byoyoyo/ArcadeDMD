@@ -90,6 +90,66 @@
     "addr": "0x10FD82",
     "type": "u8",
     "note": "BIOS_MVS_FLAG: 0 home console (AES, no coins), otherwise arcade (MVS)"
+   },
+   "_p1_x": {
+    "addr": "0x100806",
+    "type": "u16",
+    "note": "probe (1.33): player 1 x (RetroAchievements 0x806), to find the disc from the objects' layout"
+   },
+   "_p1_y": {
+    "addr": "0x10080A",
+    "type": "u16",
+    "note": "probe (1.33): player 1 y (RetroAchievements 0x80a)"
+   },
+   "_p2_x": {
+    "addr": "0x100886",
+    "type": "u16",
+    "note": "probe (1.33): player 2 x, player 1's + 0x80 as the scores (0x872, 0x8f2)"
+   },
+   "_p2_y": {
+    "addr": "0x10088A",
+    "type": "u16",
+    "note": "probe (1.33): player 2 y"
+   },
+   "_obj0_x": {
+    "addr": "0x100906",
+    "type": "u16",
+    "note": "probe (1.33): x of another object of the game (the disc?), one block of 0x80 after the players"
+   },
+   "_obj0_y": {
+    "addr": "0x10090A",
+    "type": "u16",
+    "note": "probe (1.33): its y"
+   },
+   "_obj1_x": {
+    "addr": "0x100986",
+    "type": "u16",
+    "note": "probe (1.33): x of another object of the game (the disc?), one block of 0x80 after the players"
+   },
+   "_obj1_y": {
+    "addr": "0x10098A",
+    "type": "u16",
+    "note": "probe (1.33): its y"
+   },
+   "_obj2_x": {
+    "addr": "0x100A06",
+    "type": "u16",
+    "note": "probe (1.33): x of another object of the game (the disc?), one block of 0x80 after the players"
+   },
+   "_obj2_y": {
+    "addr": "0x100A0A",
+    "type": "u16",
+    "note": "probe (1.33): its y"
+   },
+   "_obj3_x": {
+    "addr": "0x100786",
+    "type": "u16",
+    "note": "probe (1.33): x of another object of the game (the disc?), one block of 0x80 after the players"
+   },
+   "_obj3_y": {
+    "addr": "0x10078A",
+    "type": "u16",
+    "note": "probe (1.33): its y"
    }
   }
  },
@@ -637,5 +697,6 @@
     ]
    }
   }
- }
+ },
+ "note": " Probes (1.33) for the players' and the disc's positions, from Seb's capture."
 }
