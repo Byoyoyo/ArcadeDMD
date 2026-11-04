@@ -22,6 +22,7 @@ les fichiers games/*.json servent à la fois pour MAME et pour RetroArch :
 swap16 : le cœur range la RAM du 68000 par mots de 16 bits inversés (FBNeo, Genesis Plus GX).
 """
 
+import glob
 import json
 import os
 import socket
@@ -622,6 +623,7 @@ def fbneo_nvram_credits(client, rom, cfg_saves=None, log=None):
     if cfg_saves and isinstance(cfg_saves, str):
         dirs.append(cfg_saves)
     raw = client.config_param("savefile_directory") if client is not None else None
+    exe = None
     if raw:
         raw = raw.strip('"')
         if raw.startswith(":"):                          # ":\saves": next to the program / à côté du programme
@@ -630,14 +632,24 @@ def fbneo_nvram_credits(client, rom, cfg_saves=None, log=None):
                 dirs.append(os.path.join(exe, raw[1:].lstrip("\\/")))
         elif raw.lower() != "default":
             dirs.append(raw)
-    if not dirs:
-        exe = retroarch_exe_dir()
+    if not dirs or not raw or raw.startswith(":"):
+        exe = exe or retroarch_exe_dir()
         if exe:
             dirs.append(os.path.join(exe, "saves"))
+    # RetroArch may sort the saves into a folder named after the core ("FinalBurn Neo") and another after the content's
+    # folder: the file is looked for one and two folders down too, the newest one wins (1.33 test 22, Seb's log: never
+    # found) / RetroArch peut ranger les sauvegardes dans un dossier au nom du cœur et un autre au nom du dossier du jeu
+    found = []
     for d in dirs:
-        path = os.path.join(os.path.expandvars(d), "fbneo", rom + ".fs")
-        if not os.path.isfile(path):
-            continue
+        d = os.path.expandvars(d)
+        for pat in (("fbneo", rom + ".fs"), ("*", "fbneo", rom + ".fs"), ("*", "*", "fbneo", rom + ".fs")):
+            for path in glob.glob(os.path.join(d, *pat)):
+                if os.path.isfile(path):
+                    try:
+                        found.append((os.path.getmtime(path), path))
+                    except OSError:
+                        pass
+    for _, path in sorted(found, reverse=True):
         try:
             with open(path, "rb") as f:
                 data = f.read(0x40)
@@ -652,6 +664,10 @@ def fbneo_nvram_credits(client, rom, cfg_saves=None, log=None):
                 log(f"{path}: crédits illisibles ({b:#x})")
             continue
         return {"credits": hi * 10 + lo, "path": path}
+    if callable(log):
+        where = ", ".join(os.path.expandvars(d) for d in dirs) or "aucun dossier"
+        log(tr(f"FinalBurn Neo : pas de sauvegarde {rom}.fs trouvée (savefile_directory {raw!r}, programme {exe!r}, cherché dans {where})",
+               f"FinalBurn Neo: no {rom}.fs save found (savefile_directory {raw!r}, program {exe!r}, looked in {where})"))
     return None
 
 
