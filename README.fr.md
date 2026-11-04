@@ -4,7 +4,7 @@ English version: [README.md](README.md)
 
 Score, vies, crédits et événements des jeux MAME et RetroArch en direct sur le marquee d'une borne d'arcade, avec une scène animée propre à chaque jeu. Sur une dalle LED 128x32 (**Pixelcade LED**, **ZeDMD**), ou en HD lisse sur un écran LCD de marquee (le marquee 1920 x 460 d'une Vewlix par exemple).
 
-![The King of Fighters '98 sur un marquee LCD, affichage HD, K.O. du côté du perdant et WIN du côté du gagnant](docs/images/hd_fight.jpg)
+![The King of Fighters '98 sur un marquee LCD, affichage HD, la cour des Lions au couchant et les coups désespérés de chaque joueur sous son nom](docs/images/hd_fight.jpg)
 ![DoDonPachi sur un marquee LCD, affichage HD, les informations en grand et un combat de boss avec sa vie lue dans le jeu](docs/images/hd_dodonpachi.jpg)
 ![Twinkle Star Sprites sur un marquee LCD, affichage HD, un PERFECT et une bombe](docs/images/hd_twinkle_star_sprites.jpg)
 ![Metal Slug sur un marquee LCD, affichage HD, le char et une grenade qui explose](docs/images/hd_metal_slug.jpg)
@@ -18,6 +18,17 @@ Score, vies, crédits et événements des jeux MAME et RetroArch en direct sur l
 - Le logo du jeu au lancement (ton Clear Logo LaunchBox). Quand personne ne joue, les jeux de combat attendent une pièce. Mets-en une, elle tombe dans la fente, les crédits roulent, puis PRESS START.
 - Un outil d'apprentissage trouve les adresses manquantes (score, crédits...) à partir de quelques captures.
 - En anglais et en français. Windows, Python 3.12 ou plus récent.
+
+## Les jeux les plus soignés
+
+Chaque jeu a sa scène, mais ceux-ci ont été réglés sur une vraie borne, round après round, avec des vidéos, des photos et les journaux des jeux, jusqu'à ce que le marquee suive le jeu à l'instant près.
+
+- **The King of Fighters '98.** Ses neuf décors dessinés d'après les lieux du jeu, qui changent avec les rounds comme dans le jeu. Sous chaque joueur, ses coups désespérés avec leurs commandes, les flèches qui s'allument quand le stick les fait, RATÉ, DM ! et SDM !, la jauge, les stocks et le MAX comme le jeu les montre. ROUND, FIGHT !, K.O., WIN, PERFECT, le combattant suivant qui entre en scène, l'équipe éliminée, et les matchs gagnés entre deux humains. Sections 3 et 7.
+- **Metal Slug 1 à 5 et X.** Le soldat, son arme et ses munitions, les bombes, le tank avec son énergie et ses obus, la grenade qui explose quand celle du jeu explose, les prisonniers libérés, les décors de chaque mission, les crédits avec la pièce qui tombe.
+- **DoDonPachi.** Le score avec les continues, le compteur de hits, le vaisseau et son type, six stages dessinés d'après les cartes du jeu, et le boss de chaque stage avec sa vie lue dans le jeu, qui tombe quand elle est à zéro.
+- **Appris sur une borne aussi.** Twinkle Star Sprites (sa propre scène, les cœurs et les chaînes), Puzzle Bobble (les deux scores, les matchs VS, la flèche qui tourne comme celle du jeu), Marvel vs. Capcom, X-Men vs. Street Fighter, Marvel Super Heroes vs. Street Fighter, X-Men: Children of the Atom et Hyper Street Fighter II (scores, crédits, la jauge POWER, les équipiers), Strikers 1945 Plus, Giga Wing et Mercs (scores, chrono, SUPER SHOT).
+
+Les autres jeux lisent les adresses des bases de codes de triche et de RetroAchievements, qui restent à confirmer en jeu. [PROGRESS.md](PROGRESS.md) dit où en est chacun.
 
 Comment ça marche, en une phrase. Un plugin MAME lit les valeurs dans la RAM du jeu, un petit programme Python dessine la scène et l'envoie à la dalle en USB, ou l'affiche sur un écran LCD qui sert de DMD (section 3).
 

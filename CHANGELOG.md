@@ -66,6 +66,7 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 
 **Version**
 - 1.32.0 in `dmd/app.py` and the MAME plugin.
+- README: the games done with the most care at the top (The King of Fighters '98, Metal Slug, DoDonPachi, and the ones learned on a cabinet), two new pictures of The King of Fighters '98. PROGRESS.md up to date.
 
 ### Français
 
@@ -128,6 +129,7 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 
 **Version**
 - 1.32.0 dans `dmd/app.py` et le plugin MAME.
+- README : les jeux les plus soignés en tête (The King of Fighters '98, Metal Slug, DoDonPachi, et ceux appris sur une borne), deux nouvelles images de The King of Fighters '98. PROGRESS.md à jour.
 
 ## 1.31.1
 
