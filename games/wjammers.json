@@ -344,6 +344,53 @@
    },
    {
     "type": "text",
+    "font": "4x6",
+    "x": 127,
+    "y": 21,
+    "align": "right",
+    "segments": [
+     {
+      "text": "{score}",
+      "color": "#ff6040"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "court_name"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
     "font": "6x10",
     "x": 127,
     "y": 1,
