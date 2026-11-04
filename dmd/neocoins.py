@@ -65,16 +65,24 @@ class NeoCoins:
         # prêt n'est pas comptée, il l'ignore. Une pièce pendant la démo est comptée tout de suite mais doit être vue
         # par le BIOS (son écran titre demandé) dans les PRESSED secondes, sinon elle est reprise.
         self.unconfirmed = []                            # [(when, credits)] coins of the demo not seen yet / pas encore vues
+        # 1.33 test 22 (Seb's Windjammers captures: the coin pressed as the game boots, and the title at once): a coin before
+        # the BIOS is ready is kept aside; if the BIOS then comes up on its title screen, it took that coin, which counts on
+        # top of the credits left from last time (the title alone was read as those credits, and ArcadeDMD ran ahead of the
+        # game by that much); if it comes up on the demo, it ignored it (test 8). / Une pièce avant que le BIOS soit prêt
+        # est mise de côté : s'il arrive sur son écran titre, il l'a prise, en plus des crédits restants ; sur la démo, non.
+        self.early = []                                  # [(when, credits)] coins pressed during the boot / pendant le démarrage
+        self.EARLY = 8.0                                 # seconds such a coin stays worth something / combien de temps elle vaut
 
     def add(self, side, now):
         """A coin seen on the coin buttons, with its side (0 left, 1 right). The guessed credits, None on an AES or
-        before the BIOS is ready (that coin is lost, the BIOS ignores it, 1.33 test 8)."""
+        before the BIOS is ready (that coin counts only if the BIOS comes up on its title screen, 1.33 tests 8 and 22)."""
         if self.aes:
             return None
         n = self.rates[side] if side in (0, 1) else 1
         if not self.looked or self.credits is None:
-            self.notes.append(("pièce avant que le BIOS soit prêt : il l'ignore, pas comptée",
-                               "coin before the BIOS is ready: it ignores it, not counted"))
+            self.early.append((now, n))
+            self.notes.append(("pièce avant que le BIOS soit prêt : comptée s'il arrive sur son écran titre",
+                               "coin before the BIOS is ready: counted if it comes up on its title screen"))
             return None
         if self.req == DEMO:
             self.unconfirmed.append((now, n))            # to be seen by the BIOS / à voir par le BIOS
@@ -100,14 +108,29 @@ class NeoCoins:
             self.notes.append(("BIOS Neo Geo en mode MVS (arcade) : crédits devinés d'après le BIOS",
                                "Neo Geo BIOS in MVS mode (arcade): credits guessed from the BIOS"))
             if self.credits is None:
+                early = sum(n for t, n in self.early if now - t < self.EARLY)
+                self.early = []
                 if req == TITLE and mode != IN_GAME:
-                    # the title at once: credits are left, those of last time if there were more than one
-                    # l'écran titre tout de suite : il reste des crédits, ceux de la dernière fois s'il y en avait plus
-                    self.credits = max(1, self.kept)
+                    if early:
+                        # a coin pressed as the game booted and the title at once: the BIOS took it, on top of the credits
+                        # left from last time (test 22) / une pièce pendant le démarrage et l'écran titre : prise par le
+                        # BIOS, en plus des crédits restants
+                        self.credits = min(99, self.kept + early)
+                        self.coins += 1
+                        self.pressed_at = now
+                        self.notes.append((f"pièce prise par le BIOS au démarrage : {early}, en plus des {self.kept} restants",
+                                           f"coin taken by the BIOS at the boot: {early}, on top of the {self.kept} left"))
+                    else:
+                        # the title at once: credits are left, those of last time if there were more than one
+                        # l'écran titre tout de suite : il reste des crédits, ceux de la dernière fois s'il y en avait plus
+                        self.credits = max(1, self.kept)
                 elif mode == IN_GAME:
                     self.credits = self.kept             # a game going on: the best guess / une partie en cours
                 else:
                     self.credits = 0
+                    if early:
+                        self.notes.append(("pièce pendant le démarrage ignorée par le BIOS (la démo) : pas comptée",
+                                           "coin during the boot ignored by the BIOS (the demo): not counted"))
                 if self.credits == self.kept > 0:
                     self.notes.append((f"crédits restants de la dernière fois : {self.kept}",
                                        f"credits left from last time: {self.kept}"))
