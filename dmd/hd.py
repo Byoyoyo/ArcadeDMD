@@ -933,28 +933,39 @@ class HDRenderer:
                 self.pg.draw.line(screen, (220, 60, 40), (x0, y), (x1, y), max(2, S(3)))
 
     def select_pick(self, eng, side):
-        """On the select screen, the fighters picked so far: the game keeps the last team in the slots until each one is
-        picked, and copies a pick to the slots left, so the name and the team showed the last match's third fighter
-        beaten twice (Seb, 1.33). A slot counts once it changed since the screen began and differs from the earlier
-        ones. Three picked and the order set: the team in its order, the first to fight. / À l'écran de sélection, les
-        combattants choisis jusque-là. Returns (name, team)."""
+        """On the select screen, the fighters picked so far. The game keeps the last team in the three slots until each
+        one is picked, and a pick fills the slots left (ROBERT ROBERT ROBERT in Seb's photo, 1.33 test 2), so the slots
+        read, once one of them changed since the screen began, as the picks in order, a new pick wherever a slot differs
+        from the one before it. A pick equal to the last match's fighter in that slot counts as well (Seb's photo, 1.33
+        test 5: the third fighter missing). The order select: once the three are picked and the orders changed since
+        the screen began (a human picks it on its own screen; the CPU's comes with its team), the team in its order,
+        the first to fight. / À l'écran de sélection, les combattants choisis
+        jusque-là, dans l'ordre : une case qui diffère de la précédente est un nouveau choix, dès qu'une case a changé
+        depuis le début de l'écran. Returns (name, team)."""
         vals = eng.state.values
         names = ((eng.derived or {}).get(side + "_char") or {}).get("names")
         snap = (self.fight.sel_chars or {}).get(side)
         if not isinstance(names, dict) or snap is None:
             return None, None
         chars = [vals.get(f"_{side}_ch{i}") for i in range(3)]
+        if all(c == s for c, s in zip(chars, snap)):
+            return None, None                                        # nothing picked yet / rien de choisi encore
         picked = []
         for i, c in enumerate(chars):
-            if c is None or c == snap[i] or c in picked or names.get(str(c)) is None:
+            if c is None or names.get(str(c)) is None or (picked and c == chars[i - 1]):
                 continue
             picked.append(c)
-        orders = [_num(vals.get(f"_{side}_ord{i}")) for i in range(3)]
-        if len(picked) == 3 and all(o is not None and 0 <= int(o) < 3 for o in orders):
-            ordered = [chars[int(o)] for o in orders]
-            return names.get(str(ordered[0])), [(names[str(c)], "now" if k == 0 else "next") for k, c in enumerate(ordered)]
         if not picked:
             return None, None
+        orders = [_num(vals.get(f"_{side}_ord{i}")) for i in range(3)]
+        ords0 = (getattr(self.fight, "sel_ords", None) or {}).get(side)
+        human = vals.get(side + "_mode") in (1, 2)
+        # a human sets the order on its own screen, after the picks: the last match's order stays until then; the game
+        # sets the CPU's with its team / un humain met l'ordre sur son écran, après les choix ; le CPU le reçoit avec l'équipe
+        if (len(picked) == 3 and all(o is not None and 0 <= int(o) < 3 for o in orders) and len({int(o) for o in orders}) == 3
+                and (not human or ords0 is None or tuple(orders) != tuple(_num(o) for o in ords0))):
+            ordered = [chars[int(o)] for o in orders]
+            return names.get(str(ordered[0])), [(names[str(c)], "now" if k == 0 else "next") for k, c in enumerate(ordered)]
         return names.get(str(picked[-1])), [(names[str(c)], "now" if k == len(picked) - 1 else "next") for k, c in enumerate(picked)]
 
     def team(self, eng, side):

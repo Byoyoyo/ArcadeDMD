@@ -21,6 +21,9 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 **The fighters' names in cream with a black outline** (test 4, Seb: the names were hard to read over the stages)
 - On the fight screen of every fighting game (Neo Geo, Capcom, Cave), the fighter's name is now written in cream letters with a thick black outline, and P1, P2 and CPU in amber with the same outline, no glow. The names were red with a red glow, which melted into the warm stages. The teams of the King of Fighters games (beside the name, or under it against the CPU) take a thin outline too, in a lighter grey, the one fighting in amber, the beaten ones duller and struck.
 
+**The character select counts a pick equal to the last match's fighter** (test 5, Seb's photo at the order select: the third fighter missing)
+- The game keeps the last team in its three slots until each one is picked, and a pick fills the slots left. A pick equal to the last match's fighter kept in that slot did not change the slot, so it did not count. The slots now read as the picks in order once any of them changed since the screen began, a new pick wherever a slot differs from the one before it. The order of a human applies once it changed on the order screen; the CPU's comes with its team.
+
 **Version**
 - 1.33.0 in `dmd/app.py` and the MAME plugin.
 
@@ -39,6 +42,9 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 
 **Les noms des combattants en crème à contour noir** (test 4, Seb : les noms se lisaient mal sur les décors)
 - Sur l'écran de combat de tous les jeux de combat (Neo Geo, Capcom, Cave), le nom du combattant s'écrit maintenant en lettres crème cernées d'un trait noir épais, et P1, P2 et CPU en ambre avec le même trait, sans lueur. Les noms étaient rouges à lueur rouge, fondus dans les décors chauds. Les équipes des King of Fighters (à côté du nom, ou dessous face au CPU) prennent aussi un trait fin, en gris plus clair, celui qui se bat en ambre, les battus plus ternes et barrés.
+
+**La sélection des personnages compte un choix égal au combattant du match d'avant** (test 5, la photo de Seb à l'ordre de passage : le troisième combattant manquait)
+- Le jeu garde l'équipe d'avant dans ses trois cases tant que chacune n'est pas choisie, et un choix remplit les cases restantes. Un choix égal au combattant du match d'avant resté dans cette case ne changeait pas la case, il ne comptait donc pas. Les cases se lisent maintenant comme les choix dans l'ordre dès que l'une d'elles a changé depuis le début de l'écran, un nouveau choix là où une case diffère de la précédente. L'ordre d'un humain s'applique une fois changé sur son écran, celui du CPU vient avec son équipe.
 
 **Version**
 - 1.33.0 dans `dmd/app.py` et le plugin MAME.

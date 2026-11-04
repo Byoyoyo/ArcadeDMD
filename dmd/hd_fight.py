@@ -231,6 +231,7 @@ class FightFX:
         self.sel_t = -99.0                         # since when / depuis quand
         self.sel_on = False                        # as it counts, once it lasted SELECT_HOLD / tel qu'il compte
         self.sel_chars = {}                        # the teams as the select screen began: what is picked since shows
+        self.sel_ords = {}                         # and their orders then / et leurs ordres de passage d'alors
         self.time_stale = None                     # the last match's timer, not shown in the new one / le chrono d'avant
         self.fs_known = False                      # the game keeps the state of the fight / le jeu garde l'état du combat
         self.in_round = False                      # a match going, from its first round (state of the fight) / un match
@@ -346,6 +347,7 @@ class FightFX:
                     self._fight(now)                                  # celui du match d'avant, jusqu'au nouveau
         if select and not self.select:                                # the select screen begins: the teams as they are,
             self.sel_chars = {side: tuple(vals.get(f"_{side}_ch{i}") for i in range(3)) for side in ("p1", "p2")}
+            self.sel_ords = {side: tuple(vals.get(f"_{side}_ord{i}") for i in range(3)) for side in ("p1", "p2")}
         self.idle, self.select, self.idle_attract = idle or select, select, idle   # the picks since then show (1.33)
         if idle or select:
             self._idle(vals, stages, game)
