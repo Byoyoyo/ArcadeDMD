@@ -6,7 +6,7 @@
     "show": false
   },
   "show_pause": true,
-  "capture": "fights",
+  "capture": "all",
   "intro": {
     "logo": true,
     "seconds": 2.6,

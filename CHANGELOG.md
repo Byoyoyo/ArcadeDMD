@@ -31,6 +31,11 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - The game's colours (Seb): player 1's name and score in blue, player 2's or the CPU's in red, PRESS START, CHALLENGER and BEAT BY outlined too.
 - `tools/replay_capture.py` prints the picks shown on the select screens, applies the game file's tags (a computed health) as the app does, and `--frames 30,47` draws the HD screen at those seconds. Seb's captures are kept in `tests/captures` and replayed by the tests.
 
+**Empty bars on the select screens, the winner on time judged after the last blow, every game captured** (test 7, Seb's photo and his second capture)
+- On the select screens, both health bars are empty, the winner's bar kept its last level there.
+- TIME UP: the winner is judged 0.9 s later, once the last blow landed; in Seb's capture a hit landed half a second after the timer reached 0 and made the bars equal, the game put both fighters out. Equal bars are MATCH NUL (DRAW GAME), no WIN.
+- `"capture"` is `"all"` by default: every game is captured, not only the fighting games (Seb played Windjammers and got no capture). `"fights"` keeps the fighting games only.
+
 **Version**
 - 1.33.0 in `dmd/app.py` and the MAME plugin.
 
@@ -59,6 +64,11 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - KOF '99 : les numéros de ses écrans de sélection changent avec le set de ROM, ceux de Seb sont lus aussi. Un jeu sans l'état de ses combats commence son round quand il met son chrono (0 -> 60), pas quand l'écran de sélection finit avec les barres à 1 %.
 - Les couleurs du jeu (Seb) : le nom et le score du joueur 1 en bleu, ceux du joueur 2 ou du CPU en rouge, PRESS START, CHALLENGER et BEAT BY cernés aussi.
 - `tools/replay_capture.py` écrit les choix montrés aux écrans de sélection, applique les tags du fichier du jeu (une vie calculée) comme l'application, et `--frames 30,47` dessine l'écran HD à ces secondes. Les captures de Seb sont gardées dans `tests/captures` et rejouées par les tests.
+
+**Barres vides aux écrans de sélection, le vainqueur au temps jugé après le dernier coup, tous les jeux capturés** (test 7, la photo de Seb et sa seconde capture)
+- Aux écrans de sélection, les deux barres de vie sont vides, celle du vainqueur y gardait son dernier niveau.
+- TIME UP : le vainqueur est jugé 0,9 s après, une fois le dernier coup arrivé ; dans la capture de Seb un coup est arrivé une demi-seconde après le chrono à 0 et a rendu les barres égales, le jeu a sorti les deux combattants. Des barres égales font MATCH NUL, sans WIN.
+- `"capture"` vaut `"all"` par défaut : tous les jeux sont capturés, pas seulement les jeux de combat (Seb a joué à Windjammers sans capture). `"fights"` garde les jeux de combat seuls.
 
 **Version**
 - 1.33.0 dans `dmd/app.py` et le plugin MAME.

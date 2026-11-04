@@ -728,8 +728,14 @@ class HDRenderer:
         h1, h2 = _num(vals.get("health")), _num(vals.get("health_p2"))
         cx = W / 2
         bw = int(cx - S(160) - S(40))
+        sel = _num(vals.get("select")) == 1
+        if self.fight is not None and self.fight.sel_raw is not None:
+            sel = self.fight.sel_on       # once it lasted a moment (1.32) / une fois qu'il a duré un instant
         if h1 is not None and h2 is not None:
             f1, f2 = h1 / 100.0, h2 / 100.0
+            if sel:                       # the select screens: both bars empty, not the winner's last level (Seb's photo,
+                f1 = f2 = 0.0             # 1.33 test 7) / les écrans de sélection : les deux barres vides, sans traînée
+                self.trails.clear()
             self.draw_bar(screen, S(40), S(176), bw, S(50), f1, self.trail("p1", f1, now), "left")
             self.draw_bar(screen, int(cx + S(160)), S(176), bw, S(50), f2, self.trail("p2", f2, now), "right")
         screen.blit(self.badge, (int(cx - self.badge.get_width() / 2), S(140)))
@@ -744,9 +750,6 @@ class HDRenderer:
             ko = False                    # K.O. shows on the loser's side, the timer stopped here / K.O. du côté du perdant
         if t is not None and self.fight is not None and not self.fight.time_live(now):
             t = None                      # frozen, the last fight's (select screen): VS / figé, celui du combat d'avant
-        sel = _num(vals.get("select")) == 1
-        if self.fight is not None and self.fight.sel_raw is not None:
-            sel = self.fight.sel_on       # once it lasted a moment (1.32) / une fois qu'il a duré un instant
         if sel:                            # a select screen the game says (1.31.1): VS / un écran de sélection que dit le jeu
             t, ko = None, False
         if ko:

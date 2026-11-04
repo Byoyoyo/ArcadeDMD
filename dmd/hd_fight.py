@@ -61,6 +61,7 @@ VS_FORGET = 20.0          # the wins of two humans forgotten when one of them le
 # a select screen, or the fight's, once it has lasted that long: a screen of a moment does not start or end a fight (1.32)
 # un écran de sélection, ou celui du combat, une fois qu'il a duré ce temps : un écran d'un instant ne lance ni ne finit rien
 SELECT_HOLD = 0.4
+JUDGE_WAIT = 0.9          # the winner on time judged this long after TIME UP, the last blow landed (1.33) / jugé après
 ROUNDS_TO_WIN = 2         # rounds won that end a match, in a game that counts no round of its own (1.33) / rounds gagnés
 CONFETTI = ((255, 80, 80), (255, 210, 60), (80, 220, 255), (120, 255, 140), (255, 120, 220), (255, 255, 255))
 
@@ -138,7 +139,8 @@ class FightFX:
         """Textes et halos préparés petit à petit pendant les moments calmes (pas d'à-coup au premier coup)."""
         hd, S, sp, s = self.hd, self.hd.S, self.fx.sp, self.s
         out = []
-        for text, size in (("FIGHT !", 112), ("PERFECT !", 112), ("TIME UP", 112), ("DOUBLE K.O.", 112), ("WIN !", 72)):
+        for text, size in (("FIGHT !", 112), ("PERFECT !", 112), ("TIME UP", 112), ("DOUBLE K.O.", 112), ("WIN !", 72),
+                           (tr("MATCH NUL", "DRAW GAME"), 112)):
             out.append((hd.text, (text, "stencil", S(size), GOLD if "K.O." not in text else RED, 0.8 if size > 100 else 0.6)))
         for n in range(2, 13):
             out.append((hd.text, (f"{n} HITS", "stencil", S(58 + min(20, n * 3)), GOLD, 0.6)))
@@ -182,6 +184,7 @@ class FightFX:
         self.next_name = {"p1": "", "p2": ""}
         self.win = None              # [côté, moment, PERFECT ?, déjà fêté ?]
         self.banner = None           # (texte, couleur, début, durée)
+        self.judge = None            # when the winner on time is judged (TIME UP) / quand le vainqueur au temps est jugé
         self.super_t = -99.0
         self.super_xy = (0, 0)
         self.health = {"p1": None, "p2": None}
@@ -315,6 +318,7 @@ class FightFX:
         if jsel or idle:
             self.in_round = self.match_done = False                   # no match going / pas de match en cours
             self.rounds_won, self.round_draws = {"p1": 0, "p2": 0}, 0
+            self.judge = None
         raw = jsel
         fs_now = _n(vals.get("_fight_state"))
         self.fs_known = fs_now is not None
@@ -549,8 +553,14 @@ class FightFX:
                 and (h1 or 0) > 0 and (h2 or 0) > 0):
             self.banner = ("TIME UP", GOLD, now, 1.6)                 # chrono à zéro sans K.O.
             self.ko_until = now + 1.7
+            self.judge = now + JUDGE_WAIT                             # the winner judged a moment later / jugé après
+        if self.judge is not None and now >= self.judge and h1 is not None and h2 is not None:
+            # the winner on time, judged once the last blow landed: a hit in flight at TIME UP still counts, and equal
+            # bars are a draw, both fighters out (Seb's capture, 1.33 test 7) / le vainqueur au temps, jugé une fois le
+            # dernier coup arrivé : un coup en l'air à TIME UP compte encore, et des barres égales font match nul
+            self.judge = None
             if h1 != h2:                                              # WIN once TIME UP is over / WIN après TIME UP
-                self.win = ["p1" if h1 > h2 else "p2", now + 1.7, False, False]
+                self.win = ["p1" if h1 > h2 else "p2", max(now, self.ko_until), False, False]
                 # the last fighter of a team lost on time: the team is out too (1.31.1) / perdu au temps, éliminée aussi
                 loser = "p2" if h1 > h2 else "p1"
                 idx = self.lost_go.get(loser)
@@ -558,6 +568,8 @@ class FightFX:
                     self._match_won(self.win[0], loser, now, 3.8)
                 self._round_over(self.win[0], now, 3.8)
             else:
+                self.banner = (tr("MATCH NUL", "DRAW GAME"), GOLD, max(now, self.ko_until), 1.6)
+                self.ko_until = max(now, self.ko_until) + 1.7
                 self._round_over(None, now, 1.7)
         self.prev_time = t
         for side, h in (("p1", h1), ("p2", h2)):

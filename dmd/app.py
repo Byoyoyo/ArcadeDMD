@@ -547,7 +547,7 @@ class Engine:
         tf = config.get("textfiles") or {}
         self.texts = TextFiles(tf, root, log) if tf.get("enabled") and not demo_game else None
         # the captures of the fighting games, to replay them offline (1.33) / les captures des jeux de combat
-        self.capture = Capture(root, log, config.get("capture", "fights")) if not demo_game else None
+        self.capture = Capture(root, log, config.get("capture", "all")) if not demo_game else None
         # config.json modifié (screen_setup.bat, réglage à la main) : le moteur redémarre avec les nouveaux réglages
         self.cfg_path = os.path.join(root, "config.json")
         self.cfg_mtime = _mtime(self.cfg_path)
