@@ -743,6 +743,8 @@ class HDRenderer:
             if held is not None:                  # its next fighter waits for this one's K.O. / le suivant attend son K.O.
                 name = held[0]
             team = self.team(eng, side)
+            if self.fight is not None and self.fight.select and self.fight.sel_chars:
+                name, team = self.select_pick(eng, side)   # the select screen: the picks made so far (1.33, Seb)
             # 1.32: under a human's name, the panel of the desperation moves, the team moved up beside the name, small
             # sous le nom d'un humain, le panneau des coups désespérés, l'équipe montée à côté du nom, en petit
             panel = moves is not None and human and self.fight.panel_on(side)
@@ -901,6 +903,31 @@ class HDRenderer:
                 x -= t["w"] + S(16)
             if state == "done":                                     # beaten: struck / battu : barré
                 self.pg.draw.line(screen, (220, 60, 40), (x0, y), (x1, y), max(2, S(3)))
+
+    def select_pick(self, eng, side):
+        """On the select screen, the fighters picked so far: the game keeps the last team in the slots until each one is
+        picked, and copies a pick to the slots left, so the name and the team showed the last match's third fighter
+        beaten twice (Seb, 1.33). A slot counts once it changed since the screen began and differs from the earlier
+        ones. Three picked and the order set: the team in its order, the first to fight. / À l'écran de sélection, les
+        combattants choisis jusque-là. Returns (name, team)."""
+        vals = eng.state.values
+        names = ((eng.derived or {}).get(side + "_char") or {}).get("names")
+        snap = (self.fight.sel_chars or {}).get(side)
+        if not isinstance(names, dict) or snap is None:
+            return None, None
+        chars = [vals.get(f"_{side}_ch{i}") for i in range(3)]
+        picked = []
+        for i, c in enumerate(chars):
+            if c is None or c == snap[i] or c in picked or names.get(str(c)) is None:
+                continue
+            picked.append(c)
+        orders = [_num(vals.get(f"_{side}_ord{i}")) for i in range(3)]
+        if len(picked) == 3 and all(o is not None and 0 <= int(o) < 3 for o in orders):
+            ordered = [chars[int(o)] for o in orders]
+            return names.get(str(ordered[0])), [(names[str(c)], "now" if k == 0 else "next") for k, c in enumerate(ordered)]
+        if not picked:
+            return None, None
+        return names.get(str(picked[-1])), [(names[str(c)], "now" if k == len(picked) - 1 else "next") for k, c in enumerate(picked)]
 
     def team(self, eng, side):
         """Équipe King of Fighters dans l'ordre de passage : [(nom, état)], état « done », « now » ou « next »."""

@@ -11,6 +11,9 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - Every shape of the nine stages is inked with a dark outline, drawn as a hand draws it, the colours are brighter and bolder, a flat shadow lies on the lower part of each shape, the skies are flat bands of colour with round clouds. The textures (paving stones, plaster, lattices) keep no outline, so that they do not turn to noise. The stages keep their rounds (the time of day, the fog, the wagon, the cars) and their animations.
 - `"stage_style"` in the `preview` section of `config.json` picks it: `"cartoon"` (the default) or `"flat"`, the look of 1.32.
 
+**The character select shows the picks** (test 2, Seb's photo, ROBERT three times and struck twice)
+- On the select screen, the game keeps the last team in its slots until each fighter is picked, and copies a pick to the slots left, and the fighters beaten in the last match stayed counted. The HD screen showed the last match's third fighter, three times, struck twice. It now shows only the fighters picked since the screen began, the last one as the name, no strike. Once the three are picked and the order set, the team in its order and the first to fight.
+
 **Version**
 - 1.33.0 in `dmd/app.py` and the MAME plugin.
 
@@ -19,6 +22,9 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 **Les décors de The King of Fighters '98 en style cartoon** (test 1, Seb : le dessin de la 1.32 faisait trop analytique)
 - Chaque forme des neuf décors est cernée d'un trait d'encre sombre, tracé comme à la main, les couleurs sont plus vives et plus franches, une ombre en aplat couvre le bas de chaque forme, les ciels sont des bandes de couleur plates avec des nuages ronds. Les textures (pavés, enduit, mosaïques) restent sans trait, sinon elles tournent au bruit. Les décors gardent leurs rounds (l'heure du jour, la brume, le wagon, les voitures) et leurs animations.
 - `"stage_style"` dans la section `preview` de `config.json` le choisit : `"cartoon"` (par défaut) ou `"flat"`, le dessin de la 1.32.
+
+**La sélection des personnages montre les choix** (test 2, la photo de Seb, ROBERT trois fois et barré deux fois)
+- À l'écran de sélection, le jeu garde l'équipe d'avant dans ses cases tant que chaque combattant n'est pas choisi, et copie un choix dans les cases restantes, et les combattants battus au match d'avant restaient comptés. L'écran HD montrait le troisième combattant du match d'avant, trois fois, barré deux fois. Il ne montre plus que les combattants choisis depuis le début de l'écran, le dernier en nom, sans barre. Les trois choisis et l'ordre mis, l'équipe dans l'ordre et le premier à combattre.
 
 **Version**
 - 1.33.0 dans `dmd/app.py` et le plugin MAME.
