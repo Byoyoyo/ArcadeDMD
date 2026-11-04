@@ -39,6 +39,10 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 **A coin pressed too early no longer puts the credits ahead of the game** (test 8, Seb, KOF '98 under RetroArch)
 - The credits of a Neo Geo MVS live in the cabinet's backup memory, which FinalBurn Neo does not share, so they are guessed from the BIOS. A coin pressed before the BIOS is ready (the Neo Geo logo) was counted while the BIOS ignores it. It is not counted any more. A coin pressed on the demo is counted at once, and taken back if the BIOS does not ask for its title screen within two seconds. The log says both.
 
+**The King of Fighters 2002 on the way to '98** (test 9, Seb's capture)
+- Its file read the health, the timer and the scores only. From the RetroAchievements code notes, checked against the capture's timer and screen, it now reads the teams of both sides, their fighters beaten (the select screens count the picks there as in '98), the fighter on screen with the 41 names of the roster, and the round of the match (the fighters beaten on both sides). The HD screen shows the names, the teams, ROUND n, the next fighter, VICTOIRE after the third fighter.
+- Probes to confirm on the next capture: the state of the fight at '98's place (then READY and GO give FIGHT ! as in '98), the stocks and power gauges at '98's places, a second set of team slots that may be the team in its fighting order (then the team shows in order). The stick and buttons are read too, for the captures.
+
 **Version**
 - 1.33.0 in `dmd/app.py` and the MAME plugin.
 
@@ -75,6 +79,10 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 
 **Une pièce mise trop tôt ne met plus les crédits en avance sur le jeu** (test 8, Seb, KOF '98 sous RetroArch)
 - Les crédits d'une Neo Geo MVS vivent dans la mémoire de sauvegarde de la borne, que FinalBurn Neo ne partage pas, ils sont donc devinés d'après le BIOS. Une pièce mise avant que le BIOS soit prêt (le logo Neo Geo) était comptée alors que le BIOS l'ignore. Elle ne l'est plus. Une pièce mise sur la démo est comptée tout de suite, et reprise si le BIOS ne demande pas son écran titre dans les deux secondes. Le journal dit les deux.
+
+**The King of Fighters 2002 en route vers le niveau de '98** (test 9, la capture de Seb)
+- Son fichier ne lisait que la vie, le chrono et les scores. D'après les notes RetroAchievements, vérifiées contre le chrono et l'écran de la capture, il lit maintenant les équipes des deux côtés, leurs combattants battus (les écrans de sélection y comptent les choix comme en '98), le combattant à l'écran avec les 41 noms du jeu, et le round du match (les battus des deux côtés). L'écran HD montre les noms, les équipes, ROUND n, le combattant suivant, VICTOIRE après le troisième.
+- Des sondes à confirmer sur la prochaine capture : l'état du combat à la place de '98 (alors READY et GO donnent FIGHT ! comme en '98), les stocks et jauges aux places de '98, un second jeu de cases qui serait l'équipe dans l'ordre de passage (alors l'équipe s'affiche dans l'ordre). Le stick et les boutons sont lus aussi, pour les captures.
 
 **Version**
 - 1.33.0 dans `dmd/app.py` et le plugin MAME.
