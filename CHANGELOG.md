@@ -59,6 +59,9 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - `tools/replay_capture.py` replays a game that has a scene of its own (Windjammers, Metal Slug...) through that scene, image by image, and notes the points with where the HD disc was. Seb's capture of 18:56 kept and replayed by the tests (33 checks).
 - The disc's colour per court is not read (a palette, not a value); it waits for a photo of each court.
 
+**A super shot on the HD screen** (test 14, Seb)
+- When a player throws his super shot, SUPER ! pops on his side of the court, the screen flashes his colour, the disc bursts and burns a fiery trail in his colour while the shot lasts (`super` and `super_p2` at 1 while it lasts). The address of that value is not known yet: 376 probes over the three object blocks of the game (the players, the disc) wait for a capture where supers are thrown, then the value is set and the probes go.
+
 **Version**
 - 1.33.0 in `dmd/app.py` and the MAME plugin.
 
@@ -115,6 +118,9 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - La pastille des crédits de Windjammers passe en haut à gauche, hors du terrain : le service est là où elle était.
 - `tools/replay_capture.py` rejoue un jeu qui a sa propre scène (Windjammers, Metal Slug...) par cette scène, image par image, et note les points avec la place du disque HD. La capture de Seb de 18 h 56 gardée et rejouée par les tests (33 vérifications).
 - La couleur du disque selon le terrain n'est pas lue (une palette, pas une valeur) ; elle attend une photo de chaque terrain.
+
+**Un super sur l'écran HD** (test 14, Seb)
+- Quand un joueur lance son super, SUPER ! surgit de son côté du terrain, l'écran flashe à sa couleur, le disque éclate et traîne du feu à sa couleur tant que le tir dure (`super` et `super_p2` à 1 tant qu'il dure). L'adresse de cette valeur n'est pas encore connue : 376 sondes sur les trois blocs d'objets du jeu (les joueurs, le disque) attendent une capture où des supers sont lancés, puis la valeur est posée et les sondes s'en vont.
 
 **Version**
 - 1.33.0 dans `dmd/app.py` et le plugin MAME.

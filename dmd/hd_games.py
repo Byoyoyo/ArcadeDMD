@@ -1248,6 +1248,11 @@ class WindjammersScene(GameScene):
         # two readings; without it, the rally is played / le vrai disque, lu à chaque image, sinon l'échange est joué
         self.track = None                                    # (x, y) the last reading / la dernière lecture
         self.shown = None                                    # (x, y, when drawn) the HD disc, eased to it / le disque HD
+        # a super shot (1.33, Seb): "super" / "super_p2" at 1 while the player throws his; the disc burns a trail in his
+        # colour, SUPER ! pops on his side / un super : le disque brûle une traînée à sa couleur, SUPER ! de son côté
+        self.super = {"p1": None, "p2": None}                # when it started, or None / son début, ou None
+        self.super_end = {"p1": -99.0, "p2": -99.0}
+        self.trail = []                                      # the disc's last places during a super / la traînée
 
     def always(self, vals, now):
         court = _n(vals.get("court"))
@@ -1272,6 +1277,7 @@ class WindjammersScene(GameScene):
     def restart(self, vals, now):
         self.flights, self.rally, self.goal = [], None, None
         self.track = self.shown = None
+        self.super, self.super_end, self.trail = {"p1": None, "p2": None}, {"p1": -99.0, "p2": -99.0}, []
 
     DISC_X = (8, 311)                                        # the disc's x in the game, goal line to goal line
     DISC_Y = (57, 208)                                       # its y, a high lob at the top to the bottom
@@ -1307,6 +1313,15 @@ class WindjammersScene(GameScene):
             # (0, 0), x or y at 0: no disc on the court (title, court intro, between sets) / pas de disque
             self.track = self.disc_pos(gx, gy) if 0 < gx < 400 and 0 < gy < 300 else None
         live = self.tracking(now)
+        for side, name in (("p1", "super"), ("p2", "super_p2")):
+            v = _n(vals.get(name))
+            on = v is not None and v != 0
+            if on and self.super[side] is None:
+                self.super[side] = now
+                self.super_start(side, now, live)
+            elif not on and self.super[side] is not None:
+                self.super[side] = None
+                self.super_end[side] = now
         for name, x0, x1 in (("set_points", S(400), W - S(48)), ("set_points_p2", W - S(400), S(48))):
             ch = self.changed(vals, name)
             if ch and ch[1] > ch[0]:
@@ -1333,6 +1348,44 @@ class WindjammersScene(GameScene):
                                          "pts": pts, "name": name, "zone": (top + third * zone, top + third * (zone + 1))})
                 self.rally = None
                 self.pause = now + 1.4
+
+    def super_start(self, side, now, live):
+        """A super shot begins: SUPER ! on the player's side, a burst at the disc, the screen flashes his colour.
+        / Un super commence : SUPER ! de son côté, un éclat au disque, l'écran flashe à sa couleur."""
+        S, W, fx = self.S, self.W, self.fx
+        top, bot = self.floor()
+        col = P1C if side == "p1" else P2C
+        x = W * (0.24 if side == "p1" else 0.76)
+        self.popup("SUPER !", x, (top + bot) / 2 - S(30), col, 76, life=1.2, rise=40, key="xbold")
+        px, py = live if live is not None else ((x, (top + bot) / 2))
+        fx.sparks(px, py, 40, col, (300, 900), (0, 360), (0.3, 0.7), 500, "front", 3, 30)
+        fx.glow(px, py, 30, 220, col, 0.5, "front", 0.9, 0.0)
+        fx.flash(col, 0.22, 0.25)
+        fx.shake(4, 0.25)
+        self.trail = []
+
+    def super_side(self, now):
+        """The side whose super is burning, while it lasts and 0.7 s after. / Le côté dont le super brûle."""
+        for side in ("p1", "p2"):
+            if self.super[side] is not None or now - self.super_end[side] < 0.7:
+                return side
+        return None
+
+    def draw_trail(self, screen, x, y, side, now):
+        """The disc's fiery trail in the player's colour and its halo. / La traînée de feu et le halo du disque."""
+        S, pg, fx = self.S, self.pg, self.fx
+        col = (255, 150, 70) if side == "p1" else (110, 190, 255)
+        if self.trail and (abs(x - self.trail[-1][0]) + abs(y - self.trail[-1][1])) > S(40):
+            lx, ly, lt = self.trail[-1]                               # a long step: a glow halfway too / un pas long
+            self.trail.append(((lx + x) / 2, (ly + y) / 2, (lt + now) / 2))
+        self.trail.append((x, y, now))
+        self.trail = [t for t in self.trail if now - t[2] < 0.4][-40:]
+        for tx, ty, tt in self.trail:
+            k = 1 - (now - tt) / 0.4
+            g = fx.sp.glow(S(22 + 18 * k), col, max(2, int(12 * k)), hot=0.45)
+            screen.blit(g, (int(tx - g.get_width() / 2), int(ty - g.get_height() / 2)), special_flags=pg.BLEND_RGB_ADD)
+        halo = fx.sp.glow(S(64), col, 9 + int(3 * (0.5 + 0.5 * math.sin(now * 18))), hot=0.5)
+        screen.blit(halo, (int(x - halo.get_width() / 2), int(y - halo.get_height() / 2)), special_flags=pg.BLEND_RGB_ADD)
 
     def _rally(self, now):
         """Easy exchange between the two players: straight, off a wall, or a lob. / Échange entre les joueurs."""
@@ -1422,6 +1475,12 @@ class WindjammersScene(GameScene):
             keep.append(f)
         self.flights = keep
         live = self.tracking(now)
+        burning = self.super_side(now)
+        pos = live if live is not None else (self._rally(now)[:2] if not self.flights and now >= self.pause else None)
+        if burning and pos is not None:                                 # a super shot: the trail under the disc
+            self.draw_trail(screen, pos[0], pos[1], burning, now)
+        elif not burning:
+            self.trail = []
         if live is not None:                                            # the game's disc, followed / le disque du jeu
             self.draw_disc(screen, live[0], live[1], 0, now)
         elif not self.flights and now >= self.pause:
