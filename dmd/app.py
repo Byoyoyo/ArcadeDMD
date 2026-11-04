@@ -25,6 +25,7 @@ from .memvalues import derive, forget_seen, game_values, resolve_value
 from .coinbuttons import CoinButtons, mvs_rates, side_word
 from .neocoins import NeoCoins
 from .textfiles import TextFiles
+from .capture import Capture
 from .i18n import tr
 
 VERSION = "1.33.0"
@@ -545,6 +546,8 @@ class Engine:
         self.bridge = None
         tf = config.get("textfiles") or {}
         self.texts = TextFiles(tf, root, log) if tf.get("enabled") and not demo_game else None
+        # the captures of the fighting games, to replay them offline (1.33) / les captures des jeux de combat
+        self.capture = Capture(root, log, config.get("capture", "fights")) if not demo_game else None
         # config.json modifié (screen_setup.bat, réglage à la main) : le moteur redémarre avec les nouveaux réglages
         self.cfg_path = os.path.join(root, "config.json")
         self.cfg_mtime = _mtime(self.cfg_path)
@@ -654,6 +657,8 @@ class Engine:
                     self.log(tr(f"sortie {out.__class__.__name__} : {e}", f"output {out.__class__.__name__}: {e}"))
 
     def go_idle(self):
+        if getattr(self, "capture", None) is not None:
+            self.capture.stop(time.monotonic())
         self.mode = "idle"
         self.source = None
         self.sim = None
@@ -770,6 +775,8 @@ class Engine:
                                "title": title, "path": None}
         self.log(tr(f"jeu : {meta.get('system')} « {title} » -> scène {self.scene_key}",
                     f"game: {meta.get('system')} \"{title}\" -> scene {self.scene_key}"))
+        if self.capture is not None and source != "demo":
+            self.capture.start(meta, g, key, VERSION, time.monotonic())
 
     def start_demo(self, key, seconds=None):
         g = self.library.get(key)
@@ -1271,6 +1278,8 @@ class Engine:
             self._activity(now)
             if self.activity.get("fight"):
                 self._p2_fight(now)
+        if self.capture is not None and self.capture.on:
+            self.capture.poll(self.state, time.monotonic())
         if self.texts is not None:     # fichiers texte pour OBS, séries de victoires en match VS
             try:
                 self.texts.update(self.state, self.mode == "game" and self.source != "demo",

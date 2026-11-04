@@ -14,6 +14,10 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 **The character select shows the picks** (test 2, Seb's photo, ROBERT three times and struck twice)
 - On the select screen, the game keeps the last team in its slots until each fighter is picked, and copies a pick to the slots left, and the fighters beaten in the last match stayed counted. The HD screen showed the last match's third fighter, three times, struck twice. It now shows only the fighters picked since the screen began, the last one as the name, no strike. Once the three are picked and the order set, the team in its order and the first to fight.
 
+**Captures of the fighting games, to tune every game from one match** (test 3, Seb: the fixes of The King of Fighters '98 to carry to every fighting game)
+- During a fighting game, every change of every value read is written with its time to `runtime\captures\<game>-<date>.log`, the stick and buttons at the time they were read, a few hundred KB for a match. `"capture"` in `config.json`: `"fights"` (the default), `"all"` or `"off"`. The log says where the capture went and how many changes it holds.
+- `tools/replay_capture.py` replays a capture through the fight engine, with the game's file as it is now, and prints what the HD screen would have shown, second by second: the select screens, ROUND n, FIGHT !, K.O., WIN, TIME UP, VICTOIRE, the next fighter. One match per game is enough to see what comes at the wrong time, fix the game's file and keep the capture as a test.
+
 **Version**
 - 1.33.0 in `dmd/app.py` and the MAME plugin.
 
@@ -25,6 +29,10 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 
 **La sélection des personnages montre les choix** (test 2, la photo de Seb, ROBERT trois fois et barré deux fois)
 - À l'écran de sélection, le jeu garde l'équipe d'avant dans ses cases tant que chaque combattant n'est pas choisi, et copie un choix dans les cases restantes, et les combattants battus au match d'avant restaient comptés. L'écran HD montrait le troisième combattant du match d'avant, trois fois, barré deux fois. Il ne montre plus que les combattants choisis depuis le début de l'écran, le dernier en nom, sans barre. Les trois choisis et l'ordre mis, l'équipe dans l'ordre et le premier à combattre.
+
+**Les captures des jeux de combat, pour régler chaque jeu avec un match** (test 3, Seb : les corrections de The King of Fighters '98 à porter sur tous les jeux de combat)
+- Pendant un jeu de combat, chaque changement de chaque valeur lue est écrit avec son heure dans `runtime\captures\<jeu>-<date>.log`, le stick et les boutons à l'heure où ils ont été lus, quelques centaines de Ko par match. `"capture"` dans `config.json` : `"fights"` (par défaut), `"all"` ou `"off"`. Le journal dit où est allée la capture et combien de changements elle tient.
+- `tools/replay_capture.py` rejoue une capture dans le moteur de combat, avec le fichier du jeu tel qu'il est maintenant, et écrit ce que l'écran HD aurait montré, seconde par seconde : les écrans de sélection, ROUND n, FIGHT !, K.O., WIN, TIME UP, VICTOIRE, le combattant suivant. Un match par jeu suffit pour voir ce qui vient au mauvais moment, corriger le fichier du jeu et garder la capture comme test.
 
 **Version**
 - 1.33.0 dans `dmd/app.py` et le plugin MAME.
