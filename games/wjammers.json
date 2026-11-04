@@ -40,7 +40,7 @@
    "court": {
     "addr": "0x100324",
     "type": "u8",
-    "note": "court, 0 lawn, 1 beach, 2 tiles, 3 stadium, 4 clay, 5 concrete (RetroAchievements 0x322 'stage select lawn=00 Beach=01 Tiled=02 Stadium=03 Clay=04 Concrete=05'; the order of the FinalBurn Neo cheat was wrong, 1.33 test 15)"
+    "note": "court, 0 beach, 1 lawn, 2 tiles, 3 concrete, 4 clay, 5 stadium (FinalBurn Neo cheats; Seb's photo of 2026-11-04 20:59, the beach at 0; the order of the RetroAchievements note for 0x322 does not apply here)"
    },
    "to_win": {
     "addr": "0x1000FF",
@@ -944,20 +944,20 @@
    "value": "court",
    "names": {
     "en": [
-     "LAWN",
      "BEACH",
+     "LAWN",
      "TILES",
-     "STADIUM",
+     "CONCRETE",
      "CLAY",
-     "CONCRETE"
+     "STADIUM"
     ],
     "fr": [
-     "GAZON",
      "PLAGE",
+     "GAZON",
      "CARRELAGE",
-     "STADE",
+     "BÉTON",
      "TERRE BATTUE",
-     "BÉTON"
+     "STADE"
     ]
    }
   },

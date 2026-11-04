@@ -1217,9 +1217,9 @@ class PuzzleBobbleScene(GameScene):
 
 
 # ============================================================================ Windjammers
-# the courts by the game's index (RetroAchievements code notes: lawn 0, beach 1, tiled 2, stadium 3, clay 4, concrete 5)
-COURTS = (("GAZON", "LAWN"), ("PLAGE", "BEACH"), ("CARRELAGE", "TILES"), ("STADE", "STADIUM"), ("TERRE BATTUE", "CLAY"),
-          ("BÉTON", "CONCRETE"))
+# the courts by the game's index (the FinalBurn Neo cheats; Seb's photo of 2026-11-04, the beach at 0)
+COURTS = (("PLAGE", "BEACH"), ("GAZON", "LAWN"), ("CARRELAGE", "TILES"), ("BÉTON", "CONCRETE"), ("TERRE BATTUE", "CLAY"),
+          ("STADE", "STADIUM"))
 # the players by the game's code (RetroAchievements 0x31c, 0x31e, divided by 4; Seb's capture of 2026-11-04 19:51)
 PLAYERS = ("SCOTT", "COSTA", "WESSEL", "MILLER", "BIAGGI", "MITA")
 NATIONS = (("USA", "USA"), ("ESPAGNE", "SPAIN"), ("ALLEMAGNE", "GERMANY"), ("ROYAUME-UNI", "UK"), ("ITALIE", "ITALY"), ("JAPON", "JAPAN"))
@@ -1237,7 +1237,7 @@ class WindjammersScene(GameScene):
     """The court as a live map (1.33, Seb's captures): the disc and the two players where the game has them, read at
     every image, the lobs in the air, the super shots burning, the points bursting on the goal lines; the scoreboard
     with the players' names. / Le terrain en carte vivante : le disque et les deux joueurs là où le jeu les met."""
-    THEME = "court_lawn"
+    THEME = "court_beach"
     STATIC = True
     SHADE = (150, 0)
     PILLS = True
@@ -1545,7 +1545,7 @@ class WindjammersScene(GameScene):
                 h = math.sin(k * math.pi) * S(70)
         return x, y, h
 
-    def draw_disc(self, screen, x, y, h, now):
+    def draw_disc(self, screen, x, y, h, now, held=False):
         """The disc and its shadow on the floor; in the air it grows and its shadow fades. / Le disque et son ombre."""
         S = self.S
         sh = self.imgs.get("disc_shadow")
@@ -1553,7 +1553,7 @@ class WindjammersScene(GameScene):
             sh = self.pg.Surface((S(70), S(22)), self.pg.SRCALPHA)
             self.pg.draw.ellipse(sh, (0, 0, 0, 90), sh.get_rect())
             self.imgs["disc_shadow"] = sh
-        if h > S(4):                                                   # in the air: a target on the floor / en l'air
+        if h > S(4) and not held:                                      # in the air: a target on the floor / en l'air
             k = min(1.0, h / S(160))
             sh.set_alpha(int(255 * (1 - 0.6 * k)))
             ring = self.imgs.get("disc_ring")
@@ -1633,25 +1633,32 @@ class WindjammersScene(GameScene):
                 self.draw_token(screen, side, tp[0], tp[1], vals, now)
         burning = self.super_side(now)
         pos = live if live is not None else (self._rally(now) if not self.flights and now >= self.pause else None)
+        held = False
+        if pos is not None and pos[2] < S(4):                           # held: lifted over the player / tenu : levé
+            for tk in self.tokens.values():
+                if tk is not None and abs(pos[0] - tk[0]) < S(40) and abs(pos[1] - tk[1]) < S(40):
+                    pos, held = (pos[0], pos[1], S(34)), True
         if pos is not None:
             if burning:                                                 # a super shot: the trail under the disc
                 self.draw_trail(screen, pos[0], pos[1], burning, now)
             else:
                 self.trail = []
                 self.draw_wake(screen, pos[0], pos[1], now)
-            self.draw_disc(screen, pos[0], pos[1], pos[2], now)
+            self.draw_disc(screen, pos[0], pos[1], pos[2], now, held)
         else:
             self.wake = []
 
     def scoreboard(self, screen, vals, logo, now):
-        """The board over the court (1.33, Seb): each player's name, nation and score, the sets as gold discs, the
-        points of the set big in his colour, the timer and the court between them. / Le tableau au-dessus du terrain."""
+        """The board over the court (1.33, Seb): each player's name, nation and score on his side, the points of the set
+        big in his colour with his sets won under them, the timer and the court between them, the points to win at the
+        top right. / Le tableau au-dessus du terrain : nom, pays et score de chacun, les points du set en grand."""
         hd, S, W = self.hd, self.S, self.W
         hd.draw_logo(screen, logo, W / 2, S(4), S(440), S(84), now)
         bw, bh = S(1000), S(104)
         bx, by = W / 2 - bw / 2, S(96)
         self.box(screen, bx, by, bw, bh, (255, 214, 90))
         p2 = self.p2_in(vals)
+        numw = hd.text_width("00", "black", S(80))
         for side, name, col, x, align, d in (("p1", "set_points", P1C, bx + S(30), "left", 1), ("p2", "set_points_p2", P2C, bx + bw - S(30), "right", -1)):
             tag = "P1" if side == "p1" else ("P2" if p2 else "CPU")
             who = self.player_name(vals, side)
@@ -1668,36 +1675,36 @@ class WindjammersScene(GameScene):
             sc = _n(vals.get("score" if side == "p1" else "score_p2"))
             if sc is not None:
                 self.text(screen, f"{int(sc):,}".replace(",", " "), x, by + S(74), 20, (235, 232, 215), key="bold", align=align, glow=0)
-            n = _n(vals.get("sets" if side == "p1" else "sets_p2"))      # the sets won, gold discs / les sets gagnés
+            nx = W / 2 - d * S(150)                                     # the points of the set, big / les points du set
+            v = _n(vals.get(name))
+            if v is not None:
+                k = now - self.pop[name]
+                hd.put_number(screen, f"{int(v):02d}", "black", S(80), WHITE if k < 0.35 else col, nx, by + S(40),
+                              "right" if side == "p1" else "left", "middle", scale=1.0 + 0.3 * max(0.0, 1 - k / 0.35))
+            n = _n(vals.get("sets" if side == "p1" else "sets_p2"))      # his sets won, gold discs under them / ses sets
             if n is not None:
+                cx0 = nx - d * numw / 2
                 for i in range(2):
-                    cx, cy = int(x + d * (S(190) + i * S(26))), int(by + S(62))
+                    cx, cy = int(cx0 + (i - 0.5) * S(30)), int(by + S(88))
                     if i < int(n):
                         self.pg.draw.circle(screen, (255, 214, 90), (cx, cy), S(9))
                         self.pg.draw.circle(screen, (120, 80, 10), (cx, cy), S(9), max(1, S(2)))
                     else:
                         self.pg.draw.circle(screen, (70, 64, 50), (cx, cy), S(9), max(1, S(2)))
-            v = _n(vals.get(name))                                      # the points of the set, big / les points
-            if v is not None:
-                k = now - self.pop[name]
-                hd.put_number(screen, f"{int(v):02d}", "black", S(88), WHITE if k < 0.35 else col, W / 2 - d * S(120), by + S(52),
-                              "right" if side == "p1" else "left", "middle", scale=1.0 + 0.3 * max(0.0, 1 - k / 0.35))
         t = _n(vals.get("time"))
         if t is not None:
             low = t <= 10
             pulse = 0.5 + 0.5 * math.sin(now * 9) if low else 0.0
-            hd.put_number(screen, f"{int(t)}", "black", S(50), RED if low else GOLD, W / 2, by + S(36), "center", "middle",
+            hd.put_number(screen, f"{int(t)}", "black", S(50), RED if low else GOLD, W / 2, by + S(34), "center", "middle",
                           scale=1 + 0.12 * pulse)
-        info = []
         court = _n(vals.get("court"))
-        if court is not None:
-            info.append(tr(*COURTS[int(court) % 6]))
-        tw = _n(vals.get("to_win"))
-        if tw is not None:
-            info.append(tr(f"{int(tw)} POINTS POUR GAGNER", f"{int(tw)} POINTS TO WIN"))
-        if info:
-            self.text(screen, "  ·  ".join(info), W / 2, by + bh - S(22), 18, (200, 196, 180), key="bold", align="center",
+        if court is not None:                                           # the court under the timer / le terrain
+            self.text(screen, tr(*COURTS[int(court) % 6]), W / 2, by + S(80), 18, (200, 196, 180), key="bold", align="center",
                       valign="middle", glow=0)
+        tw = _n(vals.get("to_win"))
+        if tw is not None:                                              # the points to win, top right / les points
+            self.text(screen, tr(f"{int(tw)} POINTS POUR GAGNER", f"{int(tw)} POINTS TO WIN"), W - S(24), S(100), 18, (200, 196, 180),
+                      key="bold", align="right", glow=0)
         if not p2:
             word, col = self.invite(vals, now)
             self.label(screen, word, W - S(24), S(44), 34, col, align="right")
