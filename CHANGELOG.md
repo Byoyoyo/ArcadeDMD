@@ -36,6 +36,9 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - TIME UP: the winner is judged 0.9 s later, once the last blow landed; in Seb's capture a hit landed half a second after the timer reached 0 and made the bars equal, the game put both fighters out. Equal bars are MATCH NUL (DRAW GAME), no WIN.
 - `"capture"` is `"all"` by default: every game is captured, not only the fighting games (Seb played Windjammers and got no capture). `"fights"` keeps the fighting games only.
 
+**A coin pressed too early no longer puts the credits ahead of the game** (test 8, Seb, KOF '98 under RetroArch)
+- The credits of a Neo Geo MVS live in the cabinet's backup memory, which FinalBurn Neo does not share, so they are guessed from the BIOS. A coin pressed before the BIOS is ready (the Neo Geo logo) was counted while the BIOS ignores it. It is not counted any more. A coin pressed on the demo is counted at once, and taken back if the BIOS does not ask for its title screen within two seconds. The log says both.
+
 **Version**
 - 1.33.0 in `dmd/app.py` and the MAME plugin.
 
@@ -69,6 +72,9 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - Aux écrans de sélection, les deux barres de vie sont vides, celle du vainqueur y gardait son dernier niveau.
 - TIME UP : le vainqueur est jugé 0,9 s après, une fois le dernier coup arrivé ; dans la capture de Seb un coup est arrivé une demi-seconde après le chrono à 0 et a rendu les barres égales, le jeu a sorti les deux combattants. Des barres égales font MATCH NUL, sans WIN.
 - `"capture"` vaut `"all"` par défaut : tous les jeux sont capturés, pas seulement les jeux de combat (Seb a joué à Windjammers sans capture). `"fights"` garde les jeux de combat seuls.
+
+**Une pièce mise trop tôt ne met plus les crédits en avance sur le jeu** (test 8, Seb, KOF '98 sous RetroArch)
+- Les crédits d'une Neo Geo MVS vivent dans la mémoire de sauvegarde de la borne, que FinalBurn Neo ne partage pas, ils sont donc devinés d'après le BIOS. Une pièce mise avant que le BIOS soit prêt (le logo Neo Geo) était comptée alors que le BIOS l'ignore. Elle ne l'est plus. Une pièce mise sur la démo est comptée tout de suite, et reprise si le BIOS ne demande pas son écran titre dans les deux secondes. Le journal dit les deux.
 
 **Version**
 - 1.33.0 dans `dmd/app.py` et le plugin MAME.

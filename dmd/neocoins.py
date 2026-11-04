@@ -52,12 +52,25 @@ class NeoCoins:
         self.over_at = -99.0
         self.pressed_at = -99.0
         self.coins = 0                                   # coins seen (tests) / pièces vues (tests)
+        # 1.33 test 8 (Seb: a coin pressed too early put ArcadeDMD one credit ahead of the game). A coin before the BIOS
+        # is ready is not counted, the BIOS ignores it. A coin during the demo is counted at once but must be seen by the
+        # BIOS (its title screen asked) within PRESSED seconds, or it is taken back. / Une pièce avant que le BIOS soit
+        # prêt n'est pas comptée, il l'ignore. Une pièce pendant la démo est comptée tout de suite mais doit être vue
+        # par le BIOS (son écran titre demandé) dans les PRESSED secondes, sinon elle est reprise.
+        self.unconfirmed = []                            # [(when, credits)] coins of the demo not seen yet / pas encore vues
 
     def add(self, side, now):
-        """A coin seen on the coin buttons, with its side (0 left, 1 right). The guessed credits, None on an AES."""
+        """A coin seen on the coin buttons, with its side (0 left, 1 right). The guessed credits, None on an AES or
+        before the BIOS is ready (that coin is lost, the BIOS ignores it, 1.33 test 8)."""
         if self.aes:
             return None
         n = self.rates[side] if side in (0, 1) else 1
+        if not self.looked or self.credits is None:
+            self.notes.append(("pièce avant que le BIOS soit prêt : il l'ignore, pas comptée",
+                               "coin before the BIOS is ready: it ignores it, not counted"))
+            return None
+        if self.req == DEMO:
+            self.unconfirmed.append((now, n))            # to be seen by the BIOS / à voir par le BIOS
         self.credits = min(99, (self.credits or 0) + n)
         self.coins += 1
         self.pressed_at = now
@@ -95,6 +108,17 @@ class NeoCoins:
             self.notes.append((f"BIOS Neo Geo : demande {req}, mode {mode}", f"Neo Geo BIOS: request {req}, mode {mode}"))
             self.seen = (req, mode)
         pressed = now - self.pressed_at < self.PRESSED
+        if self.unconfirmed:
+            if req == TITLE:
+                self.unconfirmed = []                    # the BIOS saw them: the title / le BIOS les a vues
+            else:
+                late = [c for c in self.unconfirmed if now - c[0] >= self.PRESSED]
+                if late:                                 # the BIOS stayed on the demo: those coins went nowhere
+                    self.credits = max(0, self.credits - sum(n for _, n in late))
+                    self.coins -= len(late)
+                    self.unconfirmed = [c for c in self.unconfirmed if now - c[0] < self.PRESSED]
+                    self.notes.append(("pièce non vue par le BIOS (toujours la démo) : reprise",
+                                       "coin not seen by the BIOS (still the demo): taken back"))
         coin = False
         if req == TITLE and mode != IN_GAME:
             if self.req is not None and self.req != TITLE:
