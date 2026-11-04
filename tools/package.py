@@ -18,7 +18,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # shipped in the zip: everything except these (development files, user data, caches)
 EXCLUDE_DIRS = {".git", ".github", "tools", "dist", "runtime", "learned", "appris", "appris.old", "obs", "artwork",
-                "__pycache__"}
+                "__pycache__", "tests"}
 EXCLUDE_FILES = {"config.json", ".gitignore", ".gitattributes", "CONTRIBUTING.md"}
 EXCLUDE_EXT = (".pyc", ".pyo", ".log", ".tmp")
 REQUIRED = ["arcadedmd.py", "install.bat", "run.bat", "learn.bat", "config.default.json", "README.md", "README.fr.md",

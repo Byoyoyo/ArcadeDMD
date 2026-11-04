@@ -6,9 +6,11 @@ once. Used to tune a fighting game from one match played, and as a test afterwar
 Rejoue une capture dans le moteur de combat et écrit ce que l'écran HD aurait montré, seconde par seconde. Le même
 moteur que sur la borne, avec le fichier du jeu tel qu'il est maintenant.
 
-usage: python tools/replay_capture.py CAPTURE [--values] [--json OUT]
+usage: python tools/replay_capture.py CAPTURE [--values] [--json OUT] [--frames T1,T2,...] [--out DIR]
   --values   also prints the changes of the main values (health, timer, round, screen, state) / les valeurs aussi
   --json     writes the timeline as JSON, for the tests / la chronologie en JSON
+  --frames   draws the HD screen at these seconds of the capture, <capture>-<T>.png beside it or in --out
+             / dessine l'écran HD à ces secondes de la capture
 """
 import argparse
 import json
@@ -26,21 +28,26 @@ MAIN = ("health", "health_p2", "time", "round", "_screen", "_fight_state", "p1_m
         "select", "p1_char", "p2_char", "credits", "_stock", "_stock_p2", "_maxv", "_maxv_p2", "_pmode", "_pmode_p2")
 
 
-def replay(path, show_values=False, step=1 / 60):
+def replay(path, show_values=False, step=1 / 60, frames=(), out_dir=None):
     import pygame
+    from dmd.canvas import Canvas
     from dmd.capture import read_capture
     from dmd.hd import HDRenderer
     from dmd.hd_fight import FightFX
-    from dmd.memvalues import derive
-    from dmd.scene import GameState
+    from dmd.memvalues import derive, resolve_value
+    from dmd.scene import Ctx, GameState
 
     pygame.init()
-    pygame.display.set_mode((1920, 460))
+    screen = pygame.display.set_mode((1920, 460))
     head, rows = read_capture(path)
     key = head.get("game") or ""
     game = json.load(open(os.path.join(ROOT, "games", f"{key}.json"), encoding="utf-8"))
     derived = game.get("derived") or {}
+    tag = game.get("tag") if isinstance(game.get("tag"), dict) else {}
     hd = HDRenderer(pygame, (1920, 460), ROOT, {"logos": False}, lambda *a: None, logos=None)
+    frames = sorted(float(f) for f in frames)
+    out_dir = out_dir or os.path.dirname(os.path.abspath(path))
+    stem = os.path.splitext(os.path.basename(path))[0]
     lines = []
     hd.log = lambda m: lines.append((T[0], str(m)))
     fx = FightFX(hd, rng=random.Random(1))
@@ -50,7 +57,34 @@ def replay(path, show_values=False, step=1 / 60):
     T = [0.0]
     out = []
     state = {"select": False, "round_show": -99.0, "fight_t": -99.0, "ko": None, "win": None, "banner": None, "out": None,
-             "next": {"p1": -99.0, "p2": -99.0}, "hold": {"p1": None, "p2": None}, "chars": {}}
+             "next": {"p1": -99.0, "p2": -99.0}, "hold": {"p1": None, "p2": None}, "chars": {}, "pick": {}}
+
+    class _Lib:
+        def get(self, k):
+            return game if k == key else None
+
+    class _Eng:                                                      # what the HD screen reads of the engine
+        def __init__(self):
+            self.state = st
+            self.derived = derived
+            self.library = _Lib()
+            self.cfg = {"coin_symbol": "€"}
+            self.ctx = Ctx(Canvas(), ROOT)
+            self.ctx.t = 0.0
+
+    eng = _Eng()
+
+    def frame(now):
+        """The HD screen as it was at now / l'écran HD tel qu'il était"""
+        eng.ctx.t = now
+        v = dict(st.values)
+        fx.bd.draw(screen, now)
+        target = fx.begin(screen, now)
+        hd.draw_fight(target, eng, v, None, now)
+        fx.end(screen, target, now)
+        name = os.path.join(out_dir, f"{stem}-{now - 1000.0:.1f}.png")
+        pygame.image.save(screen, name)
+        return name
 
     def note(t, what):
         out.append((round(t, 2), what))
@@ -69,14 +103,22 @@ def replay(path, show_values=False, step=1 / 60):
             if show_values and name in MAIN:
                 note(t, f"  {name} = {value}")
             i += 1
+        for k, spec in tag.items():                                 # the tags, from the raw values as the app does them
+            v = resolve_value(spec, st.values)                      # (the capture holds those of its day) / les tags
+            if v is not None and st.values.get(k) != v:
+                st.update(k, v, t, quiet=True)
         vals = dict(st.values)
         vals.update(derive(derived, vals))
         for k, v in derive(derived, vals).items():
             if st.values.get(k) != v:
                 st.update(k, v, t, quiet=True)
         T[0] = t
+        eng.ctx.t = 1000.0 + t
         try:
             fx.update(vals, 1000.0 + t, key, game, idle=HDRenderer._nobody(vals), hist=st.hist)
+            if frames and t + 1e-9 >= frames[0]:
+                frames.pop(0)
+                note(t, "  image : " + frame(1000.0 + t))
         except Exception as e:                                       # noqa: BLE001
             note(t, f"ERREUR {e!r}")
             break
@@ -109,6 +151,15 @@ def replay(path, show_values=False, step=1 / 60):
             state["out"] = fx.out
             if fx.out:
                 note(fx.out[2] - 1000.0, f"VICTOIRE {fx.out[0].upper()} ({fx.out[1].upper()} éliminé)")
+        for side in ("p1", "p2"):                                    # the select screens: the picks shown (1.33)
+            pick = hd.select_pick(eng, side) if fx.select and fx.sel_phase else None
+            if pick != state["pick"].get(side):
+                state["pick"][side] = pick
+                if pick and pick[0]:
+                    team = " ".join(n + ("*" if st_ == "now" else "") for n, st_ in (pick[1] or []))
+                    note(t, f"  {side} à la sélection : {pick[0]} [{team}]")
+                elif fx.select:
+                    note(t, f"  {side} à la sélection : rien")
         for side in ("p1", "p2"):
             nt = fx.next_t.get(side, -99.0)
             if nt != state["next"][side] and nt > -90 and nt <= 1000.0 + t + 0.1:
@@ -130,8 +181,10 @@ def main():
     ap.add_argument("capture")
     ap.add_argument("--values", action="store_true")
     ap.add_argument("--json", default="")
+    ap.add_argument("--frames", default="")
+    ap.add_argument("--out", default="")
     args = ap.parse_args()
-    head, out = replay(args.capture, args.values)
+    head, out = replay(args.capture, args.values, frames=[f for f in args.frames.split(",") if f.strip()], out_dir=args.out or None)
     print(f"{head.get('game')} {head.get('title')} {head.get('date')} (ArcadeDMD {head.get('version')})")
     for t, what in out:
         print(f"{t:8.2f}  {what}")

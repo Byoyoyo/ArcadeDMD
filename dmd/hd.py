@@ -53,6 +53,13 @@ GREY = (150, 150, 165)
 # P1, P2 et les équipes aussi, sans lueur. Ils étaient rouges à lueur rouge, fondus dans les décors chauds.
 INK = (10, 8, 14)
 TEAM_GREY, TEAM_DONE = (205, 210, 225), (150, 152, 165)
+# the game's own colours (1.33 test 6, Seb): player 1's name and score in blue, player 2's or the CPU's in red
+# les couleurs du jeu : le nom et le score du joueur 1 en bleu, ceux du joueur 2 ou du CPU en rouge
+P1_BLUE, P2_RED = (92, 172, 255), (255, 84, 64)
+
+
+def side_color(side):
+    return P1_BLUE if side == "p1" else P2_RED
 MAX_INK = (70, 36, 6)
 BARS = {"g": ((48, 240, 160), (20, 150, 110)), "y": ((255, 214, 60), (190, 130, 20)), "r": ((255, 70, 50), (160, 30, 20))}
 FONT_FILES = {"black": "Inter-Black.otf", "xbold": "Inter-ExtraBold.otf", "bold": "Inter-Bold.otf",
@@ -657,7 +664,9 @@ class HDRenderer:
         word = "PRESS START" if credits and credits > 0 else "INSERT COIN"
         return word, tuple(int(c * self._pulse(now)) for c in AMBER)
 
-    def _score(self, screen, eng, name, x, y, align, size):
+    def _score(self, screen, eng, name, x, y, align, size, color=AMBER, outline=None):
+        """A score, popping as it changes. color and outline (1.33): the fights write it in the player's colour with a
+        black outline. / Un score, qui saute quand il change ; les combats l'écrivent à la couleur du joueur, cerné."""
         v = eng.state.values.get(name)
         if v is None:
             return
@@ -667,7 +676,11 @@ class HDRenderer:
             dt = eng.ctx.t - t
             if 0 <= dt < 0.25:
                 pop = 1 - dt / 0.25
-        self.put(screen, self.text(str(v), "black", size, AMBER), x, y, align, scale=1 + 0.2 * pop)
+        if outline is not None:
+            txt = self.text(str(v), "black", size, color, glow=0, outline=outline, stroke=max(2, self.S(4)))
+        else:
+            txt = self.text(str(v), "black", size, color)
+        self.put(screen, txt, x, y, align, scale=1 + 0.2 * pop)
 
     # ------------------------------------------------------------ jeux de combat
     def draw_fight(self, screen, eng, vals, logo, now):
@@ -699,15 +712,16 @@ class HDRenderer:
         vs = p1m == 1 and p2m == 1 and b1 is not None and b2 is not None and (b1 > 0 or b2 > 0)
         for side, x, align in (("p1", S(30), "left"), ("p2", W - S(30), "right")):
             human = p1_in if side == "p1" else p2_in
-            if vs:
+            if vs:                                             # outlined too, over the stage (1.33) / cernés aussi
                 b = b1 if side == "p1" else b2
                 txt = f"BEAT BY {int(b):02d}" if b else "CHALLENGER"
-                self.put(screen, self.text(txt, "black", S(54), RED if not b else AMBER), x, S(22), align)
+                self.put(screen, self.text(txt, "black", S(54), RED if not b else AMBER, glow=0, outline=INK, stroke=max(2, S(4))),
+                         x, S(22), align)
             elif human:
-                self._score(screen, eng, "score" if side == "p1" else "score_p2", x, S(14), align, S(64))
+                self._score(screen, eng, "score" if side == "p1" else "score_p2", x, S(14), align, S(64), side_color(side), INK)
             else:
                 word, col = self._invite(vals, now)
-                self.put(screen, self.text(word, "xbold", S(40), col), x, S(24), align)
+                self.put(screen, self.text(word, "xbold", S(40), col, glow=0, outline=INK, stroke=max(2, S(3))), x, S(24), align)
         wide = not self.logo_file                       # titre écrit à la place du logo : plus de place en largeur
         self.draw_logo(screen, logo, W / 2, S(8), S(900 if wide else 640), S(124), now)
         # au milieu : barres de vie et chrono
@@ -757,7 +771,7 @@ class HDRenderer:
             if held is not None:                  # its next fighter waits for this one's K.O. / le suivant attend son K.O.
                 name = held[0]
             team = self.team(eng, side)
-            if self.fight is not None and self.fight.select and self.fight.sel_chars:
+            if self.fight is not None and self.fight.select and self.fight.sel_phase:
                 name, team = self.select_pick(eng, side)   # the select screen: the picks made so far (1.33, Seb)
             # 1.32: under a human's name, the panel of the desperation moves, the team moved up beside the name, small
             # sous le nom d'un humain, le panneau des coups désespérés, l'équipe montée à côté du nom, en petit
@@ -771,14 +785,14 @@ class HDRenderer:
             if side == "p1":
                 self.put(screen, self.tag_text(tag, tsize), S(40), S(268))
                 if name:
-                    self.put(screen, self.name_text(str(name), nsize), S(40) + tw + S(40), S(268 + (76 - nsize / self.s) * 0.8))
+                    self.put(screen, self.name_text(str(name), nsize, side), S(40) + tw + S(40), S(268 + (76 - nsize / self.s) * 0.8))
             else:
                 self.put(screen, self.tag_text(tag, tsize), W - S(40), S(268), "right")
                 if name:
-                    self.put(screen, self.name_text(str(name), nsize), W - S(40) - tw - S(40),
+                    self.put(screen, self.name_text(str(name), nsize, side), W - S(40) - tw - S(40),
                              S(268 + (76 - nsize / self.s) * 0.8), "right")
             if panel:
-                nw = self.name_text(str(name), nsize)["w"] if name else 0
+                nw = self.name_text(str(name), nsize, side)["w"] if name else 0
                 if team:
                     if side == "p1":
                         self.draw_team_line(screen, team, S(40) + tw + S(40) + nw + S(30), int(cx - S(176)), S(318), side)
@@ -812,9 +826,10 @@ class HDRenderer:
             # deux humains dans un jeu d'équipes : les matchs gagnés par chacun, sous les crédits
             draw_wins(self, screen, f.moves, f.wins["p1"], f.wins["p2"], cx, S(414), now, f.win_pop)
 
-    def name_text(self, name, size):
-        """A fighter's name: cream, outlined in black (1.33). / Le nom d'un combattant : crème, contour noir."""
-        return self.text(name, "black", size, CREAM, glow=0, outline=INK, stroke=max(2, self.S(5)))
+    def name_text(self, name, size, side="p1"):
+        """A fighter's name: player 1's in blue, player 2's in red as in the game, outlined in black (1.33). / Le nom
+        d'un combattant : bleu pour le joueur 1, rouge pour le joueur 2 comme dans le jeu, contour noir."""
+        return self.text(name, "black", size, side_color(side), glow=0, outline=INK, stroke=max(2, self.S(5)))
 
     def tag_text(self, tag, size):
         """P1, P2 or CPU beside the name: amber, outlined. / P1, P2 ou CPU à côté du nom : ambre, contour noir."""
@@ -933,40 +948,36 @@ class HDRenderer:
                 self.pg.draw.line(screen, (220, 60, 40), (x0, y), (x1, y), max(2, S(3)))
 
     def select_pick(self, eng, side):
-        """On the select screen, the fighters picked so far. The game keeps the last team in the three slots until each
-        one is picked, and a pick fills the slots left (ROBERT ROBERT ROBERT in Seb's photo, 1.33 test 2), so the slots
-        read, once one of them changed since the screen began, as the picks in order, a new pick wherever a slot differs
-        from the one before it. A pick equal to the last match's fighter in that slot counts as well (Seb's photo, 1.33
-        test 5: the third fighter missing). The order select: once the three are picked and the orders changed since
-        the screen began (a human picks it on its own screen; the CPU's comes with its team), the team in its order,
-        the first to fight. / À l'écran de sélection, les combattants choisis
-        jusque-là, dans l'ordre : une case qui diffère de la précédente est un nouveau choix, dès qu'une case a changé
-        depuis le début de l'écran. Returns (name, team)."""
+        """On the select screens, the fighters picked so far, read as the game writes them (Seb's captures, 1.33 test
+        6, FightFX._select_phase): the slots fill pick by pick, the last pick named; the three in, the team as picked;
+        then the orders come one by one, "_lost" counting them, _ord0 first, the orders left being the last match's
+        until then, the first to fight named. The CPU gets its team, then its order, at once. / Aux écrans de
+        sélection, les combattants choisis jusque-là, lus comme le jeu les écrit. Returns (name, team), team as
+        [(name, "now" | "next")]."""
         vals = eng.state.values
         names = ((eng.derived or {}).get(side + "_char") or {}).get("names")
-        snap = (self.fight.sel_chars or {}).get(side)
-        if not isinstance(names, dict) or snap is None:
+        ph = (self.fight.sel_phase or {}).get(side)
+        if not isinstance(names, dict) or ph is None:
             return None, None
         chars = [vals.get(f"_{side}_ch{i}") for i in range(3)]
-        if all(c == s for c, s in zip(chars, snap)):
-            return None, None                                        # nothing picked yet / rien de choisi encore
-        picked = []
-        for i, c in enumerate(chars):
-            if c is None or names.get(str(c)) is None or (picked and c == chars[i - 1]):
-                continue
-            picked.append(c)
-        if not picked:
-            return None, None
-        orders = [_num(vals.get(f"_{side}_ord{i}")) for i in range(3)]
-        ords0 = (getattr(self.fight, "sel_ords", None) or {}).get(side)
-        human = vals.get(side + "_mode") in (1, 2)
-        # a human sets the order on its own screen, after the picks: the last match's order stays until then; the game
-        # sets the CPU's with its team / un humain met l'ordre sur son écran, après les choix ; le CPU le reçoit avec l'équipe
-        if (len(picked) == 3 and all(o is not None and 0 <= int(o) < 3 for o in orders) and len({int(o) for o in orders}) == 3
-                and (not human or ords0 is None or tuple(orders) != tuple(_num(o) for o in ords0))):
-            ordered = [chars[int(o)] for o in orders]
-            return names.get(str(ordered[0])), [(names[str(c)], "now" if k == 0 else "next") for k, c in enumerate(ordered)]
-        return names.get(str(picked[-1])), [(names[str(c)], "now" if k == len(picked) - 1 else "next") for k, c in enumerate(picked)]
+        known = [c for c in chars if c is not None and names.get(str(c)) is not None]
+        if ph == "chars" or len(known) < 3:                           # the picks so far / les choix jusque-là
+            if not known:
+                return None, None
+            return names[str(known[-1])], [(names[str(c)], "now" if k == len(known) - 1 else "next") for k, c in enumerate(known)]
+        chosen = []
+        if ph in ("order", "done"):
+            n = _num(vals.get(f"_{side}_lost")) if ph == "order" else 3
+            for i in range(max(0, min(3, int(n))) if n is not None else 0):
+                o = _num(vals.get(f"_{side}_ord{i}"))
+                if o is None or not 0 <= int(o) < 3 or chars[int(o)] in chosen:
+                    break
+                chosen.append(chars[int(o)])
+        if not chosen:                                                # the team as picked, the last one named
+            return names[str(chars[-1])], [(names[str(c)], "now" if k == 2 else "next") for k, c in enumerate(chars)]
+        rest = [c for c in chars if c not in chosen]
+        return names[str(chosen[0])], ([(names[str(c)], "now" if k == 0 else "next") for k, c in enumerate(chosen)]
+                                       + [(names[str(c)], "next") for c in rest])
 
     def team(self, eng, side):
         """Équipe King of Fighters dans l'ordre de passage : [(nom, état)], état « done », « now » ou « next »."""

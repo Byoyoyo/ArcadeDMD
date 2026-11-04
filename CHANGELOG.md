@@ -24,6 +24,13 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 **The character select counts a pick equal to the last match's fighter** (test 5, Seb's photo at the order select: the third fighter missing)
 - The game keeps the last team in its three slots until each one is picked, and a pick fills the slots left. A pick equal to the last match's fighter kept in that slot did not change the slot, so it did not count. The slots now read as the picks in order once any of them changed since the screen began, a new pick wherever a slot differs from the one before it. The order of a human applies once it changed on the order screen; the CPU's comes with its team.
 
+**Seb's first captures, replayed: the select screens as the game writes them, Fatal Fury, KOF '99** (test 6)
+- The select screens of The King of Fighters '98 and '99, read from the captures: the character select empties the three slots and fills them pick by pick, the order select counts the orders one by one in the "fighters beaten" counter, the first to fight named as soon as it is chosen, the orders left being the last match's until then; the CPU gets its team, then its order, at once. The HD screen follows that (test 5 guessed it from a photo and got the order screen wrong).
+- Fatal Fury: the BIOS says "2" for player 2 while player 1 plays alone, so the HD screen took player 2 for a human with an empty bar, K.O. in the middle instead of the timer, no CPU, no PRESS START. Player 2 plays only while the BIOS says 1; the computer's health and fighter come from their own block. The game counts no round: the rounds are counted from the K.O. and TIME UP, ROUND n before each one, VICTOIRE after two rounds won (the defeat too). The rounds won and the round's result are read on probe values, to be confirmed by a capture.
+- KOF '99: the ids of its select screens shift with the ROM set, Seb's are read too. A game without the state of its fights starts its round when it sets its timer (0 -> 60), not when the select screen ends with the bars at 1 %.
+- The game's colours (Seb): player 1's name and score in blue, player 2's or the CPU's in red, PRESS START, CHALLENGER and BEAT BY outlined too.
+- `tools/replay_capture.py` prints the picks shown on the select screens, applies the game file's tags (a computed health) as the app does, and `--frames 30,47` draws the HD screen at those seconds. Seb's captures are kept in `tests/captures` and replayed by the tests.
+
 **Version**
 - 1.33.0 in `dmd/app.py` and the MAME plugin.
 
@@ -45,6 +52,13 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 
 **La sélection des personnages compte un choix égal au combattant du match d'avant** (test 5, la photo de Seb à l'ordre de passage : le troisième combattant manquait)
 - Le jeu garde l'équipe d'avant dans ses trois cases tant que chacune n'est pas choisie, et un choix remplit les cases restantes. Un choix égal au combattant du match d'avant resté dans cette case ne changeait pas la case, il ne comptait donc pas. Les cases se lisent maintenant comme les choix dans l'ordre dès que l'une d'elles a changé depuis le début de l'écran, un nouveau choix là où une case diffère de la précédente. L'ordre d'un humain s'applique une fois changé sur son écran, celui du CPU vient avec son équipe.
+
+**Les premières captures de Seb, rejouées : les écrans de sélection tels que le jeu les écrit, Fatal Fury, KOF '99** (test 6)
+- Les écrans de sélection de The King of Fighters '98 et '99, lus dans les captures : le choix des personnages vide les trois cases et les remplit choix par choix, l'écran de l'ordre compte les ordres un à un dans le compteur des « combattants battus », le premier à combattre nommé dès qu'il est choisi, les ordres restants étant ceux du match d'avant jusque-là ; le CPU reçoit son équipe, puis son ordre, d'un coup. L'écran HD suit cela (le test 5 l'avait deviné d'une photo et se trompait à l'écran de l'ordre).
+- Fatal Fury : le BIOS dit « 2 » pour le joueur 2 pendant que le joueur 1 joue seul, l'écran HD prenait donc le joueur 2 pour un humain à la barre vide, K.O. au milieu à la place du chrono, pas de CPU, pas de PRESS START. Le joueur 2 ne joue que quand le BIOS dit 1 ; la vie et le combattant de l'ordinateur viennent de leur propre bloc. Le jeu ne compte pas ses rounds : ils sont comptés d'après les K.O. et TIME UP, ROUND n avant chacun, VICTOIRE après deux rounds gagnés (la défaite aussi). Les rounds gagnés et le résultat du round sont lus sur des valeurs sondes, à confirmer par une capture.
+- KOF '99 : les numéros de ses écrans de sélection changent avec le set de ROM, ceux de Seb sont lus aussi. Un jeu sans l'état de ses combats commence son round quand il met son chrono (0 -> 60), pas quand l'écran de sélection finit avec les barres à 1 %.
+- Les couleurs du jeu (Seb) : le nom et le score du joueur 1 en bleu, ceux du joueur 2 ou du CPU en rouge, PRESS START, CHALLENGER et BEAT BY cernés aussi.
+- `tools/replay_capture.py` écrit les choix montrés aux écrans de sélection, applique les tags du fichier du jeu (une vie calculée) comme l'application, et `--frames 30,47` dessine l'écran HD à ces secondes. Les captures de Seb sont gardées dans `tests/captures` et rejouées par les tests.
 
 **Version**
 - 1.33.0 dans `dmd/app.py` et le plugin MAME.
