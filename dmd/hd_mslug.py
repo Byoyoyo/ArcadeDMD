@@ -76,7 +76,8 @@ RIDE_IN_ANY = ("À BORD !", "ABOARD!")
 RIDE_LOST = {"tank": ("CHAR DÉTRUIT", "TANK DESTROYED")}
 RIDE_LOST_ANY = ("VÉHICULE DÉTRUIT", "VEHICLE DESTROYED")
 SOLDIERS = {"mslug": ("MARCO", "TARMA")}          # the first game: no choice, Marco then Tarma / pas de choix
-BOSS_MIN = 300                                   # a boss's life is at least that much (else another enemy) / au moins
+BOSS_MIN = 200                                   # a boss's life is at least that much (else another enemy) / au moins
+BOSS_MAX = 9999                                  # and no more (else not a life) / et pas plus (sinon pas une vie)
 
 # cadence (secondes entre deux tirs) et allure de chaque arme
 STYLE = {
@@ -637,7 +638,9 @@ class MetalSlugScene:
         self.ride_tip = {}                       # kind -> its gun's end in the slot / le bout de son canon
         self.own = {}                            # the owner's pictures found or not, by name / ses images, par nom
         self.boss = None                         # the boss of the mission on the screen (a game that gives its life)
-        self.boss_prev = None                    # / le boss de la mission, pour un jeu qui donne sa vie
+        self.boss_prev = {}                      # / le boss de la mission, pour un jeu qui donne sa vie
+        self._slots_key = object()
+        self._slots = []
         self.boss_alerts = 0                     # (tests)
         self.boss_downs = 0
         self.ride_surf("tank", "p1")             # ready before the first tank (the owner's picture takes a moment)
@@ -863,7 +866,7 @@ class MetalSlugScene:
             self.players = {"p1": Player("p1"), "p2": Player("p2")}
             self.mission = self.mission_shown = None
             self.rides, self.ride_own, self.ride_tip, self.own = {}, {}, {}, {}     # the pictures of this game / ses images
-            self.boss, self.boss_prev = None, None
+            self.boss, self.boss_prev = None, {}
         dt = 0.0 if self.last is None else max(0.0, min(0.1, now - self.last))
         self.last = now
         self.fx_dt = dt
@@ -903,31 +906,48 @@ class MetalSlugScene:
             self.bd.set_theme(stages[0], now)
         self.was_attract = attract
         self.time_v = _n(vals.get("time"))
-        self._boss(vals, now, anyone and not attract)
+        self._boss(vals, now, anyone and not attract, self.boss_slots(eng))
         self.fx.update(now)
 
     # ------------------------------------------------------------ the boss of the mission / le boss de la mission
-    def _boss(self, vals, now, playing):
-        """A game that gives its boss's life (boss_hp, Metal Slug 4 from the RetroAchievements notes): WARNING and its name
-        when it comes, its life bar in the middle, BOSS DESTROYED when it runs out. The life comes from a slot of the game's
-        enemies, so a boss is only seen when a big life fills an empty or small slot while the mission is played.
-        / Un jeu qui donne la vie de son boss : WARNING et son nom quand il arrive, sa barre de vie au milieu, BOSS DÉTRUIT."""
-        hp = _n(vals.get("boss_hp"))
+    def boss_slots(self, eng):
+        """The values that hold the bosses' lives: the game's "hd": {"boss_slots": [...]} (Metal Slug 4, the six enemy slots
+        of the RetroAchievements notes), else boss_hp alone when the game has it. / Les valeurs qui portent la vie des boss."""
+        key = self.key
+        if self._slots_key != key:
+            g = eng.library.get(key) or {}
+            lst = (g.get("hd") or {}).get("boss_slots") if isinstance(g.get("hd"), dict) else None
+            self._slots = [x for x in lst if isinstance(x, str)] if isinstance(lst, list) else ["boss_hp"]
+            self._slots_key = key
+        return self._slots
+
+    def _boss(self, vals, now, playing, slots):
+        """A game that gives its boss's life (Metal Slug 4 from the RetroAchievements notes): WARNING and its name when it
+        comes, its life bar in the middle, BOSS DESTROYED when it runs out. The lives sit in slots of the game's enemies
+        (each one holds any enemy in turn: Seb's capture of 23:58 showed mission 1's boss in the second slot, 250 of life,
+        and an enemy of 100 in the fifth), so the boss is the slot a big life fills while the mission is played, named
+        after the mission, and that slot alone is followed until it runs out.
+        / Un jeu qui donne la vie de son boss : WARNING et son nom quand il arrive, sa barre de vie au milieu, BOSS DÉTRUIT.
+        Les vies sont dans des cases d'ennemis : le boss est la case qu'une grosse vie remplit pendant la mission."""
         B = self.boss
         if B is not None and (not playing or self.mission != B["mission"]):
             self.boss = B = None                                       # the mission over, or everybody gone / mission finie
+        cur = {slot: _n(vals.get(slot)) for slot in slots}
         if B is None:
-            prev = self.boss_prev
-            if playing and hp is not None and hp >= BOSS_MIN and prev is not None and prev < BOSS_MIN:
-                name = vals.get("boss_name")
-                self.boss = {"name": name if isinstance(name, str) else "", "top": hp, "hp": hp, "t0": now, "down": None,
-                             "mission": self.mission, "hit_t": -99.0}
-                self.boss_alerts += 1
-                self.fx.flash(RED, 0.25, 0.5)
-                self.fx.shake(8, 0.6)
-                for i in range(3):
-                    self.fx.later(0.5 + i * 0.5, self.fx.shake, 3, 0.2)
+            for slot, hp in cur.items():
+                prev = self.boss_prev.get(slot)
+                if playing and hp is not None and BOSS_MIN <= hp <= BOSS_MAX and prev is not None and prev < BOSS_MIN:
+                    name = vals.get("boss_name")
+                    self.boss = {"name": name if isinstance(name, str) else "", "top": hp, "hp": hp, "t0": now, "down": None,
+                                 "mission": self.mission, "hit_t": -99.0, "slot": slot}
+                    self.boss_alerts += 1
+                    self.fx.flash(RED, 0.25, 0.5)
+                    self.fx.shake(8, 0.6)
+                    for i in range(3):
+                        self.fx.later(0.5 + i * 0.5, self.fx.shake, 3, 0.2)
+                    break
         else:
+            hp = cur.get(B["slot"])
             if hp is None:
                 self.boss = None
             elif B["down"] is None:
@@ -947,7 +967,7 @@ class MetalSlugScene:
                             self.fx.later(0.1 + i * 0.22, self._firework)
             elif now - B["down"] > 3.0:
                 self.boss = None
-        self.boss_prev = hp
+        self.boss_prev = cur
 
     def stages(self, eng):
         key = self.key

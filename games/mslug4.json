@@ -142,37 +142,37 @@
         "addr": "0x102EBA",
         "type": "be",
         "bytes": 2,
-        "note": "life of the boss of mission 1, Brave Guerrier (RetroAchievements code notes, Boss 1 health 16bit): an enemy slot, another enemy's life or nothing outside the fight"
+        "note": "life of an enemy slot (RetroAchievements code notes, 'Boss 1 health 16bit'): on Seb's capture of 23:58 it held 1 for a moment during mission 1, nothing else; the boss of mission 1 was in the next slot"
       },
       "_boss2": {
         "addr": "0x103E8A",
         "type": "be",
         "bytes": 2,
-        "note": "life of the boss of mission 2, Toschka Dalanue (RetroAchievements code notes, Boss 2 health)"
+        "note": "life of an enemy slot (RetroAchievements code notes, 'Boss 2 health'): Brave Guerrier, the boss of mission 1, on Seb's capture of 23:58 (250 when it comes, down to 0 under the heavy machine gun)"
       },
       "_boss3": {
         "addr": "0x10414A",
         "type": "be",
         "bytes": 2,
-        "note": "life of the boss of mission 3, The Iron (RetroAchievements code notes, Boss 3 health)"
+        "note": "life of an enemy slot (RetroAchievements code notes, 'Boss 3 health'), the boss of a later mission, to confirm in game"
       },
       "_boss4": {
         "addr": "0x10112A",
         "type": "be",
         "bytes": 2,
-        "note": "life of the boss of mission 4, Big John (RetroAchievements code notes, Boss 4 health)"
+        "note": "life of an enemy slot (RetroAchievements code notes, 'Boss 4 health'), to confirm in game"
       },
       "_boss5": {
         "addr": "0x10175A",
         "type": "be",
         "bytes": 2,
-        "note": "life of the boss of mission 5, Sea Satan (RetroAchievements code notes, Boss 5 health)"
+        "note": "life of an enemy slot (RetroAchievements code notes, 'Boss 5 health'): a big enemy of 100 at the start of mission 1 on Seb's capture, not a boss"
       },
       "_boss6": {
         "addr": "0x1042AA",
         "type": "be",
         "bytes": 2,
-        "note": "life of the final boss, Amadeus Mother Computer (RetroAchievements code notes, Final boss health)"
+        "note": "life of an enemy slot (RetroAchievements code notes, 'Final boss health'), to confirm in game"
       },
       "_p1b": {
         "addr": "0x100A78",
@@ -268,7 +268,6 @@
     "p1_chr": 0,
     "p2_chr": 3,
     "mission": 1,
-    "_boss1": 0,
     "sim": {
       "prisoners": {
         "count": [
@@ -308,7 +307,7 @@
         "every": 5,
         "start": 8
       },
-      "_boss1": {
+      "_boss2": {
         "cycle": [
           0,
           0,
@@ -322,13 +321,13 @@
           0,
           0,
           0,
-          2400,
-          2100,
-          1700,
-          1300,
-          900,
-          500,
+          250,
           200,
+          150,
+          110,
+          70,
+          40,
+          20,
           0,
           0,
           0
@@ -336,7 +335,8 @@
         "every": 1.5,
         "start": 20
       }
-    }
+    },
+    "_boss2": 0
   },
   "scene": {
     "layers": [
@@ -3191,18 +3191,6 @@
         "FIO"
       ]
     },
-    "boss_hp": {
-      "pick": [
-        "_boss1",
-        "_boss1",
-        "_boss2",
-        "_boss3",
-        "_boss4",
-        "_boss5",
-        "_boss6"
-      ],
-      "at": "mission"
-    },
     "boss_name": {
       "value": "mission",
       "names": {
@@ -3214,5 +3202,16 @@
         "6": "AMADEUS MOTHER COMPUTER"
       }
     }
+  },
+  "hd": {
+    "boss_slots": [
+      "_boss1",
+      "_boss2",
+      "_boss3",
+      "_boss4",
+      "_boss5",
+      "_boss6"
+    ],
+    "note": "the slots the bosses' lives are in (one per mission in the RetroAchievements notes, but mission 1's boss was in the second on Seb's capture): the HD screen watches them all, a life of 200 or more filling an empty one is the boss of the mission, named after the mission"
   }
 }
