@@ -37,6 +37,11 @@ def parse_addr(v):
 def value_size(d):
     t = (d.get("type") or "u8").lower()
     n = d.get("bytes")
+    if t == "u16s":                               # several 16-bit words, "count" of them "stride" bytes apart (1.33)
+        cnt, st = d.get("count"), d.get("stride")  # / plusieurs mots de 16 bits, "count" espacés de "stride" octets
+        cnt = cnt if isinstance(cnt, int) and cnt > 0 else 1
+        st = st if isinstance(st, int) and st >= 2 else 2
+        return (cnt - 1) * st + 2
     if isinstance(n, int) and n > 0:
         return n
     if "32" in t:
@@ -100,6 +105,12 @@ def decode(d, getb, big_endian=True):
         v = raw[0] - 0x100 if raw[0] >= 0x80 else raw[0]
     elif t == "hex":                              # a probe: the bytes as they are, to find a value in a capture (1.33)
         return "".join(f"{b:02x}" for b in raw)   # / une sonde : les octets tels quels, pour trouver une valeur
+    elif t == "u16s":                             # the lives of a whole array of enemies, one word each (Metal Slug 4)
+        cnt, st = d.get("count"), d.get("stride")  # / les vies de toute une table d'ennemis, un mot chacune
+        cnt = cnt if isinstance(cnt, int) and cnt > 0 else 1
+        st = st if isinstance(st, int) and st >= 2 else 2
+        order = "big" if big_endian else "little"
+        return [int.from_bytes(bytes(raw[k * st:k * st + 2]), order) for k in range(cnt)]
     elif t in ("be", "le"):
         v = int.from_bytes(bytes(raw), "big" if t == "be" else "little")
     elif t in ("bcd", "bcd_le"):

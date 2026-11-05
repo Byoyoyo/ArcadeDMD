@@ -48,13 +48,14 @@ GREY = (150, 156, 170)
 NAMES = {"pistol": ("PISTOLET", "HANDGUN"), "shotgun": ("FUSIL À POMPE", "SHOTGUN"), "flame": ("LANCE-FLAMMES", "FLAMETHROWER"),
          "rocket": ("LANCE-ROQUETTES", "ROCKET LAUNCHER"), "mg": ("MITRAILLETTE", "MACHINE GUN"), "laser": ("LASER", "LASER"),
          "gun": ("ARME SPÉCIALE", "SPECIAL WEAPON"), "chaser": ("ENEMY CHASER", "ENEMY CHASER"), "lizard": ("IRON LIZARD", "IRON LIZARD"),
-         "drop": ("DROP SHOT", "DROP SHOT"), "sgrenade": ("SUPER GRENADE", "SUPER GRENADE"), "cannon": ("CANON", "CANNON")}
+         "drop": ("DROP SHOT", "DROP SHOT"), "sgrenade": ("SUPER GRENADE", "SUPER GRENADE"), "cannon": ("CANON", "CANNON"),
+         "mg2": ("DOUBLE MITRAILLETTE", "TWO MACHINE GUNS")}
 MS1 = {0: "pistol", 1: "shotgun", 2: "flame", 3: "rocket", 4: "mg"}
 MS2 = {255: "pistol", 0: "shotgun", 1: "rocket", 2: "flame", 3: "mg", 4: "laser"}
 # Metal Slug X, 3, 4 and 5 share their codes (cheat database, RetroAchievements code notes): 7 to 11 are the SUPER weapons
 # / Metal Slug X, 3, 4 et 5 ont les mêmes codes : de 7 à 11 les armes SUPER
 MS3 = {0: "pistol", 1: "cannon", 2: "shotgun", 3: "rocket", 4: "flame", 5: "mg", 6: "laser", 7: "shotgun", 8: "rocket", 9: "flame",
-       10: "mg", 11: "laser", 12: "chaser", 13: "lizard", 14: "drop", 15: "sgrenade", 0x12: "mg", 0x15: "chaser", 0x1D: "shotgun"}
+       10: "mg", 11: "laser", 12: "chaser", 13: "lizard", 14: "drop", 15: "sgrenade", 0x12: "mg2", 0x15: "chaser", 0x1D: "shotgun"}
 WEAPON_MAPS = {"mslug": MS1, "mslug2": MS2, "mslugx": MS3, "mslug3": MS3, "mslug4": MS3, "mslug5": MS3}
 SUPER_CODES = range(7, 12)
 LOOK = {"chaser": "rocket", "lizard": "rocket", "drop": "rocket", "sgrenade": "rocket", "cannon": "gun"}   # drawn and fired like
@@ -89,13 +90,14 @@ STYLE = {
     "laser": {"gap": 0.08, "muzzle": 0.9, "tracer": ((120, 230, 255), 6, 260), "laser": True},
     "gun": {"gap": 0.08, "muzzle": 1.0, "tracer": ((255, 220, 120), 4, 140), "casing": "case"},
 }
+STYLE["mg2"] = dict(STYLE["mg"], gap=0.045)           # the two machine guns of Metal Slug 4 and 5: faster / plus rapide
 TIP = {"pistol": (0.89, 0.385), "shotgun": (0.985, 0.395), "flame": (0.975, 0.45), "rocket": (0.99, 0.41),
-       "mg": (0.975, 0.41), "laser": (0.97, 0.44), "gun": (0.975, 0.41), "tank": (0.99, 0.36)}
+       "mg": (0.975, 0.41), "mg2": (0.975, 0.36), "laser": (0.97, 0.44), "gun": (0.975, 0.41), "tank": (0.99, 0.36)}
 TANK_HITS = 3               # coups qu'encaisse le char du premier Metal Slug (jauge pleine à 48, 16 par coup)
 FRAME_DX, FRAME_DY = 2, 14  # middle of the card's frame from the middle of the picture slot (the frame is drawn in the
                             # panel, at PW-226..PW-24 x 192..306, and the panel 14 lower) / milieu du cadre de la carte
 OWN_BOX = (184, 100)        # the owner's picture fits in it, in the middle of the frame / sa propre image y tient
-PORT = {"pistol": (0.45, 0.30), "shotgun": (0.32, 0.36), "mg": (0.30, 0.33), "gun": (0.30, 0.33)}
+PORT = {"pistol": (0.45, 0.30), "shotgun": (0.32, 0.36), "mg": (0.30, 0.33), "mg2": (0.30, 0.33), "gun": (0.30, 0.33)}
 
 PW, PH = 640, 418           # taille d'un panneau, écran de référence 1920 x 460
 BTN_RIGHT, BTN_LEFT, BTN_A = 0x08, 0x04, 0x10      # octet des commandes du BIOS Neo Geo (P1CURRENT)
@@ -272,13 +274,24 @@ def weapon_img(kind, w, h):
             d.ellipse([0.92 * W, 0.40 * H, 0.99 * W, 0.48 * H], fill=(160, 240, 255))
             P([(0.26, 0.55), (0.36, 0.55), (0.32, 0.78), (0.24, 0.78)], GUN_D)
         else:                                                     # mitraillette, et toute arme inconnue
+            if kind == "mg2":                                     # the second gun, strapped on top / la seconde, dessus
+                R(0.18, 0.14, 0.44, 0.30, GUN, 0.03)
+                R(0.18, 0.14, 0.44, 0.17, GUN_L)
+                R(0.44, 0.17, 0.88, 0.29, GUN)
+                R(0.44, 0.17, 0.88, 0.19, GUN_L)
+                for i in range(7):
+                    x = 0.48 + i * 0.055
+                    d.ellipse([x * W, 0.21 * H, (x + 0.03) * W, 0.26 * H], fill=GUN_D)
+                R(0.88, 0.15, 0.975, 0.31, GUN_D)
+                R(0.30, 0.28, 0.36, 0.36, (40, 42, 50))             # the strap between the two / la sangle
+                R(0.70, 0.28, 0.76, 0.36, (40, 42, 50))
             P([(0.0, 0.36), (0.16, 0.36), (0.16, 0.53), (0.04, 0.57), (0.0, 0.55)], GUN_D)
             R(0.03, 0.41, 0.12, 0.48, (20, 22, 28))
             R(0.16, 0.31, 0.44, 0.54, GUN, 0.03)
             R(0.16, 0.31, 0.44, 0.34, GUN_L)
             R(0.44, 0.35, 0.88, 0.47, GUN)
             R(0.44, 0.35, 0.88, 0.37, GUN_L)
-            if kind == "mg":
+            if kind in ("mg", "mg2"):
                 for i in range(7):
                     x = 0.48 + i * 0.055
                     d.ellipse([x * W, 0.39 * H, (x + 0.03) * W, 0.44 * H], fill=GUN_D)
@@ -932,33 +945,55 @@ class MetalSlugScene:
         B = self.boss
         if B is not None and (not playing or self.mission != B["mission"]):
             self.boss = B = None                                       # the mission over, or everybody gone / mission finie
-        cur = {slot: _n(vals.get(slot)) for slot in slots}
-        if B is None:
+        cur = {}
+        for slot in slots:                                             # a slot may be a whole list of lives / une liste
+            v = vals.get(slot)
+            if isinstance(v, list):
+                for i, hp in enumerate(v):
+                    cur[(slot, i)] = _n(hp)
+            else:
+                cur[slot] = _n(v)
+
+        def rising():
+            """The entry a boss's life has just filled, or None. / La case qu'une vie de boss vient de remplir."""
             for slot, hp in cur.items():
                 prev = self.boss_prev.get(slot)
-                if playing and hp is not None and BOSS_MIN <= hp <= BOSS_MAX and prev is not None and prev < BOSS_MIN:
-                    name = vals.get("boss_name")
-                    self.boss = {"name": name if isinstance(name, str) else "", "top": hp, "hp": hp, "t0": now, "down": None,
-                                 "mission": self.mission, "hit_t": -99.0, "slot": slot}
-                    self.boss_alerts += 1
-                    self.fx.flash(RED, 0.25, 0.5)
-                    self.fx.shake(8, 0.6)
-                    for i in range(3):
-                        self.fx.later(0.5 + i * 0.5, self.fx.shake, 3, 0.2)
-                    break
+                if hp is not None and BOSS_MIN <= hp <= BOSS_MAX and prev is not None and prev < BOSS_MIN:
+                    return slot
+            return None
+
+        if B is None:
+            slot = rising() if playing else None
+            if slot is not None:
+                name = vals.get("boss_name")
+                self.boss = {"name": name if isinstance(name, str) else "", "top": cur[slot], "hp": cur[slot], "t0": now,
+                             "down": None, "mission": self.mission, "hit_t": -99.0, "slot": slot, "moved": now}
+                self.boss_alerts += 1
+                self.fx.flash(RED, 0.25, 0.5)
+                self.fx.shake(8, 0.6)
+                for i in range(3):
+                    self.fx.later(0.5 + i * 0.5, self.fx.shake, 3, 0.2)
         else:
             hp = cur.get(B["slot"])
             if hp is None:
                 self.boss = None
             elif B["down"] is None:
+                done = _n(vals.get("mission_done")) == 1               # the mission complete: it fell / mission finie
+                other = rising() if now - B["moved"] > 2.0 else None   # its life goes on in another entry (a new phase,
+                if other is not None and other != B["slot"]:           # Seb's capture of 00:22) / sa vie continue ailleurs
+                    B["slot"], B["moved"] = other, now
+                    hp = B["hp"] = cur[other]
+                    B["top"] = max(B["top"], hp)
                 if hp > B["top"] * 1.5:                                # not a life any more: the slot holds another thing
                     self.boss = None                                   # / plus une vie : la case a changé d'occupant
                 elif hp > B["top"]:
                     B["top"] = hp
-                elif hp < B["hp"]:
-                    B["hit_t"] = now
-                    B["hp"] = hp
-                    if hp <= 0:
+                elif hp < B["hp"] or done:
+                    if hp < B["hp"]:
+                        B["hit_t"] = now
+                        B["moved"] = now
+                    B["hp"] = 0 if done else hp
+                    if hp <= 0 or done:
                         B["down"] = now
                         self.boss_downs += 1
                         self.fx.flash((255, 220, 160), 0.3, 0.5)

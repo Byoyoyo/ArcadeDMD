@@ -171,6 +171,10 @@ class RetroArchClient:
         try:
             if self.sock is None:
                 self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                try:                              # room for a whole batch of replies (Metal Slug 4's enemies, 25 of 1.6 KB)
+                    self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 262144)    # / la place pour toutes les réponses
+                except OSError:
+                    pass
             s = self.sock
             s.setblocking(False)
             try:
@@ -849,7 +853,9 @@ class RetroArchSource:
         if s["clusters"] and now >= s["retry_at"]:
             # with the stick to read (1.32), everything at the same image, then the stick at every image until the next
             # read / avec le stick à lire, tout à la même image, puis le stick à chaque image jusqu'à la lecture suivante
-            vals = read_values(self.client, s["layout"], s["defs"], s["clusters"], batch=bool(s.get("fast")))
+            # everything at the same image (1.33 test 25: Metal Slug 4 read 13 places one image each, 0.32 s a round; the
+            # fighting games have read this way since 1.32) / tout à la même image
+            vals = read_values(self.client, s["layout"], s["defs"], s["clusters"], batch=True)
             if vals is None:
                 s["fails"] += 1
                 self.check_now = True
