@@ -190,6 +190,10 @@ def replay(path, show_values=False, step=1 / 60, frames=(), out_dir=None):
                     if pr != state["scene"].get("_pr_" + side) and sc.playing(P):
                         state["scene"]["_pr_" + side] = pr
                         note(t, f"  {side} prisonniers = {pr}")
+                ct = getattr(sc, "complete_t", None)                     # MISSION COMPLETE, when the scene showed it
+                if ct is not None and ct > 0 and ct != state["scene"].get("_complete"):   # / le bandeau de fin de mission
+                    state["scene"]["_complete"] = ct
+                    note(t, "MISSION COMPLETE")
                 boss = getattr(sc, "boss", None)
                 bkey = (boss["name"], boss["down"] is not None, bool(boss.get("minor"))) if boss else None
                 if bkey != state["scene"].get("_boss"):

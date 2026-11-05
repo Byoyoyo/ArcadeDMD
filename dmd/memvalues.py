@@ -253,6 +253,13 @@ def _resolve(expr, values, depth=0):
         if any(isinstance(x, bool) or not isinstance(x, (int, float)) for x in (a, b)):
             return None
         return 1 if a == b else 0
+    if "all" in expr:
+        # 1 when every one of them is 1, else 0 (the first Metal Slug: its mission is complete when its end word says so
+        # and its boss is down, not at a game over) / 1 quand toutes valent 1, sinon 0
+        parts = [_resolve(x, values, depth + 1) for x in expr.get("all") or []]
+        if not parts or any(isinstance(p, bool) or not isinstance(p, (int, float)) for p in parts):
+            return None
+        return 1 if all(p == 1 for p in parts) else 0
     if "first" in expr:
         # the first of them that is known (DoDonPachi: its boss from the WARNING, else from where its stage stops)
         # la première qui est connue

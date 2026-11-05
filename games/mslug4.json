@@ -5021,7 +5021,11 @@
       "_boss5",
       "_boss6"
     ],
-    "note": "where the bosses' lives are: the whole table of enemies (_hps, a list), and the six single entries of the first captures so that they replay. While boss_flag is 1, a life of 200 or more filling an empty entry is the boss, named after the mission; mission_done ends it",
+    "boss_life": {
+      "1": 850
+    },
+    "boss_min": 600,
+    "note": "where the bosses' lives are: the whole table of enemies (_hps, a list), and the six single entries of the first captures so that they replay. boss_flag is 1 while the screen is locked, for the boss and for a wave of helicopters alike (Seb's capture of 22:39), so it is a gate: while it is 1, the entry filled with the life the mission's boss starts with (boss_life: Brave Guerrier 850 at 275 s, then 1000 and 1600 for its two other phases) is the boss, named after the mission; in a mission not listed yet, a life of boss_min or more (the helicopters and tanks have 400 to 500); any other life of 200 or more is a big enemy with a quiet bar. mission_done (stage_state 0x9FD4) shows MISSION COMPLETE",
     "boss_flag": "boss_flag"
   }
 }

@@ -661,10 +661,16 @@ class MetalSlugScene:
         self._slots = []
         self._boss_flag = None                   # the value that says the boss is fought, when the game has one / le drapeau
         self._boss_big = None                    # or the life a boss has at least, when the game has no flag / ou sa vie
+        self._boss_life = {}                     # or the life each mission's boss starts with / ou la vie de chaque boss
         self.meta_ref = None                     # the game session the players belong to / la partie des joueurs
         self.boss_hit = {}                       # when each big life was last hit / quand chaque grosse vie a été touchée
         self.boss_top = {}                       # the most each one had / le plus qu'elle a eu
         self.boss_rise = {}                      # entry -> when a boss's life last filled it / quand une vie l'a remplie
+        self.boss_ref = None                     # the entry the boss of the mission was found in / la case du boss
+        self.boss_parts = set()                  # entries filled with the boss's own life: its parts / ses morceaux
+        self.boss_dead_prev = None               # the game's "boss dead" flag at the previous image / le drapeau d'avant
+        self.done_prev = None                    # and its "mission done" flag / et son drapeau de fin de mission
+        self.complete_m = None                   # the mission the game said was complete / la mission dite finie
         self.boss_alerts = 0                     # (tests)
         self.boss_downs = 0
         self.ride_surf("tank", "p1")             # ready before the first tank (the owner's picture takes a moment)
@@ -904,6 +910,8 @@ class MetalSlugScene:
             self.rides, self.ride_own, self.ride_tip, self.own = {}, {}, {}, {}     # the pictures of this game / ses images
             self.boss, self.boss_prev, self.boss_rise = None, {}, {}     # (the rises keep their mission under "mission")
             self.boss_hit, self.boss_top = {}, {}
+            self.boss_ref, self.boss_parts = None, set()
+            self.boss_dead_prev = self.done_prev = self.complete_m = None
         dt = 0.0 if self.last is None else max(0.0, min(0.1, now - self.last))
         self.last = now
         self.fx_dt = dt
@@ -921,9 +929,23 @@ class MetalSlugScene:
         self.credits = c
         stages = self.stages(eng)
         m = _n(vals.get("mission"))
+        # the game that says when its mission is complete (the first Metal Slug: its end-of-mission word once the boss is
+        # down, Seb's memory snapshots of 19:15, 1.33 test 33; Metal Slug 4: its stage state): MISSION COMPLETE at that
+        # moment, as on its screen, not when the next mission begins / le jeu qui dit quand sa mission est finie : le
+        # bandeau à ce moment-là, comme sur son écran, pas au début de la mission suivante
+        done = _n(vals.get("mission_done"))
+        if (done == 1 and self.done_prev == 0 and anyone and not attract and self.mission is not None
+                and self.complete_m != self.mission):
+            self.complete_m = self.mission
+            self.complete_t = now                                      # mission accomplie : bandeau, feu d'artifice
+            for i in range(6):
+                self.fx.later(0.15 + i * 0.25, self._firework)
+        self.done_prev = done
         if m is not None and m != self.mission:
             theme = stages[(max(1, int(m)) - 1) % len(stages)]
-            if self.mission is not None and m == self.mission + 1 and anyone:
+            if self.mission is not None and m == self.mission + 1 and anyone and self.complete_m == self.mission:
+                self._show_mission(theme, m)                           # the game said it already: the next one at once
+            elif self.mission is not None and m == self.mission + 1 and anyone:
                 self.complete_t = now                                  # mission accomplie : bandeau, feu d'artifice
                 self.mission_t = now + 1.9
                 self.fx.later(1.9, self._show_mission, theme, m)
@@ -963,6 +985,14 @@ class MetalSlugScene:
             # / sans drapeau : une vie d'au moins boss_min est le boss, en dessous un gros ennemi
             big = hd.get("boss_min")
             self._boss_big = int(big) if isinstance(big, (int, float)) and big > 0 else None
+            # the life each mission's boss starts with, when known ("boss_life": {"1": 2200, "2": 3900}, the first Metal
+            # Slug from Seb's captures): an entry filled with less is a big enemy, whatever its size (the mission 2
+            # machine of 1200 before Hairbuster Riberts, test 33) / la vie de départ du boss de chaque mission
+            life = hd.get("boss_life") if isinstance(hd.get("boss_life"), dict) else {}
+            self._boss_life = {}
+            for k, v in life.items():
+                if isinstance(v, (int, float)) and not isinstance(v, bool) and v > 0 and str(k).isdigit():
+                    self._boss_life[int(k)] = int(v)
             self._slots_key = key
         return self._slots
 
@@ -989,11 +1019,24 @@ class MetalSlugScene:
         if not playing or self.mission != self.boss_rise.get("mission"):   # another mission: its own lives / une autre mission
             self.boss_rise = {"mission": self.mission}
             self.boss_hit, self.boss_top = {}, {}
+            self.boss_ref, self.boss_parts = None, set()
+        ref = self.boss_ref                                            # the boss's own entry this mission / sa case
+        ref_hp = cur.get(ref) if ref is not None else None
         for slot, hp in cur.items():                                   # the entries a big life has just filled, while
             prev = self.boss_prev.get(slot)                            # somebody plays / les cases qu'une grosse vie remplit
+            # the boss's parts (the first Metal Slug, Hairbuster Riberts in Seb's capture of 21:33: an entry filled with
+            # the boss's life as it stood, 2420 then 1337, gone a few seconds later): not a boss, not a big enemy
+            # / les morceaux du boss, remplis avec sa vie du moment : ni un boss ni un gros ennemi
+            if slot in self.boss_parts:
+                if hp is None or hp < BOSS_MIN or hp > BOSS_MAX:
+                    self.boss_parts.discard(slot)                      # emptied: the entry is free again / libre
+                continue
             # an empty entry holds 0 (Metal Slug 4) or 0xFFFF (the first Metal Slug) / une case vide : 0 ou 0xFFFF
             if (playing and hp is not None and BOSS_MIN <= hp <= BOSS_MAX and prev is not None
                     and (prev < BOSS_MIN or prev > BOSS_MAX)):
+                if ref is not None and slot != ref and ref_hp is not None and hp == ref_hp:
+                    self.boss_parts.add(slot)
+                    continue
                 self.boss_rise[slot] = now
                 self.boss_top[slot] = hp
             # a big life hit (Seb's capture of 20:31: four small tanks of 210 to 300 at once, the bar on the first one filled
@@ -1005,6 +1048,7 @@ class MetalSlugScene:
         # life as the boss, so only a life filled while the flag is up, or up to 6 s before it, is the boss
         # / le jeu qui dit quand son boss se bat : seules les vies remplies pendant le drapeau, ou 6 s avant, sont le boss
         gate = _n(vals.get(self._boss_flag)) == 1 if self._boss_flag else True
+        want = self._boss_life.get(int(self.mission)) if isinstance(self.mission, (int, float)) else None
 
         def rising(window=0.0):
             """The entry a boss's life filled in the last window seconds, the latest, or None. / La case remplie."""
@@ -1027,9 +1071,19 @@ class MetalSlugScene:
 
         def is_boss(slot):
             """Whether the life in that entry is the boss of the mission: the game's flag up, or a life at least as big as
-            "boss_min" when it has no flag (the first Metal Slug, test 31), else a big enemy with a quiet bar (test 25).
-            / Le boss de la mission : le drapeau du jeu levé, ou une vie d'au moins boss_min ; sinon un gros ennemi."""
-            return gate and (self._boss_flag is not None or self._boss_big is None or (cur.get(slot) or 0) >= self._boss_big)
+            the mission's boss ("boss_life", test 33) or as "boss_min" when it has no flag (the first Metal Slug, test 31),
+            else a big enemy with a quiet bar (test 25). / Le boss de la mission : le drapeau du jeu levé, ou une vie
+            d'au moins celle du boss de la mission, ou d'au moins boss_min ; sinon un gros ennemi."""
+            if not gate:
+                return False
+            # Metal Slug 4's flag is up for every locked screen, a wave of helicopters as well as the boss (Seb's capture
+            # of 22:39, mission 2: TOSCHKA DALANUE on a tank of 400, then on helicopters of 490), so the flag alone is a
+            # gate and the life decides when the game gives one / le drapeau est une porte, la vie décide
+            if want is not None:
+                return max(self.boss_top.get(slot, 0), cur.get(slot) or 0) >= want
+            if self._boss_big is not None:
+                return (cur.get(slot) or 0) >= self._boss_big
+            return True
 
         def hit(window):
             """The big life hit in the last window seconds, the latest, or None. / La grosse vie touchée en dernier."""
@@ -1046,7 +1100,43 @@ class MetalSlugScene:
                          "top": top, "hp": cur[slot], "t0": now, "down": None, "mission": self.mission, "hit_t": -99.0,
                          "slot": slot, "moved": now, "minor": not it}
             if it:
+                self.boss_ref = slot
                 alert()
+
+        def twin(B):
+            """The entry the boss's life went on in when its own emptied: filled with the same life at the same time
+            (Hairbuster Riberts came in two entries of 3900 at once, one gone two seconds later, Seb's capture of 21:33)
+            / la case jumelle du boss, remplie en même temps avec la même vie, quand la sienne se vide"""
+            for slot, top in self.boss_top.items():
+                if (slot != B["slot"] and top == B["top"] and cur.get(slot) is not None and 0 < cur[slot] <= top
+                        and abs(self.boss_rise.get(slot, -99.0) - self.boss_rise.get(B["slot"], -99.0)) <= 0.5):
+                    return slot
+            return None
+
+        def fall(B):
+            """It fell: BOSS DESTROYED, a flash for a big enemy. / Il tombe."""
+            B["hp"], B["down"] = 0, now
+            if B.get("minor"):                                         # a machine down: a flash, no fireworks / un engin
+                self.fx.flash((255, 220, 160), 0.15, 0.3)
+                self.fx.shake(5, 0.3)
+            else:
+                self.boss_downs += 1
+                self.fx.flash((255, 220, 160), 0.3, 0.5)
+                self.fx.shake(10, 0.7)
+                for i in range(8):
+                    self.fx.later(0.1 + i * 0.22, self._firework)
+
+        # the game that says when its boss is dead (the first Metal Slug, its flag from the RetroAchievements notes, 1 to 0
+        # as Tetsuyuki fell in Seb's snapshots of 19:15): BOSS DESTROYED at that moment, bar or no bar
+        # / le jeu qui dit quand son boss est mort : BOSS DÉTRUIT à ce moment-là, barre ou pas
+        dead = _n(vals.get("boss_dead"))
+        died = dead == 1 and self.boss_dead_prev == 0 and playing and self.mission is not None
+        self.boss_dead_prev = dead
+        if died and (B is None or B.get("minor")):                     # (a boss already down: said once)
+            name = vals.get("boss_name")
+            self.boss = B = {"name": name if isinstance(name, str) else "", "top": 1, "hp": 1, "t0": now, "down": None,
+                             "mission": self.mission, "hit_t": -99.0, "slot": None, "moved": now, "minor": False}
+            fall(B)
 
         if B is None:
             if playing:
@@ -1061,9 +1151,11 @@ class MetalSlugScene:
                     if slot is not None and not is_boss(slot):         # / un gros ennemi touché sans barre : la sienne
                         show(slot, False)
         else:
-            if B.get("minor") and gate and self._boss_flag and B["down"] is None:   # the game's flag goes up: that
-                name = vals.get("boss_name")                           # machine was the boss / le drapeau se lève
+            if B.get("minor") and gate and self._boss_flag and B["down"] is None and is_boss(B["slot"]):
+                name = vals.get("boss_name")                           # the game's flag goes up: that machine was the
+                                                                       # boss / le drapeau se lève
                 B.update(minor=False, name=name if isinstance(name, str) else "", t0=now)
+                self.boss_ref = B["slot"]
                 alert()
             if B.get("minor") and B["down"] is None:
                 # the boss of the mission comes while a big enemy has the bar: the boss takes it (Seb's capture of 20:31:
@@ -1085,18 +1177,34 @@ class MetalSlugScene:
             if B is None:
                 self.boss_prev = cur
                 return
+            if B["slot"] is None:                                      # BOSS DESTROYED on the game's word alone / sur
+                if now - B["down"] > 3.0:                              # le seul mot du jeu
+                    self.boss = None
+                self.boss_prev = cur
+                return
             hp = cur.get(B["slot"])
-            if hp is None:
-                self.boss = None
-            elif B["down"] is None:
-                done = _n(vals.get("mission_done")) == 1               # the mission complete: it fell / mission finie
-                other = rising(0.5) if now - B["moved"] > 2.0 and not B.get("minor") else None   # its life goes on in another
-                if other is not None and other != B["slot"]:           # entry (a new phase, Seb's capture of 00:22)
-                    B["slot"], B["moved"] = other, now                 # / sa vie continue ailleurs
+            if B["down"] is None:
+                done = _n(vals.get("mission_done")) == 1 or died        # the mission complete, or the game's flag: it fell
+                # its life goes on in another entry (a new phase, Seb's capture of 00:22, Metal Slug 4 and its flag): only
+                # an entry a boss-sized life filled, not a soldier of 250 passing by (both Metal Slugs, test 33)
+                # / sa vie continue ailleurs : seulement une case remplie d'une vie de boss
+                other = rising(0.5) if hp is not None and now - B["moved"] > 2.0 and not B.get("minor") else None
+                if other is not None and other != B["slot"] and is_boss(other):
+                    B["slot"], B["moved"] = other, now
+                    self.boss_ref = other
                     hp = B["hp"] = cur[other]
                     B["top"] = max(B["top"], hp)
-                if hp > B["top"] * 1.5:                                # not a life any more: the slot holds another thing
-                    self.boss = None                                   # / plus une vie : la case a changé d'occupant
+                if hp is None or hp > B["top"] * 1.5:                  # not a life any more: the entry is empty, or holds
+                    other = twin(B) if not B.get("minor") else None    # another thing / plus une vie : la case s'est vidée
+                    if other is not None:                              # (its twin goes on) / (sa jumelle continue)
+                        B["slot"], B["moved"] = other, now
+                        self.boss_ref = other
+                        B["hp"] = cur[other]
+                    elif died or (now - B["moved"] <= 1.0 and B["hit_t"] > -1):   # emptied right after a hit, or the
+                        fall(B)                                        # game says it fell (Hairbuster Riberts, 155 then
+                                                                       # gone) / vidée sur un coup, ou le jeu le dit
+                    else:
+                        self.boss = None
                 elif hp > B["top"]:
                     B["top"] = hp
                 elif hp < B["hp"] or done:
@@ -1105,16 +1213,7 @@ class MetalSlugScene:
                         B["moved"] = now
                     B["hp"] = 0 if done else hp
                     if hp <= 0 or done:
-                        B["down"] = now
-                        if B.get("minor"):                             # a machine down: a flash, no fireworks / un engin
-                            self.fx.flash((255, 220, 160), 0.15, 0.3)
-                            self.fx.shake(5, 0.3)
-                        else:
-                            self.boss_downs += 1
-                            self.fx.flash((255, 220, 160), 0.3, 0.5)
-                            self.fx.shake(10, 0.7)
-                            for i in range(8):
-                                self.fx.later(0.1 + i * 0.22, self._firework)
+                        fall(B)
             elif now - B["down"] > (0.8 if B.get("minor") else 3.0):
                 self.boss = None
         self.boss_prev = cur
@@ -1174,7 +1273,11 @@ class MetalSlugScene:
         cur = {b: _n(self.get(vals, side, b)) for b in ("score", "lives", "bombs", "ammo", "weapon", "prisoners", "vehicle",
                                                           "vehicle_kind", "vehicle_hp", "vehicle_ammo", "grenades_out")}
         inp = _n(vals.get("p1_input" if side == "p1" else "p2_input"))
-        wiped = cur["bombs"] == 255 or cur["ammo"] == 65535 or (cur["lives"] is not None and cur["lives"] >= 250)
+        # the block wiped: 0xFF everywhere at once, the bombs with the ammo or the weapon, or the lives (Metal Slug 4 gives
+        # its handgun 65535 of ammo, unlimited, and that alone is no wipe: Seb's video of 22:39, test 33, no grenade thrown
+        # on the HD screen while he held the handgun) / le bloc effacé : 0xFF partout, pas la seule munition illimitée
+        wiped = ((cur["bombs"] == 255 and (cur["ammo"] == 65535 or cur["weapon"] == 255))
+                 or (cur["lives"] is not None and cur["lives"] >= 250))
         quiet = now < P.sync_until
         if quiet and not wiped:
             tm = _n(vals.get("time"))
