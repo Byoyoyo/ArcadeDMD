@@ -1,5 +1,4 @@
 {
-  "ram_dump": true,
   "title": "Metal Slug",
   "match": [
     {
@@ -212,8 +211,35 @@
         "addr": "0x10FD9C",
         "type": "u8",
         "note": "Neo Geo BIOS, player 2 stick and buttons (P2CURRENT), same bits"
+      },
+      "_hps": {
+        "addr": "0x100A46",
+        "type": "u16s",
+        "count": 104,
+        "stride": 160,
+        "note": "the life of every enemy of the game's table, 104 entries of 160 bytes from 0x100A40, the life at +6 in each, 0xFFFF when the entry is empty (Seb's memory snapshots of 5 November 19:15, mission 1: the helicopter 400 then 0 at 0x100F46 and 0x102B66, soldiers 30 to 60, a cannon 300, the boss Tetsuyuki 2200 at 0x1014E6, down to 0 as it fell; the players' own entries sit before the table, the slug's energy at 0x1005E6)"
       }
     }
+  },
+  "derived": {
+    "boss_name": {
+      "value": "mission",
+      "names": {
+        "1": "TETSUYUKI",
+        "2": "HAIRBUSTER RIBERTS",
+        "3": "TANI OH",
+        "4": "SHOE & KARN",
+        "5": "IRON NOKANA",
+        "6": "HI-DO"
+      }
+    }
+  },
+  "hd": {
+    "boss_slots": [
+      "_hps"
+    ],
+    "boss_min": 1000,
+    "note": "where the bosses' lives are: the whole table of enemies (_hps, a list). The game has no flag for its boss: a life of 1000 or more filling an empty entry is the boss, named after the mission (Tetsuyuki had 2200), a life of 200 to 999 a big enemy with a quiet bar (a helicopter, 400)"
   },
   "demo": {
     "lives": 2,

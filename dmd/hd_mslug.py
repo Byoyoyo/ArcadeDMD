@@ -658,6 +658,7 @@ class MetalSlugScene:
         self._slots_key = object()
         self._slots = []
         self._boss_flag = None                   # the value that says the boss is fought, when the game has one / le drapeau
+        self._boss_big = None                    # or the life a boss has at least, when the game has no flag / ou sa vie
         self.boss_rise = {}                      # entry -> when a boss's life last filled it / quand une vie l'a remplie
         self.boss_alerts = 0                     # (tests)
         self.boss_downs = 0
@@ -951,6 +952,11 @@ class MetalSlugScene:
             self._slots = [x for x in lst if isinstance(x, str)] if isinstance(lst, list) else ["boss_hp"]
             flag = hd.get("boss_flag")
             self._boss_flag = flag if isinstance(flag, str) and flag else None
+            # a game without a flag: a life of at least "boss_min" is its boss, below it a big enemy (the first Metal
+            # Slug, Seb's memory snapshots of 19:15: 400 for a helicopter, 2200 for the boss of mission 1, 1.33 test 31)
+            # / sans drapeau : une vie d'au moins boss_min est le boss, en dessous un gros ennemi
+            big = hd.get("boss_min")
+            self._boss_big = int(big) if isinstance(big, (int, float)) and big > 0 else None
             self._slots_key = key
         return self._slots
 
@@ -976,7 +982,9 @@ class MetalSlugScene:
 
         for slot, hp in cur.items():                                   # the entries a big life has just filled, while
             prev = self.boss_prev.get(slot)                            # somebody plays / les cases qu'une grosse vie remplit
-            if playing and hp is not None and BOSS_MIN <= hp <= BOSS_MAX and prev is not None and prev < BOSS_MIN:
+            # an empty entry holds 0 (Metal Slug 4) or 0xFFFF (the first Metal Slug) / une case vide : 0 ou 0xFFFF
+            if (playing and hp is not None and BOSS_MIN <= hp <= BOSS_MAX and prev is not None
+                    and (prev < BOSS_MIN or prev > BOSS_MAX)):
                 self.boss_rise[slot] = now
         if not playing or self.mission != self.boss_rise.get("mission"):   # another mission: its own lives / une autre mission
             self.boss_rise = {"mission": self.mission}
@@ -991,7 +999,8 @@ class MetalSlugScene:
             for slot, t in self.boss_rise.items():
                 if slot == "mission":
                     continue
-                if now - t <= window and cur.get(slot) is not None and cur[slot] >= BOSS_MIN and (best is None or t > best[1]):
+                if (now - t <= window and cur.get(slot) is not None and BOSS_MIN <= cur[slot] <= BOSS_MAX
+                        and (best is None or t > best[1])):
                     best = (slot, t)
             return best[0] if best else None
 
@@ -1009,15 +1018,17 @@ class MetalSlugScene:
                 if slot is not None:
                     name = vals.get("boss_name")
                     # a big life without the game's flag: a tank, a helicopter, a sergeant on foot (Seb, test 25: its bar is
-                    # worth showing, but it is not the boss and the game gives no name) / une grosse vie sans le drapeau
-                    self.boss = {"name": name if isinstance(name, str) and gate else tr("ENNEMI", "ENEMY"),
+                    # worth showing, but it is not the boss and the game gives no name); with "boss_min" instead of a flag,
+                    # a life that big is the boss (test 31) / une grosse vie sans le drapeau ; avec boss_min, le boss
+                    it = gate and (self._boss_flag is not None or self._boss_big is None or cur[slot] >= self._boss_big)
+                    self.boss = {"name": name if isinstance(name, str) and it else tr("ENNEMI", "ENEMY"),
                                  "top": cur[slot], "hp": cur[slot], "t0": now, "down": None, "mission": self.mission, "hit_t": -99.0,
-                                 "slot": slot, "moved": now, "minor": not gate}
-                    if gate:
+                                 "slot": slot, "moved": now, "minor": not it}
+                    if it:
                         alert()
         else:
-            if B.get("minor") and gate and B["down"] is None:          # the game's flag goes up: that machine was the boss
-                name = vals.get("boss_name")                           # / le drapeau se lève : cet engin était le boss
+            if B.get("minor") and gate and self._boss_flag and B["down"] is None:   # the game's flag goes up: that
+                name = vals.get("boss_name")                           # machine was the boss / le drapeau se lève
                 B.update(minor=False, name=name if isinstance(name, str) else "", t0=now)
                 alert()
             hp = cur.get(B["slot"])
@@ -1106,6 +1117,11 @@ class MetalSlugScene:
         cur = {b: _n(self.get(vals, side, b)) for b in ("score", "lives", "bombs", "ammo", "weapon", "prisoners", "vehicle",
                                                           "vehicle_kind", "vehicle_hp", "vehicle_ammo", "grenades_out")}
         inp = _n(vals.get("p1_input" if side == "p1" else "p2_input"))
+        # the soldier's block wiped (0xFF everywhere) for a few images as a game begins and between two lives (Seb's
+        # video of 19:20, the first Metal Slug: +245 BOMBES and four grenades blowing up at the start, 1.33 test 31): not
+        # values, nothing to compare / le bloc du soldat effacé quelques images : pas des valeurs, rien à comparer
+        if cur["bombs"] == 255 or cur["ammo"] == 65535 or (cur["lives"] is not None and cur["lives"] >= 250):
+            return
         old = P.seen
         P.seen = dict(cur, input=inp)
         if inp is not None:
