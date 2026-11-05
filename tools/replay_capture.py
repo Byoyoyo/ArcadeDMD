@@ -180,18 +180,25 @@ def replay(path, show_values=False, step=1 / 60, frames=(), out_dir=None):
                     if ride != state["scene"].get("_ride_" + side):
                         state["scene"]["_ride_" + side] = ride
                         note(t, f"  {side} {'monte dans ' + ride.upper() if ride else 'descend du véhicule'}")
+                    code = vals.get("weapon" if side == "p1" else "weapon_p2")
+                    wpn = sc.weapon(side, code)[0] if sc.playing(P) and isinstance(code, int) else None
+                    if wpn != state["scene"].get("_wpn_" + side):
+                        state["scene"]["_wpn_" + side] = wpn
+                        if wpn:
+                            note(t, f"  {side} arme : {wpn}")
                     pr = vals.get("prisoners" if side == "p1" else "prisoners_p2")
                     if pr != state["scene"].get("_pr_" + side) and sc.playing(P):
                         state["scene"]["_pr_" + side] = pr
                         note(t, f"  {side} prisonniers = {pr}")
                 boss = getattr(sc, "boss", None)
-                bkey = (boss["name"], boss["down"] is not None) if boss else None
+                bkey = (boss["name"], boss["down"] is not None, bool(boss.get("minor"))) if boss else None
                 if bkey != state["scene"].get("_boss"):
                     state["scene"]["_boss"] = bkey
+                    what = "ENGIN" if boss and boss.get("minor") else "BOSS"      # a big machine or the boss / un engin ou le boss
                     if boss and boss["down"] is None:
-                        note(t, f"BOSS {boss['name'] or '?'} arrive (vie {boss['top']})")
+                        note(t, f"{what} {boss['name'] or '?'} arrive (vie {boss['top']})")
                     elif boss:
-                        note(t, f"BOSS {boss['name'] or '?'} détruit")
+                        note(t, f"{what} {boss['name'] or '?'} détruit")
                     else:
                         note(t, "  boss parti")
             t = round(t + step, 5)
