@@ -194,7 +194,7 @@ def replay(path, show_values=False, step=1 / 60, frames=(), out_dir=None):
                 bkey = (boss["name"], boss["down"] is not None, bool(boss.get("minor"))) if boss else None
                 if bkey != state["scene"].get("_boss"):
                     state["scene"]["_boss"] = bkey
-                    what = "ENGIN" if boss and boss.get("minor") else "BOSS"      # a big machine or the boss / un engin ou le boss
+                    what = "ENNEMI" if boss and boss.get("minor") else "BOSS"     # a big enemy or the boss / un gros ennemi ou le boss
                     if boss and boss["down"] is None:
                         note(t, f"{what} {boss['name'] or '?'} arrive (vie {boss['top']})")
                     elif boss:

@@ -545,7 +545,9 @@ def make_clusters(defs, gap=64, maxspan=512):
     spans = sorted(sp for sp in (value_span(d) for d in defs.values()) if sp is not None)
     out = []
     for s, e in spans:
-        if out and s <= out[-1][1] + gap and max(e, out[-1][1]) - out[-1][0] < maxspan:
+        # close to the previous span and not too long together, or overlapping it (the lists of a whole table, read once
+        # whatever their offsets, 1.33) / proche de la précédente et pas trop long, ou la chevauchant
+        if out and s <= out[-1][1] + gap and (s <= out[-1][1] or max(e, out[-1][1]) - out[-1][0] < maxspan):
             out[-1][1] = max(out[-1][1], e)
         else:
             out.append([s, e])

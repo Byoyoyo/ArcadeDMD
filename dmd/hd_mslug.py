@@ -699,7 +699,7 @@ class MetalSlugScene:
                  (tr("EN CHAR !", "TANK!"), 40, GREEN, 0.6), (tr("CHAR DÉTRUIT", "TANK DESTROYED"), 40, RED, 0.6),
                  (tr(*RIDE_IN["camel"]), 40, GREEN, 0.6), (tr(*RIDE_IN_ANY), 40, GREEN, 0.6), (tr(*RIDE_LOST_ANY), 40, RED, 0.6),
                  (tr("ÉJECTE-TOI !", "BAIL OUT!"), 30, RED, 0.7), ("WARNING", 92, RED, 0.8), (tr("BOSS DÉTRUIT", "BOSS DESTROYED"), 60, GOLD, 0.7),
-                 (tr("ENGIN ENNEMI", "ENEMY MACHINE"), 22, (200, 196, 180), 0.2), (tr("DÉTRUIT", "DESTROYED"), 30, (255, 200, 150), 0.5)]
+                 (tr("ENNEMI", "ENEMY"), 22, (200, 196, 180), 0.2), (tr("DÉTRUIT", "DESTROYED"), 30, (255, 200, 150), 0.5)]
         texts += [(f"MISSION {n}", 92, GOLD, 0.7) for n in range(1, 7)]
         for text, size, col, glow in texts:
             out.insert(0, (hd.text, (text, "stencil", S(size), col, glow)))
@@ -994,9 +994,9 @@ class MetalSlugScene:
                 slot = rising(6.0 if self._boss_flag else 0.0) if gate else rising(0.0)
                 if slot is not None:
                     name = vals.get("boss_name")
-                    # a big life without the game's flag: a tank, a helicopter, another big machine (Seb, test 25: its bar is
-                    # worth showing, but it is not the boss and has no name) / une grosse vie sans le drapeau : un engin
-                    self.boss = {"name": name if isinstance(name, str) and gate else tr("ENGIN ENNEMI", "ENEMY MACHINE"),
+                    # a big life without the game's flag: a tank, a helicopter, a sergeant on foot (Seb, test 25: its bar is
+                    # worth showing, but it is not the boss and the game gives no name) / une grosse vie sans le drapeau
+                    self.boss = {"name": name if isinstance(name, str) and gate else tr("ENNEMI", "ENEMY"),
                                  "top": cur[slot], "hp": cur[slot], "t0": now, "down": None, "mission": self.mission, "hit_t": -99.0,
                                  "slot": slot, "moved": now, "minor": not gate}
                     if gate:

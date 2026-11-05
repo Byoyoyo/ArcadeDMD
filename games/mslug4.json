@@ -145,6 +145,90 @@
         "stride": 176,
         "note": "the life of every enemy of the game's table, 73 entries of 176 bytes from 0x101080, the life at 0xAA in each (the twelve lives of the RetroAchievements notes, bosses, tanks and vehicles, all sit there: 0x102EBA, 0x103E8A, 0x10414A, 0x10112A, 0x10175A, 0x1042AA...). Seb's captures of 23:58 and 00:22: Brave Guerrier, the boss of mission 1, came once in the 90th entry and once in the 67th, with 250 of life, so the HD screen watches them all"
       },
+      "_ew0": {
+        "addr": "0x101080",
+        "type": "u16s",
+        "count": 73,
+        "stride": 176,
+        "note": "probe (1.33 test 27): word 0 of each entry of the enemy table counted from 0xAA before its life, to find the word that says what the enemy is (Allen O'Neil, a tank, a helicopter) from a capture; the same read as _hps"
+      },
+      "_ew1": {
+        "addr": "0x101082",
+        "type": "u16s",
+        "count": 73,
+        "stride": 176,
+        "note": "probe (1.33 test 27): word 1 of each entry of the enemy table counted from 0xAA before its life, to find the word that says what the enemy is (Allen O'Neil, a tank, a helicopter) from a capture; the same read as _hps"
+      },
+      "_ew2": {
+        "addr": "0x101084",
+        "type": "u16s",
+        "count": 73,
+        "stride": 176,
+        "note": "probe (1.33 test 27): word 2 of each entry of the enemy table counted from 0xAA before its life, to find the word that says what the enemy is (Allen O'Neil, a tank, a helicopter) from a capture; the same read as _hps"
+      },
+      "_ew3": {
+        "addr": "0x101086",
+        "type": "u16s",
+        "count": 73,
+        "stride": 176,
+        "note": "probe (1.33 test 27): word 3 of each entry of the enemy table counted from 0xAA before its life, to find the word that says what the enemy is (Allen O'Neil, a tank, a helicopter) from a capture; the same read as _hps"
+      },
+      "_ew4": {
+        "addr": "0x101088",
+        "type": "u16s",
+        "count": 73,
+        "stride": 176,
+        "note": "probe (1.33 test 27): word 4 of each entry of the enemy table counted from 0xAA before its life, to find the word that says what the enemy is (Allen O'Neil, a tank, a helicopter) from a capture; the same read as _hps"
+      },
+      "_ew5": {
+        "addr": "0x10108A",
+        "type": "u16s",
+        "count": 73,
+        "stride": 176,
+        "note": "probe (1.33 test 27): word 5 of each entry of the enemy table counted from 0xAA before its life, to find the word that says what the enemy is (Allen O'Neil, a tank, a helicopter) from a capture; the same read as _hps"
+      },
+      "_ew6": {
+        "addr": "0x10108C",
+        "type": "u16s",
+        "count": 73,
+        "stride": 176,
+        "note": "probe (1.33 test 27): word 6 of each entry of the enemy table counted from 0xAA before its life, to find the word that says what the enemy is (Allen O'Neil, a tank, a helicopter) from a capture; the same read as _hps"
+      },
+      "_ew7": {
+        "addr": "0x10108E",
+        "type": "u16s",
+        "count": 73,
+        "stride": 176,
+        "note": "probe (1.33 test 27): word 7 of each entry of the enemy table counted from 0xAA before its life, to find the word that says what the enemy is (Allen O'Neil, a tank, a helicopter) from a capture; the same read as _hps"
+      },
+      "_ex0": {
+        "addr": "0x1010DC",
+        "type": "u16s",
+        "count": 73,
+        "stride": 176,
+        "note": "probe (1.33 test 27): word 0 of each entry counted from 0x4E before its life (if the table starts at 0x100E1C as the RetroAchievements notes may say), same purpose"
+      },
+      "_ex1": {
+        "addr": "0x1010DE",
+        "type": "u16s",
+        "count": 73,
+        "stride": 176,
+        "note": "probe (1.33 test 27): word 1 of each entry counted from 0x4E before its life (if the table starts at 0x100E1C as the RetroAchievements notes may say), same purpose"
+      },
+      "_ex2": {
+        "addr": "0x1010E0",
+        "type": "u16s",
+        "count": 73,
+        "stride": 176,
+        "note": "probe (1.33 test 27): word 2 of each entry counted from 0x4E before its life (if the table starts at 0x100E1C as the RetroAchievements notes may say), same purpose"
+      },
+      "_ex3": {
+        "addr": "0x1010E2",
+        "type": "u16s",
+        "count": 73,
+        "stride": 176,
+        "note": "probe (1.33 test 27): word 3 of each entry counted from 0x4E before its life (if the table starts at 0x100E1C as the RetroAchievements notes may say), same purpose"
+      },
       "stage_state": {
         "addr": "0x100B5E",
         "type": "be",
