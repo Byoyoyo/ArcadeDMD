@@ -870,6 +870,8 @@ class Engine:
         elif t == "stop":
             if self.source == source or self.mode != "game":
                 self.go_idle()
+        elif t == "nvram":                # the backup RAM FinalBurn Neo wrote on quit / la sauvegarde écrite en quittant
+            self._neo_saved(ev)
         elif t == "pause":
             self.state.paused = True
         elif t == "resume":
@@ -1037,28 +1039,36 @@ class Engine:
         / Crédits d'une pièce à gauche et à droite, écrits sur les monnayeurs de l'écran HD."""
         return mvs_rates(self.cfg) if self.state.values.get("bios_mvs") == 0x80 else (1, 1)
 
-    def coin_in(self, side, now):
+    def coin_in(self, side, now, gap=None, hold=None):
         """A coin button pressed on the cabinet (0 left, 1 right): the side of the coin, and the credits of a Neo Geo
         under RetroArch. Nothing outside a game, nor while RetroArch shows its menu (the button moves in the menu).
+        gap and hold: seconds since the press before on that button and how long that one was held, for the log.
         / Un bouton des pièces : le côté de la pièce, et les crédits d'une Neo Geo sous RetroArch."""
         if self.mode != "game" or self.source not in ("plugin", "retroarch") or self.state.paused:
             return
         self.state.update("coin_side", side, now)
         where = side_word(side)
+        how = ""
+        if isinstance(gap, (int, float)) and gap < 5.0:                   # how the button is pressed (1.33 test 28)
+            how = tr(f" ({gap * 1000:.0f} ms après l'appui d'avant", f" ({gap * 1000:.0f} ms after the press before")
+            if isinstance(hold, (int, float)):
+                how += tr(f", tenu {hold * 1000:.0f} ms)", f", held {hold * 1000:.0f} ms)")
+            else:
+                how += ")"
         if self.coin_guess is None:
             if self.coin_count is not None:                               # counted from the buttons / comptés d'après les boutons
                 c = self.coin_count.add(side)
                 self.state.update("credits", c, now)
-                self.log(tr(f"pièce à {where}, crédits comptés {c}", f"coin on the {where}, credits counted {c}"))
+                self.log(tr(f"pièce à {where}, crédits comptés {c}", f"coin on the {where}, credits counted {c}") + how)
                 return
-            self.log(tr(f"pièce à {where}", f"coin on the {where}"))
+            self.log(tr(f"pièce à {where}", f"coin on the {where}") + how)
             return
         old = self.state.values.get("credits")
         c = self.coin_guess.add(side, now)
         if c is not None and c != old:
             self.state.update("credits", c, now)
             self._neo_keep(c)
-        self.log(tr(f"pièce à {where}, crédits devinés {c}", f"coin on the {where}, credits guessed {c}"))
+        self.log(tr(f"pièce à {where}, crédits devinés {c}", f"coin on the {where}, credits guessed {c}") + how)
 
     def _neo_file(self):
         return os.path.join(self.root, "runtime", "neo_credits.json")
@@ -1074,9 +1084,33 @@ class Engine:
         v = d.get(rom) if isinstance(d, dict) and rom else None
         return v if isinstance(v, int) and 0 <= v <= 99 else 0
 
-    def _neo_keep(self, c):
+    def _neo_saved(self, ev):
+        """What FinalBurn Neo wrote in the backup RAM file of an MVS game when it was quit, read again then (1.33 test 28,
+        Seb: the guessed credits drifted from the game's, the file says what the game really had). The game's count
+        replaces the guess kept for the next time. / Ce que FinalBurn Neo a écrit en quittant un jeu MVS, relu alors."""
+        rom = ev.get("rom") or ""
+        c = ev.get("credits")
+        guess = self._neo_kept(rom) if rom else 0
+        if not isinstance(c, int):
+            self.log(tr(f"FinalBurn Neo : {rom}.fs introuvable après la partie, les crédits devinés ({guess}) restent",
+                        f"FinalBurn Neo: {rom}.fs not found after the game, the guessed credits ({guess}) stay"))
+            return
+        when = ev.get("when") or ""
+        if not ev.get("fresh"):
+            self.log(tr(f"FinalBurn Neo : {rom}.fs pas réécrit en quittant (fichier du {when}), le jeu repartira avec ses "
+                        f"{c} crédit(s) d'avant, ArcadeDMD en devinait {guess}",
+                        f"FinalBurn Neo: {rom}.fs not written again on quit (file of {when}), the game will start again "
+                        f"with its {c} credit(s) from before, ArcadeDMD guessed {guess}"))
+        else:
+            self.log(tr(f"FinalBurn Neo : le jeu avait {c} crédit(s) en quittant {rom} (écrit dans {rom}.fs), "
+                        f"ArcadeDMD en devinait {guess}",
+                        f"FinalBurn Neo: the game had {c} credit(s) when {rom} was quit (written in {rom}.fs), "
+                        f"ArcadeDMD guessed {guess}"))
+        self._neo_keep(c, rom)
+
+    def _neo_keep(self, c, rom=None):
         """The guessed credits of the game, kept for the next time. / Les crédits devinés, gardés pour la fois suivante."""
-        rom = self.state.meta.get("system") or ""
+        rom = rom or self.state.meta.get("system") or ""
         if not rom or not isinstance(c, int):
             return
         path = self._neo_file()
@@ -1234,8 +1268,9 @@ class Engine:
                 self.set_scene(self.scene_key)
         if self.coin_buttons is not None:
             # before what the game shows of that same coin / avant ce que le jeu montre de cette même pièce
-            for side in self.coin_buttons.poll(now):
-                self.coin_in(side, now)
+            timed = getattr(self.coin_buttons, "poll_timed", None)
+            for side, gap, hold in (timed(now) if timed else [(s, None, None) for s in self.coin_buttons.poll(now)]):
+                self.coin_in(side, now, gap, hold)
             for player in self.coin_buttons.poll_starts():
                 self.start_in(player, now)
         if self.tail:

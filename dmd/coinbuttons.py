@@ -172,6 +172,7 @@ class CoinButtons:
         self.held = {}
         self.last = {}
         self.up = {}                      # when each button was last released / quand chaque bouton a été relâché
+        self.timing = {}                  # (gap, hold) of the last press of each button / dernier appui de chaque bouton
         self.away = {}                    # controller not there: when to try again / manette absente : quand réessayer
         self.failed = False
         self.stop_ev = threading.Event()
@@ -222,6 +223,12 @@ class CoinButtons:
         if not d and self.held.get(k):
             self.up[k] = now
         if new:
+            # how the button is pressed, for the log: the time since the press before and how long that one was held
+            # (1.33 test 28, Seb: the game counted fewer coins than the button) / le temps depuis l'appui d'avant et
+            # combien de temps il a été tenu
+            last = self.last.get(k)
+            self.timing[k] = (None if last is None else now - last,
+                              None if last is None or self.up.get(k, -9.0) < last else self.up[k] - last)
             self.last[k] = now
         if d and not self.held.get(k) and not new:
             d = False                                    # a bounce stays up, the next press counts / un rebond
@@ -232,7 +239,7 @@ class CoinButtons:
         cache = {}                                       # each controller read once / chaque manette lue une fois
         for side, inp in self.inputs.items():
             if self._press(side, self.down(inp, now, cache), now):
-                self.q.append((side, now))
+                self.q.append((side, now) + self.timing.get(side, (None, None)))
         for player, inp in self.starts.items():
             if self._press(f"s{player}", self.down(inp, now, cache), now):
                 self.sq.append((player, now))
@@ -250,11 +257,17 @@ class CoinButtons:
 
     def poll(self, now=None):
         """The sides of the coins put in since the last call. Without a thread, the buttons are read here."""
+        return [e[0] for e in self.poll_timed(now)]
+
+    def poll_timed(self, now=None):
+        """The coins put in since the last call: (side, seconds since the press before on that button or None, how long
+        that press before was held or None). / Chaque pièce avec le temps depuis l'appui d'avant et sa durée."""
         if self.thread is None and self.source is not None and (self.inputs or self.starts):
             self.scan(time.monotonic() if now is None else now)
         out = []
         while self.q:
-            out.append(self.q.popleft()[0])
+            e = self.q.popleft()
+            out.append((e[0], e[2] if len(e) > 2 else None, e[3] if len(e) > 3 else None))
         return out
 
     def poll_starts(self):
