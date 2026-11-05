@@ -25,8 +25,10 @@ swap16 : le cœur range la RAM du 68000 par mots de 16 bits inversés (FBNeo, Ge
 import json
 import os
 import socket
+import struct
 import threading
 import time
+import zlib
 
 from . import wincore
 from .i18n import tr
@@ -597,6 +599,7 @@ def read_values(client, layout, defs, clusters=None, batch=False):
 # between two reads of the stick: RetroArch answers at its next image, the read itself keeps the pace of the game
 # entre deux lectures du stick : RetroArch répond à l'image suivante, la lecture suit d'elle-même le rythme du jeu
 FAST_POLL = 0.001
+DUMP_EVERY = 1.0              # seconds between two snapshots of the whole memory ("ram_dump") / entre deux instantanés
 
 
 class RetroArchSource:
@@ -620,6 +623,7 @@ class RetroArchSource:
     def close(self):
         self.stop_ev.set()
         self.thread.join(1.5)
+        self._dump_close()
         self.client.close()
 
     def _emit(self, ev):
@@ -693,7 +697,10 @@ class RetroArchSource:
         s = self.session
         done = False
         while not self.stop_ev.is_set() and time.monotonic() < until:
-            vals = read_values(self.client, s["layout"], s["fast"], s["fast_clusters"])
+            # all the fast places at the same image (1.33 test 30: Windjammers read its players, its disc and the BIOS
+            # countdown one image each, the countdown sampled every 4 images and two quick coins could show as one)
+            # / toutes les places rapides à la même image
+            vals = read_values(self.client, s["layout"], s["fast"], s["fast_clusters"], batch=True)
             if vals is None:
                 self.check_now = True             # RetroArch closed, maybe / RetroArch fermé, peut-être
                 break
@@ -736,7 +743,10 @@ class RetroArchSource:
                         "defs": defs, "clusters": make_clusters(defs) if defs else [], "last": {},
                         "fast": fast, "fast_clusters": make_clusters(fast) if fast else [],
                         "last_hb": 0.0, "paused": False, "fails": 0, "warned": False, "retry_at": 0.0,
-                        "core": core, "mt": getattr(self.library, "mtimes", {}).get(key) if key else None}
+                        "core": core, "mt": getattr(self.library, "mtimes", {}).get(key) if key else None,
+                        "dump": None, "dump_at": 0.0}
+        if isinstance(game, dict) and game.get("ram_dump"):
+            self._dump_open(st["content"], key, layout)
         title = own or game_title(game, parent or st["content"])
         ev = {"t": "start", "game": key or "", "system": st["content"], "description": title,
               "media": [], "values": sorted(defs), "source": "retroarch", "core": st["system"]}
@@ -774,9 +784,65 @@ class RetroArchSource:
         return bool(key) and getattr(self.library, "mtimes", {}).get(key) != s["mt"]
 
     def _end(self, why):
+        self._dump_close()
         self.session = None
         self._emit({"t": "stop"})
         self.log(tr(f"RetroArch : fin de partie ({why})", f"RetroArch: game ended ({why})"))
+
+    # ------------------------------------------------------------------ the whole memory, once a second / toute la mémoire
+    def _dump_open(self, rom, key, layout):
+        """"ram_dump": true in a game file: the whole memory RetroArch shares, written once a second to
+        runtime/captures/<rom>-<date>.ram, to find where the game keeps what is not read yet (the bosses of the Metal Slug
+        games, 1.33 test 30). Each record: the seconds since the start (8 bytes, little endian double), the size of the
+        zlib block (4 bytes) and the block, the memory in the order of the processor. tools/ram_diff.py reads it.
+        / Toute la mémoire une fois par seconde, pour trouver ce que le jeu range où (les boss des Metal Slug)."""
+        folder = os.path.join(getattr(self.library, "root", "."), "runtime", "captures")
+        try:
+            os.makedirs(folder, exist_ok=True)
+            path = os.path.join(folder, f"{key or rom}-{time.strftime('%Y%m%d-%H%M%S')}.ram")
+            f = open(path, "wb")
+        except OSError as e:
+            self.log(tr(f"mémoire : impossible d'écrire dans {folder} ({e})", f"memory: cannot write in {folder} ({e})"))
+            return
+        head = {"version": "1.33.0", "game": key, "rom": rom, "date": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "base": layout.base, "size": layout.size, "every": DUMP_EVERY}
+        f.write((json.dumps(head) + "\n").encode("utf-8"))
+        self.session["dump"] = {"f": f, "path": path, "t0": time.monotonic(), "n": 0}
+        self.log(tr(f"mémoire : toute la mémoire de {rom} enregistrée chaque seconde dans {path} (pour trouver ses boss)",
+                    f"memory: the whole memory of {rom} written once a second to {path} (to find its bosses)"))
+
+    def _dump_tick(self, s, now):
+        d = s.get("dump")
+        if not d or now - s["dump_at"] < DUMP_EVERY:
+            return
+        s["dump_at"] = now
+        lay = s["layout"]
+        half = lay.size // 2
+        raw = bytearray()
+        for start, end in ((lay.base, lay.base + half - 1), (lay.base + half, lay.base + lay.size - 1)):
+            got = lay.read_cpu_many(self.client, [(start, end)])     # 64 requests of 512 bytes, one image / une image
+            if not got:
+                return
+            raw += got[0][1]
+        try:
+            z = zlib.compress(bytes(raw), 6)
+            d["f"].write(struct.pack("<dI", now - d["t0"], len(z)) + z)
+            d["n"] += 1
+            if d["n"] % 10 == 0:
+                d["f"].flush()
+        except OSError:
+            self._dump_close()
+
+    def _dump_close(self):
+        d = (self.session or {}).get("dump") if self.session else None
+        if not d:
+            return
+        self.session["dump"] = None
+        try:
+            d["f"].close()
+        except OSError:
+            pass
+        self.log(tr(f"mémoire : {d['n']} instantané(s) écrit(s) dans {d['path']}", f"memory: {d['n']} snapshot(s) written to {d['path']}"))
 
     def _poll_values(self):
         s = self.session
@@ -810,6 +876,7 @@ class RetroArchSource:
                 if changed:
                     s["last"].update(changed)
                     self._emit({"t": "v", "v": changed, "at": time.monotonic()})
+                self._dump_tick(s, now)
         if now - s["last_hb"] >= 2.0:
             s["last_hb"] = now
             self._emit({"t": "hb", "v": dict(s["last"])})
