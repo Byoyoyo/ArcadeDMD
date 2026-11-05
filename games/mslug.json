@@ -96,7 +96,8 @@
       "vehicle": {
         "addr": "0x1004CC",
         "type": "u8",
-        "note": "player 1 in the tank (1), on foot (0), found in RAM captures on a cabinet (13 captures, 6 in the tank, 7 on foot, 4 of them beside the parked tank)"
+        "mask": "0x01",
+        "note": "player 1 in the tank (bit 0: 1), on foot (0), found in RAM captures on a cabinet (13 captures, 6 in the tank, 7 on foot, 4 of them beside the parked tank); the other bits are his state on foot (2, 4, 6, 16, 22 while he moves and shoots in Seb's capture of 5 November 17:58), not a vehicle"
       },
       "vehicle_hp": {
         "addr": "0x1005E7",
@@ -117,7 +118,8 @@
       "vehicle_p2": {
         "addr": "0x10056C",
         "type": "u8",
-        "note": "player 2 in the tank (1), the same place in his own block, 0xA0 further like his bombs and weapon"
+        "mask": "0x01",
+        "note": "player 2 in the tank (bit 0: 1), the same place in his own block, 0xA0 further like his bombs and weapon"
       },
       "vehicle_hp_p2": {
         "addr": "0x1005E7",

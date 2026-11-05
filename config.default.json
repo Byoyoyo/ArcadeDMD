@@ -66,8 +66,7 @@
     "enabled": true,
     "host": "127.0.0.1",
     "port": 55355,
-    "poll_ms": 100,
-    "saves": ""
+    "poll_ms": 100
   },
   "coin_buttons": {
     "left": null,

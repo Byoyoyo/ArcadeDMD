@@ -22,11 +22,9 @@ les fichiers games/*.json servent à la fois pour MAME et pour RetroArch :
 swap16 : le cœur range la RAM du 68000 par mots de 16 bits inversés (FBNeo, Genesis Plus GX).
 """
 
-import glob
 import json
 import os
 import socket
-import subprocess
 import threading
 import time
 
@@ -599,113 +597,6 @@ def read_values(client, layout, defs, clusters=None, batch=False):
 # between two reads of the stick: RetroArch answers at its next image, the read itself keeps the pace of the game
 # entre deux lectures du stick : RetroArch répond à l'image suivante, la lecture suit d'elle-même le rythme du jeu
 FAST_POLL = 0.001
-NVRAM_WAIT = 1.5              # seconds after a game ends before its backup RAM file is read again (then 3 times that)
-
-
-def retroarch_exe_dir():
-    """The folder of the RetroArch program running on this machine (Windows), or None. / Le dossier de RetroArch."""
-    if os.name != "nt":
-        return None
-    try:
-        out = subprocess.run(["powershell", "-NoProfile", "-Command",
-                              "(Get-Process retroarch -ErrorAction SilentlyContinue | Select-Object -First 1).Path"],
-                             capture_output=True, text=True, timeout=8, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
-        path = (out.stdout or "").strip().splitlines()
-        path = path[-1].strip() if path else ""
-        return os.path.dirname(path) if path and os.path.isfile(path) else None
-    except (OSError, subprocess.SubprocessError, ValueError):
-        return None
-
-
-def _bcd2(b):
-    """A BCD byte as a number, None when it is not BCD. / Un octet BCD, None s'il n'en est pas un."""
-    hi, lo = b >> 4, b & 15
-    return None if hi > 9 or lo > 9 else hi * 10 + lo
-
-
-def _when(mtime):
-    """A file time for the log, "04/11 23:56:36". / L'heure d'un fichier pour le journal."""
-    try:
-        return time.strftime("%d/%m %H:%M:%S", time.localtime(mtime))
-    except (TypeError, ValueError, OverflowError, OSError):
-        return "?"
-
-
-def fbneo_save_dirs(client, cfg_saves=None):
-    """The folders where FinalBurn Neo may keep its saves under RetroArch: config.json ("retroarch": {"saves": ...}),
-    then RetroArch itself (GET_CONFIG_PARAM savefile_directory, a relative one resolved against the running program).
-    (folders, savefile_directory as RetroArch gave it, folder of the program). / Les dossiers des sauvegardes."""
-    dirs = []
-    if cfg_saves and isinstance(cfg_saves, str):
-        dirs.append(cfg_saves)
-    raw = client.config_param("savefile_directory") if client is not None else None
-    exe = None
-    if raw:
-        raw = raw.strip('"')
-        if raw.startswith(":"):                          # ":\saves": next to the program / à côté du programme
-            exe = retroarch_exe_dir()
-            if exe:
-                dirs.append(os.path.join(exe, raw[1:].lstrip("\\/")))
-        elif raw.lower() != "default":
-            dirs.append(raw)
-    if not dirs or not raw or raw.startswith(":"):
-        exe = exe or retroarch_exe_dir()
-        if exe:
-            dirs.append(os.path.join(exe, "saves"))
-    return dirs, raw, exe
-
-
-def fbneo_nvram_credits(client, rom, cfg_saves=None, log=None, dirs=None):
-    """The credits an MVS game had when FinalBurn Neo last quit it, read in the backup RAM it saved
-    (<saves>/fbneo/<rom>.fs, the 64 KB of $D00000 with the bytes of each word swapped: $D00034, the credits in BCD, at
-    0x35). The saves folders come from fbneo_save_dirs, or are given (dirs: after the game, RetroArch may be gone).
-    None without the file.
-    (1.33, Seb: the guessed credits drifted from the game's, the guess started from ArcadeDMD's own memory of them.)
-    / Les crédits qu'un jeu MVS avait quand FinalBurn Neo l'a quitté, lus dans la mémoire de sauvegarde qu'il écrit."""
-    if not rom:
-        return None
-    if dirs is None:
-        dirs, raw, exe = fbneo_save_dirs(client, cfg_saves)
-    else:
-        raw, exe = "", ""
-    # RetroArch may sort the saves into a folder named after the core ("FinalBurn Neo") and another after the content's
-    # folder: the file is looked for one and two folders down too, the newest one wins (1.33 test 22, Seb's log: never
-    # found) / RetroArch peut ranger les sauvegardes dans un dossier au nom du cœur et un autre au nom du dossier du jeu
-    found = []
-    for d in dirs:
-        d = os.path.expandvars(d)
-        for pat in (("fbneo", rom + ".fs"), ("*", "fbneo", rom + ".fs"), ("*", "*", "fbneo", rom + ".fs")):
-            for path in glob.glob(os.path.join(d, *pat)):
-                if os.path.isfile(path):
-                    try:
-                        found.append((os.path.getmtime(path), path))
-                    except OSError:
-                        pass
-    for mtime, path in sorted(found, reverse=True):
-        try:
-            with open(path, "rb") as f:
-                data = f.read(0x40)
-        except OSError:
-            continue
-        if len(data) < 0x36:
-            continue
-        b = data[0x35]
-        hi, lo = b >> 4, b & 15
-        if hi > 9 or lo > 9:
-            if callable(log):
-                log(f"{path}: crédits illisibles ({b:#x})")
-            continue
-        # $D00035, the credits of the second player side, and $D00024, the coins counted (BCD words, bytes swapped):
-        # written in the log to see which counter the game shows (1.33 test 28)
-        # / les crédits du côté du joueur 2 et le compte des pièces, pour voir quel compteur le jeu affiche
-        c_hi, c_lo = _bcd2(data[0x25]), _bcd2(data[0x24])
-        return {"credits": hi * 10 + lo, "path": path, "mtime": mtime, "p2": _bcd2(data[0x34]),
-                "coins": None if c_hi is None or c_lo is None else c_hi * 100 + c_lo}
-    if callable(log):
-        where = ", ".join(os.path.expandvars(d) for d in dirs) or "aucun dossier"
-        log(tr(f"FinalBurn Neo : pas de sauvegarde {rom}.fs trouvée (savefile_directory {raw!r}, programme {exe!r}, cherché dans {where})",
-               f"FinalBurn Neo: no {rom}.fs save found (savefile_directory {raw!r}, program {exe!r}, looked in {where})"))
-    return None
 
 
 class RetroArchSource:
@@ -849,23 +740,7 @@ class RetroArchSource:
         title = own or game_title(game, parent or st["content"])
         ev = {"t": "start", "game": key or "", "system": st["content"], "description": title,
               "media": [], "values": sorted(defs), "source": "retroarch", "core": st["system"]}
-        if "bios_request" in defs and "credits" not in defs:          # an MVS: its credits left last time, if saved
-            dirs, _, _ = fbneo_save_dirs(self.client, self.cfg.get("saves"))
-            nv = fbneo_nvram_credits(self.client, st["content"], self.cfg.get("saves"), self.log, dirs)
-            # read again when the game is quit: FinalBurn Neo writes the file then, with the credits the game really had
-            # (1.33 test 28) / relu quand le jeu est quitté, avec les crédits que le jeu avait vraiment
-            self.session["nvram"] = {"rom": st["content"], "mtime": nv["mtime"] if nv else None, "dirs": dirs}
-            if nv is not None:
-                ev["nvram_credits"] = nv["credits"]
-                more = tr(f" (fichier du {_when(nv['mtime'])}", f" (file of {_when(nv['mtime'])}")
-                if nv.get("p2"):
-                    more += tr(f", côté joueur 2 : {nv['p2']}", f", player 2 side: {nv['p2']}")
-                if nv.get("coins") is not None:
-                    more += tr(f", {nv['coins']} pièce(s) comptée(s))", f", {nv['coins']} coin(s) counted)")
-                else:
-                    more += ")"
-                self.log(tr(f"FinalBurn Neo : {nv['credits']} crédit(s) restant(s) la dernière fois{more}, lus dans {nv['path']}",
-                            f"FinalBurn Neo: {nv['credits']} credit(s) left last time{more}, read in {nv['path']}"))
+        if "bios_request" in defs and "credits" not in defs:          # an MVS: its credits guessed from its BIOS
             # the compulsion countdown of the BIOS, image by image: each coin the BIOS takes on the title screen starts it
             # again (1.33 test 28) / le compte à rebours du BIOS image par image, chaque pièce prise le relance
             if "bios_timer" in defs and "bios_frames" not in defs and layout.contains(0x10FDDB, 0x10FDDB):
@@ -899,37 +774,9 @@ class RetroArchSource:
         return bool(key) and getattr(self.library, "mtimes", {}).get(key) != s["mt"]
 
     def _end(self, why):
-        nv = (self.session or {}).get("nvram")
         self.session = None
         self._emit({"t": "stop"})
         self.log(tr(f"RetroArch : fin de partie ({why})", f"RetroArch: game ended ({why})"))
-        if nv and nv.get("rom") and nv.get("dirs"):
-            # FinalBurn Neo writes the backup RAM file as the game is unloaded: read a moment later, once more if it has
-            # not been written yet (1.33 test 28) / le fichier est écrit quand le jeu se décharge : relu un peu après
-            t = threading.Timer(NVRAM_WAIT, self._after_end, (nv, 1))
-            t.daemon = True
-            t.start()
-
-    def _after_end(self, nvs, tries):
-        """The backup RAM file after the game: its credits, fresh when written since the game began."""
-        if self.stop_ev.is_set():
-            return
-        rom, mtime = nvs["rom"], nvs.get("mtime")
-        try:
-            nv = fbneo_nvram_credits(None, rom, None, None, nvs["dirs"])
-        except Exception as e:                                    # the engine goes on / le moteur continue
-            self.log(tr(f"RetroArch : erreur en relisant {rom}.fs : {e!r}", f"RetroArch: error reading {rom}.fs again: {e!r}"))
-            return
-        fresh = nv is not None and (mtime is None or nv["mtime"] > mtime)
-        if not fresh and tries < 2:
-            t = threading.Timer(NVRAM_WAIT * 3, self._after_end, (nvs, tries + 1))
-            t.daemon = True
-            t.start()
-            return
-        ev = {"t": "nvram", "rom": rom, "credits": nv["credits"] if nv else None, "fresh": fresh,
-              "when": _when(nv["mtime"]) if nv else "", "p2": nv.get("p2") if nv else None,
-              "coins": nv.get("coins") if nv else None}
-        self._emit(ev)
 
     def _poll_values(self):
         s = self.session

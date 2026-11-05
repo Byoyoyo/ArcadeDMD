@@ -698,16 +698,13 @@ class Engine:
         self.tag = tag if source in ("plugin", "retroarch") else {}
         names = names + [k for k in self.tag if k not in names]
         # credits of a Neo Geo that cannot be read (RetroArch): guessed from its BIOS, the guess kept when the same game
-        # comes back after a silence (RetroArch menu opened a while), and started from the credits left last time
-        # crédits devinés d'après le BIOS, gardés quand le même jeu revient après un silence, et repartis des crédits
-        # restants la dernière fois
+        # comes back after a silence (RetroArch menu opened a while). The game starts with none: the BIOS clears them
+        # as it boots (1.33 test 29, Seb: credits on the HD screen at the launch, none in the game)
+        # crédits devinés d'après le BIOS, gardés quand le même jeu revient après un silence. Le jeu démarre sans
+        # crédit, le BIOS les efface au démarrage
         if source in ("plugin", "retroarch") and "credits" not in names and "bios_request" in names:
             same = not intro and self.coin_guess is not None and self.coin_game == key
-            # the credits left last time: those FinalBurn Neo saved if RetroArch tells where (1.33, Seb), else ArcadeDMD's
-            # own count / les crédits restants la dernière fois : ceux sauvés par FinalBurn Neo, sinon le compte maison
-            nv = meta.get("nvram_credits")
-            kept = nv if isinstance(nv, int) and 0 <= nv <= 99 else self._neo_kept(meta.get("system") or "")
-            self.coin_guess = self.coin_guess if same else NeoCoins(mvs_rates(self.cfg), kept)
+            self.coin_guess = self.coin_guess if same else NeoCoins(mvs_rates(self.cfg))
         else:
             self.coin_guess = None
         # a game without a BIOS that says who plays (CPS): player 1 plays while its values move (timer, health...)
@@ -866,12 +863,9 @@ class Engine:
                         self.state.update("coin_side", None, now)      # seen by the BIOS only: side unknown / côté inconnu
                     self.state.update("credits", c, now)
                     self.log(tr(f"crédits devinés d'après le BIOS : {c}", f"credits guessed from the BIOS: {c}"))
-                    self._neo_keep(c)
         elif t == "stop":
             if self.source == source or self.mode != "game":
                 self.go_idle()
-        elif t == "nvram":                # the backup RAM FinalBurn Neo wrote on quit / la sauvegarde écrite en quittant
-            self._neo_saved(ev)
         elif t == "pause":
             self.state.paused = True
         elif t == "resume":
@@ -1067,70 +1061,7 @@ class Engine:
         c = self.coin_guess.add(side, now)
         if c is not None and c != old:
             self.state.update("credits", c, now)
-            self._neo_keep(c)
         self.log(tr(f"pièce à {where}, crédits devinés {c}", f"coin on the {where}, credits guessed {c}") + how)
-
-    def _neo_file(self):
-        return os.path.join(self.root, "runtime", "neo_credits.json")
-
-    def _neo_kept(self, rom):
-        """Credits guessed for a Neo Geo game when it was last quit. FinalBurn Neo saves its backup RAM, credits
-        included, and gives them back the next time. / Crédits devinés pour un jeu Neo Geo quand on l'a quitté."""
-        try:
-            with open(self._neo_file(), encoding="utf-8") as f:
-                d = json.load(f)
-        except (OSError, ValueError):
-            return 0
-        v = d.get(rom) if isinstance(d, dict) and rom else None
-        return v if isinstance(v, int) and 0 <= v <= 99 else 0
-
-    def _neo_saved(self, ev):
-        """What FinalBurn Neo wrote in the backup RAM file of an MVS game when it was quit, read again then (1.33 test 28,
-        Seb: the guessed credits drifted from the game's, the file says what the game really had). The game's count
-        replaces the guess kept for the next time. / Ce que FinalBurn Neo a écrit en quittant un jeu MVS, relu alors."""
-        rom = ev.get("rom") or ""
-        c = ev.get("credits")
-        guess = self._neo_kept(rom) if rom else 0
-        if not isinstance(c, int):
-            self.log(tr(f"FinalBurn Neo : {rom}.fs introuvable après la partie, les crédits devinés ({guess}) restent",
-                        f"FinalBurn Neo: {rom}.fs not found after the game, the guessed credits ({guess}) stay"))
-            return
-        when = ev.get("when") or ""
-        if not ev.get("fresh"):
-            self.log(tr(f"FinalBurn Neo : {rom}.fs pas réécrit en quittant (fichier du {when}), le jeu repartira avec ses "
-                        f"{c} crédit(s) d'avant, ArcadeDMD en devinait {guess}",
-                        f"FinalBurn Neo: {rom}.fs not written again on quit (file of {when}), the game will start again "
-                        f"with its {c} credit(s) from before, ArcadeDMD guessed {guess}"))
-        else:
-            self.log(tr(f"FinalBurn Neo : le jeu avait {c} crédit(s) en quittant {rom} (écrit dans {rom}.fs), "
-                        f"ArcadeDMD en devinait {guess}",
-                        f"FinalBurn Neo: the game had {c} credit(s) when {rom} was quit (written in {rom}.fs), "
-                        f"ArcadeDMD guessed {guess}"))
-        self._neo_keep(c, rom)
-
-    def _neo_keep(self, c, rom=None):
-        """The guessed credits of the game, kept for the next time. / Les crédits devinés, gardés pour la fois suivante."""
-        rom = rom or self.state.meta.get("system") or ""
-        if not rom or not isinstance(c, int):
-            return
-        path = self._neo_file()
-        try:
-            with open(path, encoding="utf-8") as f:
-                d = json.load(f)
-        except (OSError, ValueError):
-            d = {}
-        if not isinstance(d, dict):
-            d = {}
-        if d.get(rom) == c:
-            return
-        d[rom] = c
-        try:
-            os.makedirs(os.path.dirname(path), exist_ok=True)
-            with open(path + ".tmp", "w", encoding="utf-8") as f:
-                json.dump(d, f, indent=1, sort_keys=True)
-            os.replace(path + ".tmp", path)
-        except OSError:
-            pass
 
     def _hold_zero(self, k, v, now):
         """Score lu à 0 en pleine partie (l'objet du combattant n'est pas encore recréé entre deux rounds

@@ -1,23 +1,24 @@
 """Credits of a Neo Geo MVS guessed from its BIOS, when they cannot be read.
 
-An MVS keeps its credits in the backup RAM of the cabinet ($D00034). MAME reads it, but the FinalBurn Neo core of
-RetroArch only shares the work RAM of the game. The BIOS leaves traces there. When a coin goes in while nobody plays, it
-asks the game for its title screen (BIOS_USER_REQUEST at $10FDAE goes to 3), and the title screen counts down before the
-game starts by itself (BIOS_COMPULSION_TIMER at $10FDDA), a countdown that starts again when another coin goes in. Its
-seconds show a coin once a second at best; read with the frames of the current second ($10FDDB, "bios_frames", at every
-image), each coin the BIOS takes shows as the frames jumping back up while the seconds stay (1.33 test 28). During a game
-the BIOS sets that countdown again at each coin without running it, so only the first coin of a game shows. Each player
-who starts takes a credit, and back to the demo (request 2) there is none left.
+An MVS keeps its credits in the backup RAM of the cabinet. MAME reads it, but the FinalBurn Neo core of RetroArch only
+shares the work RAM of the game. The BIOS leaves traces there. When a coin goes in while nobody plays, it asks the game
+for its title screen (BIOS_USER_REQUEST at $10FDAE goes to 3), and the title screen counts down before the game starts
+by itself (BIOS_COMPULSION_TIMER at $10FDDA), a countdown that starts again when another coin goes in. Its seconds show a
+coin once a second at best; read with the frames of the current second ($10FDDB, "bios_frames", at every image), each
+coin the BIOS takes shows as the frames jumping back up while the seconds stay (1.33 test 28). During a game the BIOS
+sets that countdown again at each coin without running it, so only the first coin of a game shows. Each player who
+starts takes a credit, and back to the demo (request 2) there is none left.
+
+The game starts with no credit: the BIOS clears them as it boots (neogeodev, the boot process clears 16 bytes of the
+backup RAM from $D00024; Seb's cabinet always launches on INSERT COIN), whatever FinalBurn Neo saved (1.33 test 29). A
+coin put in while the BIOS boots is taken once the BIOS is ready, and shows as its countdown set from 0 to 30 before
+the title screen is asked; the presses before that are ignored by the BIOS.
 
 The coin buttons, when coin_buttons.bat has shown them (dmd/coinbuttons.py), tell each coin and its side. They come first.
 A coin on the right then gives the credits of the second slot of the MVS (2 unless its settings were changed). What the
 BIOS shows right after a press is that same coin. With the frames read, a press on the title screen must be shown by the
-BIOS within two seconds or it is taken back: a button that bounces, or a hand quicker than the BIOS, made the HD screen
-run ahead of the game (Seb's Windjammers, 10 presses, 7 credits in the game).
-
-FinalBurn Neo saves the backup RAM of each game when it is quit (saves/fbneo/<game>.fs), credits included, and gives
-them back the next time. The engine keeps the guessed credits of each game the same way (runtime/neo_credits.json), and
-a game that starts on its title screen (credits left) starts from them ("kept").
+BIOS within two seconds or it is taken back: a button that bounces, or a hand quicker than the BIOS, would put the HD
+screen ahead of the game.
 
 Crédits d'une Neo Geo MVS devinés d'après son BIOS, quand on ne peut pas les lire.
 
@@ -28,11 +29,12 @@ seul, un compte qui repart quand une autre pièce entre. Ses secondes montrent u
 images de la seconde en cours ($10FDDB, « bios_frames », à chaque image), chaque pièce prise se voit, les images remontent
 sans que les secondes bougent (1.33 test 28), et un appui sur l'écran titre que le BIOS ne montre pas dans les deux
 secondes est repris. En pleine partie le BIOS remet ce compte à chaque pièce sans le faire tourner, seule la première
-pièce de la partie se voit. Chaque joueur qui commence prend un crédit, et de retour à
-la démo (demande 2) il n'en reste plus. Les boutons des pièces, quand coin_buttons.bat les a montrés, disent chaque
-pièce et son côté. Ils passent avant. FinalBurn Neo sauve la mémoire de sauvegarde de chaque jeu quand on le quitte,
-crédits compris, et la rend la fois suivante. Le moteur garde les crédits devinés de chaque jeu de la même façon, et un
-jeu qui démarre sur son écran titre (des crédits restants) repart d'eux."""
+pièce de la partie se voit. Chaque joueur qui commence prend un crédit, et de retour à la démo (demande 2) il n'en reste
+plus. Le jeu démarre sans crédit, le BIOS les efface au démarrage (neogeodev : le démarrage efface 16 octets de la mémoire
+de sauvegarde à partir de $D00024 ; la borne de Seb arrive toujours sur INSERT COIN), quoi que FinalBurn Neo ait sauvé
+(1.33 test 29). Une pièce mise pendant le démarrage est prise dès que le BIOS est prêt, son compte à rebours passe de 0
+à 30 avant que l'écran titre soit demandé ; les appuis d'avant, le BIOS les ignore. Les boutons des pièces, quand
+coin_buttons.bat les a montrés, disent chaque pièce et son côté. Ils passent avant."""
 
 DEMO, TITLE = 2, 3          # BIOS_USER_REQUEST
 IN_GAME = 2                 # BIOS_USER_MODE
@@ -52,8 +54,8 @@ class NeoCoins:
     def __init__(self, rates=(1, 2), kept=0):
         self.notes = []                                  # (fr, en) for the log / pour le journal
         self.rates = rates                               # credits of a coin, left then right / crédits d'une pièce
-        # credits left when this game was last quit, given back by FinalBurn Neo / crédits restants la dernière fois
-        self.kept = kept if isinstance(kept, int) and 0 < kept <= 99 else 0
+        # kept: the credits left last time, given back by FinalBurn Neo. Not any more: the BIOS clears them as it boots,
+        # the game always starts with none (1.33 test 29, Seb) / plus de crédits restants : le BIOS les efface
         self.seen = None
         self.looked = False
         self.aes = False
@@ -74,12 +76,17 @@ class NeoCoins:
         # par le BIOS (son écran titre demandé) dans les PRESSED secondes, sinon elle est reprise.
         self.unconfirmed = []                            # [(when, credits)] coins of the demo not seen yet / pas encore vues
         # 1.33 test 22 (Seb's Windjammers captures: the coin pressed as the game boots, and the title at once): a coin before
-        # the BIOS is ready is kept aside; if the BIOS then comes up on its title screen, it took that coin, which counts on
-        # top of the credits left from last time (the title alone was read as those credits, and ArcadeDMD ran ahead of the
-        # game by that much); if it comes up on the demo, it ignored it (test 8). / Une pièce avant que le BIOS soit prêt
-        # est mise de côté : s'il arrive sur son écran titre, il l'a prise, en plus des crédits restants ; sur la démo, non.
+        # the BIOS is ready is kept aside; if the BIOS then comes up on its title screen, it took that coin; if it comes up
+        # on the demo, it ignored it (test 8). Test 29 (Seb's capture of 17:49: the press 2 s after the BIOS cleared its
+        # RAM, its countdown set from 0 to 30 at once, the title asked 80 ms later): the BIOS takes such a coin as soon as
+        # it is ready and sets its countdown, so the coins taken during the boot are counted on that countdown, the
+        # presses before it ignored. / Une pièce avant que le BIOS soit prêt est mise de côté : s'il arrive sur son écran
+        # titre, il l'a prise ; sur la démo, non. Les pièces prises pendant le démarrage se comptent sur son compte à
+        # rebours, mis de 0 à 30 à chacune ; les appuis d'avant sont ignorés.
         self.early = []                                  # [(when, credits)] coins pressed during the boot / pendant le démarrage
         self.EARLY = 8.0                                 # seconds such a coin stays worth something / combien de temps elle vaut
+        self.early_taken = 0                             # coins the BIOS took during the boot / pièces prises au démarrage
+        self.early_taken_at = -99.0
         # 1.33 test 28 (Seb's Windjammers: the button counted 10 coins, the game 7). With the countdown read image by image
         # ("bios_frames", $10FDDB, the frames of its current second), each coin the BIOS takes on the title screen shows:
         # the frames jump back up while the seconds do not go down. A press on the title screen is then counted at once
@@ -115,11 +122,26 @@ class NeoCoins:
         """The guessed credits, or None while the BIOS has said nothing. / Les crédits devinés, ou None."""
         req, mode, timer = values.get("bios_request"), values.get("bios_mode"), values.get("bios_timer")
         frames = values.get("bios_frames")
+        mvs = values.get("bios_mvs")
         if isinstance(frames, int):
             self.fine = True
         if not isinstance(req, int) or not isinstance(mode, int) or req not in (DEMO, TITLE):
-            return self.credits                          # the BIOS is not running the game yet / pas encore prêt
-        mvs = values.get("bios_mvs")
+            # the BIOS is not running the game yet. Once its RAM is cleared (MVS flag), a coin it takes sets its countdown
+            # from 0 to 30 (test 29) / pas encore prêt. Sa mémoire effacée, une pièce prise met son compte de 0 à 30
+            if (not self.looked and mvs == 0x80 and isinstance(timer, int) and isinstance(self.timer, int)
+                    and now - self.early_taken_at >= 0.1
+                    and (self.timer == 0 < timer <= 99
+                         or (isinstance(frames, int) and isinstance(self.frames, int) and frames > self.frames
+                             and timer == self.timer > 0))):
+                self.early_taken += 1
+                self.early_taken_at = now
+                self.notes.append(("pièce prise par le BIOS pendant le démarrage (son compte à rebours mis)",
+                                   "coin taken by the BIOS during the boot (its countdown set)"))
+            if isinstance(timer, int) and mvs == 0x80:
+                self.timer = timer
+            if isinstance(frames, int) and mvs == 0x80:
+                self.frames = frames
+            return self.credits
         if mvs == 0:                                     # a home console takes no coins / une console AES
             if not self.aes:
                 self.aes = True
@@ -131,32 +153,26 @@ class NeoCoins:
             self.notes.append(("BIOS Neo Geo en mode MVS (arcade) : crédits devinés d'après le BIOS",
                                "Neo Geo BIOS in MVS mode (arcade): credits guessed from the BIOS"))
             if self.credits is None:
-                early = sum(n for t, n in self.early if now - t < self.EARLY)
+                presses = [n for t, n in self.early if now - t < self.EARLY]
                 self.early = []
                 if req == TITLE and mode != IN_GAME:
-                    if early:
-                        # a coin pressed as the game booted and the title at once: the BIOS took it, on top of the credits
-                        # left from last time (test 22) / une pièce pendant le démarrage et l'écran titre : prise par le
-                        # BIOS, en plus des crédits restants
-                        self.credits = min(99, self.kept + early)
-                        self.coins += 1
-                        self.pressed_at = now
-                        self.notes.append((f"pièce prise par le BIOS au démarrage : {early}, en plus des {self.kept} restants",
-                                           f"coin taken by the BIOS at the boot: {early}, on top of the {self.kept} left"))
-                    else:
-                        # the title at once: credits are left, those of last time if there were more than one
-                        # l'écran titre tout de suite : il reste des crédits, ceux de la dernière fois s'il y en avait plus
-                        self.credits = max(1, self.kept)
+                    # the title at once: the BIOS took a coin as it booted (the game starts with none). Those seen on its
+                    # countdown count, with the credits of the presses in order (a right coin gives 2), at least one
+                    # / l'écran titre tout de suite : le BIOS a pris une pièce en démarrant. Celles vues sur son compte à
+                    # rebours comptent, avec les crédits des appuis dans l'ordre, au moins une
+                    taken = max(1, self.early_taken)
+                    self.credits = min(99, sum(presses[:taken]) + max(0, taken - len(presses)))
+                    self.coins += taken
+                    self.pressed_at = now
+                    self.notes.append((f"pièce(s) prise(s) par le BIOS au démarrage : {taken} (appuis : {len(presses)}), crédits {self.credits}",
+                                       f"coin(s) taken by the BIOS at the boot: {taken} (presses: {len(presses)}), credits {self.credits}"))
                 elif mode == IN_GAME:
-                    self.credits = self.kept             # a game going on: the best guess / une partie en cours
+                    self.credits = 0                     # a game going on: nothing known / une partie en cours
                 else:
                     self.credits = 0
-                    if early:
+                    if presses:
                         self.notes.append(("pièce pendant le démarrage ignorée par le BIOS (la démo) : pas comptée",
                                            "coin during the boot ignored by the BIOS (the demo): not counted"))
-                if self.credits == self.kept > 0:
-                    self.notes.append((f"crédits restants de la dernière fois : {self.kept}",
-                                       f"credits left from last time: {self.kept}"))
         if (req, mode) != self.seen:
             self.notes.append((f"BIOS Neo Geo : demande {req}, mode {mode}", f"Neo Geo BIOS: request {req}, mode {mode}"))
             self.seen = (req, mode)

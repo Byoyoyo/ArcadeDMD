@@ -103,6 +103,9 @@ PW, PH = 640, 418           # taille d'un panneau, écran de référence 1920 x 
 BTN_RIGHT, BTN_LEFT, BTN_A = 0x08, 0x04, 0x10      # octet des commandes du BIOS Neo Geo (P1CURRENT)
 
 
+FLAG_VEHICLE = {"mslug", "mslug2", "mslug4"}      # "vehicle" is a flag (bit 0), elsewhere a kind / un drapeau, sinon un genre
+
+
 def family(key):
     k = (key or "").lower()
     for name in ("mslugx", "mslug2", "mslug3", "mslug4", "mslug5", "mslug"):
@@ -731,6 +734,15 @@ class MetalSlugScene:
         """Abscisse d'un élément placé à lx du bord extérieur (gauche pour J1, droit pour J2)."""
         return x0 + self.S(lx) if side == "p1" else x0 + self.S(PW) - self.S(lx) - self.S(w)
 
+    def aboard(self, v):
+        """Whether a "vehicle" value means the soldier is in a vehicle: a flag byte (bit 0) in the first Metal Slug, 2 and
+        4, its other bits the soldier's state on foot (1.33 test 29, Seb's capture of 17:58: 2, 4, 6, 16, 22 while he moves
+        and shoots, read as the tank since test 21); a kind in the others; 255 is his block wiped between two lives.
+        / Un octet de bits dans le premier Metal Slug, le 2 et le 4, un genre dans les autres ; 255, son bloc effacé."""
+        if v is None or v == 255:
+            return False
+        return bool(int(v) & 1) if family(self.key) in FLAG_VEHICLE else v > 0
+
     def weapon(self, side, code):
         """(name, kind) of a weapon code: the name shown, the kind it is drawn and fired as. / (nom, genre) d'un code."""
         m = WEAPON_MAPS.get(family(self.key), MS1)
@@ -738,7 +750,9 @@ class MetalSlugScene:
             return None, None
         kind = m.get(int(code))
         if kind is None:
-            kind = "pistol" if int(code) in (0, 255) and family(self.key) not in WEAPON_MAPS else "gun"
+            # 255: the soldier's block wiped (dead, between two lives), the handgun as in 1.31 (test 29, Seb's capture of
+            # the first Metal Slug: ARME SPÉCIALE flashed at each death) / 255 : le bloc du soldat effacé, le pistolet
+            kind = "pistol" if int(code) in (0, 255) else "gun"
         name = tr(*NAMES[kind])
         if m is MS3 and int(code) in SUPER_CODES:
             name = "SUPER " + name
@@ -1097,7 +1111,7 @@ class MetalSlugScene:
         if inp is not None:
             P.move = 1.0 if inp & BTN_RIGHT else (-1.0 if inp & BTN_LEFT else 0.0)
         if quiet or not old:
-            P.tank = (cur["vehicle"] or 0) > 0                         # déjà à bord : sans fanfare / already aboard
+            P.tank = self.aboard(cur["vehicle"])                       # déjà à bord : sans fanfare / already aboard
             P.ride = self.ride_kind(cur["vehicle_kind"]) if P.tank else None
             if cur["weapon"] is not None:
                 P.weapon_kind = self.weapon(side, cur["weapon"])[1] or "pistol"
@@ -1175,8 +1189,12 @@ class MetalSlugScene:
         if v is None:
             P.tank, P.ride = False, None
             return
-        riding = v > 0
-        if vo is not None and riding != (vo > 0):
+        # a flag byte (bit 0) in the first Metal Slug, 2 and 4: its other bits are the soldier's state on foot (1.33 test
+        # 29, Seb's capture of 17:58: 2, 4, 6, 16, 22 while he moves and shoots, read as the tank since test 21); a kind in
+        # the others / un octet de bits dans le premier Metal Slug, le 2 et le 4, un genre dans les autres
+        aboard = self.aboard
+        riding = aboard(v)
+        if vo is not None and riding != aboard(vo):
             if riding:
                 P.ride = self.ride_kind(cur["vehicle_kind"])
                 self._tank_in(side, P, now)
@@ -1184,7 +1202,7 @@ class MetalSlugScene:
                 self._tank_out(side, P, now, old.get("vehicle_hp"))
         P.tank = riding
         P.ride = self.ride_kind(cur["vehicle_kind"]) if riding else None
-        if not riding or vo is None or vo <= 0:
+        if not riding or vo is None or not aboard(vo):
             return
         hp, ho = cur["vehicle_hp"], old.get("vehicle_hp")
         if hp is not None and ho is not None and hp < ho:
