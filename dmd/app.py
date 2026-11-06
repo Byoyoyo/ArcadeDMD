@@ -582,6 +582,8 @@ class Engine:
         self.retroarch = None
         self.derived = None
         self.coin_guess = None        # crédits d'une Neo Geo devinés d'après le BIOS (RetroArch)
+        self.presses = 0              # coin button presses in this game, for the capture (1.33 test 35) / appuis
+        self.marks = 0                # markers (a coin button held) in this game / repères
         self.coin_count = None        # credits counted from the coin buttons (no BIOS, credits not read) / crédits comptés
         self.coin_game = None         # the game they were counted for / le jeu pour lequel ils sont comptés
         self.coin_begin = {}          # value -> player who begins when it comes back from 0 / valeur -> joueur qui commence
@@ -707,6 +709,7 @@ class Engine:
             self.coin_guess = self.coin_guess if same else NeoCoins(mvs_rates(self.cfg))
         else:
             self.coin_guess = None
+        self.presses = self.marks = 0
         # a game without a BIOS that says who plays (CPS): player 1 plays while its values move (timer, health...)
         # un jeu sans BIOS qui dit qui joue (CPS) : le joueur 1 joue tant que ses valeurs bougent (chrono, vie...)
         act = g.get("activity") if isinstance(g.get("activity"), dict) else None
@@ -1041,6 +1044,8 @@ class Engine:
         if self.mode != "game" or self.source not in ("plugin", "retroarch") or self.state.paused:
             return
         self.state.update("coin_side", side, now)
+        self.presses += 1
+        self.state.update("coin_press", self.presses, now)                 # every press, with its time, in the capture
         where = side_word(side)
         how = ""
         if isinstance(gap, (int, float)) and gap < 5.0:                   # how the button is pressed (1.33 test 28)
@@ -1063,6 +1068,20 @@ class Engine:
             self.state.update("credits", c, now)
         self.log(tr(f"pièce à {where}, crédits devinés {c}", f"coin on the {where}, credits guessed {c}") + how)
 
+
+    def mark_in(self, side, now, held):
+        """A coin button held a good second (1.33 test 35): a marker in the capture, "here", and a screenshot asked of
+        RetroArch, so that the moment Seb means (a boss coming, a grenade late) is found again in the memory and on the
+        screen. / Un bouton pièce tenu une bonne seconde : un repère dans la capture et une capture d'écran."""
+        if self.mode != "game" or self.source not in ("plugin", "retroarch"):
+            return
+        self.marks += 1
+        self.state.update("marker", self.marks, now)
+        shot = self.retroarch.shot(tr("repère", "marker"), now) if self.retroarch is not None else False
+        self.log(tr(f"repère {self.marks} posé (bouton pièce {side_word(side)} tenu {held * 1000:.0f} ms)"
+                    + (", capture d'écran demandée" if shot else ""),
+                    f"marker {self.marks} set (coin button on the {side_word(side)} held {held * 1000:.0f} ms)"
+                    + (", screenshot asked" if shot else "")))
     def _hold_zero(self, k, v, now):
         """Score lu à 0 en pleine partie (l'objet du combattant n'est pas encore recréé entre deux rounds
         ou deux combats) : l'ancien score reste affiché, au plus "hold_zero" secondes."""
@@ -1204,6 +1223,9 @@ class Engine:
                 self.coin_in(side, now, gap, hold)
             for player in self.coin_buttons.poll_starts():
                 self.start_in(player, now)
+            marks = getattr(self.coin_buttons, "poll_marks", None)
+            for side, at, held in (marks() if marks else []):
+                self.mark_in(side, at, held)
         if self.tail:
             for ev in self.tail.poll():
                 self.handle_event(ev, now)

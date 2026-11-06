@@ -17,9 +17,12 @@ import zlib
 
 
 def load(path):
+    """The header and the snapshots, (seconds, memory). A file written as differences ("delta" in the header, 1.33
+    test 35) is rebuilt snapshot by snapshot. / L'en-tête et les instantanés, reconstruits s'ils sont des différences."""
     with open(path, "rb") as f:
         head = json.loads(f.readline().decode("utf-8"))
         snaps = []
+        prev = None
         while True:
             rec = f.read(12)
             if len(rec) < 12:
@@ -28,7 +31,11 @@ def load(path):
             z = f.read(n)
             if len(z) < n:
                 break
-            snaps.append((t, zlib.decompress(z)))
+            data = zlib.decompress(z)
+            if head.get("delta") and prev is not None and len(prev) == len(data):
+                data = (int.from_bytes(data, "big") ^ int.from_bytes(prev, "big")).to_bytes(len(data), "big")
+            prev = data
+            snaps.append((t, data))
     return head, snaps
 
 

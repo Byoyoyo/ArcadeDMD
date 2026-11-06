@@ -32,6 +32,7 @@ SIDES = (("left", LEFT), ("right", RIGHT))
 STARTS = (("start1", 0), ("start2", 1))   # START of player 1 and of player 2 / START du joueur 1 et du joueur 2
 MIN_GAP = 0.06               # two coins at least that far apart (fast presses all count, RetroArch counts them all)
 MIN_UP = 0.03                # released at least that long: a button that bounces makes one coin
+MARK_HOLD = 0.8                   # a coin button held this long marks a moment in the capture (1.33 test 35) / un repère
                              # au moins 60 ms entre deux pièces, et relâché au moins 30 ms : un rebond ne fait qu'une pièce
 AWAY = 3.0                   # a controller that is not there is tried again after that / manette absente
 # keys looked at by coin_buttons.bat: not the mouse buttons, nor the Shift, Ctrl and Alt that also come as left or right
@@ -173,6 +174,7 @@ class CoinButtons:
         self.last = {}
         self.up = {}                      # when each button was last released / quand chaque bouton a été relâché
         self.timing = {}                  # (gap, hold) of the last press of each button / dernier appui de chaque bouton
+        self.marks = collections.deque()  # a coin button held MARK_HOLD seconds: a marker (1.33 test 35) / un repère
         self.away = {}                    # controller not there: when to try again / manette absente : quand réessayer
         self.failed = False
         self.stop_ev = threading.Event()
@@ -222,6 +224,10 @@ class CoinButtons:
                and now - self.up.get(k, -9.0) >= MIN_UP)
         if not d and self.held.get(k):
             self.up[k] = now
+            # held a good second: a marker for the capture, "here" (Seb, test 35: when a boss comes, when a grenade blows
+            # up late) / tenu une bonne seconde : un repère dans la capture
+            if k in (LEFT, RIGHT) and now - self.last.get(k, now) >= MARK_HOLD:
+                self.marks.append((k, now, now - self.last[k]))
         if new:
             # how the button is pressed, for the log: the time since the press before and how long that one was held
             # (1.33 test 28, Seb: the game counted fewer coins than the button) / le temps depuis l'appui d'avant et
@@ -234,6 +240,13 @@ class CoinButtons:
             d = False                                    # a bounce stays up, the next press counts / un rebond
         self.held[k] = d
         return new
+
+    def poll_marks(self):
+        """The coin buttons held long enough for a marker, (side, when released, seconds held). / Les repères."""
+        out = []
+        while self.marks:
+            out.append(self.marks.popleft())
+        return out
 
     def scan(self, now):
         cache = {}                                       # each controller read once / chaque manette lue une fois

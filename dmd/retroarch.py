@@ -86,6 +86,16 @@ class RetroArchClient:
                 pass
             self.sock = None
 
+    def send(self, text):
+        """A command without an answer (SCREENSHOT, 1.33 test 35). / Une commande sans réponse."""
+        try:
+            if self.sock is None:
+                self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            self.sock.sendto((text + "\n").encode("ascii"), self.addr)
+            return True
+        except OSError:
+            return False
+
     def cmd(self, text, expect=None):
         """Envoie une commande, renvoie la réponse (texte) ou None sans réponse."""
         try:
@@ -599,7 +609,17 @@ def read_values(client, layout, defs, clusters=None, batch=False):
 # between two reads of the stick: RetroArch answers at its next image, the read itself keeps the pace of the game
 # entre deux lectures du stick : RetroArch répond à l'image suivante, la lecture suit d'elle-même le rythme du jeu
 FAST_POLL = 0.001
-DUMP_EVERY = 1.0              # seconds between two snapshots of the whole memory ("ram_dump") / entre deux instantanés
+DUMP_EVERY = 0.25             # seconds between two snapshots of the whole memory ("ram_dump") / entre deux instantanés
+SHOT_EVERY = 2.0              # seconds between two screenshots asked of RetroArch while a game is played / entre deux
+SHOT_ON = ("lives", "lives_p2", "mission", "vehicle", "boss_flag", "stage_state")   # and when one of these changes
+SHOT_GAP = 0.5                # not two screenshots closer than this / pas deux captures plus proches
+
+
+def _secs(v, default, least):
+    """A duration setting, or its default. / Une durée du réglage, ou sa valeur par défaut."""
+    if isinstance(v, (int, float)) and not isinstance(v, bool) and v > 0:
+        return max(least, float(v))
+    return default
 
 
 class RetroArchSource:
@@ -612,6 +632,16 @@ class RetroArchSource:
         self.cfg = cfg
         self.client = RetroArchClient(cfg.get("host", "127.0.0.1"), cfg.get("port", DEFAULT_PORT))
         self.poll = max(0.05, float(cfg.get("poll_ms", 100)) / 1000.0)
+        # the whole memory recorded for every game, and screenshots asked of RetroArch (1.33 test 35, Seb: one game
+        # should be enough to find every address of a game) / toute la mémoire et des captures d'écran pour tous les jeux
+        dump = cfg.get("ram_dump") if isinstance(cfg.get("ram_dump"), dict) else {}
+        self.dump_all = bool(dump.get("enabled", False))
+        self.dump_every = _secs(dump.get("every"), DUMP_EVERY, 0.05)
+        shots = cfg.get("screenshots") if isinstance(cfg.get("screenshots"), dict) else {}
+        self.shots_on = bool(shots.get("enabled", False))
+        self.shot_every = _secs(shots.get("every"), SHOT_EVERY, 0.5)
+        self.shot_values = tuple(shots.get("on")) if isinstance(shots.get("on"), list) else SHOT_ON
+        self.shot_dir = str(shots.get("dir") or "")
         self.stop_ev = threading.Event()
         self.session = None
         self.seen = False
@@ -744,8 +774,9 @@ class RetroArchSource:
                         "fast": fast, "fast_clusters": make_clusters(fast) if fast else [],
                         "last_hb": 0.0, "paused": False, "fails": 0, "warned": False, "retry_at": 0.0,
                         "core": core, "mt": getattr(self.library, "mtimes", {}).get(key) if key else None,
-                        "dump": None, "dump_at": 0.0}
-        if isinstance(game, dict) and game.get("ram_dump"):
+                        "dump": None, "dump_at": 0.0, "dump_prev": None,
+                        "shot_at": -9.0, "shots": 0, "shot_seen": None, "shot_check": 0.0}
+        if self.dump_all or (isinstance(game, dict) and game.get("ram_dump")):
             self._dump_open(st["content"], key, layout)
         title = own or game_title(game, parent or st["content"])
         ev = {"t": "start", "game": key or "", "system": st["content"], "description": title,
@@ -785,6 +816,10 @@ class RetroArchSource:
 
     def _end(self, why):
         self._dump_close()
+        s = self.session
+        if s and s.get("shots"):
+            self.log(tr(f"capture d'écran : {s['shots']} demandée(s) à RetroArch pendant la partie",
+                        f"screenshot: {s['shots']} asked of RetroArch during the game"))
         self.session = None
         self._emit({"t": "stop"})
         self.log(tr(f"RetroArch : fin de partie ({why})", f"RetroArch: game ended ({why})"))
@@ -804,16 +839,21 @@ class RetroArchSource:
         except OSError as e:
             self.log(tr(f"mémoire : impossible d'écrire dans {folder} ({e})", f"memory: cannot write in {folder} ({e})"))
             return
+        # each record holds the bytes that differ from the record before (XOR), zlib'd: a few KB four times a second
+        # instead of 64 KB once ("delta" in the header, 1.33 test 35) / chaque enregistrement, la différence avec le
+        # précédent, compressée
         head = {"version": "1.33.0", "game": key, "rom": rom, "date": time.strftime("%Y-%m-%d %H:%M:%S"),
-                "base": layout.base, "size": layout.size, "every": DUMP_EVERY}
+                "base": layout.base, "size": layout.size, "every": self.dump_every, "delta": True}
         f.write((json.dumps(head) + "\n").encode("utf-8"))
         self.session["dump"] = {"f": f, "path": path, "t0": time.monotonic(), "n": 0}
-        self.log(tr(f"mémoire : toute la mémoire de {rom} enregistrée chaque seconde dans {path} (pour trouver ses boss)",
-                    f"memory: the whole memory of {rom} written once a second to {path} (to find its bosses)"))
+        self.session["dump_prev"] = None
+        self.log(tr(f"mémoire : toute la mémoire de {rom} enregistrée {self.dump_every:g} s par {self.dump_every:g} s dans {path} "
+                    f"(pour retrouver ce que le jeu range où)",
+                    f"memory: the whole memory of {rom} written every {self.dump_every:g} s to {path} (to find where the game keeps what)"))
 
     def _dump_tick(self, s, now):
         d = s.get("dump")
-        if not d or now - s["dump_at"] < DUMP_EVERY:
+        if not d or now - s["dump_at"] < self.dump_every:
             return
         s["dump_at"] = now
         lay = s["layout"]
@@ -824,14 +864,77 @@ class RetroArchSource:
             if not got:
                 return
             raw += got[0][1]
+        raw = bytes(raw)
+        prev = s.get("dump_prev")
+        if prev is None or len(prev) != len(raw):
+            diff = raw
+        else:                                                          # XOR of the two, in one go / en une fois
+            diff = (int.from_bytes(raw, "big") ^ int.from_bytes(prev, "big")).to_bytes(len(raw), "big")
+        s["dump_prev"] = raw
         try:
-            z = zlib.compress(bytes(raw), 6)
+            z = zlib.compress(diff, 6)
             d["f"].write(struct.pack("<dI", now - d["t0"], len(z)) + z)
             d["n"] += 1
             if d["n"] % 10 == 0:
                 d["f"].flush()
         except OSError:
             self._dump_close()
+
+    # ------------------------------------------------------------------ screenshots asked of RetroArch / les captures d'écran
+    def shot(self, why, now=None):
+        """Asks RetroArch for a screenshot (its SCREENSHOT command on the same port as the memory reads): the picture lands
+        in its screenshots folder with the date and time in its name, to see what happened on the screen when a byte
+        moved (1.33 test 35). / Demande une capture d'écran à RetroArch : l'image tombe dans son dossier avec l'heure."""
+        s = self.session
+        if not s or not self.shots_on:
+            return False
+        now = time.monotonic() if now is None else now
+        if now - s["shot_at"] < SHOT_GAP:
+            return False
+        s["shot_at"] = now
+        if not self.client.send("SCREENSHOT"):
+            return False
+        s["shots"] += 1
+        if s["shots"] == 1:
+            self.log(tr(f"capture d'écran : première demandée à RetroArch ({why})", f"screenshot: the first asked of RetroArch ({why})"))
+            if self.shot_dir:
+                s["shot_seen"] = self._shot_files()
+                s["shot_check"] = now + 3.0
+        return True
+
+    def _shot_files(self):
+        try:
+            return {n for n in os.listdir(self.shot_dir) if n.lower().endswith(".png")}
+        except OSError:
+            return None
+
+    def _shot_tick(self, s, vals, changed, now):
+        """A screenshot every shot_every seconds while somebody plays, and at once when one of the values that mark a
+        moment changes (a life lost, a mission, a vehicle, the game's flags). / Une toutes les shot_every secondes
+        pendant qu'on joue, et à chaque changement d'une des valeurs qui marquent un moment."""
+        if not self.shots_on:
+            return
+        if s["shot_check"] and now >= s["shot_check"]:                # the first one: did a file appear? / un fichier ?
+            s["shot_check"] = 0.0
+            seen = s.get("shot_seen")
+            files = self._shot_files()
+            if files is None:
+                self.log(tr(f"capture d'écran : le dossier {self.shot_dir} ne se lit pas", f"screenshot: the folder {self.shot_dir} cannot be read"))
+            elif seen is not None and files - seen:
+                self.log(tr(f"capture d'écran : vue dans {self.shot_dir} ({sorted(files - seen)[0]})",
+                            f"screenshot: seen in {self.shot_dir} ({sorted(files - seen)[0]})"))
+            else:
+                self.log(tr(f"capture d'écran : aucun fichier nouveau dans {self.shot_dir} 3 s après la demande "
+                            "(le réglage screenshot_directory de RetroArch, ou ses commandes réseau)",
+                            f"screenshot: no new file in {self.shot_dir} 3 s after the request (RetroArch's screenshot_directory, or its network commands)"))
+        playing = True
+        modes = [vals.get(k) for k in ("p1_mode", "p2_mode") if k in vals]
+        if modes:
+            playing = any(m in (1, 2) for m in modes)                  # a Neo Geo: somebody plays / quelqu'un joue
+        if any(k in changed for k in self.shot_values):
+            self.shot(", ".join(k for k in self.shot_values if k in changed), now)
+        elif playing and now - s["shot_at"] >= self.shot_every:
+            self.shot("période", now)
 
     def _dump_close(self):
         d = (self.session or {}).get("dump") if self.session else None
@@ -877,6 +980,7 @@ class RetroArchSource:
                     s["last"].update(changed)
                     self._emit({"t": "v", "v": changed, "at": time.monotonic()})
                 self._dump_tick(s, now)
+                self._shot_tick(s, vals, changed, now)
         if now - s["last_hb"] >= 2.0:
             s["last_hb"] = now
             self._emit({"t": "hb", "v": dict(s["last"])})
