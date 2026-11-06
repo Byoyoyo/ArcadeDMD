@@ -611,6 +611,8 @@ class Player:
         self.live = []                  # grenades of the HD screen waiting for the game's own to blow up / en attente
         self.out_ok = False             # the game's grenades on screen are read and follow the throws / suivies
         self.early = 0                  # the game's grenade blew up before ours left the hand / partie trop tôt
+        self.bomb_drop = None           # bombs down while the game counted no grenade leaving: (when, how many, from)
+                                        # a reset unless its counter follows at once / bombes en moins sans grenade partie
         self.tank = False               # dans un véhicule / in a vehicle
         self.ride = None                # which one: tank, camel, flyer... (VEHICLES) / lequel
         self.tank_t = -99.0             # monté dans le char / got in
@@ -655,6 +657,7 @@ class MetalSlugScene:
         self.coin_sprite = "coin"
         self.coin_xy = None                      # the credits' coin on screen, where inserted coins land / où tombent les pièces
         self.boom_t = -99.0                      # when the last grenade blew up / quand la dernière grenade a explosé
+        self.thrown = 0                          # grenades thrown on the HD screen, for the replay / lancées, pour le replay
         self.booms = 0                           # (tests)
         self.coin_box = None
         self.in_attract = False
@@ -1387,23 +1390,45 @@ class MetalSlugScene:
                 P.weapon_t = now
                 self.fx.text(f"+{d}", self._ammo_xy(side)[0], self.S(250), GREEN, 40, life=1.0)
         b, bo = cur["bombs"], old.get("bombs")
+        go, goo = cur["grenades_out"], old.get("grenades_out")
+        if go is not None and go >= 250:                               # the counter wiped with the block / effacé
+            go = None
+        counted = go is not None and goo is not None and goo < 250     # the game counts its grenades on screen / comptées
+        thrown = False
         if b is not None and bo is not None:
             if b < bo:
-                for i in range(min(4, bo - b)):
-                    P.flying += 1
-                    self.fx.later(i * 0.16, self._throw, side, P, bo - i - 1)
+                if counted and go <= goo:
+                    # bombs down while no grenade left the hand: the game put them back to 10 at a new life or a new
+                    # mission (Metal Slug 2, Seb's game of 12:15: 15 to 10 at the respawn, 20 to 10 at mission 2), not
+                    # throws, unless its counter rises in the next reading / les bombes remises à 10, pas des lancers
+                    held = P.bomb_drop[1] if P.bomb_drop is not None else 0
+                    P.bomb_drop = (now, min(4, held + bo - b), P.bomb_drop[2] if held else bo)
+                else:
+                    self._throws(side, P, min(4, bo - b), bo)
+                    thrown = True
             elif b > bo:
                 P.bomb_add = (now, b - bo)
                 self.fx.text(tr(f"+{b - bo} BOMBES", f"+{b - bo} BOMBS"), self._bomb_xy(side, 0)[0] + (self.S(120) if side == "p1" else -self.S(120)),
                              self.S(340), GOLD, 36, life=1.2)
-        go, goo = cur["grenades_out"], old.get("grenades_out")
-        if go is not None and goo is not None:
+        if counted:
             if go > goo:                                   # the game's grenade left the hand: wait for its explosion
+                if P.bomb_drop is not None:                # the bombs went down just before: those were throws / lancers
+                    t0, n, before = P.bomb_drop
+                    P.bomb_drop = None
+                    if now - t0 <= 0.5 and not thrown:
+                        P.early += max(0, n - (go - goo))  # more bombs gone than grenades in the air: those blew up
+                        self._throws(side, P, n, before)   # already, at the hand / déjà explosées, à la main
                 P.out_ok = True                            # la grenade du jeu est partie : on attend son explosion
                 for g in P.live:
                     g.life = max(g.life, self.fx.now - g.t0 + self.GRENADE_WAIT)
             elif go < goo and P.out_ok:                    # it blew up, on an enemy or at its second bounce / elle explose
                 self._explode_live(P, goo - go)
+        if P.bomb_drop is not None and now - P.bomb_drop[0] > 0.5:
+            t0, n, before = P.bomb_drop                    # no grenade followed / aucune grenade n'a suivi
+            P.bomb_drop = None
+            if b != 10:                                    # not the game's 10 of a new life or mission: the grenades left
+                P.early += n                               # and blew up within one reading, at the hand / parties et
+                self._throws(side, P, n, before)           # explosées entre deux lectures : explosion à la main
         pr, po = cur["prisoners"], old.get("prisoners")
         if pr is not None and po is not None and pr > po:
             P.prison_t = now
@@ -1648,6 +1673,12 @@ class MetalSlugScene:
         self.fx.small_blast(x, y, 1.4, "back")
         self.fx.shake(4, 0.2)
 
+    def _throws(self, side, P, n, bombs_before):
+        """n grenades leave the row one after the other, the last icons first. / n grenades partent l'une après l'autre."""
+        for i in range(n):
+            P.flying += 1
+            self.fx.later(i * 0.16, self._throw, side, P, bombs_before - i - 1)
+
     def _throw(self, side, P, index):
         """The grenade leaves its row in an arc, bounces once and blows up as it lands again, as in the game (about a second
         after the throw). When the game's grenades on screen are read, it waits for the game's own to blow up instead,
@@ -1658,6 +1689,7 @@ class MetalSlugScene:
         tx = self.W / 2 + d * self.rng.uniform(-80, 220) * self.s
         ty = self.H * 0.74 + self.rng.uniform(-8, 26) * self.s
         P.bomb_t = self.fx.now
+        self.thrown += 1
         self.fx.glow(x, y, 6, 40, GOLD, 0.25)
         P.flying = max(0, P.flying - 1)
         if P.early > 0:                                    # the game's one already blew up / celle du jeu a déjà explosé

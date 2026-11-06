@@ -1,4 +1,4 @@
-# {"version": "1.33.0", "game": "mslug2", "system": "mslug2", "parent": null, "title": "Metal Slug 2", "date": "2026-11-06 12:15:44", "values": ["_hps", "_veh1", "_veh2", "ammo", "ammo_p2", "bios_mode", "bios_mvs", "bios_request", "bios_timer", "bombs", "bombs_p2", "credits", "end_ptr", "form", "form_p2", "lives", "lives_p2", "mission", "p1_chr", "p1_input", "p1_mode", "p2_chr", "p2_input", "p2_mode", "prisoners", "prisoners_p2", "score", "score_p2", "time", "vehicle", "vehicle_ammo", "vehicle_ammo_p2", "vehicle_hp", "vehicle_hp_p2", "vehicle_kind", "vehicle_kind_p2", "vehicle_p2", "weapon", "weapon_p2"], "note": "lives and lives_p2 replaced by the game's own bytes from the memory recording of the same game (the capture read them one less, 1.33 test 37); Seb's game of 12:15 with its 58 screenshots of 304x224, the camel from 113 s"}
+# {"version": "1.33.0", "game": "mslug2", "system": "mslug2", "parent": null, "title": "Metal Slug 2", "date": "2026-11-06 12:15:44", "values": ["_hps", "_veh1", "_veh2", "ammo", "ammo_p2", "bios_mode", "bios_mvs", "bios_request", "bios_timer", "bombs", "bombs_p2", "credits", "end_ptr", "form", "form_p2", "grenades_out", "grenades_out_p2", "lives", "lives_p2", "mission", "p1_chr", "p1_input", "p1_mode", "p2_chr", "p2_input", "p2_mode", "prisoners", "prisoners_p2", "score", "score_p2", "time", "vehicle", "vehicle_ammo", "vehicle_ammo_p2", "vehicle_hp", "vehicle_hp_p2", "vehicle_kind", "vehicle_kind_p2", "vehicle_p2", "weapon", "weapon_p2"], "note": "grenades_out, grenades_out_p2 added from the memory snapshots of the same game (ram_to_capture.py); the grenades on screen (0x10C340) added from the same recording, 1.33 test 38"}
 0.001 p1_mode 85
 0.001 p2_mode 85
 0.001 bios_mode 85
@@ -63,9 +63,13 @@
 0.450 end_ptr 4934
 0.937 lives 18
 0.937 lives_p2 19
+0.937 grenades_out 195
+0.937 grenades_out_p2 64
 1.710 coin_side 0
 1.710 coin_press 1
 2.671 coin_press 2
+3.370 grenades_out 0
+3.370 grenades_out_p2 0
 3.410 bios_frames 0
 3.530 p1_mode 0
 3.530 p2_mode 0
@@ -214,12 +218,14 @@
 26.299 p1_input 8
 26.435 time 57
 26.435 p1_input 24
+26.452 grenades_out 1
 26.598 p1_input 8
 27.216 score 500
 27.216 p1_input 24
 27.675 score 600
 28.115 score 700
 28.115 p1_input 8
+28.135 grenades_out 0
 28.298 score 800
 28.298 p1_input 40
 28.435 prisoners 1
@@ -423,6 +429,7 @@
 49.725 p1_input 72
 49.850 bombs 18
 49.850 p1_input 0
+49.874 grenades_out 1
 50.045 bombs 17
 50.045 p1_input 64
 50.165 score 6400
@@ -431,10 +438,12 @@
 50.345 _hps [0, 100, 0, 0, 16, 30, 0, 20, 0, 0, 70, 10, 0, 0, 0, 60, 40, 400, 30, 50, 0, 80, 0, 90, 0, 0, 0, 30, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 50.466 bombs 15
 50.466 p1_input 0
+50.484 grenades_out 2
 50.645 p1_input 8
 50.767 score 6600
 50.767 ammo 210
 50.767 p1_input 24
+50.784 grenades_out 1
 50.930 score 6700
 50.930 ammo 209
 50.930 _hps [0, 100, 0, 0, 16, 30, 0, 20, 0, 0, 70, 10, 0, 0, 0, 60, 40, 390, 30, 50, 0, 80, 0, 90, 0, 0, 0, 30, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -446,6 +455,7 @@
 51.545 ammo 203
 51.545 p1_input 10
 51.545 _hps [0, 100, 0, 0, 16, 20, 0, 20, 0, 0, 70, 10, 0, 0, 0, 60, 40, 230, 30, 50, 0, 80, 0, 90, 0, 0, 0, 30, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+51.553 grenades_out 0
 51.706 score 7700
 51.706 ammo 201
 51.706 _hps [0, 100, 0, 0, 16, 20, 0, 20, 0, 0, 70, 10, 0, 0, 0, 60, 40, 210, 30, 50, 0, 80, 0, 90, 0, 0, 0, 30, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -819,12 +829,14 @@
 87.005 _hps [0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 290, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 87.146 bombs 7
 87.146 p1_input 68
+87.166 grenades_out 1
 87.326 ammo 3
 87.326 p1_input 33
 87.447 score 17500
 87.447 bombs 6
 87.447 p1_input 97
 87.447 _hps [0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 280, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+87.467 grenades_out 2
 87.626 ammo 65535
 87.626 weapon 255
 87.626 _veh1 "000000000000000000000000000000000000000000000000000000000000020000000300"
@@ -832,10 +844,12 @@
 87.626 _hps [0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 280, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 87.626 form 0
 87.746 p1_input 53
+87.767 grenades_out 1
 87.926 p1_input 37
 88.048 p1_input 97
 88.246 p1_input 0
 88.246 _hps [0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 280, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+88.684 grenades_out 0
 89.865 _hps [0, 10, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 280, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 90.165 prisoners 0
 90.165 time 60
@@ -883,6 +897,7 @@
 93.566 ammo 174
 93.566 p1_input 69
 93.566 _hps [0, 10, 0, 0, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 280, 0, 10, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+93.583 grenades_out 1
 93.746 score 18100
 93.746 p1_input 121
 93.746 _hps [0, 10, 0, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 280, 0, 10, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -890,6 +905,7 @@
 93.866 ammo 173
 93.866 p1_input 88
 93.866 _hps [0, 10, 0, 0, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 280, 0, 10, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+93.883 grenades_out 0
 94.030 ammo 171
 94.030 p1_input 24
 94.166 score 18300
@@ -909,6 +925,7 @@
 94.948 ammo 163
 94.948 p1_input 17
 94.948 _hps [0, 0, 0, 0, 30, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 280, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+94.966 grenades_out 1
 95.126 ammo 162
 95.247 ammo 160
 95.247 p1_input 1
@@ -916,6 +933,7 @@
 95.426 ammo 159
 95.548 ammo 157
 95.548 p1_input 17
+95.566 grenades_out 0
 95.726 score 18900
 95.726 ammo 156
 95.726 _hps [0, 0, 0, 0, 10, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 280, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]

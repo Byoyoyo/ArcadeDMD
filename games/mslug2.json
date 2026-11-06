@@ -55,6 +55,16 @@
         "type": "u8",
         "note": "player 2 bombs"
       },
+      "grenades_out": {
+        "addr": "0x10C340",
+        "type": "u8",
+        "note": "player 1 grenades on screen: one more as a grenade leaves the hand, one less as it blows up, on an enemy or at its second bounce (found in the memory recordings of Seb's games of 6 November 09:14 and 12:15: 1 or 2 right after each bombs decrease, back to 0 within 0.3 to 1.5 s, 0 the rest of the time; the status block interleaves the players, player 1 on the odd RetroAchievements offsets, 0xC341 here; 1.33 test 38)"
+      },
+      "grenades_out_p2": {
+        "addr": "0x10C341",
+        "type": "u8",
+        "note": "player 2 grenades on screen, the even byte beside player 1's as the bombs (0xC348 / 0xC349), to confirm in a two-player game"
+      },
       "ammo": {
         "addr": "0x10C34C",
         "type": "be",

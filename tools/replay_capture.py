@@ -198,6 +198,11 @@ def replay(path, show_values=False, step=1 / 60, frames=(), out_dir=None):
                     if shown is not None and shown != state["scene"].get(("lives", pside)):
                         state["scene"][("lives", pside)] = shown
                         note(t, f"  {pside} vies : {shown}")
+                for key, word in (("thrown", "grenade lancée"), ("booms", "grenade explose")):   # the grenades / les grenades
+                    cnt = getattr(sc, key, None)
+                    if cnt is not None and cnt != state["scene"].get(key, 0):
+                        state["scene"][key] = cnt
+                        note(t, f"  {word}")
                 ct = getattr(sc, "complete_t", None)                     # MISSION COMPLETE, when the scene showed it
                 if ct is not None and ct > 0 and ct != state["scene"].get("_complete"):   # / le bandeau de fin de mission
                     state["scene"]["_complete"] = ct
