@@ -71,8 +71,16 @@ VEHICLES = {"mslug": {1: "tank"},
             "mslug5": {4: "tank", 6: "flyer", 14: "slugnoid"}}
 VEHICLE_NAMES = {"tank": ("CHAR", "TANK"), "camel": ("CAMEL SLUG", "CAMEL SLUG"), "slugnoid": ("SLUGNOID", "SLUGNOID"),
                  "flyer": ("SLUG FLYER", "SLUG FLYER"), "copter": ("SLUG COPTER", "SLUG COPTER"), "mariner": ("SLUG MARINER", "SLUG MARINER"),
-                 "drill": ("DRILL SLUG", "DRILL SLUG"), "astro": ("ASTRO SLUG", "ASTRO SLUG"), "vehicle": ("VÉHICULE", "VEHICLE")}
-RIDE_IN = {"tank": ("EN CHAR !", "TANK!"), "camel": ("EN SELLE !", "SADDLE UP!")}
+                 "drill": ("DRILL SLUG", "DRILL SLUG"), "astro": ("ASTRO SLUG", "ASTRO SLUG"),
+                 # the other rides of the series, for the owner's pictures (sprites/mslug/<name>.png) until their codes are
+                 # read in a game (1.33 test 36) / les autres montures de la série, pour ses images, en attendant leurs codes
+                 "elephant": ("ELEPHANT SLUG", "ELEPHANT SLUG"), "ostrich": ("OSTRICH SLUG", "OSTRICH SLUG"),
+                 "bradley": ("BRADLEY", "BRADLEY"), "mobile": ("SLUG MOBILE", "SLUG MOBILE"), "gunner": ("SLUG GUNNER", "SLUG GUNNER"),
+                 "claw": ("METAL CLAW", "METAL CLAW"), "walker": ("WALKING MACHINE", "WALKING MACHINE"), "armor": ("REBEL ARMOR", "REBEL ARMOR"),
+                 "vehicle": ("VÉHICULE", "VEHICLE")}
+MOUNTS = ("camel", "elephant", "ostrich")        # animals: a mount, no energy, no blast when left / des montures
+RIDE_IN = {"tank": ("EN CHAR !", "TANK!"), "camel": ("EN SELLE !", "SADDLE UP!"), "elephant": ("EN SELLE !", "SADDLE UP!"),
+           "ostrich": ("EN SELLE !", "SADDLE UP!")}
 RIDE_IN_ANY = ("À BORD !", "ABOARD!")
 RIDE_LOST = {"tank": ("CHAR DÉTRUIT", "TANK DESTROYED")}
 RIDE_LOST_ANY = ("VÉHICULE DÉTRUIT", "VEHICLE DESTROYED")
@@ -1341,7 +1349,8 @@ class MetalSlugScene:
         if inp is not None:
             P.move = 1.0 if inp & BTN_RIGHT else (-1.0 if inp & BTN_LEFT else 0.0)
         if quiet or not old:
-            P.tank = self.aboard(cur["vehicle"])                       # déjà à bord : sans fanfare / already aboard
+            P.tank = self.aboard(cur["vehicle"]) or self.ride_kind(cur["vehicle_kind"]) in MOUNTS   # déjà à bord : sans
+                                                                       # fanfare / already aboard, quietly
             P.ride = self.ride_kind(cur["vehicle_kind"]) if P.tank else None
             if cur["weapon"] is not None:
                 P.weapon_kind = self.weapon(side, cur["weapon"])[1] or "pistol"
@@ -1423,15 +1432,22 @@ class MetalSlugScene:
         # 29, Seb's capture of 17:58: 2, 4, 6, 16, 22 while he moves and shoots, read as the tank since test 21); a kind in
         # the others / un octet de bits dans le premier Metal Slug, le 2 et le 4, un genre dans les autres
         aboard = self.aboard
-        riding = aboard(v)
-        if vo is not None and riding != aboard(vo):
+        # the camel is a mount, not a vehicle to the game: its flag stays 0 while the kind says camel (Metal Slug 2, Seb's
+        # game of 6 November 09:14 on the camel from 118 s, nothing shown) / le chameau est une monture : le drapeau
+        # reste à 0, seul le genre le dit
+        kind = self.ride_kind(cur["vehicle_kind"])
+        riding = aboard(v) or kind in MOUNTS
+        was = None
+        if vo is not None:
+            was = aboard(vo) or self.ride_kind(old.get("vehicle_kind")) in MOUNTS
+        if was is not None and riding != was:
             if riding:
-                P.ride = self.ride_kind(cur["vehicle_kind"])
+                P.ride = kind
                 self._tank_in(side, P, now)
             else:
                 self._tank_out(side, P, now, old.get("vehicle_hp"))
         P.tank = riding
-        P.ride = self.ride_kind(cur["vehicle_kind"]) if riding else None
+        P.ride = kind if riding else None
         if not riding or vo is None or not aboard(vo):
             return
         hp, ho = cur["vehicle_hp"], old.get("vehicle_hp")
@@ -1454,8 +1470,8 @@ class MetalSlugScene:
 
     def _tank_out(self, side, P, now, hp):
         P.weapon_t = now                                              # l'arme revient dans la carte / the weapon comes back
-        if hp is not None and hp > 0:
-            return
+        if (hp is not None and hp > 0) or P.ride in MOUNTS:           # left whole, or a mount (no energy): no blast
+            return                                                     # / quitté entier, ou le chameau : rien n'explose
         sx, sy = self._slot_xy(side)                                   # détruit : il explose / destroyed: it blows up
         cx, cy = sx + self.S(95), sy + self.S(54)
         self.fx.explosion(cx, cy, 1.4)

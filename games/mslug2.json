@@ -265,6 +265,19 @@
         "addr": "0x10FD9C",
         "type": "u8",
         "note": "Neo Geo BIOS, player 2 stick and buttons (P2CURRENT), same bits"
+      },
+      "_hps": {
+        "addr": "0x101782",
+        "type": "u16s",
+        "count": 64,
+        "stride": 168,
+        "note": "the lives of the game's objects (1.33 test 36, from Seb's memory recording of 6 November 09:14 with its screenshots): a table of 168-byte entries, the life word 58 bytes after a multiple of 168 from the base; The Keesi II came with 3000 in one entry and its two pods with 1000 each, the big enemies hold 200 to 480, the soldiers 10 to 100; an empty entry holds 0 (the RetroAchievements note 'Entity left wing hp' at 0x10269A is one entry of it)"
+      },
+      "end_ptr": {
+        "addr": "0x101346",
+        "type": "be",
+        "bytes": 2,
+        "note": "the game's state routine (1.33 test 36, Seb's recording of 09:14 against his screenshots): 63188 while playing, 62696 on the RECAPTURED PRISONER tally, 62764 while MISSION n COMPLETE is written on the screen, 62798 on the fade, 62380 on the mission start screen, 8522 on the title"
       }
     }
   },
@@ -2172,6 +2185,33 @@
         "ERI",
         "FIO"
       ]
+    },
+    "boss_name": {
+      "value": "mission",
+      "names": {
+        "1": "THE KEESI II",
+        "2": "AESHI NERO",
+        "3": "DRAGON NOSUKE",
+        "4": "BIG SHIEE",
+        "5": "HOZMI",
+        "6": "RUGNAME"
+      }
+    },
+    "mission_done": {
+      "eq": [
+        "end_ptr",
+        62764
+      ]
     }
+  },
+  "hd": {
+    "boss_slots": [
+      "_hps"
+    ],
+    "boss_life": {
+      "1": 3000
+    },
+    "boss_min": 2000,
+    "note": "where the bosses' lives are: the whole table of objects (_hps). The entry filled with the life the mission's boss starts with (boss_life, from Seb's recording: The Keesi II 3000) is the boss, named after the mission; in a mission not listed yet, a life of boss_min or more; any other life of 200 or more is a big enemy with a quiet bar (the pods of The Keesi II, 1000 each). mission_done (the game's state routine on its MISSION COMPLETE screen) shows MISSION COMPLETE"
   }
 }
