@@ -2053,8 +2053,8 @@ class MetalSlugScene:
 
     def _draw_weapon(self, screen, side, P, x0, vals, now):
         hd, S, pg = self.hd, self.S, self.pg
-        if P.tank and (_n(self.get(vals, side, "vehicle")) or 0) > 0:
-            self._draw_tank(screen, side, P, x0, vals, now)
+        if P.tank:                                                     # aboard, a mount included (the camel: the game's
+            self._draw_tank(screen, side, P, x0, vals, now)            # flag stays 0, Seb's game of 12:15, test 37)
             return
         code = _n(self.get(vals, side, "weapon"))
         if code is None:
@@ -2120,8 +2120,9 @@ class MetalSlugScene:
         """The tank in the weapon card: its drawing, its energy in hits, its cannon shells. When it has no energy left it
         is about to blow up. / Le char dans la carte de l'arme : son dessin, son énergie en coups, ses obus."""
         hd, S, pg = self.hd, self.S, self.pg
-        hp = _n(self.get(vals, side, "vehicle_hp"))
-        shells = _n(self.get(vals, side, "vehicle_ammo"))
+        mount = P.ride in MOUNTS                                       # an animal: no energy, no shells / une monture
+        hp = None if mount else _n(self.get(vals, side, "vehicle_hp"))
+        shells = None if mount else _n(self.get(vals, side, "vehicle_ammo"))
         tt = now - P.tank_t
         hit = max(0.0, 1 - (now - P.tank_hit_t) / 0.4)
         sx, sy = self._slot_xy(side)

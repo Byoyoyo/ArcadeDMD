@@ -190,6 +190,14 @@ def replay(path, show_values=False, step=1 / 60, frames=(), out_dir=None):
                     if pr != state["scene"].get("_pr_" + side) and sc.playing(P):
                         state["scene"]["_pr_" + side] = pr
                         note(t, f"  {side} prisonniers = {pr}")
+                for pside, P in getattr(sc, "players", {}).items():      # the helmets shown, or LAST LIFE / les casques
+                    nl = P.seen.get("lives") if getattr(P, "seen", None) else None
+                    quiet = 1000.0 + t < P.sync_until                      # the scene's clock runs 1000 s ahead / l'horloge
+                    last = nl is not None and nl <= 0 and P.mode == 1 and not quiet
+                    shown = "dernière vie" if last else (None if nl is None or quiet else f"{int(nl)} casque(s)")
+                    if shown is not None and shown != state["scene"].get(("lives", pside)):
+                        state["scene"][("lives", pside)] = shown
+                        note(t, f"  {pside} vies : {shown}")
                 ct = getattr(sc, "complete_t", None)                     # MISSION COMPLETE, when the scene showed it
                 if ct is not None and ct > 0 and ct != state["scene"].get("_complete"):   # / le bandeau de fin de mission
                     state["scene"]["_complete"] = ct

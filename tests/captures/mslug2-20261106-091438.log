@@ -1,4 +1,6 @@
-# {"version": "1.33.0", "game": "mslug2", "system": "mslug2", "parent": null, "title": "Metal Slug 2", "date": "2026-11-06 09:14:38", "values": ["_hps", "_veh1", "_veh2", "ammo", "ammo_p2", "bios_mode", "bios_mvs", "bios_request", "bios_timer", "bombs", "bombs_p2", "credits", "end_ptr", "form", "form_p2", "lives", "lives_p2", "mission", "p1_chr", "p1_input", "p1_mode", "p2_chr", "p2_input", "p2_mode", "prisoners", "prisoners_p2", "score", "score_p2", "time", "vehicle", "vehicle_ammo", "vehicle_ammo_p2", "vehicle_hp", "vehicle_hp_p2", "vehicle_kind", "vehicle_kind_p2", "vehicle_p2", "weapon", "weapon_p2"], "note": "_hps and end_ptr added from the memory recording of the same game (runtime/captures/mslug2-20261106-091438.ram, four snapshots a second), the first game recorded whole with its screenshots (1.33 test 36)"}
+# {"version": "1.33.0", "game": "mslug2", "system": "mslug2", "parent": null, "title": "Metal Slug 2", "date": "2026-11-06 09:14:38", "values": ["_hps", "_veh1", "_veh2", "ammo", "ammo_p2", "bios_mode", "bios_mvs", "bios_request", "bios_timer", "bombs", "bombs_p2", "credits", "end_ptr", "form", "form_p2", "lives", "lives_p2", "mission", "p1_chr", "p1_input", "p1_mode", "p2_chr", "p2_input", "p2_mode", "prisoners", "prisoners_p2", "score", "score_p2", "time", "vehicle", "vehicle_ammo", "vehicle_ammo_p2", "vehicle_hp", "vehicle_hp_p2", "vehicle_kind", "vehicle_kind_p2", "vehicle_p2", "weapon", "weapon_p2"], "note": "_hps and end_ptr added, lives and lives_p2 replaced by the game's own bytes, from the memory recording of the same game (runtime/captures/mslug2-20261106-091438.ram, four snapshots a second), the first game recorded whole with its screenshots (1.33 test 36, lives test 37)"}
+0.001 lives 18
+0.001 lives_p2 19
 0.001 _hps [6018, 6186, 6354, 6522, 6690, 6858, 7026, 7194, 7362, 7530, 7698, 7866, 8034, 8202, 8370, 8538, 8706, 8874, 9042, 9210, 9378, 9546, 9714, 9882, 10050, 10218, 10386, 10554, 10722, 10890, 11058, 11226, 11394, 11562, 11730, 11898, 12066, 12234, 12402, 12570, 12738, 12906, 13074, 13242, 13410, 13578, 13746, 13914, 14082, 14250, 14418, 14586, 14754, 14922, 15090, 15258, 15426, 15594, 15762, 15930, 16098, 16266, 16434, 16602]
 0.001 end_ptr 4934
 0.001 p1_mode 253
@@ -6,8 +8,6 @@
 0.001 bios_mode 174
 0.001 score 8600870
 0.001 score_p2 8780870
-0.001 lives 17
-0.001 lives_p2 18
 0.001 bombs 195
 0.001 bombs_p2 72
 0.001 ammo 49996
@@ -37,8 +37,6 @@
 2.461 bios_mode 0
 2.461 score 0
 2.461 score_p2 0
-2.461 lives 0
-2.461 lives_p2 0
 2.461 bombs 0
 2.461 bombs_p2 0
 2.461 ammo 0
@@ -62,6 +60,8 @@
 2.461 p1_name "MARCO"
 2.461 p2_name "MARCO"
 2.920 bios_mvs 128
+3.370 lives 0
+3.370 lives_p2 0
 3.370 _hps [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 3.370 end_ptr 0
 4.281 coin_side 0
@@ -166,18 +166,18 @@
 6.925 weapon 255
 6.925 credits 4
 7.406 _hps [48, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-10.250 lives 2
 10.250 p1_input 16
 10.370 _hps [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+10.370 lives 3
 10.372 p1_input 0
 12.490 p1_input 8
 12.671 p1_input 0
 12.671 p1_chr 2
 12.671 p1_name "ERI"
-13.250 lives 1
 13.250 time 60
 13.250 p1_input 16
 13.710 p1_input 0
+13.719 lives 2
 16.370 time 0
 16.810 time 60
 16.821 end_ptr 62380
