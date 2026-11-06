@@ -273,10 +273,12 @@
     ],
     "boss_life": {
       "1": 2200,
-      "2": 3900
+      "2": 3900,
+      "3": 2000,
+      "4": 1200
     },
     "boss_min": 2000,
-    "note": "where the bosses' lives are: the whole table of enemies (_hps, a list). The game has no flag for its boss coming: the entry filled with the life the mission's boss starts with (boss_life, from Seb's captures: Tetsuyuki 2200, Hairbuster Riberts 3900) is the boss, named after the mission; in a mission not listed, a life of boss_min or more; any other life of 200 or more is a big enemy with a quiet bar (a helicopter 400, the mission 2 machine of 1200 before its boss). boss_dead (the game's flag) ends the boss, mission_done (its end word with the boss down) shows MISSION COMPLETE"
+    "note": "where the bosses' lives are: the whole table of enemies (_hps, a list). The game has no flag for its boss coming: the entry filled with the life the mission's boss starts with (boss_life, from Seb's captures: Tetsuyuki 2200, Hairbuster Riberts 3900, Tani Oh 2000, Shoe & Karn 1200 and 1500, the two tanks at once) is the boss, named after the mission; in a mission not listed, a life of boss_min or more; any other life of 200 or more is a big enemy with a quiet bar (a helicopter 400, the mission 2 machine of 1200 before its boss). boss_dead (the game's flag) ends the boss, mission_done (its end word with the boss down) shows MISSION COMPLETE"
   },
   "demo": {
     "lives": 2,

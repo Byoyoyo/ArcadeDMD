@@ -80,6 +80,8 @@ SOLDIERS = {"mslug": ("MARCO", "TARMA")}          # the first game: no choice, M
 BOSS_MIN = 200                                   # a boss's life is at least that much (else another enemy) / au moins
 BOSS_MAX = 9999                                  # and no more (else not a life) / et pas plus (sinon pas une vie)
 MINOR_IDLE = 8.0                                 # a big enemy's quiet bar fades after this long without a hit / s'efface
+PHASE_WAIT = 5.0                                 # a boss at 0 in a game with a flag: its next phase may fill the entry
+                                                 # within this long, else it fell / sa phase suivante, sinon tombé
 SYNC_MIN, SYNC_MAX = 0.8, 10.0                   # quiet after a start: at least this long, until the mission timer runs, at most
 
 # cadence (secondes entre deux tirs) et allure de chaque arme
@@ -662,6 +664,7 @@ class MetalSlugScene:
         self._boss_flag = None                   # the value that says the boss is fought, when the game has one / le drapeau
         self._boss_big = None                    # or the life a boss has at least, when the game has no flag / ou sa vie
         self._boss_life = {}                     # or the life each mission's boss starts with / ou la vie de chaque boss
+        self._minor_idle = MINOR_IDLE             # how long a quiet bar stays without a hit / le temps d'une barre discrète
         self.meta_ref = None                     # the game session the players belong to / la partie des joueurs
         self.boss_hit = {}                       # when each big life was last hit / quand chaque grosse vie a été touchée
         self.boss_top = {}                       # the most each one had / le plus qu'elle a eu
@@ -993,6 +996,11 @@ class MetalSlugScene:
             for k, v in life.items():
                 if isinstance(v, (int, float)) and not isinstance(v, bool) and v > 0 and str(k).isdigit():
                     self._boss_life[int(k)] = int(v)
+            # how long a big enemy's quiet bar stays without a hit ("minor_idle", 8 s unless the game says: 20 s in Metal
+            # Slug 4, whose helicopters hover a while between two hits, Seb's photo of 01:04, test 34) / le temps d'une
+            # barre discrète sans un coup
+            idle = hd.get("minor_idle")
+            self._minor_idle = float(idle) if isinstance(idle, (int, float)) and not isinstance(idle, bool) and idle > 0 else MINOR_IDLE
             self._slots_key = key
         return self._slots
 
@@ -1051,14 +1059,17 @@ class MetalSlugScene:
         want = self._boss_life.get(int(self.mission)) if isinstance(self.mission, (int, float)) else None
 
         def rising(window=0.0):
-            """The entry a boss's life filled in the last window seconds, the latest, or None. / La case remplie."""
+            """The entry a boss's life filled in the last window seconds, the latest, a boss's before a big enemy's filled
+            at the same time (Shoe & Karn came with a soldier of 210 in the same image, Seb's capture of 00:46), or None.
+            / La case remplie en dernier, celle d'un boss avant celle d'un gros ennemi rempli en même temps."""
             best = None
             for slot, t in self.boss_rise.items():
                 if slot == "mission":
                     continue
-                if (now - t <= window and cur.get(slot) is not None and BOSS_MIN <= cur[slot] <= BOSS_MAX
-                        and (best is None or t > best[1])):
-                    best = (slot, t)
+                if now - t <= window and cur.get(slot) is not None and BOSS_MIN <= cur[slot] <= BOSS_MAX:
+                    rank = (t, 1 if is_boss(slot) else 0)
+                    if best is None or rank > best[1]:
+                        best = (slot, rank)
             return best[0] if best else None
 
         def alert():
@@ -1093,15 +1104,16 @@ class MetalSlugScene:
                     best = (slot, t)
             return best[0] if best else None
 
-        def show(slot, it):
+        def show(slot, it, quiet=False):
             name = vals.get("boss_name")
             top = max(self.boss_top.get(slot, 0), cur[slot])
             self.boss = {"name": name if isinstance(name, str) and it else tr("ENNEMI", "ENEMY"),
                          "top": top, "hp": cur[slot], "t0": now, "down": None, "mission": self.mission, "hit_t": -99.0,
-                         "slot": slot, "moved": now, "minor": not it}
+                         "slot": slot, "moved": now, "minor": not it, "phase": 1, "zero_t": None}
             if it:
                 self.boss_ref = slot
-                alert()
+                if not quiet:
+                    alert()
 
         def twin(B):
             """The entry the boss's life went on in when its own emptied: filled with the same life at the same time
@@ -1147,9 +1159,12 @@ class MetalSlugScene:
                     # a life that big is the boss (test 31) / une grosse vie sans le drapeau ; avec boss_min, le boss
                     show(slot, is_boss(slot))
                 else:
-                    slot = hit(0.5)                                    # a big enemy hit while no bar shows: its bar, quiet
-                    if slot is not None and not is_boss(slot):         # / un gros ennemi touché sans barre : la sienne
-                        show(slot, False)
+                    slot = hit(0.5)                                    # a big enemy hit while no bar shows: its bar, quiet;
+                    if slot is not None and slot not in self.boss_parts:   # the boss's once it was seen (the second tank
+                        if not is_boss(slot):                          # of Shoe & Karn, test 34): its bar back, no WARNING
+                            show(slot, False)                          # again / un gros ennemi touché sans barre : la
+                        elif self.boss_ref is not None:                # sienne ; le boss déjà vu : la sienne, sans alerte
+                            show(slot, True, quiet=True)
         else:
             if B.get("minor") and gate and self._boss_flag and B["down"] is None and is_boss(B["slot"]):
                 name = vals.get("boss_name")                           # the game's flag goes up: that machine was the
@@ -1172,8 +1187,18 @@ class MetalSlugScene:
                     if other is not None and other != B["slot"] and not is_boss(other):
                         show(other, False)
                         B = self.boss
-                    elif now - B["moved"] > MINOR_IDLE:
+                    elif now - B["moved"] > self._minor_idle:
                         self.boss = B = None
+            elif B["down"] is None and B["zero_t"] is None and now - B["moved"] > 2.0:
+                # two bosses at once (Shoe & Karn, the two tanks of mission 4 of the first Metal Slug, Seb's capture of
+                # 00:46, 1200 and 1500): the bar goes to the one being hit, no new WARNING / deux boss à la fois : la barre
+                # va à celui qu'on frappe
+                other = hit(0.5)
+                if other is not None and other != B["slot"] and other not in self.boss_parts and is_boss(other):
+                    B["slot"], B["moved"] = other, now
+                    self.boss_ref = other
+                    B["hp"] = cur[other]
+                    B["top"] = max(self.boss_top.get(other, 0), cur[other])
             if B is None:
                 self.boss_prev = cur
                 return
@@ -1185,6 +1210,23 @@ class MetalSlugScene:
             hp = cur.get(B["slot"])
             if B["down"] is None:
                 done = _n(vals.get("mission_done")) == 1 or died        # the mission complete, or the game's flag: it fell
+                # its life filled again, as big as a boss's: its next phase (Brave Guerrier, 850 then 1000 then 1600 in
+                # the same entry, Seb's captures of 22:39 and 01:04; the bar stayed stuck near empty before, test 34)
+                # / sa vie remplie de nouveau, une vie de boss : sa phase suivante
+                refill = (not B.get("minor") and hp is not None and BOSS_MIN <= hp <= BOSS_MAX and hp > B["hp"]
+                          and (hp > B["top"] or B["hp"] <= B["top"] * 0.05 or B["zero_t"] is not None) and is_boss(B["slot"]))
+                if refill:
+                    B.update(phase=B["phase"] + 1, hp=hp, top=max(B["top"], hp), moved=now, zero_t=None, hit_t=-99.0)
+                    self.fx.flash((255, 220, 160), 0.15, 0.3)
+                    self.boss_prev = cur
+                    return
+                if B["zero_t"] is not None:
+                    # at 0 in a game with a flag (Metal Slug 4): its next phase may fill the entry within a few seconds
+                    # (0 then 65526 then 1 then 1000 in the capture of 22:39), else it fell / à 0 : sa phase suivante, sinon tombé
+                    if done or now - B["zero_t"] > PHASE_WAIT:
+                        fall(B)
+                    self.boss_prev = cur
+                    return
                 # its life goes on in another entry (a new phase, Seb's capture of 00:22, Metal Slug 4 and its flag): only
                 # an entry a boss-sized life filled, not a soldier of 250 passing by (both Metal Slugs, test 33)
                 # / sa vie continue ailleurs : seulement une case remplie d'une vie de boss
@@ -1194,6 +1236,7 @@ class MetalSlugScene:
                     self.boss_ref = other
                     hp = B["hp"] = cur[other]
                     B["top"] = max(B["top"], hp)
+                hold = bool(self._boss_flag) and not B.get("minor")   # the game whose boss comes back in phases / par phases
                 if hp is None or hp > B["top"] * 1.5:                  # not a life any more: the entry is empty, or holds
                     other = twin(B) if not B.get("minor") else None    # another thing / plus une vie : la case s'est vidée
                     if other is not None:                              # (its twin goes on) / (sa jumelle continue)
@@ -1201,19 +1244,23 @@ class MetalSlugScene:
                         self.boss_ref = other
                         B["hp"] = cur[other]
                     elif died or (now - B["moved"] <= 1.0 and B["hit_t"] > -1):   # emptied right after a hit, or the
-                        fall(B)                                        # game says it fell (Hairbuster Riberts, 155 then
-                                                                       # gone) / vidée sur un coup, ou le jeu le dit
+                        if hold and not died:                          # game says it fell (Hairbuster Riberts, 155 then
+                            B["hp"], B["zero_t"] = 0, now              # gone) / vidée sur un coup, ou le jeu le dit
+                        else:
+                            fall(B)
                     else:
                         self.boss = None
                 elif hp > B["top"]:
-                    B["top"] = hp
+                    B["top"] = B["hp"] = hp
                 elif hp < B["hp"] or done:
                     if hp < B["hp"]:
                         B["hit_t"] = now
                         B["moved"] = now
                     B["hp"] = 0 if done else hp
-                    if hp <= 0 or done:
+                    if done or (hp <= 0 and not hold):
                         fall(B)
+                    elif hp <= 0:
+                        B["zero_t"] = now
             elif now - B["down"] > (0.8 if B.get("minor") else 3.0):
                 self.boss = None
         self.boss_prev = cur
@@ -1872,6 +1919,8 @@ class MetalSlugScene:
                    scale=1 + 0.3 * max(0.0, 1 - (now - B["down"]) / 0.3), alpha=a)
             return
         name = B["name"] or "BOSS"
+        if not minor and B.get("phase", 1) > 1:                       # its next phase (Brave Guerrier) / sa phase suivante
+            name = f"{name}  ·  PHASE {B['phase']}"
         blink = not minor and k < 2.4 and int(k * 6) % 2 == 0
         col = (200, 196, 180) if minor else (RED if blink else (255, 150, 130))
         hd.put(screen, hd.text(name, "stencil", hd.fit_size(name, "stencil", S(22 if minor else 30), S(560), S(16)), col, glow=0.2 if minor else 0.5),

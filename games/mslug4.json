@@ -250,6 +250,16 @@
         "bytes": 24,
         "note": "probe (1.33 test 21): player 1's block (vehicle energy, lives, soldier, HUD state, prisoners), to confirm from a capture"
       },
+      "_p1k": {
+        "addr": "0x100A8F",
+        "type": "u8",
+        "note": "probe (1.33 test 34): the last byte of player 1's block, 1 on foot and 4 in the Bradley (Seb's capture of 01:04, mission 2), maybe the vehicle's kind; to compare with a ride in the Metal Slug tank"
+      },
+      "_bomb_out": {
+        "addr": "0x10EDE7",
+        "type": "u8",
+        "note": "probe (1.33 test 34): 'Bomb thrown = 01' of the RetroAchievements code notes (address swapped); if it follows a grenade in flight as grenades_out does in the first Metal Slug, the HD grenade will blow up with the game's"
+      },
       "_veh": {
         "addr": "0x106700",
         "type": "hex",
@@ -5025,6 +5035,7 @@
       "1": 850
     },
     "boss_min": 600,
+    "minor_idle": 20,
     "note": "where the bosses' lives are: the whole table of enemies (_hps, a list), and the six single entries of the first captures so that they replay. boss_flag is 1 while the screen is locked, for the boss and for a wave of helicopters alike (Seb's capture of 22:39), so it is a gate: while it is 1, the entry filled with the life the mission's boss starts with (boss_life: Brave Guerrier 850 at 275 s, then 1000 and 1600 for its two other phases) is the boss, named after the mission; in a mission not listed yet, a life of boss_min or more (the helicopters and tanks have 400 to 500); any other life of 200 or more is a big enemy with a quiet bar. mission_done (stage_state 0x9FD4) shows MISSION COMPLETE",
     "boss_flag": "boss_flag"
   }
