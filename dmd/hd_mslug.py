@@ -66,7 +66,7 @@ LOOK = {"chaser": "rocket", "lizard": "rocket", "drop": "rocket", "sgrenade": "r
 VEHICLES = {"mslug": {1: "tank"},
             "mslug2": {1: "tank", 2: "camel", 3: "slugnoid", 4: "flyer"},
             "mslugx": {4: "tank", 6: "flyer", 2: "camel"},
-            "mslug3": {4: "tank", 6: "flyer", 7: "copter", 8: "mariner", 9: "drill", 10: "slugnoid", 11: "astro"},
+            "mslug3": {4: "slugnoid", 6: "flyer", 7: "copter", 8: "mariner", 9: "drill", 10: "slugnoid", 11: "astro"},
             "mslug4": {},
             "mslug5": {4: "tank", 6: "flyer", 14: "slugnoid"}}
 VEHICLE_NAMES = {"tank": ("CHAR", "TANK"), "camel": ("CAMEL SLUG", "CAMEL SLUG"), "slugnoid": ("SLUGNOID", "SLUGNOID"),
@@ -612,6 +612,7 @@ class Player:
         self.out_ok = False             # the game's grenades on screen are read and follow the throws / suivies
         self.early = 0                  # the game's grenade blew up before ours left the hand / partie trop tôt
         self.ride_wait = None           # since when a vehicle is read without its kind / véhicule lu sans son genre
+        self.lives_known = False        # the game has written a lives count above 0 / des vies écrites une fois
         self.bomb_drop = None           # bombs down while the game counted no grenade leaving: (when, how many, from)
                                         # a reset unless its counter follows at once / bombes en moins sans grenade partie
         self.tank = False               # dans un véhicule / in a vehicle
@@ -1378,6 +1379,8 @@ class MetalSlugScene:
             P.float_t = now
             self._score_float(side, P, now, sc)
         lv, lo = cur["lives"], old.get("lives")
+        if lv is not None and 0 < lv < 250:
+            P.lives_known = True                     # the game wrote them once / le jeu les a écrites une fois
         if lv is not None and lo is not None:
             if lv < lo:
                 self._life_lost(side, P, now, lo)
@@ -2030,6 +2033,9 @@ class MetalSlugScene:
             hd.put(screen, hd.text(name, "stencil", hd.fit_size(name, "stencil", S(34), S(230), S(18)), acc, glow=0.3),
                    self.X(side, x0, lx), chip.centery, "left" if side == "p1" else "right", "middle")
         lives = _n(self.get(vals, side, "lives"))
+        if lives is not None and lives <= 0 and not P.lives_known and now - P.join_t < 12:
+            lives = None                             # not written yet by the game (Metal Slug 3: 0 for the first five seconds,
+                                                     # then 2): no LAST LIFE for nothing / pas encore écrites : rien
         if lives is not None:
             self._draw_lives(screen, side, P, x0, int(lives), now)
         # score qui défile

@@ -134,7 +134,7 @@
           0,
           15
         ],
-        "note": "player 1 vehicle (RetroAchievements code notes, P1 Vehicle, address swapped, six bytes after his lives): 0 outside the game, 1 on foot, 4 Metal Slug (tank), 6 Slug Flyer, 7 Slug Copter, 8 Slug Mariner (the submarine), 9 Drill Slug, 10 Slugnoid (robot), 11 Astro Slug; the elephant and the ostrich to find; to confirm in game"
+        "note": "player 1 vehicle code (RetroAchievements code notes, P1 Vehicle, address swapped): 0 outside the game, 1 on foot, 8 Slug Mariner (the submarine, 57 s of Seb's game of 7 November 00:48 against his screenshots), 4 the Slugnoid (286 s, the mech before the Huge Hermit; the notes say tank for 4), 6 Slug Flyer, 7 Slug Copter, 9 Drill Slug, 10 'robot', 11 Astro Slug per the notes, unverified"
       },
       "vehicle": {
         "addr": "0x1002C1",
@@ -266,6 +266,35 @@
         "addr": "0x10FD9C",
         "type": "u8",
         "note": "Neo Geo BIOS, player 2 stick and buttons (P2CURRENT), same bits"
+      },
+      "grenades_out": {
+        "addr": "0x10EAF0",
+        "type": "u8",
+        "note": "player 1 grenades on screen (1.33 test 40, Seb's recording of 7 November 00:48): 1 or 2 right after each bombs decrease, back to 0 as they blow up, 0 the rest of the time, five bytes before his bombs"
+      },
+      "grenades_out_p2": {
+        "addr": "0x10EAFE",
+        "type": "u8",
+        "note": "player 2 grenades on screen, deduced: his equipment block is 0x0E further (bombs 0x10EB03), to confirm in a two-player game"
+      },
+      "_hps": {
+        "addr": "0x10075A",
+        "type": "u16s",
+        "count": 81,
+        "stride": 176,
+        "note": "the lives of the game's objects (1.33 test 40, from Seb's memory recording of 7 November 00:48 with its screenshots): a table of 176-byte entries, the life word at the same offset as the RetroAchievements note 'Enemy HP (Slot ???)' 0x10146B (its two slots are 21 entries apart); Huge Hermit came with 5000 in two entries at once (0x10146A and 0x10259A, the same value all along, one of them a twin), the soldiers hold 10 to 60, bigger enemies 100 to 800; an empty entry holds 0"
+      },
+      "end_text": {
+        "addr": "0x102A90",
+        "type": "be",
+        "bytes": 2,
+        "note": "the routine of the text object the game creates for MISSION n COMPLETE (29166 from 397.4 s to 401.8 s of Seb's game, the text on his screenshot of 400 s; 29178 for MISSION 2 START at 405.4 s), in the object table; 1.33 test 40, one mission end seen"
+      },
+      "end_count": {
+        "addr": "0x10040A",
+        "type": "be",
+        "bytes": 2,
+        "note": "probe (1.33 test 40): the RetroAchievements note 'Counters related to the end of the stage', 65535 while playing, counting 26 to 0 over the boss's wreck (392 s), 153 to 0 while MISSION COMPLETE is written (397 to 402 s)"
       }
     }
   },
@@ -3502,6 +3531,32 @@
         "ERI",
         "FIO"
       ]
+    },
+    "boss_name": {
+      "value": "mission",
+      "names": {
+        "1": "HUGE HERMIT",
+        "2": "MONOEYE UFO",
+        "3": "JUPITER KING",
+        "4": "SOL DAE ROKKER",
+        "5": "ROOTMARS"
+      }
+    },
+    "mission_done": {
+      "eq": [
+        "end_text",
+        29166
+      ]
     }
+  },
+  "hd": {
+    "boss_slots": [
+      "_hps"
+    ],
+    "boss_life": {
+      "1": 5000
+    },
+    "boss_min": 2000,
+    "note": "where the bosses' lives are: the whole table of objects (_hps). The entry filled with the life the mission's boss starts with (boss_life, from Seb's recording: Huge Hermit 5000, in two entries holding the same value) is the boss, named after the mission; in a mission not listed yet, a life of boss_min or more; any other life of 200 or more is a big enemy with a quiet bar. mission_done (the game's MISSION COMPLETE text object) shows MISSION COMPLETE"
   }
 }
