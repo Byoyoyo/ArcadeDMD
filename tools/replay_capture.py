@@ -140,13 +140,23 @@ def replay(path, show_values=False, step=1 / 60, frames=(), out_dir=None):
             break
         if own_scene:                                                # its scene: the points, where its disc or hero is
             sc = hd.game_scene[1] if hd.game_scene else hd.mslug
-            for name in ("set_points", "set_points_p2", "sets", "sets_p2", "lives", "score"):
+            for name in ("set_points", "set_points_p2", "sets", "sets_p2", "lives", "score", "score_p2", "wins", "wins_p2", "round"):
                 v = vals.get(name)
                 if name in vals and v != state["scene"].get(name):
                     state["scene"][name] = v
                     track = getattr(sc, "track", None)
                     where = f" (disque HD à {int(track[0])},{int(track[1])})" if track else ""
                     note(t, f"  {name} = {v}{where}")
+            for pside, suf in (("p1", ""), ("p2", "_p2")):            # Puzzle Bobble: the bubble in the launcher, the next
+                if "bubble" + suf in vals:                             # / la bulle du lanceur, la suivante
+                    pair = (vals.get("bubble" + suf), vals.get("bubble_next" + suf))
+                    if pair != state["scene"].get(("bubble", pside)) and pair[0] is not None:
+                        state["scene"][("bubble", pside)] = pair
+                        note(t, f"  {pside} bulle {pair[0]}, suivante {pair[1]}")
+            shots = getattr(sc, "shots", None)                       # the bubbles shot on the HD screen / les tirs
+            if shots is not None and shots != state["scene"].get("_shots"):
+                state["scene"]["_shots"] = shots
+                note(t, "  tir")
             sup = getattr(sc, "super", None)                         # Windjammers: the supers, the charges (1.33)
             sup = sup[0] if isinstance(sup, tuple) else None
             if sup != state["scene"].get("_super"):

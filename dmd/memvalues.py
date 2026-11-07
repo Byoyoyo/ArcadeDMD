@@ -21,6 +21,9 @@ def parse_addr(v):
         return v
     if isinstance(v, str):
         s = v.strip()
+        neg = s.startswith("-")                  # a negative offset from a pointer ("-0x11": 17 bytes before where it
+        if neg:                                  # points, Puzzle Bobble 2's bubble colour) / un décalage négatif
+            s = s[1:].strip()
         if s.startswith(("0x", "0X")):
             s = s[2:]
         elif s.startswith("$"):
@@ -28,7 +31,7 @@ def parse_addr(v):
         if not s:
             return None
         try:
-            return int(s, 16)
+            return -int(s, 16) if neg else int(s, 16)
         except ValueError:
             return None
     return None
