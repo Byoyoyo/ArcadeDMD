@@ -115,7 +115,7 @@ PW, PH = 640, 418           # taille d'un panneau, écran de référence 1920 x 
 BTN_RIGHT, BTN_LEFT, BTN_A = 0x08, 0x04, 0x10      # octet des commandes du BIOS Neo Geo (P1CURRENT)
 
 
-FLAG_VEHICLE = {"mslug", "mslug2", "mslug4"}      # "vehicle" is a flag (bit 0), elsewhere a kind / un drapeau, sinon un genre
+FLAG_VEHICLE = {"mslug", "mslug4"}      # "vehicle" is a flag (bit 0); a kind, or the vehicle's address in Metal Slug 2 / un drapeau
 
 
 def family(key):
@@ -611,6 +611,7 @@ class Player:
         self.live = []                  # grenades of the HD screen waiting for the game's own to blow up / en attente
         self.out_ok = False             # the game's grenades on screen are read and follow the throws / suivies
         self.early = 0                  # the game's grenade blew up before ours left the hand / partie trop tôt
+        self.ride_wait = None           # since when a vehicle is read without its kind / véhicule lu sans son genre
         self.bomb_drop = None           # bombs down while the game counted no grenade leaving: (when, how many, from)
                                         # a reset unless its counter follows at once / bombes en moins sans grenade partie
         self.tank = False               # dans un véhicule / in a vehicle
@@ -767,7 +768,12 @@ class MetalSlugScene:
         / Un octet de bits dans le premier Metal Slug, le 2 et le 4, un genre dans les autres ; 255, son bloc effacé."""
         if v is None or v == 255:
             return False
-        return bool(int(v) & 1) if family(self.key) in FLAG_VEHICLE else v > 0
+        if family(self.key) in FLAG_VEHICLE:
+            return bool(int(v) & 1)
+        # Metal Slug 2: the vehicle object's address while riding anything, the camel included, 0 on foot, the block's
+        # own address (0xE882, 0xE8A6) before the game starts (1.33 test 39, Seb's two-player game of 7 November: player 2's
+        # Slugnoid and the camels unseen by the old bit 0) / l'adresse du véhicule, 0 à pied, celle du bloc avant la partie
+        return 0 < v < 0xE000
 
     def weapon(self, side, code):
         """(name, kind) of a weapon code: the name shown, the kind it is drawn and fired as. / (nom, genre) d'un code."""
@@ -1352,8 +1358,7 @@ class MetalSlugScene:
         if inp is not None:
             P.move = 1.0 if inp & BTN_RIGHT else (-1.0 if inp & BTN_LEFT else 0.0)
         if quiet or not old:
-            P.tank = self.aboard(cur["vehicle"]) or self.ride_kind(cur["vehicle_kind"]) in MOUNTS   # déjà à bord : sans
-                                                                       # fanfare / already aboard, quietly
+            P.tank = self.aboard(cur["vehicle"])                       # déjà à bord : sans fanfare / already aboard, quietly
             P.ride = self.ride_kind(cur["vehicle_kind"]) if P.tank else None
             if cur["weapon"] is not None:
                 P.weapon_kind = self.weapon(side, cur["weapon"])[1] or "pistol"
@@ -1457,14 +1462,22 @@ class MetalSlugScene:
         # 29, Seb's capture of 17:58: 2, 4, 6, 16, 22 while he moves and shoots, read as the tank since test 21); a kind in
         # the others / un octet de bits dans le premier Metal Slug, le 2 et le 4, un genre dans les autres
         aboard = self.aboard
-        # the camel is a mount, not a vehicle to the game: its flag stays 0 while the kind says camel (Metal Slug 2, Seb's
-        # game of 6 November 09:14 on the camel from 118 s, nothing shown) / le chameau est une monture : le drapeau
-        # reste à 0, seul le genre le dit
+        # the kind alone never means riding: Metal Slug 2 keeps the last vehicle's kind after the soldier leaves it, until
+        # his next life (test 36 read the camel's kind as the ride; Seb's game of 7 November 00:19: still CAMEL SLUG after
+        # he got off at 362 s) / le genre seul ne dit pas qu'on est dessus, Metal Slug 2 le garde après la descente
         kind = self.ride_kind(cur["vehicle_kind"])
-        riding = aboard(v) or kind in MOUNTS
-        was = None
-        if vo is not None:
-            was = aboard(vo) or self.ride_kind(old.get("vehicle_kind")) in MOUNTS
+        riding = aboard(v)
+        unnamed = cur["vehicle_kind"] is not None and kind == "vehicle" and len(VEHICLES.get(family(self.key), {})) > 1
+        if riding and unnamed and not P.tank:
+            # the vehicle read before its kind (two readings apart): wait a moment for the name rather than announce
+            # VEHICLE then rename it / le véhicule lu avant son genre : on attend le nom un instant
+            if P.ride_wait is None:
+                P.ride_wait = now
+            if now - P.ride_wait < 0.3:
+                return
+        else:
+            P.ride_wait = None
+        was = P.tank if vo is not None else None                      # what the screen shows / ce que l'écran montre
         if was is not None and riding != was:
             if riding:
                 P.ride = kind
@@ -1473,7 +1486,7 @@ class MetalSlugScene:
                 self._tank_out(side, P, now, old.get("vehicle_hp"))
         P.tank = riding
         P.ride = kind if riding else None
-        if not riding or vo is None or not aboard(vo):
+        if not riding or not was:
             return
         hp, ho = cur["vehicle_hp"], old.get("vehicle_hp")
         if hp is not None and ho is not None and hp < ho:

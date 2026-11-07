@@ -1,4 +1,6 @@
-# {"version": "1.33.0", "game": "mslug2", "system": "mslug2", "parent": null, "title": "Metal Slug 2", "date": "2026-11-06 09:14:38", "values": ["_hps", "_veh1", "_veh2", "ammo", "ammo_p2", "bios_mode", "bios_mvs", "bios_request", "bios_timer", "bombs", "bombs_p2", "credits", "end_ptr", "form", "form_p2", "grenades_out", "grenades_out_p2", "lives", "lives_p2", "mission", "p1_chr", "p1_input", "p1_mode", "p2_chr", "p2_input", "p2_mode", "prisoners", "prisoners_p2", "score", "score_p2", "time", "vehicle", "vehicle_ammo", "vehicle_ammo_p2", "vehicle_hp", "vehicle_hp_p2", "vehicle_kind", "vehicle_kind_p2", "vehicle_p2", "weapon", "weapon_p2"], "note": "grenades_out, grenades_out_p2 added from the memory snapshots of the same game (ram_to_capture.py); the grenades on screen (0x10C340) added from the same recording, 1.33 test 38"}
+# {"version": "1.33.0", "game": "mslug2", "system": "mslug2", "parent": null, "title": "Metal Slug 2", "date": "2026-11-06 09:14:38", "values": ["_hps", "_veh1", "_veh2", "ammo", "ammo_p2", "bios_mode", "bios_mvs", "bios_request", "bios_timer", "bombs", "bombs_p2", "credits", "end_ptr", "form", "form_p2", "grenades_out", "grenades_out_p2", "lives", "lives_p2", "mission", "p1_chr", "p1_input", "p1_mode", "p2_chr", "p2_input", "p2_mode", "prisoners", "prisoners_p2", "score", "score_p2", "time", "vehicle", "vehicle_ammo", "vehicle_ammo_p2", "vehicle_hp", "vehicle_hp_p2", "vehicle_kind", "vehicle_kind_p2", "vehicle_p2", "weapon", "weapon_p2"], "note": "vehicle, vehicle_p2 added from the memory snapshots of the same game (ram_to_capture.py); vehicle / vehicle_p2 rebuilt as the vehicle address words from the recording (1.33 test 39)"}
+0.001 vehicle 59522
+0.001 vehicle_p2 59558
 0.001 grenades_out 195
 0.001 grenades_out_p2 64
 0.001 lives 18
@@ -18,10 +20,8 @@
 0.001 weapon_p2 70
 0.001 prisoners 0
 0.001 prisoners_p2 0
-0.001 vehicle 0
 0.001 vehicle_hp 0
 0.001 vehicle_ammo 0
-0.001 vehicle_p2 0
 0.001 vehicle_hp_p2 0
 0.001 vehicle_ammo_p2 0
 0.001 _veh1 "e880e882e884e886e888e88ae88ce88ee890e892e894e896e898e89ae89ce89ee8a0e8a2"
@@ -62,6 +62,8 @@
 2.461 p1_name "MARCO"
 2.461 p2_name "MARCO"
 2.920 bios_mvs 128
+3.370 vehicle 0
+3.370 vehicle_p2 0
 3.370 grenades_out 0
 3.370 grenades_out_p2 0
 3.370 lives 0
@@ -804,6 +806,7 @@
 118.020 score 20700
 118.152 _hps [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 400, 0, 0, 0, 0, 0, 0, 0]
 118.420 p1_input 8
+118.718 vehicle 11652
 118.722 _veh1 "00002d84000000180010d5be09b10000004000000ae70000000000000000000100000002"
 118.722 _veh2 "400000000000000000000000000000000000000000000000000000000000000000000300"
 118.722 vehicle_kind 2
@@ -941,6 +944,7 @@
 129.220 _veh1 "00000000000000180010d5be09900000004000000bd500000000000000f8010100000002"
 129.220 time 56
 129.220 p1_input 34
+129.239 vehicle 0
 129.400 p1_input 2
 129.680 p1_input 4
 130.121 p1_input 0
@@ -960,6 +964,7 @@
 131.700 p1_input 37
 131.880 p1_input 0
 132.420 _veh1 "00002d84000000180010d5be09900000004000000c320000000000000000000100000002"
+132.439 vehicle 11652
 132.600 _veh1 "00002d84000000180010d5be09900000004000000c360000000000000000000100000002"
 132.721 _veh1 "00002d84000000180010d5be09900000004000000c390000000000000000000100000002"
 132.900 _veh1 "00002d84000000180010d5be09900000004000000c3f0000000000000000000100000002"
@@ -1007,6 +1012,7 @@
 137.720 p1_input 2
 137.841 _veh1 "00000000000000180010d5be0a320000004000000cd00000000000000000010100000002"
 137.841 p1_input 34
+137.851 vehicle 0
 138.020 p1_input 2
 138.120 time 54
 138.300 p1_input 6
@@ -1035,6 +1041,7 @@
 141.340 ammo 167
 141.340 _veh1 "00002d84000000180010d5be0a320000004000000d310000000000000000000100000002"
 141.340 p1_input 8
+141.351 vehicle 11652
 141.520 _veh1 "00002d84000000180010d5be0a320000004000000d360000000000000000000100000002"
 141.620 _veh1 "00002d84000000180010d5be0a350000004000000d3a0000000000000000000100000002"
 141.800 _veh1 "00002d84000000180010d5be0a410000004000000d3f0000000000000000000100000002"
@@ -1883,6 +1890,7 @@
 214.260 p1_input 1
 214.721 p1_input 0
 214.736 _hps [0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+214.736 vehicle 0
 215.017 _hps [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 215.180 _veh1 "00000000000000180010d5be0e6d00000040000013330000000000000040000100000002"
 227.232 end_ptr 62696
@@ -1914,6 +1922,7 @@
 245.841 _veh1 "01002454000000180010c538000000000040000016610000000000000060000100000002"
 245.841 vehicle_kind 2
 246.300 _veh1 "01002454000000180010c538000c000000400000166f0000000000000000000100000002"
+246.319 vehicle 9300
 246.319 _hps [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 246.319 end_ptr 63188
 246.480 _veh1 "01002454000000180010c538001b00000040000016740000000000000000000100000002"

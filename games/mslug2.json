@@ -136,10 +136,10 @@
         "note": "player 2 prisoners rescued in the mission (RetroAchievements code notes, P2 - Prisoners (Mission), address swapped)"
       },
       "vehicle": {
-        "addr": "0x10E883",
-        "type": "u8",
-        "mask": "0x01",
-        "note": "player 1 in a vehicle (1) or on foot (0): bit 0 (RetroAchievements code notes, P1 - Riding a Vehicle, address swapped), the first word of his vehicle block 0x10E880..0x10E8A3; to confirm in game"
+        "addr": "0x10E882",
+        "type": "be",
+        "bytes": 2,
+        "note": "player 1's vehicle: the word at +2 of his vehicle block 0x10E880..0x10E8A3 holds the vehicle object's address while he rides anything, the camel included (0x26F4, 0x2D84, 0x225C, 0x1884 for the camels of Seb's games of 6 and 7 November, 0x32C4 for the Slugnoid), 0 on foot, and its own address 0xE882 before the game starts. The RetroAchievements note P1 - Riding a Vehicle (0x00 = Not Riding) is this word's low byte; read as a bit 0 since 1.33 test 21 it stayed 0 on the camel and the Slugnoid (test 39, his game of 7 November 00:19 against his screenshots)"
       },
       "vehicle_kind": {
         "addr": "0x10E8A3",
@@ -167,10 +167,10 @@
         "note": "cannon shells of player 1's vehicle (cheat database Infinite Vehicle Cannon PL1 writes 10), shown while he is in it"
       },
       "vehicle_p2": {
-        "addr": "0x10E8A7",
-        "type": "u8",
-        "mask": "0x01",
-        "note": "player 2 in a vehicle, deduced: his vehicle block is 0x24 further (energy and cannon of the cheat database are 0x10E8BF and 0x10E8C5)"
+        "addr": "0x10E8A6",
+        "type": "be",
+        "bytes": 2,
+        "note": "player 2's vehicle, the same word of his block 0x24 further (energy and cannon of the cheat database are 0x10E8BF and 0x10E8C5): 0x26F4 on the camel and 0x32C4 in the Slugnoid in Seb's two-player game of 7 November 00:19, 0 on foot"
       },
       "vehicle_kind_p2": {
         "addr": "0x10E8C7",

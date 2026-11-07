@@ -1,4 +1,4 @@
-# {"version": "1.33.0", "game": "mslug2", "system": "mslug2", "parent": null, "title": "Metal Slug 2", "date": "2026-11-06 12:15:44", "values": ["_hps", "_veh1", "_veh2", "ammo", "ammo_p2", "bios_mode", "bios_mvs", "bios_request", "bios_timer", "bombs", "bombs_p2", "credits", "end_ptr", "form", "form_p2", "grenades_out", "grenades_out_p2", "lives", "lives_p2", "mission", "p1_chr", "p1_input", "p1_mode", "p2_chr", "p2_input", "p2_mode", "prisoners", "prisoners_p2", "score", "score_p2", "time", "vehicle", "vehicle_ammo", "vehicle_ammo_p2", "vehicle_hp", "vehicle_hp_p2", "vehicle_kind", "vehicle_kind_p2", "vehicle_p2", "weapon", "weapon_p2"], "note": "grenades_out, grenades_out_p2 added from the memory snapshots of the same game (ram_to_capture.py); the grenades on screen (0x10C340) added from the same recording, 1.33 test 38"}
+# {"version": "1.33.0", "game": "mslug2", "system": "mslug2", "parent": null, "title": "Metal Slug 2", "date": "2026-11-06 12:15:44", "values": ["_hps", "_veh1", "_veh2", "ammo", "ammo_p2", "bios_mode", "bios_mvs", "bios_request", "bios_timer", "bombs", "bombs_p2", "credits", "end_ptr", "form", "form_p2", "grenades_out", "grenades_out_p2", "lives", "lives_p2", "mission", "p1_chr", "p1_input", "p1_mode", "p2_chr", "p2_input", "p2_mode", "prisoners", "prisoners_p2", "score", "score_p2", "time", "vehicle", "vehicle_ammo", "vehicle_ammo_p2", "vehicle_hp", "vehicle_hp_p2", "vehicle_kind", "vehicle_kind_p2", "vehicle_p2", "weapon", "weapon_p2"], "note": "vehicle, vehicle_p2 added from the memory snapshots of the same game (ram_to_capture.py); vehicle / vehicle_p2 rebuilt as the vehicle address words from the recording (1.33 test 39)"}
 0.001 p1_mode 85
 0.001 p2_mode 85
 0.001 bios_mode 85
@@ -12,10 +12,8 @@
 0.001 weapon_p2 85
 0.001 prisoners 85
 0.001 prisoners_p2 85
-0.001 vehicle 1
 0.001 vehicle_hp 100
 0.001 vehicle_ammo 85
-0.001 vehicle_p2 1
 0.001 vehicle_hp_p2 100
 0.001 vehicle_ammo_p2 85
 0.001 _veh1 "555555555555555555555555555555555555555555555555555555555555555555555555"
@@ -46,10 +44,8 @@
 0.450 weapon_p2 70
 0.450 prisoners 0
 0.450 prisoners_p2 0
-0.450 vehicle 0
 0.450 vehicle_hp 0
 0.450 vehicle_ammo 0
-0.450 vehicle_p2 0
 0.450 vehicle_hp_p2 0
 0.450 vehicle_ammo_p2 0
 0.450 _veh1 "e880e882e884e886e888e88ae88ce88ee890e892e894e896e898e89ae89ce89ee8a0e8a2"
@@ -65,9 +61,13 @@
 0.937 lives_p2 19
 0.937 grenades_out 195
 0.937 grenades_out_p2 64
+0.937 vehicle 59522
+0.937 vehicle_p2 59558
 1.710 coin_side 0
 1.710 coin_press 1
 2.671 coin_press 2
+3.370 vehicle 0
+3.370 vehicle_p2 0
 3.370 grenades_out 0
 3.370 grenades_out_p2 0
 3.410 bios_frames 0
@@ -1113,6 +1113,7 @@
 113.426 _veh2 "400000000000000000000000000000000000000000000000000000000000000000000300"
 113.426 vehicle_kind 2
 113.548 _veh1 "0000225c000000180010d5be09b20000004000000a9b0000000000000060000100000002"
+113.567 vehicle 8796
 113.725 _veh1 "0000225c000000180010d5be09b20000004000000aa00000000000000060000100000002"
 113.725 time 59
 113.847 _veh1 "0000225c000000180010d5be09b20000004000000aa40000000000000060000100000002"
@@ -1209,6 +1210,7 @@
 123.025 _veh1 "00000000000000180010d5be09b80000004000000b83000000000000002602000c000002"
 123.606 _hps [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 150, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 150, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 360, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 124.066 _hps [150, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 150, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 360, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+124.082 vehicle 0
 124.546 _hps [150, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 150, 0, 0, 150, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 360, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 124.665 _hps [150, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 150, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 360, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 125.147 _hps [150, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 150, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 360, 150, 0, 0, 0, 0, 0, 0, 0, 0, 0]
