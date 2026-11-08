@@ -96,7 +96,8 @@
       "vehicle": {
         "addr": "0x1004CC",
         "type": "u8",
-        "note": "player 1 in the tank (1), on foot (0), found in RAM captures on a cabinet (13 captures, 6 in the tank, 7 on foot, 4 of them beside the parked tank)"
+        "mask": "0x01",
+        "note": "player 1 in the tank (bit 0: 1), on foot (0), found in RAM captures on a cabinet (13 captures, 6 in the tank, 7 on foot, 4 of them beside the parked tank); the other bits are his state on foot (2, 4, 6, 16, 22 while he moves and shoots in Seb's capture of 5 November 17:58), not a vehicle"
       },
       "vehicle_hp": {
         "addr": "0x1005E7",
@@ -117,7 +118,8 @@
       "vehicle_p2": {
         "addr": "0x10056C",
         "type": "u8",
-        "note": "player 2 in the tank (1), the same place in his own block, 0xA0 further like his bombs and weapon"
+        "mask": "0x01",
+        "note": "player 2 in the tank (bit 0: 1), the same place in his own block, 0xA0 further like his bombs and weapon"
       },
       "vehicle_hp_p2": {
         "addr": "0x1005E7",
@@ -209,8 +211,74 @@
         "addr": "0x10FD9C",
         "type": "u8",
         "note": "Neo Geo BIOS, player 2 stick and buttons (P2CURRENT), same bits"
+      },
+      "_hps": {
+        "addr": "0x100A46",
+        "type": "u16s",
+        "count": 104,
+        "stride": 160,
+        "note": "the life of every enemy of the game's table, 104 entries of 160 bytes from 0x100A40, the life at +6 in each, 0xFFFF when the entry is empty (Seb's memory snapshots of 5 November 19:15, mission 1: the helicopter 400 then 0 at 0x100F46 and 0x102B66, soldiers 30 to 60, a cannon 300, the boss Tetsuyuki 2200 at 0x1014E6, down to 0 as it fell; the players' own entries sit before the table, the slug's energy at 0x1005E6)"
+      },
+      "end_state": {
+        "addr": "0x100204",
+        "type": "be",
+        "bytes": 2,
+        "note": "the game's end-of-mission word (RetroAchievements code notes, \"Mission Ending/Game Over Indicator\"): 0x0202 from the MISSION COMPLETE of the game's screen to the next mission, and at a game over (Seb's memory snapshots of 5 November 19:15: 0x0202 from 6 s after Tetsuyuki fell until mission 2 began)"
+      },
+      "boss_alive": {
+        "addr": "0x106ED3",
+        "type": "u8",
+        "note": "the game's boss flag (RetroAchievements code notes, \"Boss Defeated Flag\"): 1 while the mission's boss stands, 0 once it fell (and at the title), 0xFF between two missions (the snapshots of 19:15: 1 to 0 as Tetsuyuki's life reached 0)"
       }
     }
+  },
+  "derived": {
+    "boss_name": {
+      "value": "mission",
+      "names": {
+        "1": "TETSUYUKI",
+        "2": "HAIRBUSTER RIBERTS",
+        "3": "TANI OH",
+        "4": "SHOE & KARN",
+        "5": "IRON NOKANA",
+        "6": "HI-DO"
+      }
+    },
+    "boss_dead": {
+      "eq": [
+        "boss_alive",
+        0
+      ]
+    },
+    "mission_done": {
+      "all": [
+        {
+          "eq": [
+            "end_state",
+            514
+          ]
+        },
+        {
+          "eq": [
+            "boss_alive",
+            0
+          ]
+        }
+      ]
+    }
+  },
+  "hd": {
+    "boss_slots": [
+      "_hps"
+    ],
+    "boss_life": {
+      "1": 2200,
+      "2": 3900,
+      "3": 2000,
+      "4": 1200
+    },
+    "boss_min": 2000,
+    "note": "where the bosses' lives are: the whole table of enemies (_hps, a list). The game has no flag for its boss coming: the entry filled with the life the mission's boss starts with (boss_life, from Seb's captures: Tetsuyuki 2200, Hairbuster Riberts 3900, Tani Oh 2000, Shoe & Karn 1200 and 1500, the two tanks at once) is the boss, named after the mission; in a mission not listed, a life of boss_min or more; any other life of 200 or more is a big enemy with a quiet bar (a helicopter 400, the mission 2 machine of 1200 before its boss). boss_dead (the game's flag) ends the boss, mission_done (its end word with the boss down) shows MISSION COMPLETE"
   },
   "demo": {
     "lives": 2,

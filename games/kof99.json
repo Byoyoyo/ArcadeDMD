@@ -210,7 +210,7 @@
    "_screen": {
     "addr": "0x108502",
     "type": "u16",
-    "note": "the screen the game shows (RetroAchievements code notes, 0x8502 Game - Program State [16 bits], 2cf0 = Character selection screen, 65da = Order select, 9486 = Fighting); its select screens give VS and no event of a fight (1.31.1, K.O. audit), to confirm in game"
+    "note": "the screen the game shows (RetroAchievements code notes, 0x8502 Game - Program State [16 bits], 2cf0 = Character selection screen, 65da = Order select, 9486 = Fighting; Seb's set reads 2cea, 65ce and 9474, the ids shift with the ROM revision); its select screens give VS and no event of a fight"
    }
   }
  },
@@ -332,8 +332,21 @@
       "_screen",
       26074
      ]
+    },
+    {
+     "eq": [
+      "_screen",
+      11498
+     ]
+    },
+    {
+     "eq": [
+      "_screen",
+      26062
+     ]
     }
-   ]
+   ],
+   "note": "1 on the character select and the order select. Their ids depend on the ROM set: 0x2CF0 and 0x65DA (RetroAchievements notes), 0x2CEA and 0x65CE (Seb's set, his capture of 2026-11-04, 1.33)"
   }
  },
  "demo": {

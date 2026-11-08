@@ -13,7 +13,7 @@ bleuit) et a ses animations. Aucune image ne vient du jeu.
 import math
 import random
 
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageEnhance, ImageFilter
 
 from . import hd_bg
 from .hd_bg import crowd_layers, mix, radial, add_at, vgrad
@@ -21,16 +21,82 @@ from .hd_stages import gull_img, hook_gulls, stars_on
 
 
 # ---------------------------------------------------------------------------- drawing / dessin
+# the look of the stages: "flat" (as drawn), or "cartoon", every shape inked with a dark outline, the colours brighter
+# and bolder (Seb, 1.33) / le style des décors : "flat", ou "cartoon", chaque forme cernée d'un trait sombre, les couleurs
+# plus vives
+STYLE = {"name": "cartoon", "ink": (30, 20, 34), "width": 3.6, "min": 12, "saturation": 1.3, "contrast": 1.06,
+         "wobble": 0.7, "shade": 0.8, "shade_from": 0.62, "bands": 5}
+# ink: the colour of the outline; width: its width (screen units); min: no outline on a shape smaller than this; wobble:
+# the hand's unsteadiness on the outline; shade: the flat shadow on the lower part of a shape (darker by this), from
+# shade_from of its height; bands: the flat bands of a sky / ink : la couleur du trait ; width : son épaisseur ; min :
+# pas de trait sous cette taille ; wobble : le tremblement de la main ; shade : l'ombre en aplat sur le bas d'une forme,
+# à partir de shade_from de sa hauteur ; bands : les bandes plates d'un ciel
+
+
 class Pic:
     """A picture drawn twice as big then reduced (smooth edges), in units of the 1920 x 460 screen. wrap: the shapes that
     cross an edge come back on the other side (a layer that scrolls). / Une image dessinée deux fois plus grande puis
     réduite, en unités de l'écran 1920 x 460 ; wrap : ce qui dépasse d'un bord revient de l'autre côté."""
 
-    def __init__(self, w, h, s, ss=2, wrap=False):
+    def __init__(self, w, h, s, ss=2, wrap=False, ink=None):
         self.w, self.h, self.s, self.ss, self.wrap = w, h, s, ss, wrap
         self.k = s * ss
         self.img = Image.new("RGBA", (max(1, round(w * self.k)), max(1, round(h * self.k))), (0, 0, 0, 0))
         self.d = ImageDraw.Draw(self.img)
+        self.ink = (STYLE["name"] == "cartoon") if ink is None else ink   # outlines on this picture / cernés ici
+
+    def _inked(self, xs, ys, fill):
+        """Whether this shape gets its outline: big enough, and not see-through. / Si la forme est cernée."""
+        if not self.ink or (len(fill) == 4 and fill[3] < 255):
+            return False
+        return max(xs) - min(xs) >= STYLE["min"] and max(ys) - min(ys) >= STYLE["min"]
+
+    def _ink_w(self):
+        return max(1, round(STYLE["width"] * self.k))
+
+    def _wobbly(self, q):
+        """The outline as a hand draws it: the vertices nudged a little, the long edges bent. / Le trait comme à la
+        main : les sommets un peu décalés, les longs côtés fléchis."""
+        w = STYLE["wobble"] * self.k
+        if w <= 0:
+            return q + [q[0]]
+        rng = random.Random(int(q[0][0] * 7 + q[0][1] * 13 + len(q)))
+        out = []
+        n = len(q)
+        for i in range(n + 1):
+            x0, y0 = q[i % n]
+            x1, y1 = q[(i + 1) % n]
+            out.append((x0 + rng.uniform(-w, w), y0 + rng.uniform(-w, w)))
+            d = math.hypot(x1 - x0, y1 - y0)
+            steps = int(d / (40 * self.k))
+            for j in range(1, steps + 1):
+                t = j / (steps + 1)
+                out.append((x0 + (x1 - x0) * t + rng.uniform(-w, w), y0 + (y1 - y0) * t + rng.uniform(-w, w)))
+        return out
+
+    def _outline(self, q):
+        self.d.line(self._wobbly(q), fill=_c(STYLE["ink"]), width=self._ink_w(), joint="curve")
+
+    def _shade(self, q, fill):
+        """The flat shadow on the lower part of the shape. / L'ombre en aplat sur le bas de la forme."""
+        if not STYLE.get("shade") or STYLE["shade"] >= 1 or (len(fill) == 4 and fill[3] < 255):
+            return
+        xs, ys = [p[0] for p in q], [p[1] for p in q]
+        bx0, bx1 = max(0, int(min(xs)) - 1), min(self.img.width, int(max(xs)) + 2)
+        by0, by1 = max(0, int(min(ys)) - 1), min(self.img.height, int(max(ys)) + 2)
+        if bx1 <= bx0 or by1 <= by0:
+            return
+        top = min(ys) + (max(ys) - min(ys)) * STYLE["shade_from"]
+        m = Image.new("L", (bx1 - bx0, by1 - by0), 0)
+        md = ImageDraw.Draw(m)
+        md.polygon([(x - bx0, y - by0) for x, y in q], fill=255)
+        if top - by0 > 0:
+            md.rectangle([0, 0, bx1 - bx0, top - by0], fill=0)
+        self.img.paste(_c(shade(fill, STYLE["shade"])), (bx0, by0), m)
+
+    def plain(self):
+        """Textures (stones, plaster, lattices) are never inked. / Les textures ne sont jamais cernées."""
+        return _Plain(self)
 
     def _dxs(self, xs):
         if not self.wrap:
@@ -43,16 +109,28 @@ class Pic:
         return [((x + dx) * k, y * k) for x, y in pts]
 
     def poly(self, pts, fill):
+        ink = self._inked([p[0] for p in pts], [p[1] for p in pts], fill)
         for dx in self._dxs([p[0] for p in pts]):
-            self.d.polygon(self._p(pts, dx), fill=_c(fill))
+            q = self._p(pts, dx)
+            self.d.polygon(q, fill=_c(fill))
+            if ink:
+                self._shade(q, fill)
+                self._outline(q)
 
     def rect(self, x0, y0, x1, y1, fill):
         self.poly([(x0, y0), (x1, y0), (x1, y1), (x0, y1)], fill)
 
     def ellipse(self, x0, y0, x1, y1, fill):
         k = self.k
+        ink = self._inked([x0, x1], [y0, y1], fill)
         for dx in self._dxs([x0, x1]):
-            self.d.ellipse([(x0 + dx) * k, y0 * k, (x1 + dx) * k, y1 * k], fill=_c(fill))
+            box = [(x0 + dx) * k, y0 * k, (x1 + dx) * k, y1 * k]
+            self.d.ellipse(box, fill=_c(fill))
+            if ink:
+                cx, cy, rx, ry = (box[0] + box[2]) / 2, (box[1] + box[3]) / 2, (box[2] - box[0]) / 2, (box[3] - box[1]) / 2
+                q = [(cx + rx * math.cos(a * math.tau / 36), cy + ry * math.sin(a * math.tau / 36)) for a in range(36)]
+                self._shade(q, fill)
+                self._outline(q)
 
     def line(self, pts, width, fill):
         for dx in self._dxs([p[0] for p in pts]):
@@ -69,6 +147,9 @@ class Pic:
         ys = [p[1] for p in pts]
         y0 = min(ys) if y0 is None else y0
         y1 = max(ys) if y1 is None else y1
+        if STYLE["name"] == "cartoon" and all(len(c) < 4 or c[3] >= 255 for _, c in stops):
+            self.poly(pts, _stop(stops, 0.35)[:3])                  # a flat tone, its shadow below / un aplat, son ombre
+            return
         for dx in self._dxs([p[0] for p in pts]):
             q = self._p(pts, dx)
             bx0 = max(0, int(min(p[0] for p in q)) - 1)
@@ -93,6 +174,9 @@ class Pic:
                 g.putalpha(a)
                 region = Image.alpha_composite(region, g)
             self.img.paste(region, (bx0, by0))
+            if self._inked([p[0] for p in pts], ys, stops[0][1]):
+                self._shade(q, stops[0][1])
+                self._outline(q)
 
     def grect(self, x0, y0, x1, y1, stops):
         self.gpoly([(x0, y0), (x1, y0), (x1, y1), (x0, y1)], stops)
@@ -113,7 +197,30 @@ class Pic:
         self.d = ImageDraw.Draw(self.img)
 
     def done(self):
-        return self.img.resize((max(1, round(self.w * self.s)), max(1, round(self.h * self.s))), Image.LANCZOS)
+        img = self.img.resize((max(1, round(self.w * self.s)), max(1, round(self.h * self.s))), Image.LANCZOS)
+        return toon(img) if STYLE["name"] == "cartoon" else img
+
+
+def toon(img):
+    """The colours of the cartoon look: brighter, bolder. / Les couleurs du style cartoon : plus vives."""
+    if STYLE["name"] != "cartoon":
+        return img
+    a = img.getchannel("A") if img.mode == "RGBA" else None
+    rgb = ImageEnhance.Color(img.convert("RGB")).enhance(STYLE["saturation"])
+    rgb = ImageEnhance.Contrast(rgb).enhance(STYLE["contrast"])
+    return Image.merge("RGBA", (*rgb.split(), a)) if a is not None else rgb
+
+
+class _Plain:
+    def __init__(self, pic):
+        self.pic = pic
+
+    def __enter__(self):
+        self.was = self.pic.ink
+        self.pic.ink = False
+
+    def __exit__(self, *a):
+        self.pic.ink = self.was
 
 
 def _c(c):
@@ -157,13 +264,37 @@ def layer(pic, stage, f=0.0, crop=True, **kw):
 
 def sky_img(W, H, stops, s, stars=0, seed=1, clouds=None):
     """A sky: a gradient, its stars, its clouds [(y0, y1, colour, alpha, n)]. / Un ciel."""
-    sky = vgrad(W, H, stops)
+    cartoon = STYLE["name"] == "cartoon"
+    if cartoon:                                                      # flat bands of colour / des bandes plates
+        n = STYLE["bands"]
+        sky = Image.new("RGB", (W, H))
+        d = ImageDraw.Draw(sky)
+        for i in range(n):
+            d.rectangle([0, int(H * i / n), W, int(H * (i + 1) / n) + 1], fill=_stop(stops, (i + 0.5) / n)[:3])
+    else:
+        sky = vgrad(W, H, stops)
     rng = random.Random(seed)
     if stars:
         stars_on(sky, rng, stars, H * 0.45, W)
     for (y0, y1, col, alpha, n) in clouds or ():
         over = Image.new("RGBA", (W, H), (0, 0, 0, 0))
         d = ImageDraw.Draw(over)
+        if cartoon:                                                  # round clouds, inked / des nuages ronds, cernés
+            pc = Pic(W / s, H / s, s, ink=True)
+            for _ in range(n):
+                x, y = rng.uniform(-100, W / s), rng.uniform(y0, y1)
+                w = rng.uniform(120, 260)
+                lobes = [(x + (k - 2) * w * 0.2, y - (14 if k % 2 else 4) - (k == 2) * 10, w * rng.uniform(0.12, 0.2)) for k in range(5)]
+                pc.rect(x - w * 0.42, y - 6, x + w * 0.42, y + 14, col)
+                for lx, ly, r in lobes:
+                    pc.ellipse(lx - r, ly - r, lx + r, ly + r * 0.9, col)
+                with pc.plain():                                     # the lobes joined, no inner lines / sans traits
+                    pc.rect(x - w * 0.42, y - 4, x + w * 0.42, y + 11, col)
+                    for lx, ly, r in lobes:
+                        pc.ellipse(lx - r + 3, ly - r + 3, lx + r - 3, ly + r * 0.9 - 2, col)
+            over = pc.img.resize((W, H), Image.LANCZOS)
+            sky.paste(over, (0, 0), over)
+            continue
         for _ in range(n):
             x, y = rng.uniform(-100 * s, W), rng.uniform(y0 * s, y1 * s)
             w = rng.uniform(140, 360) * s
@@ -173,7 +304,7 @@ def sky_img(W, H, stops, s, stars=0, seed=1, clouds=None):
                 d.ellipse([x + dx - r, y - r * 0.7 - (k % 3) * 3 * s, x + dx + r, y + r * 0.45], fill=col + (alpha,))
         over = over.filter(ImageFilter.GaussianBlur(2 * s))
         sky.paste(over, (0, 0), over)
-    return sky
+    return toon(sky)
 
 
 def fight_stage(builder):
@@ -286,6 +417,7 @@ def _arabesque(p, x0, y0, x1, y1, base, s, step=22):
     hi, lo = shade(base, 1.25), shade(base, 0.62)
     y = y0
     row = 0
+    was, p.ink = p.ink, False                                      # a texture / une texture
     while y < y1 + step:
         x = x0 - (step / 2 if row % 2 else 0)
         while x < x1 + step:
@@ -295,6 +427,7 @@ def _arabesque(p, x0, y0, x1, y1, base, s, step=22):
             x += step
         y += step / 2
         row += 1
+    p.ink = was
 
 
 def _fountain(p, cx, base, s):
@@ -507,10 +640,11 @@ def build_kof_mideast(W, H, s, seed=82):
     _tower(p, 1190, 1460, 0, 330, (190, 152, 104), rng, 6)
     _tower(p, 1460, 1920, -20, 330, (176, 140, 96), rng, 7)
     p.gpoly([(0, -10), (340, -10), (340, 330), (0, 330)], [(0, (206, 198, 182)), (1, (176, 166, 148))])   # the near wall
-    for _ in range(140):                                            # its worn plaster / son enduit usé
-        x, y = rng.uniform(0, 330), rng.uniform(0, 320)
-        r = rng.uniform(4, 16)
-        p.ellipse(x - r, y - r * 0.6, x + r, y + r * 0.6, shade((196, 186, 168), rng.uniform(0.86, 1.08)))
+    with p.plain():
+        for _ in range(140):                                        # its worn plaster / son enduit usé
+            x, y = rng.uniform(0, 330), rng.uniform(0, 320)
+            r = rng.uniform(4, 16)
+            p.ellipse(x - r, y - r * 0.6, x + r, y + r * 0.6, shade((196, 186, 168), rng.uniform(0.86, 1.08)))
     for x, y in ((90, 40), (220, 40), (90, 150)):
         _window(p, x, y, 18, 34, frame=(214, 206, 190), arch=False)
     layers.append(layer(p, "far"))
@@ -580,14 +714,15 @@ def build_kof_mideast(W, H, s, seed=82):
     p = Pic(U, V, s)                                                # the paving stones / les pavés
     p.grect(0, 328, U, V, [(0, (214, 190, 146)), (1, (170, 146, 104))])
     y, hh = 332, 8
-    while y < V:
-        x = -rng.uniform(0, 30)
-        while x < U:
-            w = rng.uniform(26, 44) * (1 + (y - 330) / 140)
-            p.ellipse(x + 2, y + 1, x + w - 2, y + hh - 1, shade((212, 188, 144), rng.uniform(0.86, 1.06)))
-            x += w
-        y += hh
-        hh *= 1.18
+    with p.plain():
+        while y < V:
+            x = -rng.uniform(0, 30)
+            while x < U:
+                w = rng.uniform(26, 44) * (1 + (y - 330) / 140)
+                p.ellipse(x + 2, y + 1, x + w - 2, y + hh - 1, shade((212, 188, 144), rng.uniform(0.86, 1.06)))
+                x += w
+            y += hh
+            hh *= 1.18
     layers.append(layer(p, "floor"))
     amb = {"horizon": int(330 * s), "sparkles": sparkles, "hooks": {"front": [hook_sparkles]}}
     return {"sky": sky, "layers": layers, "tw": W, "amb": amb}
@@ -657,10 +792,11 @@ def build_kof_korea(W, H, s, seed=83):
     rock = [(1180, 310), (1230, 230), (1290, 190), (1360, 150), (1420, 120), (1500, 108), (1580, 126), (1650, 150),
             (1720, 196), (1800, 236), (1880, 280), (1920, 300), (1920, 320), (1180, 320)]
     p.gpoly(rock, [(0, (196, 186, 164)), (1, (150, 140, 120))])
-    for _ in range(26):                                              # the rocks and their shadows / les rochers
-        x, y = rng.uniform(1220, 1880), rng.uniform(150, 300)
-        p.poly([(x, y), (x + rng.uniform(20, 40), y - rng.uniform(10, 30)), (x + rng.uniform(40, 70), y + 4)],
-               shade((160, 150, 128), rng.uniform(0.8, 1.1)))
+    with p.plain():
+        for _ in range(26):                                          # the rocks and their shadows / les rochers
+            x, y = rng.uniform(1220, 1880), rng.uniform(150, 300)
+            p.poly([(x, y), (x + rng.uniform(20, 40), y - rng.uniform(10, 30)), (x + rng.uniform(40, 70), y + 4)],
+                   shade((160, 150, 128), rng.uniform(0.8, 1.1)))
     for _ in range(30):                                              # the trees / les arbres
         x, y = rng.uniform(1200, 1900), rng.uniform(130, 290)
         if y < 330 - (x - 1180) * 0.0 and abs(x - 1500) > 60 or y > 180:
@@ -690,9 +826,10 @@ def build_kof_korea(W, H, s, seed=83):
     _house(p, 540, 720, 110, 300, (218, 152, 122), 2)
     _house(p, 720, 820, 150, 300, (176, 196, 214), 2)
     p.gpoly([(0, 270), (1180, 270), (1180, 292), (0, 292)], [(0, (164, 158, 146)), (1, (120, 116, 108))])   # the quay / le quai
-    for y in (275, 283):
-        for x in range(int(y % 3) * 10, 1180, 34):
-            p.rect(x, y, x + 30, y + 6, (150, 146, 136))
+    with p.plain():
+        for y in (275, 283):
+            for x in range(int(y % 3) * 10, 1180, 34):
+                p.rect(x, y, x + 30, y + 6, (150, 146, 136))
     pts = [(1060 + k * 34, 270 - 54 * math.sin(math.pi * k / 20)) for k in range(21)]   # the red bridge / le pont rouge
     p.line(pts, 10, (196, 86, 48))
     p.line([(x, y - 20) for x, y in pts], 4, (210, 100, 56))
@@ -702,9 +839,10 @@ def build_kof_korea(W, H, s, seed=83):
         p.line([(x, y), (x, 300)], 6, (150, 64, 40))
     _house(p, 1770, 1920, 40, 300, (222, 132, 92), 3)               # the house on the right / la maison de droite
     p.gpoly([(1760, 200), (1920, 200), (1920, 330), (1760, 330)], [(0, (150, 144, 134)), (1, (110, 106, 98))])
-    for y in range(206, 330, 18):
-        for x in range(1764 + (y // 18 % 2) * 14, 1920, 28):
-            p.rect(x, y, x + 24, y + 14, (166, 160, 148))
+    with p.plain():
+        for y in range(206, 330, 18):
+            for x in range(1764 + (y // 18 % 2) * 14, 1920, 28):
+                p.rect(x, y, x + 24, y + 14, (166, 160, 148))
     p.rect(1820, 30, 1866, 190, (40, 80, 176))                      # the blue sign / l'enseigne bleue
     for k in range(4):
         y = 44 + k * 36
@@ -1084,9 +1222,10 @@ def build_kof_yard(W, H, s, seed=86):
     p = Pic(U, V, s)                                                # the rails and the paving stones / les rails, les pavés
     vx = 960
     p.gpoly([(0, 300), (U, 300), (U, V), (0, V)], [(0, (110, 104, 100)), (1, (70, 66, 64))])
-    for y in range(304, int(V), 9):
-        for x in range(-(y % 2) * 12, int(U), 24):
-            p.ellipse(x, y, x + 22, y + 8, shade((112, 106, 100), rng.uniform(0.8, 1.1)))
+    with p.plain():
+        for y in range(304, int(V), 9):
+            for x in range(-(y % 2) * 12, int(U), 24):
+                p.ellipse(x, y, x + 22, y + 8, shade((112, 106, 100), rng.uniform(0.8, 1.1)))
     for bx in (-900, -300, 260, 760, 1160, 1660, 2260, 2860):        # the rails converging / les rails qui convergent
         for d in (-18, 18):
             x_end = bx + d * 6
@@ -1406,9 +1545,10 @@ def build_kof_noah(W, H, s, seed=89):
     layers.append(layer(p, "mid"))
     p = Pic(U, V, s)                                                 # the carpet and the grating / le tapis et la grille
     p.gpoly([(0, 316), (U, 316), (U, V), (0, V)], [(0, (112, 20, 24)), (1, (60, 8, 10))])
-    for y in range(330, int(V), 18):
-        for x in range(0, int(U), 36):
-            p.poly([(x, y), (x + 9, y - 6), (x + 18, y), (x + 9, y + 6)], (50, 6, 8))
+    with p.plain():
+        for y in range(330, int(V), 18):
+            for x in range(0, int(U), 36):
+                p.poly([(x, y), (x + 9, y - 6), (x + 18, y), (x + 9, y + 6)], (50, 6, 8))
     p.poly([(U / 2 - 150, 316), (U / 2 + 150, 316), (U / 2 + 260, V), (U / 2 - 260, V)], (60, 60, 64))
     for k in range(12):
         t = k / 11

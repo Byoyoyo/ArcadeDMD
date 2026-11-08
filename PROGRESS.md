@@ -4,9 +4,9 @@ Game by game, what ArcadeDMD already knows how to show, and what comes next. Upd
 
 Jeu par jeu, ce qu'ArcadeDMD sait déjà afficher, et ce qui vient ensuite. Mis à jour à chaque version.
 
-Up to date with version 1.32.0. / À jour de la version 1.32.0.
+Up to date with version 1.33.0. / À jour de la version 1.33.0.
 
-Tuned on a real cabinet, round after round, with videos, photos and logs of the games: The King of Fighters '98 (its nine stages, the desperation moves, ROUND and FIGHT ! with the game, 1.31 to 1.32), Metal Slug 1 to 5 and X, DoDonPachi; learned on a cabinet too: Twinkle Star Sprites, Puzzle Bobble, Marvel vs. Capcom, X-Men vs. Street Fighter, Marvel Super Heroes vs. Street Fighter, X-Men: Children of the Atom, Hyper Street Fighter II, Strikers 1945 Plus, Giga Wing, Mercs. / Réglés sur une vraie borne, round après round, avec des vidéos, des photos et les journaux des jeux : The King of Fighters '98 (ses neuf décors, les coups désespérés, ROUND et FIGHT ! avec le jeu, 1.31 à 1.32), Metal Slug 1 à 5 et X, DoDonPachi ; appris sur une borne aussi : Twinkle Star Sprites, Puzzle Bobble, Marvel vs. Capcom, X-Men vs. Street Fighter, Marvel Super Heroes vs. Street Fighter, X-Men: Children of the Atom, Hyper Street Fighter II, Strikers 1945 Plus, Giga Wing, Mercs.
+Tuned on a real cabinet, round after round, with videos, photos, logs of the games and, since 1.33, one game recorded whole: The King of Fighters '98 (its nine stages, the desperation moves, ROUND and FIGHT ! with the game, 1.31 to 1.33), Metal Slug 1 to 5 and X (each from one recorded game, mission 1 checked frame by frame, 1.33), Windjammers (the disc, the players, the supers, the sets, 1.33), Puzzle Bobble 2 (1.33), DoDonPachi; learned on a cabinet too: Twinkle Star Sprites, Puzzle Bobble, The King of Fighters 2002, Fatal Fury, Marvel vs. Capcom, X-Men vs. Street Fighter, Marvel Super Heroes vs. Street Fighter, X-Men: Children of the Atom, Hyper Street Fighter II, Strikers 1945 Plus, Giga Wing, Mercs. / Réglés sur une vraie borne, round après round, avec des vidéos, des photos, les journaux des jeux et, depuis la 1.33, une partie enregistrée en entier : The King of Fighters '98 (ses neuf décors, les coups désespérés, ROUND et FIGHT ! avec le jeu, 1.31 à 1.33), Metal Slug 1 à 5 et X (chacun d'après une partie enregistrée, la mission 1 vérifiée image par image, 1.33), Windjammers (le disque, les joueurs, les supers, les sets, 1.33), Puzzle Bobble 2 (1.33), DoDonPachi ; appris sur une borne aussi : Twinkle Star Sprites, Puzzle Bobble, The King of Fighters 2002, Fatal Fury, Marvel vs. Capcom, X-Men vs. Street Fighter, Marvel Super Heroes vs. Street Fighter, X-Men: Children of the Atom, Hyper Street Fighter II, Strikers 1945 Plus, Giga Wing, Mercs.
 
 For each game / Pour chaque jeu
 - **Values / Valeurs.** What is read from the game's memory, such as each player's score, lives, bombs, level or health. / Ce qui est lu dans la mémoire du jeu, comme le score de chaque joueur, les vies, les bombes, le niveau ou la vie.
@@ -25,12 +25,12 @@ Les adresses prises dans les bases de codes de triche doivent encore être confi
 
 | Game / Jeu | Values / Valeurs | Panel / Dalle | HD | Version |
 |---|---|---|---|---|
-| Metal Slug | ✅ | ✅ | ✅ | 1.15 |
-| Metal Slug 2 | ✅ | ✅ | ✅ | 1.15 |
-| Metal Slug X | ✅ | ✅ | ✅ | 1.15 |
-| Metal Slug 3 | ✅ | ✅ | ✅ | 1.15 |
-| Metal Slug 4 | ✅ | ✅ | ✅ | 1.15 |
-| Metal Slug 5 | ✅ | ✅ | ✅ | 1.15 |
+| Metal Slug | ✅ | ✅ | ✅ | 1.15, 1.33 |
+| Metal Slug 2 | ✅ | ✅ | ✅ | 1.15, 1.33 |
+| Metal Slug X | ✅ | ✅ | ✅ | 1.15, 1.33 |
+| Metal Slug 3 | ✅ | ✅ | ✅ | 1.15, 1.33 |
+| Metal Slug 4 | ✅ | ✅ | ✅ | 1.15, 1.33 |
+| Metal Slug 5 | ✅ | ✅ | ✅ | 1.15, 1.33 |
 
 ### Fighting games / Jeux de combat (57 games / jeux)
 
@@ -112,7 +112,7 @@ Depuis la 1.28 et la 1.29, les quinze shoot'em up (Blazing Star, Pulstar, Last R
 |---|---|---|---|---|---|---|
 | 1 | Blazing Star | Shoot'em up | 🟡 | ✅ | ✅ | 1.17 |
 | 2 | Puzzle Bobble | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.17 |
-| 3 | Windjammers | Sport | ✅ | ✅ | ✅ | 1.17 |
+| 3 | Windjammers | Sport | ✅ | ✅ | ✅ | 1.17, 1.33 |
 | 4 | Shock Troopers | Action | 🟡 | ✅ | ✅ | 1.17 |
 | 5 | Neo Turf Masters | Sport (golf) | ✅ | ✅ | ✅ | 1.17 |
 | 6 | Pulstar | Shoot'em up | 🟡 | ✅ | ✅ | 1.18 |
@@ -151,7 +151,7 @@ Depuis la 1.28 et la 1.29, les quinze shoot'em up (Blazing Star, Pulstar, Last R
 | 39 | Ninja Combat | Beat'em up | 🟡 | ✅ | ✅ | 1.22 |
 | 40 | Ninja Commando | Action | 🟡 | ✅ | ✅ | 1.22 |
 | 41 | Blue's Journey | Action | 🟡 | ✅ | ✅ | 1.22 |
-| 42 | Puzzle Bobble 2 | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.22 |
+| 42 | Puzzle Bobble 2 | Puzzle / Réflexion | ✅ | ✅ | ✅ | 1.22, 1.33 |
 | 43 | Magical Drop II | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.22 |
 | 44 | Money Puzzle Exchanger | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.22 |
 | 45 | Puzzle De Pon! | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.22 |

@@ -25,9 +25,10 @@ from .memvalues import derive, forget_seen, game_values, resolve_value
 from .coinbuttons import CoinButtons, mvs_rates, side_word
 from .neocoins import NeoCoins
 from .textfiles import TextFiles
+from .capture import Capture
 from .i18n import tr
 
-VERSION = "1.32.0"
+VERSION = "1.33.0"
 
 DEFAULT_CONFIG = {
     "language": "auto",
@@ -545,6 +546,8 @@ class Engine:
         self.bridge = None
         tf = config.get("textfiles") or {}
         self.texts = TextFiles(tf, root, log) if tf.get("enabled") and not demo_game else None
+        # the captures of the fighting games, to replay them offline (1.33) / les captures des jeux de combat
+        self.capture = Capture(root, log, config.get("capture", "all")) if not demo_game else None
         # config.json modifié (screen_setup.bat, réglage à la main) : le moteur redémarre avec les nouveaux réglages
         self.cfg_path = os.path.join(root, "config.json")
         self.cfg_mtime = _mtime(self.cfg_path)
@@ -579,6 +582,8 @@ class Engine:
         self.retroarch = None
         self.derived = None
         self.coin_guess = None        # crédits d'une Neo Geo devinés d'après le BIOS (RetroArch)
+        self.presses = 0              # coin button presses in this game, for the capture (1.33 test 35) / appuis
+        self.marks = 0                # markers (a coin button held) in this game / repères
         self.coin_count = None        # credits counted from the coin buttons (no BIOS, credits not read) / crédits comptés
         self.coin_game = None         # the game they were counted for / le jeu pour lequel ils sont comptés
         self.coin_begin = {}          # value -> player who begins when it comes back from 0 / valeur -> joueur qui commence
@@ -654,6 +659,8 @@ class Engine:
                     self.log(tr(f"sortie {out.__class__.__name__} : {e}", f"output {out.__class__.__name__}: {e}"))
 
     def go_idle(self):
+        if getattr(self, "capture", None) is not None:
+            self.capture.stop(time.monotonic())
         self.mode = "idle"
         self.source = None
         self.sim = None
@@ -693,14 +700,16 @@ class Engine:
         self.tag = tag if source in ("plugin", "retroarch") else {}
         names = names + [k for k in self.tag if k not in names]
         # credits of a Neo Geo that cannot be read (RetroArch): guessed from its BIOS, the guess kept when the same game
-        # comes back after a silence (RetroArch menu opened a while), and started from the credits left last time
-        # crédits devinés d'après le BIOS, gardés quand le même jeu revient après un silence, et repartis des crédits
-        # restants la dernière fois
+        # comes back after a silence (RetroArch menu opened a while). The game starts with none: the BIOS clears them
+        # as it boots (1.33 test 29, Seb: credits on the HD screen at the launch, none in the game)
+        # crédits devinés d'après le BIOS, gardés quand le même jeu revient après un silence. Le jeu démarre sans
+        # crédit, le BIOS les efface au démarrage
         if source in ("plugin", "retroarch") and "credits" not in names and "bios_request" in names:
             same = not intro and self.coin_guess is not None and self.coin_game == key
-            self.coin_guess = self.coin_guess if same else NeoCoins(mvs_rates(self.cfg), self._neo_kept(meta.get("system") or ""))
+            self.coin_guess = self.coin_guess if same else NeoCoins(mvs_rates(self.cfg))
         else:
             self.coin_guess = None
+        self.presses = self.marks = 0
         # a game without a BIOS that says who plays (CPS): player 1 plays while its values move (timer, health...)
         # un jeu sans BIOS qui dit qui joue (CPS) : le joueur 1 joue tant que ses valeurs bougent (chrono, vie...)
         act = g.get("activity") if isinstance(g.get("activity"), dict) else None
@@ -770,6 +779,8 @@ class Engine:
                                "title": title, "path": None}
         self.log(tr(f"jeu : {meta.get('system')} « {title} » -> scène {self.scene_key}",
                     f"game: {meta.get('system')} \"{title}\" -> scene {self.scene_key}"))
+        if self.capture is not None and source != "demo":
+            self.capture.start(meta, g, key, VERSION, time.monotonic())
 
     def start_demo(self, key, seconds=None):
         g = self.library.get(key)
@@ -855,7 +866,6 @@ class Engine:
                         self.state.update("coin_side", None, now)      # seen by the BIOS only: side unknown / côté inconnu
                     self.state.update("credits", c, now)
                     self.log(tr(f"crédits devinés d'après le BIOS : {c}", f"credits guessed from the BIOS: {c}"))
-                    self._neo_keep(c)
         elif t == "stop":
             if self.source == source or self.mode != "game":
                 self.go_idle()
@@ -1026,67 +1036,52 @@ class Engine:
         / Crédits d'une pièce à gauche et à droite, écrits sur les monnayeurs de l'écran HD."""
         return mvs_rates(self.cfg) if self.state.values.get("bios_mvs") == 0x80 else (1, 1)
 
-    def coin_in(self, side, now):
+    def coin_in(self, side, now, gap=None, hold=None):
         """A coin button pressed on the cabinet (0 left, 1 right): the side of the coin, and the credits of a Neo Geo
         under RetroArch. Nothing outside a game, nor while RetroArch shows its menu (the button moves in the menu).
+        gap and hold: seconds since the press before on that button and how long that one was held, for the log.
         / Un bouton des pièces : le côté de la pièce, et les crédits d'une Neo Geo sous RetroArch."""
         if self.mode != "game" or self.source not in ("plugin", "retroarch") or self.state.paused:
             return
         self.state.update("coin_side", side, now)
+        self.presses += 1
+        self.state.update("coin_press", self.presses, now)                 # every press, with its time, in the capture
         where = side_word(side)
+        how = ""
+        if isinstance(gap, (int, float)) and gap < 5.0:                   # how the button is pressed (1.33 test 28)
+            how = tr(f" ({gap * 1000:.0f} ms après l'appui d'avant", f" ({gap * 1000:.0f} ms after the press before")
+            if isinstance(hold, (int, float)):
+                how += tr(f", tenu {hold * 1000:.0f} ms)", f", held {hold * 1000:.0f} ms)")
+            else:
+                how += ")"
         if self.coin_guess is None:
             if self.coin_count is not None:                               # counted from the buttons / comptés d'après les boutons
                 c = self.coin_count.add(side)
                 self.state.update("credits", c, now)
-                self.log(tr(f"pièce à {where}, crédits comptés {c}", f"coin on the {where}, credits counted {c}"))
+                self.log(tr(f"pièce à {where}, crédits comptés {c}", f"coin on the {where}, credits counted {c}") + how)
                 return
-            self.log(tr(f"pièce à {where}", f"coin on the {where}"))
+            self.log(tr(f"pièce à {where}", f"coin on the {where}") + how)
             return
         old = self.state.values.get("credits")
         c = self.coin_guess.add(side, now)
         if c is not None and c != old:
             self.state.update("credits", c, now)
-            self._neo_keep(c)
-        self.log(tr(f"pièce à {where}, crédits devinés {c}", f"coin on the {where}, credits guessed {c}"))
+        self.log(tr(f"pièce à {where}, crédits devinés {c}", f"coin on the {where}, credits guessed {c}") + how)
 
-    def _neo_file(self):
-        return os.path.join(self.root, "runtime", "neo_credits.json")
 
-    def _neo_kept(self, rom):
-        """Credits guessed for a Neo Geo game when it was last quit. FinalBurn Neo saves its backup RAM, credits
-        included, and gives them back the next time. / Crédits devinés pour un jeu Neo Geo quand on l'a quitté."""
-        try:
-            with open(self._neo_file(), encoding="utf-8") as f:
-                d = json.load(f)
-        except (OSError, ValueError):
-            return 0
-        v = d.get(rom) if isinstance(d, dict) and rom else None
-        return v if isinstance(v, int) and 0 <= v <= 99 else 0
-
-    def _neo_keep(self, c):
-        """The guessed credits of the game, kept for the next time. / Les crédits devinés, gardés pour la fois suivante."""
-        rom = self.state.meta.get("system") or ""
-        if not rom or not isinstance(c, int):
+    def mark_in(self, side, now, held):
+        """A coin button held a good second (1.33 test 35): a marker in the capture, "here", and a screenshot asked of
+        RetroArch, so that the moment Seb means (a boss coming, a grenade late) is found again in the memory and on the
+        screen. / Un bouton pièce tenu une bonne seconde : un repère dans la capture et une capture d'écran."""
+        if self.mode != "game" or self.source not in ("plugin", "retroarch"):
             return
-        path = self._neo_file()
-        try:
-            with open(path, encoding="utf-8") as f:
-                d = json.load(f)
-        except (OSError, ValueError):
-            d = {}
-        if not isinstance(d, dict):
-            d = {}
-        if d.get(rom) == c:
-            return
-        d[rom] = c
-        try:
-            os.makedirs(os.path.dirname(path), exist_ok=True)
-            with open(path + ".tmp", "w", encoding="utf-8") as f:
-                json.dump(d, f, indent=1, sort_keys=True)
-            os.replace(path + ".tmp", path)
-        except OSError:
-            pass
-
+        self.marks += 1
+        self.state.update("marker", self.marks, now)
+        shot = self.retroarch.shot(tr("repère", "marker"), now) if self.retroarch is not None else False
+        self.log(tr(f"repère {self.marks} posé (bouton pièce {side_word(side)} tenu {held * 1000:.0f} ms)"
+                    + (", capture d'écran demandée" if shot else ""),
+                    f"marker {self.marks} set (coin button on the {side_word(side)} held {held * 1000:.0f} ms)"
+                    + (", screenshot asked" if shot else "")))
     def _hold_zero(self, k, v, now):
         """Score lu à 0 en pleine partie (l'objet du combattant n'est pas encore recréé entre deux rounds
         ou deux combats) : l'ancien score reste affiché, au plus "hold_zero" secondes."""
@@ -1223,10 +1218,14 @@ class Engine:
                 self.set_scene(self.scene_key)
         if self.coin_buttons is not None:
             # before what the game shows of that same coin / avant ce que le jeu montre de cette même pièce
-            for side in self.coin_buttons.poll(now):
-                self.coin_in(side, now)
+            timed = getattr(self.coin_buttons, "poll_timed", None)
+            for side, gap, hold in (timed(now) if timed else [(s, None, None) for s in self.coin_buttons.poll(now)]):
+                self.coin_in(side, now, gap, hold)
             for player in self.coin_buttons.poll_starts():
                 self.start_in(player, now)
+            marks = getattr(self.coin_buttons, "poll_marks", None)
+            for side, at, held in (marks() if marks else []):
+                self.mark_in(side, at, held)
         if self.tail:
             for ev in self.tail.poll():
                 self.handle_event(ev, now)
@@ -1271,6 +1270,8 @@ class Engine:
             self._activity(now)
             if self.activity.get("fight"):
                 self._p2_fight(now)
+        if self.capture is not None and self.capture.on:
+            self.capture.poll(self.state, time.monotonic())
         if self.texts is not None:     # fichiers texte pour OBS, séries de victoires en match VS
             try:
                 self.texts.update(self.state, self.mode == "game" and self.source != "demo",

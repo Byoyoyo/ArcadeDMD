@@ -40,12 +40,7 @@
    "court": {
     "addr": "0x100324",
     "type": "u8",
-    "note": "court, 0 beach, 1 lawn, 2 tiles, 3 concrete, 4 clay, 5 stadium (FinalBurn Neo cheats, Select Court)"
-   },
-   "cpu_team": {
-    "addr": "0x1004FE",
-    "type": "u8",
-    "note": "computer's team, 0 Japan, 1 Spain, 2 USA, 3 Korea, 4 Italy, 5 Germany (FinalBurn Neo cheats, Select CPU Team)"
+    "note": "court, 0 beach, 1 lawn, 2 tiles, 3 concrete, 4 clay, 5 stadium (FinalBurn Neo cheats; Seb's photo of 2026-11-04 20:59, the beach at 0; the order of the RetroAchievements note for 0x322 does not apply here)"
    },
    "to_win": {
     "addr": "0x1000FF",
@@ -90,6 +85,126 @@
     "addr": "0x10FD82",
     "type": "u8",
     "note": "BIOS_MVS_FLAG: 0 home console (AES, no coins), otherwise arcade (MVS)"
+   },
+   "p1_x": {
+    "addr": "0x100806",
+    "type": "u16",
+    "note": "player 1 x on the court, 29 to 139 (RetroAchievements 0x806; Seb's capture of 2026-11-04 18:56); read at every image, drawn as his token on the HD court (1.33)",
+    "fast": true
+   },
+   "p1_y": {
+    "addr": "0x10080A",
+    "type": "u16",
+    "note": "player 1 y, 76 to 188",
+    "fast": true
+   },
+   "p2_x": {
+    "addr": "0x100886",
+    "type": "u16",
+    "note": "player 2 or computer x, 197 to 292 (player 1's block + 0x80)",
+    "fast": true
+   },
+   "p2_y": {
+    "addr": "0x10088A",
+    "type": "u16",
+    "note": "player 2 or computer y, 76 to 188",
+    "fast": true
+   },
+   "sets": {
+    "addr": "0x100872",
+    "type": "u8",
+    "valid": [
+     0,
+     3
+    ],
+    "note": "player 1 sets won (RetroAchievements 0x873 'player 1 sets won', the byte next to it as for the points); shown as gold discs under P1 (1.33, Seb)"
+   },
+   "sets_p2": {
+    "addr": "0x1008F2",
+    "type": "u8",
+    "valid": [
+     0,
+     3
+    ],
+    "note": "player 2 or computer sets won (RetroAchievements 0x8f3)"
+   },
+   "score": {
+    "addr": "0x100066",
+    "type": "bcd",
+    "bytes": 3,
+    "note": "player 1 score, six digits (RetroAchievements 0x66, 0x67 and 0x69, the three pairs of digits; the bytes next to them as for the points); shown small under P1 (1.33, Seb)"
+   },
+   "score_p2": {
+    "addr": "0x10006A",
+    "type": "bcd",
+    "bytes": 3,
+    "note": "player 2 score, six digits (RetroAchievements 0x6a, 0x6b and 0x6d)"
+   },
+   "disc_x": {
+    "addr": "0x100A06",
+    "type": "u16",
+    "fast": true,
+    "note": "the disc's x on the court, 8 at the left goal line to 311 at the right one, 160 at the serve (the object block after the players', found with the probes of 1.33 on Seb's capture of 2026-11-04 18:56); read at every image, the HD disc follows it"
+   },
+   "disc_y": {
+    "addr": "0x100A0A",
+    "type": "u16",
+    "fast": true,
+    "note": "the disc's y, 57 (a high lob at the top) to 208 (the bottom), the players between 76 and 188, 192 at the serve"
+   },
+   "disc_h": {
+    "addr": "0x100A44",
+    "type": "s16",
+    "fast": true,
+    "note": "the disc's height, 0 on the ground, up to about 90 at the top of a lob, 60 to 65 while it floats over a player charging his super, -16 once a point is scored (Seb's capture of 2026-11-04 19:51 with the probes of test 14; the next word is its vertical speed)"
+   },
+   "disc_state": {
+    "addr": "0x100A20",
+    "type": "u16",
+    "fast": true,
+    "note": "the disc's state word: bit 0x800 while a super shot flies (0x8810 player 1's, 0x941 the computer's), bit 0x100 while a lob is in the air (0x190), 0x70 a normal flight, 0x30 held, 0x90 held by a player charging, 0x50 after a goal (Seb's capture of 2026-11-04 19:51 with the probes of test 14)"
+   },
+   "disc_last": {
+    "addr": "0x100A3A",
+    "type": "u16",
+    "note": "who threw or holds the disc: 12 player 1, 8 player 2 or the computer; set at the catch, kept during the flight (Seb's capture of 2026-11-04 19:51 with the probes of test 14)"
+   },
+   "p1_state": {
+    "addr": "0x10081A",
+    "type": "u16",
+    "fast": true,
+    "note": "player 1's action word: 0x1400 while he charges his super (under the marker of a lob or with the disc floating over him, about 1 s, the word 0x84E counts to 36), 0xC00 and 0x4xx other moves, 0 otherwise (Seb's capture of 2026-11-04 19:51 with the probes of test 14)"
+   },
+   "p2_state": {
+    "addr": "0x10089A",
+    "type": "u16",
+    "fast": true,
+    "note": "player 2's or the computer's action word, same values (player 1's block + 0x80)"
+   },
+   "p1_chr": {
+    "addr": "0x10031D",
+    "type": "u8",
+    "mult": 0.25,
+    "valid": [
+     0,
+     5
+    ],
+    "note": "player 1's character, 0 Scott (USA), 1 Costa (Spain), 2 Wessel (Germany), 3 Yoo (Korea; Miller of England on a Japanese BIOS), 4 Biaggi (Italy), 5 Mita (Japan) (RetroAchievements 0x31c, the byte next to it, the code 0, 4, 8... divided by 4; Seb's capture of 19:51)"
+   },
+   "p2_chr": {
+    "addr": "0x10031F",
+    "type": "u8",
+    "mult": 0.25,
+    "valid": [
+     0,
+     5
+    ],
+    "note": "player 2's or the computer's character, same codes (RetroAchievements 0x31e; Wessel then Biaggi in Seb's capture of 19:51, while 0x1004FE stayed at 0)"
+   },
+   "bios_country": {
+    "addr": "0x10FD83",
+    "type": "u8",
+    "note": "BIOS_COUNTRY_CODE: 0 Japan, 1 USA, 2 Europe (neogeodev). Outside Japan the fourth player is Beeho Yoo of Korea (Seb's cabinet, a Europe BIOS, shows the Korean flag), on a Japanese BIOS Steve Miller of England (MobyGames, 1.33 test 18)"
    }
   }
  },
@@ -105,7 +220,6 @@
   "set_points_p2": 0,
   "time": 30,
   "court": 0,
-  "cpu_team": 5,
   "to_win": 12,
   "sim": {
    "time": {
@@ -156,8 +270,198 @@
     ],
     "every": 16.0,
     "start": 15.0
+   },
+   "p1_x": {
+    "random": [
+     30,
+     139
+    ],
+    "every": [
+     0.8,
+     1.6
+    ],
+    "start": 1.0
+   },
+   "p1_y": {
+    "random": [
+     76,
+     188
+    ],
+    "every": [
+     0.8,
+     1.6
+    ],
+    "start": 1.3
+   },
+   "p2_x": {
+    "random": [
+     197,
+     292
+    ],
+    "every": [
+     0.8,
+     1.6
+    ],
+    "start": 1.1
+   },
+   "p2_y": {
+    "random": [
+     76,
+     188
+    ],
+    "every": [
+     0.8,
+     1.6
+    ],
+    "start": 1.4
+   },
+   "p1_state": {
+    "cycle": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     5120,
+     5120,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "every": 0.5,
+    "start": 3.0
+   },
+   "disc_state": {
+    "cycle": [
+     112,
+     112,
+     112,
+     112,
+     112,
+     112,
+     112,
+     112,
+     144,
+     144,
+     2064,
+     2064,
+     112,
+     112,
+     112,
+     112,
+     112,
+     112,
+     112,
+     112
+    ],
+    "every": 0.5,
+    "start": 3.0
+   },
+   "disc_h": {
+    "cycle": [
+     0,
+     0,
+     0,
+     0,
+     30,
+     70,
+     40,
+     0,
+     60,
+     60,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "every": 0.5,
+    "start": 3.0
+   },
+   "disc_last": {
+    "cycle": [
+     12,
+     12,
+     12,
+     12,
+     12,
+     12,
+     12,
+     12,
+     12,
+     12,
+     12,
+     12,
+     8,
+     8,
+     8,
+     8,
+     8,
+     8,
+     8,
+     8
+    ],
+    "every": 0.5,
+    "start": 3.0
+   },
+   "p2_state": {
+    "cycle": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     5120,
+     5120,
+     0,
+     0
+    ],
+    "every": 0.5,
+    "start": 3.0
    }
-  }
+  },
+  "sets": 1,
+  "sets_p2": 0,
+  "score": 12300,
+  "score_p2": 4500,
+  "p1_x": 80,
+  "p1_y": 130,
+  "p2_x": 240,
+  "p2_y": 130,
+  "p1_chr": 3,
+  "p2_chr": 2,
+  "disc_h": 0,
+  "disc_state": 48,
+  "disc_last": 12,
+  "p1_state": 0,
+  "p2_state": 0,
+  "bios_country": 2
  },
  "scene": {
   "layers": [
@@ -211,6 +515,53 @@
      {
       "text": "{court_name}",
       "color": "#9ab0c8"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "court_name"
+      }
+     ]
+    }
+   },
+   {
+    "type": "text",
+    "font": "4x6",
+    "x": 127,
+    "y": 21,
+    "align": "right",
+    "segments": [
+     {
+      "text": "{score}",
+      "color": "#ff6040"
      }
     ],
     "when": {
@@ -307,7 +658,7 @@
     "align": "right",
     "segments": [
      {
-      "text": "{cpu_name}",
+      "text": "{p2_nation}",
       "color": "#40a0ff"
      }
     ],
@@ -350,7 +701,7 @@
        }
       },
       {
-       "has": "cpu_name"
+       "has": "p2_nation"
       }
      ]
     }
@@ -595,27 +946,6 @@
   ]
  },
  "derived": {
-  "cpu_name": {
-   "value": "cpu_team",
-   "names": {
-    "en": [
-     "JAPAN",
-     "SPAIN",
-     "USA",
-     "KOREA",
-     "ITALY",
-     "GERMANY"
-    ],
-    "fr": [
-     "JAPON",
-     "ESPAGNE",
-     "USA",
-     "CORÉE",
-     "ITALIE",
-     "ALLEMAGNE"
-    ]
-   }
-  },
   "court_name": {
    "value": "court",
    "names": {
@@ -636,6 +966,86 @@
      "STADE"
     ]
    }
+  },
+  "p1_name": {
+   "value": "p1_chr",
+   "names": [
+    "G. SCOTT",
+    "J. COSTA",
+    "K. WESSEL",
+    "B. YOO",
+    "L. BIAGGI",
+    "H. MITA"
+   ]
+  },
+  "p2_name": {
+   "value": "p2_chr",
+   "names": [
+    "G. SCOTT",
+    "J. COSTA",
+    "K. WESSEL",
+    "B. YOO",
+    "L. BIAGGI",
+    "H. MITA"
+   ]
+  },
+  "p1_nation": {
+   "value": "p1_chr",
+   "names": {
+    "en": [
+     "USA",
+     "SPAIN",
+     "GERMANY",
+     "KOREA",
+     "ITALY",
+     "JAPAN"
+    ],
+    "fr": [
+     "USA",
+     "ESPAGNE",
+     "ALLEMAGNE",
+     "CORÉE",
+     "ITALIE",
+     "JAPON"
+    ]
+   }
+  },
+  "p2_nation": {
+   "value": "p2_chr",
+   "names": {
+    "en": [
+     "USA",
+     "SPAIN",
+     "GERMANY",
+     "KOREA",
+     "ITALY",
+     "JAPAN"
+    ],
+    "fr": [
+     "USA",
+     "ESPAGNE",
+     "ALLEMAGNE",
+     "CORÉE",
+     "ITALIE",
+     "JAPON"
+    ]
+   }
   }
+ },
+ "note": "Neo Geo disc game: points of the set, sets won, scores, timer, court, opponent, the disc's position (1.33, Seb's captures).",
+ "capture_renames": {
+  "_obj2_x": "disc_x",
+  "_obj2_y": "disc_y",
+  "_p1_x": "p1_x",
+  "_p1_y": "p1_y",
+  "_p2_x": "p2_x",
+  "_p2_y": "p2_y",
+  "_wA20": "disc_state",
+  "_wA44": "disc_h",
+  "_wA3A": "disc_last",
+  "_w81A": "p1_state",
+  "_w89A": "p2_state",
+  "_p1_chr": "p1_chr",
+  "_p2_chr": "p2_chr"
  }
 }

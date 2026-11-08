@@ -187,14 +187,18 @@ def build_bubbles(W, H, s, seed=22):
 
 
 # ---------------------------------------------------------------------------- terrains de Windjammers
-COURT = {   # sol (haut, bas), lignes, fond
-    "beach": ((236, 210, 152), (210, 176, 118), (255, 255, 255)),
+COURT = {   # sol (haut, bas), lignes ; in the game's order (beach 0, lawn 1, tiled 2, concrete 3, clay 4, stadium 5: the
+            # FinalBurn Neo cheats, Seb's photo of the beach at 0) / dans l'ordre du jeu
+    "beach": ((236, 210, 152), (210, 176, 118), (150, 210, 240)),
     "lawn": ((86, 168, 70), (58, 132, 50), (240, 250, 240)),
-    "tiles": ((186, 214, 238), (140, 182, 220), (255, 255, 255)),
+    "tiles": ((44, 62, 178), (30, 44, 140), (226, 234, 255)),       # the blue mat of the gym, big tiles (Seb's photo)
     "concrete": ((142, 142, 148), (104, 104, 112), (255, 214, 60)),
     "clay": ((214, 112, 60), (178, 84, 44), (255, 244, 230)),
-    "stadium": ((40, 110, 66), (22, 70, 40), (230, 240, 230)),
+    "stadium": ((238, 176, 84), (212, 146, 60), (244, 242, 236)),    # the parquet of the arena (Seb's photo)
 }
+EDGES = {"tiles": (210, 60, 40), "stadium": (40, 70, 180)}             # the bands along the walls / les bandes des murs
+# the goal zones top to bottom, 3 - 5 - 3 points, the tiled court the other way round (5 - 3 - 5)
+GOALS = {"tiles": (5, 3, 5)}
 
 
 def _court_floor(sky, W, H, hz, s, kind, rng):
@@ -207,20 +211,16 @@ def _court_floor(sky, W, H, hz, s, kind, rng):
             if i % 2:
                 x0 = W * i / 12
                 d.rectangle([x0, 0, x0 + W / 12, fh], fill=mix(top, bot, 0.25))
-    elif kind == "tiles":                                       # carrelage
-        step = 46 * s
-        y = 0.0
-        while y < fh:
-            x = 0.0
-            while x < W:
-                if (int(x / step) + int(y / step)) % 2:
-                    d.rectangle([x, y, x + step, y + step], fill=mix(top, (255, 255, 255), 0.35))
-                x += step
-            y += step
-        for x in range(0, int(W), int(step)):
-            d.line([(x, 0), (x, fh)], fill=(120, 150, 180), width=1)
-        for y in range(0, int(fh), int(step)):
-            d.line([(0, y), (W, y)], fill=(120, 150, 180), width=1)
+    elif kind == "tiles":                                       # the blue mat: big tiles drawn by lighter seams
+        step = 92 * s                                           # / le tapis bleu : grands carreaux aux joints clairs
+        grid = mix(top, (120, 150, 240), 0.5)
+        for x in range(0, int(W) + 1, int(step)):
+            d.line([(x, 0), (x, fh)], fill=grid, width=max(1, int(2 * s)))
+        for y in range(0, int(fh) + 1, int(step * 0.7)):
+            d.line([(0, y), (W, y)], fill=grid, width=max(1, int(2 * s)))
+        for _ in range(60):                                     # the wear of the mat / l'usure du tapis
+            x, y = rng.uniform(0, W), rng.uniform(0, fh)
+            d.ellipse([x, y, x + rng.uniform(2, 5) * s, y + rng.uniform(2, 4) * s], fill=mix(top, (20, 30, 100), 0.4))
     elif kind == "concrete":                                    # fissures
         for _ in range(16):
             x, y = rng.uniform(0, W), rng.uniform(0, fh)
@@ -230,19 +230,34 @@ def _court_floor(sky, W, H, hz, s, kind, rng):
                 y += rng.uniform(-14, 14) * s
                 pts.append((x, y))
             d.line(pts, fill=(80, 80, 86), width=max(1, int(2 * s)))
-    elif kind == "stadium":
-        for i in range(10):
-            if i % 2:
-                x0 = W * i / 10
-                d.rectangle([x0, 0, x0 + W / 10, fh], fill=mix(top, bot, 0.3))
+    elif kind == "stadium":                                     # the parquet: planks laid along the court, staggered
+        ph = 14 * s                                             # / le parquet : lames dans le sens du terrain, décalées
+        y, row = 0.0, 0
+        while y < fh:
+            x = -rng.uniform(0, 120) * s if row % 2 else -rng.uniform(60, 180) * s
+            while x < W:
+                pl = rng.uniform(120, 220) * s
+                shade = rng.uniform(-0.12, 0.12)
+                col = mix(mix(top, bot, y / fh), (255, 255, 255) if shade > 0 else (0, 0, 0), abs(shade))
+                d.rectangle([x, y, x + pl, y + ph], fill=col)
+                d.line([(x + pl, y), (x + pl, y + ph)], fill=mix(bot, (0, 0, 0), 0.3), width=1)
+                x += pl + 1
+            d.line([(0, y + ph), (W, y + ph)], fill=mix(bot, (0, 0, 0), 0.25), width=1)
+            y += ph + 1
+            row += 1
     lw = max(2, int(5 * s))                                     # lignes du terrain
     m = 40 * s
+    edge = EDGES.get(kind)
+    if edge is not None:                                        # the bands along the walls / les bandes des murs
+        d.rectangle([0, 0, W, 8 * s], fill=edge)
+        d.rectangle([0, fh - 5 * s, W, fh], fill=edge)
     d.rectangle([m, 10 * s, W - m, fh - 6 * s], outline=line, width=lw)
-    d.line([(W / 2, 10 * s), (W / 2, fh - 6 * s)], fill=line, width=lw)
+    d.line([(W / 2, 10 * s), (W / 2, fh - 6 * s)], fill=(250, 210, 70) if kind == "tiles" else line, width=lw)
     d.ellipse([W / 2 - 60 * s, fh / 2 - 26 * s, W / 2 + 60 * s, fh / 2 + 26 * s], outline=line, width=lw)
     for gx in (m, W - m):                                       # buts : 3 points en haut et en bas, 5 au milieu
         third = (fh - 16 * s) / 3
-        for j, col in enumerate(((255, 206, 40), (255, 60, 40), (255, 206, 40))):
+        for j, pts in enumerate(GOALS.get(kind, (3, 5, 3))):
+            col = (255, 60, 40) if pts >= 5 else (255, 206, 40)
             y0 = 10 * s + j * third
             d.rectangle([gx - 9 * s, y0, gx + 9 * s, y0 + third - 4 * s], fill=col)
     sky.paste(floor, (0, hz))
@@ -275,15 +290,21 @@ def build_court(kind):
                 x += r * 1.2
             layers.append({"img": paint(c.mask(), [(0, (50, 110, 60)), (1, (30, 80, 40))], rim=(110, 170, 100)), "y": hz - int(150 * s),
                            "f": 0.0, "stage": "far"})
-        elif kind == "tiles":
-            sky = vgrad(W, H, [(0.0, (200, 220, 236)), (0.42, (226, 238, 246)), (1.0, (226, 238, 246))])
-            d = ImageDraw.Draw(sky)
-            for i in range(8):                                  # baies vitrées
-                x = W * (i + 0.5) / 8
-                d.rectangle([x - 70 * s, 30 * s, x + 70 * s, hz - 40 * s], fill=(150, 200, 240))
-                d.rectangle([x - 70 * s, 30 * s, x + 70 * s, hz - 40 * s], outline=(240, 246, 252), width=max(2, int(6 * s)))
-                d.line([(x, 30 * s), (x, hz - 40 * s)], fill=(240, 246, 252), width=max(2, int(4 * s)))
-            d.rectangle([0, hz - 30 * s, W, hz], fill=(170, 196, 220))
+        elif kind == "tiles":                                   # the gym: a dark hall, the crowd behind a red rail
+            sky = vgrad(W, H, [(0.0, (16, 18, 40)), (0.42, (36, 40, 72)), (1.0, (36, 40, 72))])
+            d = ImageDraw.Draw(sky)                             # / le gymnase : salle sombre, public derrière une rambarde
+            for i in range(6):
+                x = W * (i + 0.5) / 6
+                d.rectangle([x - 90 * s, 20 * s, x + 90 * s, 70 * s], fill=(60, 66, 110))
+                d.rectangle([x - 86 * s, 24 * s, x + 86 * s, 66 * s], fill=(90, 110, 170))
+            layers += [dict(L, y=hz - int(110 * s) + int(28 * s) * i, bob=1.5) for i, L in enumerate(crowd_layers(W, H, s, rng, scale=0.55))]
+            rail = _rgba(W, int(26 * s))
+            rd = ImageDraw.Draw(rail)
+            rd.rectangle([0, 0, W, 8 * s], fill=(210, 60, 40, 255))
+            rd.rectangle([0, 18 * s, W, 26 * s], fill=(180, 50, 34, 255))
+            for x in range(0, int(W), int(60 * s)):
+                rd.rectangle([x, 8 * s, x + 5 * s, 18 * s], fill=(160, 46, 30, 255))
+            layers.append({"img": rail, "y": hz - int(26 * s), "f": 0.0, "stage": "mid"})
         elif kind == "concrete":
             sky = vgrad(W, H, [(0.0, (40, 30, 70)), (0.3, (150, 80, 90)), (0.42, (230, 150, 100)), (1.0, (230, 150, 100))])
             c = Sil(W, int(220 * s), s)

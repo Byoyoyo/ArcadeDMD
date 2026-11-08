@@ -34,20 +34,22 @@
         "note": "player 1 score, BCD (RetroAchievements leaderboard \"MS5 Hi-Score\", from tools/ra_notes.py), to confirm in game"
       },
       "score_p2": {
-        "addr": "",
+        "addr": "0x10DE1C",
         "type": "bcd",
         "bytes": 4,
-        "note": "player 2, to find with learn.bat (two-player game, score_p2=...)"
+        "note": "player 2 score, BCD, eight bytes after player 1's as in Metal Slug 4 (Seb's two-player game of 7 November 22:59 (memory recording and 225 screenshots), 1.33 test 43: 500 at 54 s as on his screenshot, 24701 at 300 s, 40103 at the end)"
       },
       "lives": {
         "addr": "0x100A41",
         "type": "u8",
-        "note": "player 1 lives, like the 1UP on screen (deduced, to be confirmed)"
+        "note": "player 1 lives, like the 1UP on screen (X2 with 2 and X1 with 1 on his screenshots, Seb's two-player game of 7 November 22:59 (memory recording and 225 screenshots), 1.33 test 43); 0 for 17 s before the game writes them at the first mission",
+        "zero_from": "0x80"
       },
       "lives_p2": {
         "addr": "0x100B05",
         "type": "u8",
-        "note": "player 2 lives, like the 2UP on screen (deduced, to be confirmed)"
+        "note": "player 2 lives, like the 2UP on screen (X2 and X1 on his screenshots, Seb's two-player game of 7 November 22:59 (memory recording and 225 screenshots), 1.33 test 43)",
+        "zero_from": "0x80"
       },
       "bombs": {
         "addr": "0x10D457",
@@ -58,6 +60,16 @@
         "addr": "0x10D467",
         "type": "u8",
         "note": "player 2 bombs"
+      },
+      "grenades_out": {
+        "addr": "0x10D451",
+        "type": "u8",
+        "note": "player 1 grenades on screen, six bytes before his bombs as in Metal Slug 4 (Seb's two-player game of 7 November 22:59 (memory recording and 225 screenshots), 1.33 test 43: 1 or 2 after each bombs decrease, 0 again as they blow up, 0 the rest of the time)"
+      },
+      "grenades_out_p2": {
+        "addr": "0x10D461",
+        "type": "u8",
+        "note": "player 2 grenades on screen, six bytes before his bombs, deduced"
       },
       "ammo": {
         "addr": "0x10D45C",
@@ -74,7 +86,7 @@
       "weapon": {
         "addr": "0x10D454",
         "type": "u8",
-        "note": "player 1 weapon (cheat database codes, 0 assumed to be the handgun)"
+        "note": "player 1 weapon (RetroAchievements code notes): 0 handgun, 2 shotgun, 3 rocket launcher, 4 flame shot, 5 heavy machine gun, 6 laser, 8 super rocket launcher, 11 super laser, 12 enemy chaser, 13 iron lizard, 14 drop shot, 15 super grenade, 0x12 two machine guns, 0x1D super shotgun; the same codes as Metal Slug 3"
       },
       "weapon_p2": {
         "addr": "0x10D464",
@@ -86,6 +98,118 @@
         "type": "u8",
         "zero_from": "0x80",
         "note": "player 1 rescued prisoners (cheat database, Always have 15 Prisoners PL1)"
+      },
+      "p1_chr": {
+        "addr": "0x100A40",
+        "type": "u8",
+        "valid": [
+          0,
+          3
+        ],
+        "note": "player 1 soldier: 0 Marco, 1 Tarma, 2 Eri, 3 Fio (RetroAchievements code notes, P1 - Character, address swapped, right before his lives); to confirm in game"
+      },
+      "p2_chr": {
+        "addr": "0x100B04",
+        "type": "u8",
+        "valid": [
+          0,
+          3
+        ],
+        "note": "player 2 soldier, same codes, deduced: his block is 0xC4 further (lives)"
+      },
+      "prisoners_p2": {
+        "addr": "0x100B0C",
+        "type": "u8",
+        "zero_from": "0x80",
+        "note": "player 2 prisoners, deduced from player 1's 'Current POWs [Value 1]' of the RetroAchievements notes (0x100A48) 0xC4 further; to confirm in game"
+      },
+      "vehicle_kind": {
+        "addr": "0x100A47",
+        "type": "u8",
+        "valid": [
+          0,
+          15
+        ],
+        "note": "player 1 vehicle (RetroAchievements code notes, P1 - Slug Vehicle ID, address swapped): 1 on foot, 4 Slug Walker or Metal Slug, 6 Slug Flyer or Slug Car, 14 Augensterm; to confirm in game"
+      },
+      "vehicle": {
+        "addr": "0x100A47",
+        "type": "u8",
+        "add": -1,
+        "min": 0,
+        "valid": [
+          -1,
+          15
+        ],
+        "note": "player 1 in a vehicle: the same byte less one, 0 on foot, 3 and more aboard"
+      },
+      "vehicle_kind_p2": {
+        "addr": "0x100B0B",
+        "type": "u8",
+        "valid": [
+          0,
+          15
+        ],
+        "note": "player 2 vehicle, same codes, deduced (0xC4 further)"
+      },
+      "vehicle_p2": {
+        "addr": "0x100B0B",
+        "type": "u8",
+        "add": -1,
+        "min": 0,
+        "valid": [
+          -1,
+          15
+        ],
+        "note": "player 2 in a vehicle, the same byte less one"
+      },
+      "vehicle_hp": {
+        "addr": "0x100A30",
+        "type": "u8",
+        "mult": 2.083333,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0x80",
+        "note": "energy of player 1's vehicle in % (RetroAchievements code notes, P1 - Tank Health HUD, the high byte of a word; 48 full as in Metal Slug 4)"
+      },
+      "vehicle_hp_p2": {
+        "addr": "0x100AF4",
+        "type": "u8",
+        "mult": 2.083333,
+        "round": 1,
+        "min": 0,
+        "max": 100,
+        "zero_from": "0x80",
+        "note": "energy of player 2's vehicle, his block 0xC4 further (Seb's two-player game of 7 November 22:59 (memory recording and 225 screenshots), 1.33 test 43: 40 then 48 as he got into the Slug Gunner at 258 s, 30 then 32 after a hit, 0 again when he left it at 329 s)"
+      },
+      "_hps": {
+        "addr": "0x100E28",
+        "type": "u16s",
+        "count": 60,
+        "stride": 196,
+        "note": "the lives of the game's objects (Seb's two-player game of 7 November 22:59 (memory recording and 225 screenshots), 1.33 test 43): a table of 196-byte entries from 0x100E28 to 0x103B54, the life word at the offset of the Metal Rear's (0x101F00); soldiers and small enemies hold 10 to 40, bigger ones 100 to 320; the Metal Rear came with 6500 in two entries at once (0x101F00 and 0x1029B8, the same value all along, one of them a twin) for two players, down to 0 at 429.0 s as the game's boss flag rose"
+      },
+      "boss_down": {
+        "addr": "0x10D682",
+        "type": "u8",
+        "note": "1 once the mission's boss is defeated, 0 again at the next mission (RetroAchievements code notes, Game - Boss Defeated flag; Seb's two-player game of 7 November 22:59 (memory recording and 225 screenshots), 1.33 test 43: 1 at 429.0 s)"
+      },
+      "fade": {
+        "addr": "0x100BAB",
+        "type": "u8",
+        "note": "the screen fade counter (RetroAchievements code notes, Game - Screen Fade Out): 255 while playing, 157 down to 0 over the MISSION COMPLETE text and the fade to the next mission (Seb's two-player game of 7 November 22:59 (memory recording and 225 screenshots), 1.33 test 43: 439.6 s to 446 s, the text on his screenshot), 10 down to 0 over the boss's explosion flash at 432 s"
+      },
+      "section": {
+        "addr": "0x100BAD",
+        "type": "u8",
+        "note": "probe: Mission - Section of the RetroAchievements code notes (8 all along mission 1 of Seb's game)"
+      },
+      "_p1b": {
+        "addr": "0x100A30",
+        "type": "hex",
+        "bytes": 32,
+        "note": "probe (1.33 test 21): player 1's block (tank energy 0x100A31 and 0x100A33 of the notes, soldier, lives, HUD state, vehicle, grenades, prisoners), to confirm from a capture"
       },
       "time": {
         "addr": "0x10D67E",
@@ -163,6 +287,12 @@
     "p2_mode": 0,
     "time": 60,
     "prisoners": 0,
+    "vehicle": 0,
+    "vehicle_kind": 1,
+    "vehicle_p2": 0,
+    "vehicle_kind_p2": 1,
+    "p1_chr": 0,
+    "p2_chr": 2,
     "sim": {
       "prisoners": {
         "count": [
@@ -175,6 +305,32 @@
           11
         ],
         "start": 5
+      },
+      "vehicle": {
+        "cycle": [
+          0,
+          3,
+          3,
+          3,
+          3,
+          0,
+          0
+        ],
+        "every": 5,
+        "start": 8
+      },
+      "vehicle_kind": {
+        "cycle": [
+          1,
+          4,
+          4,
+          4,
+          4,
+          1,
+          1
+        ],
+        "every": 5,
+        "start": 8
       }
     }
   },
@@ -3011,5 +3167,66 @@
         ]
       }
     ]
+  },
+  "derived": {
+    "p1_name": {
+      "value": "p1_chr",
+      "names": [
+        "MARCO",
+        "TARMA",
+        "ERI",
+        "FIO"
+      ]
+    },
+    "p2_name": {
+      "value": "p2_chr",
+      "names": [
+        "MARCO",
+        "TARMA",
+        "ERI",
+        "FIO"
+      ]
+    },
+    "boss_name": {
+      "value": "mission",
+      "names": {
+        "1": "METAL REAR",
+        "2": "SHOOTING RAY",
+        "3": "WALL CRAWLER",
+        "4": "SANDMARINE",
+        "5": "AVATAR OF EVIL"
+      }
+    },
+    "boss_dead": {
+      "eq": [
+        "boss_down",
+        1
+      ]
+    },
+    "mission_done": {
+      "all": [
+        {
+          "eq": [
+            "boss_down",
+            1
+          ]
+        },
+        {
+          "between": [
+            "fade",
+            100,
+            200
+          ]
+        }
+      ]
+    }
+  },
+  "hd": {
+    "boss_slots": [
+      "_hps"
+    ],
+    "boss_min": 2000,
+    "note": "where the bosses' lives are: the whole table of objects (_hps). A life of 2000 or more is the mission's boss, named after the mission (Metal Rear 6500 for two players in Seb's game; the start for one player not seen yet, so no boss_life); any other life of 200 or more is a big enemy with a quiet bar. boss_dead is the game's own boss flag; mission_done is that flag with the fade counter the game starts as it writes MISSION COMPLETE, ten seconds after the boss. minor_min 256: entries holding exactly 255 are no enemy (five of them in Seb's game, never hit), the big natives hold 300",
+    "minor_min": 256
   }
 }

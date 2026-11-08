@@ -13,7 +13,7 @@
 
 local exports = {
 	name = "arcadedmd",
-	version = "1.32.0",
+	version = "1.33.0",
 	description = "ArcadeDMD",
 	license = "MIT",
 	author = { name = "Byoyoyo" } }
@@ -106,8 +106,13 @@ end
 local function parse_addr(v)
 	if type(v) == "number" then return math.tointeger(v) end
 	if type(v) == "string" then
-		local s = v:gsub("^%s+", ""):gsub("%s+$", ""):gsub("^0[xX]", ""):gsub("^%$", "")
-		return tonumber(s, 16)
+		local s = v:gsub("^%s+", ""):gsub("%s+$", "")
+		local neg = s:sub(1, 1) == "-"          -- un décalage négatif depuis un pointeur ("-0x11", Puzzle Bobble 2)
+		if neg then s = s:sub(2):gsub("^%s+", "") end
+		s = s:gsub("^0[xX]", ""):gsub("^%$", "")
+		local n = tonumber(s, 16)
+		if n ~= nil and neg then n = -n end
+		return n
 	end
 	return nil
 end

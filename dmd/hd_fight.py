@@ -28,8 +28,12 @@ from .hd_bg import Backdrop
 from .hd_fx import FX, Particle
 from .hd_moves import Moves
 from .hd_themes15 import CPS_STAGES
-from . import hd_themes18  # noqa: F401  the stages of The King of Fighters '98 / les décors de KOF '98
+from . import hd_themes18
 from .i18n import tr
+
+STAGE_STYLE = hd_themes18.STYLE     # the stages of The King of Fighters '98 register in hd_bg.BUILDERS as their module is
+                                    # imported; their style is read here (the CI's pyflakes took the bare import for an unused
+                                    # one) / les décors de KOF '98 s'enregistrent à l'import ; leur style se lit ici
 
 GOLD = (255, 214, 120)
 WHITE = (255, 255, 255)
@@ -61,6 +65,8 @@ VS_FORGET = 20.0          # the wins of two humans forgotten when one of them le
 # a select screen, or the fight's, once it has lasted that long: a screen of a moment does not start or end a fight (1.32)
 # un écran de sélection, ou celui du combat, une fois qu'il a duré ce temps : un écran d'un instant ne lance ni ne finit rien
 SELECT_HOLD = 0.4
+JUDGE_WAIT = 0.9          # the winner on time judged this long after TIME UP, the last blow landed (1.33) / jugé après
+ROUNDS_TO_WIN = 2         # rounds won that end a match, in a game that counts no round of its own (1.33) / rounds gagnés
 CONFETTI = ((255, 80, 80), (255, 210, 60), (80, 220, 255), (120, 255, 140), (255, 120, 220), (255, 255, 255))
 
 # place shown under STAGE n, for each theme ("fight_city" uses "city") / nom du lieu sous STAGE n
@@ -137,7 +143,8 @@ class FightFX:
         """Textes et halos préparés petit à petit pendant les moments calmes (pas d'à-coup au premier coup)."""
         hd, S, sp, s = self.hd, self.hd.S, self.fx.sp, self.s
         out = []
-        for text, size in (("FIGHT !", 112), ("PERFECT !", 112), ("TIME UP", 112), ("DOUBLE K.O.", 112), ("WIN !", 72)):
+        for text, size in (("FIGHT !", 112), ("PERFECT !", 112), ("TIME UP", 112), ("DOUBLE K.O.", 112), ("WIN !", 72),
+                           (tr("MATCH NUL", "DRAW GAME"), 112)):
             out.append((hd.text, (text, "stencil", S(size), GOLD if "K.O." not in text else RED, 0.8 if size > 100 else 0.6)))
         for n in range(2, 13):
             out.append((hd.text, (f"{n} HITS", "stencil", S(58 + min(20, n * 3)), GOLD, 0.6)))
@@ -181,6 +188,7 @@ class FightFX:
         self.next_name = {"p1": "", "p2": ""}
         self.win = None              # [côté, moment, PERFECT ?, déjà fêté ?]
         self.banner = None           # (texte, couleur, début, durée)
+        self.judge = None            # when the winner on time is judged (TIME UP) / quand le vainqueur au temps est jugé
         self.super_t = -99.0
         self.super_xy = (0, 0)
         self.health = {"p1": None, "p2": None}
@@ -224,12 +232,24 @@ class FightFX:
         # 1.32, the matches won by each of two humans (Seb, as in Puzzle Bobble) / les matchs gagnés par chacun de deux humains
         self.wins = {"p1": 0, "p2": 0}
         self.win_pop = {"p1": None, "p2": None}    # when one more came, its number pops / quand il en vient un, il grossit
+        # 1.33 test 6 (Seb's capture of Fatal Fury): a game that counts no round gets its rounds counted here, from the
+        # K.O. and TIME UP, ROUND n and VICTOIRE after two rounds won; a game that keeps its rounds won ("rounds") gives
+        # them / un jeu qui ne compte pas ses rounds les voit comptés ici, d'après les K.O. et TIME UP
+        self.rounds_won = {"p1": 0, "p2": 0}
+        self.round_draws = 0
+        self.won_here = {"p1": 0, "p2": 0}         # rounds won as seen here (K.O., TIME UP), whatever the game reads
+        self.lost_named = {}                       # "_lost" as the name of each side was last set / quand le nom a changé
+        self.rounds_game = False                   # "rounds" read in the game / « rounds » lu dans le jeu
+        self.hd_round_value = None                 # "round" read in the game / « round » lu dans le jeu
         self.win_add = None                        # (winner, t): counted when VICTOIRE shows / compté quand VICTOIRE s'affiche
         self.vs_t = -99.0                          # when both players were last human / quand les deux étaient humains
         # 1.32 test 6, Seb's video: the screens between the select screens and the fight / les écrans entre la sélection et
         self.sel_raw = None                        # the select screen as last read / l'écran de sélection tel que lu
         self.sel_t = -99.0                         # since when / depuis quand
         self.sel_on = False                        # as it counts, once it lasted SELECT_HOLD / tel qu'il compte
+        self.sel_phase = {}                        # per side, where the select screens stand: "chars" (the slots fill
+        # pick by pick), "picked" (the three in), "order" (the orders come one by one), "done" / où en est la sélection
+        self.sel_lost = {}                         # "_lost" as last read there / « _lost » tel que lu
         self.time_stale = None                     # the last match's timer, not shown in the new one / le chrono d'avant
         self.fs_known = False                      # the game keeps the state of the fight / le jeu garde l'état du combat
         self.in_round = False                      # a match going, from its first round (state of the fight) / un match
@@ -303,6 +323,9 @@ class FightFX:
         jsel = _n(vals.get("select")) == 1
         if jsel or idle:
             self.in_round = self.match_done = False                   # no match going / pas de match en cours
+            self.rounds_won, self.round_draws = {"p1": 0, "p2": 0}, 0
+            self.won_here = {"p1": 0, "p2": 0}
+            self.judge = None
         raw = jsel
         fs_now = _n(vals.get("_fight_state"))
         self.fs_known = fs_now is not None
@@ -311,6 +334,7 @@ class FightFX:
         # Seb's log) / sans combat (0) tant qu'aucun match n'est en cours : les écrans entre la sélection et le premier
         # round, ou après un match, sont aussi des écrans de sélection
         r1 = False
+        tv_was = self.tv_prev                                         # the timer as last read / le chrono d'avant
         if self.fs_known and int(fs_now) == 0 and not self.in_round:
             # a first round's intro: the game sets its timer (0 -> 60) when the stage appears, ROUND 1 just after on its
             # screen, READY 6 s later (Seb's log, 1.32 test 8d) / l'intro d'un premier round : le jeu met son chrono quand
@@ -337,13 +361,14 @@ class FightFX:
         if self.idle and not idle:
             self.live_t = now                                         # START pressed: the game clears its fighters
             if self.select and not select and not self.idle_attract and not self.fs_known:   # out of the select screen:
-                h1, h2 = _n(vals.get("health")), _n(vals.get("health_p2"))                   # the fight begins
-                if (h1 or 0) > 0 and (h2 or 0) > 0:                                          # (the state of the fight
+                h1, h2 = _n(vals.get("health")), _n(vals.get("health_p2"))                   # the fight begins, bars
+                if (h1 or 0) >= 50 and (h2 or 0) >= 50:               # full (KOF '99 keeps 1 % between its screens, Seb's
                     # says it in the games that keep it) / la fin de la sélection, le combat commence (l'état le dit)
                     self.round_v = _n(vals.get("round"))
                     self.time_stale = _n(vals.get("time"))           # the last match's, until the game sets its own
                     self._fight(now)                                  # celui du match d'avant, jusqu'au nouveau
-        self.idle, self.select, self.idle_attract = idle or select, select, idle
+        self._select_phase(vals, game, select)
+        self.idle, self.select, self.idle_attract = idle or select, select, idle   # the picks since then show (1.33)
         if idle or select:
             self._idle(vals, stages, game)
             self.moves.skip(hist)                                     # no fight: the inputs only followed / suivies
@@ -358,6 +383,21 @@ class FightFX:
         # "round": the round of a King of Fighters match, from 0, one more at each K.O. (cheat "Select Current Round"),
         # shown as ROUND n when the next fight begins (1.31) / le round du match, ROUND n quand le combat suivant commence
         self.round_v = _n(vals.get("round"))
+        self.hd_round_value = self.round_v
+        rw1, rw2 = _n(vals.get("rounds")), _n(vals.get("rounds_p2"))
+        self.rounds_game = rw1 is not None and rw2 is not None
+        if self.rounds_game:                                          # the game's own count / le compte du jeu
+            self.rounds_won = {"p1": int(rw1), "p2": int(rw2)}
+        if self.round_v is None:                                      # counted here (1.33) / compté ici
+            self.round_v = self.rounds_won["p1"] + self.rounds_won["p2"] + self.round_draws
+        # a game without the state of its fights sets its timer as a round begins (0 -> 60, 90): ROUND n then, unless one
+        # just showed (1.33, Seb's captures of KOF '99 and Fatal Fury) / un jeu sans l'état de ses combats remet son
+        # chrono quand un round commence : ROUND n alors, sauf s'il vient de s'afficher
+        if not self.fs_known:
+            tv, tv0 = _n(vals.get("time")), tv_was
+            if tv is not None and tv0 is not None and tv > tv0 and tv >= 30 and tv0 < tv - 5 and now - self.round_show > 3.0 \
+                    and now - self.fight_t > 3.0:
+                self._fight(now)
         # "stage": match number in the run, from 0 (Rage of the Dragons, cheat "Select Stage"), shown as STAGE n.
         # "backdrop": backdrop of the fight (cheat "Select Backdrop"), picks the theme in the game's "hd" list.
         stage = _n(vals.get("stage"))
@@ -406,11 +446,21 @@ class FightFX:
                     # le K.O. et le WIN finis. Le jeu le compte juste avant que la barre du battu se lise vide : son bandeau
                     # et son nom attendent ce K.O. (3 s au plus, un TIME UP perdu)
                     prev = self.lost_raw.get(side)
-                    if old and name != old and prev is not None and lr is not None and lr == prev + 1:
+                    named = self.lost_named.get(side)
+                    # the name read from the fighter on screen changes only as the next round begins, seconds after the
+                    # count (KOF 2002, Seb's capture, 1.33 test 10): a count gone up since the name was last set counts
+                    # too / le nom lu sur le combattant à l'écran ne change qu'au round suivant : un compte monté depuis
+                    if old and name != old and lr is not None and ((prev is not None and lr == prev + 1)
+                                                                   or (named is not None and lr > named)):
                         self.next_name[side] = name
-                        if self.hold[side] is None:
+                        late = not (prev is not None and lr == prev + 1)      # the name came late, with the round
+                        if self.hold[side] is None and not late:
                             self.hold[side] = (old, prev)
-                        if self.fs_known:                                     # the next round says when it comes
+                        if self.fs_known and late and now - self.round_show < 3.0 and self.round_show > self.ko_t:
+                            self.next_t[side] = max(now, self.round_show + 1.4)   # its ROUND n already showed / déjà montré
+                            self.next_wait[side] = None
+                            self.next_round[side] = False
+                        elif self.fs_known:                                   # the next round says when it comes
                             self.next_wait[side] = now + 60.0                 # (Seb, 1.32 test 8, not at the K.O.)
                             self.next_round[side] = True                      # le round suivant dit quand il entre
                         elif self.ko_side is not None and self.ko_side[0] == side and 0 <= now - self.ko_side[1] < 3.0:
@@ -421,6 +471,8 @@ class FightFX:
                 elif old and name != old and now - self.stage_t > 2.5:   # pas au changement de stage (nouvelle équipe)
                     self.next_t[side] = now
                     self.next_name[side] = name
+                if name != old:
+                    self.lost_named[side] = lr
                 self.chars[side] = name
             self.lost_raw[side] = lr
         h1, h2 = _n(vals.get("health")), _n(vals.get("health_p2"))
@@ -430,6 +482,10 @@ class FightFX:
         # both bars emptied at once while neither was low: the game clears its fighters (select screen after START, end
         # of a game), not a DOUBLE K.O. / les deux barres vidées d'un coup sans être basses : le jeu vide ses combattants
         cleared = (None not in (h1, h2, o1, o2) and h1 <= 0 and h2 <= 0 and o1 > 0 and o2 > 0 and max(o1, o2) > 50)
+        if cleared:
+            self.won_here = {"p1": 0, "p2": 0}                        # a new match / un nouveau match
+            if not self.rounds_game:
+                self.rounds_won, self.round_draws = {"p1": 0, "p2": 0}, 0
         for side, h in (("p1", h1), ("p2", h2)):
             old = self.prev.get(side)
             if h is not None and old is not None:
@@ -518,13 +574,24 @@ class FightFX:
                 and (h1 or 0) > 0 and (h2 or 0) > 0):
             self.banner = ("TIME UP", GOLD, now, 1.6)                 # chrono à zéro sans K.O.
             self.ko_until = now + 1.7
+            self.judge = now + JUDGE_WAIT                             # the winner judged a moment later / jugé après
+        if self.judge is not None and now >= self.judge and h1 is not None and h2 is not None:
+            # the winner on time, judged once the last blow landed: a hit in flight at TIME UP still counts, and equal
+            # bars are a draw, both fighters out (Seb's capture, 1.33 test 7) / le vainqueur au temps, jugé une fois le
+            # dernier coup arrivé : un coup en l'air à TIME UP compte encore, et des barres égales font match nul
+            self.judge = None
             if h1 != h2:                                              # WIN once TIME UP is over / WIN après TIME UP
-                self.win = ["p1" if h1 > h2 else "p2", now + 1.7, False, False]
+                self.win = ["p1" if h1 > h2 else "p2", max(now, self.ko_until), False, False]
                 # the last fighter of a team lost on time: the team is out too (1.31.1) / perdu au temps, éliminée aussi
                 loser = "p2" if h1 > h2 else "p1"
                 idx = self.lost_go.get(loser)
                 if idx is not None and idx >= 2 and (self.round_v is None or self.round_v >= 2):
                     self._match_won(self.win[0], loser, now, 3.8)
+                self._round_over(self.win[0], now, 3.8)
+            else:
+                self.banner = (tr("MATCH NUL", "DRAW GAME"), GOLD, max(now, self.ko_until), 1.6)
+                self.ko_until = max(now, self.ko_until) + 1.7
+                self._round_over(None, now, 1.7)
         self.prev_time = t
         for side, h in (("p1", h1), ("p2", h2)):
             if h is not None and h <= 0:
@@ -546,6 +613,34 @@ class FightFX:
             self._celebrate(*self.win[:3])
             self.win[3] = True
         self.prev["p1"], self.prev["p2"] = h1, h2
+
+    def _select_phase(self, vals, game, select):
+        """Where the select screens stand, per side, as the game writes them (Seb's captures of KOF '98 and '99, 1.33
+        test 6): the character select empties the slots (0xFF) and fills them pick by pick ("chars"), then the three
+        are in ("picked"); the order select counts the orders in "_lost", from 0 again ("order"). / Où en est la
+        sélection : les cases vidées puis remplies ("chars"), les trois dedans ("picked"), puis les ordres un à un,
+        « _lost » revenu à 0 et les comptant ("order")."""
+        if not select:
+            self.sel_phase = {}
+            self.sel_lost = {}
+            return
+        derived = game.get("derived") if isinstance(game, dict) else None
+        for side in ("p1", "p2"):
+            names = ((derived or {}).get(side + "_char") or {}).get("names") or {}
+            chars = [vals.get(f"_{side}_ch{i}") for i in range(3)]
+            full = all(c is not None and str(c) in names for c in chars)
+            lost = _n(vals.get(f"_{side}_lost"))
+            ph = self.sel_phase.get(side)
+            if not full:
+                ph = "chars"
+            elif ph in (None, "chars"):
+                ph = "picked"
+            if ph == "picked" and lost is not None and lost <= 0:
+                ph = "order"
+            elif ph == "order" and lost is not None and lost <= 0 and (self.sel_lost.get(side) or 0) > 0:
+                ph = "done"                                           # the order set, "_lost" back to 0 / l'ordre mis
+            self.sel_phase[side] = ph
+            self.sel_lost[side] = lost
 
     def _idle(self, vals, stages, game=None):
         """Attract screen: the values are only followed (backdrop of the demo's stage, last health, names),
@@ -642,6 +737,7 @@ class FightFX:
             if other is not None and other <= 0:
                 self.banner = ("DOUBLE K.O.", RED, now + 0.5, 1.6)
                 self.ko_until = now + 2.2
+                self._round_over(None, now, 2.2)
             else:
                 perfect = other is not None and other >= 99
                 # K.O. in big red letters on the loser's side, then WIN on the winner's (Seb, 1.31), PERFECT after them;
@@ -657,6 +753,7 @@ class FightFX:
                 if ((idx is not None and idx >= 2) or (raw is not None and raw >= 3)) and (self.round_v is None or self.round_v >= 2):
                     self._match_won(attacker, victim, now, 4.4 if perfect else 2.7)   # its third fighter: the team is
                     # out, after the WIN and the PERFECT / son troisième combattant : l'équipe est éliminée, après le WIN
+                self._round_over(attacker, now, 4.4 if perfect else 2.7)
 
     def _log_screens(self, vals, fs, sel):
         """The screen of the game, its timer set again and the state of the fight outside the fights, in the log: to find
@@ -675,6 +772,22 @@ class FightFX:
         if fs is not None and sel and fs != self.fs_log:
             self.hd.log(tr(f"Combat, état {fsx} hors combat", f"Fight, state {fsx} outside a fight"))
         self.fs_log = fs if sel else None
+
+    def _round_over(self, winner, now, later):
+        """A round over, for a game that counts no round of its own (1.33): one more won, ROUND n follows; two won, the
+        match is over, VICTOIRE. / Un round fini, pour un jeu qui ne compte pas ses rounds : un de plus gagné, ROUND n
+        suit ; deux gagnés, le match est fini, VICTOIRE."""
+        team = any(_n(v) is not None for v in (self.lost_raw.get("p1"), self.lost_raw.get("p2")))
+        if winner is None:
+            self.round_draws += 1
+            return
+        self.won_here[winner] += 1                                    # counted here, the game's own may come later
+        if not self.rounds_game:
+            self.rounds_won[winner] += 1
+        if self.won_here[winner] >= ROUNDS_TO_WIN and not team:        # two rounds won in a game of single fighters:
+            self._match_won(winner, "p2" if winner == "p1" else "p1", now, later)   # the match is over (Fatal Fury)
+            self.rounds_won, self.round_draws = {"p1": 0, "p2": 0}, 0
+            self.won_here = {"p1": 0, "p2": 0}
 
     def _match_won(self, winner, loser, now, later):
         """A team eliminated: VICTOIRE and the confetti once the WIN is over, one more match won for a human against a

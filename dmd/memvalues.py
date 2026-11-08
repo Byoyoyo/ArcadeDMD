@@ -21,6 +21,9 @@ def parse_addr(v):
         return v
     if isinstance(v, str):
         s = v.strip()
+        neg = s.startswith("-")                  # a negative offset from a pointer ("-0x11": 17 bytes before where it
+        if neg:                                  # points, Puzzle Bobble 2's bubble colour) / un décalage négatif
+            s = s[1:].strip()
         if s.startswith(("0x", "0X")):
             s = s[2:]
         elif s.startswith("$"):
@@ -28,7 +31,7 @@ def parse_addr(v):
         if not s:
             return None
         try:
-            return int(s, 16)
+            return -int(s, 16) if neg else int(s, 16)
         except ValueError:
             return None
     return None
@@ -37,6 +40,11 @@ def parse_addr(v):
 def value_size(d):
     t = (d.get("type") or "u8").lower()
     n = d.get("bytes")
+    if t == "u16s":                               # several 16-bit words, "count" of them "stride" bytes apart (1.33)
+        cnt, st = d.get("count"), d.get("stride")  # / plusieurs mots de 16 bits, "count" espacés de "stride" octets
+        cnt = cnt if isinstance(cnt, int) and cnt > 0 else 1
+        st = st if isinstance(st, int) and st >= 2 else 2
+        return (cnt - 1) * st + 2
     if isinstance(n, int) and n > 0:
         return n
     if "32" in t:
@@ -98,6 +106,14 @@ def decode(d, getb, big_endian=True):
         v = raw[0]
     elif t == "s8":
         v = raw[0] - 0x100 if raw[0] >= 0x80 else raw[0]
+    elif t == "hex":                              # a probe: the bytes as they are, to find a value in a capture (1.33)
+        return "".join(f"{b:02x}" for b in raw)   # / une sonde : les octets tels quels, pour trouver une valeur
+    elif t == "u16s":                             # the lives of a whole array of enemies, one word each (Metal Slug 4)
+        cnt, st = d.get("count"), d.get("stride")  # / les vies de toute une table d'ennemis, un mot chacune
+        cnt = cnt if isinstance(cnt, int) and cnt > 0 else 1
+        st = st if isinstance(st, int) and st >= 2 else 2
+        order = "big" if big_endian else "little"
+        return [int.from_bytes(bytes(raw[k * st:k * st + 2]), order) for k in range(cnt)]
     elif t in ("be", "le"):
         v = int.from_bytes(bytes(raw), "big" if t == "be" else "little")
     elif t in ("bcd", "bcd_le"):
@@ -240,6 +256,23 @@ def _resolve(expr, values, depth=0):
         if any(isinstance(x, bool) or not isinstance(x, (int, float)) for x in (a, b)):
             return None
         return 1 if a == b else 0
+    if "between" in expr:
+        # 1 when the first lies between the two others, bounds included, else 0 (Metal Slug 5: MISSION COMPLETE while its
+        # fade counter runs from 157, the boss down) / 1 quand le premier est entre les deux autres, bornes comprises
+        trio = expr.get("between")
+        if not isinstance(trio, list) or len(trio) != 3:
+            return None
+        a, lo, hi = (_resolve(x, values, depth + 1) for x in trio)
+        if any(isinstance(x, bool) or not isinstance(x, (int, float)) for x in (a, lo, hi)):
+            return None
+        return 1 if lo <= a <= hi else 0
+    if "all" in expr:
+        # 1 when every one of them is 1, else 0 (the first Metal Slug: its mission is complete when its end word says so
+        # and its boss is down, not at a game over) / 1 quand toutes valent 1, sinon 0
+        parts = [_resolve(x, values, depth + 1) for x in expr.get("all") or []]
+        if not parts or any(isinstance(p, bool) or not isinstance(p, (int, float)) for p in parts):
+            return None
+        return 1 if all(p == 1 for p in parts) else 0
     if "first" in expr:
         # the first of them that is known (DoDonPachi: its boss from the WARNING, else from where its stage stops)
         # la première qui est connue

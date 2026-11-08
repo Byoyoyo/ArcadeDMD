@@ -18,7 +18,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # shipped in the zip: everything except these (development files, user data, caches)
 EXCLUDE_DIRS = {".git", ".github", "tools", "dist", "runtime", "learned", "appris", "appris.old", "obs", "artwork",
-                "__pycache__"}
+                "__pycache__", "tests"}
 EXCLUDE_FILES = {"config.json", ".gitignore", ".gitattributes", "CONTRIBUTING.md"}
 EXCLUDE_EXT = (".pyc", ".pyo", ".log", ".tmp")
 REQUIRED = ["arcadedmd.py", "install.bat", "run.bat", "learn.bat", "config.default.json", "README.md", "README.fr.md",
@@ -54,6 +54,8 @@ def files():
             rel = os.path.relpath(os.path.join(base, n), ROOT).replace(os.sep, "/")
             if n in EXCLUDE_FILES or n.endswith(EXCLUDE_EXT) or n.startswith("."):
                 continue
+            if (rel.startswith("sprites/") and rel.count("/") > 1) or rel.startswith("sprites/mslug_tank"):
+                continue                             # the owner's own pictures (sprites/<game>/...) / ses propres images
             out.append(rel)
     return out
 

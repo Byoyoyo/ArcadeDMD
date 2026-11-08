@@ -10,6 +10,7 @@ les suivent. Personne ne joue : le logo du jeu et les monnayeurs. Tout est dessi
 """
 
 import math
+import os
 import random
 import time
 
@@ -73,6 +74,7 @@ class GameScene:
                                   # (x, y) a place of the scene's own, None not shown. x: a fraction of the width (0 to 1),
                                   # else from the left edge, or from the right edge when below 0; y: None at the bottom
     CREDITS_K = 0.85              # their size, 1 as in Metal Slug / leur taille
+    CONTINUE_Y = 236              # where CONTINUE ? blinks (middle of the text) / où clignote CONTINUE ?
 
     def __init__(self, hd, rng=None):
         self.hd, self.pg, self.S, self.s = hd, hd.pg, hd.S, hd.s
@@ -387,6 +389,11 @@ class GameScene:
         x = self.W * x if 0 < x <= 1 else (self.W + self.S(x) if x < 0 else self.S(x))
         return x, (self.H - self.S(44) if y is None else self.S(y))
 
+    def continue_shown(self, side, vals, now):
+        """Whether CONTINUE ? is shown while the game says the player may continue; a scene may know better (the game
+        went on with the player while the BIOS still says it). / Si CONTINUE ? s'affiche ; une scène peut savoir mieux."""
+        return True
+
     def draw_credits(self, screen, eng, vals, now):
         """The coin (€) and CRÉDITS 07 in their pill, as in Metal Slug; the coins put in fall onto it.
         / La pièce et CRÉDITS 07 dans leur pastille, comme dans Metal Slug ; les pièces mises tombent dessus."""
@@ -493,9 +500,9 @@ class GameScene:
             self.draw_hud(target, eng, vals, logo, now)
             self.draw_credits(target, eng, vals, now)
             for side, x in (("p1", self.W * 0.27), ("p2", self.W * 0.73)):     # continue countdown of the game
-                if vals.get(side + "_mode") == 2:
+                if vals.get(side + "_mode") == 2 and self.banner is None and self.continue_shown(side, vals, now):
                     k = 0.6 + 0.4 * (0.5 + 0.5 * math.sin(now * 6))
-                    self.label(target, "CONTINUE ?", x, self.S(236), 60, GOLD, key="stencil", align="center", alpha=190, fade=k)
+                    self.label(target, "CONTINUE ?", x, self.S(self.CONTINUE_Y), 60, GOLD, key="stencil", align="center", alpha=190, fade=k)
         self.fx.draw(target, "front")
         self.draw_pops(target, now)
         self.draw_banner(target, now)
@@ -1217,9 +1224,91 @@ class PuzzleBobbleScene(GameScene):
 
 
 # ============================================================================ Windjammers
-NATIONS = (("JAPON", "JAPAN"), ("ESPAGNE", "SPAIN"), ("USA", "USA"), ("CORÉE", "KOREA"), ("ITALIE", "ITALY"), ("ALLEMAGNE", "GERMANY"))
+# the courts by the game's index (the FinalBurn Neo cheats; Seb's photo of 2026-11-04, the beach at 0)
 COURTS = (("PLAGE", "BEACH"), ("GAZON", "LAWN"), ("CARRELAGE", "TILES"), ("BÉTON", "CONCRETE"), ("TERRE BATTUE", "CLAY"),
           ("STADE", "STADIUM"))
+# the players by the game's code (RetroAchievements 0x31c, 0x31e, divided by 4; Seb's capture of 2026-11-04 19:51), as the
+# game's select screen names them. The fourth is Beeho Yoo of Korea outside Japan (Seb's cabinet, a Europe BIOS) and
+# Steve Miller of England on a Japanese BIOS (MobyGames: the export versions replaced him) / les joueurs
+PLAYERS = ("G. SCOTT", "J. COSTA", "K. WESSEL", "B. YOO", "L. BIAGGI", "H. MITA")
+FIGURES = ("scott", "costa", "wessel", "yoo", "biaggi", "mita")                        # sprites/wjammers/<name>.png
+NATIONS = (("USA", "USA"), ("ESPAGNE", "SPAIN"), ("ALLEMAGNE", "GERMANY"), ("CORÉE", "KOREA"), ("ITALIE", "ITALY"), ("JAPON", "JAPAN"))
+SUPERS = ("MISSILE THROW", "ROCKET DIAGONAL", "BLITZKRIEG", "SIDEBURNER", "THUNDER LOOP", "FIRE SNAKE")   # each one's super shot
+
+
+def flag_draw(nation):
+    """A nation's flag, plain and small (own drawing of the well-known designs). / Un drapeau, simple et petit."""
+    def draw(d, W, H):
+        if nation == "JAPAN":
+            d.rectangle([0, 0, W, H], fill=(255, 255, 255))
+            r = H * 0.3
+            d.ellipse([W / 2 - r, H / 2 - r, W / 2 + r, H / 2 + r], fill=(188, 0, 45))
+        elif nation == "SPAIN":
+            d.rectangle([0, 0, W, H], fill=(198, 11, 30))
+            d.rectangle([0, H * 0.25, W, H * 0.75], fill=(255, 196, 0))
+        elif nation == "GERMANY":
+            d.rectangle([0, 0, W, H / 3], fill=(0, 0, 0))
+            d.rectangle([0, H / 3, W, 2 * H / 3], fill=(221, 0, 0))
+            d.rectangle([0, 2 * H / 3, W, H], fill=(255, 206, 0))
+        elif nation == "ITALY":
+            d.rectangle([0, 0, W / 3, H], fill=(0, 146, 70))
+            d.rectangle([W / 3, 0, 2 * W / 3, H], fill=(255, 255, 255))
+            d.rectangle([2 * W / 3, 0, W, H], fill=(206, 43, 55))
+        elif nation == "USA":
+            d.rectangle([0, 0, W, H], fill=(255, 255, 255))
+            for i in range(0, 13, 2):
+                d.rectangle([0, H * i / 13, W, H * (i + 1) / 13], fill=(178, 34, 52))
+            d.rectangle([0, 0, W * 0.4, H * 7 / 13], fill=(60, 59, 110))
+            for j in range(3):
+                for i in range(4):
+                    x, y = W * 0.4 * (i + 0.5 + (j % 2) * 0.5) / 4.5, H * 7 / 13 * (j + 0.5) / 3
+                    d.ellipse([x - W * 0.018, y - W * 0.018, x + W * 0.018, y + W * 0.018], fill=(255, 255, 255))
+        elif nation == "ENGLAND":                                   # the Union Jack / l'Union Jack
+            d.rectangle([0, 0, W, H], fill=(1, 33, 105))
+            lw = max(1, int(H * 0.16))
+            d.line([(0, 0), (W, H)], fill=(255, 255, 255), width=lw)
+            d.line([(W, 0), (0, H)], fill=(255, 255, 255), width=lw)
+            d.line([(0, 0), (W, H)], fill=(200, 16, 46), width=max(1, lw // 3))
+            d.line([(W, 0), (0, H)], fill=(200, 16, 46), width=max(1, lw // 3))
+            d.rectangle([W / 2 - H * 0.16, 0, W / 2 + H * 0.16, H], fill=(255, 255, 255))
+            d.rectangle([0, H / 2 - H * 0.16, W, H / 2 + H * 0.16], fill=(255, 255, 255))
+            d.rectangle([W / 2 - H * 0.1, 0, W / 2 + H * 0.1, H], fill=(200, 16, 46))
+            d.rectangle([0, H / 2 - H * 0.1, W, H / 2 + H * 0.1], fill=(200, 16, 46))
+        elif nation == "KOREA":                                     # the Taegukgi, simplified / le Taegukgi, simplifié
+            d.rectangle([0, 0, W, H], fill=(255, 255, 255))
+            r = H * 0.26
+            cx, cy = W / 2, H / 2
+            d.pieslice([cx - r, cy - r, cx + r, cy + r], 180, 360, fill=(205, 46, 58))
+            d.pieslice([cx - r, cy - r, cx + r, cy + r], 0, 180, fill=(0, 71, 160))
+            d.ellipse([cx - r / 2 - r * 0.5, cy - r / 2, cx - r * 0.5 + r / 2, cy + r / 2], fill=(205, 46, 58))
+            d.ellipse([cx + r * 0.5 - r / 2, cy - r / 2, cx + r * 0.5 + r / 2, cy + r / 2], fill=(0, 71, 160))
+            bw, bh = W * 0.16, max(1, int(H * 0.045))
+            for (fx, fy) in ((0.17, 0.2), (0.83, 0.2), (0.17, 0.8), (0.83, 0.8)):
+                for k in (-1, 0, 1):
+                    d.rectangle([W * fx - bw / 2, H * fy + k * bh * 2.2 - bh / 2, W * fx + bw / 2, H * fy + k * bh * 2.2 + bh / 2],
+                                fill=(0, 0, 0))
+        d.rectangle([0, 0, W - 1, H - 1], outline=(20, 16, 24), width=max(1, int(H * 0.06)))
+    return draw
+
+
+def athlete_draw(col, dark, skin=(238, 198, 160)):
+    """A player seen from above and a little ahead, ArcadeDMD's own drawing: cap and jersey in his colour, arms out.
+    / Un joueur vu de dessus et d'un peu devant, dessin maison : casquette et maillot à sa couleur, bras écartés."""
+    def draw(d, W, H):
+        lw = max(2, int(W * 0.09))
+        d.rounded_rectangle([W * 0.3, H * 0.74, W * 0.46, H * 0.98], radius=W * 0.06, fill=dark)          # legs / jambes
+        d.rounded_rectangle([W * 0.54, H * 0.74, W * 0.7, H * 0.98], radius=W * 0.06, fill=dark)
+        d.line([(W * 0.22, H * 0.5), (W * 0.04, H * 0.66)], fill=skin, width=lw)                          # arms / bras
+        d.line([(W * 0.78, H * 0.5), (W * 0.96, H * 0.66)], fill=skin, width=lw)
+        d.ellipse([W * 0.0, H * 0.6, W * 0.12, H * 0.72], fill=skin)
+        d.ellipse([W * 0.88, H * 0.6, W * 1.0, H * 0.72], fill=skin)
+        d.ellipse([W * 0.16, H * 0.38, W * 0.84, H * 0.84], fill=col, outline=dark, width=max(1, int(W * 0.03)))   # jersey
+        d.rectangle([W * 0.42, H * 0.46, W * 0.58, H * 0.8], fill=tuple(min(255, c + 60) for c in col))             # stripe
+        r = H * 0.19
+        d.ellipse([W / 2 - r, H * 0.08, W / 2 + r, H * 0.08 + 2 * r], fill=skin)                           # head / tête
+        d.chord([W / 2 - r, H * 0.08, W / 2 + r, H * 0.08 + 2 * r], 180, 360, fill=dark)                   # cap / casquette
+        d.rectangle([W / 2 - r, H * 0.08 + r * 0.9, W / 2 + r, H * 0.08 + r * 1.15], fill=col)             # band / bandeau
+    return draw
 
 
 def disc_draw(d, W, H):
@@ -1230,19 +1319,46 @@ def disc_draw(d, W, H):
 
 
 class WindjammersScene(GameScene):
+    """The court as a live map (1.33, Seb's captures): the disc and the two players where the game has them, read at
+    every image, the lobs in the air, the super shots burning, the points bursting on the goal lines; the scoreboard
+    with the players' names. / Le terrain en carte vivante : le disque et les deux joueurs là où le jeu les met."""
     THEME = "court_beach"
     STATIC = True
     SHADE = (150, 0)
     PILLS = True
+    CREDITS = (150, 120)                                 # top left, off the court: the disc serves at the bottom middle
+    CONTINUE_Y = 330                                     # in the court, under the board / dans le terrain, sous le tableau
+    DISC_X = (8, 311)                                    # the disc's x in the game, goal line to goal line
+    DISC_Y = (57, 208)                                   # its y, the top wall to the bottom one
+    DISC_H = 90                                          # the top of a lob
+    CHARGING = 0x14                                      # the player's action word, high byte, while he charges his super
 
     def __init__(self, hd, rng=None):
         super().__init__(hd, rng)
-        self.flights = []
+        self.flights = []                                    # bursts and simulated flights / éclats et vols simulés
         self.pop = {"set_points": -99.0, "set_points_p2": -99.0}
         self.goal = None                                     # goal zone lit up / zone de but éclairée
         self.rally = None
         self.pause = 0.0
         self.court = None
+        self.track = None                                    # (x, y, h) the disc's last reading / la dernière lecture
+        self.shown = None                                    # (x, y, h, when drawn) the HD disc, eased / lissé
+        self.tokens = {"p1": None, "p2": None}               # (x, y, when drawn) the players' tokens, eased / les jetons
+        self.charge = {"p1": None, "p2": None}               # when the player began charging his super, or None
+        self.super = None                                    # (side, t0) a super shot flying / un super en vol
+        self.super_end = -99.0
+        self.super_side_last = None
+        self.trail = []                                      # the disc's last places during a super / la traînée
+        self.wake = []                                       # the disc's last places, its speed streak / son sillage
+        self.slams = []                                      # WIN, SUPER !: big words on a side, slammed in / claqués
+        self.own = {}                                        # the owner's pictures of the players, or False / ses images
+        # CONTINUE ? (1.33 test 20, Seb): the game keeps the BIOS word at 2 through the character and court selects
+        # once the player has continued; the word stays shown until the game moves on / le mot du BIOS reste à 2
+        self.cont = {"p1": None, "p2": None}                 # (chars, court, time) when CONTINUE began, or None
+        self.cont_done = {"p1": False, "p2": False}
+        # the matches won by two humans, as the fighting games count them (1.33 test 20, Seb) / les matchs gagnés
+        self.wins = {"p1": 0, "p2": 0}
+        self.p2_left = None                                  # when everybody left, the wins forgotten later / partis
 
     def always(self, vals, now):
         court = _n(vals.get("court"))
@@ -1266,14 +1382,124 @@ class WindjammersScene(GameScene):
 
     def restart(self, vals, now):
         self.flights, self.rally, self.goal = [], None, None
+        self.track = self.shown = None
+        self.tokens = {"p1": None, "p2": None}
+        self.charge = {"p1": None, "p2": None}
+        self.super, self.super_end, self.trail, self.wake, self.slams = None, -99.0, [], [], []
+        self.cont, self.cont_done = {"p1": None, "p2": None}, {"p1": False, "p2": False}
+        self.wins, self.p2_left = {"p1": 0, "p2": 0}, None
 
+    # ------------------------------------------------------------------ the court's geometry / la géométrie du terrain
+    def court_pos(self, gx, gy):
+        """A game position on the HD court. / Une position du jeu sur le terrain HD."""
+        S, W = self.S, self.W
+        top, bot = self.floor()
+        kx = (gx - self.DISC_X[0]) / (self.DISC_X[1] - self.DISC_X[0])
+        ky = (gy - self.DISC_Y[0]) / (self.DISC_Y[1] - self.DISC_Y[0])
+        return S(48) + (W - 2 * S(48)) * min(1.2, max(-0.2, kx)), top + S(10) + (bot - top - S(20)) * min(1.1, max(-0.1, ky))
+
+    disc_pos = court_pos
+
+    def side_of(self, vals):
+        """Who threw or holds the disc, by the game's word (12 player 1, 8 player 2). / Qui a lancé le disque."""
+        last = _n(vals.get("disc_last"))
+        if last is None:
+            return self.super_side_last or "p1"
+        return "p1" if int(last) & 4 else "p2"
+
+    def tracking(self, now):
+        """The HD disc where the game's is, eased over a few images (a reading at every image, a serve is a jump).
+        Le disque HD là où est celui du jeu, lissé sur quelques images (une lecture par image, un service est un saut)."""
+        if self.track is None:
+            self.shown = None
+            return None
+        x1, y1, h1 = self.track
+        if self.shown is None or abs(x1 - self.shown[0]) + abs(y1 - self.shown[1]) > self.S(500):
+            self.shown = (x1, y1, h1, now)
+            return x1, y1, h1
+        x0, y0, h0, t0 = self.shown
+        k = 1 - math.exp(-max(0.0, now - t0) / 0.045)
+        self.shown = (x0 + (x1 - x0) * k, y0 + (y1 - y0) * k, h0 + (h1 - h0) * k, now)
+        return self.shown[0], self.shown[1], self.shown[2]
+
+    def token_pos(self, side, vals, now):
+        """The player's token on the HD court, eased, or None. / Le jeton du joueur sur le terrain HD, lissé."""
+        gx, gy = _n(vals.get(side + "_x")), _n(vals.get(side + "_y"))
+        if gx is None or gy is None or not (0 < gx < 400 and 0 < gy < 300):
+            self.tokens[side] = None
+            return None
+        x1, y1 = self.court_pos(gx, gy)
+        tk = self.tokens[side]
+        if tk is None or abs(x1 - tk[0]) + abs(y1 - tk[1]) > self.S(500):
+            self.tokens[side] = (x1, y1, now)
+            return x1, y1
+        k = 1 - math.exp(-max(0.0, now - tk[2]) / 0.08)
+        self.tokens[side] = (tk[0] + (x1 - tk[0]) * k, tk[1] + (y1 - tk[1]) * k, now)
+        return self.tokens[side][0], self.tokens[side][1]
+
+    # ------------------------------------------------------------------ what the game does / ce que fait le jeu
     def update(self, vals, now):
         S, W = self.S, self.W
         top, bot = self.floor()
+        gx, gy = _n(vals.get("disc_x")), _n(vals.get("disc_y"))
+        if gx is not None and gy is not None:
+            # (0, 0), x or y at 0: no disc on the court (title, court intro, between sets) / pas de disque
+            if 0 < gx < 400 and 0 < gy < 300:
+                h = _n(vals.get("disc_h")) or 0
+                x, y = self.court_pos(gx, gy)
+                self.track = (x, y, S(160) * min(1.3, max(0.0, h / self.DISC_H)))
+            else:
+                self.track = None
+        live = self.tracking(now)
+        for side in ("p1", "p2"):
+            if vals.get(side + "_mode") != 2:
+                self.cont[side] = None
+        # two humans: their wins kept as long as somebody plays, even while one of them sits a match out against the
+        # computer (test 21, Seb), forgotten 20 s after the cabinet is back on its title screen
+        # / leurs victoires gardées tant que quelqu'un joue, même si l'un d'eux laisse passer un match contre l'ordinateur
+        if not self.nobody(vals):
+            self.p2_left = None
+        elif self.p2_left is None:
+            self.p2_left = now
+        elif now - self.p2_left > 20.0 and (self.wins["p1"] or self.wins["p2"]):
+            self.wins = {"p1": 0, "p2": 0}
+        for side in ("p1", "p2"):                                       # the players charging their super
+            st = _n(vals.get(side + "_state"))
+            charging = st is not None and (int(st) >> 8) & 0xFF == self.CHARGING
+            if charging and self.charge[side] is None:
+                self.charge[side] = now
+                tk = self.tokens[side]
+                if tk is not None:
+                    self.fx.glow(tk[0], tk[1], 20, 140, (255, 200, 90), 0.5, "front", 0.9, 0.0)
+                    self.fx.sparks(tk[0], tk[1], 16, (255, 210, 110), (120, 360), (200, 340), (0.3, 0.6), -300, "front", 3, 22)
+            elif not charging:
+                self.charge[side] = None
+        ds = _n(vals.get("disc_state"))
+        if ds is not None:                                              # a super shot flying / un super en vol
+            flying = bool(int(ds) & 0x800)
+            if flying and self.super is None:
+                side = self.side_of(vals)
+                self.super = (side, now)
+                self.super_side_last = side
+                self.super_start(side, now, live, vals)
+            elif not flying and self.super is not None:
+                self.super = None
+                self.super_end = now
         for name, x0, x1 in (("set_points", S(400), W - S(48)), ("set_points_p2", W - S(400), S(48))):
             ch = self.changed(vals, name)
             if ch and ch[1] > ch[0]:
                 pts = int(ch[1] - ch[0])
+                if live is not None:
+                    # the real disc is there: the burst where it is, a goal on its goal line (the reading is a little
+                    # behind the game) / le vrai disque est là : l'éclat où il est, un but sur sa ligne de but
+                    third = (bot - top) / 3
+                    zone = min(2, max(0, int((live[1] - top) / third)))
+                    gx1 = live[0] if pts == 2 else x1
+                    self.flights.append({"x0": gx1, "y0": live[1], "x1": gx1, "y1": live[1], "t0": now, "dur": 0.01, "pts": pts,
+                                         "name": name, "zone": None if pts == 2 else (top + third * zone, top + third * (zone + 1))})
+                    self.rally = None
+                    self.pause = now + 1.4
+                    continue
                 if pts == 2:                                           # 2 points: the disc falls on the other side
                     x1 = W - S(300) if x1 > W / 2 else S(300)
                     self.flights.append({"x0": x0, "y0": S(350), "x1": x1, "y1": self.rng.uniform(S(320), S(420)), "t0": now,
@@ -1285,6 +1511,263 @@ class WindjammersScene(GameScene):
                                          "pts": pts, "name": name, "zone": (top + third * zone, top + third * (zone + 1))})
                 self.rally = None
                 self.pause = now + 1.4
+        won = []                                                        # a set won, the match won / un set, le match
+        for name, side in (("sets", "p1"), ("sets_p2", "p2")):
+            ch = self.changed(vals, name)
+            if ch and ch[1] > ch[0] and ch[1] <= 3:
+                won.append((int(ch[1]), side))
+        if len(won) == 2:                                               # both at once (the game writes the lost set late,
+            won = [max(won)]                                            # Seb's capture of 22:14): the higher count won
+        for n, side in won:
+            self.set_won(side, n, vals, now)
+
+    def continue_shown(self, side, vals, now):
+        """CONTINUE ? until the game moves on (a character or the court chosen again, the timer set): the player has
+        continued even if the BIOS word still says 2 (Seb's capture of 22:14, 28 s). / Jusqu'à ce que le jeu avance."""
+        snap = (_n(vals.get("p1_chr")), _n(vals.get("p2_chr")), _n(vals.get("court")), _n(vals.get("time")))
+        if self.cont[side] is None:
+            self.cont[side] = snap
+            self.cont_done[side] = False
+        elif snap != self.cont[side]:
+            self.cont_done[side] = True
+        return not self.cont_done[side]
+
+    def player_name(self, vals, side):
+        """The player's name as the game has it, else P1 / P2 / CPU. / Le nom du joueur, sinon P1, P2, CPU."""
+        c = _n(vals.get(side + "_chr"))
+        if c is not None and 0 <= int(c) < len(PLAYERS):
+            if int(c) == 3 and _n(vals.get("bios_country")) == 0:       # Japanese BIOS: Steve Miller of England
+                return "S. MILLER"
+            return PLAYERS[int(c)]
+        return "P1" if side == "p1" else ("P2" if self.p2_in(vals) else "CPU")
+
+    def player_nation(self, vals, side):
+        c = _n(vals.get(side + "_chr"))
+        if c is None or not 0 <= int(c) < len(NATIONS):
+            return ""
+        if int(c) == 3 and _n(vals.get("bios_country")) == 0:
+            return tr("ANGLETERRE", "ENGLAND")
+        return tr(*NATIONS[int(c)])
+
+    def flag(self, vals, side):
+        """The player's flag, drawn by ArcadeDMD, or None. / Le drapeau du joueur, ou None."""
+        c = _n(vals.get(side + "_chr"))
+        if c is None or not 0 <= int(c) < len(NATIONS):
+            return None
+        nation = "ENGLAND" if int(c) == 3 and _n(vals.get("bios_country")) == 0 else NATIONS[int(c)][1]
+        return self.img(("flag", nation), self.S(42), self.S(28), flag_draw(nation), ss=4)
+
+    # ------------------------------------------------------------------ the big words / les grands mots
+    def side_slam(self, text, sub, side, col, now, size=110, dur=1.5, delay=0.0):
+        """A big word slammed in on a player's side of the court, a line under it. / Un grand mot claqué d'un côté."""
+        top, bot = self.floor()
+        self.slams.append({"text": text, "sub": sub, "x": self.W * (0.25 if side == "p1" else 0.75), "y": (top + bot) / 2,
+                           "col": col, "t0": now + delay, "dur": dur, "size": size})
+
+    def draw_slams(self, screen, now):
+        hd, S = self.hd, self.S
+        keep = []
+        for sl in self.slams:
+            k = (now - sl["t0"]) / sl["dur"]
+            if k >= 1.0:
+                continue
+            keep.append(sl)
+            if k < 0:
+                continue
+            e = min(1.0, k * sl["dur"] / 0.16)                        # the slam: big, then its size, overshooting
+            scale = 2.4 - 1.4 * e if e < 1 else 1.0 + 0.18 * math.sin(min(1.0, (k * sl["dur"] - 0.16) / 0.22) * math.pi)
+            fade = 1.0 if k < 0.78 else max(0.0, (1 - k) / 0.22)
+            t = hd.text(sl["text"], "black", S(sl["size"]), sl["col"], 0.7 if e < 1 else 0.45)
+            sub = hd.text(sl["sub"], "xbold", S(sl["size"] * 0.34), WHITE, 0.3) if sl["sub"] else None
+            w = max(t["w"], sub["w"] if sub else 0) * scale + S(60)
+            h = (t["h"] + (sub["h"] + S(8) if sub else 0)) * scale + S(30)
+            self.pill(screen, sl["x"] - w / 2, sl["y"] - h / 2, w, h, int(170 * fade) // 10 * 10)
+            y = sl["y"] - (sub["h"] * scale / 2 + S(4) if sub else 0)
+            hd.put(screen, t, sl["x"], y, "center", "middle", scale=scale, alpha=fade)
+            if sub:
+                hd.put(screen, sub, sl["x"], y + (t["h"] + sub["h"]) * scale / 2 + S(8), "center", "middle", scale=scale, alpha=fade)
+        self.slams = keep
+
+    def confetti(self, x, y, col, n=40):
+        """Confetti in the player's colour and gold, up then down. / Des confettis à sa couleur et en or."""
+        fx = self.fx
+        for c in (col, GOLD, WHITE, col):
+            fx.sparks(x, y, n // 4, c, (200, 620), (210, 330), (1.0, 1.9), 420, "front", 7, 9)
+
+    def set_won(self, side, sets, vals, now):
+        """A set won: WIN slammed on the winner's side with the sets, confetti, the image kicked his way; the second set
+        ends the match: VICTOIRE, DÉFAITE against the computer, or the winner's name between two players.
+        / Un set gagné : WIN claqué de son côté, des confettis ; le second set finit le match : VICTOIRE ou DÉFAITE."""
+        S, W, fx = self.S, self.W, self.fx
+        col = P1C if side == "p1" else P2C
+        who = self.player_name(vals, side)
+        s1, s2 = int(_n(vals.get("sets")) or 0), int(_n(vals.get("sets_p2")) or 0)
+        top, bot = self.floor()
+        self.side_slam("WIN", tr(f"SET  {s1} - {s2}", f"SET  {s1} - {s2}"), side, col, now, 120, 1.9)
+        x = W * (0.25 if side == "p1" else 0.75)
+        self.confetti(x, (top + bot) / 2, col, 48)
+        fx.glow(x, (top + bot) / 2, 60, 520, col, 0.7, "front", 0.7, 0.0, hot=0.4)
+        fx.flash(col, 0.3, 0.4)
+        fx.kick(S(14) if side == "p1" else -S(14), 0, 0.45)
+        fx.shake(8, 0.4)
+        if sets >= 2:                                                  # the match / le match
+            p2 = self.p2_in(vals)
+            if not p2 and side == "p2":
+                text, sub, c = tr("DÉFAITE", "DEFEAT"), tr(f"{who} GAGNE LE MATCH", f"{who} WINS THE MATCH"), RED
+            elif not p2:
+                text, sub, c = tr("VICTOIRE", "VICTORY"), tr(f"{who} GAGNE LE MATCH", f"{who} WINS THE MATCH"), col
+            else:
+                self.wins[side] += 1
+                text = who
+                sub = tr(f"GAGNE LE MATCH   {self.wins['p1']} - {self.wins['p2']}", f"WINS THE MATCH   {self.wins['p1']} - {self.wins['p2']}")
+                c = col
+            self.slam(text, c, now + 1.6, 3.0, sub=sub)
+            if c is not RED:
+                for i in range(8):                                     # confetti rain for the winner / pluie de confettis
+                    fx.later(1.6 + i * 0.3, self.confetti, self.rng.uniform(S(200), W - S(200)), S(120), col, 36)
+                fx.later(1.6, fx.flash, col, 0.4, 0.5)
+            else:
+                fx.later(1.6, fx.shake, 10, 0.5)
+
+    # ------------------------------------------------------------------ the super shot / le super
+    def super_start(self, side, now, live, vals):
+        """A super shot begins: SUPER ! and the player's own shot slammed on his side, a burst and a ring of light at the
+        disc, the screen flashes his colour and is kicked the way of the throw. / Un super commence : SUPER ! et le nom
+        du tir claqués de son côté, un éclat, un anneau de lumière, un flash, l'image poussée dans le sens du lancer."""
+        S, W, fx = self.S, self.W, self.fx
+        top, bot = self.floor()
+        col = P1C if side == "p1" else P2C
+        c = _n(vals.get(side + "_chr"))
+        name = SUPERS[int(c)] if c is not None and 0 <= int(c) < len(SUPERS) else ""
+        self.side_slam("SUPER !", name, side, col, now, 100, 1.4)
+        tk = self.tokens[side]
+        px, py = live[:2] if live is not None else (tk[:2] if tk else (W * (0.25 if side == "p1" else 0.75), (top + bot) / 2))
+        fx.sparks(px, py, 60, col, (400, 1100), (0, 360), (0.3, 0.8), 500, "front", 3, 34)
+        fx.sparks(px, py, 24, WHITE, (200, 600), (0, 360), (0.2, 0.5), 300, "front", 2, 20)
+        fx.glow(px, py, 30, 420, col, 0.55, "front", 1.0, 0.0, hot=0.5)
+        fx.glow(px, py, 10, 160, WHITE, 0.3, "front", 1.0, 0.0, hot=0.8)
+        fx.flash(col, 0.3, 0.3)
+        fx.kick(S(10) if side == "p1" else -S(10), 0, 0.4)
+        fx.shake(6, 0.3)
+        self.trail = []
+
+    def super_side(self, now):
+        """The side whose super is burning, while it lasts and 0.7 s after. / Le côté dont le super brûle."""
+        if self.super is not None:
+            return self.super[0]
+        if now - self.super_end < 0.7:
+            return self.super_side_last
+        return None
+
+    def draw_trail(self, screen, x, y, side, now):
+        """The disc's fiery trail in the player's colour and its halo. / La traînée de feu et le halo du disque."""
+        S, pg, fx = self.S, self.pg, self.fx
+        col = (255, 150, 70) if side == "p1" else (110, 190, 255)
+        if self.trail and (abs(x - self.trail[-1][0]) + abs(y - self.trail[-1][1])) > S(40):
+            lx, ly, lt = self.trail[-1]                               # a long step: a glow halfway too / un pas long
+            self.trail.append(((lx + x) / 2, (ly + y) / 2, (lt + now) / 2))
+        self.trail.append((x, y, now))
+        self.trail = [t for t in self.trail if now - t[2] < 0.4][-40:]
+        for tx, ty, tt in self.trail:
+            k = 1 - (now - tt) / 0.4
+            g = fx.sp.glow(S(22 + 18 * k), col, max(2, int(12 * k)), hot=0.45)
+            screen.blit(g, (int(tx - g.get_width() / 2), int(ty - g.get_height() / 2)), special_flags=pg.BLEND_RGB_ADD)
+        halo = fx.sp.glow(S(64), col, 9 + int(3 * (0.5 + 0.5 * math.sin(now * 18))), hot=0.5)
+        screen.blit(halo, (int(x - halo.get_width() / 2), int(y - halo.get_height() / 2)), special_flags=pg.BLEND_RGB_ADD)
+
+    def draw_wake(self, screen, x, y, now):
+        """The disc's streak when it flies fast, white hot. / Le sillage du disque quand il file, blanc chaud."""
+        S, pg, fx = self.S, self.pg, self.fx
+        self.wake.append((x, y, now))
+        self.wake = [w for w in self.wake if now - w[2] < 0.14][-16:]
+        if len(self.wake) < 3:
+            return
+        (x0, y0, t0), (x1, y1, t1) = self.wake[0], self.wake[-1]
+        speed = math.hypot(x1 - x0, y1 - y0) / max(0.016, t1 - t0)
+        if speed < S(700):
+            return
+        k0 = min(1.0, (speed - S(700)) / S(1400))
+        for wx, wy, wt in self.wake[:-1]:
+            k = (1 - (now - wt) / 0.14) * k0
+            g = fx.sp.glow(S(10 + 14 * k), (255, 236, 200), max(1, int(8 * k)), hot=0.3)
+            screen.blit(g, (int(wx - g.get_width() / 2), int(wy - g.get_height() / 2)), special_flags=pg.BLEND_RGB_ADD)
+
+    # ------------------------------------------------------------------ drawing / le dessin
+    FIGURE_BOX = (84, 100)                                   # the owner's picture of a player fits in it / son image
+
+    def own_figure(self, name):
+        """The owner's picture of a player (sprites/wjammers/<name>.png), fitted, its plain background cleared, or None.
+        / L'image du joueur déposée par le propriétaire, ajustée, son fond uni enlevé, ou None."""
+        s = self.own.get(name)
+        if s is not None:
+            return s or None
+        path = os.path.join(getattr(self.hd, "root", "") or "", "sprites", "wjammers", name + ".png")
+        s = False
+        if os.path.isfile(path):
+            try:
+                from .hd_mslug import clear_background
+                img = Image.open(path).convert("RGBA")
+                w, h = self.S(self.FIGURE_BOX[0]), self.S(self.FIGURE_BOX[1])
+                img.thumbnail((w * 3, h * 3), Image.LANCZOS)
+                if img.getchannel("A").getextrema()[0] == 255:
+                    clear = clear_background(img)
+                    img = clear if clear.getchannel("A").getbbox() else img
+                box = img.getchannel("A").point(lambda v: 255 if v > 16 else 0).getbbox()
+                if box is not None:
+                    img = img.crop(box)
+                    k = min(w / img.width, h / img.height)
+                    img = img.resize((max(1, int(img.width * k)), max(1, int(img.height * k))), Image.LANCZOS)
+                    s = self.hd._surf(img)
+            except Exception as e:                                    # a picture it cannot read: the drawing
+                log = getattr(self.hd, "log", None)
+                if callable(log):
+                    log(f"sprites/wjammers/{name}.png: {e}")
+                s = False
+        self.own[name] = s
+        return s or None
+
+    def figure(self, side, vals):
+        """The player's picture: the owner's, else ArcadeDMD's athlete in his colour. / Son image, sinon le dessin."""
+        c = _n(vals.get(side + "_chr"))
+        own = self.own_figure(FIGURES[int(c)]) if c is not None and 0 <= int(c) < len(FIGURES) else None
+        if own is None and c is not None and int(c) == 3:
+            own = self.own_figure("miller")                          # the same player under his other name
+        if own is not None:
+            if side == "p2":
+                key = ("own_flip", int(c))
+                f = self.imgs.get(key)
+                if f is None:
+                    f = self.imgs[key] = self.pg.transform.flip(own, True, False)
+                return f, True
+            return own, True
+        col, dark = (P1C, (150, 50, 20)) if side == "p1" else (P2C, (20, 70, 150))
+        return self.img(("athlete", side), self.S(64), self.S(80), athlete_draw(col, dark), flip=side == "p2"), False
+
+    def draw_token(self, screen, side, x, y, vals, now):
+        """A player on the court: his picture or the athlete in his colour, his tag at his feet, a shadow; in flames
+        while he charges his super. (x, y) is where the game has him, his feet. / Un joueur sur le terrain : son image
+        ou l'athlète à sa couleur, son étiquette à ses pieds, une ombre ; en flammes tant qu'il charge son super."""
+        S, pg, fx = self.S, self.pg, self.fx
+        fig, own = self.figure(side, vals)
+        sh = self.imgs.get("token_shadow")
+        if sh is None:
+            sh = self.pg.Surface((S(64), S(22)), self.pg.SRCALPHA)
+            self.pg.draw.ellipse(sh, (0, 0, 0, 80), sh.get_rect())
+            self.imgs["token_shadow"] = sh
+        screen.blit(sh, (int(x - sh.get_width() / 2), int(y + S(18) - sh.get_height() / 2)))
+        cy = y - S(16)                                                 # the middle of the body / le milieu du corps
+        if self.charge[side] is not None:                                   # charging: the ring of flames
+            k = now - self.charge[side]
+            for i in range(12):
+                a = now * 5 + i * math.pi / 6
+                rr = S(40) + S(7) * math.sin(now * 9 + i * 1.7)
+                g = fx.sp.glow(S(13 + 7 * (0.5 + 0.5 * math.sin(now * 13 + i))), (255, 170, 60) if i % 2 else (255, 230, 120),
+                               10 if k < 0.3 else 8, hot=0.45)
+                screen.blit(g, (int(x + math.cos(a) * rr - g.get_width() / 2), int(cy + S(10) + math.sin(a) * rr * 0.7 - g.get_height() / 2)),
+                            special_flags=pg.BLEND_RGB_ADD)
+        screen.blit(fig, (int(x - fig.get_width() / 2), int(y + S(18) - fig.get_height())))
+        tag = "P1" if side == "p1" else ("P2" if self.p2_in(vals) else "CPU")
+        self.label(screen, tag, x, y + S(32), 15, P1C if side == "p1" else P2C, key="black", align="center", glow=0, alpha=150)
 
     def _rally(self, now):
         """Easy exchange between the two players: straight, off a wall, or a lob. / Échange entre les joueurs."""
@@ -1312,13 +1795,26 @@ class WindjammersScene(GameScene):
                 h = math.sin(k * math.pi) * S(70)
         return x, y, h
 
-    def draw_disc(self, screen, x, y, h, now):
+    def draw_disc(self, screen, x, y, h, now, held=False):
+        """The disc and its shadow on the floor; in the air it grows and its shadow fades. / Le disque et son ombre."""
         S = self.S
         sh = self.imgs.get("disc_shadow")
         if sh is None:
             sh = self.pg.Surface((S(70), S(22)), self.pg.SRCALPHA)
             self.pg.draw.ellipse(sh, (0, 0, 0, 90), sh.get_rect())
             self.imgs["disc_shadow"] = sh
+        if h > S(4) and not held:                                      # in the air: a target on the floor / en l'air
+            k = min(1.0, h / S(160))
+            sh.set_alpha(int(255 * (1 - 0.6 * k)))
+            ring = self.imgs.get("disc_ring")
+            if ring is None:
+                ring = self.pg.Surface((S(90), S(30)), self.pg.SRCALPHA)
+                self.pg.draw.ellipse(ring, (255, 255, 255, 150), ring.get_rect(), max(1, S(3)))
+                self.imgs["disc_ring"] = ring
+            ring.set_alpha(int(90 + 120 * (0.5 + 0.5 * math.sin(now * 12))))
+            screen.blit(ring, (int(x - ring.get_width() / 2), int(y + S(8) - ring.get_height() / 2)))
+        else:
+            sh.set_alpha(255)
         screen.blit(sh, (int(x - sh.get_width() / 2), int(y + S(8) - sh.get_height() / 2)))
         disc = self.rotated("disc", self.img("disc", S(70), S(32), disc_draw), math.sin(now * 9) * 8, 4)
         sc = 1.0 + h / S(400)
@@ -1328,6 +1824,7 @@ class WindjammersScene(GameScene):
 
     def draw_hud(self, screen, eng, vals, logo, now):
         S, W, pg, fx = self.S, self.W, self.pg, self.fx
+        self.scoreboard(screen, vals, logo, now)                       # first: a lob flies over it / un lob passe devant
         if self.goal is not None:                                      # the goal zone lights up
             gx, (gy0, gy1), t0 = self.goal
             k = 1 - (now - t0) / 0.8
@@ -1343,19 +1840,26 @@ class WindjammersScene(GameScene):
         keep = []
         for f in self.flights:
             k = (now - f["t0"]) / f["dur"]
+            col = P1C if f["name"] == "set_points" else P2C
             if k >= 1.0 and f["zone"] is None:                         # the disc lands: dust, +2
-                fx.smoke(f["x1"], f["y1"] + S(8), 6, (10, 18), 2.2, (0.5, 0.9), (10, 30), 30, (236, 220, 180), 170, "front")
-                self.popup(f"+{f['pts']}", f["x1"], f["y1"] - S(60), GOLD, 56, life=1.2)
+                fx.smoke(f["x1"], f["y1"] + S(8), 8, (12, 22), 2.4, (0.5, 0.9), (10, 30), 40, (236, 220, 180), 170, "front")
+                fx.glow(f["x1"], f["y1"], 20, 160, col, 0.4, "front", 0.8, 0.0)
+                self.popup(f"+{f['pts']}", f["x1"], f["y1"] - S(60), col, 72, life=1.3, key="xbold")
+                fx.shake(4, 0.25)
                 self.pop[f["name"]] = now
                 continue
-            if k >= 1.0:
+            if k >= 1.0:                                               # a goal: the flash, the shock wave, the sparks
                 right = f["x1"] > W / 2
-                fx.glow(f["x1"], f["y1"], 24, 170, (255, 240, 180), 0.45, "front", 1.0, 0.0)
-                fx.sparks(f["x1"], f["y1"], 34, (255, 220, 120), (250, 760), (100, 260) if right else (-80, 80), (0.3, 0.7), 600,
-                          "front", 4, 26)
-                self.popup(f"+{f['pts']}", f["x1"] + (-S(120) if right else S(120)), f["y1"], GOLD if f["pts"] < 5 else (255, 130, 80), 64,
-                           life=1.3)
-                fx.shake(7, 0.3)
+                fx.flash(col, 0.3 if f["pts"] < 5 else 0.42, 0.3)
+                fx.glow(f["x1"], f["y1"], 30, 520, col, 0.65, "front", 1.0, 0.0, hot=0.5)
+                fx.glow(f["x1"], f["y1"], 16, 260, (255, 250, 220), 0.35, "front", 1.0, 0.0, hot=0.7)
+                fx.sparks(f["x1"], f["y1"], 70, (255, 230, 150), (300, 1100), (100, 260) if right else (-80, 80), (0.4, 0.9), 700,
+                          "front", 4, 34)
+                fx.sparks(f["x1"], f["y1"], 30, col, (200, 700), (0, 360), (0.4, 0.8), 500, "front", 3, 20)
+                self.popup(f"+{f['pts']}", f["x1"] + (-S(150) if right else S(150)), f["y1"], col, 96 if f["pts"] >= 5 else 80,
+                           life=1.5, rise=50, key="xbold")
+                fx.kick(S(22) if right else -S(22), 0, 0.5)             # the disc into the back wall: the image moves
+                fx.shake(8 if f["pts"] < 5 else 12, 0.4)
                 self.pop[f["name"]] = now
                 self.goal = (f["x1"], f["zone"], now)
                 continue
@@ -1373,44 +1877,94 @@ class WindjammersScene(GameScene):
             self.draw_disc(screen, x, y, 0, now)
             keep.append(f)
         self.flights = keep
-        if not self.flights and now >= self.pause:
-            self.draw_disc(screen, *self._rally(now), now)
-        self.scoreboard(screen, vals, logo, now)
+        live = self.tracking(now)
+        for side in ("p1", "p2"):                                       # the players' tokens / les jetons des joueurs
+            tp = self.token_pos(side, vals, now)
+            if tp is not None:
+                self.draw_token(screen, side, tp[0], tp[1], vals, now)
+        burning = self.super_side(now)
+        pos = live if live is not None else (self._rally(now) if not self.flights and now >= self.pause else None)
+        held = False
+        if pos is not None and pos[2] < S(4):                           # held: lifted over the player / tenu : levé
+            for tk in self.tokens.values():
+                if tk is not None and abs(pos[0] - tk[0]) < S(40) and abs(pos[1] - tk[1]) < S(40):
+                    pos, held = (pos[0], pos[1], S(52)), True
+        if pos is not None:
+            if burning:                                                 # a super shot: the trail under the disc
+                self.draw_trail(screen, pos[0], pos[1], burning, now)
+            else:
+                self.trail = []
+                self.draw_wake(screen, pos[0], pos[1], now)
+            self.draw_disc(screen, pos[0], pos[1], pos[2], now, held)
+        else:
+            self.wake = []
+        self.draw_slams(screen, now)
 
     def scoreboard(self, screen, vals, logo, now):
+        """The board over the court (1.33, Seb): each player's name, nation and score on his side, the points of the set
+        big in his colour with his sets won under them, the timer and the court between them, the points to win at the
+        top right. / Le tableau au-dessus du terrain : nom, pays et score de chacun, les points du set en grand."""
         hd, S, W = self.hd, self.S, self.W
-        hd.draw_logo(screen, logo, W / 2, S(6), S(500), S(92), now)
-        bw, bh = S(720), S(164)
-        bx, by = W / 2 - bw / 2, S(104)
+        hd.draw_logo(screen, logo, W / 2, S(4), S(440), S(84), now)
+        bw, bh = S(1180), S(104)
+        bx, by = W / 2 - bw / 2, S(96)
         self.box(screen, bx, by, bw, bh, (255, 214, 90))
         p2 = self.p2_in(vals)
-        cpu = _n(vals.get("cpu_team"))
-        right = "P2" if p2 else (tr(*NATIONS[int(cpu) % 6]) if cpu is not None else "CPU")
-        self.text(screen, "P1", bx + S(34), by + S(16), 32, P1C)
-        self.text(screen, right, bx + bw - S(34), by + S(16), 32, P2C, align="right")
-        for name, x, col, align in (("set_points", W / 2 - S(110), P1C, "right"), ("set_points_p2", W / 2 + S(110), P2C, "left")):
+        numw = hd.text_width("00", "black", S(76))
+        for side, name, col, x, align, d in (("p1", "set_points", P1C, bx + S(26), "left", 1), ("p2", "set_points_p2", P2C, bx + bw - S(26), "right", -1)):
+            tag = "P1" if side == "p1" else ("P2" if p2 else "CPU")
+            who = self.player_name(vals, side)
+            flag = self.flag(vals, side)
+            y = by + S(12)
+            xx = x
+            if flag is not None:                                        # the flag first, by the edge / le drapeau au bord
+                screen.blit(flag, (int(xx if d > 0 else xx - flag.get_width()), int(y + S(4))))
+                xx += d * (flag.get_width() + S(12))
+            if who != tag:                                              # the tag small, then the name / l'étiquette, le nom
+                tw = self.text(screen, tag, xx, y + S(10), 18, col, key="black", align=align, glow=0)
+                xx += d * (tw + S(8))
+                self.text(screen, who, xx, y, 30, col, key="black", align=align, glow=0.3)
+            else:
+                self.text(screen, tag, xx, y, 30, col, key="black", align=align, glow=0.3)
+            sc = _n(vals.get("score" if side == "p1" else "score_p2"))  # his score under, small / son score
+            if sc is not None:
+                self.text(screen, f"{int(sc):,}".replace(",", " "), x, by + S(60), 22, (235, 232, 215), key="bold", align=align, glow=0)
+            nx = W / 2 - d * S(150)                                     # the points of the set, big / les points du set
             v = _n(vals.get(name))
-            if v is None:
-                continue
-            k = now - self.pop[name]
-            hd.put_number(screen, f"{int(v):02d}", "black", S(96), WHITE if k < 0.35 else col, x, by + S(88), align, "middle",
-                          scale=1.0 + 0.3 * max(0.0, 1 - k / 0.35))
+            if v is not None:
+                k = now - self.pop[name]
+                hd.put_number(screen, f"{int(v):02d}", "black", S(76), WHITE if k < 0.35 else col, nx, by + S(40),
+                              "right" if side == "p1" else "left", "middle", scale=1.0 + 0.3 * max(0.0, 1 - k / 0.35))
+            n = _n(vals.get("sets" if side == "p1" else "sets_p2"))      # his sets won, gold discs under them / ses sets
+            if n is not None:
+                cx0 = nx - d * numw / 2
+                for i in range(2):
+                    cx, cy = int(cx0 + (i - 0.5) * S(30)), int(by + S(88))
+                    if i < int(n):
+                        self.pg.draw.circle(screen, (255, 214, 90), (cx, cy), S(9))
+                        self.pg.draw.circle(screen, (120, 80, 10), (cx, cy), S(9), max(1, S(2)))
+                    else:
+                        self.pg.draw.circle(screen, (70, 64, 50), (cx, cy), S(9), max(1, S(2)))
         t = _n(vals.get("time"))
         if t is not None:
             low = t <= 10
             pulse = 0.5 + 0.5 * math.sin(now * 9) if low else 0.0
-            hd.put_number(screen, f"{int(t)}", "black", S(58), RED if low else GOLD, W / 2, by + S(86), "center", "middle",
+            hd.put_number(screen, f"{int(t)}", "black", S(50), RED if low else GOLD, W / 2, by + S(34), "center", "middle",
                           scale=1 + 0.12 * pulse)
-        info = []
         court = _n(vals.get("court"))
-        if court is not None:
-            info.append(tr(*COURTS[int(court) % 6]))
-        tw = _n(vals.get("to_win"))
-        if tw is not None:
-            info.append(tr(f"{int(tw)} POINTS POUR GAGNER", f"{int(tw)} POINTS TO WIN"))
-        if info:
-            self.text(screen, "  ·  ".join(info), W / 2, by + bh - S(26), 22, (200, 196, 180), key="bold", align="center",
+        if court is not None:                                           # the court under the timer / le terrain
+            self.text(screen, tr(*COURTS[int(court) % 6]), W / 2, by + S(80), 18, (200, 196, 180), key="bold", align="center",
                       valign="middle", glow=0)
+        tw = _n(vals.get("to_win"))
+        if tw is not None:                                              # the points to win, top right / les points
+            self.text(screen, tr(f"{int(tw)} POINTS POUR GAGNER", f"{int(tw)} POINTS TO WIN"), W - S(24), S(100), 18, (200, 196, 180),
+                      key="bold", align="right", glow=0)
+        if p2:                                                          # two humans: the matches won, top right
+            x = W - S(24)
+            x -= self.text(screen, str(self.wins["p2"]), x, S(28), 34, P2C, key="black", align="right", glow=0.3) + S(10)
+            x -= self.text(screen, "-", x, S(28), 34, (200, 196, 180), key="black", align="right", glow=0) + S(10)
+            x -= self.text(screen, str(self.wins["p1"]), x, S(28), 34, P1C, key="black", align="right", glow=0.3) + S(16)
+            self.text(screen, tr("MATCHS", "MATCHES"), x, S(36), 20, (200, 196, 180), key="bold", align="right", glow=0)
         if not p2:
             word, col = self.invite(vals, now)
             self.label(screen, word, W - S(24), S(44), 34, col, align="right")

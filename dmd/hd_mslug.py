@@ -47,10 +47,52 @@ GREY = (150, 156, 170)
 # codes d'arme de chaque jeu -> (nom, dessin)
 NAMES = {"pistol": ("PISTOLET", "HANDGUN"), "shotgun": ("FUSIL À POMPE", "SHOTGUN"), "flame": ("LANCE-FLAMMES", "FLAMETHROWER"),
          "rocket": ("LANCE-ROQUETTES", "ROCKET LAUNCHER"), "mg": ("MITRAILLETTE", "MACHINE GUN"), "laser": ("LASER", "LASER"),
-         "gun": ("ARME SPÉCIALE", "SPECIAL WEAPON")}
+         "gun": ("ARME SPÉCIALE", "SPECIAL WEAPON"), "chaser": ("ENEMY CHASER", "ENEMY CHASER"), "lizard": ("IRON LIZARD", "IRON LIZARD"),
+         "drop": ("DROP SHOT", "DROP SHOT"), "sgrenade": ("SUPER GRENADE", "SUPER GRENADE"), "cannon": ("CANON", "CANNON"),
+         "mg2": ("DOUBLE MITRAILLETTE", "TWO MACHINE GUNS")}
 MS1 = {0: "pistol", 1: "shotgun", 2: "flame", 3: "rocket", 4: "mg"}
 MS2 = {255: "pistol", 0: "shotgun", 1: "rocket", 2: "flame", 3: "mg", 4: "laser"}
-WEAPON_MAPS = {"mslug": MS1, "mslug2": MS2, "mslugx": MS2}
+# Metal Slug X, 3, 4 and 5 share their codes (cheat database, RetroAchievements code notes): 7 to 11 are the SUPER weapons
+# / Metal Slug X, 3, 4 et 5 ont les mêmes codes : de 7 à 11 les armes SUPER
+MS3 = {0: "pistol", 1: "cannon", 2: "shotgun", 3: "rocket", 4: "flame", 5: "mg", 6: "laser", 7: "shotgun", 8: "rocket", 9: "flame",
+       10: "mg", 11: "laser", 12: "chaser", 13: "lizard", 14: "drop", 15: "sgrenade", 0x12: "mg2", 0x15: "chaser", 0x1D: "shotgun"}
+WEAPON_MAPS = {"mslug": MS1, "mslug2": MS2, "mslugx": MS3, "mslug3": MS3, "mslug4": MS3, "mslug5": MS3}
+SUPER_CODES = range(7, 12)
+LOOK = {"chaser": "rocket", "lizard": "rocket", "drop": "rocket", "sgrenade": "rocket", "cannon": "gun"}   # drawn and fired like
+
+# the vehicles of each game, by the code the game keeps (vehicle_kind), and their names; the owner's own pictures go in
+# sprites/<game>/<name>.png (sprites/mslug2/camel.png), or sprites/mslug/<name>.png for all the Metal Slug games
+# / les véhicules de chaque jeu, par le code que garde le jeu, et leurs noms ; ses propres images dans sprites/<jeu>/<nom>.png
+VEHICLES = {"mslug": {1: "tank"},
+            "mslug2": {1: "tank", 2: "camel", 3: "slugnoid", 4: "flyer"},
+            "mslugx": {1: "tank", 2: "camel", 3: "slugnoid", 4: "flyer"},   # 1 and 2 in Seb's game of 8 November (test 44),
+                                                                       # 3 and 4 as in Metal Slug 2, the same engine
+            "mslug3": {4: "slugnoid", 6: "flyer", 7: "copter", 8: "mariner", 9: "drill", 10: "slugnoid", 11: "astro"},
+            "mslug4": {},
+            "mslug5": {4: "gunner", 6: "flyer", 14: "slugnoid"}}   # 4: Slug Walker / Slug Tank in the notes; the Slug Gunner
+                                                                       # on Seb's screenshots (7 November 22:59, mission 1)
+VEHICLE_NAMES = {"tank": ("CHAR", "TANK"), "camel": ("CAMEL SLUG", "CAMEL SLUG"), "slugnoid": ("SLUGNOID", "SLUGNOID"),
+                 "flyer": ("SLUG FLYER", "SLUG FLYER"), "copter": ("SLUG COPTER", "SLUG COPTER"), "mariner": ("SLUG MARINER", "SLUG MARINER"),
+                 "drill": ("DRILL SLUG", "DRILL SLUG"), "astro": ("ASTRO SLUG", "ASTRO SLUG"),
+                 # the other rides of the series, for the owner's pictures (sprites/mslug/<name>.png) until their codes are
+                 # read in a game (1.33 test 36) / les autres montures de la série, pour ses images, en attendant leurs codes
+                 "elephant": ("ELEPHANT SLUG", "ELEPHANT SLUG"), "ostrich": ("OSTRICH SLUG", "OSTRICH SLUG"),
+                 "bradley": ("BRADLEY", "BRADLEY"), "mobile": ("SLUG MOBILE", "SLUG MOBILE"), "gunner": ("SLUG GUNNER", "SLUG GUNNER"),
+                 "claw": ("METAL CLAW", "METAL CLAW"), "walker": ("WALKING MACHINE", "WALKING MACHINE"), "armor": ("REBEL ARMOR", "REBEL ARMOR"),
+                 "vehicle": ("VÉHICULE", "VEHICLE")}
+MOUNTS = ("camel", "elephant", "ostrich")        # animals: a mount, no energy, no blast when left / des montures
+RIDE_IN = {"tank": ("EN CHAR !", "TANK!"), "camel": ("EN SELLE !", "SADDLE UP!"), "elephant": ("EN SELLE !", "SADDLE UP!"),
+           "ostrich": ("EN SELLE !", "SADDLE UP!")}
+RIDE_IN_ANY = ("À BORD !", "ABOARD!")
+RIDE_LOST = {"tank": ("CHAR DÉTRUIT", "TANK DESTROYED")}
+RIDE_LOST_ANY = ("VÉHICULE DÉTRUIT", "VEHICLE DESTROYED")
+SOLDIERS = {"mslug": ("MARCO", "TARMA")}          # the first game: no choice, Marco then Tarma / pas de choix
+BOSS_MIN = 200                                   # a boss's life is at least that much (else another enemy) / au moins
+BOSS_MAX = 9999                                  # and no more (else not a life) / et pas plus (sinon pas une vie)
+MINOR_IDLE = 8.0                                 # a big enemy's quiet bar fades after this long without a hit / s'efface
+PHASE_WAIT = 5.0                                 # a boss at 0 in a game with a flag: its next phase may fill the entry
+                                                 # within this long, else it fell / sa phase suivante, sinon tombé
+SYNC_MIN, SYNC_MAX = 0.8, 10.0                   # quiet after a start: at least this long, until the mission timer runs, at most
 
 # cadence (secondes entre deux tirs) et allure de chaque arme
 STYLE = {
@@ -59,19 +101,23 @@ STYLE = {
     "shotgun": {"gap": 0.24, "muzzle": 1.8, "tracer": ((255, 206, 120), 4, 110), "casing": "shell", "pellets": 6},
     "rocket": {"gap": 0.3, "muzzle": 1.1, "rocket": True},
     "flame": {"gap": 0.06, "flame": True},
-    "laser": {"gap": 0.08, "muzzle": 0.9, "tracer": ((120, 230, 255), 6, 260), "laser": True},
+    "laser": {"gap": 0.08, "laser": True},                   # a held beam, see _laser() / un rayon tenu
     "gun": {"gap": 0.08, "muzzle": 1.0, "tracer": ((255, 220, 120), 4, 140), "casing": "case"},
 }
+STYLE["mg2"] = dict(STYLE["mg"], gap=0.045)           # the two machine guns of Metal Slug 4 and 5: faster / plus rapide
 TIP = {"pistol": (0.89, 0.385), "shotgun": (0.985, 0.395), "flame": (0.975, 0.45), "rocket": (0.99, 0.41),
-       "mg": (0.975, 0.41), "laser": (0.97, 0.44), "gun": (0.975, 0.41), "tank": (0.99, 0.36)}
+       "mg": (0.975, 0.41), "mg2": (0.975, 0.36), "laser": (0.97, 0.44), "gun": (0.975, 0.41), "tank": (0.99, 0.36)}
 TANK_HITS = 3               # coups qu'encaisse le char du premier Metal Slug (jauge pleine à 48, 16 par coup)
 FRAME_DX, FRAME_DY = 2, 14  # middle of the card's frame from the middle of the picture slot (the frame is drawn in the
                             # panel, at PW-226..PW-24 x 192..306, and the panel 14 lower) / milieu du cadre de la carte
 OWN_BOX = (184, 100)        # the owner's picture fits in it, in the middle of the frame / sa propre image y tient
-PORT = {"pistol": (0.45, 0.30), "shotgun": (0.32, 0.36), "mg": (0.30, 0.33), "gun": (0.30, 0.33)}
+PORT = {"pistol": (0.45, 0.30), "shotgun": (0.32, 0.36), "mg": (0.30, 0.33), "mg2": (0.30, 0.33), "gun": (0.30, 0.33)}
 
 PW, PH = 640, 418           # taille d'un panneau, écran de référence 1920 x 460
 BTN_RIGHT, BTN_LEFT, BTN_A = 0x08, 0x04, 0x10      # octet des commandes du BIOS Neo Geo (P1CURRENT)
+
+
+FLAG_VEHICLE = {"mslug", "mslug4"}      # "vehicle" is a flag (bit 0); a kind, or the vehicle's address in Metal Slug 2 and X
 
 
 def family(key):
@@ -245,13 +291,24 @@ def weapon_img(kind, w, h):
             d.ellipse([0.92 * W, 0.40 * H, 0.99 * W, 0.48 * H], fill=(160, 240, 255))
             P([(0.26, 0.55), (0.36, 0.55), (0.32, 0.78), (0.24, 0.78)], GUN_D)
         else:                                                     # mitraillette, et toute arme inconnue
+            if kind == "mg2":                                     # the second gun, strapped on top / la seconde, dessus
+                R(0.18, 0.14, 0.44, 0.30, GUN, 0.03)
+                R(0.18, 0.14, 0.44, 0.17, GUN_L)
+                R(0.44, 0.17, 0.88, 0.29, GUN)
+                R(0.44, 0.17, 0.88, 0.19, GUN_L)
+                for i in range(7):
+                    x = 0.48 + i * 0.055
+                    d.ellipse([x * W, 0.21 * H, (x + 0.03) * W, 0.26 * H], fill=GUN_D)
+                R(0.88, 0.15, 0.975, 0.31, GUN_D)
+                R(0.30, 0.28, 0.36, 0.36, (40, 42, 50))             # the strap between the two / la sangle
+                R(0.70, 0.28, 0.76, 0.36, (40, 42, 50))
             P([(0.0, 0.36), (0.16, 0.36), (0.16, 0.53), (0.04, 0.57), (0.0, 0.55)], GUN_D)
             R(0.03, 0.41, 0.12, 0.48, (20, 22, 28))
             R(0.16, 0.31, 0.44, 0.54, GUN, 0.03)
             R(0.16, 0.31, 0.44, 0.34, GUN_L)
             R(0.44, 0.35, 0.88, 0.47, GUN)
             R(0.44, 0.35, 0.88, 0.37, GUN_L)
-            if kind == "mg":
+            if kind in ("mg", "mg2"):
                 for i in range(7):
                     x = 0.48 + i * 0.055
                     d.ellipse([x * W, 0.39 * H, (x + 0.03) * W, 0.44 * H], fill=GUN_D)
@@ -299,6 +356,116 @@ def tank_img(w, h):
             a = -math.pi / 2 + i * math.pi / 5
             pts.append((W * 0.43 + r * math.cos(a), H * 0.585 + r * math.sin(a)))
         d.polygon(pts, fill=(236, 226, 200))
+    return _draw(w, h, fn)
+
+
+def vehicle_img(kind, w, h):
+    """The vehicles of the later games, seen from the side and facing right, the program's own drawings: the camel and its
+    gun, the Slugnoid mech, the Slug Flyer, the Slug Copter, the Slug Mariner submarine, the Drill Slug, the Astro Slug.
+    / Les véhicules des Metal Slug suivants, de profil, vers la droite, dessins du programme : chameau, mécha, avion,
+    hélicoptère, sous-marin, foreuse, navette."""
+    if kind in ("tank", "vehicle") or kind not in VEHICLE_NAMES:
+        return tank_img(w, h)
+
+    def fn(d, W, H):
+        def R(x0, y0, x1, y1, fill, r=0):
+            if r:
+                d.rounded_rectangle([x0 * W, y0 * H, x1 * W, y1 * H], radius=r * H, fill=fill)
+            else:
+                d.rectangle([x0 * W, y0 * H, x1 * W, y1 * H], fill=fill)
+
+        def P(pts, fill):
+            d.polygon([(x * W, y * H) for x, y in pts], fill=fill)
+
+        def E(x0, y0, x1, y1, fill):
+            d.ellipse([x0 * W, y0 * H, x1 * W, y1 * H], fill=fill)
+
+        def L(x0, y0, x1, y1, fill, wd):
+            d.line([x0 * W, y0 * H, x1 * W, y1 * H], fill=fill, width=max(2, int(wd * H)))
+
+        dark, mid, light = (58, 70, 44), OLIVE, (132, 152, 98)
+        if kind == "camel":                                              # the camel, the gun on its hump / le chameau
+            tan, tan_d = (206, 164, 96), (150, 112, 60)
+            for x in (0.22, 0.32, 0.56, 0.66):                           # legs / pattes
+                L(x, 0.62, x - 0.02, 0.96, tan_d, 0.06)
+            E(0.14, 0.40, 0.74, 0.74, tan)                               # body / corps
+            E(0.30, 0.26, 0.58, 0.50, tan)                               # hump / bosse
+            P([(0.66, 0.46), (0.78, 0.22), (0.86, 0.24), (0.76, 0.50)], tan)      # neck / cou
+            E(0.78, 0.14, 0.96, 0.30, tan)                               # head / tête
+            E(0.92, 0.20, 0.98, 0.27, (40, 30, 20))
+            L(0.12, 0.52, 0.04, 0.70, tan_d, 0.03)                       # tail / queue
+            R(0.34, 0.20, 0.54, 0.30, GUN_D, 0.03)                       # the gun mount / l'affût
+            R(0.44, 0.10, 0.90, 0.18, GUN, 0.02)                         # the machine gun / la mitrailleuse
+            R(0.44, 0.10, 0.90, 0.12, GUN_L)
+            R(0.86, 0.08, 0.92, 0.20, GUN_D, 0.02)
+        elif kind == "slugnoid":                                         # the mech: body on two legs / le mécha
+            for x0 in (0.26, 0.52):                                      # legs / jambes
+                P([(x0, 0.60), (x0 + 0.12, 0.60), (x0 + 0.16, 0.80), (x0 + 0.06, 0.80)], dark)
+                R(x0 + 0.02, 0.78, x0 + 0.22, 0.90, GUN_D, 0.04)
+            R(0.18, 0.22, 0.74, 0.62, mid, 0.08)                         # body / corps
+            R(0.20, 0.22, 0.72, 0.28, light, 0.04)
+            R(0.40, 0.08, 0.62, 0.26, dark, 0.05)                        # cockpit
+            E(0.46, 0.11, 0.60, 0.23, (110, 200, 255))
+            for y0 in (0.30, 0.44):                                      # the two vulcans / les deux canons
+                R(0.70, y0, 0.98, y0 + 0.08, GUN, 0.02)
+                R(0.70, y0, 0.98, y0 + 0.02, GUN_L)
+            R(0.08, 0.34, 0.20, 0.52, dark, 0.03)                        # the pack behind / le réservoir
+        elif kind == "flyer":                                            # the jet, nose to the right / l'avion
+            grey, grey_d, grey_l = (150, 160, 176), (90, 98, 112), (210, 216, 228)
+            P([(0.02, 0.30), (0.22, 0.14), (0.30, 0.44), (0.12, 0.52)], grey_d)         # tail fin / dérive
+            P([(0.04, 0.44), (0.98, 0.50), (0.90, 0.62), (0.10, 0.64)], grey)           # fuselage
+            P([(0.06, 0.46), (0.92, 0.52), (0.90, 0.55), (0.08, 0.50)], grey_l)
+            E(0.56, 0.36, 0.80, 0.52, (120, 210, 255))                   # canopy / verrière
+            P([(0.26, 0.56), (0.70, 0.58), (0.60, 0.74), (0.34, 0.74)], grey_d)         # wing / aile
+            R(0.38, 0.72, 0.62, 0.80, (196, 54, 40), 0.03)               # missile under the wing / missile
+            P([(0.62, 0.72), (0.70, 0.76), (0.62, 0.80)], (240, 200, 60))
+            E(0.00, 0.50, 0.10, 0.60, (255, 150, 60))                    # the jet flame / la flamme
+        elif kind == "copter":                                           # the helicopter / l'hélicoptère
+            grey, grey_d = (150, 160, 176), (90, 98, 112)
+            L(0.10, 0.12, 0.90, 0.12, GUN_D, 0.03)                       # rotor
+            R(0.48, 0.10, 0.54, 0.26, GUN_D)
+            P([(0.06, 0.40), (0.40, 0.34), (0.42, 0.46), (0.10, 0.48)], grey_d)         # tail boom / poutre
+            L(0.08, 0.26, 0.08, 0.54, GUN_D, 0.025)                      # tail rotor / rotor de queue
+            E(0.36, 0.24, 0.92, 0.66, grey)                              # cabin / cabine
+            E(0.60, 0.30, 0.90, 0.52, (120, 210, 255))                   # glass / vitre
+            R(0.40, 0.56, 0.86, 0.62, GUN, 0.02)                         # the gun / le canon
+            L(0.40, 0.76, 0.84, 0.76, GUN_D, 0.03)                       # skids / patins
+            L(0.50, 0.64, 0.50, 0.76, GUN_D, 0.02)
+            L(0.76, 0.64, 0.76, 0.76, GUN_D, 0.02)
+        elif kind == "mariner":                                          # the submarine / le sous-marin
+            blue, blue_d, blue_l = (96, 128, 170), (54, 76, 110), (160, 190, 226)
+            E(0.04, 0.38, 0.96, 0.78, blue)                              # hull / coque
+            E(0.08, 0.42, 0.90, 0.56, blue_l)
+            R(0.38, 0.20, 0.60, 0.42, blue_d, 0.05)                      # tower / kiosque
+            R(0.46, 0.08, 0.50, 0.22, GUN_D)                             # periscope / périscope
+            R(0.46, 0.08, 0.56, 0.11, GUN_D)
+            for x in (0.22, 0.34, 0.66, 0.78):                           # portholes / hublots
+                E(x, 0.52, x + 0.08, 0.66, (140, 230, 255))
+            P([(0.00, 0.44), (0.06, 0.52), (0.06, 0.66), (0.00, 0.74)], blue_d)          # rudder / gouvernail
+            L(0.02, 0.58, 0.06, 0.58, GUN_D, 0.03)
+            R(0.90, 0.54, 1.00, 0.62, GUN_D, 0.02)                       # torpedo tube / tube lance-torpilles
+        elif kind == "drill":                                            # the drill on treads / la foreuse
+            R(0.06, 0.66, 0.66, 0.94, GUN_D, 0.14)                       # treads / chenilles
+            for i in range(5):
+                x = 0.12 + i * 0.11
+                E(x - 0.04, 0.70, x + 0.04, 0.90, GUN)
+            P([(0.04, 0.68), (0.10, 0.40), (0.62, 0.40), (0.70, 0.56), (0.68, 0.70), (0.06, 0.72)], mid)   # body / caisse
+            R(0.10, 0.40, 0.62, 0.45, light)
+            R(0.20, 0.22, 0.46, 0.42, dark, 0.06)                        # cab / cabine
+            E(0.28, 0.26, 0.42, 0.38, (110, 200, 255))
+            P([(0.64, 0.36), (0.99, 0.56), (0.64, 0.76)], (176, 180, 192))     # the drill cone / le cône
+            for i in range(3):                                           # its spiral / sa spirale
+                x0 = 0.68 + i * 0.09
+                L(x0, 0.40 + i * 0.04, x0 + 0.06, 0.70 - i * 0.04, (110, 114, 126), 0.025)
+        elif kind == "astro":                                            # the shuttle, nose to the right / la navette
+            white, grey_d = (226, 228, 236), (120, 126, 140)
+            P([(0.00, 0.38), (0.16, 0.20), (0.26, 0.42), (0.10, 0.50)], grey_d)         # fin / dérive
+            P([(0.08, 0.44), (0.80, 0.42), (0.98, 0.56), (0.80, 0.70), (0.08, 0.68)], white)   # fuselage
+            P([(0.10, 0.46), (0.80, 0.44), (0.94, 0.56), (0.10, 0.52)], (246, 248, 252))
+            P([(0.20, 0.60), (0.70, 0.60), (0.60, 0.82), (0.26, 0.82)], grey_d)          # wing / aile
+            E(0.60, 0.44, 0.78, 0.56, (120, 210, 255))                   # window / hublot
+            R(0.02, 0.48, 0.10, 0.66, (196, 54, 40), 0.03)               # engine / moteur
+            E(-0.06, 0.50, 0.06, 0.64, (255, 150, 60))                   # its flame / sa flamme
     return _draw(w, h, fn)
 
 
@@ -439,6 +606,8 @@ class Player:
         self.bomb_add = (-99.0, 0)
         self.shots = []
         self.flame_until = -99.0
+        self.laser_until = -99.0        # the laser beam held until then / le rayon du laser tenu jusque-là
+        self.laser_t0 = -99.0           # when the beam started (its colour turns with time) / le début du rayon
         self.recoil_t = -99.0
         self.over_t = None
         self.move = 0.0
@@ -446,7 +615,13 @@ class Player:
         self.live = []                  # grenades of the HD screen waiting for the game's own to blow up / en attente
         self.out_ok = False             # the game's grenades on screen are read and follow the throws / suivies
         self.early = 0                  # the game's grenade blew up before ours left the hand / partie trop tôt
+        self.ride_wait = None           # since when a vehicle is read without its kind / véhicule lu sans son genre
+        self.lives_known = False        # the game has written a lives count above 0 / des vies écrites une fois
+        self.lives_t0 = -99.0           # since the join or the last continue / depuis l'entrée ou le dernier continue
+        self.bomb_drop = None           # bombs down while the game counted no grenade leaving: (when, how many, from)
+                                        # a reset unless its counter follows at once / bombes en moins sans grenade partie
         self.tank = False               # dans un véhicule / in a vehicle
+        self.ride = None                # which one: tank, camel, flyer... (VEHICLES) / lequel
         self.tank_t = -99.0             # monté dans le char / got in
         self.tank_hit_t = -99.0         # coup reçu par le char / hit taken by the tank
 
@@ -489,16 +664,38 @@ class MetalSlugScene:
         self.coin_sprite = "coin"
         self.coin_xy = None                      # the credits' coin on screen, where inserted coins land / où tombent les pièces
         self.boom_t = -99.0                      # when the last grenade blew up / quand la dernière grenade a explosé
+        self.thrown = 0                          # grenades thrown on the HD screen, for the replay / lancées, pour le replay
         self.booms = 0                           # (tests)
         self.coin_box = None
         self.in_attract = False
         self.pills = {}
         self.panels = {side: hd._surf(panel_img(side, s, ACCENT[side])) for side in ("p1", "p2")}
         self.weapons = {}
-        self.tanks = {}
-        self.tank_own = False                    # the owner's picture of the tank / sa propre image du char
-        self.tank_tip = None                     # its cannon's end in the slot / le bout de son canon
-        self.tank_surf("p1")                     # ready before the first tank (the owner's picture takes a moment)
+        self.rides = {}                          # the vehicles' pictures, (kind, side) / les dessins des véhicules
+        self.ride_own = {}                       # kind -> the owner's own picture / sa propre image
+        self.ride_tip = {}                       # kind -> its gun's end in the slot / le bout de son canon
+        self.own = {}                            # the owner's pictures found or not, by name / ses images, par nom
+        self.boss = None                         # the boss of the mission on the screen (a game that gives its life)
+        self.boss_prev = {}                      # / le boss de la mission, pour un jeu qui donne sa vie
+        self._slots_key = object()
+        self._slots = []
+        self._boss_flag = None                   # the value that says the boss is fought, when the game has one / le drapeau
+        self._boss_big = None                    # or the life a boss has at least, when the game has no flag / ou sa vie
+        self._boss_life = {}                     # or the life each mission's boss starts with / ou la vie de chaque boss
+        self._minor_idle = MINOR_IDLE             # how long a quiet bar stays without a hit / le temps d'une barre discrète
+        self._minor_min = BOSS_MIN                # the smallest life shown as a big enemy / la plus petite vie montrée
+        self.meta_ref = None                     # the game session the players belong to / la partie des joueurs
+        self.boss_hit = {}                       # when each big life was last hit / quand chaque grosse vie a été touchée
+        self.boss_top = {}                       # the most each one had / le plus qu'elle a eu
+        self.boss_rise = {}                      # entry -> when a boss's life last filled it / quand une vie l'a remplie
+        self.boss_ref = None                     # the entry the boss of the mission was found in / la case du boss
+        self.boss_parts = set()                  # entries filled with the boss's own life: its parts / ses morceaux
+        self.boss_dead_prev = None               # the game's "boss dead" flag at the previous image / le drapeau d'avant
+        self.done_prev = None                    # and its "mission done" flag / et son drapeau de fin de mission
+        self.complete_m = None                   # the mission the game said was complete / la mission dite finie
+        self.boss_alerts = 0                     # (tests)
+        self.boss_downs = 0
+        self.ride_surf("tank", "p1")             # ready before the first tank (the owner's picture takes a moment)
         sp = self.fx.sp
         for name, img in small_imgs(s).items():
             sp.register(name, img)
@@ -537,7 +734,9 @@ class MetalSlugScene:
                  (tr("+1 PRISONNIER", "+1 PRISONER"), 34, CREAM, 0.6), (tr("PLUS DE MUNITIONS", "OUT OF AMMO"), 30, (255, 120, 90), 0.6),
                  (tr("DERNIÈRE VIE", "LAST LIFE"), 34, RED, 0.7), ("CONTINUE ?", 80, GOLD, 0.6), ("GAME OVER", 80, RED, 0.6),
                  (tr("EN CHAR !", "TANK!"), 40, GREEN, 0.6), (tr("CHAR DÉTRUIT", "TANK DESTROYED"), 40, RED, 0.6),
-                 (tr("ÉJECTE-TOI !", "BAIL OUT!"), 30, RED, 0.7)]
+                 (tr(*RIDE_IN["camel"]), 40, GREEN, 0.6), (tr(*RIDE_IN_ANY), 40, GREEN, 0.6), (tr(*RIDE_LOST_ANY), 40, RED, 0.6),
+                 (tr("ÉJECTE-TOI !", "BAIL OUT!"), 30, RED, 0.7), ("WARNING", 92, RED, 0.8), (tr("BOSS DÉTRUIT", "BOSS DESTROYED"), 60, GOLD, 0.7),
+                 (tr("ENNEMI", "ENEMY"), 22, (200, 196, 180), 0.2), (tr("DÉTRUIT", "DESTROYED"), 30, (255, 200, 150), 0.5)]
         texts += [(f"MISSION {n}", 92, GOLD, 0.7) for n in range(1, 7)]
         for text, size, col, glow in texts:
             out.insert(0, (hd.text, (text, "stencil", S(size), col, glow)))
@@ -569,14 +768,55 @@ class MetalSlugScene:
         """Abscisse d'un élément placé à lx du bord extérieur (gauche pour J1, droit pour J2)."""
         return x0 + self.S(lx) if side == "p1" else x0 + self.S(PW) - self.S(lx) - self.S(w)
 
+    def aboard(self, v):
+        """Whether a "vehicle" value means the soldier is in a vehicle: a flag byte (bit 0) in the first Metal Slug, 2 and
+        4, its other bits the soldier's state on foot (1.33 test 29, Seb's capture of 17:58: 2, 4, 6, 16, 22 while he moves
+        and shoots, read as the tank since test 21); a kind in the others; 255 is his block wiped between two lives.
+        / Un octet de bits dans le premier Metal Slug, le 2 et le 4, un genre dans les autres ; 255, son bloc effacé."""
+        if v is None or v == 255:
+            return False
+        if family(self.key) in FLAG_VEHICLE:
+            return bool(int(v) & 1)
+        # Metal Slug 2 and X: the vehicle object's address while riding anything, the camel included, 0 on foot, the
+        # block's own address before the game starts (0xE882, 0xE8A6 in Metal Slug 2, 1.33 test 39, Seb's two-player game
+        # of 7 November: player 2's Slugnoid and the camels unseen by the old bit 0; 0xC608 in Metal Slug X, test 44, his
+        # game of 8 November: the camel 0x1A44, the tank 0x3BF4; the objects live below 0x5000 in both)
+        # / l'adresse du véhicule, 0 à pied, celle du bloc avant la partie
+        return 0 < v < 0xC000
+
     def weapon(self, side, code):
+        """(name, kind) of a weapon code: the name shown, the kind it is drawn and fired as. / (nom, genre) d'un code."""
         m = WEAPON_MAPS.get(family(self.key), MS1)
         if code is None:
             return None, None
         kind = m.get(int(code))
         if kind is None:
-            kind = "pistol" if int(code) in (0, 255) and family(self.key) not in WEAPON_MAPS else "gun"
-        return tr(*NAMES[kind]), kind
+            # 255: the soldier's block wiped (dead, between two lives), the handgun as in 1.31 (test 29, Seb's capture of
+            # the first Metal Slug: ARME SPÉCIALE flashed at each death) / 255 : le bloc du soldat effacé, le pistolet
+            kind = "pistol" if int(code) in (0, 255) else "gun"
+        name = tr(*NAMES[kind])
+        if m is MS3 and int(code) in SUPER_CODES and family(self.key) != "mslugx":
+            name = "SUPER " + name                   # Metal Slug X keeps 8 and 10 for the R and the H fired from the tank, and
+                                                     # on foot after it (Seb's game of 8 November, test 44): its screen says
+                                                     # ARMS and nothing more / Metal Slug X : rien de plus sur son écran
+        return name, LOOK.get(kind, kind)
+
+    def soldier(self, side, vals):
+        """The soldier's name beside J1 / J2: the one the game says (p1_name, from the soldier chosen), or the first
+        game's, where player 1 is always Marco and player 2 Tarma. / Le nom du soldat : celui que dit le jeu, ou ceux du
+        premier Metal Slug."""
+        name = vals.get("p1_name" if side == "p1" else "p2_name")
+        if isinstance(name, str) and name:
+            return name
+        fixed = SOLDIERS.get(family(self.key))
+        return fixed[0 if side == "p1" else 1] if fixed else None
+
+    def ride_kind(self, code):
+        """Which vehicle a code of the game is (vehicle_kind), for this game. / Quel véhicule est ce code, pour ce jeu."""
+        table = VEHICLES.get(family(self.key)) or VEHICLES["mslug"]
+        if code is None:
+            return "tank" if list(table.values()) == ["tank"] else "vehicle"
+        return table.get(int(code), "vehicle")
 
     def weapon_surf(self, kind, side):
         key = (kind, side)
@@ -589,49 +829,126 @@ class MetalSlugScene:
         return s
 
     def tank_surf(self, side):
-        """The tank's picture, the program's drawing or the owner's own (sprites/mslug_tank_hd.png, side view, gun to the
-        right, fitted in the card). / Le dessin du char, celui du programme ou le sien (sprites/mslug_tank_hd.png)."""
-        s = self.tanks.get(side)
+        return self.ride_surf("tank", side)
+
+    @property
+    def tank_own(self):
+        return bool(self.ride_own.get("tank"))
+
+    @property
+    def tank_tip(self):
+        return self.ride_tip.get("tank")
+
+    def ride_surf(self, kind, side):
+        """A vehicle's picture, the program's drawing or the owner's own (sprites/<game>/<kind>.png, side view, gun to the
+        right, fitted in the card). / Le dessin d'un véhicule, celui du programme ou le sien (sprites/<jeu>/<genre>.png)."""
+        s = self.rides.get((kind, side))
         if s is None:
-            img = self.tanks.get("img")
+            img = self.rides.get(("img", kind))
             if img is None:
-                own = self._own_tank()
-                self.tank_own = own is not None
-                self.tank_tip = self._cannon_tip(own) if own is not None else None
-                img = self.tanks["img"] = own or tank_img(self.S(190), self.S(108))
+                own = self._own_picture(kind, self.S(190), self.S(108), OWN_BOX)
+                self.ride_own[kind] = own is not None
+                self._say_picture(kind, own is not None)
+                self.ride_tip[kind] = self._cannon_tip(own) if own is not None else None
+                img = self.rides[("img", kind)] = own or vehicle_img(kind, self.S(190), self.S(108))
             if side == "p2":
                 img = ImageOps.mirror(img)
-            s = self.tanks[side] = self.hd._surf(img)
+            s = self.rides[(kind, side)] = self.hd._surf(img)
         return s
 
-    def _own_tank(self):
-        """The owner's picture fitted in the card, in the middle (drawn in the middle of the card's frame). A plain
-        background (a picture without transparency) is made transparent, empty margins are cut. / Son image dans la carte,
-        au milieu du cadre : un fond uni devient transparent, les marges vides partent."""
-        path = os.path.join(getattr(self.hd, "root", "") or "", "sprites", "mslug_tank_hd.png")
-        if not os.path.isfile(path):
-            return None
-        w, h = self.S(190), self.S(108)
-        try:
-            img = Image.open(path).convert("RGBA")
-            img.thumbnail((w * 3, h * 3), Image.LANCZOS)                # a big picture made small first / réduite d'abord
-            if img.getchannel("A").getextrema()[0] == 255:
-                clear = clear_background(img)                         # no transparency: its plain background goes
-                img = clear if clear.getchannel("A").getbbox() else img        # (a picture of one colour stays whole)
-            box = img.getchannel("A").point(lambda v: 255 if v > 16 else 0).getbbox()
-            if box is None:
-                return None
-            img = img.crop(box)                                       # the drawing only / le dessin seul
-            k = min(self.S(OWN_BOX[0]) / img.width, self.S(OWN_BOX[1]) / img.height)
-            img = img.resize((max(1, int(img.width * k)), max(1, int(img.height * k))), Image.LANCZOS)
-        except Exception as e:                                        # a picture it cannot read: the program's drawing
-            log = getattr(self.hd, "log", None)
-            if callable(log):
-                log(f"sprites/mslug_tank_hd.png: {e}")
-            return None
-        out = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-        out.alpha_composite(img, ((w - img.width) // 2, (h - img.height) // 2))
+    OWN_EXT = (".png", ".gif", ".jpg", ".jpeg", ".webp")
+    OWN_FR = {"tank": "char", "camel": "chameau", "elephant": "éléphant", "ostrich": "autruche"}   # French names taken too
+
+    def own_dirs(self):
+        """Where the owner's pictures of this game may be: sprites/<romset>/, sprites/<family>/, sprites/mslug/.
+        / Où peuvent être ses images pour ce jeu."""
+        seen = []
+        for d in ((self.key or "").lower(), family(self.key), "mslug"):
+            if d and d not in seen:
+                seen.append(d)
+        return seen
+
+    def own_path(self, name):
+        """The owner's own picture of a vehicle or a soldier: sprites/<romset>/<name>.png, then sprites/<family>/<name>.png
+        (sprites/mslug2/camel.png), then sprites/mslug/<name>.png for all the Metal Slug games, and the tank's older
+        sprites/mslug_tank_hd.png; .gif, .jpg or .webp as well, the French name as well (char, chameau), any case.
+        None without one. / Sa propre image : sprites/<romset>/, sprites/<famille>/, sprites/mslug/, le nom français aussi."""
+        root = getattr(self.hd, "root", "") or ""
+        names = [name.lower()] + ([self.OWN_FR[name]] if name in self.OWN_FR else [])
+        for d in self.own_dirs():
+            folder = os.path.join(root, "sprites", d)
+            try:
+                files = {f.lower(): f for f in os.listdir(folder)}
+            except OSError:
+                continue
+            for n in names:
+                for ext in self.OWN_EXT:
+                    f = files.get(n + ext)
+                    if f:
+                        return os.path.join(folder, f)
+        if name == "tank":
+            p = os.path.join(root, "sprites", "mslug_tank_hd.png")
+            if os.path.isfile(p):
+                return p
+        return None
+
+    def _say_picture(self, kind, own):
+        """One line in the log for each vehicle drawn in a game: the owner's picture used, or the program's drawing and where
+        a picture would be taken from (Seb, Metal Slug X: his tank picture was not showing, nothing said which file was
+        read). / Une ligne de journal par véhicule : son image, ou le dessin du programme et où en mettre une."""
+        log = getattr(self.hd, "log", None)
+        if not callable(log) or not self.key:
+            return
+        root = getattr(self.hd, "root", "") or ""
+        path = self.own_path(kind) if own else None
+        if path:
+            log(tr(f"écran HD : {kind} de {self.key}, ton image {os.path.relpath(path, root or '.')}",
+                   f"HD screen: {kind} of {self.key}, your picture {os.path.relpath(path, root or '.')}"))
+        else:
+            where = ", ".join(os.path.join("sprites", d, kind + ".png") for d in self.own_dirs())
+            log(tr(f"écran HD : {kind} de {self.key}, dessin du programme (aucune image {where})",
+                   f"HD screen: {kind} of {self.key}, the program's drawing (no picture {where})"))
+
+    def _own_picture(self, name, w, h, box):
+        """The owner's picture fitted in a card of w x h, in the middle of a box (drawn in the middle of the card's frame).
+        A plain background (a picture without transparency) is made transparent, empty margins are cut. None without one.
+        / Son image dans une carte, au milieu : un fond uni devient transparent, les marges vides partent."""
+        key = (name, w, h)
+        if key in self.own:
+            return self.own[key]
+        path = self.own_path(name)
+        out = None
+        if path is not None:
+            try:
+                img = Image.open(path).convert("RGBA")
+                img.thumbnail((w * 3, h * 3), Image.LANCZOS)            # a big picture made small first / réduite d'abord
+                if img.getchannel("A").getextrema()[0] == 255:
+                    clear = clear_background(img)                     # no transparency: its plain background goes
+                    img = clear if clear.getchannel("A").getbbox() else img    # (a picture of one colour stays whole)
+                bb = img.getchannel("A").point(lambda v: 255 if v > 16 else 0).getbbox()
+                if bb is not None:
+                    img = img.crop(bb)                                # the drawing only / le dessin seul
+                    k = min(self.S(box[0]) / img.width, self.S(box[1]) / img.height)
+                    img = img.resize((max(1, int(img.width * k)), max(1, int(img.height * k))), Image.LANCZOS)
+                    out = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+                    out.alpha_composite(img, ((w - img.width) // 2, (h - img.height) // 2))
+            except Exception as e:                                    # a picture it cannot read: the program's drawing
+                log = getattr(self.hd, "log", None)
+                if callable(log):
+                    log(f"{os.path.relpath(path, getattr(self.hd, 'root', '') or '.')}: {e}")
+                out = None
+        self.own[key] = out
         return out
+
+    def portrait(self, name):
+        """The owner's picture of a soldier beside J1 / J2 (sprites/mslug/marco.png...), a pygame surface or None.
+        / Sa propre image d'un soldat à côté de J1 / J2."""
+        key = ("portrait", name)
+        s = self.rides.get(key)
+        if s is None:
+            img = self._own_picture(name.lower(), self.S(48), self.S(48), (48, 48))
+            s = self.rides[key] = self.hd._surf(img) if img is not None else False
+        return s or None
 
     def _cannon_tip(self, img):
         """Where the shells of the owner's tank start, as a part of the slot: the right end of the drawing in its upper
@@ -653,10 +970,15 @@ class MetalSlugScene:
     def update(self, eng, now):
         vals = eng.state.values
         key = (eng.state.meta.get("game") or "")
-        if key != self.key:
-            self.key = key
+        if key != self.key or eng.state.meta is not self.meta_ref:    # another game, or the same one started again
+            self.key, self.meta_ref = key, eng.state.meta             # / un autre jeu, ou le même relancé
             self.players = {"p1": Player("p1"), "p2": Player("p2")}
             self.mission = self.mission_shown = None
+            self.rides, self.ride_own, self.ride_tip, self.own = {}, {}, {}, {}     # the pictures of this game / ses images
+            self.boss, self.boss_prev, self.boss_rise = None, {}, {}     # (the rises keep their mission under "mission")
+            self.boss_hit, self.boss_top = {}, {}
+            self.boss_ref, self.boss_parts = None, set()
+            self.boss_dead_prev = self.done_prev = self.complete_m = None
         dt = 0.0 if self.last is None else max(0.0, min(0.1, now - self.last))
         self.last = now
         self.fx_dt = dt
@@ -674,9 +996,23 @@ class MetalSlugScene:
         self.credits = c
         stages = self.stages(eng)
         m = _n(vals.get("mission"))
+        # the game that says when its mission is complete (the first Metal Slug: its end-of-mission word once the boss is
+        # down, Seb's memory snapshots of 19:15, 1.33 test 33; Metal Slug 4: its stage state): MISSION COMPLETE at that
+        # moment, as on its screen, not when the next mission begins / le jeu qui dit quand sa mission est finie : le
+        # bandeau à ce moment-là, comme sur son écran, pas au début de la mission suivante
+        done = _n(vals.get("mission_done"))
+        if (done == 1 and self.done_prev == 0 and anyone and not attract and self.mission is not None
+                and self.complete_m != self.mission):
+            self.complete_m = self.mission
+            self.complete_t = now                                      # mission accomplie : bandeau, feu d'artifice
+            for i in range(6):
+                self.fx.later(0.15 + i * 0.25, self._firework)
+        self.done_prev = done
         if m is not None and m != self.mission:
             theme = stages[(max(1, int(m)) - 1) % len(stages)]
-            if self.mission is not None and m == self.mission + 1 and anyone:
+            if self.mission is not None and m == self.mission + 1 and anyone and self.complete_m == self.mission:
+                self._show_mission(theme, m)                           # the game said it already: the next one at once
+            elif self.mission is not None and m == self.mission + 1 and anyone:
                 self.complete_t = now                                  # mission accomplie : bandeau, feu d'artifice
                 self.mission_t = now + 1.9
                 self.fx.later(1.9, self._show_mission, theme, m)
@@ -696,7 +1032,310 @@ class MetalSlugScene:
             self.bd.set_theme(stages[0], now)
         self.was_attract = attract
         self.time_v = _n(vals.get("time"))
+        self._boss(vals, now, anyone and not attract, self.boss_slots(eng))
         self.fx.update(now)
+
+    # ------------------------------------------------------------ the boss of the mission / le boss de la mission
+    def boss_slots(self, eng):
+        """The values that hold the bosses' lives: the game's "hd": {"boss_slots": [...]} (Metal Slug 4, the six enemy slots
+        of the RetroAchievements notes), else boss_hp alone when the game has it. / Les valeurs qui portent la vie des boss."""
+        key = self.key
+        if self._slots_key != key:
+            g = eng.library.get(key) or {}
+            hd = g.get("hd") if isinstance(g.get("hd"), dict) else {}
+            lst = hd.get("boss_slots")
+            self._slots = [x for x in lst if isinstance(x, str)] if isinstance(lst, list) else ["boss_hp"]
+            flag = hd.get("boss_flag")
+            self._boss_flag = flag if isinstance(flag, str) and flag else None
+            # a game without a flag: a life of at least "boss_min" is its boss, below it a big enemy (the first Metal
+            # Slug, Seb's memory snapshots of 19:15: 400 for a helicopter, 2200 for the boss of mission 1, 1.33 test 31)
+            # / sans drapeau : une vie d'au moins boss_min est le boss, en dessous un gros ennemi
+            big = hd.get("boss_min")
+            self._boss_big = int(big) if isinstance(big, (int, float)) and big > 0 else None
+            # the life each mission's boss starts with, when known ("boss_life": {"1": 2200, "2": 3900}, the first Metal
+            # Slug from Seb's captures): an entry filled with less is a big enemy, whatever its size (the mission 2
+            # machine of 1200 before Hairbuster Riberts, test 33) / la vie de départ du boss de chaque mission
+            life = hd.get("boss_life") if isinstance(hd.get("boss_life"), dict) else {}
+            self._boss_life = {}
+            for k, v in life.items():
+                if isinstance(v, (int, float)) and not isinstance(v, bool) and v > 0 and str(k).isdigit():
+                    self._boss_life[int(k)] = int(v)
+            # how long a big enemy's quiet bar stays without a hit ("minor_idle", 8 s unless the game says: 20 s in Metal
+            # Slug 4, whose helicopters hover a while between two hits, Seb's photo of 01:04, test 34) / le temps d'une
+            # barre discrète sans un coup
+            idle = hd.get("minor_idle")
+            self._minor_idle = float(idle) if isinstance(idle, (int, float)) and not isinstance(idle, bool) and idle > 0 else MINOR_IDLE
+            # the smallest life shown as a big enemy ("minor_min", 200 unless the game says: 256 in Metal Slug 5, whose
+            # table holds 255 in entries that are no enemy, Seb's game of 7 November 22:59, test 43) / la plus petite vie
+            # montrée comme gros ennemi
+            mm = hd.get("minor_min")
+            self._minor_min = int(mm) if isinstance(mm, (int, float)) and not isinstance(mm, bool) and mm > BOSS_MIN else BOSS_MIN
+            self._slots_key = key
+        return self._slots
+
+    def _boss(self, vals, now, playing, slots):
+        """A game that gives its boss's life (Metal Slug 4 from the RetroAchievements notes): WARNING and its name when it
+        comes, its life bar in the middle, BOSS DESTROYED when it runs out. The lives sit in slots of the game's enemies
+        (each one holds any enemy in turn: Seb's capture of 23:58 showed mission 1's boss in the second slot, 250 of life,
+        and an enemy of 100 in the fifth), so the boss is the slot a big life fills while the mission is played, named
+        after the mission, and that slot alone is followed until it runs out.
+        / Un jeu qui donne la vie de son boss : WARNING et son nom quand il arrive, sa barre de vie au milieu, BOSS DÉTRUIT.
+        Les vies sont dans des cases d'ennemis : le boss est la case qu'une grosse vie remplit pendant la mission."""
+        B = self.boss
+        if B is not None and (not playing or self.mission != B["mission"]):
+            self.boss = B = None                                       # the mission over, or everybody gone / mission finie
+        cur = {}
+        for slot in slots:                                             # a slot may be a whole list of lives / une liste
+            v = vals.get(slot)
+            if isinstance(v, list):
+                for i, hp in enumerate(v):
+                    hp = _n(hp)
+                    cur[(slot, i)] = 0 if hp is not None and BOSS_MIN <= hp < self._minor_min else hp   # too small to show
+            else:
+                cur[slot] = _n(v)
+
+        if not playing or self.mission != self.boss_rise.get("mission"):   # another mission: its own lives / une autre mission
+            self.boss_rise = {"mission": self.mission}
+            self.boss_hit, self.boss_top = {}, {}
+            self.boss_ref, self.boss_parts = None, set()
+        ref = self.boss_ref                                            # the boss's own entry this mission / sa case
+        ref_hp = cur.get(ref) if ref is not None else None
+        for slot, hp in cur.items():                                   # the entries a big life has just filled, while
+            prev = self.boss_prev.get(slot)                            # somebody plays / les cases qu'une grosse vie remplit
+            # the boss's parts (the first Metal Slug, Hairbuster Riberts in Seb's capture of 21:33: an entry filled with
+            # the boss's life as it stood, 2420 then 1337, gone a few seconds later): not a boss, not a big enemy
+            # / les morceaux du boss, remplis avec sa vie du moment : ni un boss ni un gros ennemi
+            if slot in self.boss_parts:
+                if hp is None or hp < BOSS_MIN or hp > BOSS_MAX:
+                    self.boss_parts.discard(slot)                      # emptied: the entry is free again / libre
+                continue
+            # an empty entry holds 0 (Metal Slug 4) or 0xFFFF (the first Metal Slug) / une case vide : 0 ou 0xFFFF
+            if (playing and hp is not None and BOSS_MIN <= hp <= BOSS_MAX and prev is not None
+                    and (prev < BOSS_MIN or prev > BOSS_MAX)):
+                if ref is not None and slot != ref and ref_hp is not None and hp == ref_hp:
+                    self.boss_parts.add(slot)
+                    continue
+                self.boss_rise[slot] = now
+                self.boss_top[slot] = hp
+            # a big life hit (Seb's capture of 20:31: four small tanks of 210 to 300 at once, the bar on the first one filled
+            # while he shot the others) / une grosse vie touchée : la barre suit l'ennemi qu'on frappe
+            if (playing and hp is not None and prev is not None and hp < prev and BOSS_MIN <= prev <= BOSS_MAX):
+                self.boss_hit[slot] = now
+                self.boss_top[slot] = max(self.boss_top.get(slot, 0), prev)
+        # the game that says when its boss is fought (Metal Slug 4, boss_flag): the big enemies of a mission have as much
+        # life as the boss, so only a life filled while the flag is up, or up to 6 s before it, is the boss
+        # / le jeu qui dit quand son boss se bat : seules les vies remplies pendant le drapeau, ou 6 s avant, sont le boss
+        gate = _n(vals.get(self._boss_flag)) == 1 if self._boss_flag else True
+        want = self._boss_life.get(int(self.mission)) if isinstance(self.mission, (int, float)) else None
+
+        def rising(window=0.0):
+            """The entry a boss's life filled in the last window seconds, the latest, a boss's before a big enemy's filled
+            at the same time (Shoe & Karn came with a soldier of 210 in the same image, Seb's capture of 00:46), or None.
+            / La case remplie en dernier, celle d'un boss avant celle d'un gros ennemi rempli en même temps."""
+            best = None
+            for slot, t in self.boss_rise.items():
+                if slot == "mission":
+                    continue
+                if now - t <= window and cur.get(slot) is not None and BOSS_MIN <= cur[slot] <= BOSS_MAX:
+                    rank = (t, 1 if is_boss(slot) else 0)
+                    if best is None or rank > best[1]:
+                        best = (slot, rank)
+            return best[0] if best else None
+
+        def alert():
+            """WARNING: the boss of the mission comes. / Le boss de la mission arrive."""
+            self.boss_alerts += 1
+            self.fx.flash(RED, 0.25, 0.5)
+            self.fx.shake(8, 0.6)
+            for i in range(3):
+                self.fx.later(0.5 + i * 0.5, self.fx.shake, 3, 0.2)
+
+        def is_boss(slot):
+            """Whether the life in that entry is the boss of the mission: the game's flag up, or a life at least as big as
+            the mission's boss ("boss_life", test 33) or as "boss_min" when it has no flag (the first Metal Slug, test 31),
+            else a big enemy with a quiet bar (test 25). / Le boss de la mission : le drapeau du jeu levé, ou une vie
+            d'au moins celle du boss de la mission, ou d'au moins boss_min ; sinon un gros ennemi."""
+            if not gate:
+                return False
+            # Metal Slug 4's flag is up for every locked screen, a wave of helicopters as well as the boss (Seb's capture
+            # of 22:39, mission 2: TOSCHKA DALANUE on a tank of 400, then on helicopters of 490), so the flag alone is a
+            # gate and the life decides when the game gives one / le drapeau est une porte, la vie décide
+            if want is not None:
+                # a tenth under: the first reading may come after the first hit (the Iron Nokana MKII of Metal Slug X, 5000,
+                # read 4990 with the tank's vulcan already on it, Seb's game of 8 November, test 44) / un dixième de marge
+                return max(self.boss_top.get(slot, 0), cur.get(slot) or 0) >= want - want // 10
+            if self._boss_big is not None:
+                return (cur.get(slot) or 0) >= self._boss_big
+            return True
+
+        def hit(window):
+            """The big life hit in the last window seconds, the latest, or None. / La grosse vie touchée en dernier."""
+            best = None
+            for slot, t in self.boss_hit.items():
+                if now - t <= window and cur.get(slot) is not None and 0 < cur[slot] <= BOSS_MAX and (best is None or t > best[1]):
+                    best = (slot, t)
+            return best[0] if best else None
+
+        def show(slot, it, quiet=False):
+            name = vals.get("boss_name")
+            top = max(self.boss_top.get(slot, 0), cur[slot])
+            self.boss = {"name": name if isinstance(name, str) and it else tr("ENNEMI", "ENEMY"),
+                         "top": top, "hp": cur[slot], "t0": now, "down": None, "mission": self.mission, "hit_t": -99.0,
+                         "slot": slot, "moved": now, "minor": not it, "phase": 1, "zero_t": None}
+            if it:
+                self.boss_ref = slot
+                if not quiet:
+                    alert()
+
+        def twin(B):
+            """The entry the boss's life went on in when its own emptied: filled with the same life at the same time
+            (Hairbuster Riberts came in two entries of 3900 at once, one gone two seconds later, Seb's capture of 21:33)
+            / la case jumelle du boss, remplie en même temps avec la même vie, quand la sienne se vide"""
+            for slot, top in self.boss_top.items():
+                if (slot != B["slot"] and top == B["top"] and cur.get(slot) is not None and 0 < cur[slot] <= top
+                        and abs(self.boss_rise.get(slot, -99.0) - self.boss_rise.get(B["slot"], -99.0)) <= 0.5):
+                    return slot
+            return None
+
+        def fall(B):
+            """It fell: BOSS DESTROYED, a flash for a big enemy. / Il tombe."""
+            B["hp"], B["down"] = 0, now
+            if B.get("minor"):                                         # a machine down: a flash, no fireworks / un engin
+                self.fx.flash((255, 220, 160), 0.15, 0.3)
+                self.fx.shake(5, 0.3)
+            else:
+                self.boss_downs += 1
+                self.fx.flash((255, 220, 160), 0.3, 0.5)
+                self.fx.shake(10, 0.7)
+                for i in range(8):
+                    self.fx.later(0.1 + i * 0.22, self._firework)
+
+        # the game that says when its boss is dead (the first Metal Slug, its flag from the RetroAchievements notes, 1 to 0
+        # as Tetsuyuki fell in Seb's snapshots of 19:15): BOSS DESTROYED at that moment, bar or no bar
+        # / le jeu qui dit quand son boss est mort : BOSS DÉTRUIT à ce moment-là, barre ou pas
+        dead = _n(vals.get("boss_dead"))
+        died = dead == 1 and self.boss_dead_prev == 0 and playing and self.mission is not None
+        self.boss_dead_prev = dead
+        if died and (B is None or B.get("minor")):                     # (a boss already down: said once)
+            name = vals.get("boss_name")
+            self.boss = B = {"name": name if isinstance(name, str) else "", "top": 1, "hp": 1, "t0": now, "down": None,
+                             "mission": self.mission, "hit_t": -99.0, "slot": None, "moved": now, "minor": False}
+            fall(B)
+
+        if B is None:
+            if playing:
+                slot = rising(6.0 if self._boss_flag else 0.0) if gate else rising(0.0)
+                if slot is not None:
+                    # a big life without the game's flag: a tank, a helicopter, a sergeant on foot (Seb, test 25: its bar is
+                    # worth showing, but it is not the boss and the game gives no name); with "boss_min" instead of a flag,
+                    # a life that big is the boss (test 31) / une grosse vie sans le drapeau ; avec boss_min, le boss
+                    show(slot, is_boss(slot))
+                else:
+                    slot = hit(0.5)                                    # a big enemy hit while no bar shows: its bar, quiet;
+                    if slot is not None and slot not in self.boss_parts:   # the boss's once it was seen (the second tank
+                        if not is_boss(slot):                          # of Shoe & Karn, test 34): its bar back, no WARNING
+                            show(slot, False)                          # again / un gros ennemi touché sans barre : la
+                        elif self.boss_ref is not None:                # sienne ; le boss déjà vu : la sienne, sans alerte
+                            show(slot, True, quiet=True)
+        else:
+            if B.get("minor") and gate and self._boss_flag and B["down"] is None and is_boss(B["slot"]):
+                name = vals.get("boss_name")                           # the game's flag goes up: that machine was the
+                                                                       # boss / le drapeau se lève
+                B.update(minor=False, name=name if isinstance(name, str) else "", t0=now)
+                self.boss_ref = B["slot"]
+                alert()
+            if B.get("minor") and B["down"] is None:
+                # the boss of the mission comes while a big enemy has the bar: the boss takes it (Seb's capture of 20:31:
+                # Tetsuyuki came while a small tank kept the bar, no WARNING at all) / le boss arrive : il prend la barre
+                big = rising(0.0)
+                if big is not None and big != B["slot"] and is_boss(big):
+                    show(big, True)
+                    B = self.boss
+                elif now - B["moved"] > 2.0:
+                    # the enemy that has the bar is left alone: the bar goes to the one being hit, or fades after a while
+                    # (a tank passed by, a cannon out of reach) / l'ennemi laissé tranquille : la barre va à celui qu'on
+                    # frappe, ou s'efface au bout d'un moment
+                    other = hit(0.5)
+                    if other is not None and other != B["slot"] and not is_boss(other):
+                        show(other, False)
+                        B = self.boss
+                    elif now - B["moved"] > self._minor_idle:
+                        self.boss = B = None
+            elif B["down"] is None and B["zero_t"] is None and now - B["moved"] > 2.0:
+                # two bosses at once (Shoe & Karn, the two tanks of mission 4 of the first Metal Slug, Seb's capture of
+                # 00:46, 1200 and 1500): the bar goes to the one being hit, no new WARNING / deux boss à la fois : la barre
+                # va à celui qu'on frappe
+                other = hit(0.5)
+                if other is not None and other != B["slot"] and other not in self.boss_parts and is_boss(other):
+                    B["slot"], B["moved"] = other, now
+                    self.boss_ref = other
+                    B["hp"] = cur[other]
+                    B["top"] = max(self.boss_top.get(other, 0), cur[other])
+            if B is None:
+                self.boss_prev = cur
+                return
+            if B["slot"] is None:                                      # BOSS DESTROYED on the game's word alone / sur
+                if now - B["down"] > 3.0:                              # le seul mot du jeu
+                    self.boss = None
+                self.boss_prev = cur
+                return
+            hp = cur.get(B["slot"])
+            if B["down"] is None:
+                done = _n(vals.get("mission_done")) == 1 or died        # the mission complete, or the game's flag: it fell
+                # its life filled again, as big as a boss's: its next phase (Brave Guerrier, 850 then 1000 then 1600 in
+                # the same entry, Seb's captures of 22:39 and 01:04; the bar stayed stuck near empty before, test 34)
+                # / sa vie remplie de nouveau, une vie de boss : sa phase suivante
+                refill = (not B.get("minor") and hp is not None and BOSS_MIN <= hp <= BOSS_MAX and hp > B["hp"]
+                          and (hp > B["top"] or B["hp"] <= B["top"] * 0.05 or B["zero_t"] is not None) and is_boss(B["slot"]))
+                if refill:
+                    B.update(phase=B["phase"] + 1, hp=hp, top=max(B["top"], hp), moved=now, zero_t=None, hit_t=-99.0)
+                    self.fx.flash((255, 220, 160), 0.15, 0.3)
+                    self.boss_prev = cur
+                    return
+                if B["zero_t"] is not None:
+                    # at 0 in a game with a flag (Metal Slug 4): its next phase may fill the entry within a few seconds
+                    # (0 then 65526 then 1 then 1000 in the capture of 22:39), else it fell / à 0 : sa phase suivante, sinon tombé
+                    if done or now - B["zero_t"] > PHASE_WAIT:
+                        fall(B)
+                    self.boss_prev = cur
+                    return
+                # its life goes on in another entry (a new phase, Seb's capture of 00:22, Metal Slug 4 and its flag): only
+                # an entry a boss-sized life filled, not a soldier of 250 passing by (both Metal Slugs, test 33)
+                # / sa vie continue ailleurs : seulement une case remplie d'une vie de boss
+                other = rising(0.5) if hp is not None and now - B["moved"] > 2.0 and not B.get("minor") else None
+                if other is not None and other != B["slot"] and is_boss(other):
+                    B["slot"], B["moved"] = other, now
+                    self.boss_ref = other
+                    hp = B["hp"] = cur[other]
+                    B["top"] = max(B["top"], hp)
+                hold = bool(self._boss_flag) and not B.get("minor")   # the game whose boss comes back in phases / par phases
+                if hp is None or hp > B["top"] * 1.5:                  # not a life any more: the entry is empty, or holds
+                    other = twin(B) if not B.get("minor") else None    # another thing / plus une vie : la case s'est vidée
+                    if other is not None:                              # (its twin goes on) / (sa jumelle continue)
+                        B["slot"], B["moved"] = other, now
+                        self.boss_ref = other
+                        B["hp"] = cur[other]
+                    elif died or (now - B["moved"] <= 1.0 and B["hit_t"] > -1):   # emptied right after a hit, or the
+                        if hold and not died:                          # game says it fell (Hairbuster Riberts, 155 then
+                            B["hp"], B["zero_t"] = 0, now              # gone) / vidée sur un coup, ou le jeu le dit
+                        else:
+                            fall(B)
+                    else:
+                        self.boss = None
+                elif hp > B["top"]:
+                    B["top"] = B["hp"] = hp
+                elif hp < B["hp"] or done:
+                    if hp < B["hp"]:
+                        B["hit_t"] = now
+                        B["moved"] = now
+                    B["hp"] = 0 if done else hp
+                    if done or (hp <= 0 and not hold):
+                        fall(B)
+                    elif hp <= 0:
+                        B["zero_t"] = now
+            elif now - B["down"] > (0.8 if B.get("minor") else 3.0):
+                self.boss = None
+        self.boss_prev = cur
 
     def stages(self, eng):
         key = self.key
@@ -731,9 +1370,19 @@ class MetalSlugScene:
         if mode is None:                                            # pas de BIOS : J1 joue, J2 s'il a un score
             mode = 1 if side == "p1" or (_n(self.get(vals, side, "score")) or 0) > 0 else 0
         if mode != P.mode:
+            if mode == 1 and P.mode == 2:
+                # back from CONTINUE: Metal Slug 4 leaves the lives at 0 for a second before writing them (Seb's two-player
+                # game of 7 November 22:52, LAST LIFE for 1.4 s at each continue) / retour du CONTINUE, les vies pas encore écrites
+                P.lives_known = False
+                P.lives_t0 = now
             if mode == 1 and P.mode not in (1, 2):
                 P.join_t = now
-                P.sync_until = now + 0.8
+                P.lives_t0 = now
+                # quiet until the game has set its soldier up: the first Metal Slug sets his lives 0, 1, 0, 2, 0 over its
+                # HOW TO PLAY screen with its timer at 1, then wipes his block and starts the mission with the timer at 60
+                # (Seb's capture of 20:31: 7 s, 1UP ! and LAST LIFE on the HD screen meanwhile) / au calme jusqu'à ce que
+                # le jeu ait mis son soldat en place, le chrono de la mission parti
+                P.sync_until = now + SYNC_MAX
                 P.over_t = None
                 P.seen = {}
                 P.score_disp = None
@@ -746,16 +1395,32 @@ class MetalSlugScene:
         if not self.playing(P):
             P.shots = []
             return
-        quiet = now < P.sync_until
         cur = {b: _n(self.get(vals, side, b)) for b in ("score", "lives", "bombs", "ammo", "weapon", "prisoners", "vehicle",
-                                                          "vehicle_hp", "vehicle_ammo", "grenades_out")}
+                                                          "vehicle_kind", "vehicle_hp", "vehicle_ammo", "grenades_out")}
         inp = _n(vals.get("p1_input" if side == "p1" else "p2_input"))
+        # the block wiped: 0xFF everywhere at once, the bombs with the ammo or the weapon, or the lives (Metal Slug 4 gives
+        # its handgun 65535 of ammo, unlimited, and that alone is no wipe: Seb's video of 22:39, test 33, no grenade thrown
+        # on the HD screen while he held the handgun) / le bloc effacé : 0xFF partout, pas la seule munition illimitée
+        wiped = ((cur["bombs"] == 255 and (cur["ammo"] == 65535 or cur["weapon"] == 255))
+                 or (cur["lives"] is not None and cur["lives"] >= 250))
+        quiet = now < P.sync_until
+        if quiet and not wiped:
+            tm = _n(vals.get("time"))
+            if now - P.join_t >= SYNC_MIN and (tm is None or tm >= 2 or now - P.join_t >= SYNC_MAX):
+                P.sync_until = now                                     # the mission runs: these values are the start,
+                                                                       # the next ones are compared to them / le départ
+        # the soldier's block wiped (0xFF everywhere) for a few images as a game begins and between two lives (Seb's
+        # video of 19:20, the first Metal Slug: +245 BOMBES and four grenades blowing up at the start, 1.33 test 31): not
+        # values, nothing to compare / le bloc du soldat effacé quelques images : pas des valeurs, rien à comparer
+        if wiped:
+            return
         old = P.seen
         P.seen = dict(cur, input=inp)
         if inp is not None:
             P.move = 1.0 if inp & BTN_RIGHT else (-1.0 if inp & BTN_LEFT else 0.0)
         if quiet or not old:
-            P.tank = cur["vehicle"] == 1                               # déjà dans le char : sans fanfare
+            P.tank = self.aboard(cur["vehicle"])                       # déjà à bord : sans fanfare / already aboard, quietly
+            P.ride = self.ride_kind(cur["vehicle_kind"]) if P.tank else None
             if cur["weapon"] is not None:
                 P.weapon_kind = self.weapon(side, cur["weapon"])[1] or "pistol"
                 P.ammo_max = max(1, cur["ammo"] or 0)
@@ -774,6 +1439,8 @@ class MetalSlugScene:
             P.float_t = now
             self._score_float(side, P, now, sc)
         lv, lo = cur["lives"], old.get("lives")
+        if lv is not None and 0 < lv < 250:
+            P.lives_known = True                     # the game wrote them once / le jeu les a écrites une fois
         if lv is not None and lo is not None:
             if lv < lo:
                 self._life_lost(side, P, now, lo)
@@ -791,23 +1458,45 @@ class MetalSlugScene:
                 P.weapon_t = now
                 self.fx.text(f"+{d}", self._ammo_xy(side)[0], self.S(250), GREEN, 40, life=1.0)
         b, bo = cur["bombs"], old.get("bombs")
+        go, goo = cur["grenades_out"], old.get("grenades_out")
+        if go is not None and go >= 250:                               # the counter wiped with the block / effacé
+            go = None
+        counted = go is not None and goo is not None and goo < 250     # the game counts its grenades on screen / comptées
+        thrown = False
         if b is not None and bo is not None:
             if b < bo:
-                for i in range(min(4, bo - b)):
-                    P.flying += 1
-                    self.fx.later(i * 0.16, self._throw, side, P, bo - i - 1)
+                if counted and go <= goo:
+                    # bombs down while no grenade left the hand: the game put them back to 10 at a new life or a new
+                    # mission (Metal Slug 2, Seb's game of 12:15: 15 to 10 at the respawn, 20 to 10 at mission 2), not
+                    # throws, unless its counter rises in the next reading / les bombes remises à 10, pas des lancers
+                    held = P.bomb_drop[1] if P.bomb_drop is not None else 0
+                    P.bomb_drop = (now, min(4, held + bo - b), P.bomb_drop[2] if held else bo)
+                else:
+                    self._throws(side, P, min(4, bo - b), bo)
+                    thrown = True
             elif b > bo:
                 P.bomb_add = (now, b - bo)
                 self.fx.text(tr(f"+{b - bo} BOMBES", f"+{b - bo} BOMBS"), self._bomb_xy(side, 0)[0] + (self.S(120) if side == "p1" else -self.S(120)),
                              self.S(340), GOLD, 36, life=1.2)
-        go, goo = cur["grenades_out"], old.get("grenades_out")
-        if go is not None and goo is not None:
+        if counted:
             if go > goo:                                   # the game's grenade left the hand: wait for its explosion
+                if P.bomb_drop is not None:                # the bombs went down just before: those were throws / lancers
+                    t0, n, before = P.bomb_drop
+                    P.bomb_drop = None
+                    if now - t0 <= 0.5 and not thrown:
+                        P.early += max(0, n - (go - goo))  # more bombs gone than grenades in the air: those blew up
+                        self._throws(side, P, n, before)   # already, at the hand / déjà explosées, à la main
                 P.out_ok = True                            # la grenade du jeu est partie : on attend son explosion
                 for g in P.live:
                     g.life = max(g.life, self.fx.now - g.t0 + self.GRENADE_WAIT)
             elif go < goo and P.out_ok:                    # it blew up, on an enemy or at its second bounce / elle explose
                 self._explode_live(P, goo - go)
+        if P.bomb_drop is not None and now - P.bomb_drop[0] > 0.5:
+            t0, n, before = P.bomb_drop                    # no grenade followed / aucune grenade n'a suivi
+            P.bomb_drop = None
+            if b != 10:                                    # not the game's 10 of a new life or mission: the grenades left
+                P.early += n                               # and blew up within one reading, at the hand / parties et
+                self._throws(side, P, n, before)           # explosées entre deux lectures : explosion à la main
         pr, po = cur["prisoners"], old.get("prisoners")
         if pr is not None and po is not None and pr > po:
             P.prison_t = now
@@ -826,18 +1515,41 @@ class MetalSlugScene:
 
     # ------------------------------------------------------------ le char / the tank
     def _vehicle(self, side, P, old, cur, now):
-        """In and out of the tank, the hits it takes, its cannon shells. / Le char : dedans, dehors, coups, obus."""
+        """In and out of a vehicle (the tank, the camel, the submarine...), the hits it takes, its shells.
+        / Le véhicule (char, chameau, sous-marin...) : dedans, dehors, coups, obus."""
         v, vo = cur["vehicle"], old.get("vehicle")
         if v is None:
-            P.tank = False
+            P.tank, P.ride = False, None
             return
-        if vo is not None and v != vo:
-            if v == 1:
+        # a flag byte (bit 0) in the first Metal Slug, 2 and 4: its other bits are the soldier's state on foot (1.33 test
+        # 29, Seb's capture of 17:58: 2, 4, 6, 16, 22 while he moves and shoots, read as the tank since test 21); a kind in
+        # the others / un octet de bits dans le premier Metal Slug, le 2 et le 4, un genre dans les autres
+        aboard = self.aboard
+        # the kind alone never means riding: Metal Slug 2 keeps the last vehicle's kind after the soldier leaves it, until
+        # his next life (test 36 read the camel's kind as the ride; Seb's game of 7 November 00:19: still CAMEL SLUG after
+        # he got off at 362 s) / le genre seul ne dit pas qu'on est dessus, Metal Slug 2 le garde après la descente
+        kind = self.ride_kind(cur["vehicle_kind"])
+        riding = aboard(v)
+        unnamed = cur["vehicle_kind"] is not None and kind == "vehicle" and len(VEHICLES.get(family(self.key), {})) > 1
+        if riding and unnamed and not P.tank:
+            # the vehicle read before its kind (two readings apart): wait a moment for the name rather than announce
+            # VEHICLE then rename it / le véhicule lu avant son genre : on attend le nom un instant
+            if P.ride_wait is None:
+                P.ride_wait = now
+            if now - P.ride_wait < 0.3:
+                return
+        else:
+            P.ride_wait = None
+        was = P.tank if vo is not None else None                      # what the screen shows / ce que l'écran montre
+        if was is not None and riding != was:
+            if riding:
+                P.ride = kind
                 self._tank_in(side, P, now)
-            elif vo == 1:
+            else:
                 self._tank_out(side, P, now, old.get("vehicle_hp"))
-        P.tank = v == 1
-        if not P.tank or vo != 1:
+        P.tank = riding
+        P.ride = kind if riding else None
+        if not riding or not was:
             return
         hp, ho = cur["vehicle_hp"], old.get("vehicle_hp")
         if hp is not None and ho is not None and hp < ho:
@@ -854,21 +1566,19 @@ class MetalSlugScene:
         cx, cy = sx + self.S(95), sy + self.S(54)
         self.fx.glow(cx, cy, 30, 240, GREEN, 0.45)
         self.fx.smoke(cx, sy + self.S(100), 4, (10, 18), 2.6, (0.5, 0.9), (20, 60), 20, (170, 150, 120), 120, "front")
-        self.fx.text(tr("EN CHAR !", "TANK!"), self._card_text_x(side), self.S(232), GREEN, 40, life=1.3, rise=30,
-                     align="left" if side == "p1" else "right")
-        self.fx.shake(4, 0.25)
+        self.fx.text(tr(*RIDE_IN.get(P.ride or "tank", RIDE_IN_ANY)), cx, sy + self.S(96), GREEN, 40, life=1.3, rise=40)
+        self.fx.shake(4, 0.25)                                         # over the picture, not the name / sur l'image
 
     def _tank_out(self, side, P, now, hp):
         P.weapon_t = now                                              # l'arme revient dans la carte / the weapon comes back
-        if hp is not None and hp > 0:
-            return
+        if (hp is not None and hp > 0) or P.ride in MOUNTS:           # left whole, or a mount (no energy): no blast
+            return                                                     # / quitté entier, ou le chameau : rien n'explose
         sx, sy = self._slot_xy(side)                                   # détruit : il explose / destroyed: it blows up
         cx, cy = sx + self.S(95), sy + self.S(54)
         self.fx.explosion(cx, cy, 1.4)
         for i in range(3):
             self.fx.later(0.12 + i * 0.14, self._boom, cx + self.rng.uniform(-60, 60) * self.s, cy + self.rng.uniform(-20, 30) * self.s)
-        self.fx.text(tr("CHAR DÉTRUIT", "TANK DESTROYED"), self._card_text_x(side), self.S(232), RED, 40, life=1.6, rise=30,
-                     align="left" if side == "p1" else "right")
+        self.fx.text(tr(*RIDE_LOST.get(P.ride or "tank", RIDE_LOST_ANY)), cx, sy + self.S(96), RED, 40, life=1.6, rise=40)
         self.fx.shake(9, 0.5)
 
     def _tank_hit(self, side, P, now, hp):
@@ -987,7 +1697,12 @@ class MetalSlugScene:
         if st.get("flame"):                                       # jet continu tant que la réserve baisse
             P.flame_until = max(P.flame_until, now + 0.2)
             return
-        fx.muzzle(x, y, d, st.get("muzzle", 1.0), (160, 240, 255) if st.get("laser") else FIRE_HOT)
+        if st.get("laser"):                                       # a beam held as long as the shots go on (Seb: in the
+            if now >= P.laser_until:                              # game it is one straight line, red or orange, not a
+                P.laser_t0 = now                                  # burst of blue dashes) / un trait tenu, pas des tirets
+            P.laser_until = max(P.laser_until, now + 0.5)          # the game's count comes down every 0.1 to 0.5 s
+            return
+        fx.muzzle(x, y, d, st.get("muzzle", 1.0), FIRE_HOT)
         tx = self.W / 2 + d * rng.uniform(-60, 300) * self.s
         ty = self.H * 0.725 + rng.uniform(-30, 40) * self.s
         if st.get("rocket"):
@@ -1001,8 +1716,7 @@ class MetalSlugScene:
         for i in range(st.get("pellets", 1)):
             spread = (i - (st.get("pellets", 1) - 1) / 2) * 0.1 if st.get("pellets") else 0
             tyy = ty + spread * 600 * self.s + rng.uniform(-10, 10) * self.s
-            fx.tracer(x + d * self.S(18), y, tx + rng.uniform(-30, 30) * self.s, tyy, 2400 if not st.get("laser") else 4200,
-                      col, wd, ln, "front")
+            fx.tracer(x + d * self.S(18), y, tx + rng.uniform(-30, 30) * self.s, tyy, 2400, col, wd, ln, "front")
         if st.get("pellets"):
             fx.smoke(x + d * self.S(30), y, 3, (8, 14), 2.4, (0.4, 0.7), (20, 50), 10, (150, 146, 140), 130, "front")
             fx.shake(2.5, 0.12)
@@ -1014,6 +1728,32 @@ class MetalSlugScene:
             ey = sy + py * self.S(108)
             fx.obj(cas, ex, ey, -d * rng.uniform(40, 170), -rng.uniform(240, 380), gravity=1700,
                    vrot=rng.uniform(-900, 900), life=1.0, floor=self.S(316), bounce=0.35, rot=rng.uniform(0, 360))
+
+    # the laser's colours as the beam is held: blue when it starts, then red (orange at the core), then green, as on
+    # Seb's screenshots of Metal Slug X (8 November, 13:44:43 blue, 13:44:47 red, 13:44:50 green), two seconds each
+    # / les couleurs du laser tant qu'on tient le tir : bleu au départ, puis rouge au cœur orangé, puis vert
+    LASER_COLORS = (((90, 170, 255), 2.0), ((255, 70, 40), 2.0), ((80, 255, 120), 2.0))
+
+    def _laser(self, side, P, now, dt):
+        """The laser beam, from the gun's tip across the backdrop, drawn every image while the game's shots go on, a bright
+        ball at the muzzle, sparks where it lands. / Le rayon du laser, du bout du canon au décor, boule au départ."""
+        rng, fx = self.rng, self.fx
+        x, y = self._tip_xy(side, "laser")
+        d = 1 if side == "p1" else -1
+        held = (now - P.laser_t0) % sum(t for _, t in self.LASER_COLORS)
+        col = self.LASER_COLORS[-1][0]
+        for c, t in self.LASER_COLORS:
+            if held < t:
+                col = c
+                break
+            held -= t
+        tx = self.W / 2 + d * 230 * self.s
+        ty = self.H * 0.69 + math.sin(now * 9.0) * 2 * self.s
+        fx.beam(x + d * self.S(6), y, tx, ty, col, 5, 0.06, "front", 1.0, 0.7)
+        fx.glow(x + d * self.S(8), y, 10, 16, col, 0.08, "front", 1.0, 0.4, hot=0.6)       # the ball / la boule
+        fx.glow(tx, ty, 8, 22, col, 0.1, "back", 0.9, 0.0, hot=0.5)
+        if rng.random() < dt * 30:
+            fx.sparks(tx, ty, 2, col, (120, 320), (200, 340), (0.15, 0.3), 700, "back", 2, 12)
 
     def _flame(self, side, P, now, dt):
         """Jet du lance-flammes : des boules de feu qui partent vite, gonflent, montent et s'éteignent."""
@@ -1039,6 +1779,12 @@ class MetalSlugScene:
         self.fx.small_blast(x, y, 1.4, "back")
         self.fx.shake(4, 0.2)
 
+    def _throws(self, side, P, n, bombs_before):
+        """n grenades leave the row one after the other, the last icons first. / n grenades partent l'une après l'autre."""
+        for i in range(n):
+            P.flying += 1
+            self.fx.later(i * 0.16, self._throw, side, P, bombs_before - i - 1)
+
     def _throw(self, side, P, index):
         """The grenade leaves its row in an arc, bounces once and blows up as it lands again, as in the game (about a second
         after the throw). When the game's grenades on screen are read, it waits for the game's own to blow up instead,
@@ -1049,6 +1795,7 @@ class MetalSlugScene:
         tx = self.W / 2 + d * self.rng.uniform(-80, 220) * self.s
         ty = self.H * 0.74 + self.rng.uniform(-8, 26) * self.s
         P.bomb_t = self.fx.now
+        self.thrown += 1
         self.fx.glow(x, y, 6, 40, GOLD, 0.25)
         P.flying = max(0, P.flying - 1)
         if P.early > 0:                                    # the game's one already blew up / celle du jeu a déjà explosé
@@ -1122,10 +1869,11 @@ class MetalSlugScene:
 
     def _tip_xy(self, side, kind):
         sx, sy = self._slot_xy(side)
-        tx, ty = self.tank_tip if kind == "tank" and self.tank_tip else TIP.get(kind or "gun", TIP["gun"])
+        P = self.players[side]
+        own = self.ride_tip.get(P.ride or "tank") if kind == "tank" else None
+        tx, ty = own or TIP.get(kind or "gun", TIP["gun"])
         if side == "p2":
             tx = 1 - tx
-        P = self.players[side]
         kick = max(0.0, 1 - (self.fx.now - P.recoil_t) / 0.08) * self.S(6)
         return sx + tx * self.S(190) - (kick if side == "p1" else -kick), sy + ty * self.S(108)
 
@@ -1178,6 +1926,8 @@ class MetalSlugScene:
                     self._fire(side, P, now)
             if now < P.flame_until and self.playing(P) and P.weapon_kind == "flame":
                 self._flame(side, P, now, self.fx_dt)
+            if now < P.laser_until and self.playing(P) and P.weapon_kind == "laser":
+                self._laser(side, P, now, self.fx_dt)
         ox, oy = self.fx.offset()
         target = screen
         if ox or oy:
@@ -1276,7 +2026,13 @@ class MetalSlugScene:
         cx = W / 2
         h = hd.draw_logo(screen, logo, cx, S(14), S(540), S(116), now)
         y = S(14) + max(h, S(60)) + S(16)
-        if self.mission_shown is not None:
+        B = self.boss
+        if B is not None and (B.get("minor") or B["down"] is not None or now - B["t0"] >= 2.4):   # the boss after its
+            self._draw_boss(screen, B, cx, y, now)                    # WARNING, a machine at once / le boss, un engin
+            y += S(70)
+        elif B is not None:
+            y += S(52)
+        elif self.mission_shown is not None:
             t = hd.text(f"MISSION {int(self.mission_shown)}", "stencil", S(34), CREAM, glow=0.4)
             hd.put(screen, t, cx, y, "center")
             for d in (-1, 1):
@@ -1302,6 +2058,42 @@ class MetalSlugScene:
         if credits is not None:                                   # bottom edge with the panels' / en bas, comme les panneaux
             self._draw_credits(screen, credits, cx, S(14 + 418 - 34), now)
 
+    def _draw_boss(self, screen, B, cx, y, now):
+        """The boss's name and its life bar in the middle, under the logo: red, it empties as the boss takes hits, flashes
+        white on a hit, and BOSS DESTROYED takes its place when it runs out. / Le nom du boss et sa barre de vie."""
+        hd, S, pg = self.hd, self.S, self.pg
+        k = now - B["t0"]
+        minor = bool(B.get("minor"))
+        if B["down"] is not None:
+            if minor:                                                  # a machine down: its bar fades / sa barre s'efface
+                a = max(0.0, 1 - (now - B["down"]) / 0.8)
+                hd.put(screen, hd.text(tr("DÉTRUIT", "DESTROYED"), "stencil", S(30), (255, 200, 150), glow=0.5), cx, y + S(30), "center",
+                       "middle", alpha=a)
+                return
+            a = max(0.0, 1 - (now - B["down"] - 1.5) / 1.5)
+            hd.put(screen, hd.text(tr("BOSS DÉTRUIT", "BOSS DESTROYED"), "stencil", S(44), GOLD, glow=0.7), cx, y + S(30), "center", "middle",
+                   scale=1 + 0.3 * max(0.0, 1 - (now - B["down"]) / 0.3), alpha=a)
+            return
+        name = B["name"] or "BOSS"
+        if not minor and B.get("phase", 1) > 1:                       # its next phase (Brave Guerrier) / sa phase suivante
+            name = f"{name}  ·  PHASE {B['phase']}"
+        blink = not minor and k < 2.4 and int(k * 6) % 2 == 0
+        col = (200, 196, 180) if minor else (RED if blink else (255, 150, 130))
+        hd.put(screen, hd.text(name, "stencil", hd.fit_size(name, "stencil", S(22 if minor else 30), S(560), S(16)), col, glow=0.2 if minor else 0.5),
+               cx, y + S(8 if minor else 2), "center")
+        bw, bh = (S(380), S(12)) if minor else (S(540), S(18))
+        r = pg.Rect(int(cx - bw / 2), int(y + S(42)), bw, bh)
+        pg.draw.rect(screen, (30, 10, 14), r, border_radius=S(6))
+        frac = max(0.0, min(1.0, B["hp"] / max(1, B["top"])))
+        hit = max(0.0, 1 - (now - B["hit_t"]) / 0.25)
+        fill = pg.Rect(r.x + S(3), r.y + S(3), max(0, int((bw - S(6)) * frac)), bh - S(6))
+        if fill.width:
+            c = (255, 255, 230) if hit > 0.5 else ((255, 70, 50) if frac > 0.3 else (255, 150, 40))
+            if minor:
+                c = (255, 255, 230) if hit > 0.5 else (220, 170, 70)   # amber: not the boss / ambre : pas le boss
+            pg.draw.rect(screen, c, fill, border_radius=S(4))
+        pg.draw.rect(screen, (120, 110, 90) if minor else ((255, 120, 110) if blink else (150, 60, 60)), r, max(1, S(2)), border_radius=S(6))
+
     def _draw_panel(self, screen, side, vals, now):
         P = self.players[side]
         if P.shown <= 0.001:
@@ -1323,7 +2115,19 @@ class MetalSlugScene:
         if not playing and (P.over_t is None or now - P.over_t > 5.0):
             self._invite(screen, side, x0, vals, now)
             return
+        name = self.soldier(side, vals)                                 # the soldier beside J1 / J2 (1.33, Seb)
+        if name:
+            lx = 114
+            pic = self.portrait(name)
+            if pic is not None:                                        # the owner's own picture of him / sa propre image
+                screen.blit(pic, (self.X(side, x0, lx, 48), chip.centery - pic.get_height() // 2))
+                lx += 58
+            hd.put(screen, hd.text(name, "stencil", hd.fit_size(name, "stencil", S(34), S(230), S(18)), acc, glow=0.3),
+                   self.X(side, x0, lx), chip.centery, "left" if side == "p1" else "right", "middle")
         lives = _n(self.get(vals, side, "lives"))
+        if lives is not None and lives <= 0 and not P.lives_known and now - P.lives_t0 < 30:
+            lives = None                             # not written yet by the game (Metal Slug 3: 0 for the first five seconds,
+                                                     # then 2; Metal Slug 5: 17 s): no LAST LIFE for nothing / pas encore écrites
         if lives is not None:
             self._draw_lives(screen, side, P, x0, int(lives), now)
         # score qui défile
@@ -1369,7 +2173,7 @@ class MetalSlugScene:
     def _draw_lives(self, screen, side, P, x0, n, now):
         ic = self.icons["helmet"]
         S = self.S
-        if n <= 0 and P.mode == 1:                                     # plus de vie de réserve
+        if n <= 0 and P.mode == 1 and now >= P.sync_until:             # plus de vie de réserve (pas pendant la mise en place)
             x, y = self._helmet_xy(side, 0, 1)
             k = 0.5 + 0.5 * math.sin(now * 8)
             self.hd.put(screen, self.hd.text(tr("DERNIÈRE VIE", "LAST LIFE"), "stencil", S(34), RED, glow=0.7),
@@ -1392,8 +2196,8 @@ class MetalSlugScene:
 
     def _draw_weapon(self, screen, side, P, x0, vals, now):
         hd, S, pg = self.hd, self.S, self.pg
-        if P.tank and _n(self.get(vals, side, "vehicle")) == 1:
-            self._draw_tank(screen, side, P, x0, vals, now)
+        if P.tank:                                                     # aboard, a mount included (the camel: the game's
+            self._draw_tank(screen, side, P, x0, vals, now)            # flag stays 0, Seb's game of 12:15, test 37)
             return
         code = _n(self.get(vals, side, "weapon"))
         if code is None:
@@ -1459,13 +2263,15 @@ class MetalSlugScene:
         """The tank in the weapon card: its drawing, its energy in hits, its cannon shells. When it has no energy left it
         is about to blow up. / Le char dans la carte de l'arme : son dessin, son énergie en coups, ses obus."""
         hd, S, pg = self.hd, self.S, self.pg
-        hp = _n(self.get(vals, side, "vehicle_hp"))
-        shells = _n(self.get(vals, side, "vehicle_ammo"))
+        mount = P.ride in MOUNTS                                       # an animal: no energy, no shells / une monture
+        hp = None if mount else _n(self.get(vals, side, "vehicle_hp"))
+        shells = None if mount else _n(self.get(vals, side, "vehicle_ammo"))
         tt = now - P.tank_t
         hit = max(0.0, 1 - (now - P.tank_hit_t) / 0.4)
         sx, sy = self._slot_xy(side)
         sx += x0 - self.x0(side, P)
-        img = self.tank_surf(side)
+        kind = P.ride or "tank"
+        img = self.ride_surf(kind, side)
         pop = max(0.0, 1 - tt / 0.35)
         if pop:
             k = 1 + 0.35 * pop
@@ -1473,13 +2279,14 @@ class MetalSlugScene:
         kick = max(0.0, 1 - (now - P.recoil_t) / 0.1) * S(8) * (-1 if side == "p1" else 1)
         jx = math.sin(now * 80) * S(5) * hit
         cx, cy = sx + S(95), sy + S(54)
-        if self.tank_own:                                              # the owner's picture: the middle of the frame
+        if self.ride_own.get(kind):                                    # the owner's picture: the middle of the frame
             cx, cy = cx + (S(FRAME_DX) if side == "p1" else -S(FRAME_DX)), cy + S(FRAME_DY)
         screen.blit(img, (int(cx - img.get_width() / 2 + kick + jx), int(cy - img.get_height() / 2)))
         slide = max(0.0, 1 - tt / 0.3)
         nx = self.X(side, x0, 36) + (-1 if side == "p1" else 1) * S(60) * slide
-        hd.put(screen, hd.text(tr("CHAR", "TANK"), "stencil", S(40), (176, 232, 140), glow=0.35), nx, S(208),
-               "left" if side == "p1" else "right")
+        name = tr(*VEHICLE_NAMES.get(kind, VEHICLE_NAMES["vehicle"]))
+        hd.put(screen, hd.text(name, "stencil", hd.fit_size(name, "stencil", S(40), S(360), S(20)), (176, 232, 140), glow=0.35),
+               nx, S(208), "left" if side == "p1" else "right")
         hits = None if hp is None else max(0, min(TANK_HITS, math.ceil(hp * TANK_HITS / 100.0 - 0.05)))
         gx, gw, gh, gy = self.X(side, x0, 36, 250), S(250), S(28), S(268)
         if hits is not None:
@@ -1506,7 +2313,7 @@ class MetalSlugScene:
             flash = max(0.0, 1 - (now - P.recoil_t) / 0.1)
             hd.put_number(screen, str(int(shells)), "stencil", S(50), WHITE if shells > 0 else RED, ax, ay - S(6),
                           "right" if side == "p1" else "left", "middle", scale=1 + 0.12 * flash)
-            hd.put(screen, hd.text(tr("OBUS", "SHELLS"), "bold", S(16), GREY, glow=0), ax, ay + S(24),
+            hd.put(screen, hd.text(tr("OBUS", "SHELLS") if kind == "tank" else "MISSILES", "bold", S(16), GREY, glow=0), ax, ay + S(24),
                    "right" if side == "p1" else "left", "middle")
 
     def _tank_gauge_xy(self, side):
@@ -1565,6 +2372,24 @@ class MetalSlugScene:
         screen.blit(rot, (int(x0 + S(PW) / 2 - rot.get_width() / 2), int(S(244) - rot.get_height() / 2)))
 
     def _draw_banner(self, screen, now):
+        B = self.boss
+        if B is not None and not B.get("minor") and B["down"] is None and now - B["t0"] < 2.4:   # WARNING: the boss comes
+            hd, S, W = self.hd, self.S, self.W
+            k = now - B["t0"]
+            a = 1.0 if k < 2.0 else max(0.0, (2.4 - k) / 0.4)
+            bar = self.pg.Surface((W, S(120))).convert()
+            bar.fill((40, 0, 0))
+            bar.set_alpha(int(170 * a))
+            screen.blit(bar, (0, S(180)))
+            on = int(k * 5) % 2 == 0
+            self.pg.draw.line(screen, RED if on else (120, 30, 30), (0, S(180)), (W, S(180)), max(2, S(4)))
+            self.pg.draw.line(screen, RED if on else (120, 30, 30), (0, S(299)), (W, S(299)), max(2, S(4)))
+            scale = 2.0 - 1.0 * min(1.0, k / 0.18)
+            hd.put(screen, hd.text("WARNING", "stencil", S(92), RED if on else (255, 120, 100), glow=0.8), W / 2, S(232), "center",
+                   "middle", scale=scale, alpha=a)
+            if B["name"]:
+                hd.put(screen, hd.text(B["name"], "stencil", S(30), CREAM, glow=0.4), W / 2, S(284), "center", "middle", alpha=a)
+            return
         k = now - self.complete_t
         if 0 <= k <= 1.9:                                              # MISSION COMPLETE
             hd, S, W = self.hd, self.S, self.W
