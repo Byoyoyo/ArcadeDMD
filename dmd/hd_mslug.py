@@ -613,6 +613,7 @@ class Player:
         self.early = 0                  # the game's grenade blew up before ours left the hand / partie trop tôt
         self.ride_wait = None           # since when a vehicle is read without its kind / véhicule lu sans son genre
         self.lives_known = False        # the game has written a lives count above 0 / des vies écrites une fois
+        self.lives_t0 = -99.0           # since the join or the last continue / depuis l'entrée ou le dernier continue
         self.bomb_drop = None           # bombs down while the game counted no grenade leaving: (when, how many, from)
                                         # a reset unless its counter follows at once / bombes en moins sans grenade partie
         self.tank = False               # dans un véhicule / in a vehicle
@@ -1316,8 +1317,14 @@ class MetalSlugScene:
         if mode is None:                                            # pas de BIOS : J1 joue, J2 s'il a un score
             mode = 1 if side == "p1" or (_n(self.get(vals, side, "score")) or 0) > 0 else 0
         if mode != P.mode:
+            if mode == 1 and P.mode == 2:
+                # back from CONTINUE: Metal Slug 4 leaves the lives at 0 for a second before writing them (Seb's two-player
+                # game of 7 November 22:52, LAST LIFE for 1.4 s at each continue) / retour du CONTINUE, les vies pas encore écrites
+                P.lives_known = False
+                P.lives_t0 = now
             if mode == 1 and P.mode not in (1, 2):
                 P.join_t = now
+                P.lives_t0 = now
                 # quiet until the game has set its soldier up: the first Metal Slug sets his lives 0, 1, 0, 2, 0 over its
                 # HOW TO PLAY screen with its timer at 1, then wipes his block and starts the mission with the timer at 60
                 # (Seb's capture of 20:31: 7 s, 1UP ! and LAST LIFE on the HD screen meanwhile) / au calme jusqu'à ce que
@@ -2033,7 +2040,7 @@ class MetalSlugScene:
             hd.put(screen, hd.text(name, "stencil", hd.fit_size(name, "stencil", S(34), S(230), S(18)), acc, glow=0.3),
                    self.X(side, x0, lx), chip.centery, "left" if side == "p1" else "right", "middle")
         lives = _n(self.get(vals, side, "lives"))
-        if lives is not None and lives <= 0 and not P.lives_known and now - P.join_t < 12:
+        if lives is not None and lives <= 0 and not P.lives_known and now - P.lives_t0 < 12:
             lives = None                             # not written yet by the game (Metal Slug 3: 0 for the first five seconds,
                                                      # then 2): no LAST LIFE for nothing / pas encore écrites : rien
         if lives is not None:
