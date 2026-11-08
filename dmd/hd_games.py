@@ -101,6 +101,7 @@ class GameScene:
         self.last = None
         self.dt = 0.0
         self.touched = set()                                 # players who touched their stick or buttons
+        self.hd_opts = {}                                    # the game file's "hd" block (1.33 test 47) / le bloc hd du jeu
         self.modes = {}                                      # BIOS player modes seen at the previous image
         self.cbar = CreditsBar(hd, self.fx)                  # the credits as in Metal Slug / les crédits comme dans Metal Slug
         for i, col in enumerate(((120, 124, 138), (88, 90, 102), (150, 120, 90))):
@@ -239,15 +240,28 @@ class GameScene:
     @staticmethod
     def value_tops(eng, key):
         """The top of each value the game file gives ("max"), the shot level for example. / Le maximum de chaque valeur."""
+        g = GameScene.game_file(eng, key)
+        vals = (g.get("memory") or {}).get("values")
+        if not isinstance(vals, dict):
+            return {}
+        return {k: v["max"] for k, v in vals.items() if isinstance(v, dict) and _n(v.get("max")) is not None}
+
+    @staticmethod
+    def game_file(eng, key):
+        """The game's file, {} when there is none. / Le fichier du jeu, {} sinon."""
         lib = getattr(eng, "library", None)
         try:
             g = lib.get(key) if lib is not None and key else None
         except Exception:
             g = None
-        vals = ((g or {}).get("memory") or {}).get("values") if isinstance(g, dict) else None
-        if not isinstance(vals, dict):
-            return {}
-        return {k: v["max"] for k, v in vals.items() if isinstance(v, dict) and _n(v.get("max")) is not None}
+        return g if isinstance(g, dict) else {}
+
+    @staticmethod
+    def game_hd(eng, key):
+        """The "hd" block of the game's file (1.33 test 47): what the scene reads of the game's picture, the fields of
+        Twinkle Star Sprites for example. / Le bloc "hd" du fichier du jeu : les terrains de Twinkle Star Sprites."""
+        hd = GameScene.game_file(eng, key).get("hd")
+        return hd if isinstance(hd, dict) else {}
 
     def power_cases(self, vals, side, v):
         """(cases lit, cases) of a shot level as the scene shows it: as many cases lit as the value, as many cases as the
@@ -461,6 +475,7 @@ class GameScene:
         if key != self.key:
             self.key, self.prev, self.banner, self.was_idle, self.pops = key, {}, None, True, []
             self.power_pips, self.tops = [], self.value_tops(eng, key)
+            self.hd_opts = self.game_hd(eng, key)
         self.dt = 0.0 if self.last is None else max(0.0, min(0.1, now - self.last))
         self.last = now
         self.fx.update(now)
