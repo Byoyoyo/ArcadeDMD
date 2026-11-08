@@ -65,7 +65,8 @@ LOOK = {"chaser": "rocket", "lizard": "rocket", "drop": "rocket", "sgrenade": "r
 # / les véhicules de chaque jeu, par le code que garde le jeu, et leurs noms ; ses propres images dans sprites/<jeu>/<nom>.png
 VEHICLES = {"mslug": {1: "tank"},
             "mslug2": {1: "tank", 2: "camel", 3: "slugnoid", 4: "flyer"},
-            "mslugx": {4: "tank", 6: "flyer", 2: "camel"},
+            "mslugx": {1: "tank", 2: "camel", 3: "slugnoid", 4: "flyer"},   # 1 and 2 in Seb's game of 8 November (test 44),
+                                                                       # 3 and 4 as in Metal Slug 2, the same engine
             "mslug3": {4: "slugnoid", 6: "flyer", 7: "copter", 8: "mariner", 9: "drill", 10: "slugnoid", 11: "astro"},
             "mslug4": {},
             "mslug5": {4: "gunner", 6: "flyer", 14: "slugnoid"}}   # 4: Slug Walker / Slug Tank in the notes; the Slug Gunner
@@ -116,7 +117,7 @@ PW, PH = 640, 418           # taille d'un panneau, écran de référence 1920 x 
 BTN_RIGHT, BTN_LEFT, BTN_A = 0x08, 0x04, 0x10      # octet des commandes du BIOS Neo Geo (P1CURRENT)
 
 
-FLAG_VEHICLE = {"mslug", "mslug4"}      # "vehicle" is a flag (bit 0); a kind, or the vehicle's address in Metal Slug 2 / un drapeau
+FLAG_VEHICLE = {"mslug", "mslug4"}      # "vehicle" is a flag (bit 0); a kind, or the vehicle's address in Metal Slug 2 and X
 
 
 def family(key):
@@ -774,10 +775,12 @@ class MetalSlugScene:
             return False
         if family(self.key) in FLAG_VEHICLE:
             return bool(int(v) & 1)
-        # Metal Slug 2: the vehicle object's address while riding anything, the camel included, 0 on foot, the block's
-        # own address (0xE882, 0xE8A6) before the game starts (1.33 test 39, Seb's two-player game of 7 November: player 2's
-        # Slugnoid and the camels unseen by the old bit 0) / l'adresse du véhicule, 0 à pied, celle du bloc avant la partie
-        return 0 < v < 0xE000
+        # Metal Slug 2 and X: the vehicle object's address while riding anything, the camel included, 0 on foot, the
+        # block's own address before the game starts (0xE882, 0xE8A6 in Metal Slug 2, 1.33 test 39, Seb's two-player game
+        # of 7 November: player 2's Slugnoid and the camels unseen by the old bit 0; 0xC608 in Metal Slug X, test 44, his
+        # game of 8 November: the camel 0x1A44, the tank 0x3BF4; the objects live below 0x5000 in both)
+        # / l'adresse du véhicule, 0 à pied, celle du bloc avant la partie
+        return 0 < v < 0xC000
 
     def weapon(self, side, code):
         """(name, kind) of a weapon code: the name shown, the kind it is drawn and fired as. / (nom, genre) d'un code."""
@@ -790,8 +793,10 @@ class MetalSlugScene:
             # the first Metal Slug: ARME SPÉCIALE flashed at each death) / 255 : le bloc du soldat effacé, le pistolet
             kind = "pistol" if int(code) in (0, 255) else "gun"
         name = tr(*NAMES[kind])
-        if m is MS3 and int(code) in SUPER_CODES:
-            name = "SUPER " + name
+        if m is MS3 and int(code) in SUPER_CODES and family(self.key) != "mslugx":
+            name = "SUPER " + name                   # Metal Slug X keeps 8 and 10 for the R and the H fired from the tank, and
+                                                     # on foot after it (Seb's game of 8 November, test 44): its screen says
+                                                     # ARMS and nothing more / Metal Slug X : rien de plus sur son écran
         return name, LOOK.get(kind, kind)
 
     def soldier(self, side, vals):
@@ -1118,7 +1123,9 @@ class MetalSlugScene:
             # of 22:39, mission 2: TOSCHKA DALANUE on a tank of 400, then on helicopters of 490), so the flag alone is a
             # gate and the life decides when the game gives one / le drapeau est une porte, la vie décide
             if want is not None:
-                return max(self.boss_top.get(slot, 0), cur.get(slot) or 0) >= want
+                # a tenth under: the first reading may come after the first hit (the Iron Nokana MKII of Metal Slug X, 5000,
+                # read 4990 with the tank's vulcan already on it, Seb's game of 8 November, test 44) / un dixième de marge
+                return max(self.boss_top.get(slot, 0), cur.get(slot) or 0) >= want - want // 10
             if self._boss_big is not None:
                 return (cur.get(slot) or 0) >= self._boss_big
             return True
