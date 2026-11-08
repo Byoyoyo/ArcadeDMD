@@ -68,7 +68,8 @@ VEHICLES = {"mslug": {1: "tank"},
             "mslugx": {4: "tank", 6: "flyer", 2: "camel"},
             "mslug3": {4: "slugnoid", 6: "flyer", 7: "copter", 8: "mariner", 9: "drill", 10: "slugnoid", 11: "astro"},
             "mslug4": {},
-            "mslug5": {4: "tank", 6: "flyer", 14: "slugnoid"}}
+            "mslug5": {4: "gunner", 6: "flyer", 14: "slugnoid"}}   # 4: Slug Walker / Slug Tank in the notes; the Slug Gunner
+                                                                       # on Seb's screenshots (7 November 22:59, mission 1)
 VEHICLE_NAMES = {"tank": ("CHAR", "TANK"), "camel": ("CAMEL SLUG", "CAMEL SLUG"), "slugnoid": ("SLUGNOID", "SLUGNOID"),
                  "flyer": ("SLUG FLYER", "SLUG FLYER"), "copter": ("SLUG COPTER", "SLUG COPTER"), "mariner": ("SLUG MARINER", "SLUG MARINER"),
                  "drill": ("DRILL SLUG", "DRILL SLUG"), "astro": ("ASTRO SLUG", "ASTRO SLUG"),
@@ -679,6 +680,7 @@ class MetalSlugScene:
         self._boss_big = None                    # or the life a boss has at least, when the game has no flag / ou sa vie
         self._boss_life = {}                     # or the life each mission's boss starts with / ou la vie de chaque boss
         self._minor_idle = MINOR_IDLE             # how long a quiet bar stays without a hit / le temps d'une barre discrète
+        self._minor_min = BOSS_MIN                # the smallest life shown as a big enemy / la plus petite vie montrée
         self.meta_ref = None                     # the game session the players belong to / la partie des joueurs
         self.boss_hit = {}                       # when each big life was last hit / quand chaque grosse vie a été touchée
         self.boss_top = {}                       # the most each one had / le plus qu'elle a eu
@@ -1020,6 +1022,11 @@ class MetalSlugScene:
             # barre discrète sans un coup
             idle = hd.get("minor_idle")
             self._minor_idle = float(idle) if isinstance(idle, (int, float)) and not isinstance(idle, bool) and idle > 0 else MINOR_IDLE
+            # the smallest life shown as a big enemy ("minor_min", 200 unless the game says: 256 in Metal Slug 5, whose
+            # table holds 255 in entries that are no enemy, Seb's game of 7 November 22:59, test 43) / la plus petite vie
+            # montrée comme gros ennemi
+            mm = hd.get("minor_min")
+            self._minor_min = int(mm) if isinstance(mm, (int, float)) and not isinstance(mm, bool) and mm > BOSS_MIN else BOSS_MIN
             self._slots_key = key
         return self._slots
 
@@ -1039,7 +1046,8 @@ class MetalSlugScene:
             v = vals.get(slot)
             if isinstance(v, list):
                 for i, hp in enumerate(v):
-                    cur[(slot, i)] = _n(hp)
+                    hp = _n(hp)
+                    cur[(slot, i)] = 0 if hp is not None and BOSS_MIN <= hp < self._minor_min else hp   # too small to show
             else:
                 cur[slot] = _n(v)
 
@@ -2040,9 +2048,9 @@ class MetalSlugScene:
             hd.put(screen, hd.text(name, "stencil", hd.fit_size(name, "stencil", S(34), S(230), S(18)), acc, glow=0.3),
                    self.X(side, x0, lx), chip.centery, "left" if side == "p1" else "right", "middle")
         lives = _n(self.get(vals, side, "lives"))
-        if lives is not None and lives <= 0 and not P.lives_known and now - P.lives_t0 < 12:
+        if lives is not None and lives <= 0 and not P.lives_known and now - P.lives_t0 < 30:
             lives = None                             # not written yet by the game (Metal Slug 3: 0 for the first five seconds,
-                                                     # then 2): no LAST LIFE for nothing / pas encore écrites : rien
+                                                     # then 2; Metal Slug 5: 17 s): no LAST LIFE for nothing / pas encore écrites
         if lives is not None:
             self._draw_lives(screen, side, P, x0, int(lives), now)
         # score qui défile

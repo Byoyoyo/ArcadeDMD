@@ -256,6 +256,16 @@ def _resolve(expr, values, depth=0):
         if any(isinstance(x, bool) or not isinstance(x, (int, float)) for x in (a, b)):
             return None
         return 1 if a == b else 0
+    if "between" in expr:
+        # 1 when the first lies between the two others, bounds included, else 0 (Metal Slug 5: MISSION COMPLETE while its
+        # fade counter runs from 157, the boss down) / 1 quand le premier est entre les deux autres, bornes comprises
+        trio = expr.get("between")
+        if not isinstance(trio, list) or len(trio) != 3:
+            return None
+        a, lo, hi = (_resolve(x, values, depth + 1) for x in trio)
+        if any(isinstance(x, bool) or not isinstance(x, (int, float)) for x in (a, lo, hi)):
+            return None
+        return 1 if lo <= a <= hi else 0
     if "all" in expr:
         # 1 when every one of them is 1, else 0 (the first Metal Slug: its mission is complete when its end word says so
         # and its boss is down, not at a game over) / 1 quand toutes valent 1, sinon 0
