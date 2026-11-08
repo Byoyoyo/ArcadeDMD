@@ -61,7 +61,9 @@ def replay(path, show_values=False, step=1 / 60, frames=(), out_dir=None):
     fx = FightFX(hd, rng=random.Random(1))
     hd.fight = fx
     st = GameState()
-    st.reset({"game": key, "system": head.get("system") or key, "title": head.get("title") or key})
+    titles = game.get("titles") if isinstance(game.get("titles"), dict) else {}   # the romset's own title, as on the
+    title = titles.get(head.get("system") or "") or head.get("title") or key     # cabinet (Metal Slug 6, test 46)
+    st.reset({"game": key, "system": head.get("system") or key, "title": title})
     T = [0.0]
     out = []
     state = {"select": False, "round_show": -99.0, "fight_t": -99.0, "ko": None, "win": None, "banner": None, "out": None,
@@ -209,10 +211,10 @@ def replay(path, show_values=False, step=1 / 60, frames=(), out_dir=None):
                     if shown is not None and shown != state["scene"].get(("lives", pside)):
                         state["scene"][("lives", pside)] = shown
                         note(t, f"  {pside} vies : {shown}")
-                for key, word in (("thrown", "grenade lancée"), ("booms", "grenade explose")):   # the grenades / les grenades
-                    cnt = getattr(sc, key, None)
-                    if cnt is not None and cnt != state["scene"].get(key, 0):
-                        state["scene"][key] = cnt
+                for attr, word in (("thrown", "grenade lancée"), ("booms", "grenade explose")):  # the grenades / les grenades
+                    cnt = getattr(sc, attr, None)                    # (not "key": the scene asks the library by it, test 46)
+                    if cnt is not None and cnt != state["scene"].get(attr, 0):
+                        state["scene"][attr] = cnt
                         note(t, f"  {word}")
                 bph = (sc.boss or {}).get("phase") if isinstance(getattr(sc, "boss", None), dict) else None
                 if bph != state["scene"].get("_phase"):                  # the boss's phases / les phases du boss
