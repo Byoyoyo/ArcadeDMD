@@ -101,7 +101,7 @@ STYLE = {
     "shotgun": {"gap": 0.24, "muzzle": 1.8, "tracer": ((255, 206, 120), 4, 110), "casing": "shell", "pellets": 6},
     "rocket": {"gap": 0.3, "muzzle": 1.1, "rocket": True},
     "flame": {"gap": 0.06, "flame": True},
-    "laser": {"gap": 0.08, "muzzle": 0.9, "tracer": ((120, 230, 255), 6, 260), "laser": True},
+    "laser": {"gap": 0.08, "laser": True},                   # a held beam, see _laser() / un rayon tenu
     "gun": {"gap": 0.08, "muzzle": 1.0, "tracer": ((255, 220, 120), 4, 140), "casing": "case"},
 }
 STYLE["mg2"] = dict(STYLE["mg"], gap=0.045)           # the two machine guns of Metal Slug 4 and 5: faster / plus rapide
@@ -606,6 +606,8 @@ class Player:
         self.bomb_add = (-99.0, 0)
         self.shots = []
         self.flame_until = -99.0
+        self.laser_until = -99.0        # the laser beam held until then / le rayon du laser tenu jusque-là
+        self.laser_t0 = -99.0           # when the beam started (its colour turns with time) / le début du rayon
         self.recoil_t = -99.0
         self.over_t = None
         self.move = 0.0
@@ -846,6 +848,7 @@ class MetalSlugScene:
             if img is None:
                 own = self._own_picture(kind, self.S(190), self.S(108), OWN_BOX)
                 self.ride_own[kind] = own is not None
+                self._say_picture(kind, own is not None)
                 self.ride_tip[kind] = self._cannon_tip(own) if own is not None else None
                 img = self.rides[("img", kind)] = own or vehicle_img(kind, self.S(190), self.S(108))
             if side == "p2":
@@ -853,23 +856,58 @@ class MetalSlugScene:
             s = self.rides[(kind, side)] = self.hd._surf(img)
         return s
 
-    def own_path(self, name):
-        """The owner's own picture of a vehicle or a soldier: sprites/<romset>/<name>.png, then sprites/<family>/<name>.png
-        (sprites/mslug2/camel.png), then sprites/mslug/<name>.png for all the Metal Slug games, and the tank's older
-        sprites/mslug_tank_hd.png. None without one. / Sa propre image : sprites/<romset>/, sprites/<famille>/, sprites/mslug/."""
-        root = getattr(self.hd, "root", "") or ""
+    OWN_EXT = (".png", ".gif", ".jpg", ".jpeg", ".webp")
+    OWN_FR = {"tank": "char", "camel": "chameau", "elephant": "éléphant", "ostrich": "autruche"}   # French names taken too
+
+    def own_dirs(self):
+        """Where the owner's pictures of this game may be: sprites/<romset>/, sprites/<family>/, sprites/mslug/.
+        / Où peuvent être ses images pour ce jeu."""
         seen = []
         for d in ((self.key or "").lower(), family(self.key), "mslug"):
             if d and d not in seen:
                 seen.append(d)
-                p = os.path.join(root, "sprites", d, name + ".png")
-                if os.path.isfile(p):
-                    return p
+        return seen
+
+    def own_path(self, name):
+        """The owner's own picture of a vehicle or a soldier: sprites/<romset>/<name>.png, then sprites/<family>/<name>.png
+        (sprites/mslug2/camel.png), then sprites/mslug/<name>.png for all the Metal Slug games, and the tank's older
+        sprites/mslug_tank_hd.png; .gif, .jpg or .webp as well, the French name as well (char, chameau), any case.
+        None without one. / Sa propre image : sprites/<romset>/, sprites/<famille>/, sprites/mslug/, le nom français aussi."""
+        root = getattr(self.hd, "root", "") or ""
+        names = [name.lower()] + ([self.OWN_FR[name]] if name in self.OWN_FR else [])
+        for d in self.own_dirs():
+            folder = os.path.join(root, "sprites", d)
+            try:
+                files = {f.lower(): f for f in os.listdir(folder)}
+            except OSError:
+                continue
+            for n in names:
+                for ext in self.OWN_EXT:
+                    f = files.get(n + ext)
+                    if f:
+                        return os.path.join(folder, f)
         if name == "tank":
             p = os.path.join(root, "sprites", "mslug_tank_hd.png")
             if os.path.isfile(p):
                 return p
         return None
+
+    def _say_picture(self, kind, own):
+        """One line in the log for each vehicle drawn in a game: the owner's picture used, or the program's drawing and where
+        a picture would be taken from (Seb, Metal Slug X: his tank picture was not showing, nothing said which file was
+        read). / Une ligne de journal par véhicule : son image, ou le dessin du programme et où en mettre une."""
+        log = getattr(self.hd, "log", None)
+        if not callable(log) or not self.key:
+            return
+        root = getattr(self.hd, "root", "") or ""
+        path = self.own_path(kind) if own else None
+        if path:
+            log(tr(f"écran HD : {kind} de {self.key}, ton image {os.path.relpath(path, root or '.')}",
+                   f"HD screen: {kind} of {self.key}, your picture {os.path.relpath(path, root or '.')}"))
+        else:
+            where = ", ".join(os.path.join("sprites", d, kind + ".png") for d in self.own_dirs())
+            log(tr(f"écran HD : {kind} de {self.key}, dessin du programme (aucune image {where})",
+                   f"HD screen: {kind} of {self.key}, the program's drawing (no picture {where})"))
 
     def _own_picture(self, name, w, h, box):
         """The owner's picture fitted in a card of w x h, in the middle of a box (drawn in the middle of the card's frame).
@@ -1659,7 +1697,12 @@ class MetalSlugScene:
         if st.get("flame"):                                       # jet continu tant que la réserve baisse
             P.flame_until = max(P.flame_until, now + 0.2)
             return
-        fx.muzzle(x, y, d, st.get("muzzle", 1.0), (160, 240, 255) if st.get("laser") else FIRE_HOT)
+        if st.get("laser"):                                       # a beam held as long as the shots go on (Seb: in the
+            if now >= P.laser_until:                              # game it is one straight line, red or orange, not a
+                P.laser_t0 = now                                  # burst of blue dashes) / un trait tenu, pas des tirets
+            P.laser_until = max(P.laser_until, now + 0.5)          # the game's count comes down every 0.1 to 0.5 s
+            return
+        fx.muzzle(x, y, d, st.get("muzzle", 1.0), FIRE_HOT)
         tx = self.W / 2 + d * rng.uniform(-60, 300) * self.s
         ty = self.H * 0.725 + rng.uniform(-30, 40) * self.s
         if st.get("rocket"):
@@ -1673,8 +1716,7 @@ class MetalSlugScene:
         for i in range(st.get("pellets", 1)):
             spread = (i - (st.get("pellets", 1) - 1) / 2) * 0.1 if st.get("pellets") else 0
             tyy = ty + spread * 600 * self.s + rng.uniform(-10, 10) * self.s
-            fx.tracer(x + d * self.S(18), y, tx + rng.uniform(-30, 30) * self.s, tyy, 2400 if not st.get("laser") else 4200,
-                      col, wd, ln, "front")
+            fx.tracer(x + d * self.S(18), y, tx + rng.uniform(-30, 30) * self.s, tyy, 2400, col, wd, ln, "front")
         if st.get("pellets"):
             fx.smoke(x + d * self.S(30), y, 3, (8, 14), 2.4, (0.4, 0.7), (20, 50), 10, (150, 146, 140), 130, "front")
             fx.shake(2.5, 0.12)
@@ -1686,6 +1728,32 @@ class MetalSlugScene:
             ey = sy + py * self.S(108)
             fx.obj(cas, ex, ey, -d * rng.uniform(40, 170), -rng.uniform(240, 380), gravity=1700,
                    vrot=rng.uniform(-900, 900), life=1.0, floor=self.S(316), bounce=0.35, rot=rng.uniform(0, 360))
+
+    # the laser's colours as the beam is held: blue when it starts, then red (orange at the core), then green, as on
+    # Seb's screenshots of Metal Slug X (8 November, 13:44:43 blue, 13:44:47 red, 13:44:50 green), two seconds each
+    # / les couleurs du laser tant qu'on tient le tir : bleu au départ, puis rouge au cœur orangé, puis vert
+    LASER_COLORS = (((90, 170, 255), 2.0), ((255, 70, 40), 2.0), ((80, 255, 120), 2.0))
+
+    def _laser(self, side, P, now, dt):
+        """The laser beam, from the gun's tip across the backdrop, drawn every image while the game's shots go on, a bright
+        ball at the muzzle, sparks where it lands. / Le rayon du laser, du bout du canon au décor, boule au départ."""
+        rng, fx = self.rng, self.fx
+        x, y = self._tip_xy(side, "laser")
+        d = 1 if side == "p1" else -1
+        held = (now - P.laser_t0) % sum(t for _, t in self.LASER_COLORS)
+        col = self.LASER_COLORS[-1][0]
+        for c, t in self.LASER_COLORS:
+            if held < t:
+                col = c
+                break
+            held -= t
+        tx = self.W / 2 + d * 230 * self.s
+        ty = self.H * 0.69 + math.sin(now * 9.0) * 2 * self.s
+        fx.beam(x + d * self.S(6), y, tx, ty, col, 5, 0.06, "front", 1.0, 0.7)
+        fx.glow(x + d * self.S(8), y, 10, 16, col, 0.08, "front", 1.0, 0.4, hot=0.6)       # the ball / la boule
+        fx.glow(tx, ty, 8, 22, col, 0.1, "back", 0.9, 0.0, hot=0.5)
+        if rng.random() < dt * 30:
+            fx.sparks(tx, ty, 2, col, (120, 320), (200, 340), (0.15, 0.3), 700, "back", 2, 12)
 
     def _flame(self, side, P, now, dt):
         """Jet du lance-flammes : des boules de feu qui partent vite, gonflent, montent et s'éteignent."""
@@ -1858,6 +1926,8 @@ class MetalSlugScene:
                     self._fire(side, P, now)
             if now < P.flame_until and self.playing(P) and P.weapon_kind == "flame":
                 self._flame(side, P, now, self.fx_dt)
+            if now < P.laser_until and self.playing(P) and P.weapon_kind == "laser":
+                self._laser(side, P, now, self.fx_dt)
         ox, oy = self.fx.offset()
         target = screen
         if ox or oy:

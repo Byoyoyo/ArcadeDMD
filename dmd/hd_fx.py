@@ -142,6 +142,35 @@ class Sprites:
             self.cache[key] = s
         return s
 
+    # -- a straight beam of light, even from end to end, a bright core in a coloured halo (the laser of Metal Slug)
+    # / un rayon droit, égal d'un bout à l'autre, cœur clair dans un halo de couleur (le laser de Metal Slug)
+    def beam(self, length, width, color, angle, level=LEVELS):
+        length = max(12, int(round(length / 12.0)) * 12)
+        width = max(2, int(width))
+        level = max(1, min(LEVELS, int(level)))
+        a = int(round(angle / 2.0)) * 2 % 360
+        key = ("bm", length, width, color, a, level)
+        s = self.cache.get(key)
+        if s is None:
+            bkey = ("bmb", length, width, color, level)
+            b = self.base.get(bkey)
+            if b is None:
+                w, h = length + width * 2, width * 6 + 2
+                img = Image.new("RGB", (w, h))
+                d = ImageDraw.Draw(img)
+                k = level / LEVELS
+                halo = tuple(int(c * k) for c in color)
+                d.line([width, h // 2, w - width, h // 2], fill=halo, width=width * 2)
+                img = img.filter(ImageFilter.GaussianBlur(max(1, width * 0.9)))
+                d = ImageDraw.Draw(img)
+                core = tuple(int(min(255, (c + 2 * 255) / 3 * k)) for c in color)     # the core, nearly white / presque blanc
+                d.line([width, h // 2, w - width, h // 2], fill=core, width=max(1, width // 2))
+                b = self.hd._surf(img)
+                self.base[bkey] = b
+            s = self.pg.transform.rotozoom(b, -a, 1.0) if a else b
+            self.cache[key] = s
+        return s
+
     # -- traînée lumineuse orientée (traçante, étincelle)
     def streak(self, length, width, color, angle, level=LEVELS):
         length = max(6, int(round(length / 6.0)) * 6)
@@ -447,6 +476,15 @@ class FX:
                 ang = math.degrees(math.atan2(p.vy, p.vx))
                 s = sp.streak(ln, p.r0, p.col, ang, lv)
                 screen.blit(s, (int(p.x - s.get_width() / 2), int(p.y - s.get_height() / 2)), special_flags=add)
+            elif kind == "beam":                                       # from (x, y) to data = (tx, ty), whole / entier
+                lv = (p.a0 + (p.a1 - p.a0) * k) * LEVELS
+                if lv < 0.5:
+                    continue
+                tx, ty = p.data
+                ln = math.hypot(tx - p.x, ty - p.y)
+                ang = math.degrees(math.atan2(ty - p.y, tx - p.x))
+                s = sp.beam(ln, p.r0, p.col, ang, lv)
+                screen.blit(s, (int((p.x + tx) / 2 - s.get_width() / 2), int((p.y + ty) / 2 - s.get_height() / 2)), special_flags=add)
             elif kind == "tracer":
                 lv = (p.a0 + (p.a1 - p.a0) * k) * LEVELS
                 ln = p.r1 * (1 - 0.6 * k)
@@ -604,6 +642,13 @@ class FX:
         p.r0, p.r1 = 30 * size * self.s, 44 * size * self.s
         p.col, p.a0, p.a1, p.data = color, 1.0, 0.3, rng.randint(0, 3)
         self.glow(x + direction * 8 * self.s, y, 20 * size, 60 * size, color, 0.09, "front", 0.9, 0.0)
+
+    def beam(self, x, y, tx, ty, color, width=5, life=0.06, layer="front", a0=1.0, a1=0.6):
+        """A beam of light held from (x, y) to (tx, ty) for life seconds: drawn again each image while the gun fires.
+        / Un rayon tenu de (x, y) à (tx, ty) pendant life secondes, redessiné à chaque image tant que l'arme tire."""
+        p = self.add(Particle("beam", x, y, self.now, life, layer))
+        p.r0, p.col, p.a0, p.a1, p.data = width * self.s, color, a0, a1, (tx, ty)
+        return p
 
     def tracer(self, x, y, tx, ty, speed=2600, color=SPARK, width=4, length=120, layer="front", impact=True, life=None):
         d = math.hypot(tx - x, ty - y)
