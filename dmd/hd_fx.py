@@ -142,17 +142,17 @@ class Sprites:
             self.cache[key] = s
         return s
 
-    # -- a straight beam of light, even from end to end, a bright core in a coloured halo (the laser of Metal Slug)
-    # / un rayon droit, égal d'un bout à l'autre, cœur clair dans un halo de couleur (le laser de Metal Slug)
-    def beam(self, length, width, color, angle, level=LEVELS):
+    # -- a straight ray of light, even from end to end, a bright core in a coloured halo (the laser of Metal Slug; the
+    # projector's beam below is a soft cone) / un rayon droit, égal d'un bout à l'autre, cœur clair dans un halo de couleur
+    def ray(self, length, width, color, angle, level=LEVELS):
         length = max(12, int(round(length / 12.0)) * 12)
         width = max(2, int(width))
         level = max(1, min(LEVELS, int(level)))
         a = int(round(angle / 2.0)) * 2 % 360
-        key = ("bm", length, width, color, a, level)
+        key = ("ry", length, width, color, a, level)
         s = self.cache.get(key)
         if s is None:
-            bkey = ("bmb", length, width, color, level)
+            bkey = ("ryb", length, width, color, level)
             b = self.base.get(bkey)
             if b is None:
                 w, h = length + width * 2, width * 6 + 2
@@ -483,7 +483,7 @@ class FX:
                 tx, ty = p.data
                 ln = math.hypot(tx - p.x, ty - p.y)
                 ang = math.degrees(math.atan2(ty - p.y, tx - p.x))
-                s = sp.beam(ln, p.r0, p.col, ang, lv)
+                s = sp.ray(ln, p.r0, p.col, ang, lv)
                 screen.blit(s, (int((p.x + tx) / 2 - s.get_width() / 2), int((p.y + ty) / 2 - s.get_height() / 2)), special_flags=add)
             elif kind == "tracer":
                 lv = (p.a0 + (p.a1 - p.a0) * k) * LEVELS

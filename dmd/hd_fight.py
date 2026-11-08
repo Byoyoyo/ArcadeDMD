@@ -28,8 +28,12 @@ from .hd_bg import Backdrop
 from .hd_fx import FX, Particle
 from .hd_moves import Moves
 from .hd_themes15 import CPS_STAGES
-from . import hd_themes18  # noqa: F401  the stages of The King of Fighters '98 / les décors de KOF '98
+from . import hd_themes18
 from .i18n import tr
+
+STAGE_STYLE = hd_themes18.STYLE     # the stages of The King of Fighters '98 register in hd_bg.BUILDERS as their module is
+                                    # imported; their style is read here (the CI's pyflakes took the bare import for an unused
+                                    # one) / les décors de KOF '98 s'enregistrent à l'import ; leur style se lit ici
 
 GOLD = (255, 214, 120)
 WHITE = (255, 255, 255)
