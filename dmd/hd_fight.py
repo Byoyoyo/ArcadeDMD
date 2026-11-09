@@ -26,6 +26,7 @@ from PIL import Image, ImageDraw, ImageFilter
 from . import hd_stages
 from .hd_bg import Backdrop
 from .hd_fx import FX, Particle
+from .hd_dm import DMShow
 from .hd_moves import Moves
 from .hd_themes15 import CPS_STAGES
 from . import hd_themes18
@@ -138,6 +139,7 @@ class FightFX:
         self.rays = None
         self._rays()                                                  # préparés d'avance : pas d'à-coup au premier super
         self.moves = Moves(hd)                                        # the desperation moves (1.32) / les coups désespérés
+        self.dm = DMShow(self)                                        # their show (1.33 test 51) / leur spectacle
         self.warm = self._warm_list()
 
     def _warm_list(self):
@@ -191,6 +193,9 @@ class FightFX:
         self.banner = None           # (texte, couleur, début, durée)
         self.judge = None            # when the winner on time is judged (TIME UP) / quand le vainqueur au temps est jugé
         self.timeup_t = -99.0        # when TIME UP last showed / quand TIME UP s'est affiché
+        self.dm_seen = {}            # side -> (time, word) of the last DM ! or SDM ! shown / le dernier montré
+        if getattr(self, "dm", None) is not None:
+            self.dm.reset()
         self.super_t = -99.0
         self.super_xy = (0, 0)
         self.health = {"p1": None, "p2": None}
@@ -386,6 +391,7 @@ class FightFX:
         self.humans = {"p1": p1m in (1, 2) or p1m is None, "p2": p2m in (1, 2)}
         if isinstance((game or {}).get("moves"), dict):
             self.moves.update(vals, hist, now, key, game, self.humans)
+            self._dm_watch(vals, game, now)
         # "round": the round of a King of Fighters match, from 0, one more at each K.O. (cheat "Select Current Round"),
         # shown as ROUND n when the next fight begins (1.31) / le round du match, ROUND n quand le combat suivant commence
         self.round_v = _n(vals.get("round"))
@@ -696,8 +702,32 @@ class FightFX:
         self.prev_time = _n(vals.get("time"))
         self._rounds(vals, self.fx.now, play=False)
 
+    def _dm_watch(self, vals, game, now):
+        """A DM ! or SDM ! the panel just told for a human: its show starts (Seb's choice of 9 November, 1.33 test 51).
+        / Un DM ! ou SDM ! que le panneau vient de dire pour un humain : son spectacle commence."""
+        for side in ("p1", "p2"):
+            if not self.humans.get(side):
+                continue
+            r = self.moves.sides[side].result
+            if r is None or r[2] not in ("DM !", "SDM !"):
+                continue
+            seen = self.dm_seen.get(side)
+            if seen is not None and seen[0] == r[0]:
+                if r[2] == "SDM !" and seen[1] != "SDM !":            # found an SDM a moment later (2002) / un SDM finalement
+                    self.dm.upgrade(side, now)
+                    self.dm_seen[side] = (r[0], r[2])
+                continue
+            self.dm_seen[side] = (r[0], r[2])
+            if now - r[0] > 0.5:
+                continue
+            name = vals.get(side + "_char")
+            rows = self.moves.rows(game, name)
+            move = rows[r[1]][0] if 0 <= r[1] < len(rows) else ""
+            self.dm.start(side, move, name if isinstance(name, str) else "", r[2] == "SDM !", now)
+
     def _hit(self, victim, old, new, now):
         fx, rng, S = self.fx, self.rng, self.hd.S
+        in_dm = self.dm.hit(victim, old, new, now)                  # a hit of a desperation move: its name counts the hits
         g = self.geom()
         x, y, w, h = g[victim]
         d = old - new
@@ -714,7 +744,7 @@ class FightFX:
         self.bd.excite(0.05 + d * 0.025)
         attacker = "p2" if victim == "p1" else "p1"
         ax, ay, aw, _ = g[attacker]
-        if not self.first and now - self.fight_t < 60:              # premier coup du round
+        if not self.first and now - self.fight_t < 60 and not in_dm:  # premier coup du round
             self.first = True
             old_t = self.combo_txt.get(attacker)
             if old_t is not None:
@@ -735,13 +765,19 @@ class FightFX:
         c = self.combo[attacker]
         c[0] = c[0] + 1 if now - c[1] < 0.7 else 1
         c[1] = now
-        if c[0] >= 2:
+        if in_dm:                                                   # the name of the move says the hits / le nom les dit
+            old_t = self.combo_txt.get(attacker)
+            if old_t is not None:
+                old_t.dead = True
+            self.combo_txt[attacker] = None
+        elif c[0] >= 2:
             old_t = self.combo_txt.get(attacker)
             if old_t is not None:
                 old_t.dead = True
             self.combo_txt[attacker] = fx.text(f"{c[0]} HITS", ax + aw * 0.5, S(132), GOLD, 58 + min(20, c[0] * 3), life=1.1, rise=15)
         if new <= 0:
             self.ko_t = now
+            self.dm.ko(now)
             fx.explosion(x + w / 2, ey, 1.25, layer_back=False)
             fx.flash((255, 220, 200), 0.25, 0.25)
             fx.shake(14, 0.6)
@@ -959,6 +995,7 @@ class FightFX:
         if not getattr(self, "idle", False):                         # no health bar on the attract screen
             self._danger(target, now)
         self.fx.draw(target, "front")
+        self.dm.draw(target, now)
         self._next_fighter(target, now)
         self._banners(target, now)
         self.fx.draw_flash(target)
