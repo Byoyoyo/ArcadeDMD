@@ -1,17 +1,17 @@
 """The show of a desperation move on the HD screen, as Seb chose it on 9 November 2026 (mockups C and 1, 1.33 test 51).
 The name of the move takes the whole marquee for a moment, then flies to the side of the player who does it and stays there
 while the hits land, counting them; the bar of the one taking them jolts at each hit, its lost part turning white then red,
-a star of impact at its edge and its outline lit red. Two desperation moves at once: no full screen, each name slams onto
-its own side, DOUBLE DM ! between them.
+its outline lit red, and at its edge the spark of the hit with pieces of the bar flying off (mockup B, test 55). Two
+desperation moves at once: no full screen, each name slams onto its own side, DOUBLE DM ! between them.
 / Le spectacle d'un coup désespéré sur l'écran HD, comme Seb l'a choisi (maquettes C et 1) : le nom du coup prend tout le
 fronton un instant, puis file du côté du joueur qui le fait et y reste pendant les coups, en les comptant ; la barre de
-celui qui les prend tressaute à chaque coup, sa part perdue blanche puis rouge, une étoile d'impact à son bord et son contour
-allumé en rouge. Deux coups désespérés en même temps : pas de plein écran, chaque nom claque de son côté, DOUBLE DM ! entre
-les deux."""
+celui qui les prend tressaute à chaque coup, sa part perdue blanche puis rouge, son contour allumé en rouge, et à son bord
+l'étincelle du coup avec des morceaux de la barre qui volent (maquette B, test 55). Deux coups désespérés en même temps :
+pas de plein écran, chaque nom claque de son côté, DOUBLE DM ! entre les deux."""
 import math
 import random
 
-from PIL import Image, ImageChops, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter
 
 FULL = 0.85          # the name over the whole marquee that long / le nom sur tout le fronton ce temps
 FLY = 0.25           # then it flies to its side in that time / puis il file de son côté en ce temps
@@ -22,7 +22,12 @@ FADE = 0.35
 JOLT = 0.25          # the bar hit jolts that long / la barre touchée tressaute ce temps
 WHITE = 0.09         # the part just lost white that long, then red / la part perdue blanche ce temps, puis rouge
 EDGE = 0.4           # the outline lit red that long / le contour allumé en rouge ce temps
-STAR = 0.2           # the star of impact that long / l'étoile d'impact ce temps
+SPARK = 0.22         # the spark of a hit that long / l'étincelle d'un coup ce temps
+SPARK_STEPS = 12     # drawn beforehand in that many pictures / dessinée d'avance en autant d'images
+SPARK_R = 150        # at that size, then scaled to the hit / à cette taille, puis à celle du coup
+SPARK_MAX = 200      # the biggest a hit makes it / la plus grosse qu'un coup la fait
+CHIPS = 0.85         # pieces of the bar fly that long / des morceaux de la barre volent ce temps
+CHIP_COLS = ((255, 236, 140), (255, 255, 255), (255, 200, 60), (230, 40, 30))
 DOUBLE = 1.4         # DOUBLE DM ! shown that long / DOUBLE DM ! affiché ce temps
 GOLD_TOP, GOLD_BOT, GOLD_GLOW = (255, 252, 222), (255, 140, 10), (255, 100, 0)
 SDM_TOP, SDM_BOT, SDM_GLOW = (255, 238, 150), (232, 36, 20), (255, 30, 0)
@@ -31,6 +36,66 @@ SDM_TOP, SDM_BOT, SDM_GLOW = (255, 238, 150), (232, 36, 20), (255, 30, 0)
 def _ease(k):
     k = max(0.0, min(1.0, k))
     return 1 - (1 - k) ** 3
+
+
+def spark_picture(seed, r, k):
+    """One picture of the spark of a hit, k from 0 (the hit) to 1 (gone): yellow and orange spikes round a blue-white
+    heart, stretched sideways, breaking into little sparks. An own drawing in the spirit of the games' hit sparks, chosen by
+    Seb on 9 November (mockup B). / Une image de l'étincelle d'un coup : des pointes jaunes et orange autour d'un cœur
+    bleuté, étirées en largeur, qui éclatent en petites étincelles. Un dessin à nous, dans l'esprit des étincelles du jeu."""
+    rng = random.Random(seed)
+    size = int(r * 3.2)
+    c = size / 2
+    rot = rng.uniform(0, math.tau)
+    spikes = [(rot + i * math.tau / 13 + rng.uniform(-0.15, 0.15), rng.uniform(0.5, 1.0)) for i in range(13)]
+    grow = 0.55 + 0.6 * min(1.0, k / 0.22)
+    thin = max(0.25, 1.0 - max(0.0, k - 0.22) * 1.1)
+    fade = 1.0 if k < 0.45 else max(0.0, 1 - (k - 0.45) / 0.55)
+    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+
+    def star(scale, inner, width, col, alpha):
+        pts = []
+        for ang, ln in spikes:
+            L = r * ln * grow * scale
+            a0, a1 = ang - width, ang + width
+            pts.append((c + math.cos(a0) * r * inner * scale * 1.35, c + math.sin(a0) * r * inner * scale * 0.8))
+            pts.append((c + math.cos(ang) * L * 1.35, c + math.sin(ang) * L * 0.8))
+            pts.append((c + math.cos(a1) * r * inner * scale * 1.35, c + math.sin(a1) * r * inner * scale * 0.8))
+        lay = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+        ImageDraw.Draw(lay).polygon(pts, fill=col + (int(255 * alpha),))
+        return lay
+
+    half = max(1, size // 2)                       # the glow: a mask blurred at half size, quicker / le halo, plus vite
+    m = Image.new("L", (half, half), 0)
+    pts = []
+    for ang, ln in spikes:
+        L, w = r * ln * grow * 1.05, 0.22 * thin
+        for a, rr in ((ang - w, r * 0.48 * 1.05), (ang, L), (ang + w, r * 0.48 * 1.05)):
+            pts.append(((c + math.cos(a) * rr * 1.35) / 2, (c + math.sin(a) * rr * 0.8) / 2))
+    ImageDraw.Draw(m).polygon(pts, fill=int(255 * 0.9 * fade))
+    glow = Image.new("RGBA", (size, size), (255, 120, 20, 0))
+    glow.putalpha(m.filter(ImageFilter.GaussianBlur(max(1, r * 0.05))).resize((size, size), Image.BILINEAR))
+    img.alpha_composite(glow)
+    img.alpha_composite(star(1.0, 0.46, 0.19 * thin, (255, 132, 24), fade))
+    img.alpha_composite(star(0.78, 0.42, 0.17 * thin, (255, 222, 70), fade))
+    img.alpha_composite(star(0.50, 0.36, 0.15 * thin, (255, 255, 236), fade))
+    if k < 0.4:                                    # the blue-white heart of the hit / le cœur bleuté du coup
+        cr = r * 0.32 * (1.0 - k)
+        m = int(cr * 1.35 + 3 * max(1, r * 0.04)) + 2                     # only round the heart / juste autour du cœur
+        x0, y0 = int(c) - m, int(c) - m
+        core = Image.new("RGBA", (2 * m, 2 * m), (0, 0, 0, 0))
+        ImageDraw.Draw(core).ellipse((c - x0 - cr * 1.35, c - y0 - cr * 0.8, c - x0 + cr * 1.35, c - y0 + cr * 0.8),
+                                     fill=(190, 228, 255, int(255 * (1 - k / 0.4))))
+        img.alpha_composite(core.filter(ImageFilter.GaussianBlur(max(1, r * 0.04))), (x0, y0))
+    if k > 0.3:                                    # it breaks into little sparks / il éclate en petites étincelles
+        d = ImageDraw.Draw(img)
+        for i in range(8):
+            ang = rng.uniform(0, math.tau)
+            dist = r * (0.7 + 1.1 * (k - 0.3))
+            x, y = c + math.cos(ang) * dist * 1.35, c + math.sin(ang) * dist * 0.8
+            x2, y2 = c + math.cos(ang) * (dist - r * 0.25) * 1.35, c + math.sin(ang) * (dist - r * 0.25) * 0.8
+            d.line([(x2, y2), (x, y)], fill=(255, 230, 120, int(255 * fade)), width=max(2, int(r * 0.05)))
+    return img
 
 
 class DMShow:
@@ -42,6 +107,7 @@ class DMShow:
         self.hd, self.pg, self.s = fight.hd, fight.pg, fight.s
         self.W, self.H = fight.W, fight.H
         self.imgs = {}
+        self.sparks_todo = []        # the pictures of the spark still to draw beforehand / les images de l'étincelle à faire
         self.reset()
 
     def reset(self):
@@ -189,30 +255,15 @@ class DMShow:
             img = self.imgs[key] = self.hd._surf(im)
         return img
 
-    def _star(self, r):
-        key = ("star", r)
+    def _spark(self, seed, i):
+        """Picture i of spark seed, cropped: (surface, x and y of its heart). / Une image de l'étincelle, rognée."""
+        key = ("spark", seed, i)
         img = self.imgs.get(key)
         if img is None:
-            size = int(r * 3.4) + 8
-            c = size / 2
-            im = Image.new("RGBA", (size, size), (255, 236, 160, 0))
-            m = Image.new("L", (size, size), 0)
-            d = ImageDraw.Draw(m)
-            rng = random.Random(r)
-            pts = []
-            for i in range(24):
-                ang = i * math.tau / 24
-                rr = r * (1.0 if i % 2 == 0 else 0.32) * rng.uniform(0.75, 1.2)
-                pts.append((c + math.cos(ang) * rr * 1.5, c + math.sin(ang) * rr * 0.62))
-            d.polygon(pts, fill=255)
-            soft = m.filter(ImageFilter.GaussianBlur(max(2, r * 0.12)))
-            im.putalpha(ImageChops.lighter(m, soft))
-            core = Image.new("RGBA", (size, size), (255, 255, 255, 0))
-            cm = Image.new("L", (size, size), 0)
-            ImageDraw.Draw(cm).ellipse((c - r * 0.3, c - r * 0.22, c + r * 0.3, c + r * 0.22), fill=255)
-            core.putalpha(cm.filter(ImageFilter.GaussianBlur(max(1, r * 0.06))))
-            im.alpha_composite(core)
-            img = self.imgs[key] = self.hd._surf(im)
+            im = spark_picture(seed, int(SPARK_R * self.s), i / SPARK_STEPS)
+            c = im.size[0] / 2
+            box = im.getbbox() or (0, 0, 1, 1)
+            img = self.imgs[key] = (self.hd._surf(im.crop(box)), c - box[0], c - box[1])
         return img
 
     def _dark(self):
@@ -255,6 +306,8 @@ class DMShow:
         for n in names:
             if n and ("t", n) not in self.imgs and n not in self.todo:
                 self.todo.append(n)
+        if names and not self.sparks_todo and ("spark", 0, 0) not in self.imgs:   # then the spark / puis l'étincelle
+            self.sparks_todo = [(seed, i) for seed in (0, 1) for i in range(SPARK_STEPS)]
 
     def _warm(self):
         n = self.todo.pop(0)
@@ -267,13 +320,16 @@ class DMShow:
 
     def draw(self, screen, now):
         """Over the scene, under the banners (K.O., WIN). / Par-dessus la scène, sous les bandeaux."""
-        if self.todo and not any(now < self.end(d) + FADE for d in self.on.values()):
-            self._warm()                                          # one a frame, never during a move / une par image
+        if (self.todo or self.sparks_todo) and not any(now < self.end(d) + FADE for d in self.on.values()):
+            if self.todo:                                         # one a frame, never during a move / une par image
+                self._warm()
+            else:
+                self._spark(*self.sparks_todo.pop(0))
         if not self.on:
             return
         hd, S = self.hd, self.hd.S
         W = self.W
-        # the bar hit: its outline lit red, the star at its edge / la barre touchée : son contour rouge, l'étoile au bord
+        # the bar hit: its outline lit red / la barre touchée : son contour rouge
         for victim, h in self.hits.items():
             dt = now - h[0]
             if 0 <= dt < EDGE:
@@ -282,14 +338,6 @@ class DMShow:
                     x, y, w, hh = self.f.geom()[victim]
                     pad = int(40 * self.s)
                     screen.blit(self.f._danger_img(victim, lv), (x - pad, y - pad), special_flags=self.pg.BLEND_RGB_ADD)
-            if 0 <= dt < STAR:
-                x, y, w, hh = self.f.geom()[victim]
-                f = max(0.0, min(1.0, h[2] / 100.0))
-                ex = x + w * (1 - f) if victim == "p1" else x + w * f
-                dmg = max(0.0, h[1] - h[2])
-                r = int((42 + dmg * 7) * self.s * (0.6 + 0.4 * _ease(dt / 0.08)))
-                r = max(8, r // 4 * 4)
-                self._blit(screen, {"surf": self._star(r)}, ex, y + hh / 2, alpha=1 - dt / STAR)
         full = [(s, d) for s, d in self.on.items() if d["full"] and now - d["t"] < FULL and d["fly"] is None
                 and now < self.end(d) and d["ko"] is None]
         if full:                                                  # the whole marquee / tout le fronton
@@ -326,6 +374,59 @@ class DMShow:
             a = 1.0 if k < DOUBLE - 0.3 else (DOUBLE - k) / 0.3
             hd.put(screen, hd.text("DOUBLE DM !", "stencil", S(38), (255, 214, 120), glow=0.9), W / 2, S(60), "center", "middle",
                    scale=1 + 0.5 * (1 - _ease(k / 0.15)), alpha=a)
+        self._impacts(screen, now)
+
+    def _impacts(self, screen, now):
+        """At the edge of the bar hit, the spark of the hit, bigger when it hurts more, and pieces of the bar flying off,
+        over everything (Seb's choice B, 9 November). / Au bord de la barre touchée, l'étincelle du coup, plus grosse quand
+        il fait mal, et des morceaux de la barre qui volent, par-dessus tout (choix B de Seb)."""
+        pg, s = self.pg, self.s
+        for victim, h in self.hits.items():
+            dt = now - h[0]
+            if not 0 <= dt < max(SPARK, CHIPS):
+                continue
+            x, y, w, hh = self.f.geom()[victim]
+            f = max(0.0, min(1.0, h[2] / 100.0))
+            ex = x + w * (1 - f) if victim == "p1" else x + w * f
+            dmg = max(0.0, h[1] - h[2])
+            seed = int(round(h[0] * 1000))
+            if dt < SPARK:
+                surf, ox, oy = self._spark(seed % 2, min(SPARK_STEPS - 1, int(dt / SPARK * SPARK_STEPS)))
+                sc = min(70 + dmg * 9, SPARK_MAX) / SPARK_R
+                if abs(sc - 1) > 0.02:
+                    surf = pg.transform.smoothscale(surf, (max(1, int(surf.get_width() * sc)), max(1, int(surf.get_height() * sc))))
+                    ox, oy = ox * sc, oy * sc
+                fx, fy = bool(seed & 2), bool(seed & 4)           # eight looks from two drawings / huit allures
+                if fx or fy:
+                    surf = pg.transform.flip(surf, fx, fy)
+                    ox = surf.get_width() - ox if fx else ox
+                    oy = surf.get_height() - oy if fy else oy
+                screen.blit(surf, (int(ex - ox), int(y + hh / 2 - oy)))
+            if dt < CHIPS:                                        # pieces of the bar fly off / des morceaux volent
+                rng = random.Random(seed + 7)
+                k = dt / CHIPS
+                f0 = max(0.0, min(1.0, h[1] / 100.0))
+                a = max(0, int(255 * (1 - k)))
+                big = int(20 * s) + 3
+                chip = self.imgs.get("chip")
+                if chip is None or chip.get_width() < 2 * big:
+                    chip = self.imgs["chip"] = pg.Surface((2 * big, 2 * big), pg.SRCALPHA)
+                for i in range(min(60, int(16 + dmg * 3))):
+                    u = rng.uniform(f, f0)
+                    px = x + w * (1 - u) if victim == "p1" else x + w * u
+                    py = y + rng.uniform(0.2, 0.8) * hh
+                    vx = rng.uniform(-380, 380) * s
+                    vy = -rng.uniform(200, 560) * s
+                    qx, qy = px + vx * dt, py + vy * dt + 1300 * s * dt * dt
+                    sz = rng.uniform(9, 20) * s
+                    col = rng.choice(CHIP_COLS)
+                    ang = rng.uniform(0, math.tau) + dt * rng.uniform(-14, 14)
+                    pts = [(sz + math.cos(ang + j * math.tau / 4) * sz * (1.0 if j % 2 else 0.5),
+                            sz + math.sin(ang + j * math.tau / 4) * sz * (1.0 if j % 2 else 0.5)) for j in range(4)]
+                    cs = int(sz * 2) + 2
+                    chip.fill((0, 0, 0, 0), (0, 0, cs, cs))
+                    pg.draw.polygon(chip, col + (a,), pts)
+                    screen.blit(chip, (int(qx - sz), int(qy - sz)), (0, 0, cs, cs))
 
     def _draw_side(self, screen, side, d, now):
         hd, S = self.hd, self.hd.S
