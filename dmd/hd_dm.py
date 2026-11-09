@@ -45,6 +45,7 @@ class DMShow:
         self.reset()
 
     def reset(self):
+        self.todo = []               # the names of the moves to draw before they come / les noms à dessiner avant
         self.on = {}                 # side -> the move shown / le coup affiché
         self.hits = {}               # victim -> (t, old, new) the last hit taken in a move / le dernier coup pris
         self.double_t = -99.0
@@ -239,15 +240,35 @@ class DMShow:
             surf.set_alpha(int(255 * max(0.0, alpha)))
         screen.blit(surf, (int(cx - surf.get_width() / 2), int(cy - surf.get_height() / 2)))
         if alpha < 0.999:
-            surf.set_alpha(None)
+            surf.set_alpha(255)                                   # not None: None makes a picture with transparent
+            # pixels opaque for good, the glow became an orange rectangle on Seb's cabinet the second time a move came
+            # (1.33 test 53) / pas None : None rend opaque pour de bon une image transparente par endroits
 
     # ------------------------------------------------------------------ drawing / dessin
     def side_x(self, side):
         x, y, w, h = self.f.geom()[side]
         return x + w * (0.54 if side == "p1" else 0.46), w
 
+    def prepare(self, names):
+        """The names of the moves a human can do now: drawn a frame at a time beforehand, so a move starts without a
+        wait. / Les noms des coups qu'un humain peut faire : dessinés d'avance, une image à la fois."""
+        for n in names:
+            if n and ("t", n) not in self.imgs and n not in self.todo:
+                self.todo.append(n)
+
+    def _warm(self):
+        n = self.todo.pop(0)
+        S = self.hd.S
+        self._title(n, self._fit(n, S(168), self.W - S(160)), False)
+        w = self.side_x("p1")[1]
+        self._title(n, self._fit(n, S(96), w - S(40)), False)
+        self._plate(int(w - S(20)), S(92))
+        self.imgs[("t", n)] = True
+
     def draw(self, screen, now):
         """Over the scene, under the banners (K.O., WIN). / Par-dessus la scène, sous les bandeaux."""
+        if self.todo and not any(now < self.end(d) + FADE for d in self.on.values()):
+            self._warm()                                          # one a frame, never during a move / une par image
         if not self.on:
             return
         hd, S = self.hd, self.hd.S
@@ -283,9 +304,11 @@ class DMShow:
                 screen.fill((0, 0, 0), (0, 0, W, bar_h))
                 screen.fill((0, 0, 0), (0, self.H - bar_h, W, bar_h))
             rays = self.f._rays()
-            r2 = rays.copy()
-            lv = 0.9
-            r2.fill((int(255 * lv),) * 3, special_flags=self.pg.BLEND_RGB_MULT)
+            r2 = self.imgs.get(("rays", id(rays)))
+            if r2 is None:                                        # made once / fait une fois
+                r2 = rays.copy()
+                r2.fill((int(255 * 0.9),) * 3, special_flags=self.pg.BLEND_RGB_MULT)
+                self.imgs[("rays", id(rays))] = r2
             screen.blit(r2, (int(W / 2 - r2.get_width() / 2), int(self.H / 2 - r2.get_height() / 2)),
                         special_flags=self.pg.BLEND_RGB_ADD)
             cap = (d["fighter"] + "  —  " if d["fighter"] else "") + ("SUPER DESPERATION MOVE" if d["sdm"] else "DESPERATION MOVE")
@@ -332,7 +355,7 @@ class DMShow:
         if k >= 1:
             plate.set_alpha(int(255 * a))
             screen.blit(plate, (int(sx - plate.get_width() / 2), int(S(126) - plate.get_height() / 2)))
-            plate.set_alpha(None)
+            plate.set_alpha(255)
         self._blit(screen, img, cx, cy, scale=sc, alpha=a)
         if k >= 1:
             tag = ("SUPER DESPERATION MOVE" if d["sdm"] else "DESPERATION MOVE") + (f"  ·  {d['n']} HITS" if d["n"] >= 2 else "")

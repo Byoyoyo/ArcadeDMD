@@ -1139,7 +1139,8 @@ class Backdrop:
                 if x + w < self.W:
                     screen.blit(surf, (int(x + w), y))
                 if vis < 0.99:
-                    surf.set_alpha(None)
+                    surf.set_alpha(255)                              # not None, which makes a layer with transparent
+                    # pixels opaque for good (1.33 test 53) / pas None, qui rend opaque pour de bon un calque transparent
             if stage == "far":
                 self._lights(screen, amb, L, tw, now)
                 self._horizon(screen, amb, st, now, L, tw)

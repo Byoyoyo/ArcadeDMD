@@ -708,6 +708,7 @@ class FightFX:
         for side in ("p1", "p2"):
             if not self.humans.get(side):
                 continue
+            self.dm.prepare([row[0] for row in self.moves.rows(game, vals.get(side + "_char"))])
             r = self.moves.sides[side].result
             if r is None or r[2] not in ("DM !", "SDM !"):
                 continue
