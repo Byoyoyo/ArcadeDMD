@@ -452,12 +452,20 @@ class Moves:
             # pressed, looked at more leniently / pas de tentative vue : une forme plus courte que le jeu prend aussi,
             # ou une étape pas lue ; le dernier bouton appuyé, regardé avec plus d'indulgence
             p = sd.press
-            if p is None or now - p[0] > CONFIRM + 0.6:
-                return
-            found = self._best(side, sd, p[0], game, vals, final=True, buttons=p[1], need=0.4)
+            found = None
+            if p is not None and now - p[0] <= CONFIRM + 0.6:
+                found = self._best(side, sd, p[0], game, vals, final=True, buttons=p[1], need=0.4)
+                if found is not None:
+                    att = (p[0],) + found
             if found is None:
-                return
-            att = (p[0],) + found
+                # no button read with it: a tap between two readings. Seb's first Ryuko Ranbu (KOF '98 of 9 November
+                # 17:44): its motion read, its button not, the stock taken 0.5 s after; the motion alone then, done or
+                # nearly, in the 1.6 s before (1.33 test 54) / pas de bouton lu avec : un appui entre deux lectures ; le
+                # geste seul alors, fait ou presque, dans les 1,6 s d'avant
+                found = self._best(side, sd, now, game, vals, final=True, buttons=set("ABCD"), need=NEAR)
+                if found is None:
+                    return
+                att = (now,) + found
         t, row, states, full, mir = att
         extra = _n(vals.get("_pmode" + ("" if side == "p1" else "_p2"))) == 1
         if extra:
