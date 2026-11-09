@@ -46,6 +46,15 @@ EXTRA_LONG = 30.0     # MAX of Extra over at the latest, else when its gauge is 
 INPUT_KEEP = 3.0      # the inputs shown that long after the last one, then they fade / les touches restent ce temps
 RED_HEALTH = 25       # Extra: the desperation moves are free with the health this low / gratuits avec si peu de vie
 FULL_POW = 0xA0       # the gauge full (MAX in Extra) / la jauge pleine
+# The King of Fighters '97 fills its gauge to 0x80, not 0xA0: "pow_full" in the "hd" block of the game file (1.33 test 49)
+# / '97 remplit sa jauge jusqu'à 0x80 : "pow_full" dans le bloc "hd" du fichier du jeu
+
+
+def full_pow(game):
+    """The gauge full for this game. / La jauge pleine pour ce jeu."""
+    hd = (game or {}).get("hd") if isinstance(game, dict) else None
+    v = hd.get("pow_full") if isinstance(hd, dict) else None
+    return v if isinstance(v, (int, float)) and not isinstance(v, bool) and v > 0 else FULL_POW
 
 
 def stick(byte, low=False):
@@ -135,6 +144,8 @@ class Side:
         self.attempt = None          # (t, row, states, full, mirrored) a button after a motion, the game not heard yet
         self.result = None           # (t, row, text, colour, states, mirrored) RATÉ, DM !, SDM !
         self.live = None             # (row, states, mirrored) what the stick is doing now / ce que fait le stick
+        self.dm_bit = None           # the game's own desperation move flag ("_dm", bit 0), last read / le drapeau du jeu
+        self.spent_t = -99.0         # when the game last took a stock or its gauge / quand le jeu a pris un stock
 
 
 class Moves:
@@ -146,6 +157,7 @@ class Moves:
         self.sides = {"p1": Side(), "p2": Side()}
         self.key = None
         self.icons = {}
+        self.pow_full = FULL_POW
 
     def reset(self):
         self.sides = {"p1": Side(), "p2": Side()}
@@ -180,11 +192,17 @@ class Moves:
             sd.attempt = sd.result = sd.live = None
             sd.max_on = None
             sd.groups = []
+            sd.low, sd.dirs, sd.prev_btn = False, [], set()   # the byte's way round decided again in the next fight: the
+            # memory RetroArch gives while the game loads (0xFD) once made every input of a game read backwards
+            # (Seb's KOF '97, 1.33 test 49) / le sens de l'octet décidé à nouveau au combat suivant : la mémoire que
+            # RetroArch donne pendant le chargement du jeu (0xFD) avait fait lire toutes les touches d'une partie à l'envers
+            sd.dm_bit = None
 
     def update(self, vals, hist, now, key, game, humans):
         if key != self.key:
             self.key = key
             self.reset()
+        self.pow_full = full_pow(game)
         for side in ("p1", "p2"):
             sd = self.sides[side]
             suf = "" if side == "p1" else "_p2"
@@ -230,13 +248,24 @@ class Moves:
                      f"Fight, {tag} stock {int(sd.stock)} -> {int(stock)} (gauge 0x{int(pow_ or 0):02X})")
             if stock < sd.stock:
                 self._spent(side, sd, now, vals, game)
+        dm = _n(vals.get("_dm" + suf))
+        if dm is not None:
+            # the game's own flag of a desperation move ("_dm", bit 0 while one runs; The King of Fighters '97, 1.33 test
+            # 49): the move came out, even when the gauge of Extra empties over a second rather than at once / le drapeau
+            # du jeu : le coup est sorti, même quand la jauge d'Extra se vide en une seconde plutôt que d'un coup
+            bit = int(dm) & 1
+            if bit and sd.dm_bit == 0 and now - sd.spent_t > 1.0:
+                self.log(f"Combat, {tag} coup désespéré (drapeau du jeu 0x{int(dm):02X})",
+                         f"Fight, {tag} desperation move (game flag 0x{int(dm):02X})")
+                self._spent(side, sd, now, vals, game)
+            sd.dm_bit = bit
         if maxv is not None and sd.maxv is not None and (maxv == 0) != (sd.maxv == 0):
             self.log(f"Combat, {tag} MAX ? _maxv 0x{int(sd.maxv):02X} -> 0x{int(maxv):02X}",
                      f"Fight, {tag} MAX? _maxv 0x{int(sd.maxv):02X} -> 0x{int(maxv):02X}")
         if mode == 1 and pow_ is not None:
             # Extra: the gauge full is MAX, until it is empty or a desperation move uses it all at once (1.32 test 3)
             # Extra : la jauge pleine, c'est le MAX, jusqu'à ce qu'elle soit vide ou qu'un coup désespéré la prenne d'un coup
-            if pow_ >= FULL_POW and (sd.pow is None or sd.pow < FULL_POW) and sd.max_on is None:
+            if pow_ >= self.pow_full and (sd.pow is None or sd.pow < self.pow_full) and sd.max_on is None:
                 sd.max_on, sd.max_seen, sd.max_extra = now, False, True
                 self.log(f"Combat, {tag} jauge pleine, MAX (0x{int(pow_):02X})", f"Fight, {tag} gauge full, MAX (0x{int(pow_):02X})")
             elif sd.max_on is not None and sd.max_extra and sd.pow is not None and sd.pow - pow_ >= 0x20:
@@ -348,6 +377,11 @@ class Moves:
         sinon le coup désespéré tenté juste avant ; un stock peut aussi partir dans une garde annulée."""
         tag = side.upper()
         att = sd.attempt
+        twice = ("_dm" + ("" if side == "p1" else "_p2")) in vals and now - sd.spent_t <= 1.0
+        sd.spent_t = now
+        if twice and sd.result is not None and sd.result[2] in ("DM !", "SDM !") and now - sd.result[0] <= 1.0:
+            return                                                # the same move heard twice, its flag and its stock
+                                                                  # le même coup entendu deux fois, drapeau et stock
         if now - sd.abc_t < CONFIRM and (att is None or att[0] < sd.abc_t + 0.1):
             if _n(vals.get("_pmode" + ("" if side == "p1" else "_p2"))) == 1:
                 return                                            # Extra: A+B+C charges the gauge / charge la jauge
@@ -455,7 +489,7 @@ class Moves:
             return True
         if _n(vals.get("_pmode" + suf)) == 1:                     # Extra
             pow_ = _n(vals.get("_pow" + suf))
-            return (pow_ is not None and pow_ >= FULL_POW) or (health is not None and 0 < health <= RED_HEALTH)
+            return (pow_ is not None and pow_ >= self.pow_full) or (health is not None and 0 < health <= RED_HEALTH)
         stock = _stock(vals, suf)
         return stock is not None and stock >= 1
 
@@ -549,11 +583,22 @@ def panel_height(hd, n):
     return S(22) + n * (S(34) if n <= 2 else S(27)) if n else S(58)
 
 
-def stock_slots(stock, lost, extra):
-    """The squares of the stocks in Advanced: 3, one more for each teammate beaten. / 3 carrés, un de plus par équipier battu."""
+def stock_slots(stock, lost, extra, fixed=None):
+    """The squares of the stocks in Advanced: 3, one more for each teammate beaten ('98); always the same number when the
+    game file says so ("stock_max" in hd: 3 in '97, its screenshots, 1.33 test 49). / 3 carrés, un de plus par équipier
+    battu ; toujours le même nombre quand le fichier du jeu le dit (3 dans '97)."""
     if extra or stock is None:
         return 0
+    if isinstance(fixed, int) and not isinstance(fixed, bool) and fixed > 0:
+        return min(5, max(int(stock), fixed))
     return min(5, max(int(stock), 3 + int(lost or 0)))
+
+
+def stock_max(game):
+    """The fixed number of stock squares of this game, else None. / Le nombre fixe de carrés de ce jeu, sinon None."""
+    hd = (game or {}).get("hd") if isinstance(game, dict) else None
+    v = hd.get("stock_max") if isinstance(hd, dict) else None
+    return v if isinstance(v, int) and not isinstance(v, bool) and v > 0 else None
 
 
 def badge(stock, slots, extra, maxed, red):
@@ -588,7 +633,8 @@ def draw_panel(hd, screen, moves, side, vals, game, name, x0, x1, y0, now, lost,
     pow_ = _n(vals.get("_pow" + suf))
     stock = _stock(vals, suf)
     avail = bool(rows) and (moves.available(side, vals, health) or moves.showing(side, now))
-    maxed = sd.max_on is not None or (extra and (pow_ or 0) >= FULL_POW)
+    pfull = full_pow(game)
+    maxed = sd.max_on is not None or (extra and (pow_ or 0) >= pfull)
     n = len(rows) if avail else 0
     gap = S(34) if n <= 2 else S(27)
     r = S(15) if n <= 2 else S(12)
@@ -596,8 +642,9 @@ def draw_panel(hd, screen, moves, side, vals, game, name, x0, x1, y0, now, lost,
     red = extra and health is not None and 0 < health <= RED_HEALTH  # Extra: the life flashing red / la vie en rouge
     edge = GOLD if maxed else (230, 60, 40) if red else (120, 90, 40)
     screen.blit(_plate(moves, hd, int(x1 - x0), int(h), edge, S(18)), (int(x0), int(y0)))
-    slots = stock_slots(stock, lost, extra)
-    word, bcol, ink = badge(stock, slots, extra, maxed, red)
+    fixed = stock_max(game)
+    slots = stock_slots(stock, lost, extra, fixed)
+    word, bcol, ink = badge(stock, None if fixed else slots, extra, maxed, red)   # '97 says no MAX at three stocks
     if word:
         t = hd.text(word, "black", S(20), ink, glow=0)
         bw, bh = int(t["w"] + S(20)), S(26)
@@ -606,7 +653,7 @@ def draw_panel(hd, screen, moves, side, vals, game, name, x0, x1, y0, now, lost,
         hd.put(screen, t, x0 + S(14) + bw / 2, y0, "center", "middle")
     # the gauge as the game shows it: the bar, then a square per stock / la jauge comme dans le jeu
     gy = y0 + S(38) if n else y0 + S(33)
-    fill = max(0.0, min(1.0, (pow_ or 0) / FULL_POW))
+    fill = max(0.0, min(1.0, (pow_ or 0) / pfull))
     mv = _n(vals.get("_maxv" + suf))
     if maxed and not extra and mv is not None:                    # MAX: its timer in the bar, as the game shows it
         fill = max(0.0, min(1.0, mv / MAXV_FULL))                 # le MAX : son chrono dans la barre, comme le jeu

@@ -128,8 +128,13 @@ class NeoCoins:
         if not isinstance(req, int) or not isinstance(mode, int) or req not in (DEMO, TITLE):
             # the BIOS is not running the game yet. Once its RAM is cleared (MVS flag), a coin it takes sets its countdown
             # from 0 to 30 (test 29) / pas encore prêt. Sa mémoire effacée, une pièce prise met son compte de 0 à 30
+            # 1.33 test 49 (Seb's KOF '97 of 9 November, CREDITS 03 in the game, 04 on the HD screen): as it boots the BIOS
+            # tests its RAM with 0x55 then 0xAA in every byte, its countdown read 55 and its frames 0x55 for an instant,
+            # which is not a coin / au démarrage le BIOS teste sa mémoire avec 0x55 puis 0xAA partout, son compte à rebours
+            # lu 55 et ses images 0x55 un instant : ce n'est pas une pièce
+            memtest = isinstance(frames, int) and frames in (0x55, 0xAA)
             if (not self.looked and mvs == 0x80 and isinstance(timer, int) and isinstance(self.timer, int)
-                    and now - self.early_taken_at >= 0.1
+                    and now - self.early_taken_at >= 0.1 and not memtest
                     and (self.timer == 0 < timer <= 99
                          or (isinstance(frames, int) and isinstance(self.frames, int) and frames > self.frames
                              and timer == self.timer > 0))):

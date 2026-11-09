@@ -34,9 +34,9 @@ Les adresses prises dans les bases de codes de triche doivent encore être confi
 
 ### Fighting games / Jeux de combat (57 games / jeux)
 
-Shared fighting scene on the panel, with the coin screen since 1.16. On the HD screen, the fighting scene with its effects. The background follows the game's stages when they are known (18 games). The score is found for 2 games, the others still have to be learned or confirmed.
+Shared fighting scene on the panel, with the coin screen since 1.16. On the HD screen, the fighting scene with its effects. The background follows the game's stages when they are known (18 games). The score is found for 3 games, the others still have to be learned or confirmed. The King of Fighters '97 has the panel of the desperation moves of '98 since 1.33 test 49, from one game recorded on the cabinet.
 
-Scène de combat commune sur la dalle, avec l'écran des pièces depuis la 1.16. Sur l'écran HD, la scène de combat et ses effets. Le décor suit les stages du jeu quand ils sont connus (18 jeux). Le score est trouvé pour 2 jeux, les autres restent à apprendre ou à confirmer.
+Scène de combat commune sur la dalle, avec l'écran des pièces depuis la 1.16. Sur l'écran HD, la scène de combat et ses effets. Le décor suit les stages du jeu quand ils sont connus (18 jeux). Le score est trouvé pour 3 jeux, les autres restent à apprendre ou à confirmer. The King of Fighters '97 a le panneau des coups désespérés de '98 depuis le test 49 de la 1.33, d'après une partie enregistrée sur la borne.
 
 | Game / Jeu | Health / Vie | Timer / Chrono | Names / Noms | Score | Stages (HD) |
 |---|---|---|---|---|---|
@@ -81,7 +81,7 @@ Scène de combat commune sur la dalle, avec l'écran des pièces depuis la 1.16.
 | The King of Fighters '94 | ✅ | ✅ | ⬜ | ⬜ | ⬜ |
 | The King of Fighters '95 | ✅ | ✅ | ⬜ | ⬜ | ⬜ |
 | The King of Fighters '96 | ✅ | ✅ | ✅ | 🟡 | ✅ |
-| The King of Fighters '97 | ✅ | ✅ | ✅ | 🟡 | ✅ |
+| The King of Fighters '97 | ✅ | ✅ | ✅ | ✅ | ✅ |
 | The King of Fighters '98 | ✅ | ✅ | ✅ | ✅ | ✅ |
 | The King of Fighters '99 | ✅ | ✅ | ✅ | 🟡 | ✅ |
 | The King of Fighters 2000 | ✅ | ✅ | ✅ | 🟡 | ✅ |
