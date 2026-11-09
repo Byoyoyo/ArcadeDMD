@@ -965,6 +965,22 @@ def base_draw(d, W, H):
     d.arc([W * 0.06, H * 0.06, W * 0.94, H * 0.94], 200, 320, fill=(220, 230, 255, 255), width=max(2, int(W * 0.03)))
 
 
+def trophy_draw(lit):
+    """A trophy of our own, gold when its game is won, dark when not yet. / Un trophée à nous, doré quand gagné."""
+    def fn(d, W, H):
+        k = W / 40.0
+        gold, light, dark = ((250, 196, 52), (255, 236, 150), (150, 96, 10)) if lit else ((70, 76, 96), (104, 110, 130), (40, 44, 58))
+        line = max(1, int(2 * k))
+        d.arc([1 * k, 6 * k, 15 * k, 22 * k], 90, 270, fill=dark + (255,), width=max(2, int(3 * k)))          # the handles
+        d.arc([25 * k, 6 * k, 39 * k, 22 * k], 270, 90, fill=dark + (255,), width=max(2, int(3 * k)))
+        d.pieslice([6 * k, -10 * k, 34 * k, 30 * k], 0, 180, fill=gold + (255,), outline=dark + (255,), width=line)
+        d.rectangle([6 * k, 4 * k, 34 * k, 10 * k], fill=gold + (255,), outline=dark + (255,), width=line)
+        d.ellipse([11 * k, 6 * k, 16 * k, 18 * k], fill=light + (255,))                                            # its shine
+        d.rectangle([17 * k, 29 * k, 23 * k, 37 * k], fill=gold + (255,), outline=dark + (255,), width=max(1, int(1.5 * k)))
+        d.rounded_rectangle([9 * k, 37 * k, 31 * k, 46 * k], int(3 * k), fill=gold + (255,), outline=dark + (255,), width=line)
+    return fn
+
+
 class Board:
     """Little bubble board above a launcher: the shot bubbles stick, three of a colour or more pop, the ones left
     hanging fall. / Petit plateau de bulles : les bulles tirées collent, trois de la même couleur éclatent."""
@@ -1219,10 +1235,17 @@ class PuzzleBobbleScene(GameScene):
 
     def draw_vs(self, screen, vals, now):
         """VS between the boards, the matches won by each player in big on each side, the last one won jumping and glowing.
-        / VS entre les plateaux, les victoires de chaque joueur en gros de chaque côté, la dernière qui saute et brille."""
+        When the game's TOTAL is read (the games won whatever the match, Puzzle Bobble 2), it is the big number, and the
+        trophies of the match under it (Seb's choice A, 10 November 2026: the match's count goes back to 0 at each match).
+        / VS entre les plateaux, les victoires de chaque joueur en gros de chaque côté, la dernière qui saute et brille ;
+        le TOTAL du jeu quand il est lu, les trophées du match dessous (choix A de Seb)."""
         hd, S, W = self.hd, self.S, self.W
         cx, cy = W / 2, S(246)
         w1, w2 = _n(vals.get("wins")), _n(vals.get("wins_p2"))
+        t1, t2 = _n(vals.get("total_wins")), _n(vals.get("total_wins_p2"))
+        if None not in (w1, w2, t1, t2):
+            self.draw_total(screen, (w1, w2), (t1, t2), now)
+            return
         known = w1 is not None and w2 is not None
         pw, ph = (S(400), S(176)) if known else (S(200), S(120))
         self.box(screen, cx - pw / 2, cy - ph / 2, pw, ph, GOLD, fill=(8, 10, 22, 205), radius=28, width=3)
@@ -1236,6 +1259,25 @@ class PuzzleBobbleScene(GameScene):
                           scale=1 + 0.35 * k, glow=0.4 + 0.4 * k)
             tag = tr("J1", "P1") if side == "p1" else tr("J2", "P2")
             hd.put(screen, hd.text(tag, "xbold", S(24), CREAM, glow=0), x, cy + S(62), "center", "middle")
+
+    def draw_total(self, screen, wins, totals, now):
+        """The game's TOTAL in big on each side, the last one won jumping, two trophies of the match under it, lit as the
+        game's own at the top of its screen, TOTAL between them. / Le TOTAL du jeu en gros, les trophées du match dessous."""
+        hd, S, W = self.hd, self.S, self.W
+        cx, cy = W / 2, S(246)
+        pw, ph = S(420), S(196)
+        self.box(screen, cx - pw / 2, cy - ph / 2, pw, ph, GOLD, fill=(8, 10, 22, 205), radius=28, width=3)
+        hd.put(screen, hd.text("VS", "stencil", S(70), GOLD, glow=0.6), cx, cy - S(16), "center", "middle")
+        for side, w, t, col, d in (("p1", wins[0], totals[0], P1C, -1), ("p2", wins[1], totals[1], P2C, 1)):
+            k = max(0.0, 1 - (now - self.win_t[side]) / 0.6)
+            x = cx + d * S(132)
+            hd.put_number(screen, str(int(t)), "black", S(120), _mix(col, WHITE, 0.5 * k), x, cy - S(22), "center", "middle",
+                          scale=1 + 0.35 * k, glow=0.4 + 0.4 * k)
+            for i in range(2):                                         # a match is won with two games / deux parties
+                lit = i < int(w)
+                cup = self.img(("trophy", lit), S(40), S(46), trophy_draw(lit))
+                screen.blit(cup, (int(x + (i - 0.5) * S(50) - cup.get_width() / 2), int(cy + S(56) - cup.get_height() / 2)))
+        hd.put(screen, hd.text("TOTAL", "xbold", S(22), CREAM, glow=0), cx, cy + S(58), "center", "middle")
 
 
 # ============================================================================ Windjammers
