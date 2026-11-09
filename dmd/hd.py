@@ -994,8 +994,15 @@ class HDRenderer:
         held = self.fight.held(side) if self.fight is not None else None
         if held is not None and held[1] is not None:  # the one beaten falls first / celui qui est battu tombe d'abord
             lost = held[1]
-        if lost is None or any(o is None for o in orders):
+        if lost is None:
             return None
+        if any(o is None for o in orders):
+            # KOF 2002 writes the fighters themselves in fighting order ("_seq", 1.33 test 50) / KOF 2002 écrit les
+            # combattants eux-mêmes dans l'ordre des combats
+            seq = [vals.get(f"_{side}_seq{i}") for i in range(3)]
+            if any(c is None for c in seq):
+                return None
+            chars, orders = seq, [0, 1, 2]
         out = []
         for k, o in enumerate(orders):
             c = chars[int(o)] if 0 <= int(o) < len(chars) else None

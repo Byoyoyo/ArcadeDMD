@@ -65,6 +65,7 @@ VS_FORGET = 20.0          # the wins of two humans forgotten when one of them le
 # a select screen, or the fight's, once it has lasted that long: a screen of a moment does not start or end a fight (1.32)
 # un écran de sélection, ou celui du combat, une fois qu'il a duré ce temps : un écran d'un instant ne lance ni ne finit rien
 SELECT_HOLD = 0.4
+TIMEUP_HOLD = 4.0         # no select screen this long after TIME UP: KOF 2002 keeps no fight (0) for 3 s there (1.33 test 50)
 JUDGE_WAIT = 0.9          # the winner on time judged this long after TIME UP, the last blow landed (1.33) / jugé après
 ROUNDS_TO_WIN = 2         # rounds won that end a match, in a game that counts no round of its own (1.33) / rounds gagnés
 CONFETTI = ((255, 80, 80), (255, 210, 60), (80, 220, 255), (120, 255, 140), (255, 120, 220), (255, 255, 255))
@@ -189,6 +190,7 @@ class FightFX:
         self.win = None              # [côté, moment, PERFECT ?, déjà fêté ?]
         self.banner = None           # (texte, couleur, début, durée)
         self.judge = None            # when the winner on time is judged (TIME UP) / quand le vainqueur au temps est jugé
+        self.timeup_t = -99.0        # when TIME UP last showed / quand TIME UP s'est affiché
         self.super_t = -99.0
         self.super_xy = (0, 0)
         self.health = {"p1": None, "p2": None}
@@ -335,7 +337,11 @@ class FightFX:
         # round, ou après un match, sont aussi des écrans de sélection
         r1 = False
         tv_was = self.tv_prev                                         # the timer as last read / le chrono d'avant
-        if self.fs_known and int(fs_now) == 0 and not self.in_round:
+        if self.fs_known and int(fs_now) == 0 and not self.in_round and now - self.timeup_t < TIMEUP_HOLD and not jsel:
+            pass                                                      # the TIME UP of KOF 2002: 3 s with no fight (0),
+            # its winner still on screen, not a select screen (Seb's game of 9 November, 1.33 test 50) / le TIME UP de
+            # KOF 2002 : 3 s sans combat, son vainqueur encore à l'écran, pas un écran de sélection
+        elif self.fs_known and int(fs_now) == 0 and not self.in_round:
             # a first round's intro: the game sets its timer (0 -> 60) when the stage appears, ROUND 1 just after on its
             # screen, READY 6 s later (Seb's log, 1.32 test 8d) / l'intro d'un premier round : le jeu met son chrono quand
             # le décor apparaît, ROUND 1 juste après à son écran, READY 6 s plus tard
@@ -468,6 +474,12 @@ class FightFX:
                         else:
                             self.next_wait[side] = now + 3.0
                             self.next_t[side] = max(now + 3.0, self.ko_until)
+                    elif (old and name != old and lr is not None and lr == self.lost_named.get(side) and self.next_name[side]
+                          and (self.next_wait[side] is not None or now <= self.next_t[side] + 1.7)):
+                        # the name read again before its fighter enters: a read in between had another one (KYO for
+                        # half a second before K', Seb's KOF 2002 of 9 November, 1.33 test 50) / le nom lu à nouveau
+                        # avant que son combattant entre : une lecture entre les deux en avait un autre
+                        self.next_name[side] = name
                 elif old and name != old and now - self.stage_t > 2.5:   # pas au changement de stage (nouvelle équipe)
                     self.next_t[side] = now
                     self.next_name[side] = name
@@ -573,6 +585,7 @@ class FightFX:
         if (t is not None and self.prev_time is not None and t <= 0 < self.prev_time <= 2 and counting and now - self.ko_t > 2.0
                 and (h1 or 0) > 0 and (h2 or 0) > 0):
             self.banner = ("TIME UP", GOLD, now, 1.6)                 # chrono à zéro sans K.O.
+            self.timeup_t = now
             self.ko_until = now + 1.7
             self.judge = now + JUDGE_WAIT                             # the winner judged a moment later / jugé après
         if self.judge is not None and now >= self.judge and h1 is not None and h2 is not None:

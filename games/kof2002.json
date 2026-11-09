@@ -1,6 +1,6 @@
 {
  "title": "The King of Fighters 2002",
- "note": "Neo Geo fighting game: health, timer, scores, the teams and their fighters beaten, the fighter on screen with the 41 names, the state of the fight, the power gauges and stocks (1.33, from the RetroAchievements code notes and Seb's captures). The fighting order of a team is not read (no address known), the team line waits for it.",
+ "note": "Neo Geo fighting game: health, timer, scores, the teams and their fighters beaten, the fighter on screen with the 41 names, the state of the fight, the power gauges and stocks (1.33, from the RetroAchievements code notes and Seb's captures). The fighting order of each team is read (1.33 test 50), the panel of the desperation moves under a human's name as in '98 and '97.",
  "match": [
   {
    "system": [
@@ -167,6 +167,36 @@
     "type": "u8",
     "note": "P2, the fighter on screen (RA 0x8370 Current Character)"
    },
+   "_p1_seq0": {
+    "addr": "0x10A7EE",
+    "type": "u8",
+    "note": "P1, the first fighter of the team in fighting order, as a fighter number (0xFF on the select screen); the team as picked is _p1_ch0 to 2, this one is filled by the order select (Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 picked ROBERT, JOE, KYO and fought JOE, KYO, ROBERT, P2 MAXIMA, K', WHIP; 1.33 test 50)"
+   },
+   "_p1_seq1": {
+    "addr": "0x10A7EF",
+    "type": "u8",
+    "note": "P1, the second fighter of the team in fighting order, as a fighter number (0xFF on the select screen); the team as picked is _p1_ch0 to 2, this one is filled by the order select (Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 picked ROBERT, JOE, KYO and fought JOE, KYO, ROBERT, P2 MAXIMA, K', WHIP; 1.33 test 50)"
+   },
+   "_p1_seq2": {
+    "addr": "0x10A7F0",
+    "type": "u8",
+    "note": "P1, the third fighter of the team in fighting order, as a fighter number (0xFF on the select screen); the team as picked is _p1_ch0 to 2, this one is filled by the order select (Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 picked ROBERT, JOE, KYO and fought JOE, KYO, ROBERT, P2 MAXIMA, K', WHIP; 1.33 test 50)"
+   },
+   "_p2_seq0": {
+    "addr": "0x10A814",
+    "type": "u8",
+    "note": "P2, the first fighter of the team in fighting order, as a fighter number (0xFF on the select screen); the team as picked is _p2_ch0 to 2, this one is filled by the order select (Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 picked ROBERT, JOE, KYO and fought JOE, KYO, ROBERT, P2 MAXIMA, K', WHIP; 1.33 test 50)"
+   },
+   "_p2_seq1": {
+    "addr": "0x10A815",
+    "type": "u8",
+    "note": "P2, the second fighter of the team in fighting order, as a fighter number (0xFF on the select screen); the team as picked is _p2_ch0 to 2, this one is filled by the order select (Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 picked ROBERT, JOE, KYO and fought JOE, KYO, ROBERT, P2 MAXIMA, K', WHIP; 1.33 test 50)"
+   },
+   "_p2_seq2": {
+    "addr": "0x10A816",
+    "type": "u8",
+    "note": "P2, the third fighter of the team in fighting order, as a fighter number (0xFF on the select screen); the team as picked is _p2_ch0 to 2, this one is filled by the order select (Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 picked ROBERT, JOE, KYO and fought JOE, KYO, ROBERT, P2 MAXIMA, K', WHIP; 1.33 test 50)"
+   },
    "_in_p1": {
     "addr": "0x10FD96",
     "type": "u8",
@@ -211,6 +241,46 @@
     "type": "u8",
     "max": 3,
     "note": "P2 stocks, P1's + 0x200"
+   },
+   "_pow": {
+    "addr": "0x1081E8",
+    "type": "u8",
+    "note": "P1 power gauge for the panel: it fills to 0x40, a stock and 0 again (pow_full in hd; Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 0x3C then 0x06 with a stock at 50.0 s, 0x40 then 0 at 79.7 s); the same address as power"
+   },
+   "_pow_p2": {
+    "addr": "0x1083E8",
+    "type": "u8",
+    "note": "P2 power gauge for the panel: it fills to 0x40, a stock and 0 again (pow_full in hd; Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 0x3C then 0x06 with a stock at 50.0 s, 0x40 then 0 at 79.7 s); the same address as power"
+   },
+   "_stock": {
+    "addr": "0x1082E3",
+    "type": "u8",
+    "note": "P1 stocks (RetroAchievements code notes, Gauge Level), up to 3, 4 and 5 for the first, second and third fighter (command.dat); one gone at each desperation move and at MAX (Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 71.3 s, 85.2 s, 160.3 s, 198.6 s, the CPU's MAX at 122.7 s and 231.4 s); the same address as power_level"
+   },
+   "_stock_p2": {
+    "addr": "0x1084E3",
+    "type": "u8",
+    "note": "P2 stocks (RetroAchievements code notes, Gauge Level), up to 3, 4 and 5 for the first, second and third fighter (command.dat); one gone at each desperation move and at MAX (Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 71.3 s, 85.2 s, 160.3 s, 198.6 s, the CPU's MAX at 122.7 s and 231.4 s); the same address as power_level"
+   },
+   "_maxv": {
+    "addr": "0x1081EA",
+    "type": "u8",
+    "note": "P1 MAX timer, at '98's place: 0x2F when MAX starts (B+C and a stock), down to 0 in about 13 s (maxv_full in hd; Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): the CPU's MAX at 122.7 s, 0x2F then 0x2E, 0x2D...)"
+   },
+   "_maxv_p2": {
+    "addr": "0x1083EA",
+    "type": "u8",
+    "note": "P2 MAX timer, at '98's place: 0x2F when MAX starts (B+C and a stock), down to 0 in about 13 s (maxv_full in hd; Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): the CPU's MAX at 122.7 s, 0x2F then 0x2E, 0x2D...)"
+   },
+   "_dm": {
+    "addr": "0x1081E2",
+    "type": "u8",
+    "note": "P1 state flags, bit 0 set while a desperation move runs, as in '97 (Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 0x12 to 0x13 and 0x02 to 0x03 with each of his four desperation moves, the stock going at the same time)"
+   },
+   "_dm_p2": {
+    "addr": "0x1083E2",
+    "type": "u8",
+    "note": "P2 state flags, bit 0 set while a desperation move runs, as in '97 (Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 0x12 to 0x13 and 0x02 to 0x03 with each of his four desperation moves, the stock going at the same time); P2's at P1's address + 0x200 as every other value of this game"
    }
   }
  },
@@ -367,7 +437,11 @@
    "base",
    "arena"
   ],
-  "note": "HD screen theme for each backdrop value (index = value), see README, HD themes"
+  "note": "HD screen theme for each backdrop value (index = value), see README, HD themes; pow_full: the power gauge full at 0x40; maxv_full: the MAX timer starts at 0x2F; max_buttons: MAX is B+C (command.dat, Activate MAX Mode); max_dm_free: a desperation move in MAX takes no stock and ends MAX, an SDM (A+C or B+D in MAX) takes one (Dream Cancel wiki, command.dat: DM 1 level or MAX, SDM 1 level and MAX) (1.33 test 50)",
+  "pow_full": 64,
+  "maxv_full": 47,
+  "max_buttons": "BC",
+  "max_dm_free": true
  },
  "capture_renames": {
   "_fs_probe": "_fight_state",
@@ -376,5 +450,492 @@
   "_pow_probe": "power",
   "_pow2_probe": "power_p2",
   "note": "values renamed since Seb's captures of 2026-11-04 (probes confirmed), for tools/replay_capture.py"
+ },
+ "buttons": {
+  "A": "LP",
+  "B": "LK",
+  "C": "HP",
+  "D": "HK",
+  "note": "names of the buttons on the HD screen, as in The King of Fighters '98"
+ },
+ "moves": {
+  "note": "desperation moves of each fighter (DM), shown under the name when the gauge allows one (1.33 test 50): numpad notation for a fighter facing right, P any punch, K any kick, a letter for one button; from the MAME command.dat (Progetto-SNAPS 0.273, kof2002 entry), its _* lines (the SDM is the same motion with A+C or B+D, done in MAX). A move with the same command and the same move in The King of Fighters '98 or '97 keeps the name it has there; the follow-ups, Yamazaki's four-button move and the hidden ones (HSDM) left out",
+  "KYO": [
+   {
+    "name": "OROCHI NAGI",
+    "cmd": "2141236",
+    "btn": "P"
+   }
+  ],
+  "BENIMARU": [
+   {
+    "name": "RAIKOUKEN",
+    "cmd": "236236",
+    "btn": "P"
+   },
+   {
+    "name": "GENEI HURRICANE",
+    "cmd": "214214",
+    "btn": "K"
+   }
+  ],
+  "DAIMON": [
+   {
+    "name": "JIGOKU OTOSHI",
+    "cmd": "6321463214",
+    "btn": "P"
+   },
+   {
+    "name": "ARASHI NO YAMA",
+    "cmd": "4123641236",
+    "btn": "K"
+   }
+  ],
+  "TERRY": [
+   {
+    "name": "POWER GEYSER",
+    "cmd": "21416",
+    "btn": "P"
+   },
+   {
+    "name": "H.A. GEYSER",
+    "cmd": "236236",
+    "btn": "K"
+   }
+  ],
+  "ANDY": [
+   {
+    "name": "CHO REPPA DAN",
+    "cmd": "21416",
+    "btn": "K"
+   },
+   {
+    "name": "ZANEI RYUSEI KEN",
+    "cmd": "2141236",
+    "btn": "P"
+   }
+  ],
+  "JOE": [
+   {
+    "name": "SCREW UPPER",
+    "cmd": "236236",
+    "btn": "P"
+   },
+   {
+    "name": "TIGER KAKATO",
+    "cmd": "2363214",
+    "btn": "P"
+   },
+   {
+    "name": "OUGON TIGER KICK",
+    "cmd": "2369",
+    "btn": "K"
+   }
+  ],
+  "KIM": [
+   {
+    "name": "HOUOU KYAKU",
+    "cmd": "21416",
+    "btn": "K"
+   },
+   {
+    "name": "HOUOU HITEN",
+    "cmd": "236236",
+    "btn": "K"
+   }
+  ],
+  "CHANG": [
+   {
+    "name": "TEKKYU BOUSOU",
+    "cmd": "2363214",
+    "btn": "P"
+   },
+   {
+    "name": "TEKKYU ASSATSU",
+    "cmd": "236236",
+    "btn": "P"
+   },
+   {
+    "name": "TEKKYU BOKUSATSU",
+    "cmd": "236236",
+    "btn": "K"
+   }
+  ],
+  "CHOI": [
+   {
+    "name": "SHINKUU ZAN",
+    "cmd": "6321463214",
+    "btn": "P"
+   },
+   {
+    "name": "HOUOU KYAKU",
+    "cmd": "2363214",
+    "btn": "K"
+   }
+  ],
+  "ATHENA": [
+   {
+    "name": "CRYSTAL BIT",
+    "cmd": "6321463214",
+    "btn": "P"
+   },
+   {
+    "name": "PHOENIX ARROW",
+    "cmd": "236236",
+    "btn": "K"
+   }
+  ],
+  "KENSOU": [
+   {
+    "name": "SHINRYU SEIOU",
+    "cmd": "2363214",
+    "btn": "B"
+   },
+   {
+    "name": "SHINRYU TENBU",
+    "cmd": "2363214",
+    "btn": "D"
+   },
+   {
+    "name": "NIKUMAN",
+    "cmd": "214214",
+    "btn": "P"
+   }
+  ],
+  "CHIN": [
+   {
+    "name": "GOURAN ENPOU",
+    "cmd": "236236",
+    "btn": "P"
+   },
+   {
+    "name": "GOUEN SHOURAI",
+    "cmd": "2363214",
+    "btn": "P"
+   }
+  ],
+  "LEONA": [
+   {
+    "name": "V SLASHER",
+    "cmd": "2363214",
+    "btn": "P"
+   },
+   {
+    "name": "REBEL SPARK",
+    "cmd": "2141236",
+    "btn": "K"
+   }
+  ],
+  "RALF": [
+   {
+    "name": "VULCAN PUNCH",
+    "cmd": "2363214",
+    "btn": "P"
+   },
+   {
+    "name": "UMANORI VULCAN",
+    "cmd": "2141236",
+    "btn": "K"
+   }
+  ],
+  "CLARK": [
+   {
+    "name": "ULTRA A.B.B.",
+    "cmd": "6321463214",
+    "btn": "P"
+   },
+   {
+    "name": "RUNNING THREE",
+    "cmd": "4123641236",
+    "btn": "K"
+   }
+  ],
+  "RYO": [
+   {
+    "name": "RYUKO RANBU",
+    "cmd": "2363214",
+    "btn": "P"
+   },
+   {
+    "name": "HAOH SHOKOKEN",
+    "cmd": "641236",
+    "btn": "P"
+   }
+  ],
+  "ROBERT": [
+   {
+    "name": "RYUKO RANBU",
+    "cmd": "2363214",
+    "btn": "P"
+   },
+   {
+    "name": "HAOH SHOKOKEN",
+    "cmd": "641236",
+    "btn": "P"
+   },
+   {
+    "name": "HAIGA RYU",
+    "cmd": "236236",
+    "btn": "K"
+   }
+  ],
+  "TAKUMA": [
+   {
+    "name": "RYUKO RANBU",
+    "cmd": "2363214",
+    "btn": "P"
+   },
+   {
+    "name": "SHIN KISHIN",
+    "cmd": "236236",
+    "btn": "P"
+   }
+  ],
+  "MAI": [
+   {
+    "name": "SHINOBIBACHI",
+    "cmd": "2141236",
+    "btn": "K"
+   },
+   {
+    "name": "HANA ARASHI",
+    "cmd": "236236",
+    "btn": "P"
+   }
+  ],
+  "YURI": [
+   {
+    "name": "HIEN HOUOKYAKU",
+    "cmd": "2363214",
+    "btn": "K"
+   }
+  ],
+  "MAY LEE": [
+   {
+    "name": "SHINJU KYAKU",
+    "cmd": "214214",
+    "btn": "K"
+   },
+   {
+    "name": "MAY LEE DYNAMIC",
+    "cmd": "236236",
+    "btn": "P"
+   }
+  ],
+  "IORI": [
+   {
+    "name": "YA OTOME",
+    "cmd": "2363214",
+    "btn": "P"
+   }
+  ],
+  "MATURE": [
+   {
+    "name": "HEAVENS GATE",
+    "cmd": "2141236",
+    "btn": "K"
+   },
+   {
+    "name": "NOCTURNAL",
+    "cmd": "236236",
+    "btn": "P"
+   }
+  ],
+  "VICE": [
+   {
+    "name": "NEGATIVE GAIN",
+    "cmd": "6321463214",
+    "btn": "K"
+   },
+   {
+    "name": "WITHERING",
+    "cmd": "236236",
+    "btn": "P"
+   }
+  ],
+  "YAMAZAKI": [
+   {
+    "name": "GUILLOTINE",
+    "cmd": "236236",
+    "btn": "P"
+   },
+   {
+    "name": "DRILL",
+    "cmd": "6321463214",
+    "btn": "P"
+   }
+  ],
+  "MARY": [
+   {
+    "name": "M. SPLASH ROSE",
+    "cmd": "2363214",
+    "btn": "P"
+   }
+  ],
+  "BILLY": [
+   {
+    "name": "KAEN SENPUKON",
+    "cmd": "2363214",
+    "btn": "P"
+   },
+   {
+    "name": "DAI SENPUU",
+    "cmd": "236236",
+    "btn": "P"
+   }
+  ],
+  "YASHIRO": [
+   {
+    "name": "FINAL IMPACT",
+    "cmd": "236236",
+    "btn": "P"
+   }
+  ],
+  "SHERMIE": [
+   {
+    "name": "SHERMIE FLASH",
+    "cmd": "6321463214",
+    "btn": "P"
+   },
+   {
+    "name": "CARNIVAL",
+    "cmd": "4123641236",
+    "btn": "P"
+   }
+  ],
+  "CHRIS": [
+   {
+    "name": "CHAIN SLIDE",
+    "cmd": "236236",
+    "btn": "P"
+   },
+   {
+    "name": "TWISTER DRIVE",
+    "cmd": "214214",
+    "btn": "K"
+   }
+  ],
+  "K'": [
+   {
+    "name": "HEAT DRIVE",
+    "cmd": "236236",
+    "btn": "P"
+   },
+   {
+    "name": "CHAIN DRIVE",
+    "cmd": "2363214",
+    "btn": "P"
+   }
+  ],
+  "MAXIMA": [
+   {
+    "name": "BUNKER BUSTER",
+    "cmd": "2363214",
+    "btn": "P"
+   },
+   {
+    "name": "MAXIMA REVENGER",
+    "cmd": "6321463214",
+    "btn": "K"
+   },
+   {
+    "name": "MAXIMA BEAM",
+    "cmd": "641236",
+    "btn": "P"
+   }
+  ],
+  "WHIP": [
+   {
+    "name": "SONIC SLAUGHTER",
+    "cmd": "2141236",
+    "btn": "P"
+   }
+  ],
+  "VANESSA": [
+   {
+    "name": "CHAMPION PUNCHER",
+    "cmd": "236236",
+    "btn": "P"
+   },
+   {
+    "name": "CRAZY PUNCHER",
+    "cmd": "2141236",
+    "btn": "P"
+   }
+  ],
+  "SETH": [
+   {
+    "name": "MOROTE SHO YOH",
+    "cmd": "236236",
+    "btn": "P"
+   },
+   {
+    "name": "IRIMI NADAZUKI",
+    "cmd": "2363214",
+    "btn": "K"
+   }
+  ],
+  "RAMON": [
+   {
+    "name": "EL DIABLO AMARILLO",
+    "cmd": "2141236",
+    "btn": "K"
+   },
+   {
+    "name": "TIGER SPIN",
+    "cmd": "6321463214",
+    "btn": "P"
+   },
+   {
+    "name": "SAVAGE FIRE CAT",
+    "cmd": "2363214",
+    "btn": "K"
+   }
+  ],
+  "KULA": [
+   {
+    "name": "DIAMOND EDGE",
+    "cmd": "236236",
+    "btn": "P"
+   }
+  ],
+  "K9999": [
+   {
+    "name": "TSUKI",
+    "cmd": "1632143",
+    "btn": "P"
+   },
+   {
+    "name": "OUCCHIMAE",
+    "cmd": "1632143",
+    "btn": "K"
+   }
+  ],
+  "ANGEL": [
+   {
+    "name": "LOYALTY TEST",
+    "cmd": "4623",
+    "btn": "P"
+   }
+  ],
+  "RUGAL": [
+   {
+    "name": "GIGANTIC PRESS",
+    "cmd": "2363214",
+    "btn": "P"
+   },
+   {
+    "name": "DESTRUCTION OMEGA",
+    "cmd": "236236",
+    "btn": "K"
+   }
+  ],
+  "KUSANAGI": [
+   {
+    "name": "OROCHI NAGI",
+    "cmd": "2141236",
+    "btn": "P"
+   }
+  ]
  }
 }
