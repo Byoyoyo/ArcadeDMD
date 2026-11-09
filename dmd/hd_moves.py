@@ -146,6 +146,8 @@ def _stock(vals, suf):
 class Side:
     def __init__(self):
         self.low = False             # the BIOS byte read the other way round / l'octet lu à l'envers
+        self.odd = 0                 # reads with up and down, or left and right, at once / lectures haut et bas ensemble
+        self.pend = []               # (t, byte) read since the first of them / lus depuis la première
         self.dirs = []               # (t, numpad) each change of the stick / chaque changement du stick
         self.seen = 0                # number of the last input history entry read / numéro de la dernière entrée lue
         self.first = True            # nothing read yet (logged once) / rien lu encore (noté une fois)
@@ -215,7 +217,7 @@ class Moves:
             sd.attempt = sd.result = sd.live = None
             sd.max_on = None
             sd.groups = []
-            sd.low, sd.dirs, sd.prev_btn = False, [], set()   # the byte's way round decided again in the next fight: the
+            sd.low, sd.odd, sd.pend, sd.dirs, sd.prev_btn = False, 0, [], [], set()   # the byte's way round decided again: the
             # memory RetroArch gives while the game loads (0xFD) once made every input of a game read backwards
             # (Seb's KOF '97, 1.33 test 49) / le sens de l'octet décidé à nouveau au combat suivant : la mémoire que
             # RetroArch donne pendant le chargement du jeu (0xFD) avait fait lire toutes les touches d'une partie à l'envers
@@ -225,6 +227,12 @@ class Moves:
         if key != self.key:
             self.key = key
             self.reset()
+            for side, sd in self.sides.items():                   # the inputs read before this game's first fight are
+                entries = (hist or {}).get("_in_" + side) or []   # left behind: the memory RetroArch gives while the
+                if entries:                                       # game loads (0xFD) made every input of Seb's KOF '98
+                    sd.seen = entries[-1][0]                      # read backwards, no DM ! nor show (9 November, 1.33
+                    # test 52) / les touches lues avant le premier combat du jeu sont laissées : la mémoire donnée
+                    # pendant le chargement (0xFD) faisait lire toutes les touches de son KOF '98 à l'envers
         self.pow_full = full_pow(game)
         for side in ("p1", "p2"):
             sd = self.sides[side]
@@ -351,10 +359,22 @@ class Moves:
         if sd.first:
             sd.first = False
             self.log(f"Combat, {side.upper()} touches lues (0x{v:02X})", f"Fight, {side.upper()} inputs read (0x{v:02X})")
-        if not sd.low and ((v & 3) == 3 or (v & 12) == 12):       # up and down at once: the byte is the other way round
-            sd.low = True                                         # (0 when pressed) / haut et bas ensemble : à l'envers
-            sd.dirs, sd.prev_btn = [], set()
+        if not sd.low and ((v & 3) == 3 or (v & 12) == 12):       # up and down at once: impossible the right way round,
+            sd.odd += 1                                           # left aside; read three times, the byte is the other
+            sd.pend.append((t, v))                                # way round (0 when pressed) and what was read since
+            if sd.odd < 3:                                        # the first is read again so: one stray byte no longer
+                return                                            # turns a whole game round (1.33 test 52) / impossible
+            sd.low = True                                         # à l'endroit, laissé ; lu trois fois, l'octet est à
+            sd.dirs, sd.prev_btn, sd.groups = [], set(), []       # l'envers et ce qui a été lu depuis le premier est relu
+            sd.attempt, sd.abc_t = None, -99.0
             self.log(f"Combat, {side.upper()} touches à l'envers (0 = appuyé)", f"Fight, {side.upper()} inputs inverted (0 = pressed)")
+            pend, sd.pend = sd.pend, []
+            for pt, pv in pend:
+                self._input(side, sd, pt, pv, game, vals)
+            return
+        if not sd.low and sd.pend:
+            sd.pend.append((t, v))
+            del sd.pend[:-48]
         d = stick(v, sd.low)
         moved = not sd.dirs or sd.dirs[-1][1] != d
         if moved:
