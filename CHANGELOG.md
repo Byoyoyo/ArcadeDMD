@@ -14,6 +14,7 @@ Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `con
 - Its score, who plays and the rounds are now read right, and two humans see the matches each one won.
 - On the LED panel, both wells in small, their frames beating red as they fill.
 - The MAME plugin reads lists of words too (the wells, the enemy tables of Metal Slug).
+- Puzzle Bobble 2 keeps the VS wins of each player from match to match, with the trophies of the match under them.
 
 ### Français
 - Super Puzzle Fighter II Turbo a une nouvelle scène HD construite sur les puits du jeu, lus gemme par gemme, face à face avec le VS, les paires suivantes et les manches entre eux. Les gemmes tombent à leur place, les explosions partent en morceaux et font trembler l'écran, les gemmes de puissance brillent en se formant, les gemmes à compteur volent vers l'autre puits et s'y écrasent.
@@ -21,6 +22,7 @@ Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `con
 - Le score, qui joue et les manches sont maintenant bien lus, et deux humains voient les matchs gagnés par chacun.
 - Sur la dalle LED, les deux puits en petit, leur cadre qui bat en rouge quand ils se remplissent.
 - Le plugin MAME lit aussi les listes de mots (les puits, les tables d'ennemis de Metal Slug).
+- Puzzle Bobble 2 garde les victoires VS de chaque joueur d'un match à l'autre, avec les trophées du match en dessous.
 
 ## 1.33.1
 

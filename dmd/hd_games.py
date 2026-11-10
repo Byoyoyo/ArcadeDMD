@@ -1260,16 +1260,19 @@ class PuzzleBobbleScene(GameScene):
             tag = tr("J1", "P1") if side == "p1" else tr("J2", "P2")
             hd.put(screen, hd.text(tag, "xbold", S(24), CREAM, glow=0), x, cy + S(62), "center", "middle")
 
-    def draw_total(self, screen, wins, totals, now):
+    def draw_total(self, screen, wins, totals, now, label="TOTAL", pops=None):
         """The game's TOTAL in big on each side, the last one won jumping, two trophies of the match under it, lit as the
-        game's own at the top of its screen, TOTAL between them. / Le TOTAL du jeu en gros, les trophées du match dessous."""
+        game's own at the top of its screen, TOTAL between them. label and pops: another count in big (the VS wins kept
+        by Puzzle Bobble 2, 1.34) and when each one went up. / Le TOTAL du jeu en gros, les trophées du match dessous ;
+        label et pops, un autre compte en gros et quand chacun a monté."""
         hd, S, W = self.hd, self.S, self.W
+        pops = pops or self.win_t
         cx, cy = W / 2, S(246)
         pw, ph = S(420), S(196)
         self.box(screen, cx - pw / 2, cy - ph / 2, pw, ph, GOLD, fill=(8, 10, 22, 205), radius=28, width=3)
         hd.put(screen, hd.text("VS", "stencil", S(70), GOLD, glow=0.6), cx, cy - S(16), "center", "middle")
         for side, w, t, col, d in (("p1", wins[0], totals[0], P1C, -1), ("p2", wins[1], totals[1], P2C, 1)):
-            k = max(0.0, 1 - (now - self.win_t[side]) / 0.6)
+            k = max(0.0, 1 - (now - pops[side]) / 0.6)
             x = cx + d * S(132)
             hd.put_number(screen, str(int(t)), "black", S(120), _mix(col, WHITE, 0.5 * k), x, cy - S(22), "center", "middle",
                           scale=1 + 0.35 * k, glow=0.4 + 0.4 * k)
@@ -1277,7 +1280,7 @@ class PuzzleBobbleScene(GameScene):
                 lit = i < int(w)
                 cup = self.img(("trophy", lit), S(40), S(46), trophy_draw(lit))
                 screen.blit(cup, (int(x + (i - 0.5) * S(50) - cup.get_width() / 2), int(cy + S(56) - cup.get_height() / 2)))
-        hd.put(screen, hd.text("TOTAL", "xbold", S(22), CREAM, glow=0), cx, cy + S(58), "center", "middle")
+        hd.put(screen, hd.text(label, "xbold", S(22), CREAM, glow=0), cx, cy + S(58), "center", "middle")
 
 
 # ============================================================================ Windjammers
