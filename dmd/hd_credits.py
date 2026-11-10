@@ -34,6 +34,7 @@ class CreditsBar:
         self.xy = None                # the coin of the pill, where the coins land / où tombent les pièces
         self.box = None               # middle and top of the pill, for +n CRÉDITS / milieu et haut de la pastille
         self.credits = None
+        self.said = (0, -99.0)        # the last +n and when, for a scene that writes it itself / le dernier +n et quand
         self.drops = 0                # (tests)
         self.set_symbol("€")
 
@@ -75,6 +76,8 @@ class CreditsBar:
         self.coin_t = self.fx.now
         self.fx.glow(x, y, 12, 96, GOLD, 0.35)
         self.fx.sparks(x, y, 16, GOLD, (180, 520), (200, 340), (0.3, 0.6), 500, "front", 2, 18)
+        if n and not quiet:
+            self.said = (n, self.fx.now)
         if n and not quiet and self.box is not None:
             bx, by = self.box
             self.fx.text(credits_word(n), bx, by - self.S(30), GOLD, 36, life=1.2, rise=40)

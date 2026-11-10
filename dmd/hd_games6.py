@@ -542,10 +542,15 @@ class PuzzleBobble2Scene(PuzzleBobbleScene):
     THEME = "pb2_beach"
     FRAME = "metal"
 
+    MATCH = 2                                             # games to win a VS match, the two trophies / deux trophées
+
     def __init__(self, hd, rng=None):
         super().__init__(hd, rng)
         self.auto = {"p1": 0.0, "p2": 0.0}
         self.shots = 0                                    # (tests)
+        self.tally = {"p1": 0, "p2": 0}                   # VS matches won by each, kept until the game is started again
+        self.tally_t = {"p1": -99.0, "p2": -99.0}         # / matchs VS gagnés par chacun, gardés jusqu'au prochain lancement
+        self.serial = None
 
     def shoot(self, side, c, now):
         x, y = self.launcher_xy(side)
@@ -557,6 +562,14 @@ class PuzzleBobble2Scene(PuzzleBobbleScene):
 
     def update(self, vals, now):
         before = len(self.flying)
+        vs = self.vs(vals)
+        for side, name in (("p1", "wins"), ("p2", "wins_p2")):          # a match won: one more for good / un de plus
+            ch = self.changed(vals, name)
+            if ch and vs and ch[0] < self.MATCH <= ch[1]:
+                self.tally[side] += 1
+                self.tally_t[side] = now
+                self.hd.log(tr(f"Puzzle Bobble 2, victoires VS : J1 {self.tally['p1']}, J2 {self.tally['p2']}",
+                               f"Puzzle Bobble 2, VS wins: P1 {self.tally['p1']}, P2 {self.tally['p2']}"))
         super().update(vals, now)
         if len(self.flying) > before:
             self.shots += len(self.flying) - before
@@ -572,6 +585,10 @@ class PuzzleBobble2Scene(PuzzleBobbleScene):
 
     def draw_hud(self, screen, eng, vals, logo, now):
         S = self.S
+        serial = getattr(eng, "intro_serial", 0)
+        if serial != self.serial:                                       # the game started again: back to 0 / relancé
+            self.serial = serial
+            self.tally = {"p1": 0, "p2": 0}
         for side, board in self.boards.items():
             if side == "p2" and not self.p2_in(vals):
                 continue
@@ -579,6 +596,14 @@ class PuzzleBobble2Scene(PuzzleBobbleScene):
             fr = self.img(("pbframe", self.FRAME), int(w + S(80)), S(340), pillar_frame_draw(self.FRAME), ss=1)
             screen.blit(fr, (int(board.x0 - S(40)), int(board.top - S(40))))
         super().draw_hud(screen, eng, vals, logo, now)
+
+    def draw_vs(self, screen, vals, now):
+        """The VS wins of each player in big, kept from match to match, the trophies of the match under them.
+        / Les victoires VS de chacun en gros, gardées d'un match à l'autre, les trophées du match dessous."""
+        w1, w2 = _n(vals.get("wins")), _n(vals.get("wins_p2"))
+        if w1 is None or w2 is None:
+            return super().draw_vs(screen, vals, now)
+        self.draw_total(screen, (w1, w2), (self.tally["p1"], self.tally["p2"]), now, tr("VICTOIRES", "WINS"), self.tally_t)
 
 
 def compass_draw(d, W, H):

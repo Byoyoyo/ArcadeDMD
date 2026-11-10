@@ -6,6 +6,24 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 To update, extract the new version over the old one. Your `config.json`, the addresses learned and your own pictures are kept.
 Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `config.json`, les adresses apprises et tes propres images sont gardés.
 
+## 1.34.0
+
+### English
+- Super Puzzle Fighter II Turbo gets a new HD scene built on the game's own wells, read gem by gem, face to face with VS, the next pairs and the rounds between them. Gems drop into place, bursts break into pieces and shake the screen, power gems shine as they form, counter gems fly to the other well and crash down there.
+- The fuller a well, the faster its side of the marquee beats red, up to DANGER. The losing well collapses at the end of a round.
+- Its score, who plays and the rounds are now read right, and two humans see the matches each one won.
+- On the LED panel, both wells in small, their frames beating red as they fill.
+- The MAME plugin reads lists of words too (the wells, the enemy tables of Metal Slug).
+- Puzzle Bobble 2 keeps the VS wins of each player from match to match, with the trophies of the match under them.
+
+### Français
+- Super Puzzle Fighter II Turbo a une nouvelle scène HD construite sur les puits du jeu, lus gemme par gemme, face à face avec le VS, les paires suivantes et les manches entre eux. Les gemmes tombent à leur place, les explosions partent en morceaux et font trembler l'écran, les gemmes de puissance brillent en se formant, les gemmes à compteur volent vers l'autre puits et s'y écrasent.
+- Plus un puits se remplit, plus son côté du marquee bat vite en rouge, jusqu'à DANGER. Le puits perdant s'effondre en fin de manche.
+- Le score, qui joue et les manches sont maintenant bien lus, et deux humains voient les matchs gagnés par chacun.
+- Sur la dalle LED, les deux puits en petit, leur cadre qui bat en rouge quand ils se remplissent.
+- Le plugin MAME lit aussi les listes de mots (les puits, les tables d'ennemis de Metal Slug).
+- Puzzle Bobble 2 garde les victoires VS de chaque joueur d'un match à l'autre, avec les trophées du match en dessous.
+
 ## 1.33.1
 
 ### English

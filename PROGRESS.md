@@ -314,7 +314,7 @@ Depuis la 1.30, chaque autre jeu Capcom a sa scène de dalle et sa scène HD à 
 | 27 | Strider | Action | 🟡 | ✅ | ✅ | 1.30 |
 | 28 | Pang! 3 | Action | 🟡 | ✅ | ✅ | 1.30 |
 | 29 | Mighty! Pang | Action | 🟡 | ✅ | ✅ | 1.30 |
-| 30 | Super Puzzle Fighter II Turbo | Puzzle / Réflexion | 🟡 | ✅ | ✅ | 1.30 |
+| 30 | Super Puzzle Fighter II Turbo | Puzzle / Réflexion | ✅ | ✅ | ✅ | 1.30, 1.34 |
 | 31 | Mega Twins | Platformer / Plateformes | 🟡 | ✅ | ✅ | 1.30 |
 | 32 | Magic Sword: Heroic Fantasy | Action | 🟡 | ✅ | ✅ | 1.30 |
 | 33 | Willow | Platformer / Plateformes | 🟡 | ✅ | ✅ | 1.30 |

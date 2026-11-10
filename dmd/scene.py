@@ -10,7 +10,7 @@ import re
 import string
 import time
 
-from .canvas import Font, Sprite, parse_color, scale_color, load_sprite_frames
+from .canvas import Font, Sprite, mix, parse_color, scale_color, load_sprite_frames
 from .i18n import lang, tr
 
 
@@ -1425,6 +1425,75 @@ class IconsEl(Element):
                 cv.set(ox + px, y0 + py, col)
 
 
+class WellEl(Element):
+    """A Super Puzzle Fighter II Turbo well in small (1.34): each gem of the game a square of "size" pixels, its colour,
+    the crash gems with a white corner, the counter gems darker, the bursting ones white, the falling pair too. The frame
+    blinks red faster and faster as the well fills, like the HD screen. "var" the well (112 words, dmd/spfcodes.py),
+    "x", "y" the top left of the frame, "size" (2), "frame" its colour, "pair", "px", "py", "rot" the falling pair.
+
+    Un puits de Super Puzzle Fighter II Turbo en petit : chaque gemme du jeu un carré, la paire qui tombe aussi, le
+    cadre qui clignote en rouge de plus en plus vite quand le puits se remplit."""
+
+    def __init__(self, spec, root, log):
+        super().__init__(spec, root, log)
+        self.phase = 0.0
+        self.last = None
+
+    def render(self, ctx):
+        from .spfcodes import COLORS, COLS, ROWS, danger, decode, grid_of
+        s = self.spec
+        vals = ctx.state.values
+        g = grid_of(vals.get(s.get("var", "well1")))
+        size = int(s.get("size", 2))
+        x0, y0 = int(s.get("x", 0)), int(s.get("y", 0))
+        cv = ctx.canvas
+        frame = parse_color(s.get("frame"), (150, 110, 40))
+        d = danger(g) if g is not None else 0.0
+        dt = 0.0 if self.last is None else max(0.0, min(0.2, ctx.t - self.last))
+        self.last = ctx.t
+        self.phase = (self.phase + dt / (1.45 - 1.1 * d)) % 1.0
+        if d > 0.35:                                              # the frame beats red / le cadre bat en rouge
+            beat = math.exp(-((self.phase - 0.05) / 0.08) ** 2) + 0.65 * math.exp(-((self.phase - 0.27) / 0.08) ** 2)
+            frame = mix(frame, (255, 30, 30), min(1.0, (d - 0.35) / 0.4) * (0.4 + 0.6 * min(1.0, beat)))
+        w, h = COLS * size + 2, ROWS * size + 2
+        cv.fill_rect(x0, y0, w, 1, frame)
+        cv.fill_rect(x0, y0 + h - 1, w, 1, frame)
+        cv.fill_rect(x0, y0, 1, h, frame)
+        cv.fill_rect(x0 + w - 1, y0, 1, h, frame)
+        if g is None:
+            return
+        cells = {}
+        for r in range(1, 14):
+            for k in range(COLS):
+                c = decode(g[r][k])
+                if c:
+                    cells[(r, k)] = c
+        pair = vals.get(s.get("pair", ""))
+        px, py, rot = _int_value(ctx, s.get("px", "")), _int_value(ctx, s.get("py", "")), _int_value(ctx, s.get("rot", "")) or 0
+        if isinstance(pair, list) and len(pair) >= 2 and px is not None and py is not None and 3 <= py <= 15 and 0 <= px < COLS:
+            dx, dy = {0: (0, -1), 1: (1, 0), 2: (0, 1), 3: (-1, 0)}.get(rot, (0, -1))
+            for v, (ox, oy) in ((pair[0], (0, 0)), (pair[1], (dx, dy))):
+                c = decode(v & 0xFF) if isinstance(v, int) else None
+                r, k = py - 1 + oy, px + ox
+                if c and 1 <= r <= 13 and 0 <= k < COLS:
+                    cells[(r, k)] = c
+        flash = int(ctx.t * 12) % 2 == 0
+        for (r, k), (kind, col, _) in cells.items():
+            rgb = COLORS.get(col, (255, 255, 255))
+            if kind == "diamond":
+                rgb = (255, 255, 255)
+            elif kind == "counter":
+                rgb = mix(rgb, (0, 0, 0), 0.6)
+            elif kind == "burst":
+                rgb = (255, 255, 255) if flash else mix(rgb, (255, 255, 255), 0.5)
+            elif kind == "power":
+                rgb = mix(rgb, (255, 255, 255), 0.15)
+            x, y = x0 + 1 + k * size, y0 + 1 + (r - 1) * size
+            cv.fill_rect(x, y, size, size, rgb)
+            if kind == "crash":
+                cv.set(x, y, (255, 255, 255))
+
+
 class CounterEl(Element):
     """A small drawing followed by a number: a plane and x3 for the lives, a bomb and x2.
     "var": the value, "pattern" and "colors" as in "icons", "font", "color" of the number, "prefix" ("x" by default),
@@ -1852,6 +1921,7 @@ class Scene:
             "text": TextEl, "marquee": MarqueeEl, "bars": BarsEl, "waves": WavesEl, "mountains": MountainsEl, "gauge": GaugeEl,
             "particles": ParticlesEl, "sprite": SpriteEl, "ship": ShipEl, "clock": ClockEl, "anim": AnimEl, "events": EventsEl,
             "rect": RectEl, "image": ImageEl, "coinop": CoinOpEl, "icons": IconsEl, "counter": CounterEl, "dot": DotEl, "arrow": ArrowEl,
+            "well": WellEl,
         }.get(kind)
         if kind == "cycle":
             return CycleEl(spec, self.root, self.log, self._make)

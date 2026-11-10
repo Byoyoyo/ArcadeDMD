@@ -13,7 +13,7 @@
 
 local exports = {
 	name = "arcadedmd",
-	version = "1.33.1",
+	version = "1.34.0",
 	description = "ArcadeDMD",
 	license = "MIT",
 	author = { name = "Byoyoyo" } }
@@ -75,6 +75,19 @@ end
 
 local function sanitize(name)
 	return (tostring(name or "unknown"):gsub("[^%w%-_]", "_"))
+end
+
+-- two values the same, a list (the words of a well, "u16s") compared item by item (1.34)
+-- deux valeurs identiques, une liste comparee element par element
+local function same(a, b)
+	if type(a) == "table" and type(b) == "table" then
+		if #a ~= #b then return false end
+		for i = 1, #a do
+			if a[i] ~= b[i] then return false end
+		end
+		return true
+	end
+	return a == b
 end
 
 -- minimal JSON encoder (numbers, strings, booleans, arrays, objects)
@@ -348,6 +361,18 @@ local function make_reader(space, def)
 	local shift = math.tointeger(def.shift)
 	local zero = parse_addr(def.zero_from)    -- a bar gone below zero reads 0xFF...: empty / une barre passee sous zero
 	local doff = parse_addr(def.digit_offset) or 0
+	if t == "u16s" then
+		-- several 16-bit words, "count" of them "stride" bytes apart: a list (the wells of Super Puzzle Fighter II
+		-- Turbo, 1.34) / plusieurs mots de 16 bits, une liste
+		local cnt = math.tointeger(def.count) or 1
+		local st = math.tointeger(def.stride) or 2
+		if st < 2 then st = 2 end
+		return function()
+			local out = {}
+			for k = 0, cnt - 1 do out[k + 1] = space:read_u16(addr + k * st) end
+			return out
+		end
+	end
 	local raw
 	if t == "u8" then
 		raw = function(a) return space:read_u8(a) end
@@ -735,7 +760,7 @@ local function on_frame()
 		local fchanged, fany = {}, false
 		for _, name in ipairs(session.fast) do
 			local ok, v = pcall(session.readers[name])
-			if ok and session.last[name] ~= v then
+			if ok and not same(session.last[name], v) then
 				fchanged[name] = v
 				session.last[name] = v
 				fany = true
@@ -750,7 +775,7 @@ local function on_frame()
 	local vals = read_all()
 	local changed, any = {}, false
 	for name, v in pairs(vals) do
-		if session.last[name] ~= v then
+		if not same(session.last[name], v) then
 			changed[name] = v
 			session.last[name] = v
 			any = true
@@ -781,7 +806,8 @@ local function menu_populate()
 		for _, name in ipairs(session.names) do
 			if name:sub(1, 1) ~= "_" then        -- valeurs internes (équipe des KOF...) non affichées
 				local v = session.last[name]
-				items[#items + 1] = { name, v ~= nil and tostring(v) or "-", "off" }
+				local shown = (type(v) == "table") and ("[" .. #v .. "]") or (v ~= nil and tostring(v) or "-")
+				items[#items + 1] = { name, shown, "off" }
 			end
 		end
 		items[#items + 1] = { "---", "", "" }

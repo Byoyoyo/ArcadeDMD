@@ -1,11 +1,22 @@
 {
   "title": "Super Puzzle Fighter II Turbo",
-  "note": "Capcom CPS2 puzzle, quiz or other game: credits, 11 characters (FinalBurn Neo cheat database). Made by tools/cps_games.py.",
+  "note": "Capcom CPS2 puzzle. The two wells read gem by gem, the falling and next pairs, the scores, the rounds, the chains, the attacks and the pieces, from two games recorded on a cabinet (10 November 2026, 1.34) with screenshots. Who plays from the game's own states.",
   "generated": "tools/cps_games.py",
   "cps": "CPS2",
   "match": [
     {
-      "system": ["spf2t", "spf2ta", "spf2tb", "spf2tcb", "spf2td", "spf2th", "spf2tu", "spf2xj", "spf2xjd", "spf2xpri"]
+      "system": [
+        "spf2t",
+        "spf2ta",
+        "spf2tb",
+        "spf2tcb",
+        "spf2td",
+        "spf2th",
+        "spf2tu",
+        "spf2xj",
+        "spf2xjd",
+        "spf2xpri"
+      ]
     }
   ],
   "retroarch": {
@@ -13,7 +24,18 @@
     "ram_size": "0x10000",
     "swap16": true,
     "note": "FinalBurn Neo core: CPS work RAM from 0xFF0000 (64 KB), bytes swapped within 16-bit words",
-    "content": ["spf2t", "spf2ta", "spf2tb", "spf2tcb", "spf2td", "spf2th", "spf2tu", "spf2xj", "spf2xjd", "spf2xpri"]
+    "content": [
+      "spf2t",
+      "spf2ta",
+      "spf2tb",
+      "spf2tcb",
+      "spf2td",
+      "spf2th",
+      "spf2tu",
+      "spf2xj",
+      "spf2xjd",
+      "spf2xpri"
+    ]
   },
   "titles": {
     "spf2xj": "Super Puzzle Fighter II X",
@@ -26,29 +48,152 @@
       "credits": {
         "addr": "0xFF8076",
         "type": "u8",
-        "note": "credits (FBNeo cheat database, Infinite Credits)"
+        "note": "credits (MAME cheat database, Infinite Credits)"
+      },
+      "_major": {
+        "addr": "0xFF8001",
+        "type": "u8",
+        "note": "system state: 2 in game, 0x14 attract (RetroAchievements notes, bit 0 of the address turned)"
+      },
+      "_minor": {
+        "addr": "0xFF8005",
+        "type": "u8",
+        "note": "game state: 2 mode and character select, 4 a run of matches, 6 continue, 8 game over"
+      },
+      "_sub": {
+        "addr": "0xFF8009",
+        "type": "u8",
+        "note": "2 the versus screen, 4 a match, 6 the results"
+      },
+      "_vs": {
+        "addr": "0xFF0C8B",
+        "type": "u8",
+        "note": "0 against the computer, 1 VS between two humans"
+      },
+      "_rounds_vs": {
+        "addr": "0xFF80A3",
+        "type": "u8",
+        "note": "the rounds of a VS match in the settings: 1 one round, 2 three, 3 five"
       },
       "_p1_chr": {
-        "addr": "0xFF0C82",
+        "addr": "0xFF8382",
         "type": "u8",
-        "note": "player 1 character (FBNeo cheat database, Select Character PL1)"
+        "note": "player 1's character, locked in"
       },
       "_p2_chr": {
-        "addr": "0xFF0C86",
+        "addr": "0xFF8782",
         "type": "u8",
-        "note": "player 2 or computer character (FBNeo cheat database, Select Character PL2)"
+        "note": "player 2's or the computer's character, locked in"
       },
       "score": {
-        "addr": "0xFF8390",
+        "addr": "0xFF83AA",
         "type": "be",
         "bytes": 4,
-        "note": "player 1 score, a 32-bit number (RetroAchievements leaderboards, from tools/ra_notes.py), to confirm in game"
+        "note": "player 1's score as shown (the one at 0xFF8390 stays at 0 under FinalBurn Neo)"
       },
       "score_p2": {
-        "addr": "",
-        "type": "bcd",
+        "addr": "0xFF87AA",
+        "type": "be",
         "bytes": 4,
-        "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+        "note": "player 2's or the computer's score as shown"
+      },
+      "well1": {
+        "addr": "0xFFAB00",
+        "type": "u16s",
+        "count": 112,
+        "stride": 2,
+        "note": "player 1's well: 14 rows of 8 words, a wall (0x00FF), the 6 cells, a wall; row 0 hidden. The codes in dmd/hd_spf.py"
+      },
+      "well2": {
+        "addr": "0xFFAD00",
+        "type": "u16s",
+        "count": 112,
+        "stride": 2,
+        "note": "player 2's well, the same"
+      },
+      "pair1": {
+        "addr": "0xFF8452",
+        "type": "u16s",
+        "count": 4,
+        "stride": 2,
+        "note": "low bytes: the falling pair (0xFF8453 the pivot at x and y, 0xFF8455 the gem turning around it: above, right, below, left), the next pair (0xFF8457 bottom, 0xFF8459 top)"
+      },
+      "pair2": {
+        "addr": "0xFF8852",
+        "type": "u16s",
+        "count": 4,
+        "stride": 2,
+        "note": "player 2's pairs, the same"
+      },
+      "x1": {
+        "addr": "0xFF8311",
+        "type": "u8",
+        "note": "column of player 1's falling pair, 0 to 5"
+      },
+      "y1": {
+        "addr": "0xFF8315",
+        "type": "u8",
+        "note": "row of player 1's pivot gem, 3 at the top to 14 at the bottom (visible row y - 1), 0 while it locks"
+      },
+      "rot1": {
+        "addr": "0xFF8470",
+        "type": "u8",
+        "note": "player 1's pair turned, 0 the other gem above the pivot, 1 on its right, 2 below, 3 on its left (from the pairs landed)"
+      },
+      "x2": {
+        "addr": "0xFF8711",
+        "type": "u8",
+        "note": "player 2's, the same"
+      },
+      "y2": {
+        "addr": "0xFF8715",
+        "type": "u8",
+        "note": "player 2's, the same"
+      },
+      "rot2": {
+        "addr": "0xFF8870",
+        "type": "u8",
+        "note": "player 2's, the same"
+      },
+      "wins1": {
+        "addr": "0xFF83A3",
+        "type": "u8",
+        "note": "rounds player 1 won in the match"
+      },
+      "wins2": {
+        "addr": "0xFF87A3",
+        "type": "u8",
+        "note": "rounds player 2 won in the match"
+      },
+      "chain1": {
+        "addr": "0xFF849C",
+        "type": "u8",
+        "note": "player 1's chain going on"
+      },
+      "chain2": {
+        "addr": "0xFF889C",
+        "type": "u8",
+        "note": "player 2's chain going on"
+      },
+      "atk1": {
+        "addr": "0xFF849E",
+        "type": "u8",
+        "note": "counter gems player 1 is about to send (MAME cheat database, Send gems to P2)"
+      },
+      "atk2": {
+        "addr": "0xFF889E",
+        "type": "u8",
+        "note": "counter gems player 2 is about to send"
+      },
+      "pcs1": {
+        "addr": "0xFF84F5",
+        "type": "u8",
+        "note": "pieces player 1 placed, a diamond every 25 (MAME cheat database, diamonds)"
+      },
+      "pcs2": {
+        "addr": "0xFF88F5",
+        "type": "u8",
+        "note": "pieces player 2 placed"
       }
     }
   },
@@ -85,6 +230,144 @@
         "10": "DAN"
       }
     },
+    "p1_mode": {
+      "sum": [
+        {
+          "all": [
+            {
+              "eq": [
+                "_major",
+                2
+              ]
+            },
+            {
+              "between": [
+                "_minor",
+                2,
+                4
+              ]
+            }
+          ]
+        },
+        {
+          "all": [
+            {
+              "eq": [
+                "_major",
+                2
+              ]
+            },
+            {
+              "eq": [
+                "_minor",
+                6
+              ]
+            }
+          ]
+        },
+        {
+          "all": [
+            {
+              "eq": [
+                "_major",
+                2
+              ]
+            },
+            {
+              "eq": [
+                "_minor",
+                6
+              ]
+            }
+          ]
+        }
+      ],
+      "note": "1 while a run goes on, 2 at the continue screen, 0 else"
+    },
+    "p2_mode": {
+      "sum": [
+        {
+          "all": [
+            {
+              "all": [
+                {
+                  "eq": [
+                    "_major",
+                    2
+                  ]
+                },
+                {
+                  "between": [
+                    "_minor",
+                    2,
+                    4
+                  ]
+                }
+              ]
+            },
+            {
+              "eq": [
+                "_vs",
+                1
+              ]
+            }
+          ]
+        },
+        {
+          "all": [
+            {
+              "all": [
+                {
+                  "eq": [
+                    "_major",
+                    2
+                  ]
+                },
+                {
+                  "eq": [
+                    "_minor",
+                    6
+                  ]
+                }
+              ]
+            },
+            {
+              "eq": [
+                "_vs",
+                1
+              ]
+            }
+          ]
+        },
+        {
+          "all": [
+            {
+              "all": [
+                {
+                  "eq": [
+                    "_major",
+                    2
+                  ]
+                },
+                {
+                  "eq": [
+                    "_minor",
+                    6
+                  ]
+                }
+              ]
+            },
+            {
+              "eq": [
+                "_vs",
+                1
+              ]
+            }
+          ]
+        }
+      ],
+      "note": "player 2 is a human in a VS game only"
+    },
     "_one": {
       "value": 1,
       "note": "always 1: the little pictures of the panel scene"
@@ -92,55 +375,294 @@
   },
   "demo": {
     "credits": 2,
-    "score": 0,
-    "_p1_chr": 2,
-    "_p2_chr": 0,
+    "_major": 2,
+    "_minor": 4,
+    "_vs": 1,
+    "_p1_chr": 5,
+    "_p2_chr": 1,
+    "score": 1840,
+    "score_p2": 840,
+    "well1": [
+      255,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      13575,
+      0,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      11,
+      0,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      2,
+      13575,
+      5383,
+      0,
+      255,
+      255,
+      17671,
+      17671,
+      4,
+      4,
+      5383,
+      5383,
+      255,
+      255,
+      1,
+      17671,
+      24707,
+      57475,
+      49283,
+      4,
+      255,
+      255,
+      24705,
+      49281,
+      28803,
+      61571,
+      53379,
+      1,
+      255,
+      255,
+      12417,
+      36993,
+      12419,
+      20611,
+      36995,
+      4,
+      255
+    ],
+    "well2": [
+      255,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      255,
+      255,
+      16903,
+      1,
+      0,
+      0,
+      3,
+      0,
+      255,
+      255,
+      4,
+      2,
+      0,
+      0,
+      3,
+      8711,
+      255,
+      255,
+      3,
+      3,
+      1,
+      4,
+      3,
+      3,
+      255,
+      255,
+      4,
+      9,
+      4,
+      1,
+      1,
+      2,
+      255
+    ],
+    "pair1": [
+      10,
+      1,
+      3,
+      3
+    ],
+    "pair2": [
+      4,
+      1,
+      2,
+      11
+    ],
+    "x1": 1,
+    "y1": 4,
+    "rot1": 0,
+    "x2": 3,
+    "y2": 6,
+    "rot2": 0,
+    "wins1": 0,
+    "wins2": 0,
+    "chain1": 0,
+    "chain2": 0,
+    "atk1": 0,
+    "atk2": 0,
+    "pcs1": 16,
+    "pcs2": 10,
     "sim": {
       "score": {
         "count": [
-          0,
-          999900,
-          300
+          1840,
+          99990,
+          30
         ],
         "every": [
           1.0,
-          3.0
+          2.5
         ],
         "start": 3.0
-      },
-      "_p1_chr": {
-        "cycle": [
-          2,
-          2,
-          1,
-          7
-        ],
-        "every": 20.0,
-        "start": 20.0
-      },
-      "_p2_chr": {
-        "cycle": [
-          0,
-          6,
-          5,
-          3
-        ],
-        "every": 15.0,
-        "start": 15.0
       }
-    },
-    "p1_mode": 1,
-    "p2_mode": 0
+    }
   },
   "scene": {
     "layers": [
       {
-        "type": "rect",
+        "type": "well",
+        "var": "well1",
         "x": 0,
-        "y": 11,
-        "w": 128,
-        "h": 21,
-        "color": "#3c1e14",
+        "y": 3,
+        "size": 2,
+        "pair": "pair1",
+        "px": "x1",
+        "py": "y1",
+        "rot": "rot1",
         "when": {
           "not": {
             "all": [
@@ -170,269 +692,15 @@
         }
       },
       {
-        "type": "rect",
-        "x": 1,
-        "y": 11,
-        "w": 20,
-        "h": 21,
-        "color": "#141028",
-        "when": {
-          "not": {
-            "all": [
-              {
-                "has": "p1_mode"
-              },
-              {
-                "not": {
-                  "var": "p1_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              },
-              {
-                "not": {
-                  "var": "p2_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              }
-            ]
-          }
-        }
-      },
-      {
-        "type": "rect",
-        "x": 107,
-        "y": 11,
-        "w": 20,
-        "h": 21,
-        "color": "#141028",
-        "when": {
-          "not": {
-            "all": [
-              {
-                "has": "p1_mode"
-              },
-              {
-                "not": {
-                  "var": "p1_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              },
-              {
-                "not": {
-                  "var": "p2_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              }
-            ]
-          }
-        }
-      },
-      {
-        "type": "rect",
-        "x": 0,
-        "y": 11,
-        "w": 1,
-        "h": 21,
-        "color": "#e6b43c",
-        "when": {
-          "not": {
-            "all": [
-              {
-                "has": "p1_mode"
-              },
-              {
-                "not": {
-                  "var": "p1_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              },
-              {
-                "not": {
-                  "var": "p2_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              }
-            ]
-          }
-        }
-      },
-      {
-        "type": "rect",
-        "x": 21,
-        "y": 11,
-        "w": 1,
-        "h": 21,
-        "color": "#e6b43c",
-        "when": {
-          "not": {
-            "all": [
-              {
-                "has": "p1_mode"
-              },
-              {
-                "not": {
-                  "var": "p1_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              },
-              {
-                "not": {
-                  "var": "p2_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              }
-            ]
-          }
-        }
-      },
-      {
-        "type": "rect",
-        "x": 106,
-        "y": 11,
-        "w": 1,
-        "h": 21,
-        "color": "#e6b43c",
-        "when": {
-          "not": {
-            "all": [
-              {
-                "has": "p1_mode"
-              },
-              {
-                "not": {
-                  "var": "p1_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              },
-              {
-                "not": {
-                  "var": "p2_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              }
-            ]
-          }
-        }
-      },
-      {
-        "type": "rect",
-        "x": 127,
-        "y": 11,
-        "w": 1,
-        "h": 21,
-        "color": "#e6b43c",
-        "when": {
-          "not": {
-            "all": [
-              {
-                "has": "p1_mode"
-              },
-              {
-                "not": {
-                  "var": "p1_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              },
-              {
-                "not": {
-                  "var": "p2_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              }
-            ]
-          }
-        }
-      },
-      {
-        "type": "icons",
-        "var": "_one",
-        "x": 2,
-        "y": 16,
-        "max": 1,
-        "pattern": ["r..g..", "rg.gb.", "rgbbby", "yrrgby", "yrggbb"],
-        "colors": {
-          "r": "#e6323c",
-          "g": "#3cc850",
-          "b": "#3c78f0",
-          "y": "#fad232"
-        },
-        "when": {
-          "not": {
-            "all": [
-              {
-                "has": "p1_mode"
-              },
-              {
-                "not": {
-                  "var": "p1_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              },
-              {
-                "not": {
-                  "var": "p2_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              }
-            ]
-          }
-        }
-      },
-      {
-        "type": "icons",
-        "var": "_one",
-        "x": 108,
-        "y": 16,
-        "max": 1,
-        "pattern": [".b..y.", "bb.yy.", "gbryyr", "grrbyr", "ggrbbr"],
-        "colors": {
-          "r": "#e6323c",
-          "g": "#3cc850",
-          "b": "#3c78f0",
-          "y": "#fad232"
-        },
+        "type": "well",
+        "var": "well2",
+        "x": 114,
+        "y": 3,
+        "size": 2,
+        "pair": "pair2",
+        "px": "x2",
+        "py": "y2",
+        "rot": "rot2",
         "when": {
           "not": {
             "all": [
@@ -464,13 +732,13 @@
       {
         "type": "text",
         "font": "5x8",
-        "x": 64,
-        "y": 13,
-        "align": "center",
+        "x": 16,
+        "y": 0,
+        "align": "left",
         "segments": [
           {
             "text": "{p1_char}",
-            "color": "#ff7840"
+            "color": "#ff9640"
           }
         ],
         "when": {
@@ -511,13 +779,13 @@
       {
         "type": "text",
         "font": "5x8",
-        "x": 64,
-        "y": 23,
-        "align": "center",
+        "x": 111,
+        "y": 0,
+        "align": "right",
         "segments": [
           {
             "text": "{p2_char}",
-            "color": "#46aaff"
+            "color": "#5ac8ff"
           }
         ],
         "when": {
@@ -558,17 +826,48 @@
       {
         "type": "text",
         "font": "6x10",
-        "x": 1,
-        "y": 1,
+        "x": 16,
+        "y": 10,
         "align": "left",
         "segments": [
           {
             "text": "{score}",
-            "color": "#ffa830"
+            "color": "#ffe296"
           }
         ],
         "when": {
-          "has": "score"
+          "all": [
+            {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "has": "score"
+            }
+          ]
         },
         "flash": {
           "on": "score",
@@ -577,131 +876,179 @@
         }
       },
       {
-        "type": "marquee",
-        "font": "6x10",
-        "y": 1,
-        "x": 0,
-        "w": 56,
-        "speed": 12,
-        "gap": 40,
-        "upper": true,
-        "segments": [
-          {
-            "text": "{title}",
-            "color": "#ff60c0"
-          }
-        ],
-        "when": {
-          "not": {
-            "has": "score"
-          }
-        },
-        "static_if_fits": true
-      },
-      {
         "type": "text",
         "font": "6x10",
-        "x": 127,
-        "y": 1,
+        "x": 111,
+        "y": 10,
         "align": "right",
         "segments": [
           {
             "text": "{score_p2}",
-            "color": "#ffa830"
+            "color": "#ffe296"
           }
         ],
         "when": {
           "all": [
             {
-              "var": "p2_mode",
-              "in": [
-                1,
-                2
-              ]
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
             },
             {
               "has": "score_p2"
             }
           ]
+        },
+        "flash": {
+          "on": "score_p2",
+          "color": "#ffffff",
+          "ms": 120
         }
       },
       {
         "type": "text",
-        "font": "6x10",
-        "x": 127,
-        "y": 1,
-        "align": "right",
-        "text": "INSERT COIN",
-        "color": "#ffa830",
+        "font": "5x8",
+        "x": 64,
+        "y": 23,
+        "align": "center",
+        "text": "CREDITS {credits}",
+        "color": "#c8a050",
         "when": {
           "all": [
             {
               "not": {
-                "var": "p2_mode",
-                "in": [
-                  1,
-                  2
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
                 ]
               }
             },
             {
-              "not": {
-                "var": "credits",
-                "gt": 0
-              }
+              "has": "credits"
             }
           ]
-        },
-        "blink_period": 1.0
+        }
       },
       {
-        "type": "cycle",
-        "period": 1.5,
-        "when": {
-          "all": [
-            {
-              "not": {
-                "var": "p2_mode",
-                "in": [
-                  1,
-                  2
-                ]
-              }
-            },
-            {
-              "var": "credits",
-              "gt": 0
-            }
-          ]
-        },
-        "pages": [
+        "type": "events",
+        "events": [
           {
-            "layers": [
-              {
-                "type": "text",
-                "font": "6x10",
-                "x": 127,
-                "y": 1,
-                "align": "right",
-                "text": "CREDITS {credits}",
-                "color": "#ffa830"
-              }
-            ]
+            "on": "chain1",
+            "change": "up",
+            "when": {
+              "var": "chain1",
+              "gt": 1
+            },
+            "text": "{chain1} CHAIN!",
+            "color": "#ff9640",
+            "font": "6x10",
+            "y": 20,
+            "ms": 1300,
+            "clear": false
           },
           {
-            "layers": [
+            "on": "chain2",
+            "change": "up",
+            "when": {
+              "var": "chain2",
+              "gt": 1
+            },
+            "text": "{chain2} CHAIN!",
+            "color": "#5ac8ff",
+            "font": "6x10",
+            "y": 20,
+            "ms": 1300,
+            "clear": false
+          },
+          {
+            "on": "wins1",
+            "change": "up",
+            "text": "{p1_char} WINS",
+            "color": "#ffd25a",
+            "font": "6x10",
+            "y": 16,
+            "ms": 1800,
+            "priority": 2
+          },
+          {
+            "on": "wins2",
+            "change": "up",
+            "text": "{p2_char} WINS",
+            "color": "#ffd25a",
+            "font": "6x10",
+            "y": 16,
+            "ms": 1800,
+            "priority": 2
+          }
+        ],
+        "when": {
+          "not": {
+            "all": [
               {
-                "type": "text",
-                "font": "6x10",
-                "x": 127,
-                "y": 1,
-                "align": "right",
-                "text": "PRESS START",
-                "color": "#ffa830"
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
               }
             ]
           }
-        ]
+        }
       },
       {
         "type": "coinop",
@@ -736,18 +1083,15 @@
             "color": "#ff60c0"
           }
         ],
-        "idle_image": ["sprites/insert_coin.gif", "sprites/insert_coin.png"]
+        "idle_image": [
+          "sprites/insert_coin.gif",
+          "sprites/insert_coin.png"
+        ]
       }
     ]
   },
   "hd": {
     "scene": "spf2t"
   },
-  "demo_hand": true,
-  "activity": {
-    "values": ["score", "score_p2"],
-    "moving": ["score", "score_p2"],
-    "seconds": 10,
-    "note": "no BIOS says who plays: player 1 plays while these values move, as long as one of the moving ones is read (lives or bombs alone change too seldom)"
-  }
+  "demo_hand": true
 }
