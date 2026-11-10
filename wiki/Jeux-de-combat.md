@@ -1,4 +1,4 @@
-Chacun des 57 jeux de combat Neo Geo a son propre fichier dans `games\`, variantes officielles comprises, et les 34 jeux de combat Capcom se battent dans leurs propres décors. The King of Fighters '98 a été réglé round après round sur une vraie borne, à partir de parties enregistrées, et '97 et 2002 suivent dans la prochaine version.
+Chacun des 57 jeux de combat Neo Geo a son propre fichier dans `games\`, variantes officielles comprises, et les 34 jeux de combat Capcom se battent dans leurs propres décors. The King of Fighters '98 a été réglé round après round sur une vraie borne, à partir de parties enregistrées, de même que '97 et 2002 dans la 1.33.1.
 
 ![ROUND 1 et FIGHT ! dans The King of Fighters '98](images/kof98_round_start.gif)
 
@@ -16,7 +16,7 @@ Chacun des 57 jeux de combat Neo Geo a son propre fichier dans `games\`, variant
 
 ![Sur la borne de l'auteur, K.O., PERFECT et WINNER sur le marquee et dans le jeu](images/cabinet_kof98_perfect.gif)
 
-## Le panneau des coups désespérés, King of Fighters '98 (et '97 et 2002 dans la prochaine version)
+## Le panneau des coups désespérés, The King of Fighters '98, '97 et 2002
 
 Sous le nom de chaque joueur humain, un panneau.
 
@@ -25,11 +25,11 @@ Sous le nom de chaque joueur humain, un panneau.
 - Quand la jauge permet un coup désespéré, les commandes de ceux du combattant s'affichent dessous, leurs flèches tournées vers l'autre combattant. Les flèches s'allument quand le stick les fait, lues à chaque image.
 - Quand un bouton finit une tentative qui a raté une étape, les étapes ratées sont barrées en rouge avec RATÉ, et DM ! ou SDM ! s'affiche une fois que le jeu a pris son stock.
 - Sinon le panneau montre les touches appuyées, comme le mode entraînement.
-- Dans la prochaine version, '97 a ses propres commandes, sa jauge, ses trois carrés de stock et le drapeau du jeu pour un coup désespéré, et 2002 ses propres commandes, le MAX par B+C et son chrono, un coup désespéré gratuit en MAX et un SDM qui prend un stock, l'ordre de combat de chaque équipe lu.
+- '97 a ses propres commandes, sa jauge, ses trois carrés de stock et le drapeau du jeu pour un coup désespéré, et 2002 ses propres commandes, le MAX par B+C et son chrono, un coup désespéré gratuit en MAX et un SDM qui prend un stock, l'ordre de combat de chaque équipe lu.
 
-## Le show du coup désespéré (prochaine version)
+## Le spectacle du coup désespéré
 
-Déjà sur la borne de l'auteur, il arrive avec la prochaine version. Quand un humain place un coup désespéré, son nom prend tout le marquee un instant, puis vole au-dessus de sa barre pendant que les coups tombent, en les comptant. La barre de celui qui les prend sursaute à chaque coup, la partie perdue blanche puis rouge, et à son bord l'étincelle de chaque coup éclate avec des morceaux de la barre qui volent. Deux à la fois, chaque nom s'écrase de son côté avec DOUBLE DM ! entre les deux.
+Quand un humain place un coup désespéré, son nom prend tout le marquee un instant, puis vole au-dessus de sa barre pendant que les coups tombent, en les comptant. La barre de celui qui les prend sursaute à chaque coup, la partie perdue blanche puis rouge, et à son bord l'étincelle de chaque coup éclate avec des morceaux de la barre qui volent. Deux à la fois, chaque nom s'écrase de son côté avec DOUBLE DM ! entre les deux.
 
 ![Le HOUOU KYAKU du deuxième joueur dans The King of Fighters '97](images/kof97_player2_dm.gif)
 
@@ -86,7 +86,7 @@ Quand une barre de vie, un chrono ou un nom ne colle pas à l'écran, lance `tes
 | The King of Fighters '94 | `kof94.json` | oui | oui | - | RetroAchievements, à vérifier |
 | The King of Fighters '95 | `kof95.json` | oui | oui | - | à apprendre |
 | The King of Fighters '96 | `kof96.json` | oui | oui | oui (29) | supposé, à vérifier |
-| The King of Fighters '97 | `kof97.json` | oui | oui | oui (32) | trouvé (partie de Seb, test 49 de la 1.33) |
+| The King of Fighters '97 | `kof97.json` | oui | oui | oui (32) | trouvé (partie de Seb, test 49 de la 1.33.1) |
 | The King of Fighters '98 | `kof98.json` | oui | oui | oui (38) | trouvé |
 | The King of Fighters '99 | `kof99.json` | oui | oui | oui (34) | supposé, à vérifier |
 | The King of Fighters 2000 | `kof2000.json` | oui | oui | oui (36) | supposé, à vérifier |

@@ -1,10 +1,12 @@
-# Publishes the wiki folder (English and French pages, GIFs) and the pictures of docs/images to the GitHub wiki.
-# Publie le dossier wiki (pages en anglais et en français, GIF) et les images de docs/images sur le wiki GitHub.
+# Publishes the wiki folder (English and French pages, GIFs) and the pictures of docs/images to the GitHub wiki,
+# from main only, so that the wiki follows the published version (the release is made from main too).
+# Publie le dossier wiki (pages en anglais et en français, GIF) et les images de docs/images sur le wiki GitHub,
+# depuis main seulement, pour que le wiki suive la version publiée (la release part aussi de main).
 name: Wiki
 
 on:
   push:
-    branches: [main, "release/**"]
+    branches: [main]
     paths: ["wiki/**", "docs/images/**", ".github/workflows/wiki.yml"]
   workflow_dispatch:
 

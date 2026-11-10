@@ -23,7 +23,7 @@ At the top, the title scrolls. Below, P1 and the score, the lives on the right. 
 | Metal Slug 2 (`mslug2`) | the same, the soldier chosen and the vehicle of each player | |
 | Metal Slug X (`mslugx`) | the same, the timer, the lives of all the enemies, the game's own MISSION COMPLETE | player 2, the bosses of missions 2 to 6 |
 | Metal Slug 3 (`mslug3`) | the same, the vehicle, the lives of every enemy, the game's own MISSION COMPLETE | the vehicles' energy, the Camel Slug of mission 4, the bosses of missions 2, 3 and 5 |
-| Metal Slug 6, the Metal Slug 3 bootleg (`mslug3b6`), next release | everything Metal Slug 3 reads, with its own mission count | the same as Metal Slug 3 |
+| Metal Slug 6, the Metal Slug 3 bootleg (`mslug3b6`), since 1.33.1 | everything Metal Slug 3 reads, with its own mission count | the same as Metal Slug 3 |
 | Metal Slug 4 (`mslug4`) | the same, in a vehicle or not and its energy, the boss by phases, the end of the mission | which vehicle |
 | Metal Slug 5 (`mslug5`) | the same, the vehicle and its energy, the game's own boss flag and MISSION COMPLETE | the bosses of missions 2 to 5 |
 

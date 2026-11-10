@@ -6,7 +6,7 @@ Tous les jeux Neo Geo connus de MAME et de FinalBurn Neo sont reconnus, clones, 
 
 - **Windjammers.** Le terrain du jeu en carte vivante, le disque et les deux joueurs là où le jeu les met, lus à chaque image, les lobs, un super qui se charge dans un anneau de flammes puis SUPER ! avec le nom du tir, les buts, les sets et le match. Tes propres images des joueurs peuvent se tenir sur le terrain (voir [[Tes propres images]]).
 - **Puzzle Bobble et Puzzle Bobble 2.** Les deux scores, la bulle du lanceur et la suivante à leurs couleurs, la flèche qui tourne comme celle du jeu, chaque bulle tirée qui part dans sa direction, le round, les matchs VS et les manches gagnées.
-- **Twinkle Star Sprites.** Les cœurs avec les demis, les bombes, la jauge Pow, le personnage, les chaînes et le PERFECT de chaque joueur, le stage, K.O. et WIN. Dans la prochaine version, chaque sorcière vole là où le jeu la met et les manches gagnées sont comptées.
+- **Twinkle Star Sprites.** Les cœurs avec les demis, les bombes, la jauge Pow, le personnage, les chaînes et le PERFECT de chaque joueur, le stage, K.O. et WIN. Chaque sorcière vole là où le jeu la met et les manches gagnées sont comptées (1.33.1).
 
 ![Twinkle Star Sprites, PERFECT, K.O. et WIN](images/twinkle_star_sprites.gif)
 

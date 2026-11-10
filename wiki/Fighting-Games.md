@@ -1,4 +1,4 @@
-Each of the 57 Neo Geo fighting games has its own file in `games\`, official variants included, and the 34 Capcom fighting games fight on their own stages. The King of Fighters '98 was tuned round after round on a real cabinet, from recorded games, and '97 and 2002 follow in the next release.
+Each of the 57 Neo Geo fighting games has its own file in `games\`, official variants included, and the 34 Capcom fighting games fight on their own stages. The King of Fighters '98 was tuned round after round on a real cabinet, from recorded games, and so were '97 and 2002 in 1.33.1.
 
 ![ROUND 1 and FIGHT ! in The King of Fighters '98](images/kof98_round_start.gif)
 
@@ -16,7 +16,7 @@ Each of the 57 Neo Geo fighting games has its own file in `games\`, official var
 
 ![On the author's cabinet, K.O., PERFECT and WINNER on the marquee and in the game](images/cabinet_kof98_perfect.gif)
 
-## The desperation moves panel, King of Fighters '98 (and '97 and 2002 in the next release)
+## The desperation moves panel, The King of Fighters '98, '97 and 2002
 
 Under the name of each human player, a panel.
 
@@ -25,11 +25,11 @@ Under the name of each human player, a panel.
 - When the gauge allows a desperation move, the commands of the fighter's ones show under it, their arrows facing the other fighter. The arrows light up as the stick does them, read at every frame.
 - When a button ends an attempt that missed a step, the steps missed are crossed in red with RATÉ, and DM ! or SDM ! shows once the game took its stock.
 - Otherwise the panel shows the inputs pressed, as training mode does.
-- In the next release, '97 has its own commands, its gauge, its three stock squares and the game's own flag of a desperation move, and 2002 its own commands, MAX by B+C and its timer, a desperation move free in MAX and an SDM taking a stock, the fighting order of each team read.
+- '97 has its own commands, its gauge, its three stock squares and the game's own flag of a desperation move, and 2002 its own commands, MAX by B+C and its timer, a desperation move free in MAX and an SDM taking a stock, the fighting order of each team read.
 
-## The desperation move show (next release)
+## The desperation move show
 
-Already on the author's cabinet, it comes with the next release. When a human lands a desperation move, its name takes the whole marquee for a moment, then flies above his bar while the hits land, counting them. The bar of the one taking them jolts at each hit, the part just lost white then red, and at its edge the spark of each hit bursts with pieces of the bar flying off. Two at once, each name slams onto its side with DOUBLE DM ! between them.
+When a human lands a desperation move, its name takes the whole marquee for a moment, then flies above his bar while the hits land, counting them. The bar of the one taking them jolts at each hit, the part just lost white then red, and at its edge the spark of each hit bursts with pieces of the bar flying off. Two at once, each name slams onto its side with DOUBLE DM ! between them.
 
 ![The second player's HOUOU KYAKU in The King of Fighters '97](images/kof97_player2_dm.gif)
 
@@ -86,7 +86,7 @@ When a health bar, a timer or a name does not match the screen, run `test_retroa
 | The King of Fighters '94 | `kof94.json` | yes | yes | - | RetroAchievements, to be checked |
 | The King of Fighters '95 | `kof95.json` | yes | yes | - | to learn |
 | The King of Fighters '96 | `kof96.json` | yes | yes | yes (29) | assumed, to be checked |
-| The King of Fighters '97 | `kof97.json` | yes | yes | yes (32) | found (Seb's game, 1.33 test 49) |
+| The King of Fighters '97 | `kof97.json` | yes | yes | yes (32) | found (Seb's game, 1.33.1 test 49) |
 | The King of Fighters '98 | `kof98.json` | yes | yes | yes (38) | found |
 | The King of Fighters '99 | `kof99.json` | yes | yes | yes (34) | assumed, to be checked |
 | The King of Fighters 2000 | `kof2000.json` | yes | yes | yes (36) | assumed, to be checked |

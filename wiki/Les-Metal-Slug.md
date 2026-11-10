@@ -23,7 +23,7 @@ En haut, le titre défile. En dessous, P1 et le score, les vies à droite. La li
 | Metal Slug 2 (`mslug2`) | la même chose, le soldat choisi et le véhicule de chaque joueur | |
 | Metal Slug X (`mslugx`) | la même chose, le chrono, la vie de tous les ennemis, le MISSION COMPLETE du jeu | le joueur 2, les boss des missions 2 à 6 |
 | Metal Slug 3 (`mslug3`) | la même chose, le véhicule, la vie de chaque ennemi, le MISSION COMPLETE du jeu | l'énergie des véhicules, le Camel Slug de la mission 4, les boss des missions 2, 3 et 5 |
-| Metal Slug 6, le bootleg de Metal Slug 3 (`mslug3b6`), prochaine version | tout ce que lit Metal Slug 3, avec son propre compte des missions | la même chose que Metal Slug 3 |
+| Metal Slug 6, le bootleg de Metal Slug 3 (`mslug3b6`), depuis la 1.33.1 | tout ce que lit Metal Slug 3, avec son propre compte des missions | la même chose que Metal Slug 3 |
 | Metal Slug 4 (`mslug4`) | la même chose, dans un véhicule ou non et son énergie, le boss par phases, la fin de la mission | quel véhicule |
 | Metal Slug 5 (`mslug5`) | la même chose, le véhicule et son énergie, le drapeau de boss du jeu et son MISSION COMPLETE | les boss des missions 2 à 5 |
 
