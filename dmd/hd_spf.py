@@ -30,6 +30,7 @@ from PIL import Image, ImageDraw, ImageFilter
 from . import hd_bg
 from .hd_games import GOLD, RED, WHITE, GameScene, _clamp, _mix, _n
 from .hd_credits import credits_word
+from .hd_fx import Particle
 from .hd_mslug import CREAM
 from .i18n import tr
 from .spfcodes import COLORS, decode, grid_of
@@ -133,6 +134,18 @@ def shard_draw(col):
     def fn(d, W, H):
         d.polygon([(0.1 * W, 0.2 * H), (0.9 * W, 0.0), (0.7 * W, 1.0 * H)], fill=col + (255,))
         d.line([(0.1 * W, 0.2 * H), (0.9 * W, 0.0)], fill=mix(col, WHITE, 0.6) + (255,), width=max(1, int(W * 0.15)))
+    return fn
+
+
+def chunk_draw(col):
+    """A big faceted piece of a power gem. / Un gros morceau taillé d'une gemme de puissance."""
+    def fn(d, W, H):
+        pts = [(0.08 * W, 0.3 * H), (0.55 * W, 0.04 * H), (0.96 * W, 0.42 * H), (0.7 * W, 0.96 * H), (0.18 * W, 0.8 * H)]
+        d.polygon(pts, fill=mix(col, (0, 0, 0), 0.35) + (255,))
+        d.polygon([pts[0], pts[1], (0.55 * W, 0.45 * H)], fill=mix(col, WHITE, 0.55) + (255,))
+        d.polygon([pts[1], pts[2], (0.55 * W, 0.45 * H)], fill=mix(col, WHITE, 0.2) + (255,))
+        d.polygon([pts[0], (0.55 * W, 0.45 * H), pts[4]], fill=col + (255,))
+        d.line(pts + [pts[0]], fill=mix(col, WHITE, 0.75) + (255,), width=max(1, int(W * 0.06)))
     return fn
 
 
@@ -259,6 +272,8 @@ class SpfScene(GameScene):
             self.fx.sp.register(f"spf_sh{col}", self._shard(rgb))
             self.fx.sp.register(f"spf_gm{col}", self._pil(gem_draw(rgb), CELL))
             self.fx.sp.register(f"spf_ct{col}", self._pil(counter_draw(rgb, 5, None), CELL * 0.8))
+        for col, rgb in COLORS.items():
+            self.fx.sp.register(f"spf_bk{col}", self._pil(chunk_draw(rgb), CELL * 0.72))
         self.fx.sp.register("spf_sh0", self._shard((235, 245, 255)))
         self.fx.sp.register("spf_gm0", self._pil(diamond_draw(), CELL))
         self.warm = [(self.gem, (kind, col, n)) for col in COLORS for kind, n in (("gem", 0), ("crash", 0), ("counter", 5), ("counter", 4),
@@ -271,7 +286,13 @@ class SpfScene(GameScene):
 
     def _shard(self, rgb):
         from .hd_games import draw_img
-        return draw_img(self.S(CELL * 0.42), self.S(CELL * 0.42), shard_draw(rgb))
+        return draw_img(self.S(CELL * 0.5), self.S(CELL * 0.5), shard_draw(rgb))
+
+    def ring(self, x, y, r0, r1, col, life, width=8, a0=0.9, delay=0.0, layer="front"):
+        """A shock wave from (x, y). / Une onde de choc."""
+        s = self.fx.s
+        p = self.fx.add(Particle("ring", x, y, self.fx.now + delay, life, layer))
+        p.r0, p.r1, p.col, p.a0, p.a1, p.data = r0 * s, r1 * s, col, a0, 0.0, width * s
 
     def cell(self):
         return self.S(CELL)
@@ -387,12 +408,27 @@ class SpfScene(GameScene):
                 target = 0.0
             w.danger += (target - w.danger) * min(1.0, dt * 3.0)
             period = 1.45 - 1.1 * w.danger                             # the heart beats faster / le coeur bat plus vite
+            old = w.phase
             w.phase = (w.phase + dt / period) % 1.0
+            if w.danger > 0.45:
+                for p0, k in ((0.03, 1.0), (0.25, 0.65)):              # the two thumps / les deux coups
+                    if old < p0 <= w.phase or (w.phase < old and (p0 > old or p0 <= w.phase)):
+                        self.thump(side, w.danger * k)
         if self.humans(vals):
             self.vs_t = now
         elif now - self.vs_t > VS_FORGET and any(self.vs):
             self.vs = [0, 0]
             self.hd.log(tr("Puzzle Fighter, matchs VS remis à zéro (un joueur est parti)", "Puzzle Fighter, VS matches back to 0 (a player left)"))
+
+    def thump(self, side, k):
+        """A heartbeat: a red wave behind the panel and the well of that side. / Un battement : une vague rouge."""
+        S = self.S
+        px, wx = self.panel_x(side), self.well_x(side) + COLS * self.cell() / 2
+        cy = self.H / 2
+        self.fx.glow(px, cy, 160, 520, (255, 24, 30), 0.42, "back", 0.25 + 0.6 * k, 0.0, hot=0.15)
+        self.fx.glow(wx, cy, 90, 300, (255, 40, 30), 0.36, "back", 0.2 + 0.5 * k, 0.0, hot=0.2)
+        if k > 0.6:
+            self.ring(px, S(194), 60, 380, (255, 60, 50), 0.45, 9, 0.35 + 0.5 * k, layer="back")
 
     def compare(self, side, w, old, new, now):
         """What changed in a well since the last reading: gems landing, bursts, counters, gems crashing down."""
@@ -440,34 +476,58 @@ class SpfScene(GameScene):
         w._last_blocks = now_blocks
 
     def burst(self, side, cells, now):
-        """The gems that burst: each one breaks into pieces of its colour, the screen shakes as hard as the burst is
-        big. / Chaque gemme éclate en morceaux de sa couleur, l'écran tremble d'autant plus que l'explosion est grosse."""
+        """The gems that burst: each one breaks into pieces of its colour, a power gem into big chunks, a shock wave of
+        the burst's colour, a flash, and the screen shakes as hard as the burst is big. / Chaque gemme éclate en morceaux
+        de sa couleur, une gemme de puissance en gros morceaux, une onde de choc, un éclair, l'écran tremble."""
         c = self.cell()
         rng = self.rng
         n = len(cells)
         power = sum(1 for _, _, a in cells if a[0] == "power")
-        for r, k, a in cells:
+        many = n > 30
+        cols = [a[1] if a[0] != "diamond" else 0 for _, _, a in cells]
+        main = max(set(cols), key=cols.count)
+        mrgb = COLORS.get(main, (235, 245, 255))
+        xs, ys, pxs, pys = [], [], [], []
+        for (r, k, a), col in zip(cells, cols):
             x, y = self.cell_xy(side, r, k)
             x, y = x + c / 2, y + c / 2
-            col = a[1] if a[0] != "diamond" else 0
+            xs.append(x)
+            ys.append(y)
             rgb = COLORS.get(col, (235, 245, 255))
-            for _ in range(3 if n > 30 else 4):
+            for _ in range(2 if many else 5):
                 ang = rng.uniform(0, 2 * math.pi)
-                v = rng.uniform(140, 420)
-                self.fx.obj(f"spf_sh{col}", x, y, math.cos(ang) * v, math.sin(ang) * v - 260, gravity=1300, vrot=rng.uniform(-720, 720),
-                            life=rng.uniform(0.5, 0.9), rot=rng.uniform(0, 360))
-            if n <= 24 or rng.random() < 0.5:
-                self.fx.glow(x, y, 6, 30, mix(rgb, WHITE, 0.5), 0.22, "front", 0.9, 0.0)
+                v = rng.uniform(220, 660)
+                self.fx.obj(f"spf_sh{col}", x, y, math.cos(ang) * v, math.sin(ang) * v - 340, gravity=1500, vrot=rng.uniform(-900, 900),
+                            life=rng.uniform(0.7, 1.2), rot=rng.uniform(0, 360))
+            if a[0] == "power":
+                pxs.append(x)
+                pys.append(y)
+                if not many:
+                    for _ in range(2):
+                        ang = rng.uniform(math.pi * 1.1, math.pi * 1.9)
+                        v = rng.uniform(260, 620)
+                        self.fx.obj(f"spf_bk{col}", x, y, math.cos(ang) * v, math.sin(ang) * v - 200, gravity=1700,
+                                    vrot=rng.uniform(-600, 600), life=rng.uniform(1.0, 1.5), rot=rng.uniform(0, 360))
+            if not many or rng.random() < 0.3:
+                self.fx.glow(x, y, 12, 70, mix(rgb, WHITE, 0.55), 0.32, "front", 1.0, 0.0, hot=0.6)
             if a[0] == "diamond":
                 self.fx.sparks(x, y, 30, (255, 255, 255), (200, 700), (0, 360), (0.3, 0.7), 400, "front", 3, 20)
-        cx = self.well_x(side) + COLS * c / 2
-        cy = sum(self.cell_xy(side, r, k)[1] for r, k, _ in cells) / n + c / 2
-        amp = min(16.0, 2.0 + n * 0.45 + power * 0.25)
-        self.fx.shake(amp, 0.25 + min(0.5, n * 0.02))
-        if n >= 12:
-            self.fx.flash((255, 240, 220), min(0.35, n * 0.012), 0.25)
+        cx, cy = sum(xs) / n, sum(ys) / n
+        big = min(1.0, n / 16)
+        self.ring(cx, cy, 16, min(460, 110 + n * 16 + power * 10), mix(mrgb, WHITE, 0.4), 0.5 + 0.3 * big, 8 + 6 * big)
+        self.fx.glow(cx, cy, 30, min(340, 80 + n * 12), mrgb, 0.45, "front", 0.85, 0.0, hot=0.5)
+        self.fx.sparks(cx, cy, min(70, 10 + n * 3), mix(mrgb, WHITE, 0.5), (300, 1100), (0, 360), (0.3, 0.8), 900, "front", 3, 34)
+        if pxs:                                                        # a power gem: gold on top / de l'or en plus
+            bx, by = sum(pxs) / len(pxs), sum(pys) / len(pys)
+            self.ring(bx, by, 24, min(560, 200 + power * 22), GOLD, 0.75, 16, 1.0, delay=0.05)
+            self.fx.glow(bx, by, 50, min(380, 150 + power * 16), (255, 236, 160), 0.4, "front", 1.0, 0.0, hot=0.8)
+            self.fx.sparks(bx, by, min(90, 30 + power * 4), (255, 236, 160), (400, 1400), (190, 350), (0.5, 1.1), 1100, "front", 4, 46)
+        amp = min(20.0, 5.0 + n * 0.8 + power * 0.6)
+        self.fx.shake(amp, 0.35 + min(0.6, n * 0.03))
+        if n >= 6:
+            self.fx.flash(mix(mrgb, WHITE, 0.45), min(0.45, 0.06 + n * 0.017 + power * 0.012), 0.32)
         if n >= 4:
-            self.fx.text(f"{n}", cx, cy, (255, 240, 200), 30 + min(40, n * 1.5), key="black", life=0.9, rise=70)
+            self.fx.text(f"{n}", cx, cy, mix(mrgb, WHITE, 0.6), 44 + min(76, n * 2.8), key="black", life=1.2, rise=100)
 
     def update(self, vals, now):
         for side, name in ((0, "chain1"), (1, "chain2")):
@@ -559,8 +619,8 @@ class SpfScene(GameScene):
         w = self.wells[side]
         if w.danger < 0.05:
             return
-        a = _clamp(w.danger * (0.35 + 0.65 * self.beat(w)))
-        key = ("spf", "veil", side)
+        a = _clamp(w.danger ** 0.8 * (0.16 + 0.84 * _clamp(self.beat(w))))
+        key = ("spf", "veil2", side)
         veil = self.imgs.get(key)
         if veil is None:
             vw, vh = self.W // 2, self.H
@@ -568,9 +628,13 @@ class SpfScene(GameScene):
             d = ImageDraw.Draw(im)
             for x in range(vw):
                 t = x / vw if side == 1 else 1 - x / vw
-                d.line([(x, 0), (x, vh)], fill=(255, 20, 30, int(150 * t ** 1.6)))
+                d.line([(x, 0), (x, vh)], fill=(255, 16, 26, int(230 * (0.25 + 0.75 * t ** 1.1))))
+            for y in range(self.S(26)):                                # the top and bottom edges burn / les bords brûlent
+                al = int(160 * (1 - y / self.S(26)) ** 2)
+                d.line([(0, y), (vw, y)], fill=(255, 60, 40, al))
+                d.line([(0, vh - 1 - y), (vw, vh - 1 - y)], fill=(255, 60, 40, al))
             veil = self.imgs[key] = self.hd._surf(im)
-        veil.set_alpha(int(255 * a * (0.55 if w.danger < 0.6 else 1.0)))
+        veil.set_alpha(int(255 * a * (0.6 if w.danger < 0.6 else 1.0)))
         screen.blit(veil, (0 if side == 0 else self.W // 2, 0))
 
     def heat(self, w):
@@ -591,9 +655,9 @@ class SpfScene(GameScene):
         w = self.wells[side]
         x0, y0 = self.well_x(side), S(TOP)
         jx = jy = 0
-        if w.danger > 0.85:                                            # the well trembles / le puits tremble
-            jx = int(math.sin(now * 61) * S(2) * (w.danger - 0.85) / 0.15)
-            jy = int(math.cos(now * 47) * S(1) * (w.danger - 0.85) / 0.15)
+        if w.danger > 0.7:                                             # the well trembles / le puits tremble
+            jx = int(math.sin(now * 61) * S(4) * (w.danger - 0.7) / 0.3)
+            jy = int(math.cos(now * 47) * S(2) * (w.danger - 0.7) / 0.3)
         if now - w.thud < 0.35:
             jy += int(S(8) * (1 - (now - w.thud) / 0.35) ** 2)
         x0 += jx
@@ -602,7 +666,7 @@ class SpfScene(GameScene):
         pad = S(10)
         q, b = self.heat(w)
         col = self.bezel_color(q, b)
-        glow_a = 70 + int(120 * (q / 8) * (b / 3))
+        glow_a = 70 + int(185 * (q / 8) * (b / 3))
         gkey = ("spf", "wglow", q, b)
         gl = self.imgs.get(gkey)
         if gl is None:
@@ -613,7 +677,8 @@ class SpfScene(GameScene):
             gl = self.imgs[gkey] = self.hd._surf(im.filter(ImageFilter.GaussianBlur(S(12))))
         screen.blit(gl, (x0 - pad - S(20), y0 - pad - S(20)))
         pg.draw.rect(screen, (30, 22, 18), (x0 - pad, y0 - pad, ww + 2 * pad, hh + 2 * pad), border_radius=S(14))
-        pg.draw.rect(screen, col, (x0 - pad, y0 - pad, ww + 2 * pad, hh + 2 * pad), width=max(2, S(4)), border_radius=S(14))
+        pg.draw.rect(screen, col, (x0 - pad, y0 - pad, ww + 2 * pad, hh + 2 * pad), width=max(2, S(4 + 4 * (q / 8) * (b / 3))),
+                     border_radius=S(14))
         pg.draw.rect(screen, (12, 14, 34), (x0 - S(3), y0 - S(3), ww + S(6), hh + S(6)), border_radius=S(8))
         dot = (40, 46, 90)
         for r in range(ROWS):
@@ -825,6 +890,17 @@ class SpfScene(GameScene):
         cb.xy, cb.box = (ix, y), None
         hd.put_number(screen, f"{int(c):02d}", "stencil", S(34), GOLD, cx + S(22), y, "center", "middle", scale=1 + 0.3 * bump, glow=0.45)
 
+    def draw_score(self, screen, eng, name, x, y, size):
+        """The score centred on its digits in its box, popping as it changes. / Le score centré sur ses chiffres."""
+        v = eng.state.values.get(name)
+        if v is None:
+            return
+        pop = 0.0
+        t = eng.state.changed_at.get(name)
+        if t is not None and 0 <= eng.ctx.t - t < 0.25:
+            pop = 1 - (eng.ctx.t - t) / 0.25
+        self.hd.put(screen, self.hd.text(str(v), "black", size, (255, 232, 170)), x, y, "center", "middle", scale=1 + 0.2 * pop)
+
     def draw_panel(self, screen, eng, side, vals, now):
         """A player's panel: the name, the score, the chains, the power gems, DANGER. / Le panneau d'un joueur."""
         pg, S, hd = self.pg, self.S, self.hd
@@ -841,17 +917,18 @@ class SpfScene(GameScene):
         if not playing and vals.get("p1_mode") in (1, 2):
             hd.put(screen, hd.text("CPU", "xbold", S(22), (190, 190, 210), glow=0), px, S(126), "center", "middle")
         col = P1C if side == 0 else P2C
-        bw, bh = S(470), S(96)
-        bx, by = int(px - bw / 2), S(146)
-        bcol = col if w.danger < 0.6 else mix(col, (255, 40, 40), self.beat(w))
-        pg.draw.rect(screen, (12, 8, 22), (bx, by, bw, bh), border_radius=S(16))
-        pg.draw.rect(screen, _mix(bcol, (0, 0, 0), 0.25), (bx, by, bw, bh), width=max(2, S(3)), border_radius=S(16))
-        hd._score(screen, eng, "score" if side == 0 else "score_p2", px, by + S(10), "center", S(70), color=(255, 232, 170))
+        bw, bh = S(400), S(100)
+        bx, by = int(px - bw / 2), S(144)
+        k = _clamp(self.beat(w)) if w.danger >= 0.5 else 0.0
+        bcol = mix(col, (255, 40, 40), k)
+        pg.draw.rect(screen, mix((12, 8, 22), (90, 0, 10), 0.6 * k), (bx, by, bw, bh), border_radius=S(16))
+        pg.draw.rect(screen, _mix(bcol, (0, 0, 0), 0.25 * (1 - k)), (bx, by, bw, bh), width=max(2, S(3 + 3 * k)), border_radius=S(16))
+        self.draw_score(screen, eng, "score" if side == 0 else "score_p2", px, by + bh / 2, S(84))
         # DANGER, beating with the heart / DANGER, au rythme du coeur
-        if w.danger > 0.62:
-            k = self.beat(w)
-            t = hd.text("DANGER", "black", S(44), mix((255, 80, 60), WHITE, 0.4 * k), glow=0, outline=(60, 0, 0), stroke=max(2, S(4)))
-            hd.put(screen, t, px, S(282), "center", "middle", scale=1 + 0.12 * k)
+        if w.danger > 0.55:
+            k = _clamp(self.beat(w))
+            t = hd.text("DANGER", "black", S(58), mix((255, 60, 40), WHITE, 0.55 * k), glow=0, outline=(70, 0, 0), stroke=max(2, S(5)))
+            hd.put(screen, t, px, S(282), "center", "middle", scale=1 + 0.22 * k)
         # the chain / la chaîne
         n, t0 = self.chain[side]
         if n >= 2 and now - t0 < 1.8:
