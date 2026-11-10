@@ -266,7 +266,7 @@
   "hd": {
     "stages": ["fight_city", "fight_lab", "fight_harbor", "fight_market", "fight_jungle", "fight_desert", "fight_snow", "space", "fight_castle", "fight_ruins"],
     "places": ["", "", "", "", "", "", "", "", "", ""],
-    "note": "HD theme and place shown for each backdrop value (index = value), made by tools/cps_games.py from the stages of the cheat database, see README, HD themes"
+    "note": "HD theme and place shown for each backdrop value (index = value), made by tools/cps_games.py from the stages of the cheat database, see the wiki, HD Marquee page"
   },
   "tag": {
     "health": {

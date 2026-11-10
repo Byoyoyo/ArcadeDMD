@@ -61,7 +61,9 @@ def replay(path, show_values=False, step=1 / 60, frames=(), out_dir=None):
     fx = FightFX(hd, rng=random.Random(1))
     hd.fight = fx
     st = GameState()
-    st.reset({"game": key, "system": head.get("system") or key, "title": head.get("title") or key})
+    titles = game.get("titles") if isinstance(game.get("titles"), dict) else {}   # the romset's own title, as on the
+    title = titles.get(head.get("system") or "") or head.get("title") or key     # cabinet (Metal Slug 6, test 46)
+    st.reset({"game": key, "system": head.get("system") or key, "title": title})
     T = [0.0]
     out = []
     state = {"select": False, "round_show": -99.0, "fight_t": -99.0, "ko": None, "win": None, "banner": None, "out": None,
@@ -163,11 +165,35 @@ def replay(path, show_values=False, step=1 / 60, frames=(), out_dir=None):
                 state["scene"]["_super"] = sup
                 if sup:
                     note(t, f"SUPER {sup.upper()}")
-            for side, t0 in (getattr(sc, "charge", None) or {}).items():
+            charges = getattr(sc, "charge", None)                    # (a method in Twinkle Star Sprites, test 47)
+            for side, t0 in (charges if isinstance(charges, dict) else {}).items():
                 on = t0 is not None
                 if on != state["scene"].get("_charge_" + side, False):
                     state["scene"]["_charge_" + side] = on
                     note(t, f"  {side} {'charge son super' if on else 'fin de la charge'}")
+            if hasattr(sc, "game_pos"):                              # Twinkle Star Sprites (1.33 test 47): the witches
+                for pside in ("p1", "p2"):                           # where the game puts them, K.O., WIN, PERFECT, bombs
+                    stp = sc.side[pside]
+                    placed = stp.get("placed", 0) > 0
+                    where = (round(stp["x"], 2), round(stp["y"], 2))
+                    was = state["scene"].get(("witch", pside))
+                    if placed and (was is None or abs(where[0] - was[0]) >= 0.1 or abs(where[1] - was[1]) >= 0.1):
+                        state["scene"][("witch", pside)] = where
+                        note(t, f"  {pside} sorcière à {where[0]:.2f} de son terrain, {where[1]:.2f} de la hauteur")
+                    for ev, word in (("ko", "K.O."), ("win", "WIN !"), ("perfect", "PERFECT !"), ("bomb", "bombe")):
+                        t0 = stp.get(ev, -99.0)
+                        if t0 > 0 and t0 != state["scene"].get((ev, pside)):
+                            state["scene"][(ev, pside)] = t0
+                            note(t, f"{pside} {word}")
+                    cn = stp.get("chain_n", 0)
+                    if cn >= 2 and (cn, stp.get("chain_t")) != state["scene"].get(("chain", pside)):
+                        state["scene"][("chain", pside)] = (cn, stp.get("chain_t"))
+                        note(t, f"  {pside} {cn} HIT")
+                for attr, word in (("hits", "cœur perdu"), ("attacks", "attaque envoyée"), ("beams", "tir chargé")):
+                    cnt = getattr(sc, attr, None)
+                    if cnt is not None and cnt != state["scene"].get(("ts", attr), 0):
+                        state["scene"][("ts", attr)] = cnt
+                        note(t, f"  {word} ({cnt})")
             if hasattr(sc, "continue_shown"):                        # CONTINUE ? shown or hidden (1.33 test 20)
                 for side in ("p1", "p2"):
                     shown = vals.get(side + "_mode") == 2 and sc.banner is None and sc.continue_shown(side, vals, 1000.0 + t)
@@ -209,10 +235,10 @@ def replay(path, show_values=False, step=1 / 60, frames=(), out_dir=None):
                     if shown is not None and shown != state["scene"].get(("lives", pside)):
                         state["scene"][("lives", pside)] = shown
                         note(t, f"  {pside} vies : {shown}")
-                for key, word in (("thrown", "grenade lancée"), ("booms", "grenade explose")):   # the grenades / les grenades
-                    cnt = getattr(sc, key, None)
-                    if cnt is not None and cnt != state["scene"].get(key, 0):
-                        state["scene"][key] = cnt
+                for attr, word in (("thrown", "grenade lancée"), ("booms", "grenade explose")):  # the grenades / les grenades
+                    cnt = getattr(sc, attr, None)                    # (not "key": the scene asks the library by it, test 46)
+                    if cnt is not None and cnt != state["scene"].get(attr, 0):
+                        state["scene"][attr] = cnt
                         note(t, f"  {word}")
                 bph = (sc.boss or {}).get("phase") if isinstance(getattr(sc, "boss", None), dict) else None
                 if bph != state["scene"].get("_phase"):                  # the boss's phases / les phases du boss

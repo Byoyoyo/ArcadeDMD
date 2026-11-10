@@ -109,6 +109,18 @@
     "addr": "0x108586",
     "type": "u16",
     "note": "the screen the game shows (RetroAchievements code notes, 0x8586 SCREEN ID 16 bit, 7046 = character select screen, 3fec = in game); its select screens give VS and no event of a fight (1.31.1, K.O. audit), to confirm in game"
+   },
+   "_in_p1": {
+    "addr": "0x10FD96",
+    "type": "u8",
+    "fast": true,
+    "note": "BIOS_P1CURRENT: the stick and buttons of player 1 (bit 0 up, 1 down, 2 left, 3 right, 4 A, 5 B, 6 C, 7 D, 1 = pressed), read at every frame (\"fast\") as in The King of Fighters '98 and 2002, so that a game recorded on the cabinet keeps every attempt at a desperation move, for this game's moves to come (1.33 test 48, the BIOS's own place in every Neo Geo game); nothing shown from it until the game file has its \"moves\""
+   },
+   "_in_p2": {
+    "addr": "0x10FD9C",
+    "type": "u8",
+    "fast": true,
+    "note": "BIOS_P2CURRENT: the stick and buttons of player 2, same bits (1.33 test 48)"
    }
   }
  },

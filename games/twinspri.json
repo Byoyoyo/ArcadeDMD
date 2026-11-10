@@ -41,6 +41,42 @@
         "type": "u8",
         "note": "BIOS_P2CURRENT: player 2 stick and buttons, same bits (HD scene)"
       },
+      "pos_x": {
+        "addr": "0x102502",
+        "type": "be",
+        "bytes": 2,
+        "mult": 0.0078125,
+        "add": -137,
+        "round": 1,
+        "note": "player 1 on the screen, x in pixels of the picture (304 wide, 0 the left edge of the left frame; his field 8 to 144, the column 144 to 160, player 2's field 160 to 296). The game keeps the word in 9.7 fixed point, 128 a pixel: word/128 - 137 (recording and 96 screenshots of a game on the cabinet, 8 November 2026: 0x6B00 while the witch stood at 77, 0x8800 at 135 against the column, 0x5240 at 28 far left). The word follows the stick (left and right) and is the player's object at 0x102500, copied at 0x102600 and 0x102C00 (HD scene)"
+      },
+      "pos_y": {
+        "addr": "0x102500",
+        "type": "be",
+        "bytes": 2,
+        "mult": -0.0078125,
+        "add": 351,
+        "round": 1,
+        "note": "player 1 on the screen, y in pixels of the picture (224 high, 0 the top): 351 - word/128, the word a height from the bottom (up on the stick makes it grow). 0x5000 (80) is the lowest the witch flies, the picture's line 191; 0x6800 (104) the line 143; it reaches about 135, the line 81. 50 and 190 during the result screens, the witch off the picture (lines 251 and -29): not a position (HD scene)"
+      },
+      "pos_x_p2": {
+        "addr": "0x105902",
+        "type": "be",
+        "bytes": 2,
+        "mult": 0.0078125,
+        "add": -137,
+        "round": 1,
+        "note": "player 2 on the screen, x as player 1's, from his object at 0x105900 (the computer's too: 0xAC00 while Load Ran stood at 207, 0xB400 at 223, 0xD000 at 279 in the same game)"
+      },
+      "pos_y_p2": {
+        "addr": "0x105900",
+        "type": "be",
+        "bytes": 2,
+        "mult": -0.0078125,
+        "add": 351,
+        "round": 1,
+        "note": "player 2 on the screen, y as player 1's (0x6800, 104, while Load Ran flew on the line 143)"
+      },
       "lives": {
         "addr": "0x10C014",
         "type": "u8",
@@ -55,7 +91,7 @@
           "0x10C210",
           "0x10D210"
         ],
-        "note": "player 1 hearts, the energy of the game, 8 a heart and 40 for five (cheat database, Infinite Energy PL1, and RAM captures on a cabinet with 1, 1, 2 and 0 hearts). 0x10C005 (Infinite Lives) stays at 3 during a game. learn.bat cannot find the hearts (8 a heart), the places it finds in those captures are ruled out"
+        "note": "player 1 hearts, the energy of the game, 8 a heart and 40 for five (cheat database, Infinite Energy PL1, and RAM captures on a cabinet with 1, 1, 2 and 0 hearts); half hearts too, 20 for two and a half and 12 for one and a half in a game of 8 November 2026, drawn by the game as a half heart. The game empties them from the name toward the column and gives a half heart back at times. 0x10C005 (Infinite Lives) stays at 3 during a game. learn.bat cannot find the hearts (8 a heart), the places it finds in those captures are ruled out"
       },
       "lives_p2": {
         "addr": "0x10D014",
@@ -95,12 +131,12 @@
       "attack": {
         "addr": "0x10C088",
         "type": "u8",
-        "note": "attack player 1 sends, 16 level 1, 32 level 2, 48 boss (FinalBurn Neo cheats, Get an Instant Attack Now! PL1)"
+        "note": "attack player 1 sends: 1 for a moment at each attack in a game on the cabinet (8 November 2026, 2 for ten seconds in the demo); the cheat database writes 16 level 1, 32 level 2, 48 boss here (FinalBurn Neo cheats, Get an Instant Attack Now! PL1), both read"
       },
       "attack_p2": {
         "addr": "0x10D088",
         "type": "u8",
-        "note": "attack player 2 sends (FinalBurn Neo cheats, Get an Instant Attack Now! PL2)"
+        "note": "attack player 2 sends, as player 1's (FinalBurn Neo cheats, Get an Instant Attack Now! PL2)"
       },
       "char": {
         "addr": "0x10C007",
@@ -127,6 +163,24 @@
           "0x10D8EE"
         ],
         "note": "player 2 chain, at the same place in his block, like the score and the hearts (the computer's chains too)"
+      },
+      "wins": {
+        "addr": "0x10C006",
+        "type": "u8",
+        "valid": [
+          0,
+          9
+        ],
+        "note": "rounds player 1 has won in the match, the stars in the small box beside the column's star: 1 at 121 s in a two-player game of 8 November 2026, four seconds after player 2's K.O., 0 again on the next game (192 before the game boots: not read)"
+      },
+      "wins_p2": {
+        "addr": "0x10D006",
+        "type": "u8",
+        "valid": [
+          0,
+          9
+        ],
+        "note": "rounds player 2 has won, at the same place in his block (1 at 76 s, 2 at 185 s in that game, 208 before the boot)"
       },
       "stage": {
         "addr": "0x10BB00",
@@ -185,7 +239,22 @@
     }
   },
   "hd": {
-    "scene": "twinspri"
+    "scene": "twinspri",
+    "fields": [
+      [
+        8,
+        144
+      ],
+      [
+        160,
+        296
+      ]
+    ],
+    "field_y": [
+      16,
+      224
+    ],
+    "note": "the two fields of the game's picture, left and right edges in its pixels, and the lines of their top (under the scores) and bottom: pos_x and pos_y are placed in them (HD scene)"
   },
   "demo": {
     "attract": true,

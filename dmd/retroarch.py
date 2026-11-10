@@ -294,8 +294,8 @@ def explain_failure(reply, version="", core=None):
             lines.append(tr(f"RetroArch {version} est trop ancien. Il faut la version 1.19 ou plus récente.",
                             f"RetroArch {version} is too old. Version 1.19 or newer is required."))
         else:
-            lines.append(tr("Il faut la version officielle de RetroArch, 1.19 ou plus récente (voir README.fr.md, section RetroArch).",
-                            "You need the official RetroArch release, 1.19 or newer (see README.md, RetroArch section)."))
+            lines.append(tr("Il faut la version officielle de RetroArch, 1.19 ou plus récente (voir le wiki, page Avec RetroArch).",
+                            "You need the official RetroArch release, 1.19 or newer (see the wiki, RetroArch page)."))
         return lines
     if kind == "bizarre":
         return [tr(f"RetroArch donne une réponse inattendue à la lecture de la mémoire « {reply[:80]} ».",
@@ -312,26 +312,26 @@ def explain_failure(reply, version="", core=None):
                         "The loaded core does not share its memory with RetroArch. To see which one it is, "
                         "press F1, then Information, Core Information."))
         lines.append(tr("Pour l'arcade il faut FinalBurn Neo. FB Alpha 2012 et les cœurs MAME ne donnent pas "
-                        "leur mémoire (voir README.fr.md, section RetroArch).",
+                        "leur mémoire (voir le wiki, page Avec RetroArch).",
                         "For arcade games you need FinalBurn Neo. FB Alpha 2012 and the MAME cores do not share "
-                        "their memory (see README.md, RetroArch section)."))
+                        "their memory (see the wiki, RetroArch page)."))
         return lines
     lines.append(tr(f"Le cœur chargé est {core_label(core)}.", f"The loaded core is {core_label(core)}."))
     if core.get("memory") is False:
         lines.append(tr("Ce cœur ne donne jamais sa mémoire à RetroArch. ArcadeDMD ne peut rien lire avec lui.",
                         "This core never shares its memory with RetroArch. ArcadeDMD cannot read anything with it."))
-        lines.append(tr("Lance ce jeu avec le cœur FinalBurn Neo (voir README.fr.md, section RetroArch).",
-                        "Run this game with the FinalBurn Neo core (see README.md, RetroArch section)."))
+        lines.append(tr("Lance ce jeu avec le cœur FinalBurn Neo (voir le wiki, page Avec RetroArch).",
+                        "Run this game with the FinalBurn Neo core (see the wiki, RetroArch page)."))
     elif core.get("memory") is True:
         lines.append(tr("Ce cœur est sûrement trop ancien pour donner sa mémoire. "
-                        "Mets-le à jour (voir README.fr.md, section RetroArch).",
+                        "Mets-le à jour (voir le wiki, page Avec RetroArch).",
                         "This core is probably too old to share its memory. "
-                        "Update it (see README.md, RetroArch section)."))
+                        "Update it (see the wiki, RetroArch page)."))
     else:
         lines.append(tr("Ce cœur ne donne pas sa mémoire à RetroArch. Il faut un cœur compatible avec les succès "
-                        "RetroAchievements, par exemple FinalBurn Neo pour l'arcade (voir README.fr.md, section RetroArch).",
+                        "RetroAchievements, par exemple FinalBurn Neo pour l'arcade (voir le wiki, page Avec RetroArch).",
                         "This core does not share its memory with RetroArch. You need a core that supports "
-                        "RetroAchievements, for example FinalBurn Neo for arcade games (see README.md, RetroArch section)."))
+                        "RetroAchievements, for example FinalBurn Neo for arcade games (see the wiki, RetroArch page)."))
     return lines
 
 

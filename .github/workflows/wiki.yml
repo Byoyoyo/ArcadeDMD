@@ -1,0 +1,41 @@
+# Publishes the wiki folder (English and French pages, GIFs) and the pictures of docs/images to the GitHub wiki.
+# Publie le dossier wiki (pages en anglais et en français, GIF) et les images de docs/images sur le wiki GitHub.
+name: Wiki
+
+on:
+  push:
+    branches: [main, "release/**"]
+    paths: ["wiki/**", "docs/images/**", ".github/workflows/wiki.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wiki
+  cancel-in-progress: false
+
+jobs:
+  wiki:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy the pages to the wiki
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          git clone --depth 1 "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.wiki.git" wiki-repo
+          rsync -a --delete --exclude .git wiki/ wiki-repo/
+          mkdir -p wiki-repo/images
+          cp docs/images/* wiki-repo/images/
+          cd wiki-repo
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "The wiki is already up to date."
+            exit 0
+          fi
+          git commit -m "Wiki from ${GITHUB_REF_NAME} ${GITHUB_SHA::7}"
+          git push origin HEAD

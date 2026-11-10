@@ -56,8 +56,8 @@ class ZeDMDOutput:
         name = self.cfg.get("dll") or ("libzedmd/zedmd64.dll" if sys.platform == "win32" else "libzedmd/libzedmd.so")
         path = name if os.path.isabs(name) else os.path.join(self.root, name)
         if not os.path.exists(path):
-            self.log(tr(f"ZeDMD : bibliothèque introuvable ({path}). Voir README.fr.md, étape « libzedmd ».",
-                        f"ZeDMD: library not found ({path}). See README.md, \"libzedmd\" step."))
+            self.log(tr(f"ZeDMD : bibliothèque introuvable ({path}). Voir le wiki, page « ZeDMD et matériel ».",
+                        f"ZeDMD: library not found ({path}). See the wiki, \"ZeDMD and Hardware\" page."))
             return False
         try:
             if sys.platform == "win32" and hasattr(os, "add_dll_directory"):

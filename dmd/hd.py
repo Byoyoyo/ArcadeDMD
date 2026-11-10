@@ -372,13 +372,18 @@ class HDRenderer:
         # the empty part stays dark and neutral: a nearly empty bar must not look full and red (X-Men, Seb's cabinet)
         # la partie vide reste sombre et neutre : une barre presque vide ne doit pas paraître pleine et rouge
         b = {"back": solid((24, 26, 34)), "trail": solid((255, 235, 235)), "line": self._surf(line),
+             "red": solid((225, 30, 30)), "white": solid((255, 255, 255)),
              "fill": {k: gradient(*v) for k, v in BARS.items()}}
         self.bars[key] = b
         return b
 
-    def draw_bar(self, screen, x, y, w, h, frac, trail, side):
+    def draw_bar(self, screen, x, y, w, h, frac, trail, side, dm=None):
+        """dm: the bar taking a desperation move (FightFX.dm.bar, 1.33 test 51), jolted, its lost part red, the part just
+        lost white. / la barre qui prend un coup désespéré : secouée, sa part perdue rouge, la part qui vient de partir blanche."""
         pg = self.pg
         b = self._bar(w, h, side)
+        if dm:
+            x, y = x + dm.get("dx", 0), y + dm.get("dy", 0)
         screen.blit(b["back"], (x, y))
 
         def span(f):
@@ -387,11 +392,18 @@ class HDRenderer:
 
         tx, tw = span(trail)
         if tw > 0:
-            screen.blit(b["trail"], (x + tx, y), area=pg.Rect(tx, 0, tw, h))
+            screen.blit(b["red" if dm and dm.get("red") else "trail"], (x + tx, y), area=pg.Rect(tx, 0, tw, h))
         fx, fw = span(frac)
         if fw > 0:
             col = "g" if frac > 0.5 else ("y" if frac > 0.25 else "r")
             screen.blit(b["fill"][col], (x + fx, y), area=pg.Rect(fx, 0, fw, h))
+        if dm and dm.get("white"):
+            lo, hi = dm["white"]
+            ax, aw = span(hi)
+            bx, bw_ = span(lo)
+            cx0, cx1 = (ax, bx) if side == "left" else (bw_, aw)
+            if cx1 > cx0:
+                screen.blit(b["white"], (x + cx0, y), area=pg.Rect(cx0, 0, cx1 - cx0, h))
         screen.blit(b["line"], (x, y))
 
     def trail(self, side, frac, now):
@@ -736,8 +748,10 @@ class HDRenderer:
             if sel:                       # the select screens: both bars empty, not the winner's last level (Seb's photo,
                 f1 = f2 = 0.0             # 1.33 test 7) / les écrans de sélection : les deux barres vides, sans traînée
                 self.trails.clear()
-            self.draw_bar(screen, S(40), S(176), bw, S(50), f1, self.trail("p1", f1, now), "left")
-            self.draw_bar(screen, int(cx + S(160)), S(176), bw, S(50), f2, self.trail("p2", f2, now), "right")
+            dm = getattr(self.fight, "dm", None) if self.fight is not None and not sel else None
+            self.draw_bar(screen, S(40), S(176), bw, S(50), f1, self.trail("p1", f1, now), "left", dm.bar("p1", now) if dm else None)
+            self.draw_bar(screen, int(cx + S(160)), S(176), bw, S(50), f2, self.trail("p2", f2, now), "right",
+                          dm.bar("p2", now) if dm else None)
         screen.blit(self.badge, (int(cx - self.badge.get_width() / 2), S(140)))
         if h1 is not None and h2 is not None:
             self.draw_rounds(screen, vals, S(40) + bw, int(cx + S(160)), now)
@@ -994,8 +1008,15 @@ class HDRenderer:
         held = self.fight.held(side) if self.fight is not None else None
         if held is not None and held[1] is not None:  # the one beaten falls first / celui qui est battu tombe d'abord
             lost = held[1]
-        if lost is None or any(o is None for o in orders):
+        if lost is None:
             return None
+        if any(o is None for o in orders):
+            # KOF 2002 writes the fighters themselves in fighting order ("_seq", 1.33 test 50) / KOF 2002 écrit les
+            # combattants eux-mêmes dans l'ordre des combats
+            seq = [vals.get(f"_{side}_seq{i}") for i in range(3)]
+            if any(c is None for c in seq):
+                return None
+            chars, orders = seq, [0, 1, 2]
         out = []
         for k, o in enumerate(orders):
             c = chars[int(o)] if 0 <= int(o) < len(chars) else None

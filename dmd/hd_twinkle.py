@@ -265,10 +265,10 @@ class TwinkleScene(GameScene):
         self.tile_img = None
         threading.Thread(target=self._build_tile, daemon=True).start()
         self.scroll = 0.0
-        self.side = {side: {"x": 0.5, "tx": 0.5, "next": 0.0, "hit": -99.0, "fire": 0.0, "enemies": [], "balls": [], "boss": None,
-                            "next_row": 0.0, "chain": 0, "bomb": -99.0, "chain_n": 0, "chain_t": -99.0, "warn": (-99.0, 1),
-                            "beam": (-99.0, 0), "red": -99.0, "ko": -99.0, "win": -99.0, "orb": (-99.0, 0), "hearts": [],
-                            "boss_t": -99.0, "perfect": -99.0} for side in ("p1", "p2")}
+        self.side = {side: {"x": 0.5, "y": self.WITCH_Y, "tx": 0.5, "next": 0.0, "hit": -99.0, "fire": 0.0, "enemies": [], "balls": [],
+                            "boss": None, "next_row": 0.0, "chain": 0, "bomb": -99.0, "chain_n": 0, "chain_t": -99.0,
+                            "warn": (-99.0, 1), "beam": (-99.0, 0), "red": -99.0, "ko": -99.0, "win": -99.0, "orb": (-99.0, 0),
+                            "hearts": [], "boss_t": -99.0, "perfect": -99.0, "placed": 0} for side in ("p1", "p2")}
         self.comets = []                                  # fireballs crossing the column / boules de feu qui traversent
         self.big = {}                                     # big texts and pictures of the effects / grands textes, images
         self.bigq = {}                                    # the big texts that bounce, at a few scales / à quelques tailles
@@ -277,6 +277,8 @@ class TwinkleScene(GameScene):
         self.ray_buf = None
         self.ray_masks = {}
         self.perfects = 0
+        self.wins = {"p1": 0, "p2": 0}                    # the rounds won, from the game (test 47) / les manches gagnées
+        self.wins_t = {}
         self.attacks = 0                                  # attacks sent (tests)
         self.bombs = 0
         self.hits = 0
@@ -331,6 +333,11 @@ class TwinkleScene(GameScene):
 
     def heart_img(self, kind):
         r = self.S(21)
+        if kind == "half_p1":                                          # player 1's half heart: its full half toward the
+            k = ("tsheart", kind)                                      # column, as the game draws it (test 47)
+            if k not in self.imgs:
+                self.imgs[k] = self.pg.transform.flip(self.heart_img("half"), True, False)
+            return self.imgs[k]
         return self.img(("tsheart", kind), 2 * r + self.S(4), 2 * r + self.S(4), ts_heart(r, kind), ss=3)
 
     def orb_img(self, live):
@@ -426,12 +433,47 @@ class TwinkleScene(GameScene):
             st["enemies"], st["balls"], st["boss"] = [], [], None
             st["next_row"] = now + 0.8
             st["ko"] = st["win"] = -99.0
+            st["placed"] = 0
         self.comets = []
 
     def fxy(self, side, fx_, fy_):
         """A point of a field, from fractions of its width and of the height. / Un point d'un terrain."""
         x0, w = self.fields[0 if side == "p1" else 1]
         return x0 + fx_ * w, fy_ * self.H
+
+    WITCH_Y = 0.82                                                     # where the witch flies when the game says nothing
+    CHARGE_HOLD = 0.6                                                  # A held this long, then released: a charged shot
+    BEAM_T = 0.7                                                       # how long its beam of light stays / durée du rayon
+    GAME_FIELDS = ((8, 144), (160, 296))                               # the game's fields in its picture (304 x 224 seen)
+    GAME_FIELD_Y = (16, 224)                                           # under the scores, down to the bottom
+
+    def game_pos(self, vals, side):
+        """Where the game's own picture puts the player (1.33 test 47): "pos_x" and "pos_y" of the game file, in pixels of
+        its picture, placed in his field ("hd": "fields" and "field_y" of the file, the game's picture by default), as
+        fractions of our field's width and of the screen's height. None while the file has no position, or while the
+        witch is off the picture (the result screens). / Où l'image du jeu met le joueur : pos_x et pos_y du fichier, en
+        pixels de son image, replacés dans son terrain, en fractions de notre terrain et de la hauteur de l'écran. None
+        sans position dans le fichier, ou quand la sorcière est hors de l'image (les écrans de résultat)."""
+        suf = "" if side == "p1" else "_p2"
+        gx, gy = _n(vals.get("pos_x" + suf)), _n(vals.get("pos_y" + suf))
+        if gx is None or gy is None:
+            return None
+        opts = getattr(self, "hd_opts", None) or {}
+        fields = opts.get("fields") if isinstance(opts.get("fields"), list) and len(opts.get("fields")) == 2 else self.GAME_FIELDS
+        fy = opts.get("field_y") if isinstance(opts.get("field_y"), list) and len(opts.get("field_y")) == 2 else self.GAME_FIELD_Y
+        try:
+            x0, x1 = float(fields[0 if side == "p1" else 1][0]), float(fields[0 if side == "p1" else 1][1])
+            y0, y1 = float(fy[0]), float(fy[1])
+        except (TypeError, ValueError, IndexError):
+            x0, x1 = self.GAME_FIELDS[0 if side == "p1" else 1]
+            y0, y1 = self.GAME_FIELD_Y
+        if x1 - x0 < 1 or y1 - y0 < 1:
+            return None
+        if gy < y0 - 8 or gy > y1 + 8 or gx < x0 - 40 or gx > x1 + 40:          # off the picture: not a position
+            return None
+        fx_ = _clamp((gx - x0) / (x1 - x0), 0.06, 0.94)
+        fy_ = _clamp((gy - y0) / (y1 - y0), 0.30, 0.86)                        # the hearts and the texts stay clear above
+        return fx_, fy_
 
     def heart_xy(self, side, i):
         x0, w = self.fields[0 if side == "p1" else 1]
@@ -444,13 +486,25 @@ class TwinkleScene(GameScene):
         for side, suf in (("p1", ""), ("p2", "_p2")):
             st = self.side[side]
             other = "p2" if side == "p1" else "p1"
+            pos = self.game_pos(vals, side)
             stick = self.stick(vals, side)
-            if stick is not None:                                      # the player's stick (Neo Geo BIOS)
+            if pos is not None:                                        # where the game puts the witch (1.33 test 47)
+                k = min(1.0, dt * 12.0)                                # read ten times a second: a short glide between
+                st["x"] += (pos[0] - st["x"]) * k
+                st["y"] += (pos[1] - st["y"]) * k
+                st["placed"] += 1
+            elif st["placed"] and ("pos_x" + suf) in vals:             # the game placed her and now hides her (the
+                pass                                                   # result screens): she waits where she was
+            elif stick is not None:                                    # the player's stick (Neo Geo BIOS)
                 st["x"] = _clamp(st["x"] + stick[0] * dt * 0.8, 0.08, 0.92)
+                st["y"] += (self.WITCH_Y - st["y"]) * min(1.0, dt * 2.0)
+                st["placed"] = 0
             else:
                 if now >= st["next"]:
                     st["tx"], st["next"] = rng.uniform(0.12, 0.88), now + rng.uniform(0.8, 2.0)
                 st["x"] += (st["tx"] - st["x"]) * min(1.0, dt * 2.0)
+                st["y"] += (self.WITCH_Y - st["y"]) * min(1.0, dt * 2.0)
+                st["placed"] = 0
             ch = self.changed(vals, "lives" + suf)
             if ch:
                 self.hearts_changed(side, other, ch[0], ch[1], now, vals)
@@ -459,8 +513,9 @@ class TwinkleScene(GameScene):
                 st["orb"] = (now, int(max(0, ch[1])))
                 self.bomb(side, now)
             ch = self.changed(vals, "attack" + suf)
-            if ch and ch[1] > 0:
-                lvl = max(1, min(3, int(ch[1]) // 16))
+            if ch and ch[1] > 0:                                       # 1 and 2 in a game on the cabinet (test 47), the
+                v = int(ch[1])                                         # cheat database's 16, 32, 48 kept / la base de triche
+                lvl = max(1, min(3, v // 16 if v >= 16 else v))
                 self.send(side, other, lvl, now)
             ch = self.changed(vals, "perfect" + suf)
             if ch and ch[1] > ch[0] and ch[1] > 0 and now - st["perfect"] > 1.5:   # the game's PERFECT: a formation
@@ -471,9 +526,18 @@ class TwinkleScene(GameScene):
                 st["chain_xy"] = (st["x"], 0.46)
             elif ch and ch[1] < 2:
                 st["chain_t"] = min(st["chain_t"], now - 1.0)          # it ends: the counter goes / il s'efface
+            pw = _n(vals.get("power" + suf))
+            a_held = stick is not None and bool(stick[2] & 0x10)      # A held charges the shot, released it leaves
+            if a_held and st.get("a_since") is None:                   # (the game's controls; both players held it 0.6
+                st["a_since"] = now                                    # to 1.4 s at a time in a game of 8 November 2026)
+            elif not a_held and st.get("a_since") is not None:
+                if now - st["a_since"] >= self.CHARGE_HOLD and pw is not None:
+                    self.charge(side, max(1, min(3, int(pw) // 0x1000)), now)
+                st["a_since"] = None
             ch = self.changed(vals, "power" + suf)
-            if ch and ch[1] < ch[0] and ch[0] >= 0x1000:               # a charged shot leaves
-                self.charge(side, min(3, int(ch[0]) // 0x1000), now)
+            if ch and ch[1] < ch[0] and ch[0] >= 0x1000 and stick is None and ch[1] != 0x1000:
+                self.charge(side, min(3, int(ch[0]) // 0x1000), now)   # no buttons read (the demo): the gauge falling;
+                                                                       # back to 0x1000 is a new round, not a shot (test 47)
             if now >= st["next_row"]:                                  # a row of puffballs comes down
                 st["next_row"] = now + rng.uniform(1.1, 2.0)
                 col = rng.choice(((120, 180, 255), (255, 150, 200), (255, 220, 100), (150, 230, 140)))
@@ -483,7 +547,7 @@ class TwinkleScene(GameScene):
                     st["enemies"].append({"x": fx0 + 0.12 * i, "y": -0.1 - 0.02 * i, "col": col, "ph": rng.uniform(0, 6), "v": rng.uniform(0.12, 0.2)})
             if now >= st["fire"]:                                      # star shots
                 st["fire"] = now + 0.12
-                x, y = self.fxy(side, st["x"], 0.76)
+                x, y = self.fxy(side, st["x"], st["y"] - 0.06)
                 self.fx.tracer(x, y - S(30), x, S(-40), 2200, (255, 250, 200), 6, 50, "front", False)
                 x0, w = self.fields[0 if side == "p1" else 1]
                 ahead = [e for e in st["enemies"] if not e.get("dead") and abs(x0 + e["x"] * w - x) < S(36) and e["y"] > 0.0]
@@ -511,7 +575,7 @@ class TwinkleScene(GameScene):
             st["hit"] = now
             st["red"] = now
             self.hits += 1
-            x, y = self.fxy(side, st["x"], 0.82)
+            x, y = self.fxy(side, st["x"], st["y"])
             self.fx.sparks(x, y, 20, (255, 120, 160), (200, 500), (0, 360), (0.3, 0.7), 0, "front", 3, 20)
             for i in range(int(math.ceil(new - 0.01)), int(math.ceil(old - 0.01))):
                 st["hearts"].append(("break", i, now))
@@ -596,7 +660,7 @@ class TwinkleScene(GameScene):
         st, S = self.side[side], self.S
         st["beam"] = (now, lvl)
         self.beams += 1
-        x, y = self.fxy(side, st["x"], 0.78)
+        x, y = self.fxy(side, st["x"], st["y"] - 0.04)
         self.fx.glow(x, y - S(40), 30, 160, (255, 230, 140), 0.5, "front", 1.0, 0.0)
         x0, w = self.fields[0 if side == "p1" else 1]
         for e in st["enemies"]:
@@ -801,7 +865,7 @@ class TwinkleScene(GameScene):
             screen.blit(img, (int(x - img.get_width() / 2), int(y - img.get_height() / 2)))
         look = self.look(vals, side)
         hit = now - st["hit"] < 1.0
-        x, y = self.fxy(side, st["x"], 0.82)
+        x, y = self.fxy(side, st["x"], st["y"])
         pw = _n(vals.get("power" if side == "p1" else "power_p2"))
         if pw is not None and pw >= 0x3000:                            # MAX: an aura around the witch / une aura
             g = self.fx.sp.glow(S(70 + 8 * math.sin(now * 8)), (255, 236, 140), 7)
@@ -816,6 +880,33 @@ class TwinkleScene(GameScene):
             for i, col in enumerate(((255, 120, 200), (120, 200, 255), (255, 240, 120))):
                 r = S(70 + i * 6 + 4 * math.sin(now * 10 + i))
                 pg.draw.ellipse(screen, col, (int(x - r), int(y - r * 1.08), int(2 * r), int(2 * r * 1.08)), max(2, S(4)))
+
+    def win_stars(self, screen, wins, cx, cy, now):
+        """The rounds won under the column's box, as the game's two small boxes beside its star: two places a side,
+        a gold star in each round won, the newest one popping in. / Les manches gagnées sous le cadre de la colonne,
+        comme les deux petites cases du jeu : deux places par côté, une étoile d'or par manche gagnée."""
+        S, pg = self.S, self.pg
+        self.pill(screen, cx - S(72), cy - S(16), S(144), S(32), 150)
+        for k, side in enumerate(("p1", "p2")):
+            n = int(wins[k] or 0)
+            was = self.wins.get(side, 0)
+            if n != was:
+                self.wins[side] = n
+                self.wins_t[side] = now if n > was else -99.0
+            for j in range(2):
+                x = cx + (1 if k else -1) * S(20 + 32 * j)                       # from the box outward / du cadre vers le bord
+                won = j < n
+                r = S(12)
+                if won and j == n - 1 and now - self.wins_t.get(side, -99.0) < 0.6:
+                    r = S(12 + 10 * math.sin((now - self.wins_t[side]) / 0.6 * math.pi))
+                pts = ts_star_pts(x, cy, r)
+                if won:
+                    pg.draw.polygon(screen, (255, 214, 70), pts)
+                    pg.draw.polygon(screen, (160, 90, 20), pts, max(1, S(2)))
+                    pg.draw.circle(screen, (255, 250, 220), (int(x - r * 0.2), int(cy - r * 0.25)), max(1, S(3)))
+                else:
+                    pg.draw.polygon(screen, (60, 30, 50), pts)
+                    pg.draw.polygon(screen, (120, 90, 110), pts, max(1, S(2)))
 
     def put_big(self, screen, surf, x, y, scale=1.0, alpha=1.0, dx=0):
         if surf is None or alpha <= 0.02:
@@ -866,19 +957,20 @@ class TwinkleScene(GameScene):
                 yy = S(140) + k * S(26)
                 pg.draw.line(screen, (255, 255, 255), (int(x0 + S(10)), yy), (int(x0 + S(60)), yy - S(6)), max(1, S(3)))
                 pg.draw.line(screen, (255, 255, 255), (int(x0 + w - S(60)), yy), (int(x0 + w - S(10)), yy - S(6)), max(1, S(3)))
-        t0, lvl = st["beam"]                                           # the charged shot: a beam of light, 1 2 MAX !
-        kc = now - t0
-        if 0 <= kc < 0.9:
-            wx, wy = self.fxy(side, st["x"], 0.80)
+        t0, lvl = st["beam"]                                           # the charged shot: a beam of light; MAX ! when
+        kc = now - t0                                                  # the gauge is full (a shot every second or so in
+        if 0 <= kc < self.BEAM_T:                                      # a game, test 47: the words would never stop)
+            wx, wy = self.fxy(side, st["x"], st["y"] - 0.02)
             b = self.beam_img().copy()
-            b.set_alpha(int(255 * (1 - kc / 0.9)))
+            b.set_alpha(int(255 * (1 - kc / self.BEAM_T)))
             screen.blit(b, (int(wx - b.get_width() / 2), int(wy - S(40) - b.get_height())))
             for i in range(6):
                 sy = wy - S(60) - ((kc * S(500) + i * S(55)) % (wy - S(120)))
                 pg.draw.polygon(screen, (255, 255, 255), ts_star_pts(wx + math.sin(i * 2.1) * S(40), sy, S(9 + i % 3 * 3), kc * 4 + i))
-            lab = self.big_text({1: "lv1", 2: "lv2"}.get(lvl, "max"))
-            off = S(180) if st["x"] < 0.6 else -S(180)
-            self.put_big(screen, lab, wx + off, H * 0.5, 1.0 + 0.6 * max(0.0, 1 - kc / 0.12), 1.0 if kc < 0.7 else (0.9 - kc) / 0.2)
+            if lvl >= 3:
+                lab = self.big_text("max")
+                off = S(180) if st["x"] < 0.6 else -S(180)
+                self.put_big(screen, lab, wx + off, H * 0.5, 1.0 + 0.6 * max(0.0, 1 - kc / 0.12), 1.0 if kc < 0.5 else (self.BEAM_T - kc) / 0.2)
         t_w, lv_w = st["warn"]                                         # LV1 / LV2 ATTACK where the fireballs land
         kw = now - t_w
         if 0 <= kw < 1.2:
@@ -945,6 +1037,9 @@ class TwinkleScene(GameScene):
             box = None
         if box is not None:
             screen.blit(box, (int(W / 2 - box.get_width() / 2), int(H * 0.66 - box.get_height() / 2)))
+            wins = (_n(vals.get("wins")), _n(vals.get("wins_p2")))     # the rounds won, as the game's small boxes
+            if wins[0] is not None or wins[1] is not None:            # beside its star (test 47)
+                self.win_stars(screen, wins, W / 2, H * 0.66 + box.get_height() / 2 + S(18), now)
         for k, (side, suf) in enumerate((("p1", ""), ("p2", "_p2"))):
             st = self.side[side]
             x0, w = self.fields[k]
@@ -973,11 +1068,12 @@ class TwinkleScene(GameScene):
             hearts = _n(vals.get("lives" + suf))
             if hearts is not None:                                     # five big hearts, half ones too
                 fx_ = {h[1]: h for h in st["hearts"]}
-                for i in range(5):
-                    kind = "full" if hearts >= i + 1 else ("half" if hearts >= i + 0.5 else "empty")
-                    img = self.heart_img(kind)
+                for i in range(5):                                     # slot 0 by the name plate; the game empties the
+                    n = 4 - i                                          # hearts from the plate toward the column, the
+                    kind = "full" if hearts >= n + 1 else ("half" if hearts >= n + 0.5 else "empty")   # last ones full
+                    img = self.heart_img("half_p1" if kind == "half" and side == "p1" else kind)       # (test 47)
                     hx, hy = self.heart_xy(side, i)
-                    h = fx_.get(i)
+                    h = fx_.get(n)
                     scale = 1.0
                     if h is not None:
                         kk = now - h[2]

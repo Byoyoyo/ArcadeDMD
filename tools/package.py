@@ -18,7 +18,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # shipped in the zip: everything except these (development files, user data, caches)
 EXCLUDE_DIRS = {".git", ".github", "tools", "dist", "runtime", "learned", "appris", "appris.old", "obs", "artwork",
-                "__pycache__", "tests"}
+                "__pycache__", "tests", "wiki"}
 EXCLUDE_FILES = {"config.json", ".gitignore", ".gitattributes", "CONTRIBUTING.md"}
 EXCLUDE_EXT = (".pyc", ".pyo", ".log", ".tmp")
 REQUIRED = ["arcadedmd.py", "install.bat", "run.bat", "learn.bat", "config.default.json", "README.md", "README.fr.md",
@@ -104,10 +104,11 @@ def main():
         for rel in listed:
             z.write(os.path.join(ROOT, rel), "ArcadeDMD/" + rel)
     with open(os.path.join(args.out, "notes.md"), "w", encoding="utf-8") as f:
-        f.write(body + "\n\n---\n\nInstall or update: download `ArcadeDMD-" + version + ".zip` below, then see "
-                "[README.md](https://github.com/" + os.environ.get("GITHUB_REPOSITORY", "") + "/blob/main/README.md). "
-                "Installer ou mettre à jour : télécharge `ArcadeDMD-" + version + ".zip` ci-dessous, puis vois "
-                "[README.fr.md](https://github.com/" + os.environ.get("GITHUB_REPOSITORY", "") + "/blob/main/README.fr.md).\n")
+        wiki = "https://github.com/" + os.environ.get("GITHUB_REPOSITORY", "Byoyoyo/ArcadeDMD") + "/wiki"
+        f.write(body + "\n\n---\n\nInstall or update. Download `ArcadeDMD-" + version + ".zip` below, then follow "
+                "[Installation](" + wiki + "/Installation) in the wiki. "
+                "Installer ou mettre à jour. Télécharge `ArcadeDMD-" + version + ".zip` ci-dessous, puis suis "
+                "[Installer ArcadeDMD](" + wiki + "/Installer-ArcadeDMD) dans le wiki.\n")
     print("written", zpath, os.path.getsize(zpath), "bytes")
     if args.github_output:
         with open(args.github_output, "a", encoding="utf-8") as f:

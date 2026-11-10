@@ -6,7 +6,7 @@ Jeu par jeu, ce qu'ArcadeDMD sait déjà afficher, et ce qui vient ensuite. Mis 
 
 Up to date with version 1.33.0. / À jour de la version 1.33.0.
 
-Tuned on a real cabinet, round after round, with videos, photos, logs of the games and, since 1.33, one game recorded whole: The King of Fighters '98 (its nine stages, the desperation moves, ROUND and FIGHT ! with the game, 1.31 to 1.33), Metal Slug 1 to 5 and X (each from one recorded game, mission 1 checked frame by frame, 1.33), Windjammers (the disc, the players, the supers, the sets, 1.33), Puzzle Bobble 2 (1.33), DoDonPachi; learned on a cabinet too: Twinkle Star Sprites, Puzzle Bobble, The King of Fighters 2002, Fatal Fury, Marvel vs. Capcom, X-Men vs. Street Fighter, Marvel Super Heroes vs. Street Fighter, X-Men: Children of the Atom, Hyper Street Fighter II, Strikers 1945 Plus, Giga Wing, Mercs. / Réglés sur une vraie borne, round après round, avec des vidéos, des photos, les journaux des jeux et, depuis la 1.33, une partie enregistrée en entier : The King of Fighters '98 (ses neuf décors, les coups désespérés, ROUND et FIGHT ! avec le jeu, 1.31 à 1.33), Metal Slug 1 à 5 et X (chacun d'après une partie enregistrée, la mission 1 vérifiée image par image, 1.33), Windjammers (le disque, les joueurs, les supers, les sets, 1.33), Puzzle Bobble 2 (1.33), DoDonPachi ; appris sur une borne aussi : Twinkle Star Sprites, Puzzle Bobble, The King of Fighters 2002, Fatal Fury, Marvel vs. Capcom, X-Men vs. Street Fighter, Marvel Super Heroes vs. Street Fighter, X-Men: Children of the Atom, Hyper Street Fighter II, Strikers 1945 Plus, Giga Wing, Mercs.
+Tuned on a real cabinet, round after round, with videos, photos, logs of the games and, since 1.33, one game recorded whole: The King of Fighters '98 (its nine stages, the desperation moves, ROUND and FIGHT ! with the game, 1.31 to 1.33), Metal Slug 1 to 5 and X (each from one recorded game, mission 1 checked frame by frame, 1.33), Windjammers (the disc, the players, the supers, the sets, 1.33), Puzzle Bobble 2 (1.33), Twinkle Star Sprites (the players' places, the hearts, the rounds, from one two-player game, 1.33), DoDonPachi; learned on a cabinet too: Puzzle Bobble, The King of Fighters 2002, Fatal Fury, Marvel vs. Capcom, X-Men vs. Street Fighter, Marvel Super Heroes vs. Street Fighter, X-Men: Children of the Atom, Hyper Street Fighter II, Strikers 1945 Plus, Giga Wing, Mercs. / Réglés sur une vraie borne, round après round, avec des vidéos, des photos, les journaux des jeux et, depuis la 1.33, une partie enregistrée en entier : The King of Fighters '98 (ses neuf décors, les coups désespérés, ROUND et FIGHT ! avec le jeu, 1.31 à 1.33), Metal Slug 1 à 5 et X (chacun d'après une partie enregistrée, la mission 1 vérifiée image par image, 1.33), Windjammers (le disque, les joueurs, les supers, les sets, 1.33), Puzzle Bobble 2 (1.33), Twinkle Star Sprites (la place des joueurs, les cœurs, les manches, d'après une partie à deux, 1.33), DoDonPachi ; appris sur une borne aussi : Puzzle Bobble, The King of Fighters 2002, Fatal Fury, Marvel vs. Capcom, X-Men vs. Street Fighter, Marvel Super Heroes vs. Street Fighter, X-Men: Children of the Atom, Hyper Street Fighter II, Strikers 1945 Plus, Giga Wing, Mercs.
 
 For each game / Pour chaque jeu
 - **Values / Valeurs.** What is read from the game's memory, such as each player's score, lives, bombs, level or health. / Ce qui est lu dans la mémoire du jeu, comme le score de chaque joueur, les vies, les bombes, le niveau ou la vie.
@@ -34,9 +34,9 @@ Les adresses prises dans les bases de codes de triche doivent encore être confi
 
 ### Fighting games / Jeux de combat (57 games / jeux)
 
-Shared fighting scene on the panel, with the coin screen since 1.16. On the HD screen, the fighting scene with its effects. The background follows the game's stages when they are known (18 games). The score is found for 2 games, the others still have to be learned or confirmed.
+Shared fighting scene on the panel, with the coin screen since 1.16. On the HD screen, the fighting scene with its effects. The background follows the game's stages when they are known (18 games). The score is found for 3 games, the others still have to be learned or confirmed. The King of Fighters '97 has the panel of the desperation moves of '98 since 1.33 test 49, The King of Fighters 2002 since test 50, each from one game recorded on the cabinet.
 
-Scène de combat commune sur la dalle, avec l'écran des pièces depuis la 1.16. Sur l'écran HD, la scène de combat et ses effets. Le décor suit les stages du jeu quand ils sont connus (18 jeux). Le score est trouvé pour 2 jeux, les autres restent à apprendre ou à confirmer.
+Scène de combat commune sur la dalle, avec l'écran des pièces depuis la 1.16. Sur l'écran HD, la scène de combat et ses effets. Le décor suit les stages du jeu quand ils sont connus (18 jeux). Le score est trouvé pour 3 jeux, les autres restent à apprendre ou à confirmer. The King of Fighters '97 a le panneau des coups désespérés de '98 depuis le test 49 de la 1.33, The King of Fighters 2002 depuis le test 50, chacun d'après une partie enregistrée sur la borne.
 
 | Game / Jeu | Health / Vie | Timer / Chrono | Names / Noms | Score | Stages (HD) |
 |---|---|---|---|---|---|
@@ -81,7 +81,7 @@ Scène de combat commune sur la dalle, avec l'écran des pièces depuis la 1.16.
 | The King of Fighters '94 | ✅ | ✅ | ⬜ | ⬜ | ⬜ |
 | The King of Fighters '95 | ✅ | ✅ | ⬜ | ⬜ | ⬜ |
 | The King of Fighters '96 | ✅ | ✅ | ✅ | 🟡 | ✅ |
-| The King of Fighters '97 | ✅ | ✅ | ✅ | 🟡 | ✅ |
+| The King of Fighters '97 | ✅ | ✅ | ✅ | ✅ | ✅ |
 | The King of Fighters '98 | ✅ | ✅ | ✅ | ✅ | ✅ |
 | The King of Fighters '99 | ✅ | ✅ | ✅ | 🟡 | ✅ |
 | The King of Fighters 2000 | ✅ | ✅ | ✅ | 🟡 | ✅ |
@@ -125,7 +125,7 @@ Depuis la 1.28 et la 1.29, les quinze shoot'em up (Blazing Star, Pulstar, Last R
 | 13 | Last Resort | Shoot'em up | 🟡 | ✅ | ✅ | 1.19 |
 | 14 | Aero Fighters 2 | Shoot'em up | 🟡 | ✅ | ✅ | 1.19 |
 | 15 | Aero Fighters 3 | Shoot'em up | 🟡 | ✅ | ✅ | 1.19 |
-| 16 | Twinkle Star Sprites | Shoot'em up | 🟡 | ✅ | ✅ | 1.20 |
+| 16 | Twinkle Star Sprites | Shoot'em up | ✅ | ✅ | ✅ | 1.20, 1.33 |
 | 17 | Strikers 1945 Plus | Shoot'em up | 🟡 | ✅ | ✅ | 1.20 |
 | 18 | Neo Bomberman | Action | 🟡 | ✅ | ✅ | 1.20 |
 | 19 | Super Dodge Ball | Sport | 🟡 | ✅ | ✅ | 1.20 |

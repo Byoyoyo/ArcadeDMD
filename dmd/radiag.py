@@ -114,24 +114,24 @@ def not_responding(port, say):
     say(tr("RetroArch ne répond pas.", "RetroArch is not responding."))
     procs = wincore.find_retroarch()
     if not procs:
-        say(tr("RetroArch n'est pas lancé, ou ses commandes réseau sont coupées (voir README.fr.md, section RetroArch).",
-               "RetroArch is not running, or its network commands are turned off (see README.md, RetroArch section)."))
+        say(tr("RetroArch n'est pas lancé, ou ses commandes réseau sont coupées (voir le wiki, page Avec RetroArch).",
+               "RetroArch is not running, or its network commands are turned off (see the wiki, RetroArch page)."))
         return
     exe = procs[0]["exe"]
     say(tr(f"Pourtant RetroArch tourne ({exe}).", f"Yet RetroArch is running ({exe})."))
     radir = os.path.dirname(exe) if os.path.isabs(exe) else ""
     rcfg = wincore.read_cfg(os.path.join(radir, "retroarch.cfg")) if radir else {}
     if rcfg.get("network_cmd_enable") == "false":
-        say(tr("Le réglage Commandes réseau est désactivé dans RetroArch. Active-le (voir README.fr.md, section RetroArch).",
-               "The Network Commands setting is turned off in RetroArch. Turn it on (see README.md, RetroArch section)."))
+        say(tr("Le réglage Commandes réseau est désactivé dans RetroArch. Active-le (voir le wiki, page Avec RetroArch).",
+               "The Network Commands setting is turned off in RetroArch. Turn it on (see the wiki, RetroArch page)."))
     elif rcfg.get("network_cmd_port") and rcfg["network_cmd_port"] != str(port):
         say(tr(f"RetroArch écoute sur le port {rcfg['network_cmd_port']} et ArcadeDMD sur le port {port}. "
                "Mets le même numéro des deux côtés.",
                f"RetroArch listens on port {rcfg['network_cmd_port']} and ArcadeDMD on port {port}. "
                "Use the same number on both sides."))
     else:
-        say(tr("Vérifie que le réglage Commandes réseau est activé (voir README.fr.md, section RetroArch).",
-               "Check that the Network Commands setting is turned on (see README.md, RetroArch section)."))
+        say(tr("Vérifie que le réglage Commandes réseau est activé (voir le wiki, page Avec RetroArch).",
+               "Check that the Network Commands setting is turned on (see the wiki, RetroArch page)."))
 
 
 def report(root, client, st, port, say):

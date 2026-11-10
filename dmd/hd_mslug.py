@@ -644,6 +644,10 @@ class MetalSlugScene:
         self.last = None
         self.key = None
         self.mission = None
+        self.mission_n = 0              # missions played since the game began (the Metal Slug 6 hack counts them so, its
+                                        # order is not Metal Slug 3's) / les missions jouées depuis le début de la partie
+        self.weapon_codes = {}          # the game file's extra weapon codes / les codes d'arme propres au fichier
+        self.mission_count = False      # MISSION n counts the missions played, not the game's number / compte les missions
         self.mission_shown = None
         self.mission_t = -99.0
         self.complete_t = -99.0
@@ -784,12 +788,27 @@ class MetalSlugScene:
         # / l'adresse du véhicule, 0 à pied, celle du bloc avant la partie
         return 0 < v < 0xC000
 
+    def hd_options(self, eng):
+        """The game's "hd" options, with those of the romset running on top ("hd": {"per_game": {"mslug3b6": {...}}}: the
+        Metal Slug 6 hack of Metal Slug 3 shares its file but not its mission order nor its handgun code, 1.33 test 46).
+        / Les options "hd" du jeu, celles du set qui tourne par-dessus."""
+        g = eng.library.get(self.key) or {}
+        hd = g.get("hd") if isinstance(g.get("hd"), dict) else {}
+        pg = hd.get("per_game") if isinstance(hd.get("per_game"), dict) else {}
+        own = pg.get((eng.state.meta or {}).get("system") or "")
+        if isinstance(own, dict):
+            hd = dict(hd, **own)
+        return hd
+
     def weapon(self, side, code):
         """(name, kind) of a weapon code: the name shown, the kind it is drawn and fired as. / (nom, genre) d'un code."""
         m = WEAPON_MAPS.get(family(self.key), MS1)
         if code is None:
             return None, None
         kind = m.get(int(code))
+        if kind is None and str(int(code)) in self.weapon_codes:
+            kind = self.weapon_codes[str(int(code))]  # the game file's own codes ("weapon_codes": {"17": "pistol"}, the Metal
+                                                      # Slug 6 hack's handgun, Seb's game of 8 November 20:40, test 46)
         if kind is None:
             # 255: the soldier's block wiped (dead, between two lives), the handgun as in 1.31 (test 29, Seb's capture of
             # the first Metal Slug: ARME SPÉCIALE flashed at each death) / 255 : le bloc du soldat effacé, le pistolet
@@ -995,6 +1014,12 @@ class MetalSlugScene:
             self._coin(now, c - self.credits)
         self.credits = c
         stages = self.stages(eng)
+        opts = self.hd_options(eng)
+        wc = opts.get("weapon_codes")
+        self.weapon_codes = wc if isinstance(wc, dict) else {}
+        self.mission_count = bool(opts.get("mission_count"))
+        if attract:
+            self.mission_n = 0                                         # the next game counts from 1 / la prochaine partie
         m = _n(vals.get("mission"))
         # the game that says when its mission is complete (the first Metal Slug: its end-of-mission word once the boss is
         # down, Seb's memory snapshots of 19:15, 1.33 test 33; Metal Slug 4: its stage state): MISSION COMPLETE at that
@@ -1010,20 +1035,26 @@ class MetalSlugScene:
         self.done_prev = done
         if m is not None and m != self.mission:
             theme = stages[(max(1, int(m)) - 1) % len(stages)]
+            if anyone and not attract:
+                self.mission_n += 1
+            shown = max(1, self.mission_n) if self.mission_count else m   # the hack's own count / le compte du hack
             if self.mission is not None and m == self.mission + 1 and anyone and self.complete_m == self.mission:
-                self._show_mission(theme, m)                           # the game said it already: the next one at once
+                self._show_mission(theme, shown)                       # the game said it already: the next one at once
             elif self.mission is not None and m == self.mission + 1 and anyone:
                 self.complete_t = now                                  # mission accomplie : bandeau, feu d'artifice
                 self.mission_t = now + 1.9
-                self.fx.later(1.9, self._show_mission, theme, m)
+                self.fx.later(1.9, self._show_mission, theme, shown)
                 for i in range(6):
                     self.fx.later(0.15 + i * 0.25, self._firework)
             elif self.mission is not None:
-                self._show_mission(theme, m)
+                self._show_mission(theme, shown)
             else:
                 self.bd.set_theme(theme, now, wipe=0)
-                self.mission_shown = m
+                self.mission_shown = shown
             self.mission = m
+        elif self.mission_count and anyone and not attract and self.mission is not None and self.mission_n == 0:
+            self.mission_n = 1                                         # the game begins on a mission known since the attract
+            self.mission_shown = 1                                     # mode: its first / la partie commence, sa première
         if attract and now - self.slide_t > self.SLIDE_EVERY:          # écran d'attente : diaporama des décors
             self.slide_t = now
             self.slide_i = (self.slide_i + 1) % len(stages)

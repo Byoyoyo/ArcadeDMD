@@ -81,16 +81,16 @@ def test_pattern(cfg, log):
     outs = app.build_outputs(ROOT, cfg, log, preview=False)
     zed = [o for o in outs if o.__class__.__name__ == "ZeDMDOutput" and o.lib is not None]
     if not zed:
-        log(tr("libzedmd n'est pas chargée, voir README.fr.md (étape libzedmd).",
-               "libzedmd is not loaded, see README.md (libzedmd step)."))
+        log(tr("libzedmd n'est pas chargée, voir le wiki, page ZeDMD et matériel.",
+               "libzedmd is not loaded, see the wiki, ZeDMD and Hardware page."))
         return 1
     log(tr("Recherche de la dalle...", "Looking for the LED panel..."))
     t_end = time.time() + 15
     while time.time() < t_end and not zed[0].ok:
         time.sleep(0.2)
     if not zed[0].ok:
-        log(tr("Dalle non trouvée (voir README.fr.md, section Dépannage)",
-               "LED panel not found (see README.md, Troubleshooting section)"))
+        log(tr("Dalle non trouvée (voir le wiki, page Dépannage)",
+               "LED panel not found (see the wiki, Troubleshooting page)"))
         for o in outs:
             o.close()
         return 1
@@ -151,8 +151,8 @@ def test_pixelcade(cfg, log):
     while time.time() < t_end and out.dev is None and out.mode != "off" and not out.failed:
         time.sleep(0.2)
     if out.dev is None:
-        log(tr("Pixelcade non trouvée (voir README.fr.md, section Pixelcade)",
-               "Pixelcade not found (see README.md, Pixelcade section)"))
+        log(tr("Pixelcade non trouvée (voir le wiki, page Dalle Pixelcade)",
+               "Pixelcade not found (see the wiki, Pixelcade LED page)"))
         out.close()
         return 1
     log(tr("Pixelcade connectée, mire pendant 6 secondes", "Pixelcade connected, test pattern for 6 seconds"))
