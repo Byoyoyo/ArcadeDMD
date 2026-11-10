@@ -29,46 +29,22 @@ from PIL import Image, ImageDraw, ImageFilter
 
 from . import hd_bg
 from .hd_games import GOLD, RED, WHITE, GameScene, _clamp, _mix, _n
+from .hd_credits import credits_word
+from .hd_mslug import CREAM
 from .i18n import tr
+from .spfcodes import COLORS, decode, grid_of
+from .spfcodes import danger as well_danger
 
 # ------------------------------------------------------------------ the layout, in units of a 1920 x 460 screen
 CELL = 31                       # a gem / une gemme
 ROWS, COLS = 13, 6              # the visible well / le puits visible
-TOP = (460 - ROWS * CELL) / 2   # top of the wells / haut des puits
+TOP = (460 - ROWS * CELL) / 2   # the wells take the whole height / les puits prennent toute la hauteur
 GAP = 156                       # between the two wells: NEXT, VS, the rounds / entre les deux puits
-COLORS = {1: (52, 118, 240), 2: (250, 204, 48), 3: (56, 196, 84), 4: (232, 48, 60)}
 P1C, P2C = (255, 140, 50), (70, 190, 255)
 CHAIN_COLS = {2: (90, 220, 255), 3: (150, 255, 110), 4: (255, 200, 60), 5: (255, 110, 60)}
 VS_FORGET = 90.0                # seconds without two humans before their matches are forgotten / avant d'oublier
 LAND = 0.14                     # a gem dropping into place / une gemme qui se pose
 FLIP = 0.3                      # a counter gem turning over / une gemme à compteur qui se retourne
-
-
-def decode(v):
-    """(kind, colour, extra) of one cell of the well, or None. / Genre, couleur et détail d'une case, ou None."""
-    if not isinstance(v, int) or v <= 0:
-        return None
-    lo, hi = v & 0xFF, (v >> 8) & 0xFF
-    if lo & 0x80:
-        return ("power", lo & 7 or 1, hi & 0xF0)
-    if lo & 0x0F == 7 and lo < 0x80:
-        return ("counter", (hi >> 4) or 1, hi & 0x0F)
-    if lo == 6:
-        return ("gem", (hi >> 4) or 1, 0)
-    if lo == 5:
-        return ("diamond", 0, 0)
-    if 1 <= lo <= 4:
-        return ("gem", lo, 0)
-    if 9 <= lo <= 12:
-        return ("crash", lo - 8, 0)
-    return ("burst", ((lo - 1) & 3) + 1, lo)
-
-
-def grid_of(words):
-    """The 14 x 6 cells of one well from its 112 words (walls left out). / Les cases d'un puits, sans les murs."""
-    if not isinstance(words, list) or len(words) < 112:
-        return None
-    return [[words[r * 8 + 1 + k] for k in range(COLS)] for r in range(14)]
 
 
 def mix(a, b, t):
@@ -240,18 +216,6 @@ class Well:
         self.collapsed = False               # until the game empties it for the next round / jusqu'à la manche suivante
         self.thud = -99.0                    # counter gems crashed down / gemmes à compteur écrasées
 
-    def heights(self):
-        """How high each column is filled, 0 to 13. / Hauteur de chaque colonne."""
-        out = []
-        for k in range(COLS):
-            h = 0
-            for r in range(1, 14):
-                if decode(self.grid[r][k]):
-                    h = 14 - r
-                    break
-            out.append(h)
-        return out
-
     def find_blocks(self):
         """The power gems: from each top-left corner, as far as their neighbours go. / Les gemmes de puissance."""
         g, out = self.grid, []
@@ -276,8 +240,7 @@ class SpfScene(GameScene):
     THEME = "spf_night"
     STATIC = True
     SHADE = (0, 40)
-    CREDITS = (0.06, 440)
-    CREDITS_K = 0.6
+    CREDITS = None                  # drawn between the wells, at the bottom (draw_credit) / entre les puits, en bas
     BANNERS = (("GAME OVER", RED), ("WIN", GOLD))
 
     def __init__(self, hd, rng=None):
@@ -412,11 +375,12 @@ class SpfScene(GameScene):
                     w.collapsed = False                                # the next round / la manche suivante
                 if w.grid is not None and not self.hidden(w, now):
                     self.compare(side, w, w.grid, g, now)
+                elif w.grid is None:                                   # the first reading: nothing new yet
+                    w.grid = g                                         # / la première lecture : rien de nouveau
+                    w._last_blocks = w.find_blocks()
                 w.grid = g
                 w.blocks = w.find_blocks()
-                hs = w.heights()
-                spawn = max(hs[2], hs[3])
-                target = max(_clamp((max(hs) - 8) / 5) * 0.85, _clamp((spawn - 6) / 6))
+                target = well_danger(g)
             else:
                 target = 0.0
             if self.nobody(vals) or self.hidden(w, now):
@@ -574,6 +538,7 @@ class SpfScene(GameScene):
         for side in (0, 1):
             self.draw_well(screen, side, vals, now)
         self.draw_middle(screen, vals, now)
+        self.draw_credit(screen, eng, vals, now)
         for side in (0, 1):
             self.draw_panel(screen, eng, side, vals, now)
         side, t0 = self.win_side
@@ -752,9 +717,11 @@ class SpfScene(GameScene):
         f = (f[0] + (x - f[0]) * k, f[1] + (y - f[1]) * k)
         self.fall[side] = f
         c = self.cell()
+        # the pivot (first gem) at (x, y), the other one around it: above, right, below, left with the turns, as the
+        # pairs landed in two recorded games / le pivot à (x, y), l'autre autour selon la rotation
         a, b = decode(pair[0] & 0xFF), decode(pair[1] & 0xFF)
         dx, dy = {0: (0, -1), 1: (1, 0), 2: (0, 1), 3: (-1, 0)}.get(rot, (0, -1))
-        for g, (ox, oy) in ((b, (0, 0)), (a, (dx, dy))):
+        for g, (ox, oy) in ((a, (0, 0)), (b, (dx, dy))):
             if not g:
                 continue
             r = f[1] - 1 + oy
@@ -812,17 +779,17 @@ class SpfScene(GameScene):
             col = P1C if side == 0 else P2C
             for i in range(2):
                 x = cx - S(34) if side == 0 else cx + S(34)
-                y = vs_y + S(62) + i * S(48)
+                y = vs_y + S(50) + i * S(36)
                 if i < won:
                     pulse = 1.0
                     if self.win_side[0] == side and now - self.win_side[1] < 0.6 and i == won - 1:
                         pulse = 1 + 0.6 * (1 - (now - self.win_side[1]) / 0.6)
-                    self.blit_c(screen, self.img(("spf", "pip", side), S(38), S(38), gem_draw(col)), x, y, pulse)
+                    self.blit_c(screen, self.img(("spf", "pip", side), S(30), S(30), gem_draw(col)), x, y, pulse)
                 else:
-                    r = S(16)
+                    r = S(13)
                     pg.draw.polygon(screen, _mix(col, (60, 40, 60), 0.35), [(x, y - r), (x + r, y), (x, y + r), (x - r, y)], max(2, S(3)))
         if self.humans(vals) or any(self.vs):                          # the matches of two humans / les matchs
-            y = self.H - S(52)
+            y = vs_y + S(146)
             hd.put(screen, hd.text(tr("MATCHS", "MATCHES"), "xbold", S(15), GOLD, glow=0), cx, y - S(22), "center", "middle")
             for side in (0, 1):
                 pop = self.vs_pop[side]
@@ -830,6 +797,33 @@ class SpfScene(GameScene):
                 t = hd.text(str(self.vs[side]), "black", S(34), P1C if side == 0 else P2C, glow=0, outline=(10, 6, 16), stroke=max(2, S(3)))
                 hd.put(screen, t, cx + (-S(32) if side == 0 else S(32)), y + S(6), "center", "middle", scale=sc)
             hd.put(screen, hd.text("-", "black", S(30), WHITE, glow=0), cx, y + S(4), "center", "middle")
+
+    def draw_credit(self, screen, eng, vals, now):
+        """The credits at the bottom between the wells, small enough to fit there: CRÉDITS, the coin and the number.
+        The coins put in fall onto that coin. / Les crédits en bas entre les puits : CRÉDITS, la pièce et le nombre ;
+        les pièces mises tombent sur cette pièce."""
+        c = _n(vals.get("credits"))
+        if c is None:
+            return
+        S, hd, cb = self.S, self.hd, self.cbar
+        cb.set_symbol((getattr(eng, "cfg", None) or {}).get("coin_symbol", "€"))
+        cx = self.W / 2
+        y = S(TOP) + ROWS * self.cell() - S(22)
+        size = S(34)
+        key = ("spf", "coin", cb.symbol, size)
+        ic = self.imgs.get(key)
+        if ic is None:
+            ic = self.imgs[key] = self.pg.transform.smoothscale(cb.icon, (size, size))
+        bump = max(0.0, 1 - (now - cb.coin_t) / 0.35)
+        n, t = cb.said
+        if now - t < 1.3:                                     # +1 CRÉDIT in place of the word, no room above / à la place du mot
+            hd.put(screen, hd.text(credits_word(n), "stencil", S(16), GOLD, glow=0.5), cx, y - S(30), "center", "middle")
+        else:
+            hd.put(screen, hd.text(tr("CRÉDITS", "CREDITS"), "stencil", S(16), CREAM, glow=0), cx, y - S(30), "center", "middle")
+        ix = cx - S(26)
+        screen.blit(ic, (int(ix - size / 2), int(y - size / 2 - bump * S(6))))
+        cb.xy, cb.box = (ix, y), None
+        hd.put_number(screen, f"{int(c):02d}", "stencil", S(34), GOLD, cx + S(22), y, "center", "middle", scale=1 + 0.3 * bump, glow=0.45)
 
     def draw_panel(self, screen, eng, side, vals, now):
         """A player's panel: the name, the score, the chains, the power gems, DANGER. / Le panneau d'un joueur."""

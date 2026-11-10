@@ -116,7 +116,7 @@
         "type": "u16s",
         "count": 4,
         "stride": 2,
-        "note": "low bytes: the falling pair (0xFF8453 the one turning, 0xFF8455 the pivot), the next pair (0xFF8457 bottom, 0xFF8459 top)"
+        "note": "low bytes: the falling pair (0xFF8453 the pivot at x and y, 0xFF8455 the gem turning around it: above, right, below, left), the next pair (0xFF8457 bottom, 0xFF8459 top)"
       },
       "pair2": {
         "addr": "0xFF8852",
@@ -133,12 +133,12 @@
       "y1": {
         "addr": "0xFF8315",
         "type": "u8",
-        "note": "row of player 1's falling pair, 3 at the top to 14, 0 while it locks"
+        "note": "row of player 1's pivot gem, 3 at the top to 14 at the bottom (visible row y - 1), 0 while it locks"
       },
       "rot1": {
         "addr": "0xFF8470",
         "type": "u8",
-        "note": "player 1's pair turned, 0 to 3"
+        "note": "player 1's pair turned, 0 the other gem above the pivot, 1 on its right, 2 below, 3 on its left (from the pairs landed)"
       },
       "x2": {
         "addr": "0xFF8711",
@@ -654,12 +654,15 @@
   "scene": {
     "layers": [
       {
-        "type": "rect",
+        "type": "well",
+        "var": "well1",
         "x": 0,
-        "y": 11,
-        "w": 128,
-        "h": 21,
-        "color": "#3c1e14",
+        "y": 3,
+        "size": 2,
+        "pair": "pair1",
+        "px": "x1",
+        "py": "y1",
+        "rot": "rot1",
         "when": {
           "not": {
             "all": [
@@ -689,281 +692,15 @@
         }
       },
       {
-        "type": "rect",
-        "x": 1,
-        "y": 11,
-        "w": 20,
-        "h": 21,
-        "color": "#141028",
-        "when": {
-          "not": {
-            "all": [
-              {
-                "has": "p1_mode"
-              },
-              {
-                "not": {
-                  "var": "p1_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              },
-              {
-                "not": {
-                  "var": "p2_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              }
-            ]
-          }
-        }
-      },
-      {
-        "type": "rect",
-        "x": 107,
-        "y": 11,
-        "w": 20,
-        "h": 21,
-        "color": "#141028",
-        "when": {
-          "not": {
-            "all": [
-              {
-                "has": "p1_mode"
-              },
-              {
-                "not": {
-                  "var": "p1_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              },
-              {
-                "not": {
-                  "var": "p2_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              }
-            ]
-          }
-        }
-      },
-      {
-        "type": "rect",
-        "x": 0,
-        "y": 11,
-        "w": 1,
-        "h": 21,
-        "color": "#e6b43c",
-        "when": {
-          "not": {
-            "all": [
-              {
-                "has": "p1_mode"
-              },
-              {
-                "not": {
-                  "var": "p1_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              },
-              {
-                "not": {
-                  "var": "p2_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              }
-            ]
-          }
-        }
-      },
-      {
-        "type": "rect",
-        "x": 21,
-        "y": 11,
-        "w": 1,
-        "h": 21,
-        "color": "#e6b43c",
-        "when": {
-          "not": {
-            "all": [
-              {
-                "has": "p1_mode"
-              },
-              {
-                "not": {
-                  "var": "p1_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              },
-              {
-                "not": {
-                  "var": "p2_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              }
-            ]
-          }
-        }
-      },
-      {
-        "type": "rect",
-        "x": 106,
-        "y": 11,
-        "w": 1,
-        "h": 21,
-        "color": "#e6b43c",
-        "when": {
-          "not": {
-            "all": [
-              {
-                "has": "p1_mode"
-              },
-              {
-                "not": {
-                  "var": "p1_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              },
-              {
-                "not": {
-                  "var": "p2_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              }
-            ]
-          }
-        }
-      },
-      {
-        "type": "rect",
-        "x": 127,
-        "y": 11,
-        "w": 1,
-        "h": 21,
-        "color": "#e6b43c",
-        "when": {
-          "not": {
-            "all": [
-              {
-                "has": "p1_mode"
-              },
-              {
-                "not": {
-                  "var": "p1_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              },
-              {
-                "not": {
-                  "var": "p2_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              }
-            ]
-          }
-        }
-      },
-      {
-        "type": "icons",
-        "var": "_one",
-        "x": 2,
-        "y": 16,
-        "max": 1,
-        "pattern": [
-          "r..g..",
-          "rg.gb.",
-          "rgbbby",
-          "yrrgby",
-          "yrggbb"
-        ],
-        "colors": {
-          "r": "#e6323c",
-          "g": "#3cc850",
-          "b": "#3c78f0",
-          "y": "#fad232"
-        },
-        "when": {
-          "not": {
-            "all": [
-              {
-                "has": "p1_mode"
-              },
-              {
-                "not": {
-                  "var": "p1_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              },
-              {
-                "not": {
-                  "var": "p2_mode",
-                  "in": [
-                    1,
-                    2
-                  ]
-                }
-              }
-            ]
-          }
-        }
-      },
-      {
-        "type": "icons",
-        "var": "_one",
-        "x": 108,
-        "y": 16,
-        "max": 1,
-        "pattern": [
-          ".b..y.",
-          "bb.yy.",
-          "gbryyr",
-          "grrbyr",
-          "ggrbbr"
-        ],
-        "colors": {
-          "r": "#e6323c",
-          "g": "#3cc850",
-          "b": "#3c78f0",
-          "y": "#fad232"
-        },
+        "type": "well",
+        "var": "well2",
+        "x": 114,
+        "y": 3,
+        "size": 2,
+        "pair": "pair2",
+        "px": "x2",
+        "py": "y2",
+        "rot": "rot2",
         "when": {
           "not": {
             "all": [
@@ -995,13 +732,13 @@
       {
         "type": "text",
         "font": "5x8",
-        "x": 64,
-        "y": 13,
-        "align": "center",
+        "x": 16,
+        "y": 0,
+        "align": "left",
         "segments": [
           {
             "text": "{p1_char}",
-            "color": "#ff7840"
+            "color": "#ff9640"
           }
         ],
         "when": {
@@ -1042,13 +779,13 @@
       {
         "type": "text",
         "font": "5x8",
-        "x": 64,
-        "y": 23,
-        "align": "center",
+        "x": 111,
+        "y": 0,
+        "align": "right",
         "segments": [
           {
             "text": "{p2_char}",
-            "color": "#46aaff"
+            "color": "#5ac8ff"
           }
         ],
         "when": {
@@ -1089,17 +826,48 @@
       {
         "type": "text",
         "font": "6x10",
-        "x": 1,
-        "y": 1,
+        "x": 16,
+        "y": 10,
         "align": "left",
         "segments": [
           {
             "text": "{score}",
-            "color": "#ffa830"
+            "color": "#ffe296"
           }
         ],
         "when": {
-          "has": "score"
+          "all": [
+            {
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "has": "score"
+            }
+          ]
         },
         "flash": {
           "on": "score",
@@ -1108,131 +876,179 @@
         }
       },
       {
-        "type": "marquee",
-        "font": "6x10",
-        "y": 1,
-        "x": 0,
-        "w": 56,
-        "speed": 12,
-        "gap": 40,
-        "upper": true,
-        "segments": [
-          {
-            "text": "{title}",
-            "color": "#ff60c0"
-          }
-        ],
-        "when": {
-          "not": {
-            "has": "score"
-          }
-        },
-        "static_if_fits": true
-      },
-      {
         "type": "text",
         "font": "6x10",
-        "x": 127,
-        "y": 1,
+        "x": 111,
+        "y": 10,
         "align": "right",
         "segments": [
           {
             "text": "{score_p2}",
-            "color": "#ffa830"
+            "color": "#ffe296"
           }
         ],
         "when": {
           "all": [
             {
-              "var": "p2_mode",
-              "in": [
-                1,
-                2
-              ]
+              "not": {
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
             },
             {
               "has": "score_p2"
             }
           ]
+        },
+        "flash": {
+          "on": "score_p2",
+          "color": "#ffffff",
+          "ms": 120
         }
       },
       {
         "type": "text",
-        "font": "6x10",
-        "x": 127,
-        "y": 1,
-        "align": "right",
-        "text": "INSERT COIN",
-        "color": "#ffa830",
+        "font": "5x8",
+        "x": 64,
+        "y": 23,
+        "align": "center",
+        "text": "CREDITS {credits}",
+        "color": "#c8a050",
         "when": {
           "all": [
             {
               "not": {
-                "var": "p2_mode",
-                "in": [
-                  1,
-                  2
+                "all": [
+                  {
+                    "has": "p1_mode"
+                  },
+                  {
+                    "not": {
+                      "var": "p1_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "var": "p2_mode",
+                      "in": [
+                        1,
+                        2
+                      ]
+                    }
+                  }
                 ]
               }
             },
             {
-              "not": {
-                "var": "credits",
-                "gt": 0
-              }
+              "has": "credits"
             }
           ]
-        },
-        "blink_period": 1.0
+        }
       },
       {
-        "type": "cycle",
-        "period": 1.5,
-        "when": {
-          "all": [
-            {
-              "not": {
-                "var": "p2_mode",
-                "in": [
-                  1,
-                  2
-                ]
-              }
-            },
-            {
-              "var": "credits",
-              "gt": 0
-            }
-          ]
-        },
-        "pages": [
+        "type": "events",
+        "events": [
           {
-            "layers": [
-              {
-                "type": "text",
-                "font": "6x10",
-                "x": 127,
-                "y": 1,
-                "align": "right",
-                "text": "CREDITS {credits}",
-                "color": "#ffa830"
-              }
-            ]
+            "on": "chain1",
+            "change": "up",
+            "when": {
+              "var": "chain1",
+              "gt": 1
+            },
+            "text": "{chain1} CHAIN!",
+            "color": "#ff9640",
+            "font": "6x10",
+            "y": 20,
+            "ms": 1300,
+            "clear": false
           },
           {
-            "layers": [
+            "on": "chain2",
+            "change": "up",
+            "when": {
+              "var": "chain2",
+              "gt": 1
+            },
+            "text": "{chain2} CHAIN!",
+            "color": "#5ac8ff",
+            "font": "6x10",
+            "y": 20,
+            "ms": 1300,
+            "clear": false
+          },
+          {
+            "on": "wins1",
+            "change": "up",
+            "text": "{p1_char} WINS",
+            "color": "#ffd25a",
+            "font": "6x10",
+            "y": 16,
+            "ms": 1800,
+            "priority": 2
+          },
+          {
+            "on": "wins2",
+            "change": "up",
+            "text": "{p2_char} WINS",
+            "color": "#ffd25a",
+            "font": "6x10",
+            "y": 16,
+            "ms": 1800,
+            "priority": 2
+          }
+        ],
+        "when": {
+          "not": {
+            "all": [
               {
-                "type": "text",
-                "font": "6x10",
-                "x": 127,
-                "y": 1,
-                "align": "right",
-                "text": "PRESS START",
-                "color": "#ffa830"
+                "has": "p1_mode"
+              },
+              {
+                "not": {
+                  "var": "p1_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "var": "p2_mode",
+                  "in": [
+                    1,
+                    2
+                  ]
+                }
               }
             ]
           }
-        ]
+        }
       },
       {
         "type": "coinop",
