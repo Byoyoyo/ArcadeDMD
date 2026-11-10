@@ -75,7 +75,7 @@
     "max": 100,
     "zero_from": "0x80",
     "add": 1,
-    "note": "health bar in %, full = 103 (cheat database); a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (Seb, 1.31): from 0x80 it reads empty; 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)"
+    "note": "health bar in %, full = 103 (cheat database); a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (1.31): from 0x80 it reads empty; 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight"
    },
    "health_p2": {
     "addr": "0x108439",
@@ -85,7 +85,7 @@
     "max": 100,
     "zero_from": "0x80",
     "add": 1,
-    "note": "health bar in %, full = 103 (cheat database); a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (Seb, 1.31): from 0x80 it reads empty; 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)"
+    "note": "health bar in %, full = 103 (cheat database); a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (1.31): from 0x80 it reads empty; 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight"
    },
    "time": {
     "addr": "0x10A83A",
@@ -101,7 +101,7 @@
    "_fight_state": {
     "addr": "0x10A786",
     "type": "u8",
-    "note": "the state of the fight, as in The King of Fighters '97 (RetroAchievements code notes, 0xa787 Fight - State: 0x18 Ready, 0x1a fighting; the MAME cheat Hide Background reads it as not 0 during a match); READY at 0x18, FIGHT ! with GO 1.15 s later (1.31.1, Seb's video); Seb's log (1.32 test 8b): 0x1A during the fight (0x02 a moment in a super's freeze), 0x18 also at TIME UP, 0x19 and 0x01 by turns after a K.O. then 0x01, 0 when the next round's intro starts (ROUND n) and between the select screens and a first round; its changes written in the log"
+    "note": "the state of the fight, as in The King of Fighters '97 (RetroAchievements code notes, 0xa787 Fight - State: 0x18 Ready, 0x1a fighting; the MAME cheat Hide Background reads it as not 0 during a match); READY at 0x18, FIGHT ! with GO 1.15 s later (1.31.1, the video); the log (1.32 test 8b): 0x1A during the fight (0x02 a moment in a super's freeze), 0x18 also at TIME UP, 0x19 and 0x01 by turns after a K.O. then 0x01, 0 when the next round's intro starts (ROUND n) and between the select screens and a first round; its changes written in the log"
    },
    "score": {
     "addr": "0x1081FC",
@@ -198,7 +198,7 @@
    "round": {
     "addr": "0x10A7F1",
     "type": "u8",
-    "note": "round of the match, from 0, one more at each K.O. (cheat database \"Select Current Round\", 1 to 6; it was read as the match number and shown as STAGE n, but Seb saw it move at each K.O. in 1.31), shown as ROUND n when the next fight begins"
+    "note": "round of the match, from 0, one more at each K.O. (cheat database \"Select Current Round\", 1 to 6; it was read as the match number and shown as STAGE n, but it moves at each K.O. in 1.31), shown as ROUND n when the next fight begins"
    },
    "backdrop": {
     "addr": "0x10A7EA",
@@ -208,7 +208,7 @@
    "_screen": {
     "addr": "0x108502",
     "type": "u16",
-    "note": "the screen the game shows (RetroAchievements code notes, 0x8502 Screen ID (16bits), 77b2 = Character selection screen, b3a0 = Order select, e8be = Fighting); its select screens give VS and no event of a fight; 0xE8BE only comes once the fight runs, after GO (Seb's video, 1.32 test 8)"
+    "note": "the screen the game shows (RetroAchievements code notes, 0x8502 Screen ID (16bits), 77b2 = Character selection screen, b3a0 = Order select, e8be = Fighting); its select screens give VS and no event of a fight; 0xE8BE only comes once the fight runs, after GO (the video, 1.32 test 8)"
    },
    "_in_p1": {
     "addr": "0x10FD96",
@@ -255,17 +255,17 @@
    "_maxv": {
     "addr": "0x1081EA",
     "type": "u8",
-    "note": "P1 MAX timer of Advanced: the MAME cheat Infinite Power holds it at 0x40; in Seb's log the CPU's MAX set it to 0x3F and it counted down, a desperation move or a guard cancel only to 0x01, the next round back to 0; MAX while it is at 2 or more, whatever the buttons (1.32 test 8c)"
+    "note": "P1 MAX timer of Advanced: the MAME cheat Infinite Power holds it at 0x40; in the log the CPU's MAX set it to 0x3F and it counted down, a desperation move or a guard cancel only to 0x01, the next round back to 0; MAX while it is at 2 or more, whatever the buttons (1.32 test 8c)"
    },
    "_maxv_p2": {
     "addr": "0x1083EA",
     "type": "u8",
-    "note": "P2 MAX timer of Advanced, the P1 one + 0x200 (0x3F at the CPU's MAX in Seb's log)"
+    "note": "P2 MAX timer of Advanced, the P1 one + 0x200 (0x3F at the CPU's MAX in the log)"
    }
   }
  },
  "derived": {
-  "select": {"sum": [{"eq": ["_screen", 30642]}, {"eq": ["_screen", 45984]}], "names": {"0": 0, "1": 1, "2": 1}, "note": "1 on the character select and the order select (0x77B2, 0xB3A0); the screens between them and the first round, and after a match, have no fight going (_fight_state 0) and are select screens too for ArcadeDMD, the next rounds' intros start at 0 after a K.O. (0x19 and 0x01) (Seb's log, 1.32 test 8b)"},
+  "select": {"sum": [{"eq": ["_screen", 30642]}, {"eq": ["_screen", 45984]}], "names": {"0": 0, "1": 1, "2": 1}, "note": "1 on the character select and the order select (0x77B2, 0xB3A0); the screens between them and the first round, and after a match, have no fight going (_fight_state 0) and are select screens too for ArcadeDMD, the next rounds' intros start at 0 after a K.O. (0x19 and 0x01) (the log, 1.32 test 8b)"},
   "p1_char": {
    "pick": [
     "_p1_ch0",
@@ -439,7 +439,7 @@
   "RUGAL": [{"name": "GIGANTIC PRESS", "cmd": "2363214", "btn": "P"}, {"name": "D.E. SCREAMER", "cmd": "236236", "btn": "K"}],
   "SHINGO": [{"name": "BURNING SHINGO", "cmd": "2141236", "btn": "P"}, {"name": "KAKE HOURIN", "cmd": "236236", "btn": "P"}]
  },
- "buttons": {"A": "LP", "B": "LK", "C": "HP", "D": "HK", "note": "names of the buttons on the HD screen (1.32), A light punch, B light kick, C heavy punch, D heavy kick, as Seb asked"},
+ "buttons": {"A": "LP", "B": "LK", "C": "HP", "D": "HK", "note": "names of the buttons on the HD screen (1.32), A light punch, B light kick, C heavy punch, D heavy kick, as asked"},
  "hd": {
   "stages": [
    "fight_kof_osaka",
@@ -463,6 +463,6 @@
    ["ÉTATS-UNIS", "USA"],
    ["BLACKNOAH", "BLACKNOAH"]
   ],
-  "note": "HD screen theme for each backdrop value (index = value), and the place shown under ROUND 1 (the backdrops of the cheat database), see the wiki, HD Marquee page; the nine stages of the game drawn from Seb's pictures, each changing with the rounds as in the game (1.32 test 9)"
+  "note": "HD screen theme for each backdrop value (index = value), and the place shown under ROUND 1 (the backdrops of the cheat database), see the wiki, HD Marquee page; the nine stages of the game drawn from the pictures, each changing with the rounds as in the game (1.32 test 9)"
  }
 }

@@ -48,12 +48,12 @@ from .i18n import tr
 
 AMBER, RED, CREAM, LINE = (255, 168, 48), (255, 52, 30), (235, 225, 205), (168, 112, 30)
 GREY = (150, 150, 165)
-# the fighters' names (1.33, Seb): cream letters with a black outline, P1, P2 and the teams outlined too, no glow. They
+# the fighters' names (1.33): cream letters with a black outline, P1, P2 and the teams outlined too, no glow. They
 # were red with a red glow, which melted into the warm stages. / Les noms des combattants : lettres crème à contour noir,
 # P1, P2 et les équipes aussi, sans lueur. Ils étaient rouges à lueur rouge, fondus dans les décors chauds.
 INK = (10, 8, 14)
 TEAM_GREY, TEAM_DONE = (205, 210, 225), (150, 152, 165)
-# the game's own colours (1.33 test 6, Seb): player 1's name and score in blue, player 2's or the CPU's in red
+# the game's own colours (1.33 test 6): player 1's name and score in blue, player 2's or the CPU's in red
 # les couleurs du jeu : le nom et le score du joueur 1 en bleu, ceux du joueur 2 ou du CPU en rouge
 P1_BLUE, P2_RED = (92, 172, 255), (255, 84, 64)
 
@@ -136,14 +136,14 @@ class HDRenderer:
             self.dim = max(0, min(80, int((cfg or {}).get("dim", 30))))
         except (TypeError, ValueError):
             self.dim = 30
-        # the fighting games darker still, their names, bars and buttons over the stage (Seb, 1.32 test 5, "dim_fight")
+        # the fighting games darker still, their names, bars and buttons over the stage (1.32 test 5, "dim_fight")
         # les jeux de combat plus sombres encore, leurs noms, barres et boutons par-dessus le décor
         try:
             self.dim_fight = max(0, min(80, int((cfg or {}).get("dim_fight", 55))))
         except (TypeError, ValueError):
             self.dim_fight = 55
         self.dim_veils = {}
-        # the look of the stages of The King of Fighters '98: "cartoon" (inked, Seb, 1.33) or "flat" (as drawn in 1.32)
+        # the look of the stages of The King of Fighters '98: "cartoon" (inked, 1.33) or "flat" (as drawn in 1.32)
         # le style des décors de KOF '98 : "cartoon" (encré) ou "flat" (tels que dessinés en 1.32)
         from . import hd_themes18
         style = str((cfg or {}).get("stage_style", "cartoon")).lower()
@@ -369,7 +369,7 @@ class HDRenderer:
 
         line = Image.new("RGBA", (w, h), (0, 0, 0, 0))
         ImageDraw.Draw(line).line(shape + [shape[0]], fill=CREAM + (255,), width=max(2, self.S(4)))
-        # the empty part stays dark and neutral: a nearly empty bar must not look full and red (X-Men, Seb's cabinet)
+        # the empty part stays dark and neutral: a nearly empty bar must not look full and red (X-Men, the cabinet)
         # la partie vide reste sombre et neutre : une barre presque vide ne doit pas paraître pleine et rouge
         b = {"back": solid((24, 26, 34)), "trail": solid((255, 235, 235)), "line": self._surf(line),
              "red": solid((225, 30, 30)), "white": solid((255, 255, 255)),
@@ -745,7 +745,7 @@ class HDRenderer:
             sel = self.fight.sel_on       # once it lasted a moment (1.32) / une fois qu'il a duré un instant
         if h1 is not None and h2 is not None:
             f1, f2 = h1 / 100.0, h2 / 100.0
-            if sel:                       # the select screens: both bars empty, not the winner's last level (Seb's photo,
+            if sel:                       # the select screens: both bars empty, not the winner's last level (the photo,
                 f1 = f2 = 0.0             # 1.33 test 7) / les écrans de sélection : les deux barres vides, sans traînée
                 self.trails.clear()
             dm = getattr(self.fight, "dm", None) if self.fight is not None and not sel else None
@@ -789,7 +789,7 @@ class HDRenderer:
                 name = held[0]
             team = self.team(eng, side)
             if self.fight is not None and self.fight.select and self.fight.sel_phase:
-                name, team = self.select_pick(eng, side)   # the select screen: the picks made so far (1.33, Seb)
+                name, team = self.select_pick(eng, side)   # the select screen: the picks made so far (1.33)
             # 1.32: under a human's name, the panel of the desperation moves, the team moved up beside the name, small
             # sous le nom d'un humain, le panneau des coups désespérés, l'équipe montée à côté du nom, en petit
             panel = moves is not None and human and self.fight.panel_on(side)
@@ -839,7 +839,7 @@ class HDRenderer:
             self.put(screen, t, cx, S(338), "center", "middle")
         f = self.fight
         if f is not None and f.vs_on() and _num(vals.get("_p1_lost")) is not None:
-            # two humans in a game of teams: the matches each one won, under the credits (1.32, Seb, as in Puzzle Bobble)
+            # two humans in a game of teams: the matches each one won, under the credits (1.32, as in Puzzle Bobble)
             # deux humains dans un jeu d'équipes : les matchs gagnés par chacun, sous les crédits
             draw_wins(self, screen, f.moves, f.wins["p1"], f.wins["p2"], cx, S(414), now, f.win_pop)
 
@@ -965,7 +965,7 @@ class HDRenderer:
                 self.pg.draw.line(screen, (220, 60, 40), (x0, y), (x1, y), max(2, S(3)))
 
     def select_pick(self, eng, side):
-        """On the select screens, the fighters picked so far, read as the game writes them (Seb's captures, 1.33 test
+        """On the select screens, the fighters picked so far, read as the game writes them (the captures, 1.33 test
         6, FightFX._select_phase): the slots fill pick by pick, the last pick named; the three in, the team as picked;
         then the orders come one by one, "_lost" counting them, _ord0 first, the orders left being the last match's
         until then, the first to fight named. The CPU gets its team, then its order, at once. / Aux écrans de

@@ -86,7 +86,7 @@ Quand une barre de vie, un chrono ou un nom ne colle pas à l'écran, lance `tes
 | The King of Fighters '94 | `kof94.json` | oui | oui | - | RetroAchievements, à vérifier |
 | The King of Fighters '95 | `kof95.json` | oui | oui | - | à apprendre |
 | The King of Fighters '96 | `kof96.json` | oui | oui | oui (29) | supposé, à vérifier |
-| The King of Fighters '97 | `kof97.json` | oui | oui | oui (32) | trouvé (partie de Seb, test 49 de la 1.33.1) |
+| The King of Fighters '97 | `kof97.json` | oui | oui | oui (32) | trouvé (1.33.1) |
 | The King of Fighters '98 | `kof98.json` | oui | oui | oui (38) | trouvé |
 | The King of Fighters '99 | `kof99.json` | oui | oui | oui (34) | supposé, à vérifier |
 | The King of Fighters 2000 | `kof2000.json` | oui | oui | oui (36) | supposé, à vérifier |

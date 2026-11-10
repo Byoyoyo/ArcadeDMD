@@ -147,7 +147,7 @@ def gunship_draw(body, accent):
 
 # ============================================================================ the bosses of DoDonPachi / les boss de DoDonPachi
 # One machine of our own per stage, seen from above, nose to the left, in the dominant colour of the boss of the game
-# (photos sent by Seb). Only the kind of machine and the colour are kept, the shapes are ours.
+# (photos sent). Only the kind of machine and the colour are kept, the shapes are ours.
 # Une machine à nous par niveau, vue du dessus, nez à gauche, dans la couleur dominante du boss du jeu ; seuls le genre
 # d'engin et la couleur sont gardés, les formes sont à nous.
 def _boss_paint(body, accent):
@@ -369,7 +369,7 @@ def crescent_boss_draw(body, accent, core):
     return fn
 
 
-# the boss of each stage of DoDonPachi: its kind of machine and the dominant colour of the game's (Seb's photos)
+# the boss of each stage of DoDonPachi: its kind of machine and the dominant colour of the game's (the photos)
 # le boss de chaque niveau : son genre d'engin et la couleur dominante de celui du jeu
 DDP_BOSSES = (
     wing_boss_draw((86, 136, 70), (236, 204, 52)),               # 1 SUZAKU, green / vert
@@ -493,7 +493,7 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         self.boss_alerts = 0                           # (tests)
         self.boss_downs = 0
         # the full life of the boss of each stage, kept when the scene starts again after a continue or the boss comes back:
-        # the game keeps its damage (Seb, 1.31) / la vie pleine du boss de chaque niveau, gardée après une continue
+        # the game keeps its damage (1.31) / la vie pleine du boss de chaque niveau, gardée après une continue
         self.boss_tops = {}
         self.life_read = False                         # the game gives its boss's life (DoDonPachi) / le jeu donne sa vie
         self.boss_backs = 0                            # (tests)
@@ -915,7 +915,7 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         if ratio >= 6 and self.boss_up() is not None:
             if self.life_read:
                 # its life read in the game says when it falls: a big gain during the fight is a bomb that blows up its
-                # turrets or the enemies around (Seb, 1.31 test 16), and its bullets keep flying
+                # turrets or the enemies around (1.31 test 16), and its bullets keep flying
                 # sa vie lue dans le jeu dit quand il tombe : un gros gain pendant le combat, c'est une bombe
                 return
             self.boss_down(now, side)                                   # the boss of the stage falls / le boss tombe
@@ -1659,7 +1659,7 @@ class CaveShooterScene(_CpsShooter, AeroFightersScene):
         near, far = (x0 + PW - pad, x0 + pad) if right else (x0 + pad, x0 + PW - pad)
         an, af = ("right", "left") if right else ("left", "right")
         sgn = -1 if right else 1
-        # the lines spread evenly in the panel, 1P close to its score (Seb, 1.31 test 11) / les lignes réparties dans le panneau
+        # the lines spread evenly in the panel, 1P close to its score (1.31 test 11) / les lignes réparties dans le panneau
         self.text(screen, self.TAGS[1 if right else 0], near, S(34), 34, col, align=an)
         if vals.get("ship" + suf) is not None:
             name = self.SHIP_NAMES.get(self.ship_kind(vals, side))
@@ -1775,7 +1775,7 @@ class DoDonPachiScene(CaveShooterScene):
     cartes du jeu et un boss à nous pour chacun dans la couleur dominante du sien, chaque joueur en grand dans un
     panneau, le compteur de coups et sa jauge, les bombes et leurs places, la vie du boss, les étoiles d'or."""
     THEME = "ddp_forest"
-    # its six stages after their maps, numbered by Seb (1.31), the last stage of the second loop in the hive / ses six niveaux
+    # its six stages after their maps, numbered (1.31), the last stage of the second loop in the hive / ses six niveaux
     STAGES = ("ddp_forest", "ddp_base", "ddp_peaks", "ddp_ruins", "ddp_station", "ddp_nest", "ddp_nest")
     BULLETS = (PINK, BLUE)
     BIG_HUD = True                                     # each player in big in a panel, the action behind (1.31) / en grand

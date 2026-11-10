@@ -47,21 +47,21 @@ CREAM = (238, 228, 208)
 FIGHT_WAIT = 12.0         # its first second counted down tells it / sa première seconde décomptée le dit
 FIGHT_WAIT_SUB = 20.0     # its fraction of a second moving tells it at once / sa fraction de seconde le dit tout de suite
 # The King of Fighters '97 and '98 keep the state of the fight ("_fight_state"): 0x18 when READY comes, the fight (bit 1,
-# 0x1A) when GO is over and the timer runs. GO comes 1.15 s after READY, 0.65 s before the timer (Seb's video, 1.31.1)
+# 0x1A) when GO is over and the timer runs. GO comes 1.15 s after READY, 0.65 s before the timer (the video, 1.31.1)
 # l'état du combat : 0x18 quand READY arrive, le combat (bit 1) quand GO est fini et que le chrono tourne ; GO vient
-# 1,15 s après READY, 0,65 s avant le chrono (la vidéo de Seb)
+# 1,15 s après READY, 0,65 s avant le chrono (la vidéo)
 READY_STATE = 0x18
-# Seb's log of The King of Fighters '98 (1.32 test 8b): after a K.O. the state goes 0x19 and 0x01 by turns, then stays at
+# the log of The King of Fighters '98 (1.32 test 8b): after a K.O. the state goes 0x19 and 0x01 by turns, then stays at
 # 0x01, and the next round's intro starts at 0 (ROUND n at once on the game's screen, its next fighter 1.5 s after), READY
 # (0x18) 4 to 5 s later, the fight 0x1A. Between the select screens and a first round it stays at 0, READY says it.
-# Le log de Seb : après un K.O. l'état passe par 0x19 et 0x01 tour à tour, puis reste à 0x01, et l'intro du round suivant
+# Le log : après un K.O. l'état passe par 0x19 et 0x01 tour à tour, puis reste à 0x01, et l'intro du round suivant
 # commence à 0 (ROUND n tout de suite à l'écran du jeu, le combattant suivant 1,5 s après), READY 4 à 5 s plus tard, le
 # combat 0x1A. Entre les écrans de sélection et un premier round il reste à 0, READY le dit.
 INTRO_STATE = 0x00
 ROUND_OVER = (0x01, 0x19)
 READY_GO = 1.15
 READY_MIN = 2.5           # READY never comes sooner after the bars filled / READY ne vient jamais plus tôt
-MATCH_END = 5.5           # the winner of a match in big letters, this long (Seb, 1.31.1) / le vainqueur du match, ce temps
+MATCH_END = 5.5           # the winner of a match in big letters, this long (1.31.1) / le vainqueur du match, ce temps
 VS_FORGET = 20.0          # the wins of two humans forgotten when one of them left that long ago (1.32) / victoires oubliées
 # a select screen, or the fight's, once it has lasted that long: a screen of a moment does not start or end a fight (1.32)
 # un écran de sélection, ou celui du combat, une fois qu'il a duré ce temps : un écran d'un instant ne lance ni ne finit rien
@@ -122,7 +122,7 @@ class FightFX:
         self.bd = Backdrop(hd, "arena", random.Random(self.rng.random()), threaded=False)
         self.bd.static = True
         self.bd.dim = getattr(hd, "dim_fight", None)                   # darker under the fight (1.32) / plus sombre
-        self.bd.no_neons = True                                       # no shop signs at the level of the names (Seb, 1.32)
+        self.bd.no_neons = True                                       # no shop signs at the level of the names (1.32)
         self.buf = None
         self.dark = None
         self.key = None
@@ -204,7 +204,7 @@ class FightFX:
         self.round_t = {"p1": -99.0, "p2": -99.0}
         self.live_t = -99.0                        # when somebody began to play / quand quelqu'un s'est mis à jouer
         self.zero_t = {}                           # when each bar fell to 0 / quand chaque barre est tombée à 0
-        # 1.31, the rounds of a King of Fighters match (Seb) / les rounds d'un match de King of Fighters
+        # 1.31, the rounds of a King of Fighters match / les rounds d'un match de King of Fighters
         self.round_v = None                        # the round of the match read in the game, from 0 / le round du match
         self.round_show = -99.0                     # when ROUND n shows, before FIGHT ! / quand ROUND n s'affiche
         self.round_sub = ""                        # the place of a new match under its first round / le lieu sous ROUND 1
@@ -214,7 +214,7 @@ class FightFX:
         self.ko_until = -99.0                      # until the K.O. and the WIN are over / jusqu'à la fin du K.O. et du WIN
         self.out = None                            # (winner, loser, t): a team eliminated, the match won / une équipe éliminée
         # fighters of each team beaten when the fight began (GO): the game counts a K.O. a moment before its bar is read
-        # empty, so the count read while the bar is up already had it (Seb, 1.31.1, a team out after its second fighter)
+        # empty, so the count read while the bar is up already had it (1.31.1, a team out after its second fighter)
         # combattants battus de chaque équipe au début du combat (GO) : le jeu compte un K.O. juste avant que sa barre se
         # lise vide, le compte lu barre levée l'avait déjà (une équipe éliminée après son deuxième combattant)
         self.lost_go = {"p1": None, "p2": None}
@@ -225,7 +225,7 @@ class FightFX:
         self.time_seen = -99.0                     # when the timer last moved / quand le chrono a bougé
         self.time_tick = -99.0                     # when it last counted a second down / quand il a décompté une seconde
         self.time_reset = False                    # put back to 0 at a round's start, not shown / remis à 0, pas affiché
-        # 1.31.1, FIGHT ! with the game's GO (Seb) / FIGHT ! avec le GO du jeu
+        # 1.31.1, FIGHT ! with the game's GO / FIGHT ! avec le GO du jeu
         self.fight_wait = None                     # (earliest, since): FIGHT ! waits for the timer / attend le chrono
         self.timer_read = False                    # the game reads its timer / le jeu lit son chrono
         self.sub_read = False                      # and its fraction of a second / et sa fraction de seconde
@@ -236,10 +236,10 @@ class FightFX:
         self.round_t0 = None                       # when the bars of this round filled / quand les barres se sont remplies
         self.fight_why = ""                        # what gave FIGHT ! (log) / ce qui a donné FIGHT !
         self.run_logged = True                     # the timer's start of this round logged / le départ du chrono noté
-        # 1.32, the matches won by each of two humans (Seb, as in Puzzle Bobble) / les matchs gagnés par chacun de deux humains
+        # 1.32, the matches won by each of two humans (as in Puzzle Bobble) / les matchs gagnés par chacun de deux humains
         self.wins = {"p1": 0, "p2": 0}
         self.win_pop = {"p1": None, "p2": None}    # when one more came, its number pops / quand il en vient un, il grossit
-        # 1.33 test 6 (Seb's capture of Fatal Fury): a game that counts no round gets its rounds counted here, from the
+        # 1.33 test 6 (the capture of Fatal Fury): a game that counts no round gets its rounds counted here, from the
         # K.O. and TIME UP, ROUND n and VICTOIRE after two rounds won; a game that keeps its rounds won ("rounds") gives
         # them / un jeu qui ne compte pas ses rounds les voit comptés ici, d'après les K.O. et TIME UP
         self.rounds_won = {"p1": 0, "p2": 0}
@@ -250,7 +250,7 @@ class FightFX:
         self.hd_round_value = None                 # "round" read in the game / « round » lu dans le jeu
         self.win_add = None                        # (winner, t): counted when VICTOIRE shows / compté quand VICTOIRE s'affiche
         self.vs_t = -99.0                          # when both players were last human / quand les deux étaient humains
-        # 1.32 test 6, Seb's video: the screens between the select screens and the fight / les écrans entre la sélection et
+        # 1.32 test 6, the video: the screens between the select screens and the fight / les écrans entre la sélection et
         self.sel_raw = None                        # the select screen as last read / l'écran de sélection tel que lu
         self.sel_t = -99.0                         # since when / depuis quand
         self.sel_on = False                        # as it counts, once it lasted SELECT_HOLD / tel qu'il compte
@@ -338,17 +338,17 @@ class FightFX:
         self.fs_known = fs_now is not None
         # the game keeping the state of the fight (King of Fighters '97 and '98): no fight (0) while no match is going,
         # the screens between the select and the first round, or after a match, are select screens too (1.32 test 8b,
-        # Seb's log) / sans combat (0) tant qu'aucun match n'est en cours : les écrans entre la sélection et le premier
+        # the log) / sans combat (0) tant qu'aucun match n'est en cours : les écrans entre la sélection et le premier
         # round, ou après un match, sont aussi des écrans de sélection
         r1 = False
         tv_was = self.tv_prev                                         # the timer as last read / le chrono d'avant
         if self.fs_known and int(fs_now) == 0 and not self.in_round and now - self.timeup_t < TIMEUP_HOLD and not jsel:
             pass                                                      # the TIME UP of KOF 2002: 3 s with no fight (0),
-            # its winner still on screen, not a select screen (Seb's game of 9 November, 1.33 test 50) / le TIME UP de
+            # its winner still on screen, not a select screen (a game of 9 November, 1.33 test 50) / le TIME UP de
             # KOF 2002 : 3 s sans combat, son vainqueur encore à l'écran, pas un écran de sélection
         elif self.fs_known and int(fs_now) == 0 and not self.in_round:
             # a first round's intro: the game sets its timer (0 -> 60) when the stage appears, ROUND 1 just after on its
-            # screen, READY 6 s later (Seb's log, 1.32 test 8d) / l'intro d'un premier round : le jeu met son chrono quand
+            # screen, READY 6 s later (the log, 1.32 test 8d) / l'intro d'un premier round : le jeu met son chrono quand
             # le décor apparaît, ROUND 1 juste après à son écran, READY 6 s plus tard
             tv, tv0 = _n(vals.get("time")), self.tv_prev
             if not jsel and not idle and tv is not None and tv0 is not None and tv > tv0 and tv >= 30:
@@ -373,7 +373,7 @@ class FightFX:
             self.live_t = now                                         # START pressed: the game clears its fighters
             if self.select and not select and not self.idle_attract and not self.fs_known:   # out of the select screen:
                 h1, h2 = _n(vals.get("health")), _n(vals.get("health_p2"))                   # the fight begins, bars
-                if (h1 or 0) >= 50 and (h2 or 0) >= 50:               # full (KOF '99 keeps 1 % between its screens, Seb's
+                if (h1 or 0) >= 50 and (h2 or 0) >= 50:               # full (KOF '99 keeps 1 % between its screens, the
                     # says it in the games that keep it) / la fin de la sélection, le combat commence (l'état le dit)
                     self.round_v = _n(vals.get("round"))
                     self.time_stale = _n(vals.get("time"))           # the last match's, until the game sets its own
@@ -403,7 +403,7 @@ class FightFX:
         if self.round_v is None:                                      # counted here (1.33) / compté ici
             self.round_v = self.rounds_won["p1"] + self.rounds_won["p2"] + self.round_draws
         # a game without the state of its fights sets its timer as a round begins (0 -> 60, 90): ROUND n then, unless one
-        # just showed (1.33, Seb's captures of KOF '99 and Fatal Fury) / un jeu sans l'état de ses combats remet son
+        # just showed (1.33, the captures of KOF '99 and Fatal Fury) / un jeu sans l'état de ses combats remet son
         # chrono quand un round commence : ROUND n alors, sauf s'il vient de s'afficher
         if not self.fs_known:
             tv, tv0 = _n(vals.get("time")), tv_was
@@ -460,7 +460,7 @@ class FightFX:
                     prev = self.lost_raw.get(side)
                     named = self.lost_named.get(side)
                     # the name read from the fighter on screen changes only as the next round begins, seconds after the
-                    # count (KOF 2002, Seb's capture, 1.33 test 10): a count gone up since the name was last set counts
+                    # count (KOF 2002, the capture, 1.33 test 10): a count gone up since the name was last set counts
                     # too / le nom lu sur le combattant à l'écran ne change qu'au round suivant : un compte monté depuis
                     if old and name != old and lr is not None and ((prev is not None and lr == prev + 1)
                                                                    or (named is not None and lr > named)):
@@ -473,7 +473,7 @@ class FightFX:
                             self.next_wait[side] = None
                             self.next_round[side] = False
                         elif self.fs_known:                                   # the next round says when it comes
-                            self.next_wait[side] = now + 60.0                 # (Seb, 1.32 test 8, not at the K.O.)
+                            self.next_wait[side] = now + 60.0                 # (1.32 test 8, not at the K.O.)
                             self.next_round[side] = True                      # le round suivant dit quand il entre
                         elif self.ko_side is not None and self.ko_side[0] == side and 0 <= now - self.ko_side[1] < 3.0:
                             self.next_t[side] = max(now, self.ko_until)       # its K.O. already seen / déjà vu
@@ -483,7 +483,7 @@ class FightFX:
                     elif (old and name != old and lr is not None and lr == self.lost_named.get(side) and self.next_name[side]
                           and (self.next_wait[side] is not None or now <= self.next_t[side] + 1.7)):
                         # the name read again before its fighter enters: a read in between had another one (KYO for
-                        # half a second before K', Seb's KOF 2002 of 9 November, 1.33 test 50) / le nom lu à nouveau
+                        # half a second before K', the KOF 2002 of 9 November, 1.33 test 50) / le nom lu à nouveau
                         # avant que son combattant entre : une lecture entre les deux en avait un autre
                         self.next_name[side] = name
                 elif old and name != old and now - self.stage_t > 2.5:   # pas au changement de stage (nouvelle équipe)
@@ -520,7 +520,7 @@ class FightFX:
                 and not self.fs_known):
             self._fight(now)                                          # début de round vu en arrivant (ou barres qui apparaissent)
         # TIME UP only when the timer counted down to 0, a second after another: at the start of a round King of Fighters
-        # puts it back to 0 before its 60 or 90 seconds (Seb, 1.31) / seulement quand le chrono a décompté jusqu'à 0 ;
+        # puts it back to 0 before its 60 or 90 seconds (1.31) / seulement quand le chrono a décompté jusqu'à 0 ;
         # au début d'un round, King of Fighters le remet à 0 avant ses 60 ou 90 secondes
         counting = now - self.time_tick < 2.5
         if t is not None and t != self.prev_time:
@@ -550,7 +550,7 @@ class FightFX:
                                f"Fight, state 0x{fs:02X} at {dt:.2f} s from the round's start"))
             if fs == INTRO_STATE and self.fs_prev in ROUND_OVER and self.in_round:
                 # the next round's intro after a K.O.: ROUND n at once, as the game shows it, its next fighter after it
-                # (Seb's log and video, 1.32 test 8b) / l'intro du round suivant : ROUND n tout de suite, comme le jeu
+                # (the log and video, 1.32 test 8b) / l'intro du round suivant : ROUND n tout de suite, comme le jeu
                 self.round_v = _n(vals.get("round"))
                 self._fight(now)
                 for side in ("p1", "p2"):                               # its next fighter, after ROUND n / son suivant
@@ -596,7 +596,7 @@ class FightFX:
             self.judge = now + JUDGE_WAIT                             # the winner judged a moment later / jugé après
         if self.judge is not None and now >= self.judge and h1 is not None and h2 is not None:
             # the winner on time, judged once the last blow landed: a hit in flight at TIME UP still counts, and equal
-            # bars are a draw, both fighters out (Seb's capture, 1.33 test 7) / le vainqueur au temps, jugé une fois le
+            # bars are a draw, both fighters out (the capture, 1.33 test 7) / le vainqueur au temps, jugé une fois le
             # dernier coup arrivé : un coup en l'air à TIME UP compte encore, et des barres égales font match nul
             self.judge = None
             if h1 != h2:                                              # WIN once TIME UP is over / WIN après TIME UP
@@ -634,7 +634,7 @@ class FightFX:
         self.prev["p1"], self.prev["p2"] = h1, h2
 
     def _select_phase(self, vals, game, select):
-        """Where the select screens stand, per side, as the game writes them (Seb's captures of KOF '98 and '99, 1.33
+        """Where the select screens stand, per side, as the game writes them (the captures of KOF '98 and '99, 1.33
         test 6): the character select empties the slots (0xFF) and fills them pick by pick ("chars"), then the three
         are in ("picked"); the order select counts the orders in "_lost", from 0 again ("order"). / Où en est la
         sélection : les cases vidées puis remplies ("chars"), les trois dedans ("picked"), puis les ordres un à un,
@@ -703,7 +703,7 @@ class FightFX:
         self._rounds(vals, self.fx.now, play=False)
 
     def _dm_watch(self, vals, game, now):
-        """A DM ! or SDM ! the panel just told for a human: its show starts (Seb's choice of 9 November, 1.33 test 51).
+        """A DM ! or SDM ! the panel just told for a human: its show starts (the choice of 9 November, 1.33 test 51).
         / Un DM ! ou SDM ! que le panneau vient de dire pour un humain : son spectacle commence."""
         for side in ("p1", "p2"):
             if not self.humans.get(side):
@@ -790,7 +790,7 @@ class FightFX:
                 self._round_over(None, now, 2.2)
             else:
                 perfect = other is not None and other >= 99
-                # K.O. in big red letters on the loser's side, then WIN on the winner's (Seb, 1.31), PERFECT after them;
+                # K.O. in big red letters on the loser's side, then WIN on the winner's (1.31), PERFECT after them;
                 # the next fighter waits until they are over / K.O. en grosses lettres rouges du côté du perdant, puis WIN
                 # du côté du gagnant, PERFECT après ; le combattant suivant attend qu'ils soient finis
                 self.ko_side = (victim, now)
@@ -912,7 +912,7 @@ class FightFX:
         # le décor prend le look de ce round (l'heure du jour...), comme le jeu entre ses rounds
         self.bd.set_round(self.round_v, now)
         # FIGHT ! with the game's own FIGHT or GO, when the round's timer starts counting down after ROUND n, FIGHT_WAIT
-        # after the bars filled at the latest; a game that reads no timer shows it at once (1.31.1, Seb: in The King of
+        # after the bars filled at the latest; a game that reads no timer shows it at once (1.31.1, in The King of
         # Fighters '98 it came with the names of the fighters, 5 s before READY and GO) / FIGHT ! avec le FIGHT ou le GO du
         # jeu, quand le chrono du round se met à décompter après ROUND n ; sans chrono lu, tout de suite (il venait avec
         # les noms des combattants, 5 s avant READY et GO)
@@ -1095,7 +1095,7 @@ class FightFX:
 
     def time_live(self, now):
         """The timer moved a moment ago. Frozen for 6 s, it is the last fight's (the select screen), and put back to 0 at the
-        start of a round it was not counted down: not shown (Seb, 1.31). Waiting for GO it is the new round's, shown even
+        start of a round it was not counted down: not shown (1.31). Waiting for GO it is the new round's, shown even
         after 6 s (1.31.1) / Le chrono a bougé il y a peu ; figé 6 s, c'est celui du combat d'avant (écran de sélection), et
         remis à 0 au début d'un round il n'a pas été décompté : pas affiché. En attendant le GO, c'est celui du nouveau round."""
         if self.time_stale is not None:
@@ -1111,7 +1111,7 @@ class FightFX:
         return ("P1" if side == "p1" else "P2") if self.humans.get(side) else "CPU"
 
     def _match_end(self, screen, now):
-        """A team eliminated: the winner in big letters, the loser's team out under it (Seb, 1.31).
+        """A team eliminated: the winner in big letters, the loser's team out under it (1.31).
         / Une équipe éliminée : le vainqueur en grand, l'équipe du perdant éliminée dessous."""
         if self.out is None:
             return

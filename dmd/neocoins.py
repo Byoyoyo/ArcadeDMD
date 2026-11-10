@@ -10,7 +10,7 @@ sets that countdown again at each coin without running it, so only the first coi
 starts takes a credit, and back to the demo (request 2) there is none left.
 
 The game starts with no credit: the BIOS clears them as it boots (neogeodev, the boot process clears 16 bytes of the
-backup RAM from $D00024; Seb's cabinet always launches on INSERT COIN), whatever FinalBurn Neo saved (1.33 test 29). A
+backup RAM from $D00024; the cabinet always launches on INSERT COIN), whatever FinalBurn Neo saved (1.33 test 29). A
 coin put in while the BIOS boots is taken once the BIOS is ready, and shows as its countdown set from 0 to 30 before
 the title screen is asked; the presses before that are ignored by the BIOS.
 
@@ -31,7 +31,7 @@ sans que les secondes bougent (1.33 test 28), et un appui sur l'écran titre que
 secondes est repris. En pleine partie le BIOS remet ce compte à chaque pièce sans le faire tourner, seule la première
 pièce de la partie se voit. Chaque joueur qui commence prend un crédit, et de retour à la démo (demande 2) il n'en reste
 plus. Le jeu démarre sans crédit, le BIOS les efface au démarrage (neogeodev : le démarrage efface 16 octets de la mémoire
-de sauvegarde à partir de $D00024 ; la borne de Seb arrive toujours sur INSERT COIN), quoi que FinalBurn Neo ait sauvé
+de sauvegarde à partir de $D00024 ; la borne arrive toujours sur INSERT COIN), quoi que FinalBurn Neo ait sauvé
 (1.33 test 29). Une pièce mise pendant le démarrage est prise dès que le BIOS est prêt, son compte à rebours passe de 0
 à 30 avant que l'écran titre soit demandé ; les appuis d'avant, le BIOS les ignore. Les boutons des pièces, quand
 coin_buttons.bat les a montrés, disent chaque pièce et son côté. Ils passent avant."""
@@ -44,7 +44,7 @@ class NeoCoins:
     SETTLE = 1.5            # seconds of title screen before a countdown that starts again counts as a coin
     FINE_SETTLE = 0.2       # the same, image by image: its frames back up are a coin after this (test 28)
     PRESSED = 2.0           # what the BIOS shows this long after a button is that coin / la même pièce
-    # 1.33 test 19 (Seb's capture of 21:25): after a game over the BIOS passes by the demo for a few images before asking
+    # 1.33 test 19 (the capture of 21:25): after a game over the BIOS passes by the demo for a few images before asking
     # the title screen again when credits are left; the demo must last this long before it means no credit is left, and
     # that title screen, up to this long after the game over, is not a coin / après un game over le BIOS passe par la
     # démo quelques images avant de redemander l'écran titre s'il reste des crédits
@@ -55,7 +55,7 @@ class NeoCoins:
         self.notes = []                                  # (fr, en) for the log / pour le journal
         self.rates = rates                               # credits of a coin, left then right / crédits d'une pièce
         # kept: the credits left last time, given back by FinalBurn Neo. Not any more: the BIOS clears them as it boots,
-        # the game always starts with none (1.33 test 29, Seb) / plus de crédits restants : le BIOS les efface
+        # the game always starts with none (1.33 test 29) / plus de crédits restants : le BIOS les efface
         self.seen = None
         self.looked = False
         self.aes = False
@@ -69,15 +69,15 @@ class NeoCoins:
         self.pressed_at = -99.0
         self.demo_since = None                           # when the demo began / depuis quand la démo
         self.coins = 0                                   # coins seen (tests) / pièces vues (tests)
-        # 1.33 test 8 (Seb: a coin pressed too early put ArcadeDMD one credit ahead of the game). A coin before the BIOS
+        # 1.33 test 8 (a coin pressed too early put ArcadeDMD one credit ahead of the game). A coin before the BIOS
         # is ready is not counted, the BIOS ignores it. A coin during the demo is counted at once but must be seen by the
         # BIOS (its title screen asked) within PRESSED seconds, or it is taken back. / Une pièce avant que le BIOS soit
         # prêt n'est pas comptée, il l'ignore. Une pièce pendant la démo est comptée tout de suite mais doit être vue
         # par le BIOS (son écran titre demandé) dans les PRESSED secondes, sinon elle est reprise.
         self.unconfirmed = []                            # [(when, credits)] coins of the demo not seen yet / pas encore vues
-        # 1.33 test 22 (Seb's Windjammers captures: the coin pressed as the game boots, and the title at once): a coin before
+        # 1.33 test 22 (the Windjammers captures: the coin pressed as the game boots, and the title at once): a coin before
         # the BIOS is ready is kept aside; if the BIOS then comes up on its title screen, it took that coin; if it comes up
-        # on the demo, it ignored it (test 8). Test 29 (Seb's capture of 17:49: the press 2 s after the BIOS cleared its
+        # on the demo, it ignored it (test 8). Test 29 (the capture of 17:49: the press 2 s after the BIOS cleared its
         # RAM, its countdown set from 0 to 30 at once, the title asked 80 ms later): the BIOS takes such a coin as soon as
         # it is ready and sets its countdown, so the coins taken during the boot are counted on that countdown, the
         # presses before it ignored. / Une pièce avant que le BIOS soit prêt est mise de côté : s'il arrive sur son écran
@@ -87,7 +87,7 @@ class NeoCoins:
         self.EARLY = 8.0                                 # seconds such a coin stays worth something / combien de temps elle vaut
         self.early_taken = 0                             # coins the BIOS took during the boot / pièces prises au démarrage
         self.early_taken_at = -99.0
-        # 1.33 test 28 (Seb's Windjammers: the button counted 10 coins, the game 7). With the countdown read image by image
+        # 1.33 test 28 (Windjammers: the button counted 10 coins, the game 7). With the countdown read image by image
         # ("bios_frames", $10FDDB, the frames of its current second), each coin the BIOS takes on the title screen shows:
         # the frames jump back up while the seconds do not go down. A press on the title screen is then counted at once
         # but must be seen that way within PRESSED seconds, or it is taken back (a button that bounces, a press the BIOS
@@ -128,7 +128,7 @@ class NeoCoins:
         if not isinstance(req, int) or not isinstance(mode, int) or req not in (DEMO, TITLE):
             # the BIOS is not running the game yet. Once its RAM is cleared (MVS flag), a coin it takes sets its countdown
             # from 0 to 30 (test 29) / pas encore prêt. Sa mémoire effacée, une pièce prise met son compte de 0 à 30
-            # 1.33 test 49 (Seb's KOF '97 of 9 November, CREDITS 03 in the game, 04 on the HD screen): as it boots the BIOS
+            # 1.33 test 49 (KOF '97 of 9 November, CREDITS 03 in the game, 04 on the HD screen): as it boots the BIOS
             # tests its RAM with 0x55 then 0xAA in every byte, its countdown read 55 and its frames 0x55 for an instant,
             # which is not a coin / au démarrage le BIOS teste sa mémoire avec 0x55 puis 0xAA partout, son compte à rebours
             # lu 55 et ses images 0x55 un instant : ce n'est pas une pièce

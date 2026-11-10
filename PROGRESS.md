@@ -34,9 +34,9 @@ Les adresses prises dans les bases de codes de triche doivent encore être confi
 
 ### Fighting games / Jeux de combat (57 games / jeux)
 
-Shared fighting scene on the panel, with the coin screen since 1.16. On the HD screen, the fighting scene with its effects. The background follows the game's stages when they are known (18 games). The score is found for 3 games, the others still have to be learned or confirmed. The King of Fighters '97 has the panel of the desperation moves of '98 since 1.33 test 49, The King of Fighters 2002 since test 50, each from one game recorded on the cabinet.
+Shared fighting scene on the panel, with the coin screen since 1.16. On the HD screen, the fighting scene with its effects. The background follows the game's stages when they are known (18 games). The score is found for 3 games, the others still have to be learned or confirmed. The King of Fighters '97 has the panel of the desperation moves of '98 since 1.33.1, The King of Fighters 2002 too, each from one game recorded on the cabinet.
 
-Scène de combat commune sur la dalle, avec l'écran des pièces depuis la 1.16. Sur l'écran HD, la scène de combat et ses effets. Le décor suit les stages du jeu quand ils sont connus (18 jeux). Le score est trouvé pour 3 jeux, les autres restent à apprendre ou à confirmer. The King of Fighters '97 a le panneau des coups désespérés de '98 depuis le test 49 de la 1.33, The King of Fighters 2002 depuis le test 50, chacun d'après une partie enregistrée sur la borne.
+Scène de combat commune sur la dalle, avec l'écran des pièces depuis la 1.16. Sur l'écran HD, la scène de combat et ses effets. Le décor suit les stages du jeu quand ils sont connus (18 jeux). Le score est trouvé pour 3 jeux, les autres restent à apprendre ou à confirmer. The King of Fighters '97 a le panneau des coups désespérés de '98 depuis la 1.33.1, The King of Fighters 2002 aussi, chacun d'après une partie enregistrée sur la borne.
 
 | Game / Jeu | Health / Vie | Timer / Chrono | Names / Noms | Score | Stages (HD) |
 |---|---|---|---|---|---|

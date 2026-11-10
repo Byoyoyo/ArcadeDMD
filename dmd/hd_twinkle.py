@@ -1,10 +1,10 @@
-"""Twinkle Star Sprites on the HD screen (1.30.1), redone with Seb for a friend who plays it in competitions: two fields
+"""Twinkle Star Sprites on the HD screen (1.30.1), redone for a player who plays it in competitions: two fields
 side by side as in the game, a header that reads from afar (the name on a plate in the character's colours, the score,
 five big hearts with the half ones, POW 1 2 MAX, the bombs) and big moments for what the game does: chains, fireballs
 crossing the column, charged shots, bombs, boss attacks, hearts lost or given back, K.O. The witches, the puffballs and
 the boss creature are creations of the program in the spirit of the game.
 
-Twinkle Star Sprites sur l'écran HD (1.30.1), refait avec Seb pour un ami qui y joue en compétition : deux terrains côte
+Twinkle Star Sprites sur l'écran HD (1.30.1), refait pour un joueur qui y joue en compétition : deux terrains côte
 à côte comme dans le jeu, un bandeau lisible de loin et de grands moments pour ce que fait le jeu. Les sorcières, les
 boules et la créature du boss sont des créations du programme dans l'esprit du jeu.
 """

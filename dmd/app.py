@@ -701,7 +701,7 @@ class Engine:
         names = names + [k for k in self.tag if k not in names]
         # credits of a Neo Geo that cannot be read (RetroArch): guessed from its BIOS, the guess kept when the same game
         # comes back after a silence (RetroArch menu opened a while). The game starts with none: the BIOS clears them
-        # as it boots (1.33 test 29, Seb: credits on the HD screen at the launch, none in the game)
+        # as it boots (1.33 test 29, credits on the HD screen at the launch, none in the game)
         # crédits devinés d'après le BIOS, gardés quand le même jeu revient après un silence. Le jeu démarre sans
         # crédit, le BIOS les efface au démarrage
         if source in ("plugin", "retroarch") and "credits" not in names and "bios_request" in names:
@@ -1071,7 +1071,7 @@ class Engine:
 
     def mark_in(self, side, now, held):
         """A coin button held a good second (1.33 test 35): a marker in the capture, "here", and a screenshot asked of
-        RetroArch, so that the moment Seb means (a boss coming, a grenade late) is found again in the memory and on the
+        RetroArch, so that the moment meant (a boss coming, a grenade late) is found again in the memory and on the
         screen. / Un bouton pièce tenu une bonne seconde : un repère dans la capture et une capture d'écran."""
         if self.mode != "game" or self.source not in ("plugin", "retroarch"):
             return

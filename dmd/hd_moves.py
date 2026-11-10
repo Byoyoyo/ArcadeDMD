@@ -1,4 +1,4 @@
-"""Desperation moves of a fighting game on the HD screen (The King of Fighters '98, 1.32, Seb).
+"""Desperation moves of a fighting game on the HD screen (The King of Fighters '98, 1.32).
 
 Under the name of each human player, a panel: the power gauge as the game shows it (the bar, a green square per stock,
 3 for the first fighter of a team, one more for each teammate beaten), and when the gauge allows one, the commands of
@@ -36,9 +36,9 @@ NEAR = 0.75           # RATÉ only for a near miss (a step or so), not for a spe
 CONFIRM = 0.8         # the game takes its stock that soon after the button / le jeu prend son stock aussi vite
 SHOW = 1.6            # RATÉ, DM ! or SDM ! stays that long / reste affiché ce temps
 MAX_LONG = 15.0       # MAX over at the latest / le MAX fini au plus tard
-# the MAX timer of Advanced (0x1081EA, "_maxv"): the MAME cheat Infinite Power holds it at 0x40; in Seb's log the CPU's MAX
+# the MAX timer of Advanced (0x1081EA, "_maxv"): the MAME cheat Infinite Power holds it at 0x40; in the log the CPU's MAX
 # set it to 0x3F and it counted down, a desperation move or a guard cancel only to 0x01 (1.32 test 8c). MAX while it is
-# at 2 or more / le chrono du MAX d'Advanced : le code MAME Infinite Power le tient à 0x40 ; dans le log de Seb, le MAX de
+# at 2 or more / le chrono du MAX d'Advanced : le code MAME Infinite Power le tient à 0x40 ; dans le log, le MAX de
 # l'ordinateur l'a mis à 0x3F et il a décompté, un coup désespéré ou une garde annulée seulement à 0x01. MAX dès 2
 MAXV_ON = 2
 MAXV_FULL = 0x40
@@ -219,7 +219,7 @@ class Moves:
             sd.groups = []
             sd.low, sd.odd, sd.pend, sd.dirs, sd.prev_btn = False, 0, [], [], set()   # the byte's way round decided again: the
             # memory RetroArch gives while the game loads (0xFD) once made every input of a game read backwards
-            # (Seb's KOF '97, 1.33 test 49) / le sens de l'octet décidé à nouveau au combat suivant : la mémoire que
+            # (KOF '97, 1.33 test 49) / le sens de l'octet décidé à nouveau au combat suivant : la mémoire que
             # RetroArch donne pendant le chargement du jeu (0xFD) avait fait lire toutes les touches d'une partie à l'envers
             sd.dm_bit = None
 
@@ -229,7 +229,7 @@ class Moves:
             self.reset()
             for side, sd in self.sides.items():                   # the inputs read before this game's first fight are
                 entries = (hist or {}).get("_in_" + side) or []   # left behind: the memory RetroArch gives while the
-                if entries:                                       # game loads (0xFD) made every input of Seb's KOF '98
+                if entries:                                       # game loads (0xFD) made every input of a KOF '98
                     sd.seen = entries[-1][0]                      # read backwards, no DM ! nor show (9 November, 1.33
                     # test 52) / les touches lues avant le premier combat du jeu sont laissées : la mémoire donnée
                     # pendant le chargement (0xFD) faisait lire toutes les touches de son KOF '98 à l'envers
@@ -331,7 +331,7 @@ class Moves:
                     why = tr("au plus tard", "at the latest")
             else:
                 # Advanced: the game does not fill its gauge nor give a stock during MAX. A stock gained, or the gauge
-                # filling again, is MAX over (Seb, 1.32 test 7, MAX stayed lit after the game's)
+                # filling again, is MAX over (1.32 test 7, MAX stayed lit after the game's)
                 # Advanced : le jeu ne remplit pas sa jauge et ne donne pas de stock pendant le MAX. Un stock gagné, ou la
                 # jauge qui se remplit à nouveau, c'est la fin du MAX (le MAX restait allumé après celui du jeu)
                 if pow_ is not None and now - sd.max_on > 0.5:
@@ -441,7 +441,7 @@ class Moves:
                 return
             if mv >= MAXV_ON:
                 return                                            # its timer says MAX / son chrono dit le MAX
-            # A+B+C, a stock taken, and no MAX: a guard cancel or a desperation move (Seb, 1.32 test 8b, MAX lit at
+            # A+B+C, a stock taken, and no MAX: a guard cancel or a desperation move (1.32 test 8b, MAX lit at
             # the life in the red) / pas de MAX : une garde annulée ou un coup désespéré (MAX allumé dans le rouge)
             self.log(f"Combat, {tag} A+B+C et un stock pris sans MAX (_maxv 0x{int(mv):02X})",
                      f"Fight, {tag} A+B+C and a stock taken, no MAX (_maxv 0x{int(mv):02X})")
@@ -458,7 +458,7 @@ class Moves:
                 if found is not None:
                     att = (p[0],) + found
             if found is None:
-                # no button read with it: a tap between two readings. Seb's first Ryuko Ranbu (KOF '98 of 9 November
+                # no button read with it: a tap between two readings. The first Ryuko Ranbu (KOF '98 of 9 November
                 # 17:44): its motion read, its button not, the stock taken 0.5 s after; the motion alone then, done or
                 # nearly, in the 1.6 s before (1.33 test 54) / pas de bouton lu avec : un appui entre deux lectures ; le
                 # geste seul alors, fait ou presque, dans les 1,6 s d'avant
@@ -537,7 +537,7 @@ class Moves:
         (score, _), k, hit, mir = best
         if final:
             # a command of four steps or fewer (Joe's 2369 in 2002): RATÉ would come with every special move of three
-            # steps (his Slash Kick 41236, Seb's game, 1.33 test 50), so it needs all its steps / une commande de quatre
+            # steps (his Slash Kick 41236, a game, 1.33 test 50), so it needs all its steps / une commande de quatre
             # étapes ou moins : RATÉ viendrait avec chaque coup spécial de trois étapes, il lui faut toutes ses étapes
             if score < (need if need < NEAR or len(rows[k][1]) > 4 else 1.0):
                 return None
@@ -670,7 +670,7 @@ def stock_max(game):
 
 def badge(stock, slots, extra, maxed, red):
     """The badge says why a desperation move can come out (1.32 test 4): MAX when every stock is lit, as the game says it,
-    MAX ACTIVÉ for the MAX of A+B+C (Seb, test 8). / La pastille dit pourquoi un coup peut sortir : MAX quand tous les
+    MAX ACTIVÉ for the MAX of A+B+C (test 8). / La pastille dit pourquoi un coup peut sortir : MAX quand tous les
     stocks sont allumés, comme le dit le jeu, MAX ACTIVÉ pour le MAX de A+B+C. Returns (word, colour, ink)."""
     if maxed and red:
         return "MAX + VIE ROUGE", GOLD, (40, 24, 0)
@@ -688,7 +688,7 @@ def badge(stock, slots, extra, maxed, red):
 
 
 def draw_panel(hd, screen, moves, side, vals, game, name, x0, x1, y0, now, lost, health):
-    """The panel of a player under his name, as in the mockup Seb chose (B): the badge (STOCK, EXTRA, MAX), the gauge
+    """The panel of a player under his name, as in the mockup chosen (B): the badge (STOCK, EXTRA, MAX), the gauge
     as the game shows it, and the desperation moves when one can come out, their arrows facing the other fighter.
     / Le panneau d'un joueur sous son nom, comme la maquette B : la pastille, la jauge comme dans le jeu, et les coups
     désespérés quand l'un d'eux peut sortir, leurs flèches tournées vers l'autre combattant."""
@@ -752,7 +752,7 @@ def draw_panel(hd, screen, moves, side, vals, game, name, x0, x1, y0, now, lost,
     names = names if isinstance(names, dict) else {}
     if not n:                                                     # no desperation move now: the inputs pressed, as
         if extra and pow_ is not None and not maxed:              # training mode shows them. Extra: how full, and the
-            pct = min(100, int(round(100 * fill)))               # rule (Seb, test 4) / Extra : le remplissage, la règle
+            pct = min(100, int(round(100 * fill)))               # rule (test 4) / Extra : le remplissage, la règle
             x = gauge_end + S(4)
             x += hd.put(screen, hd.text(f"{pct} %", "xbold", S(19), CREAM, glow=0), x, gy, "left", "middle") + S(16)
             x += hd.put(screen, hd.text(tr("SUPER À 100 %", "SUPER AT 100 %"), "xbold", S(15), GREY, glow=0), x, gy, "left",
@@ -812,7 +812,7 @@ def draw_panel(hd, screen, moves, side, vals, game, name, x0, x1, y0, now, lost,
 
 
 def draw_inputs(hd, screen, moves, sd, names, xa, xb, y, now):
-    """The inputs of a player as training mode shows them (Seb, 1.32 test 3): each direction of the stick and the buttons
+    """The inputs of a player as training mode shows them (1.32 test 3): each direction of the stick and the buttons
     pressed with it, the newest on the right and lit, the older ones fading, all gone a moment after the last one.
     / Les touches d'un joueur comme le mode entraînement : chaque direction et les boutons appuyés avec, la plus récente à
     droite et éclairée, les plus anciennes plus pâles, le tout parti un moment après la dernière."""
@@ -857,7 +857,7 @@ def draw_inputs(hd, screen, moves, sd, names, xa, xb, y, now):
 
 
 def draw_wins(hd, screen, moves, w1, w2, cx, cy, now, pops=None):
-    """Against a human, the matches each one won, P1 on the left and P2 on the right, under the credits (Seb, as in
+    """Against a human, the matches each one won, P1 on the left and P2 on the right, under the credits (as in
     Puzzle Bobble). / Contre un humain, les matchs gagnés par chacun, sous les crédits."""
     S = hd.S
     w, h = S(330), S(84)

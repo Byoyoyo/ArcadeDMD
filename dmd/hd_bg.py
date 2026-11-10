@@ -24,7 +24,7 @@ from .hd_fx import FX, Particle
 
 THEMES = ("desert", "jungle", "snow")
 # the fights: a bright stage (daytime) is darkened more than its "dim_fight", down to this brightness (0 to 255), at most
-# DIM_MAX percent (1.32 test 9b, Seb: the names and bars over the market in the sun) / un décor clair est assombri plus
+# DIM_MAX percent (1.32 test 9b, the names and bars over the market in the sun) / un décor clair est assombri plus
 # que son « dim_fight », jusqu'à cette clarté, au plus DIM_MAX pour cent
 DIM_TARGET = 36
 DIM_MAX = 80
@@ -942,7 +942,7 @@ class Backdrop:
     @staticmethod
     def _luminance(raw):
         """How bright the backdrop is, 0 to 255, for each of its skies (the looks of the stage): a small composite of
-        its layers. The fights darken the bright stages more (1.32 test 9b, Seb). / La clarté du décor, pour chacun de ses
+        its layers. The fights darken the bright stages more (1.32 test 9b). / La clarté du décor, pour chacun de ses
         ciels : les combats assombrissent davantage les décors clairs."""
         out = {}
         W, H = raw["sky"].size

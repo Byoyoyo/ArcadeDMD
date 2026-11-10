@@ -1,9 +1,9 @@
-"""The show of a desperation move on the HD screen, as Seb chose it on 9 November 2026 (mockups C and 1, 1.33 test 51).
+"""The show of a desperation move on the HD screen, as chosen on 9 November 2026 (mockups C and 1, 1.33 test 51).
 The name of the move takes the whole marquee for a moment, then flies to the side of the player who does it and stays there
 while the hits land, counting them; the bar of the one taking them jolts at each hit, its lost part turning white then red,
 its outline lit red, and at its edge the spark of the hit with pieces of the bar flying off (mockup B, test 55). Two
 desperation moves at once: no full screen, each name slams onto its own side, DOUBLE DM ! between them.
-/ Le spectacle d'un coup désespéré sur l'écran HD, comme Seb l'a choisi (maquettes C et 1) : le nom du coup prend tout le
+/ Le spectacle d'un coup désespéré sur l'écran HD, comme choisi (maquettes C et 1) : le nom du coup prend tout le
 fronton un instant, puis file du côté du joueur qui le fait et y reste pendant les coups, en les comptant ; la barre de
 celui qui les prend tressaute à chaque coup, sa part perdue blanche puis rouge, son contour allumé en rouge, et à son bord
 l'étincelle du coup avec des morceaux de la barre qui volent (maquette B, test 55). Deux coups désespérés en même temps :
@@ -40,8 +40,8 @@ def _ease(k):
 
 def spark_picture(seed, r, k):
     """One picture of the spark of a hit, k from 0 (the hit) to 1 (gone): yellow and orange spikes round a blue-white
-    heart, stretched sideways, breaking into little sparks. An own drawing in the spirit of the games' hit sparks, chosen by
-    Seb on 9 November (mockup B). / Une image de l'étincelle d'un coup : des pointes jaunes et orange autour d'un cœur
+    heart, stretched sideways, breaking into little sparks. An own drawing in the spirit of the games' hit sparks, chosen on
+    9 November (mockup B). / Une image de l'étincelle d'un coup : des pointes jaunes et orange autour d'un cœur
     bleuté, étirées en largeur, qui éclatent en petites étincelles. Un dessin à nous, dans l'esprit des étincelles du jeu."""
     rng = random.Random(seed)
     size = int(r * 3.2)
@@ -292,7 +292,7 @@ class DMShow:
         screen.blit(surf, (int(cx - surf.get_width() / 2), int(cy - surf.get_height() / 2)))
         if alpha < 0.999:
             surf.set_alpha(255)                                   # not None: None makes a picture with transparent
-            # pixels opaque for good, the glow became an orange rectangle on Seb's cabinet the second time a move came
+            # pixels opaque for good, the glow became an orange rectangle on the cabinet the second time a move came
             # (1.33 test 53) / pas None : None rend opaque pour de bon une image transparente par endroits
 
     # ------------------------------------------------------------------ drawing / dessin
@@ -378,8 +378,8 @@ class DMShow:
 
     def _impacts(self, screen, now):
         """At the edge of the bar hit, the spark of the hit, bigger when it hurts more, and pieces of the bar flying off,
-        over everything (Seb's choice B, 9 November). / Au bord de la barre touchée, l'étincelle du coup, plus grosse quand
-        il fait mal, et des morceaux de la barre qui volent, par-dessus tout (choix B de Seb)."""
+        over everything (the choice B, 9 November). / Au bord de la barre touchée, l'étincelle du coup, plus grosse quand
+        il fait mal, et des morceaux de la barre qui volent, par-dessus tout (choix B)."""
         pg, s = self.pg, self.s
         for victim, h in self.hits.items():
             dt = now - h[0]

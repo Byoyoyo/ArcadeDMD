@@ -1236,9 +1236,9 @@ class PuzzleBobbleScene(GameScene):
     def draw_vs(self, screen, vals, now):
         """VS between the boards, the matches won by each player in big on each side, the last one won jumping and glowing.
         When the game's TOTAL is read (the games won whatever the match, Puzzle Bobble 2), it is the big number, and the
-        trophies of the match under it (Seb's choice A, 10 November 2026: the match's count goes back to 0 at each match).
+        trophies of the match under it (the choice A, 10 November 2026: the match's count goes back to 0 at each match).
         / VS entre les plateaux, les victoires de chaque joueur en gros de chaque côté, la dernière qui saute et brille ;
-        le TOTAL du jeu quand il est lu, les trophées du match dessous (choix A de Seb)."""
+        le TOTAL du jeu quand il est lu, les trophées du match dessous (choix A)."""
         hd, S, W = self.hd, self.S, self.W
         cx, cy = W / 2, S(246)
         w1, w2 = _n(vals.get("wins")), _n(vals.get("wins_p2"))
@@ -1281,11 +1281,11 @@ class PuzzleBobbleScene(GameScene):
 
 
 # ============================================================================ Windjammers
-# the courts by the game's index (the FinalBurn Neo cheats; Seb's photo of 2026-11-04, the beach at 0)
+# the courts by the game's index (the FinalBurn Neo cheats; the photo of 2026-11-04, the beach at 0)
 COURTS = (("PLAGE", "BEACH"), ("GAZON", "LAWN"), ("CARRELAGE", "TILES"), ("BÉTON", "CONCRETE"), ("TERRE BATTUE", "CLAY"),
           ("STADE", "STADIUM"))
-# the players by the game's code (RetroAchievements 0x31c, 0x31e, divided by 4; Seb's capture of 2026-11-04 19:51), as the
-# game's select screen names them. The fourth is Beeho Yoo of Korea outside Japan (Seb's cabinet, a Europe BIOS) and
+# the players by the game's code (RetroAchievements 0x31c, 0x31e, divided by 4; the capture of 2026-11-04 19:51), as the
+# game's select screen names them. The fourth is Beeho Yoo of Korea outside Japan (the cabinet, a Europe BIOS) and
 # Steve Miller of England on a Japanese BIOS (MobyGames: the export versions replaced him) / les joueurs
 PLAYERS = ("G. SCOTT", "J. COSTA", "K. WESSEL", "B. YOO", "L. BIAGGI", "H. MITA")
 FIGURES = ("scott", "costa", "wessel", "yoo", "biaggi", "mita")                        # sprites/wjammers/<name>.png
@@ -1376,7 +1376,7 @@ def disc_draw(d, W, H):
 
 
 class WindjammersScene(GameScene):
-    """The court as a live map (1.33, Seb's captures): the disc and the two players where the game has them, read at
+    """The court as a live map (1.33, the captures): the disc and the two players where the game has them, read at
     every image, the lobs in the air, the super shots burning, the points bursting on the goal lines; the scoreboard
     with the players' names. / Le terrain en carte vivante : le disque et les deux joueurs là où le jeu les met."""
     THEME = "court_beach"
@@ -1409,11 +1409,11 @@ class WindjammersScene(GameScene):
         self.wake = []                                       # the disc's last places, its speed streak / son sillage
         self.slams = []                                      # WIN, SUPER !: big words on a side, slammed in / claqués
         self.own = {}                                        # the owner's pictures of the players, or False / ses images
-        # CONTINUE ? (1.33 test 20, Seb): the game keeps the BIOS word at 2 through the character and court selects
+        # CONTINUE ? (1.33 test 20): the game keeps the BIOS word at 2 through the character and court selects
         # once the player has continued; the word stays shown until the game moves on / le mot du BIOS reste à 2
         self.cont = {"p1": None, "p2": None}                 # (chars, court, time) when CONTINUE began, or None
         self.cont_done = {"p1": False, "p2": False}
-        # the matches won by two humans, as the fighting games count them (1.33 test 20, Seb) / les matchs gagnés
+        # the matches won by two humans, as the fighting games count them (1.33 test 20) / les matchs gagnés
         self.wins = {"p1": 0, "p2": 0}
         self.p2_left = None                                  # when everybody left, the wins forgotten later / partis
 
@@ -1512,7 +1512,7 @@ class WindjammersScene(GameScene):
             if vals.get(side + "_mode") != 2:
                 self.cont[side] = None
         # two humans: their wins kept as long as somebody plays, even while one of them sits a match out against the
-        # computer (test 21, Seb), forgotten 20 s after the cabinet is back on its title screen
+        # computer (test 21), forgotten 20 s after the cabinet is back on its title screen
         # / leurs victoires gardées tant que quelqu'un joue, même si l'un d'eux laisse passer un match contre l'ordinateur
         if not self.nobody(vals):
             self.p2_left = None
@@ -1574,13 +1574,13 @@ class WindjammersScene(GameScene):
             if ch and ch[1] > ch[0] and ch[1] <= 3:
                 won.append((int(ch[1]), side))
         if len(won) == 2:                                               # both at once (the game writes the lost set late,
-            won = [max(won)]                                            # Seb's capture of 22:14): the higher count won
+            won = [max(won)]                                            # the capture of 22:14): the higher count won
         for n, side in won:
             self.set_won(side, n, vals, now)
 
     def continue_shown(self, side, vals, now):
         """CONTINUE ? until the game moves on (a character or the court chosen again, the timer set): the player has
-        continued even if the BIOS word still says 2 (Seb's capture of 22:14, 28 s). / Jusqu'à ce que le jeu avance."""
+        continued even if the BIOS word still says 2 (the capture of 22:14, 28 s). / Jusqu'à ce que le jeu avance."""
         snap = (_n(vals.get("p1_chr")), _n(vals.get("p2_chr")), _n(vals.get("court")), _n(vals.get("time")))
         if self.cont[side] is None:
             self.cont[side] = snap
@@ -1958,7 +1958,7 @@ class WindjammersScene(GameScene):
         self.draw_slams(screen, now)
 
     def scoreboard(self, screen, vals, logo, now):
-        """The board over the court (1.33, Seb): each player's name, nation and score on his side, the points of the set
+        """The board over the court (1.33): each player's name, nation and score on his side, the points of the set
         big in his colour with his sets won under them, the timer and the court between them, the points to win at the
         top right. / Le tableau au-dessus du terrain : nom, pays et score de chacun, les points du set en grand."""
         hd, S, W = self.hd, self.S, self.W

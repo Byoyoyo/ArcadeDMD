@@ -46,6 +46,16 @@ def notes(version):
     return m.group(1).strip() if m else None
 
 
+def release_body(version, body=None):
+    """The notes of a release, its CHANGELOG section and how to install. / Les notes d'une release."""
+    body = body or notes(version)
+    wiki = "https://github.com/" + os.environ.get("GITHUB_REPOSITORY", "Byoyoyo/ArcadeDMD") + "/wiki"
+    return (body + "\n\n---\n\nInstall or update. Download `ArcadeDMD-" + version + ".zip` below, then follow "
+            "[Installation](" + wiki + "/Installation) in the wiki. "
+            "Installer ou mettre à jour. Télécharge `ArcadeDMD-" + version + ".zip` ci-dessous, puis suis "
+            "[Installer ArcadeDMD](" + wiki + "/Installer-ArcadeDMD) dans le wiki.\n")
+
+
 def files():
     out = []
     for base, dirs, names in os.walk(ROOT):
@@ -65,7 +75,17 @@ def main():
     ap.add_argument("--out", default=os.path.join(ROOT, "dist"))
     ap.add_argument("--check", action="store_true", help="only check, write nothing")
     ap.add_argument("--github-output", default="")
+    ap.add_argument("--notes-for", metavar="VERSION", help="only write the notes of that version to --out/notes-VERSION.md")
     args = ap.parse_args()
+    if args.notes_for:
+        body = notes(args.notes_for)
+        if not body:
+            print(f"CHANGELOG.md has no section '## {args.notes_for}'")
+            return 1
+        os.makedirs(args.out, exist_ok=True)
+        with open(os.path.join(args.out, f"notes-{args.notes_for}.md"), "w", encoding="utf-8") as f:
+            f.write(release_body(args.notes_for, body))
+        return 0
 
     v = versions()
     problems = []
@@ -104,11 +124,7 @@ def main():
         for rel in listed:
             z.write(os.path.join(ROOT, rel), "ArcadeDMD/" + rel)
     with open(os.path.join(args.out, "notes.md"), "w", encoding="utf-8") as f:
-        wiki = "https://github.com/" + os.environ.get("GITHUB_REPOSITORY", "Byoyoyo/ArcadeDMD") + "/wiki"
-        f.write(body + "\n\n---\n\nInstall or update. Download `ArcadeDMD-" + version + ".zip` below, then follow "
-                "[Installation](" + wiki + "/Installation) in the wiki. "
-                "Installer ou mettre à jour. Télécharge `ArcadeDMD-" + version + ".zip` ci-dessous, puis suis "
-                "[Installer ArcadeDMD](" + wiki + "/Installer-ArcadeDMD) dans le wiki.\n")
+        f.write(release_body(version, body))
     print("written", zpath, os.path.getsize(zpath), "bytes")
     if args.github_output:
         with open(args.github_output, "a", encoding="utf-8") as f:

@@ -188,13 +188,13 @@ def build_bubbles(W, H, s, seed=22):
 
 # ---------------------------------------------------------------------------- terrains de Windjammers
 COURT = {   # sol (haut, bas), lignes ; in the game's order (beach 0, lawn 1, tiled 2, concrete 3, clay 4, stadium 5: the
-            # FinalBurn Neo cheats, Seb's photo of the beach at 0) / dans l'ordre du jeu
+            # FinalBurn Neo cheats, the photo of the beach at 0) / dans l'ordre du jeu
     "beach": ((236, 210, 152), (210, 176, 118), (150, 210, 240)),
     "lawn": ((86, 168, 70), (58, 132, 50), (240, 250, 240)),
-    "tiles": ((44, 62, 178), (30, 44, 140), (226, 234, 255)),       # the blue mat of the gym, big tiles (Seb's photo)
+    "tiles": ((44, 62, 178), (30, 44, 140), (226, 234, 255)),       # the blue mat of the gym, big tiles (the photo)
     "concrete": ((142, 142, 148), (104, 104, 112), (255, 214, 60)),
     "clay": ((214, 112, 60), (178, 84, 44), (255, 244, 230)),
-    "stadium": ((238, 176, 84), (212, 146, 60), (244, 242, 236)),    # the parquet of the arena (Seb's photo)
+    "stadium": ((238, 176, 84), (212, 146, 60), (244, 242, 236)),    # the parquet of the arena (the photo)
 }
 EDGES = {"tiles": (210, 60, 40), "stadium": (40, 70, 180)}             # the bands along the walls / les bandes des murs
 # the goal zones top to bottom, 3 - 5 - 3 points, the tiled court the other way round (5 - 3 - 5)

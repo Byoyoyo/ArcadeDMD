@@ -237,7 +237,7 @@ def timer(t, fam, src):
 
 
 # teams that take turns, two fighters a player (Marvel vs. Capcom): where each fighter is kept, and in it the byte at 1
-# while he is on screen, his health and his character (Seb's RAM captures, the first one K.O., the second one on screen)
+# while he is on screen, his health and his character (the RAM captures, the first one K.O., the second one on screen)
 # les équipes qui se relaient : où est chaque combattant, et dans son bloc l'octet à 1 quand il est à l'écran, sa vie
 # X-Men vs. Street Fighter keeps the fighter on screen in the first block and the other one in the second ("on": None)
 # X-Men vs. Street Fighter garde le combattant à l'écran dans le premier bloc, l'autre dans le second
@@ -245,15 +245,15 @@ TAG = {"mvsc": {"p1": (0xFF3000, 0xFF3800), "p2": (0xFF3400, 0xFF3C00), "on": 0x
        "mshvsf": {"p1": (0xFF3800, 0xFF4000), "p2": (0xFF3C00, 0xFF4400), "on": 0x000, "hp": 0x251, "chr": 0x053},
        "xmvsf": {"p1": (0xFF4000, 0xFF4800), "p2": (0xFF4400, 0xFF4C00), "on": None, "hp": 0x211, "chr": 0x053}}
 # who controls each player when the cheats do not say, the byte at +3 in the fighter's block like in Marvel vs. Capcom:
-# 1 for a human (Seb's captures, a game on each side) / qui dirige chaque joueur quand les codes ne le disent pas
+# 1 for a human (the captures, a game on each side) / qui dirige chaque joueur quand les codes ne le disent pas
 HUMAN = {"mshvsf": {"p1": 0xFF3803, "p2": 0xFF3C03}, "xmvsf": {"p1": 0xFF4003, "p2": 0xFF4403},
          "xmcota": {"p1": 0xFF4003, "p2": 0xFF4403}}
-# rounds won when the cheats do not say, counted at the K.O. itself (X-Men: Children of the Atom, Seb's captures of
+# rounds won when the cheats do not say, counted at the K.O. itself (X-Men: Children of the Atom, the captures of
 # three games, alone on each side and two players) / les rounds gagnés quand les codes ne les donnent pas
 ROUNDS = {"xmcota": (0xFF4802, 0xFF4803)}
-# games where the computer scores too (Seb's captures of Marvel Super Heroes vs. Street Fighter and X-Men vs. Street
+# games where the computer scores too (the captures of Marvel Super Heroes vs. Street Fighter and X-Men vs. Street
 # Fighter, the other games of the family taken alike): player 2's score going up does not say he is a human
-# les jeux où l'ordinateur marque aussi des points (captures de Seb, les autres jeux de la famille pris pareil)
+# les jeux où l'ordinateur marque aussi des points (captures, les autres jeux de la famille pris pareil)
 CPU_SCORES = {"xmcota", "msh", "xmvsf", "mshvsf", "mvsc"}
 # the level a game shows for 0 in its level byte (X-Men: Children of the Atom says Level 1) / le niveau affiché pour 0
 LEVEL_SHOWN_FROM = {"xmcota": 1}
