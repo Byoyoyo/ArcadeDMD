@@ -28,7 +28,7 @@ from .textfiles import TextFiles
 from .capture import Capture
 from .i18n import tr
 
-VERSION = "1.33.0"
+VERSION = "1.33.1"
 
 DEFAULT_CONFIG = {
     "language": "auto",

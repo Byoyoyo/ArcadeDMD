@@ -6,7 +6,7 @@ Every Neo Geo game known to MAME and FinalBurn Neo is recognised, clones, bootle
 
 - **Windjammers.** The game's court as a live map, the disc and the two players where the game puts them, read at every frame, the lobs, a super charging in a ring of flames then SUPER ! with the shot's name, the goals, the sets and the match. Your own pictures of the players can stand on the court (see [[Your Own Pictures]]).
 - **Puzzle Bobble and Puzzle Bobble 2.** Both scores, the bubble in the launcher and the next one in their colours, the arrow turning as the game's, each bubble shot leaving in its direction, the round, the VS matches and the rounds won.
-- **Twinkle Star Sprites.** The hearts with the half ones, the bombs, the Pow gauge, the character, the chains and PERFECT of each player, the stage, K.O. and WIN. In the next release, each witch flies where the game puts her and the rounds won are counted.
+- **Twinkle Star Sprites.** The hearts with the half ones, the bombs, the Pow gauge, the character, the chains and PERFECT of each player, the stage, K.O. and WIN. Each witch flies where the game puts her and the rounds won are counted (1.33.1).
 
 ![Twinkle Star Sprites, PERFECT, K.O. and WIN](images/twinkle_star_sprites.gif)
 
