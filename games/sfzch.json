@@ -131,7 +131,7 @@
       ["THAÏLANDE", "THAILAND"],
       ["HONG KONG", "HONG KONG"]
     ],
-    "note": "HD theme and place shown for each backdrop value (index = value), made by tools/cps_games.py from the stages of the cheat database, see README, HD themes"
+    "note": "HD theme and place shown for each backdrop value (index = value), made by tools/cps_games.py from the stages of the cheat database, see the wiki, HD Marquee page"
   },
   "derived": {
     "p1_char": {

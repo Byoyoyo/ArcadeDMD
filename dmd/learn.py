@@ -561,9 +561,9 @@ def run(root, game=None, answers=None, write=None, show=True, pick_interactive=F
     base = os.path.join(root, "runtime", "learn")
     if not os.path.isdir(base):
         print(tr("Aucune capture trouvée. Lance un jeu dans MAME et appuie sur Ctrl droit + D, "
-                 "ou lance d'abord le jeu dans RetroArch (voir README.fr.md, sections 5 et 7).",
+                 "ou lance d'abord le jeu dans RetroArch (voir le wiki, page Apprendre les adresses).",
                  "No capture found. Start a game in MAME and press Right Ctrl + D, "
-                 "or start the game in RetroArch first (see README.md, sections 5 and 7)."))
+                 "or start the game in RetroArch first (see the wiki, Learning Addresses page)."))
         return 1
     games = sorted(d for d in os.listdir(base) if glob.glob(os.path.join(base, d, "snap_*.json")))
     if not games:

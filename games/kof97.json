@@ -795,7 +795,7 @@
    "fight_ruins",
    "fight_snow"
   ],
-  "note": "HD screen theme for each backdrop value (index = value), see README, HD themes; pow_full: the power gauge full at 0x80 (Seb's game of 9 November 2026: Advanced starts again at 0x7C to 0x80 with a stock, the MAX of Extra at 0x80), 0xA0 in '98 (1.33 test 49); stock_max: three stock squares whoever is lost, as on his screenshots (Robert with one teammate beaten: three squares, the CPU at three stocks: three green squares, no MAX written)",
+  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page; pow_full: the power gauge full at 0x80 (Seb's game of 9 November 2026: Advanced starts again at 0x7C to 0x80 with a stock, the MAX of Extra at 0x80), 0xA0 in '98 (1.33 test 49); stock_max: three stock squares whoever is lost, as on his screenshots (Robert with one teammate beaten: three squares, the CPU at three stocks: three green squares, no MAX written)",
   "pow_full": 128,
   "stock_max": 3
  }

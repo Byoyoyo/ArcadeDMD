@@ -123,6 +123,11 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - Seb's capture of 21:25 (test 19) showed a second drift: after a game over the BIOS passes by the demo for a few images before asking the title screen again when credits are left, and ArcadeDMD dropped its credits to 0 on that demo, then counted the title as a coin. The demo must now last a second before it means no credit is left, and the title screen up to 20 s after a game over is not a coin. That capture is kept and replayed by the tests (39 checks), as is Beeho Yoo of Korea on Seb's Europe BIOS.
 - `tools/replay_capture.py` notes the charges and the supers of a Windjammers capture. Seb's capture of 19:51 kept and replayed by the tests (37 checks).
 
+**The wiki, in English and in French** (Seb: a wiki like DemulShooter's, and a lighter README)
+- The documentation moves to the GitHub wiki, twenty pages in English and twenty in French. Installation, use, every setting, the HD marquee, the Pixelcade, the ZeDMD and the hardware, MAME, RetroArch, the fighting games, the Metal Slug games, the Neo Geo, Capcom and Cave games, learning addresses, recording a game, the game files, your own pictures and troubleshooting, with GIFs of the HD screen and of the LED panel.
+- The pages live in the `wiki` folder of the repository, and a GitHub workflow (`.github/workflows/wiki.yml`) copies them to the wiki at each change, with the pictures of `docs/images`. The `wiki` folder is not in the zip.
+- README.md and README.fr.md are now a short presentation, with GIFs, a quick start and the index of the wiki. The messages of ArcadeDMD and the notes of the game files point to the wiki pages, and the release notes to Installation.
+
 **Version**
 - 1.33.0 in `dmd/app.py` and the MAME plugin.
 
@@ -243,6 +248,11 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 - Test 20 (le match de Seb de 22 h 14 entre deux humains) : CONTINUE ? restait affiché pendant le choix des personnages et du terrain après que le joueur 2 a continué, parce que le jeu laisse le mot du BIOS à 2 jusqu'au match suivant ; il part maintenant dès que le jeu avance (un personnage ou le terrain choisi de nouveau, le chrono remis). Deux humains ont leurs matchs gagnés comptés en haut à droite (MATCHS 1 - 0, comme dans les jeux de combat), oubliés 20 s après le départ de l'un d'eux, et le bandeau du gagnant donne le compte. Quand le jeu écrit les deux compteurs de sets dans la même image (le set perdu écrit en retard), seul le WIN du gagnant est claqué.
 - La capture de Seb de 21 h 25 (test 19) a montré une seconde dérive : après un game over le BIOS passe par la démo quelques images avant de redemander l'écran titre s'il reste des crédits, et ArcadeDMD remettait ses crédits à 0 sur cette démo, puis comptait l'écran titre comme une pièce. La démo doit maintenant durer une seconde avant de vouloir dire qu'il ne reste plus de crédit, et l'écran titre jusqu'à 20 s après un game over n'est pas une pièce. Cette capture est gardée et rejouée par les tests (39 vérifications), avec Beeho Yoo de Corée sur le BIOS Europe de Seb.
 - `tools/replay_capture.py` note les charges et les supers d'une capture de Windjammers. La capture de Seb de 19 h 51 gardée et rejouée par les tests (37 vérifications).
+
+**Le wiki, en anglais et en français** (Seb : un wiki comme celui de DemulShooter, et un README plus léger)
+- La documentation passe dans le wiki GitHub, vingt pages en anglais et vingt en français. L'installation, l'utilisation, tous les réglages, le marquee HD, la Pixelcade, la ZeDMD et le matériel, MAME, RetroArch, les jeux de combat, les Metal Slug, les jeux Neo Geo, Capcom et Cave, l'apprentissage des adresses, l'enregistrement d'une partie, les fichiers des jeux, tes propres images et le dépannage, avec des GIF de l'écran HD et de la dalle LED.
+- Les pages sont dans le dossier `wiki` du dépôt, et un workflow GitHub (`.github/workflows/wiki.yml`) les copie dans le wiki à chaque changement, avec les images de `docs/images`. Le dossier `wiki` n'est pas dans le zip.
+- README.md et README.fr.md sont maintenant une courte présentation, avec des GIF, un démarrage rapide et le sommaire du wiki. Les messages d'ArcadeDMD et les notes des fichiers des jeux renvoient aux pages du wiki, et les notes de version à Installer ArcadeDMD.
 
 **Version**
 - 1.33.0 dans `dmd/app.py` et le plugin MAME.

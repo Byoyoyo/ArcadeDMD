@@ -437,7 +437,7 @@
    "base",
    "arena"
   ],
-  "note": "HD screen theme for each backdrop value (index = value), see README, HD themes; pow_full: the power gauge full at 0x40; maxv_full: the MAX timer starts at 0x2F; max_buttons: MAX is B+C (command.dat, Activate MAX Mode); max_dm_free: a desperation move in MAX takes no stock and ends MAX, an SDM (A+C or B+D in MAX) takes one (Dream Cancel wiki, command.dat: DM 1 level or MAX, SDM 1 level and MAX) (1.33 test 50)",
+  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page; pow_full: the power gauge full at 0x40; maxv_full: the MAX timer starts at 0x2F; max_buttons: MAX is B+C (command.dat, Activate MAX Mode); max_dm_free: a desperation move in MAX takes no stock and ends MAX, an SDM (A+C or B+D in MAX) takes one (Dream Cancel wiki, command.dat: DM 1 level or MAX, SDM 1 level and MAX) (1.33 test 50)",
   "pow_full": 64,
   "maxv_full": 47,
   "max_buttons": "BC",

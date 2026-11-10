@@ -198,6 +198,6 @@
   "hd": {
     "stages": ["cs_forest", "fight_temple", "fight_snow", "fight_city", "fight_desert", "fight_snow", "fight_lab", "fight_castle", "fight_factory", "fight_lab", "fight_ruins", "space"],
     "places": ["", "", "", "", "", "", "", "", "", "", "", ""],
-    "note": "HD theme and place shown for each backdrop value (index = value), made by tools/cps_games.py from the stages of the cheat database, see README, HD themes"
+    "note": "HD theme and place shown for each backdrop value (index = value), made by tools/cps_games.py from the stages of the cheat database, see the wiki, HD Marquee page"
   }
 }

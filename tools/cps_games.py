@@ -507,7 +507,7 @@ def stages_from_cheats(cs, fam):
             val = value(addr, 1, fam, "u8", f"stage backdrop, picks the HD theme in hd.stages ({srcof(c)}, {c['name']})")
             hd = {"stages": stages, "places": places,
                   "note": f"HD theme and place shown for each backdrop value (index = value), made by {TOOL} from the stages of the "
-                          "cheat database, see README, HD themes"}
+                          "cheat database, see the wiki, HD Marquee page"}
             return val, hd
     return None, None
 
