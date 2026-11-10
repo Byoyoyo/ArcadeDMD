@@ -23,7 +23,7 @@
         "addr": "0x10C46A",
         "type": "bcd",
         "bytes": 4,
-        "note": "player 1 score, BCD, four bytes (RetroAchievements code notes P1 - Hi Score, 0x10C46A..0x10C46D; Seb's game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44): 195731 and 211632 as on his screenshots)"
+        "note": "player 1 score, BCD, four bytes (RetroAchievements code notes P1 - Hi Score, 0x10C46A..0x10C46D; a game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44): 195731 and 211632 as on his screenshots)"
       },
       "score_p2": {
         "addr": "0x10C472",
@@ -35,7 +35,7 @@
         "addr": "0x101288",
         "type": "u8",
         "zero_from": "0x80",
-        "note": "player 1 lives, like the 1UP on screen: the byte is the 1UP itself (Seb's game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44): 2 while 1UP=2, 1 at the first death with 1UP=1, 0 with 1UP=0; it read one less since Metal Slug 2's old rule was copied); 3 for a moment on the soldier select; 0xFF on CONTINUE, read 0 (RetroAchievements code notes P1 - Lives)"
+        "note": "player 1 lives, like the 1UP on screen: the byte is the 1UP itself (a game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44): 2 while 1UP=2, 1 at the first death with 1UP=1, 0 with 1UP=0; it read one less since Metal Slug 2's old rule was copied); 3 for a moment on the soldier select; 0xFF on CONTINUE, read 0 (RetroAchievements code notes P1 - Lives)"
       },
       "lives_p2": {
         "addr": "0x101338",
@@ -46,7 +46,7 @@
       "bombs": {
         "addr": "0x10C720",
         "type": "u8",
-        "note": "player 1 bombs (RetroAchievements code notes P1 - Bombs; Seb's game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44): 10 at each life, 14 and 20 after BOMB pick-ups, 0 for three seconds on the soldier select)"
+        "note": "player 1 bombs (RetroAchievements code notes P1 - Bombs; a game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44): 10 at each life, 14 and 20 after BOMB pick-ups, 0 for three seconds on the soldier select)"
       },
       "bombs_p2": {
         "addr": "0x10C721",
@@ -56,7 +56,7 @@
       "grenades_out": {
         "addr": "0x10C718",
         "type": "u8",
-        "note": "player 1 grenades on screen, as in Metal Slug 2 (same engine, eight bytes before the bombs there too): one more as a grenade leaves the hand, one less as it blows up (Seb's game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44): 1 or 2 right after each bombs decrease, back to 0 within a second, 0 the rest of the time)"
+        "note": "player 1 grenades on screen, as in Metal Slug 2 (same engine, eight bytes before the bombs there too): one more as a grenade leaves the hand, one less as it blows up (a game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44): 1 or 2 right after each bombs decrease, back to 0 within a second, 0 the rest of the time)"
       },
       "grenades_out_p2": {
         "addr": "0x10C719",
@@ -78,7 +78,7 @@
       "weapon": {
         "addr": "0x10C71E",
         "type": "u8",
-        "note": "player 1 weapon (cheat database Select Shot Equipment PL1, RetroAchievements code notes): Metal Slug 3's codes, 0 handgun, 5 heavy machine gun, 6 laser, 12 enemy chaser seen in Seb's game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44) (H with 200 shots, L at the start of mission 2, C with 40 shots on the minarets); 10 and 8 while he fired the H then the R from the tank, 8 kept on foot after the tank was destroyed until the rockets ran out"
+        "note": "player 1 weapon (cheat database Select Shot Equipment PL1, RetroAchievements code notes): Metal Slug 3's codes, 0 handgun, 5 heavy machine gun, 6 laser, 12 enemy chaser seen in a game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44) (H with 200 shots, L at the start of mission 2, C with 40 shots on the minarets); 10 and 8 while he fired the H then the R from the tank, 8 kept on foot after the tank was destroyed until the rockets ran out"
       },
       "weapon_p2": {
         "addr": "0x10C71F",
@@ -89,7 +89,7 @@
         "addr": "0x10C5FD",
         "type": "u8",
         "zero_from": "0x80",
-        "note": "player 1 rescued prisoners (cheat database, Get 50 Prisoners Now! PL1; Seb's game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44): 2 on the gallows of the first town, 4 before his death on the boss, 0 again at each death as on the tally)"
+        "note": "player 1 rescued prisoners (cheat database, Get 50 Prisoners Now! PL1; a game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44): 2 on the gallows of the first town, 4 before his death on the boss, 0 again at each death as on the tally)"
       },
       "prisoners_p2": {
         "addr": "0x10C601",
@@ -122,7 +122,7 @@
           0,
           3
         ],
-        "note": "player 1 body: 0 normal with the handgun, 1 carrying a weapon, 2 fat (RetroAchievements code notes P1 - Form; Seb's game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44): 1 while he carried the H)"
+        "note": "player 1 body: 0 normal with the handgun, 1 carrying a weapon, 2 fat (RetroAchievements code notes P1 - Form; a game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44): 1 while he carried the H)"
       },
       "form_p2": {
         "addr": "0x101607",
@@ -140,13 +140,13 @@
           0,
           8
         ],
-        "note": "player 1 vehicle: 1 Metal Slug (tank), 2 Camel Slug (Seb's game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44)), 3 Slugnoid and 4 Slug Flyer as in Metal Slug 2 (same engine, same last byte of the vehicle block), kept after he leaves it; the byte before it, 0x10C628 (RetroAchievements code notes P1 - Vehicle ID), is 4 in the tank and stays 4 after it, 0 on the camel"
+        "note": "player 1 vehicle: 1 Metal Slug (tank), 2 Camel Slug (a game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44)), 3 Slugnoid and 4 Slug Flyer as in Metal Slug 2 (same engine, same last byte of the vehicle block), kept after he leaves it; the byte before it, 0x10C628 (RetroAchievements code notes P1 - Vehicle ID), is 4 in the tank and stays 4 after it, 0 on the camel"
       },
       "vehicle": {
         "addr": "0x10C608",
         "type": "be",
         "bytes": 2,
-        "note": "player 1's vehicle: the word at +2 of his vehicle block 0x10C606..0x10C629 holds the vehicle object's address while he rides anything, the camel included (Seb's game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44): 0x1A44 on the Camel Slug at 122 s and from 130 to 144 s, 0x3BF4 in the Metal Slug tank from 145.6 s to its destruction at 185.5 s), 0 on foot, and its own address 0xC608 before the game starts; Metal Slug 2's layout 0x227A lower (RetroAchievements code notes P1 - Vehicle Random ID is this word's low byte)"
+        "note": "player 1's vehicle: the word at +2 of his vehicle block 0x10C606..0x10C629 holds the vehicle object's address while he rides anything, the camel included (a game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44): 0x1A44 on the Camel Slug at 122 s and from 130 to 144 s, 0x3BF4 in the Metal Slug tank from 145.6 s to its destruction at 185.5 s), 0 on foot, and its own address 0xC608 before the game starts; Metal Slug 2's layout 0x227A lower (RetroAchievements code notes P1 - Vehicle Random ID is this word's low byte)"
       },
       "vehicle_hp": {
         "addr": "0x10C621",
@@ -156,13 +156,13 @@
         "min": 0,
         "max": 100,
         "zero_from": "0x80",
-        "note": "energy of player 1's vehicle in % (full at 0x30; cheat database Infinite Vehicle Energy PL1; Seb's game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44): 0x30, 0x20, 0x10 then 0 as the tank took hits and blew up)"
+        "note": "energy of player 1's vehicle in % (full at 0x30; cheat database Infinite Vehicle Energy PL1; a game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44): 0x30, 0x20, 0x10 then 0 as the tank took hits and blew up)"
       },
       "vehicle_ammo": {
         "addr": "0x10C627",
         "type": "u8",
         "zero_from": "0x80",
-        "note": "cannon shells of player 1's vehicle (cheat database Infinite Vehicle Cannon PL1; Seb's game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44): 10 in the fresh tank, one less per shot)"
+        "note": "cannon shells of player 1's vehicle (cheat database Infinite Vehicle Cannon PL1; a game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44): 10 in the fresh tank, one less per shot)"
       },
       "vehicle_kind_p2": {
         "addr": "0x10C64D",
@@ -199,7 +199,7 @@
         "addr": "0x10C606",
         "type": "hex",
         "bytes": 36,
-        "note": "probe (1.33 test 21): player 1's vehicle block as it is; its words in Seb's game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44) gave the vehicle address at +2 and the kind at +0x23 (test 44)"
+        "note": "probe (1.33 test 21): player 1's vehicle block as it is; its words in a game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44) gave the vehicle address at +2 and the kind at +0x23 (test 44)"
       },
       "_veh2": {
         "addr": "0x10C62A",
@@ -210,7 +210,7 @@
       "time": {
         "addr": "0x1013DE",
         "type": "u8",
-        "note": "mission timer, as on the screen (RetroAchievements code notes Stage - Remaining Timer; Seb's game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44): 60, 59, 58 with the screen)"
+        "note": "mission timer, as on the screen (RetroAchievements code notes Stage - Remaining Timer; a game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44): 60, 59, 58 with the screen)"
       },
       "mission": {
         "addr": "0x10C2F5",
@@ -220,25 +220,25 @@
           1,
           6
         ],
-        "note": "mission number, 0-based in RAM (RetroAchievements code notes Game - Mission [3, Main]; Seb's game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44): 0 through mission 1, 1 from the MISSION 2 START screen; the two words after it, 0x10C2F6 and 0x10C2F8, follow it; the 0x10C2FD read before stayed 0)"
+        "note": "mission number, 0-based in RAM (RetroAchievements code notes Game - Mission [3, Main]; a game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44): 0 through mission 1, 1 from the MISSION 2 START screen; the two words after it, 0x10C2F6 and 0x10C2F8, follow it; the 0x10C2FD read before stayed 0)"
       },
       "boss_down": {
         "addr": "0x10C304",
         "type": "u8",
-        "note": "the game's own flag of the mission's end (RetroAchievements code notes Game - Mission Finished [Bit2]): 4 from the moment the boss blows up to the next mission's start screen, 0 otherwise (Seb's game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44): 4 at 253.8 s as the Iron Nokana MKII's life reached 0, 0 at 270.1 s on MISSION 2 START)"
+        "note": "the game's own flag of the mission's end (RetroAchievements code notes Game - Mission Finished [Bit2]): 4 from the moment the boss blows up to the next mission's start screen, 0 otherwise (a game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44): 4 at 253.8 s as the Iron Nokana MKII's life reached 0, 0 at 270.1 s on MISSION 2 START)"
       },
       "_hps": {
         "addr": "0x101722",
         "type": "u16s",
         "count": 72,
         "stride": 176,
-        "note": "the lives of the game's objects (Seb's game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44)): a table of 176-byte objects from 0x1016D4, the life word 78 bytes into each (Metal Slug 2's layout with 176 instead of 168; the Camel Slug is object 5, the tank object 54, the vehicle words 0x1A44 and 0x3BF4 say so); the Iron Nokana MKII came with 32767 while it arrived then 5000 (4990 at the first reading) in object 55 and a part of 2500 in object 56, the big enemies hold 100 to 670, the soldiers 1 to 32; an empty entry holds 0"
+        "note": "the lives of the game's objects (a game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44)): a table of 176-byte objects from 0x1016D4, the life word 78 bytes into each (Metal Slug 2's layout with 176 instead of 168; the Camel Slug is object 5, the tank object 54, the vehicle words 0x1A44 and 0x3BF4 say so); the Iron Nokana MKII came with 32767 while it arrived then 5000 (4990 at the first reading) in object 55 and a part of 2500 in object 56, the big enemies hold 100 to 670, the soldiers 1 to 32; an empty entry holds 0"
       },
       "end_ptr": {
         "addr": "0x101366",
         "type": "be",
         "bytes": 2,
-        "note": "the game's state routine, the low word of the pointer at 0x101364 (Seb's game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44) against his screenshots): 34464 while playing, 34928 as the boss blows up, 34992 on the RECAPTURED PRISONER tally, 35060 while MISSION 1 COMPLETE is written on the screen, 35094 on the fade, 34074 on the MISSION 2 START screen; Metal Slug 2's 0x101346 moved"
+        "note": "the game's state routine, the low word of the pointer at 0x101364 (a game of 8 November 13:40 (memory recording, capture and 131 screenshots, 1.33 test 44) against his screenshots): 34464 while playing, 34928 as the boss blows up, 34992 on the RECAPTURED PRISONER tally, 35060 while MISSION 1 COMPLETE is written on the screen, 35094 on the fade, 34074 on the MISSION 2 START screen; Metal Slug 2's 0x101346 moved"
       },
       "credits": {
         "addr": "0xD00034",
@@ -3285,6 +3285,6 @@
       "1": 5000
     },
     "boss_min": 2000,
-    "note": "where the bosses' lives are: the whole table of objects (_hps). The entry filled with the life the mission's boss starts with (boss_life, from Seb's game of 8 November: the Iron Nokana MKII 5000, first read 4990) is the boss, named after the mission (the Metal Slug Wiki's list, missions 2 to 6 to confirm in play); in a mission not listed yet, a life of boss_min or more; any other life of 200 or more is a big enemy with a quiet bar (the Iron Nokana MKII's part of 2500). boss_dead (the game's own flag) says BOSS DESTROYED at the game's moment, mission_done (its state routine on the MISSION COMPLETE screen) shows MISSION COMPLETE"
+    "note": "where the bosses' lives are: the whole table of objects (_hps). The entry filled with the life the mission's boss starts with (boss_life, from a game of 8 November: the Iron Nokana MKII 5000, first read 4990) is the boss, named after the mission (the Metal Slug Wiki's list, missions 2 to 6 to confirm in play); in a mission not listed yet, a life of boss_min or more; any other life of 200 or more is a big enemy with a quiet bar (the Iron Nokana MKII's part of 2500). boss_dead (the game's own flag) says BOSS DESTROYED at the game's moment, mission_done (its state routine on the MISSION COMPLETE screen) shows MISSION COMPLETE"
   }
 }

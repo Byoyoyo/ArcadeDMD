@@ -86,7 +86,7 @@ When a health bar, a timer or a name does not match the screen, run `test_retroa
 | The King of Fighters '94 | `kof94.json` | yes | yes | - | RetroAchievements, to be checked |
 | The King of Fighters '95 | `kof95.json` | yes | yes | - | to learn |
 | The King of Fighters '96 | `kof96.json` | yes | yes | yes (29) | assumed, to be checked |
-| The King of Fighters '97 | `kof97.json` | yes | yes | yes (32) | found (Seb's game, 1.33.1 test 49) |
+| The King of Fighters '97 | `kof97.json` | yes | yes | yes (32) | found (1.33.1) |
 | The King of Fighters '98 | `kof98.json` | yes | yes | yes (38) | found |
 | The King of Fighters '99 | `kof99.json` | yes | yes | yes (34) | assumed, to be checked |
 | The King of Fighters 2000 | `kof2000.json` | yes | yes | yes (36) | assumed, to be checked |

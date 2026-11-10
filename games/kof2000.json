@@ -69,7 +69,7 @@
     "max": 100,
     "zero_from": "0x80",
     "add": 1,
-    "note": "health bar in %, full = 102 (cheat database); a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (Seb, 1.31): from 0x80 it reads empty; 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)"
+    "note": "health bar in %, full = 102 (cheat database); a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (1.31): from 0x80 it reads empty; 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight"
    },
    "health_p2": {
     "addr": "0x108439",
@@ -79,7 +79,7 @@
     "max": 100,
     "zero_from": "0x80",
     "add": 1,
-    "note": "health bar in %, full = 102 (cheat database); a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (Seb, 1.31): from 0x80 it reads empty; 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)"
+    "note": "health bar in %, full = 102 (cheat database); a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (1.31): from 0x80 it reads empty; 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight"
    },
    "time": {
     "addr": "0x10A7E6",
@@ -192,7 +192,7 @@
    "round": {
     "addr": "0x10A7B6",
     "type": "u8",
-    "note": "round of the match, from 0, one more at each K.O. (cheat database \"Select Current Round\", 1 to 6, as in The King of Fighters '98 where Seb saw it move at each K.O. in 1.31), shown as ROUND n when the next fight begins"
+    "note": "round of the match, from 0, one more at each K.O. (cheat database \"Select Current Round\", 1 to 6, as in The King of Fighters '98 where it moves at each K.O. in 1.31), shown as ROUND n when the next fight begins"
    },
    "backdrop": {
     "addr": "0x10A7AE",

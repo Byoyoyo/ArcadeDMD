@@ -111,7 +111,7 @@ def _rot(b, key, angle, steps=16):
 
 
 def hook_neons(bd, screen, b, L, now, dt):
-    """Néons des façades : allumés, avec de petits sauts de courant de temps en temps. Pas sous les combats (1.32, Seb :
+    """Néons des façades : allumés, avec de petits sauts de courant de temps en temps. Pas sous les combats (1.32,
     les enseignes s'allumaient à la hauteur des noms). / Not under the fights, at the level of the names."""
     if getattr(bd, "no_neons", False):
         return

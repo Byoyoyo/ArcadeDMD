@@ -71,7 +71,7 @@
     "max": 100,
     "zero_from": "0x80",
     "add": 1,
-    "note": "health bar in %, full = 103 (cheat database); a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (Seb, 1.31): from 0x80 it reads empty; 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)"
+    "note": "health bar in %, full = 103 (cheat database); a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (1.31): from 0x80 it reads empty; 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight"
    },
    "health_p2": {
     "addr": "0x108439",
@@ -81,7 +81,7 @@
     "max": 100,
     "zero_from": "0x80",
     "add": 1,
-    "note": "health bar in %, full = 103 (cheat database); a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (Seb, 1.31): from 0x80 it reads empty; 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)"
+    "note": "health bar in %, full = 103 (cheat database); a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (1.31): from 0x80 it reads empty; 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight"
    },
    "time": {
     "addr": "0x10A83A",
@@ -194,7 +194,7 @@
    "round": {
     "addr": "0x10A7F1",
     "type": "u8",
-    "note": "round of the match, from 0, one more at each K.O. (cheat database \"Select Current Round\", 1 to 6, as in The King of Fighters '98 where Seb saw it move at each K.O. in 1.31), shown as ROUND n when the next fight begins"
+    "note": "round of the match, from 0, one more at each K.O. (cheat database \"Select Current Round\", 1 to 6, as in The King of Fighters '98 where it moves at each K.O. in 1.31), shown as ROUND n when the next fight begins"
    },
    "backdrop": {
     "addr": "0x10A7EA",
@@ -204,7 +204,7 @@
    "_pow": {
     "addr": "0x1081E8",
     "type": "u8",
-    "note": "P1 power gauge (RetroAchievements code notes, P1 POW Bar): in Advanced it fills to 0x80 and starts again at a stock, the green square of the game (Seb's game on the cabinet of 9 November 2026 13:15 (memory recording and 122 screenshots): 0x7C then 0x06 and a stock at 62.3 s, the square on his screenshot); in Extra the gauge full is 0x80 too (pow_full in hd), the bar of the panel under the name (1.33 test 49)"
+    "note": "P1 power gauge (RetroAchievements code notes, P1 POW Bar): in Advanced it fills to 0x80 and starts again at a stock, the green square of the game (a game on the cabinet of 9 November 2026 13:15 (memory recording and 122 screenshots): 0x7C then 0x06 and a stock at 62.3 s, the square on his screenshot); in Extra the gauge full is 0x80 too (pow_full in hd), the bar of the panel under the name (1.33 test 49)"
    },
    "_pow_p2": {
     "addr": "0x1083E8",
@@ -214,7 +214,7 @@
    "_stock": {
     "addr": "0x1082E3",
     "type": "u8",
-    "note": "P1 stocks in Advanced (RetroAchievements code notes, POW Level; MAME cheat Infinite Power), 0 to 3: 1 at each full gauge, 0 again at each desperation move (Seb's game on the cabinet of 9 November 2026 13:15 (memory recording and 122 screenshots): 68.0 s, 103.1 s, 143.8 s, 182.1 s, 218.6 s)"
+    "note": "P1 stocks in Advanced (RetroAchievements code notes, POW Level; MAME cheat Infinite Power), 0 to 3: 1 at each full gauge, 0 again at each desperation move (a game on the cabinet of 9 November 2026 13:15 (memory recording and 122 screenshots): 68.0 s, 103.1 s, 143.8 s, 182.1 s, 218.6 s)"
    },
    "_stock_p2": {
     "addr": "0x1084E3",
@@ -244,7 +244,7 @@
    "_dm": {
     "addr": "0x1081E2",
     "type": "u8",
-    "note": "P1 state flags (RetroAchievements code notes, Desperation Move bit 0): bit 0 set while a desperation move runs (Seb's game on the cabinet of 9 November 2026 13:15 (memory recording and 122 screenshots): from 68.0 s, 103.1 s, 143.8 s, 182.1 s, 218.6 s, each time the stock went), the panel says DM ! from it when the gauge of Extra empties over a second rather than at once"
+    "note": "P1 state flags (RetroAchievements code notes, Desperation Move bit 0): bit 0 set while a desperation move runs (a game on the cabinet of 9 November 2026 13:15 (memory recording and 122 screenshots): from 68.0 s, 103.1 s, 143.8 s, 182.1 s, 218.6 s, each time the stock went), the panel says DM ! from it when the gauge of Extra empties over a second rather than at once"
    },
    "_dm_p2": {
     "addr": "0x1083E2",
@@ -795,7 +795,7 @@
    "fight_ruins",
    "fight_snow"
   ],
-  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page; pow_full: the power gauge full at 0x80 (Seb's game of 9 November 2026: Advanced starts again at 0x7C to 0x80 with a stock, the MAX of Extra at 0x80), 0xA0 in '98 (1.33 test 49); stock_max: three stock squares whoever is lost, as on his screenshots (Robert with one teammate beaten: three squares, the CPU at three stocks: three green squares, no MAX written)",
+  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page; pow_full: the power gauge full at 0x80 (a game of 9 November 2026: Advanced starts again at 0x7C to 0x80 with a stock, the MAX of Extra at 0x80), 0xA0 in '98 (1.33 test 49); stock_max: three stock squares whoever is lost, as on his screenshots (Robert with one teammate beaten: three squares, the CPU at three stocks: three green squares, no MAX written)",
   "pow_full": 128,
   "stock_max": 3
  }

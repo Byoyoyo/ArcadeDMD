@@ -632,7 +632,7 @@ class RetroArchSource:
         self.cfg = cfg
         self.client = RetroArchClient(cfg.get("host", "127.0.0.1"), cfg.get("port", DEFAULT_PORT))
         self.poll = max(0.05, float(cfg.get("poll_ms", 100)) / 1000.0)
-        # the whole memory recorded for every game, and screenshots asked of RetroArch (1.33 test 35, Seb: one game
+        # the whole memory recorded for every game, and screenshots asked of RetroArch (1.33 test 35, one game
         # should be enough to find every address of a game) / toute la mémoire et des captures d'écran pour tous les jeux
         dump = cfg.get("ram_dump") if isinstance(cfg.get("ram_dump"), dict) else {}
         self.dump_all = bool(dump.get("enabled", False))

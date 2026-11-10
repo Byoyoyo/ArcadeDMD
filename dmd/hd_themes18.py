@@ -1,11 +1,11 @@
-"""The nine stages of The King of Fighters '98 (1.32 test 9), drawn by the program from Seb's pictures and the
+"""The nine stages of The King of Fighters '98 (1.32 test 9), drawn by the program from the pictures and the
 descriptions of the stages: the street under the viaduct in Osaka, the boat on the river in China, the harbor in Korea, the
 market in the Middle East, the Court of the Lions in Spain, the train yard and the wharf in the USA, the ruined dojo in the
 forest in Japan, the Black Noah. Each changes with the rounds as in the game (the time of day, a fog, the cars, a wagon,
 the light growing bluer) and has its own animations. They register in hd_bg.BUILDERS when this module is imported (by
 hd_fight). No image comes from the game.
 
-Les neuf décors de The King of Fighters '98, dessinés par le programme d'après les images de Seb et les descriptions des
+Les neuf décors de The King of Fighters '98, dessinés par le programme d'après les images et les descriptions des
 stages. Chacun change avec les rounds comme dans le jeu (l'heure du jour, la brume, les voitures, un wagon, la lumière qui
 bleuit) et a ses animations. Aucune image ne vient du jeu.
 """
@@ -22,7 +22,7 @@ from .hd_stages import gull_img, hook_gulls, stars_on
 
 # ---------------------------------------------------------------------------- drawing / dessin
 # the look of the stages: "flat" (as drawn), or "cartoon", every shape inked with a dark outline, the colours brighter
-# and bolder (Seb, 1.33) / le style des décors : "flat", ou "cartoon", chaque forme cernée d'un trait sombre, les couleurs
+# and bolder (1.33) / le style des décors : "flat", ou "cartoon", chaque forme cernée d'un trait sombre, les couleurs
 # plus vives
 STYLE = {"name": "cartoon", "ink": (30, 20, 34), "width": 3.6, "min": 12, "saturation": 1.3, "contrast": 1.06,
          "wobble": 0.7, "shade": 0.8, "shade_from": 0.62, "bands": 5}

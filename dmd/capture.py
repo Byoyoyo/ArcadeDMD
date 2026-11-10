@@ -1,8 +1,8 @@
 """Captures of the games (1.33): during a fighting game, every change of every value read is written with its time to
 runtime/captures/<game>-<date>.log, a few hundred KB for a match. One match per game is enough to replay it offline
 in the fight engine, tune the game's file (its select screens, the state of its fights, its round) and keep the
-capture as a test. "capture" in config.json: "all" (every game, the default since test 7, Seb played Windjammers
-and nothing was captured), "fights" (the fighting games only) or "off".
+capture as a test. "capture" in config.json: "all" (every game, the default since test 7, a game of Windjammers
+had not been captured), "fights" (the fighting games only) or "off".
 
 Captures des parties : pendant un jeu de combat, chaque changement de chaque valeur lue est écrit avec son heure dans
 runtime/captures/<jeu>-<date>.log. Un match par jeu suffit pour le rejouer dans le moteur de combat, régler le

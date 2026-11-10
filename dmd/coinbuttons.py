@@ -224,13 +224,13 @@ class CoinButtons:
                and now - self.up.get(k, -9.0) >= MIN_UP)
         if not d and self.held.get(k):
             self.up[k] = now
-            # held a good second: a marker for the capture, "here" (Seb, test 35: when a boss comes, when a grenade blows
+            # held a good second: a marker for the capture, "here" (test 35: when a boss comes, when a grenade blows
             # up late) / tenu une bonne seconde : un repère dans la capture
             if k in (LEFT, RIGHT) and now - self.last.get(k, now) >= MARK_HOLD:
                 self.marks.append((k, now, now - self.last[k]))
         if new:
             # how the button is pressed, for the log: the time since the press before and how long that one was held
-            # (1.33 test 28, Seb: the game counted fewer coins than the button) / le temps depuis l'appui d'avant et
+            # (1.33 test 28, the game counted fewer coins than the button) / le temps depuis l'appui d'avant et
             # combien de temps il a été tenu
             last = self.last.get(k)
             self.timing[k] = (None if last is None else now - last,

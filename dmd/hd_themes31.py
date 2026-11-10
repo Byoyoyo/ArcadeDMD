@@ -1,10 +1,10 @@
-"""Backdrops of DoDonPachi's six stages (1.31), seen from the sky, after the maps of the stages Seb sent and numbered: the dark
+"""Backdrops of DoDonPachi's six stages (1.31), seen from the sky, after the maps of the stages, numbered: the dark
 forest crossed by giant branches, the base on the red cratered ground, the blue peaks under the clouds, the base then the ruined city,
 the great grey machine and its green channels, the orange and purple hive and its honeycomb grates. The game scrolls up,
 the marquee to the right: what lies along a stage lies along the screen. The same places, colours and mood, drawn by the
 program: no image comes from the game. The backdrops register in hd_bg.BUILDERS when this module is imported (by hd_cave).
 
-Décors des six niveaux de DoDonPachi (1.31), vus du ciel, d'après les cartes des niveaux envoyées et numérotées par Seb : la
+Décors des six niveaux de DoDonPachi (1.31), vus du ciel, d'après les cartes des niveaux envoyées et numérotées par la
 forêt sombre traversée de branches géantes, la base sur le sol rouge et ses cratères, les pics bleus sous les nuages, la base puis la
 ville en ruines, la grande machine grise et ses canaux verts, la ruche orange et violette et ses grilles en alvéoles. Les
 mêmes lieux, couleurs et ambiance, dessinés par le programme : aucune image ne vient du jeu.

@@ -1,6 +1,6 @@
 {
  "title": "The King of Fighters 2002",
- "note": "Neo Geo fighting game: health, timer, scores, the teams and their fighters beaten, the fighter on screen with the 41 names, the state of the fight, the power gauges and stocks (1.33, from the RetroAchievements code notes and Seb's captures). The fighting order of each team is read (1.33 test 50), the panel of the desperation moves under a human's name as in '98 and '97.",
+ "note": "Neo Geo fighting game: health, timer, scores, the teams and their fighters beaten, the fighter on screen with the 41 names, the state of the fight, the power gauges and stocks (1.33, from the RetroAchievements code notes and the captures). The fighting order of each team is read (1.33 test 50), the panel of the desperation moves under a human's name as in '98 and '97.",
  "match": [
   {
    "system": [
@@ -67,7 +67,7 @@
     "max": 100,
     "zero_from": "0x80",
     "add": 1,
-    "note": "player 1 health in %, full = 0x66; a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (Seb, 1.31): from 0x80 it reads empty; 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)"
+    "note": "player 1 health in %, full = 0x66; a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (1.31): from 0x80 it reads empty; 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight"
    },
    "health_p2": {
     "addr": "0x108439",
@@ -77,7 +77,7 @@
     "max": 100,
     "zero_from": "0x80",
     "add": 1,
-    "note": "player 2 health in %, full = 0x66; a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (Seb, 1.31): from 0x80 it reads empty; 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight (Seb)"
+    "note": "player 2 health in %, full = 0x66; a K.O. takes its 16-bit word below zero, its high byte at 0xFF (RetroAchievements code notes, lose = ff), which read as a full bar and hid every K.O. (1.31): from 0x80 it reads empty; 0 is a fighter still standing, at his lowest (RetroAchievements code notes, The King of Fighters '98 0x8438: 0x0000 = lowest possible health while alive, underflows when dead), read as 1 since 1.31.1, it read as a K.O. in the middle of a fight"
    },
    "time": {
     "addr": "0x10A7D2",
@@ -120,12 +120,12 @@
    "_p1_lost": {
     "addr": "0x10A7E5",
     "type": "u8",
-    "note": "P1, fighters already beaten (RetroAchievements 0xa7e4 'P2 rounds won, actually P1 rounds lost'); it does not count the picks on the select screens, unlike '98 (Seb's capture of 18:02)"
+    "note": "P1, fighters already beaten (RetroAchievements 0xa7e4 'P2 rounds won, actually P1 rounds lost'); it does not count the picks on the select screens, unlike '98 (the capture of 18:02)"
    },
    "_p1_ch0": {
     "addr": "0x10A7E6",
     "type": "u8",
-    "note": "P1, team character A (RA 0xa7e7 slot 1, 0xFF on the select screen); RetroAchievements code notes of The King of Fighters 2002, the byte next to the note's address as for its timer and screen (Seb's capture of 2026-11-04)"
+    "note": "P1, team character A (RA 0xa7e7 slot 1, 0xFF on the select screen); RetroAchievements code notes of The King of Fighters 2002, the byte next to the note's address as for its timer and screen (the capture of 2026-11-04)"
    },
    "_p1_ch1": {
     "addr": "0x10A7E7",
@@ -170,32 +170,32 @@
    "_p1_seq0": {
     "addr": "0x10A7EE",
     "type": "u8",
-    "note": "P1, the first fighter of the team in fighting order, as a fighter number (0xFF on the select screen); the team as picked is _p1_ch0 to 2, this one is filled by the order select (Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 picked ROBERT, JOE, KYO and fought JOE, KYO, ROBERT, P2 MAXIMA, K', WHIP; 1.33 test 50)"
+    "note": "P1, the first fighter of the team in fighting order, as a fighter number (0xFF on the select screen); the team as picked is _p1_ch0 to 2, this one is filled by the order select (a game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 picked ROBERT, JOE, KYO and fought JOE, KYO, ROBERT, P2 MAXIMA, K', WHIP; 1.33 test 50)"
    },
    "_p1_seq1": {
     "addr": "0x10A7EF",
     "type": "u8",
-    "note": "P1, the second fighter of the team in fighting order, as a fighter number (0xFF on the select screen); the team as picked is _p1_ch0 to 2, this one is filled by the order select (Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 picked ROBERT, JOE, KYO and fought JOE, KYO, ROBERT, P2 MAXIMA, K', WHIP; 1.33 test 50)"
+    "note": "P1, the second fighter of the team in fighting order, as a fighter number (0xFF on the select screen); the team as picked is _p1_ch0 to 2, this one is filled by the order select (a game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 picked ROBERT, JOE, KYO and fought JOE, KYO, ROBERT, P2 MAXIMA, K', WHIP; 1.33 test 50)"
    },
    "_p1_seq2": {
     "addr": "0x10A7F0",
     "type": "u8",
-    "note": "P1, the third fighter of the team in fighting order, as a fighter number (0xFF on the select screen); the team as picked is _p1_ch0 to 2, this one is filled by the order select (Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 picked ROBERT, JOE, KYO and fought JOE, KYO, ROBERT, P2 MAXIMA, K', WHIP; 1.33 test 50)"
+    "note": "P1, the third fighter of the team in fighting order, as a fighter number (0xFF on the select screen); the team as picked is _p1_ch0 to 2, this one is filled by the order select (a game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 picked ROBERT, JOE, KYO and fought JOE, KYO, ROBERT, P2 MAXIMA, K', WHIP; 1.33 test 50)"
    },
    "_p2_seq0": {
     "addr": "0x10A814",
     "type": "u8",
-    "note": "P2, the first fighter of the team in fighting order, as a fighter number (0xFF on the select screen); the team as picked is _p2_ch0 to 2, this one is filled by the order select (Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 picked ROBERT, JOE, KYO and fought JOE, KYO, ROBERT, P2 MAXIMA, K', WHIP; 1.33 test 50)"
+    "note": "P2, the first fighter of the team in fighting order, as a fighter number (0xFF on the select screen); the team as picked is _p2_ch0 to 2, this one is filled by the order select (a game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 picked ROBERT, JOE, KYO and fought JOE, KYO, ROBERT, P2 MAXIMA, K', WHIP; 1.33 test 50)"
    },
    "_p2_seq1": {
     "addr": "0x10A815",
     "type": "u8",
-    "note": "P2, the second fighter of the team in fighting order, as a fighter number (0xFF on the select screen); the team as picked is _p2_ch0 to 2, this one is filled by the order select (Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 picked ROBERT, JOE, KYO and fought JOE, KYO, ROBERT, P2 MAXIMA, K', WHIP; 1.33 test 50)"
+    "note": "P2, the second fighter of the team in fighting order, as a fighter number (0xFF on the select screen); the team as picked is _p2_ch0 to 2, this one is filled by the order select (a game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 picked ROBERT, JOE, KYO and fought JOE, KYO, ROBERT, P2 MAXIMA, K', WHIP; 1.33 test 50)"
    },
    "_p2_seq2": {
     "addr": "0x10A816",
     "type": "u8",
-    "note": "P2, the third fighter of the team in fighting order, as a fighter number (0xFF on the select screen); the team as picked is _p2_ch0 to 2, this one is filled by the order select (Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 picked ROBERT, JOE, KYO and fought JOE, KYO, ROBERT, P2 MAXIMA, K', WHIP; 1.33 test 50)"
+    "note": "P2, the third fighter of the team in fighting order, as a fighter number (0xFF on the select screen); the team as picked is _p2_ch0 to 2, this one is filled by the order select (a game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 picked ROBERT, JOE, KYO and fought JOE, KYO, ROBERT, P2 MAXIMA, K', WHIP; 1.33 test 50)"
    },
    "_in_p1": {
     "addr": "0x10FD96",
@@ -212,7 +212,7 @@
    "_fight_state": {
     "addr": "0x10A786",
     "type": "u8",
-    "note": "the state of the fight, at '98's place (2001's RetroAchievements notes, Match State bitflags): 0 before a round (its intro) and between the screens, 2 once GO is given (bit 1, the fight runs), 1 at a K.O. (round finished); no READY state here (Seb's capture of 2026-11-04 18:02). FIGHT ! comes with 2, ROUND n with 0 after 1, as in '98"
+    "note": "the state of the fight, at '98's place (2001's RetroAchievements notes, Match State bitflags): 0 before a round (its intro) and between the screens, 2 once GO is given (bit 1, the fight runs), 1 at a K.O. (round finished); no READY state here (the capture of 2026-11-04 18:02). FIGHT ! comes with 2, ROUND n with 0 after 1, as in '98"
    },
    "power": {
     "addr": "0x1081E8",
@@ -220,7 +220,7 @@
     "mult": 1.5625,
     "min": 0,
     "max": 100,
-    "note": "P1 power gauge in %, at '98's place, full at 0x40 then a stock (Seb's capture of 18:02: 61 then 0 with a stock)"
+    "note": "P1 power gauge in %, at '98's place, full at 0x40 then a stock (the capture of 18:02: 61 then 0 with a stock)"
    },
    "power_p2": {
     "addr": "0x1083E8",
@@ -245,42 +245,42 @@
    "_pow": {
     "addr": "0x1081E8",
     "type": "u8",
-    "note": "P1 power gauge for the panel: it fills to 0x40, a stock and 0 again (pow_full in hd; Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 0x3C then 0x06 with a stock at 50.0 s, 0x40 then 0 at 79.7 s); the same address as power"
+    "note": "P1 power gauge for the panel: it fills to 0x40, a stock and 0 again (pow_full in hd; a game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 0x3C then 0x06 with a stock at 50.0 s, 0x40 then 0 at 79.7 s); the same address as power"
    },
    "_pow_p2": {
     "addr": "0x1083E8",
     "type": "u8",
-    "note": "P2 power gauge for the panel: it fills to 0x40, a stock and 0 again (pow_full in hd; Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 0x3C then 0x06 with a stock at 50.0 s, 0x40 then 0 at 79.7 s); the same address as power"
+    "note": "P2 power gauge for the panel: it fills to 0x40, a stock and 0 again (pow_full in hd; a game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 0x3C then 0x06 with a stock at 50.0 s, 0x40 then 0 at 79.7 s); the same address as power"
    },
    "_stock": {
     "addr": "0x1082E3",
     "type": "u8",
-    "note": "P1 stocks (RetroAchievements code notes, Gauge Level), up to 3, 4 and 5 for the first, second and third fighter (command.dat); one gone at each desperation move and at MAX (Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 71.3 s, 85.2 s, 160.3 s, 198.6 s, the CPU's MAX at 122.7 s and 231.4 s); the same address as power_level"
+    "note": "P1 stocks (RetroAchievements code notes, Gauge Level), up to 3, 4 and 5 for the first, second and third fighter (command.dat); one gone at each desperation move and at MAX (a game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 71.3 s, 85.2 s, 160.3 s, 198.6 s, the CPU's MAX at 122.7 s and 231.4 s); the same address as power_level"
    },
    "_stock_p2": {
     "addr": "0x1084E3",
     "type": "u8",
-    "note": "P2 stocks (RetroAchievements code notes, Gauge Level), up to 3, 4 and 5 for the first, second and third fighter (command.dat); one gone at each desperation move and at MAX (Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 71.3 s, 85.2 s, 160.3 s, 198.6 s, the CPU's MAX at 122.7 s and 231.4 s); the same address as power_level"
+    "note": "P2 stocks (RetroAchievements code notes, Gauge Level), up to 3, 4 and 5 for the first, second and third fighter (command.dat); one gone at each desperation move and at MAX (a game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 71.3 s, 85.2 s, 160.3 s, 198.6 s, the CPU's MAX at 122.7 s and 231.4 s); the same address as power_level"
    },
    "_maxv": {
     "addr": "0x1081EA",
     "type": "u8",
-    "note": "P1 MAX timer, at '98's place: 0x2F when MAX starts (B+C and a stock), down to 0 in about 13 s (maxv_full in hd; Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): the CPU's MAX at 122.7 s, 0x2F then 0x2E, 0x2D...)"
+    "note": "P1 MAX timer, at '98's place: 0x2F when MAX starts (B+C and a stock), down to 0 in about 13 s (maxv_full in hd; a game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): the CPU's MAX at 122.7 s, 0x2F then 0x2E, 0x2D...)"
    },
    "_maxv_p2": {
     "addr": "0x1083EA",
     "type": "u8",
-    "note": "P2 MAX timer, at '98's place: 0x2F when MAX starts (B+C and a stock), down to 0 in about 13 s (maxv_full in hd; Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): the CPU's MAX at 122.7 s, 0x2F then 0x2E, 0x2D...)"
+    "note": "P2 MAX timer, at '98's place: 0x2F when MAX starts (B+C and a stock), down to 0 in about 13 s (maxv_full in hd; a game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): the CPU's MAX at 122.7 s, 0x2F then 0x2E, 0x2D...)"
    },
    "_dm": {
     "addr": "0x1081E2",
     "type": "u8",
-    "note": "P1 state flags, bit 0 set while a desperation move runs, as in '97 (Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 0x12 to 0x13 and 0x02 to 0x03 with each of his four desperation moves, the stock going at the same time)"
+    "note": "P1 state flags, bit 0 set while a desperation move runs, as in '97 (a game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 0x12 to 0x13 and 0x02 to 0x03 with each of his four desperation moves, the stock going at the same time)"
    },
    "_dm_p2": {
     "addr": "0x1083E2",
     "type": "u8",
-    "note": "P2 state flags, bit 0 set while a desperation move runs, as in '97 (Seb's game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 0x12 to 0x13 and 0x02 to 0x03 with each of his four desperation moves, the stock going at the same time); P2's at P1's address + 0x200 as every other value of this game"
+    "note": "P2 state flags, bit 0 set while a desperation move runs, as in '97 (a game on the cabinet of 9 November 2026 13:37 (memory recording and 115 screenshots): P1 0x12 to 0x13 and 0x02 to 0x03 with each of his four desperation moves, the stock going at the same time); P2's at P1's address + 0x200 as every other value of this game"
    }
   }
  },
@@ -300,7 +300,7 @@
      ]
     }
    ],
-   "note": "1 on the character select and the order select (RA 0x858b Screen ID: 0x23 Select Character 1, 0x2f Select Character 2; Seb's capture shows 0x23 then 0xDA 'Order Select/Fighting' for the rest of the game, so the order screen may not be told, to confirm)"
+   "note": "1 on the character select and the order select (RA 0x858b Screen ID: 0x23 Select Character 1, 0x2f Select Character 2; the capture shows 0x23 then 0xDA 'Order Select/Fighting' for the rest of the game, so the order screen may not be told, to confirm)"
   },
   "p1_char": {
    "value": "_p1_cur",
@@ -449,7 +449,7 @@
   "_stock2_probe": "power_level_p2",
   "_pow_probe": "power",
   "_pow2_probe": "power_p2",
-  "note": "values renamed since Seb's captures of 2026-11-04 (probes confirmed), for tools/replay_capture.py"
+  "note": "values renamed since the captures of 2026-11-04 (probes confirmed), for tools/replay_capture.py"
  },
  "buttons": {
   "A": "LP",
