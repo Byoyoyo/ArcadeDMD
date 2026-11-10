@@ -1,0 +1,62 @@
+# Keeps the notes of every release the same as its section of CHANGELOG.md, when main gets a new CHANGELOG.
+# When a branch release-zips exists, its zips replace those of the releases with the same version, then it is deleted.
+# Garde les notes de chaque release identiques à sa section du CHANGELOG, quand main reçoit un nouveau CHANGELOG.
+# Quand une branche release-zips existe, ses zips remplacent ceux des releases de même version, puis elle est supprimée.
+name: Release notes
+
+on:
+  push:
+    branches: [main]
+    paths: ["CHANGELOG.md", ".github/workflows/notes.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-notes
+  cancel-in-progress: false
+
+jobs:
+  notes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: The notes of each release from CHANGELOG.md
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for tag in $(gh api "repos/${GITHUB_REPOSITORY}/releases" --paginate --jq '.[].tag_name'); do
+            v="${tag#v}"
+            if python tools/package.py --notes-for "$v" --out notes > /dev/null; then
+              gh release edit "$tag" --notes-file "notes/notes-$v.md"
+              echo "notes of $tag updated"
+            else
+              echo "no section for $tag in CHANGELOG.md, left as it is"
+            fi
+          done
+
+      - name: The zips of the branch release-zips
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! git ls-remote --exit-code origin refs/heads/release-zips > /dev/null; then
+            echo "No branch release-zips, no zip to replace."
+            exit 0
+          fi
+          git fetch --depth 1 origin release-zips
+          mkdir zips
+          git archive FETCH_HEAD | tar -x -C zips
+          for f in zips/ArcadeDMD-*.zip; do
+            n=$(basename "$f")
+            v="${n#ArcadeDMD-}"
+            v="${v%.zip}"
+            gh release upload "v$v" "$f" --clobber
+            echo "zip of v$v replaced"
+          done
+          git push origin --delete release-zips
