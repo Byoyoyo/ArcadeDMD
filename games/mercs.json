@@ -77,14 +77,14 @@
         "note": "weapon of player 2, as player 1's, 0xB0 further like his energy and his mega crashes"
       },
       "weapon_level": {
-        "addr": "0xFF117E",
+        "addr": "0xFF1188",
         "type": "u8",
-        "note": "power-ups (POW) of player 1's weapon, up to 10 in the game, 0 at the start of a game then 1 and 2 as they are picked up (RAM captures under RetroArch)"
+        "note": "power of player 1's weapon, the POW picked up: 0 at the start, 1 then 2 at the two POW boxes of a recorded game (11 November, 43.6 s and 125.8 s, the screenshots show the POW box under him), kept when he takes the flamethrower then the shotgun; the only byte that stepped at both. 0xFF117E, read until 1.35, stepped at the first POW only"
       },
       "weapon_level_p2": {
-        "addr": "0xFF122E",
+        "addr": "0xFF1238",
         "type": "u8",
-        "note": "power-ups (POW) of player 2's weapon, 0xB0 further"
+        "note": "power of player 2's weapon, 0xB0 further like his energy and his mega crashes"
       },
       "score": {
         "addr": "0xFF0F78",
@@ -97,6 +97,13 @@
         "type": "digits",
         "bytes": 8,
         "note": "player 2 score, one digit per byte, found with learn.bat under RetroArch (450, 850 and 3950)"
+      },
+      "_hps": {
+        "addr": "0xFF2354",
+        "type": "u16s",
+        "count": 35,
+        "stride": 128,
+        "note": "the life of every enemy of the game's table, 35 entries of 128 bytes from 0xFF2340, the life at +0x14 (a recorded game of 11 November: soldiers and vehicles 16 to 40, the jet of mission 1 400 from its arrival, 78.2 s, the game's orange bar on the screen, down to 0 as it blew up, 95.1 s, entry 0xFF2A40)"
       }
     }
   },

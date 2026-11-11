@@ -44,6 +44,7 @@ from .hd_cave import SCENES as _SCENES_CAVE
 from .hd_panels import SCENES as _SCENES_CPS_PANELS
 from .hd_spf import SCENES as _SCENES_SPF
 from .hd_games6 import SCENES_PB1 as _SCENES_PB1
+from .hd_mercs import SCENES as _SCENES_MERCS
 from .hd_moves import draw_panel, draw_wins
 from .hd_mslug import MetalSlugScene, family
 from .i18n import tr
@@ -80,6 +81,7 @@ GAME_SCENES = dict(_SCENES_117, **_SCENES_118, **_SCENES_119, **_SCENES_120, **_
 GAME_SCENES.update(_SCENES_CPS_PANELS)       # the Capcom games with characters, shown like Metal Slug (1.30)
 GAME_SCENES.update(_SCENES_SPF)              # Super Puzzle Fighter II Turbo, its wells read gem by gem (1.34)
 GAME_SCENES.update(_SCENES_PB1)              # Puzzle Bobble as in the game (1.35)
+GAME_SCENES.update(_SCENES_MERCS)            # Mercs laid out like Metal Slug, its boss announced (1.36)
 MSLUG_WEAPONS = {0: ("PISTOLET", "HANDGUN"), 1: ("FUSIL À POMPE", "SHOTGUN"), 2: ("LANCE-FLAMMES", "FLAMETHROWER"),
                  3: ("LANCE-ROQUETTES", "ROCKET LAUNCHER"), 4: ("MITRAILLETTE", "MACHINE GUN")}
 
