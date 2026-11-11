@@ -51,7 +51,49 @@ class Side:
         self.energy = None          # the bar drawn, following the game's value / la barre dessinée
 
 
-class MercsScene(GameScene):
+class BossAlert:
+    """The boss of a shoot'em up announced and followed (Mercs, then Strikers 1945 Plus, 1.36): ALERTE ! with the sirens
+    and red edges, its bar with BOSS over it. The scene keeps "alarm" (when it was announced). / Le boss annoncé et suivi :
+    ALERTE ! avec les sirènes et les bords rouges, sa barre avec BOSS dessus."""
+    alarm = -99.0
+
+    def announce(self, now):
+        self.alarm = now
+        self.slam(tr("ALERTE !", "WARNING!"), RED, now, 2.4, sub=tr("UN BOSS ARRIVE", "A BOSS IS COMING"))
+        self.fx.shake(8, 0.6)
+        for i in range(4):                                          # the sirens on both edges / les sirènes des deux bords
+            for x in (self.S(30), self.W - self.S(30)):
+                self.fx.glow(x, self.H / 2, 60, 420, (255, 30, 30), 0.35, "back", 0.8, 0.0, delay=i * 0.6, hot=0.2)
+
+    def draw_alarm(self, screen, now):
+        if now - self.alarm < 3.0:                                  # red stripes on the edges while the alarm rings
+            k = 0.5 + 0.5 * math.sin((now - self.alarm) * 12)
+            for x in (0, self.W - self.S(10)):
+                self.pg.draw.rect(screen, (int(140 + 115 * k), 20, 20), (x, 0, self.S(10), self.H))
+
+    def draw_boss(self, screen, B, cx, y, now):
+        hd, S, pg = self.hd, self.S, self.pg
+        if B["down"] is not None:
+            return
+        k = now - B["t0"]
+        blink = k < 3.0 and int(k * 6) % 2 == 0
+        hd.put(screen, hd.text("BOSS", "stencil", S(34), (255, 236, 220) if blink else RED, glow=0.6, outline=(60, 0, 0), stroke=max(2, S(4))),
+               cx, y + S(8), "center", "middle")
+        bw, bh = S(540), S(20)
+        r = pg.Rect(int(cx - bw / 2), int(y + S(30)), bw, bh)
+        pg.draw.rect(screen, (30, 10, 14), r, border_radius=S(6))
+        frac = _clamp(B["hp"] / max(1, B["top"]))
+        grow = _clamp(k / 0.8)                                       # the bar fills as it comes / la barre se remplit
+        hit = max(0.0, 1 - (now - B["hit_t"]) / 0.25)
+        fill = pg.Rect(r.x + S(3), r.y + S(3), max(0, int((bw - S(6)) * frac * grow)), bh - S(6))
+        if fill.width:
+            c = (255, 255, 230) if hit > 0.5 else ((255, 70, 50) if frac > 0.3 else (255, 150, 40))
+            pg.draw.rect(screen, c, fill, border_radius=S(4))
+        pg.draw.rect(screen, (255, 120, 110) if blink else (150, 60, 60), r, max(1, S(2)), border_radius=S(6))
+
+
+
+class MercsScene(BossAlert, GameScene):
     THEME = "mc_desert"
     SHADE = (60, 90)
     EXPLOSIONS = True
@@ -255,14 +297,6 @@ class MercsScene(GameScene):
             B["down"] = now
             self.boss_down(now)
 
-    def announce(self, now):
-        self.alarm = now
-        self.slam(tr("ALERTE !", "WARNING!"), RED, now, 2.4, sub=tr("UN BOSS ARRIVE", "A BOSS IS COMING"))
-        self.fx.shake(8, 0.6)
-        for i in range(4):                                          # the sirens on both edges / les sirènes des deux bords
-            for x in (self.S(30), self.W - self.S(30)):
-                self.fx.glow(x, self.H / 2, 60, 420, (255, 30, 30), 0.35, "back", 0.8, 0.0, delay=i * 0.6, hot=0.2)
-
     def boss_down(self, now):
         cx = self.W / 2
         for i in range(7):
@@ -280,10 +314,7 @@ class MercsScene(GameScene):
         self.draw_center(screen, vals, logo, now)
         for side in ("p1", "p2"):
             self.draw_panel(screen, side, vals, now)
-        if now - self.alarm < 3.0:                                  # red stripes on the edges while the alarm rings
-            k = 0.5 + 0.5 * math.sin((now - self.alarm) * 12)
-            for x in (0, self.W - self.S(10)):
-                self.pg.draw.rect(screen, (int(140 + 115 * k), 20, 20), (x, 0, self.S(10), self.H))
+        self.draw_alarm(screen, now)
 
     def draw_center(self, screen, vals, logo, now):
         hd, S, W = self.hd, self.S, self.W
@@ -310,26 +341,6 @@ class MercsScene(GameScene):
             hd.put_number(screen, str(int(tm)), "stencil", S(50), col, cx, y + S(52), "center", "middle")
         if by is not None:
             self.draw_boss(screen, B, cx, by + S(14), now)
-
-    def draw_boss(self, screen, B, cx, y, now):
-        hd, S, pg = self.hd, self.S, self.pg
-        if B["down"] is not None:
-            return
-        k = now - B["t0"]
-        blink = k < 3.0 and int(k * 6) % 2 == 0
-        hd.put(screen, hd.text("BOSS", "stencil", S(34), (255, 236, 220) if blink else RED, glow=0.6, outline=(60, 0, 0), stroke=max(2, S(4))),
-               cx, y + S(8), "center", "middle")
-        bw, bh = S(540), S(20)
-        r = pg.Rect(int(cx - bw / 2), int(y + S(30)), bw, bh)
-        pg.draw.rect(screen, (30, 10, 14), r, border_radius=S(6))
-        frac = _clamp(B["hp"] / max(1, B["top"]))
-        grow = _clamp(k / 0.8)                                       # the bar fills as it comes / la barre se remplit
-        hit = max(0.0, 1 - (now - B["hit_t"]) / 0.25)
-        fill = pg.Rect(r.x + S(3), r.y + S(3), max(0, int((bw - S(6)) * frac * grow)), bh - S(6))
-        if fill.width:
-            c = (255, 255, 230) if hit > 0.5 else ((255, 70, 50) if frac > 0.3 else (255, 150, 40))
-            pg.draw.rect(screen, c, fill, border_radius=S(4))
-        pg.draw.rect(screen, (255, 120, 110) if blink else (150, 60, 60), r, max(1, S(2)), border_radius=S(6))
 
     def draw_panel(self, screen, side, vals, now):
         hd, S, pg = self.hd, self.S, self.pg
