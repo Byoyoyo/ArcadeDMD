@@ -6,6 +6,18 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 To update, extract the new version over the old one. Your `config.json`, the addresses learned and your own pictures are kept.
 Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `config.json`, les adresses apprises et tes propres images sont gardés.
 
+## 1.35.0
+
+### English
+- Puzzle Bobble looks like the game: the blue machine around the boards, the purple checkered boards between their pillars.
+- In VS, each player's wins are kept from one VS to the next, and the loser's bubbles turn black as in the game.
+- Its score, round, bubble colours and player 2's arrow are confirmed.
+
+### Français
+- Puzzle Bobble ressemble au jeu, avec la machine bleue autour des plateaux et les plateaux à damier violet entre leurs piliers.
+- En VS, les victoires de chaque joueur sont gardées d'un VS à l'autre, et les bulles du perdant noircissent comme dans le jeu.
+- Son score, son round, la couleur des bulles et la flèche du joueur 2 sont confirmés.
+
 ## 1.34.0
 
 ### English
