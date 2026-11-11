@@ -426,6 +426,55 @@ def build_bj_jungle(W, H, s, seed=151):
     return {"sky": sky, "layers": layers, "tw": tw, "amb": {}}
 
 
+# ---------------------------------------------------------------------------- Puzzle Bobble
+def build_pb1_machine(W, H, s, seed=171):
+    """Puzzle Bobble: the blue machine around the boards, as in the game: riveted blue plates with their pink lights,
+    pipes between the rows, tan rocks at the foot of each launcher. / La machine bleue autour des plateaux, comme dans
+    le jeu : plaques bleues rivetées et leurs voyants roses, tuyaux entre les rangées, rochers au pied des lanceurs."""
+    rng = random.Random(seed)
+    sky = vgrad(W, H, [(0.0, (28, 40, 128)), (1.0, (40, 58, 160))])
+    p = _Pic(W, H, 2, W)
+    pw, ph = 150 * s, 132 * s
+    rows = int(H / ph) + 1
+    for r in range(rows):
+        y0 = r * ph + 8 * s
+        off = (pw / 2) if r % 2 else 0
+        x0 = -off
+        while x0 < W:
+            x1, y1 = x0 + pw - 10 * s, y0 + ph - 22 * s
+            p.poly([(x0, y0), (x1, y0), (x1, y1), (x0, y1)], (66, 96, 206, 255))
+            p.line([(x0, y1), (x0, y0), (x1, y0)], (130, 162, 240, 255), 4 * s)            # the light edge / le bord clair
+            p.line([(x1, y0), (x1, y1), (x0, y1)], (24, 34, 108, 255), 4 * s)              # the dark edge / le bord sombre
+            ix0, iy0, ix1, iy1 = x0 + 22 * s, y0 + 20 * s, x1 - 22 * s, y1 - 20 * s
+            p.poly([(ix0, iy0), (ix1, iy0), (ix1, iy1), (ix0, iy1)], (50, 76, 184, 255), (34, 50, 140, 255), 2 * s)
+            cx, cy = (ix0 + ix1) / 2, (iy0 + iy1) / 2
+            lit = rng.random() < 0.8
+            col = (232, 52, 170, 255) if lit else (110, 40, 110, 255)
+            p.poly([(cx - 16 * s, cy - 12 * s), (cx + 16 * s, cy - 12 * s), (cx + 16 * s, cy + 12 * s), (cx - 16 * s, cy + 12 * s)], col,
+                   (40, 20, 70, 255), 2 * s)
+            if lit:
+                p.poly([(cx - 12 * s, cy - 9 * s), (cx - 2 * s, cy - 9 * s), (cx - 2 * s, cy - 4 * s), (cx - 12 * s, cy - 4 * s)],
+                       (255, 170, 230, 255))
+            for rx, ry in ((x0 + 8 * s, y0 + 8 * s), (x1 - 8 * s, y0 + 8 * s), (x0 + 8 * s, y1 - 8 * s), (x1 - 8 * s, y1 - 8 * s)):
+                p.disc(rx, ry, 3.5 * s, (170, 190, 250, 255), (30, 40, 110, 255), 1 * s)
+            x0 += pw
+        py = y0 + ph - 16 * s                                            # the pipe under the row / le tuyau
+        p.poly([(0, py - 5 * s), (W, py - 5 * s), (W, py + 5 * s), (0, py + 5 * s)], (36, 50, 150, 255))
+        p.line([(0, py - 3 * s), (W, py - 3 * s)], (110, 140, 230, 255), 2 * s)
+    for cx in (400 * s, W - 400 * s):                                    # the rocks at the foot of the launchers / les rochers
+        for side in (-1, 1):
+            for i in range(4):
+                x = cx + side * (300 + i * 34 + rng.uniform(-6, 6)) * s
+                y = H - rng.uniform(4, 18) * s
+                r = rng.uniform(22, 34) * s
+                p.disc(x, y, r, (232, 170, 108, 255), (140, 84, 40, 255), 2.5 * s)
+                p.disc(x - r * 0.3, y - r * 0.35, r * 0.35, (250, 206, 150, 255))
+    img = p.done()
+    sky = sky.convert("RGBA")
+    sky.alpha_composite(img)
+    return {"sky": sky.convert("RGB"), "layers": [], "tw": W, "amb": {}}
+
+
 # ---------------------------------------------------------------------------- Puzzle Bobble 2
 def build_pb2_beach(W, H, s, seed=161):
     """Puzzle Bobble 2: the beach of the first rounds, as in the game: a deep blue sky with big white clouds, palm
@@ -563,5 +612,5 @@ def build_mpe_pastel(W, H, s, seed=191):
 
 
 hd_bg.BUILDERS.update({"mn_city": build_mn_city, "sg1_field": build_sg1_field, "sg2_bridge": build_sg2_bridge, "nc_park": build_nc_park,
-                       "ncm_jungle": build_ncm_jungle, "bj_jungle": build_bj_jungle, "pb2_beach": build_pb2_beach, "pdp_stars": build_pdp_stars,
+                       "ncm_jungle": build_ncm_jungle, "bj_jungle": build_bj_jungle, "pb2_beach": build_pb2_beach, "pb1_machine": build_pb1_machine, "pdp_stars": build_pdp_stars,
                        "md2_bricks": build_md2_bricks, "mpe_pastel": build_mpe_pastel})

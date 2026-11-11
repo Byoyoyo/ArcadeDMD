@@ -8,7 +8,7 @@ Les personnages, les monstres et les engins sont des créations du programme dan
 
 import math
 
-from .hd_games import CREAM, GOLD, WHITE, PuzzleBobbleScene, _clamp, _n, draw_img
+from .hd_games import CREAM, GOLD, P1C, P2C, WHITE, PuzzleBobbleScene, _clamp, _mix, _n, draw_img
 from .hd_games2 import DROP_RGB, MagicalDropScene
 from .hd_games3 import _capsule
 from .hd_games5 import BrawlerScene, CyberLipScene, ShockTroopers2Scene, _mixc, fighter_draw
@@ -508,7 +508,24 @@ def pillar_frame_draw(style):
     Puzzle De Pon!. / Le cadre d'un plateau de bulles : piliers de métal, ou de briques autour d'une nuit étoilée."""
     def fn(d, W, H):
         k = W / 640.0
-        if style == "bricks":
+        if style == "teal":                                         # Puzzle Bobble: the purple checkers in teal pillars
+            q = 24 * k
+            d.rectangle([40 * k, 40 * k, W - 40 * k, H], fill=(104, 36, 146, 255))
+            y, row = 40 * k, 0
+            while y < H:
+                x = 40 * k + (q if row % 2 else 0)
+                while x < W - 40 * k:
+                    d.rectangle([x, y, min(x + q, W - 40 * k), min(y + q, H)], fill=(86, 26, 124, 255))
+                    x += 2 * q
+                y += q
+                row += 1
+            for x0 in (0, W - 40 * k):
+                d.rectangle([x0, 0, x0 + 40 * k, H], fill=(70, 176, 168, 255), outline=(20, 84, 90, 255), width=max(1, int(3 * k)))
+                d.line([(x0 + 12 * k, 0), (x0 + 12 * k, H)], fill=(160, 236, 226, 255), width=max(1, int(4 * k)))
+                d.line([(x0 + 30 * k, 0), (x0 + 30 * k, H)], fill=(36, 120, 120, 255), width=max(1, int(3 * k)))
+            d.rectangle([0, 0, W, 40 * k], fill=(70, 176, 168, 255), outline=(20, 84, 90, 255), width=max(1, int(3 * k)))
+            d.line([(0, 12 * k), (W, 12 * k)], fill=(160, 236, 226, 255), width=max(1, int(4 * k)))
+        elif style == "bricks":
             d.rectangle([40 * k, 40 * k, W - 40 * k, H], fill=(16, 22, 60, 255))
             for i in range(60):
                 x, y = (37 * i * 7919) % int(W - 100 * k) + 50 * k, (53 * i * 104729) % int(H - 60 * k) + 50 * k
@@ -604,6 +621,84 @@ class PuzzleBobble2Scene(PuzzleBobbleScene):
         if w1 is None or w2 is None:
             return super().draw_vs(screen, vals, now)
         self.draw_total(screen, (w1, w2), (self.tally["p1"], self.tally["p2"]), now, tr("VICTOIRES", "WINS"), self.tally_t)
+
+
+class PuzzleBobble1Scene(PuzzleBobbleScene):
+    """Puzzle Bobble as in the game: the blue machine around the boards, the purple checkered boards in their teal
+    pillars. In VS, the wins of each player kept from one VS to the next until the game is started again (the game's
+    TOTAL goes back to 0 once a human beats the computer), and the loser's bubbles turn black as in the game.
+    / La machine bleue, les plateaux à damier violet entre leurs piliers bleu-vert, comme dans le jeu ; en VS, les
+    victoires de chacun gardées jusqu'au prochain lancement, les bulles du perdant qui noircissent."""
+    THEME = "pb1_machine"
+    FRAME = "teal"
+
+    def __init__(self, hd, rng=None):
+        super().__init__(hd, rng)
+        self.tally = {"p1": 0, "p2": 0}                   # VS won by each, kept until the game is started again
+        self.tally_t = {"p1": -99.0, "p2": -99.0}         # / VS gagnés par chacun, gardés jusqu'au prochain lancement
+        self.serial = None
+
+    def update(self, vals, now):
+        vs = self.vs(vals)
+        for side, name in (("p1", "wins"), ("p2", "wins_p2")):          # each VS won counts / chaque VS gagné compte
+            ch = self.changed(vals, name)
+            if ch and vs and ch[1] > ch[0]:
+                self.tally[side] += 1
+                self.tally_t[side] = now
+                self.hd.log(tr(f"Puzzle Bobble, victoires VS : J1 {self.tally['p1']}, J2 {self.tally['p2']}",
+                               f"Puzzle Bobble, VS wins: P1 {self.tally['p1']}, P2 {self.tally['p2']}"))
+        super().update(vals, now)
+
+    def won(self, side, sub, now):
+        """The winner's board bursts, the loser's turns black, as in the game (WON!! and LOST).
+        / Le plateau du gagnant éclate, celui du perdant noircit, comme dans le jeu."""
+        self.slam(tr("J1 GAGNE !", "P1 WINS!") if side == "p1" else tr("J2 GAGNE !", "P2 WINS!"), P1C if side == "p1" else P2C,
+                  now, 2.0, sub=f"{self.tally['p1']}  -  {self.tally['p2']}")
+        x, y = self.launcher_xy(side)
+        self.fx.sparks(x, y - self.S(120), 50, GOLD, (300, 1000), (200, 340), (0.5, 1.2), 900, "front", 3, 30)
+        self.fx.glow(x, y - self.S(120), 30, 240, _mix(GOLD, WHITE, 0.3), 0.5, "front", 0.9, 0.0)
+        self._clear(self.boards[side], now, 3)
+        lost = self.boards["p2" if side == "p1" else "p1"]
+        for i, cell in enumerate(sorted(lost.cells)):                 # row by row from the top / rangée par rangée
+            self.fx.later(0.02 * i, self._blacken, lost, cell)
+        self.fx.later(4.5, self._clear, lost, now + 4.5, 3)
+
+    def _blacken(self, board, cell):
+        if cell in board.cells:
+            board.cells[cell] = 6
+            x, y = board.xy(*cell)
+            self.fx.sparks(x, y, 3, (90, 90, 104), (40, 160), (0, 360), (0.2, 0.4), 200, "front", 2, 8)
+
+    def draw_hud(self, screen, eng, vals, logo, now):
+        S = self.S
+        serial = getattr(eng, "intro_serial", 0)
+        if serial != self.serial:                                       # the game started again: back to 0 / relancé
+            self.serial = serial
+            self.tally = {"p1": 0, "p2": 0}
+        for side, board in self.boards.items():
+            if side == "p2" and not self.p2_in(vals):
+                continue
+            w = board.x1 - board.x0
+            fr = self.img(("pbframe", self.FRAME), int(w + S(80)), S(340), pillar_frame_draw(self.FRAME), ss=1)
+            screen.blit(fr, (int(board.x0 - S(40)), int(board.top - S(40))))
+        super().draw_hud(screen, eng, vals, logo, now)
+
+    def draw_vs(self, screen, vals, now):
+        """The VS wins of each player in big, kept from one VS to the next, VICTOIRES under them.
+        / Les victoires VS de chacun en gros, gardées d'un VS à l'autre, VICTOIRES dessous."""
+        hd, S, W = self.hd, self.S, self.W
+        cx, cy = W / 2, S(246)
+        pw, ph = S(400), S(196)
+        self.box(screen, cx - pw / 2, cy - ph / 2, pw, ph, GOLD, fill=(8, 10, 22, 205), radius=28, width=3)
+        hd.put(screen, hd.text("VS", "stencil", S(70), GOLD, glow=0.6), cx, cy - S(16), "center", "middle")
+        for side, col, d in (("p1", P1C, -1), ("p2", P2C, 1)):
+            k = max(0.0, 1 - (now - self.tally_t[side]) / 0.6)
+            x = cx + d * S(126)
+            hd.put_number(screen, str(self.tally[side]), "black", S(120), _mix(col, WHITE, 0.5 * k), x, cy - S(22), "center", "middle",
+                          scale=1 + 0.35 * k, glow=0.4 + 0.4 * k)
+            tag = tr("J1", "P1") if side == "p1" else tr("J2", "P2")
+            hd.put(screen, hd.text(tag, "xbold", S(24), CREAM, glow=0), x, cy + S(56), "center", "middle")
+        hd.put(screen, hd.text(tr("VICTOIRES", "WINS"), "xbold", S(22), CREAM, glow=0), cx, cy + S(58), "center", "middle")
 
 
 def compass_draw(d, W, H):
@@ -739,3 +834,6 @@ class MoneyPuzzleScene(MagicalDropScene):
 SCENES = {"mutnat": MutationNationScene, "sengoku": SengokuScene, "sengoku2": Sengoku2Scene, "ncombat": NinjaCombatScene,
           "ncommand": NinjaCommandoScene, "bjourney": BluesJourneyScene, "pbobbl2n": PuzzleBobble2Scene, "magdrop2": MagicalDrop2Scene,
           "miexchng": MoneyPuzzleScene, "puzzledp": PuzzleDePonScene}
+
+# Puzzle Bobble as in the game (1.35), over the scene of 1.17 / Puzzle Bobble comme dans le jeu
+SCENES_PB1 = {"pbobblen": PuzzleBobble1Scene}

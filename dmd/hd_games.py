@@ -1153,13 +1153,17 @@ class PuzzleBobbleScene(GameScene):
                 self.win_t[side] = now
                 self.matches += 1
                 w1, w2 = int(_n(vals.get("wins")) or 0), int(_n(vals.get("wins_p2")) or 0)
-                self.slam(tr("J1 GAGNE !", "P1 WINS!") if side == "p1" else tr("J2 GAGNE !", "P2 WINS!"), P1C if side == "p1" else P2C,
-                          now, 2.0, sub=f"{w1}  -  {w2}")
-                x, y = self.launcher_xy(side)
-                self.fx.sparks(x, y - self.S(120), 40, GOLD, (300, 900), (200, 340), (0.5, 1.1), 900, "front", 3, 28)
-                self.fx.glow(x, y - self.S(120), 30, 220, _mix(GOLD, WHITE, 0.3), 0.5, "front", 0.8, 0.0)
-                for b in self.boards.values():
-                    self.fx.later(0.5, self._clear, b, now + 0.5, 3)
+                self.won(side, f"{w1}  -  {w2}", now)
+
+    def won(self, side, sub, now):
+        """A VS match won: the banner, sparks at the winner, new boards. / Un match VS gagné : la bannière, des étincelles."""
+        self.slam(tr("J1 GAGNE !", "P1 WINS!") if side == "p1" else tr("J2 GAGNE !", "P2 WINS!"), P1C if side == "p1" else P2C,
+                  now, 2.0, sub=sub)
+        x, y = self.launcher_xy(side)
+        self.fx.sparks(x, y - self.S(120), 40, GOLD, (300, 900), (200, 340), (0.5, 1.1), 900, "front", 3, 28)
+        self.fx.glow(x, y - self.S(120), 30, 220, _mix(GOLD, WHITE, 0.3), 0.5, "front", 0.8, 0.0)
+        for b in self.boards.values():
+            self.fx.later(0.5, self._clear, b, now + 0.5, 3)
 
     def _burst(self, x, y, c, n=14):
         col = BUBBLE_RGB[int(c) % len(BUBBLE_RGB)]
