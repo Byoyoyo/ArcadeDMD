@@ -282,6 +282,7 @@ def main(argv):
         if lock is None:
             log(tr("ArcadeDMD tourne déjà.", "ArcadeDMD is already running."))
             return 0
+        log.background()                      # a console that waits never stops the cabinet (1.36) / jamais bloqué
     log(tr(f"ArcadeDMD {app.VERSION} - dossier {ROOT}", f"ArcadeDMD {app.VERSION} - folder {ROOT}"))
     if not demo:
         from dmd import learned
