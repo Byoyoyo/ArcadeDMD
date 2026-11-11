@@ -144,7 +144,10 @@ class DMShow:
 
     @staticmethod
     def _kind(d):
-        return d.get("kind") or ("SUPER DESPERATION MOVE" if d["sdm"] else "DESPERATION MOVE")
+        """"" when the title already says it (HYPER COMBO, 1.36). / vide quand le titre le dit déjà."""
+        if d.get("kind") is not None:
+            return d["kind"]
+        return "SUPER DESPERATION MOVE" if d["sdm"] else "DESPERATION MOVE"
 
     def upgrade(self, side, now):
         """The move found to be an SDM a moment later (2002: the flag, then the stock in MAX). / Un SDM finalement."""
@@ -365,7 +368,7 @@ class DMShow:
                 self.imgs[("rays", id(rays))] = r2
             screen.blit(r2, (int(W / 2 - r2.get_width() / 2), int(self.H / 2 - r2.get_height() / 2)),
                         special_flags=self.pg.BLEND_RGB_ADD)
-            cap = (d["fighter"] + "  —  " if d["fighter"] else "") + self._kind(d)
+            cap = "  —  ".join(x for x in (d["fighter"], self._kind(d)) if x)
             hd.put(screen, hd.text(cap, "black", S(30), (255, 236, 210), glow=0.6, outline=(40, 10, 0), stroke=max(2, S(3))),
                    W / 2, S(132), "center", "middle")
             size = self._fit(d["move"], S(168), W - S(160))
@@ -465,9 +468,10 @@ class DMShow:
             plate.set_alpha(255)
         self._blit(screen, img, cx, cy, scale=sc, alpha=a)
         if k >= 1:
-            tag = self._kind(d) + (f"  ·  {d['n']} HITS" if d["n"] >= 2 else "")
-            if d["fighter"] and self.running("p2" if side == "p1" else "p1", now):   # two at once: whose is whose
-                tag = d["fighter"] + "  ·  " + tag                                     # deux à la fois : à qui
+            tag = "  ·  ".join(x for x in (self._kind(d), f"{d['n']} HITS" if d["n"] >= 2 else "") if x)
+            if d["fighter"] and (self.running("p2" if side == "p1" else "p1", now) or not tag):   # two at once: whose
+                tag = "  ·  ".join(x for x in (d["fighter"], tag) if x)                         # is whose / à qui
             col = (255, 214, 200) if d["sdm"] else (255, 240, 220)
-            hd.put(screen, hd.text(tag, "black", S(24), col, glow=0.7, outline=(40, 10, 0), stroke=max(2, S(3))), sx, S(72),
-                   "center", "middle", alpha=a)
+            if tag:
+                hd.put(screen, hd.text(tag, "black", S(24), col, glow=0.7, outline=(40, 10, 0), stroke=max(2, S(3))), sx, S(72),
+                       "center", "middle", alpha=a)

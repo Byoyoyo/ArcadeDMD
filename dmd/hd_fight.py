@@ -711,25 +711,37 @@ class FightFX:
         self._rounds(vals, self.fx.now, play=False)
 
     def _hyper_watch(self, vals, hyper, now):
-        """The super of a game whose gauge has levels (X-Men, "hyper" in the game file, 1.36): the gauge going from its
-        top level back to the first one is a super spent, shown like a desperation move, its name over the marquee then
-        on its side, the hits counted. / Le super d'un jeu à niveaux : la jauge qui retombe du plus haut niveau au premier
-        est un super, montré comme un coup désespéré."""
+        """The supers of a game whose gauge has levels ("hyper" in the game file, 1.36), shown like a desperation move,
+        its name over the marquee then on its side, the hits counted. X-Men ("spend": "top"): the gauge going from its top
+        level back to the first one. Marvel vs. Capcom ("spend": "level"): any level spent, the super named when only one
+        of the fighter's costs that many levels ("lv"), two levels at once without one being the team super ("team").
+        / Les supers d'un jeu à niveaux, montrés comme un coup désespéré : la jauge qui retombe du plus haut niveau au
+        premier (X-Men), ou chaque niveau dépensé (Marvel vs. Capcom)."""
         top = hyper.get("top", 3)
+        by_level = hyper.get("spend") == "level"
         h1, h2 = _n(vals.get("health")), _n(vals.get("health_p2"))
         fresh = h1 is not None and h2 is not None and h1 >= 99.5 and h2 >= 99.5    # a new round, the gauges set again
+        kind = tr(*hyper.get("label", ("HYPER X", "HYPER X")))
         for side in ("p1", "p2"):
             lv = _n(vals.get("power_level" if side == "p1" else "power_level_p2"))
             old = self.hyper_lv.get(side)
             self.hyper_lv[side] = lv
-            if lv is None or old is None or fresh or not (old >= top and lv <= 1):
+            if lv is None or old is None or fresh:
+                continue
+            spent = (old - lv) if by_level else (top if old >= top and lv <= 1 else 0)
+            if spent <= 0:
                 continue
             name = vals.get(side + "_char")
             moves = (hyper.get("moves") or {}).get(name.upper() if isinstance(name, str) else "") or []
-            names = [str(m.get("name")) for m in moves if isinstance(m, dict) and m.get("name")]
-            kind = tr(*hyper.get("label", ("HYPER X", "HYPER X")))
-            move = names[0] if len(names) == 1 else kind
-            self.dm.start(side, move, name if isinstance(name, str) else "", False, now, kind=kind)
+            names = [str(m.get("name")) for m in moves if isinstance(m, dict) and m.get("name")
+                     and (not by_level or (_n(m.get("lv")) or 1) == spent)]
+            fighter = name if isinstance(name, str) else ""
+            if len(names) == 1:                                       # the only one it can be / le seul possible
+                self.dm.start(side, names[0], fighter, False, now, kind=kind)
+            elif by_level and spent >= 2 and hyper.get("team"):       # both fighters at once / les deux à la fois
+                self.dm.start(side, tr(*hyper["team"]), fighter, False, now, kind="")
+            else:                                                     # which one is not known / lequel, on ne sait pas
+                self.dm.start(side, kind, fighter, False, now, kind="")
 
     def _dm_watch(self, vals, game, now):
         """A DM ! or SDM ! the panel just told for a human: its show starts (the choice of 9 November, 1.33 test 51).
