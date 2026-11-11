@@ -125,6 +125,12 @@
         "type": "u8",
         "note": "player 2 controlled by a human (1) or the computer, found in RAM captures on a cabinet (a game on each side)",
         "human": 1
+      },
+      "_time_sub": {
+        "addr": "0xFF4809",
+        "type": "u8",
+        "note": "the timer's fraction of a second, 40 frames to a second of the timer: held at 40 while ROUND n shows, it starts counting down at the game's FIGHT, the timer losing its first second when it comes back to 40 (a recorded two-player game of 11 November, rounds 1 and 2: about 0.7 s before the first second). Its first move away from 40 gives FIGHT ! (1.36)",
+        "start": 40
       }
     }
   },
@@ -194,6 +200,23 @@
     "power_level_p2": 1,
     "_p1_chr": 0,
     "_p2_chr": 2
+  },
+  "hyper": {
+    "note": "the Hyper X of each fighter (1.36), shown under the gauge when it is full (Level Max, power_level 3) and over the marquee when the gauge falls back from the top level to the first: a quarter circle forward and the three punches (move lists of the game at criticalhits.com.br and strangetextsbutcher, which agree on these; the second supers of Cyclops and Silver Samurai, given differently, left out). Level 2 allows the X-Ability moves, which take one level",
+    "top": 3,
+    "label": ["HYPER X", "HYPER X"],
+    "moves": {
+      "WOLVERINE": [{"name": "BERSERKER BARRAGE", "cmd": "236", "btn": ["+ 3 POINGS", "+ 3 PUNCHES"]}],
+      "PSYLOCKE": [{"name": "PSI-THRUST", "cmd": "236", "btn": ["+ 3 POINGS", "+ 3 PUNCHES"]}],
+      "COLOSSUS": [{"name": "SUPER DIVE", "cmd": "236", "btn": ["+ 3 POINGS", "+ 3 PUNCHES"]}],
+      "CYCLOPS": [{"name": "MEGA OPTIC BLAST", "cmd": "236", "btn": ["+ 3 POINGS", "+ 3 PUNCHES"]}],
+      "STORM": [{"name": "LIGHTNING STORM", "cmd": "236", "btn": ["+ 3 POINGS", "+ 3 PUNCHES"]}],
+      "ICEMAN": [{"name": "ARCTIC ATTACK", "cmd": "236", "btn": ["+ 3 POINGS", "+ 3 PUNCHES"]}],
+      "SPIRAL": [{"name": "METAMORPHOSIS", "cmd": "236", "btn": ["+ 3 POINGS", "+ 3 PUNCHES"]}],
+      "S.SAMURAI": [{"name": "RAIMEIKEN", "cmd": "236", "btn": ["+ 3 POINGS", "+ 3 PUNCHES"]}],
+      "OMEGA RED": [{"name": "OMEGA DESTROYER", "cmd": "236", "btn": ["+ 3 POINGS", "+ 3 PUNCHES"]}],
+      "SENTINEL": [{"name": "PLASMA STORM", "cmd": "236", "btn": ["+ 3 POINGS", "+ 3 PUNCHES"]}]
+    }
   },
   "hd": {
     "stages": ["cs_forest", "fight_temple", "fight_snow", "fight_city", "fight_desert", "fight_snow", "fight_lab", "fight_castle", "fight_factory", "fight_lab", "fight_ruins", "space"],

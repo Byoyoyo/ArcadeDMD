@@ -828,7 +828,7 @@ class HDRenderer:
             elif team:
                 self.draw_team(screen, team, S(44) if side == "p1" else W - S(44), S(372), side, room)
             else:
-                self.draw_super(screen, vals, side, now, room, self._level_top(eng, side))
+                self.draw_super(screen, vals, side, now, room, self._level_top(eng, side), game, name)
         credits = _num(vals.get("credits"))
         if credits is not None and self.fight_cbar is not None:  # as in Metal Slug: the coin (€), CRÉDITS 07 / comme Metal Slug
             self.fight_cbar.set_symbol((getattr(eng, "cfg", None) or {}).get("coin_symbol", "€"))
@@ -896,7 +896,7 @@ class HDRenderer:
         spec = (((g or {}).get("memory") or {}).get("values") or {}).get("power_level" if side == "p1" else "power_level_p2")
         return _num(spec.get("max")) if isinstance(spec, dict) else None
 
-    def draw_super(self, screen, vals, side, now, room, top=None):
+    def draw_super(self, screen, vals, side, now, room, top=None, game=None, name=None):
         """Super gauge of the Capcom fighting games (Alpha, Marvel, Street Fighter III...) under the fighter: it fills up,
         turns gold and says MAX when full. With a level (the Marvel games, X-Men), the bar of the current level and the
         level beside it (POWER 1, POWER 2), full with POWER MAX at the top level (top).
@@ -935,6 +935,40 @@ class HDRenderer:
         pg.draw.rect(screen, (150, 170, 210), (x, y, w, h), max(1, S(2)), border_radius=h // 2)
         if full:
             self.put(screen, self.text("MAX", "black", S(26), MAX_INK, glow=0), x + w / 2, y + h / 2, "center", "middle")
+            if lv is None or not top or lv >= top:                # its super at the top level only / au niveau le plus haut
+                self.draw_hyper(screen, side, game, name, now, y + h + S(26))
+
+    def draw_hyper(self, screen, side, game, name, now, y):
+        """The gauge full: how to do the super of the fighter, under the gauge, as the desperation moves of The King of
+        Fighters '98 ("hyper" in the game file, X-Men, 1.36). / La jauge pleine : comment faire le super du combattant."""
+        hyper = (game or {}).get("hyper") if isinstance(game, dict) else None
+        moves = hyper.get("moves") if isinstance(hyper, dict) else None
+        if not isinstance(moves, dict) or not isinstance(name, str):
+            return
+        rows = [m for m in moves.get(name.upper()) or [] if isinstance(m, dict) and m.get("cmd")][:2]
+        if not rows:
+            return
+        from .hd_moves import MIRROR, arrow, parse_cmd
+        S, W = self.S, self.W
+        k = 0.5 + 0.5 * math.sin(now * 6)
+        fm = self.fight.moves if self.fight is not None else None
+        r = S(15)
+        for i, m in enumerate(rows):
+            yy = y + i * S(40)
+            steps = parse_cmd(m["cmd"])
+            if side == "p2":                                      # P2 on the right faces left / P2 regarde à gauche
+                steps = [MIRROR[c] for c in steps]
+            mv = self.text(str(m.get("name", "")), "stencil", S(26), (255, int(214 + 30 * k), 120), glow=0.4)
+            btn = self.text(str(tr(*m["btn"]) if isinstance(m.get("btn"), list) else m.get("btn", "")), "xbold", S(22), CREAM, glow=0)
+            wa = len(steps) * (2 * r + S(6))
+            total = mv["w"] + S(18) + wa + S(10) + btn["w"]
+            x = S(44) if side == "p1" else W - S(44) - total
+            self.put(screen, mv, x, yy, "left", "middle")
+            x += mv["w"] + S(18) + r
+            for d in steps:
+                arrow(self, screen, x, yy, r, d, (255, 214, 120), moves=fm)
+                x += 2 * r + S(6)
+            self.put(screen, btn, x - r + S(4), yy, "left", "middle")
 
     @staticmethod
     def _game(eng):

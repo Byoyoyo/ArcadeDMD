@@ -123,12 +123,14 @@ class DMShow:
             log(tr(fr, en))
 
     # ------------------------------------------------------------------ what happens / ce qui se passe
-    def start(self, side, move, fighter, sdm, now):
+    def start(self, side, move, fighter, sdm, now, kind=None):
+        """kind: the name the game gives its supers, in place of DESPERATION MOVE (X-Men: HYPER X, 1.36). / le nom que le
+        jeu donne à ses supers."""
         other = "p2" if side == "p1" else "p1"
         od = self.on.get(other)
         double = od is not None and now < self.end(od)
         self.on[side] = {"t": now, "move": move or "", "fighter": fighter or "", "sdm": bool(sdm), "last": now, "n": 0,
-                         "full": not double, "fly": None, "ko": None}
+                         "full": not double, "fly": None, "ko": None, "kind": kind}
         if double:
             self.double_t = now
             if od["full"] and now - od["t"] < FULL:             # the first one leaves the full screen at once / tout de suite
@@ -139,6 +141,10 @@ class DMShow:
         self.f.fx.shake(6, 0.3)
         self.log(f"Combat, {side.upper()} {'SDM' if sdm else 'DM'} à l'écran : {move}" + (" (double)" if double else ""),
                  f"Fight, {side.upper()} {'SDM' if sdm else 'DM'} on screen: {move}" + (" (double)" if double else ""))
+
+    @staticmethod
+    def _kind(d):
+        return d.get("kind") or ("SUPER DESPERATION MOVE" if d["sdm"] else "DESPERATION MOVE")
 
     def upgrade(self, side, now):
         """The move found to be an SDM a moment later (2002: the flag, then the stock in MAX). / Un SDM finalement."""
@@ -359,7 +365,7 @@ class DMShow:
                 self.imgs[("rays", id(rays))] = r2
             screen.blit(r2, (int(W / 2 - r2.get_width() / 2), int(self.H / 2 - r2.get_height() / 2)),
                         special_flags=self.pg.BLEND_RGB_ADD)
-            cap = (d["fighter"] + "  —  " if d["fighter"] else "") + ("SUPER DESPERATION MOVE" if d["sdm"] else "DESPERATION MOVE")
+            cap = (d["fighter"] + "  —  " if d["fighter"] else "") + self._kind(d)
             hd.put(screen, hd.text(cap, "black", S(30), (255, 236, 210), glow=0.6, outline=(40, 10, 0), stroke=max(2, S(3))),
                    W / 2, S(132), "center", "middle")
             size = self._fit(d["move"], S(168), W - S(160))
@@ -459,7 +465,7 @@ class DMShow:
             plate.set_alpha(255)
         self._blit(screen, img, cx, cy, scale=sc, alpha=a)
         if k >= 1:
-            tag = ("SUPER DESPERATION MOVE" if d["sdm"] else "DESPERATION MOVE") + (f"  ·  {d['n']} HITS" if d["n"] >= 2 else "")
+            tag = self._kind(d) + (f"  ·  {d['n']} HITS" if d["n"] >= 2 else "")
             if d["fighter"] and self.running("p2" if side == "p1" else "p1", now):   # two at once: whose is whose
                 tag = d["fighter"] + "  ·  " + tag                                     # deux à la fois : à qui
             col = (255, 214, 200) if d["sdm"] else (255, 240, 220)
