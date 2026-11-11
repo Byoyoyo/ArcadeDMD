@@ -417,10 +417,10 @@ class StrikersScene(AeroFightersScene):
                 continue
             suf = "" if side == "p1" else "_p2"
             self.box(screen, x0 + S(14), S(14), pw - S(28), S(92), (60, 46, 30), fill=(30, 22, 12, 230), radius=8)
-            self.text(screen, "SCORE", x0 + S(26), S(34), 26, (255, 170, 60), key="black", valign="middle", glow=0.2)
+            self.text(screen, "SCORE", cx, S(34), 26, (255, 170, 60), key="black", align="center", valign="middle", glow=0.2)
             sc = _n(vals.get("score" + suf))
-            if sc is not None:
-                hd._score(screen, eng, "score" + suf, x0 + pw - S(26), S(52), "right", S(44))
+            if sc is not None:                                         # centred in its box (1.36) / centré dans sa case
+                hd._score(screen, eng, "score" + suf, cx, S(52), "center", S(44))
             lives = _n(vals.get("lives" + suf))
             if lives is not None:                                      # the plane and how many are left
                 self.box(screen, x0 + S(14), S(116), pw - S(28), S(64), (60, 46, 30), fill=(30, 22, 12, 230), radius=8)
@@ -466,8 +466,10 @@ class StrikersScene(AeroFightersScene):
                     on = i < int(pwr)
                     pg.draw.rect(screen, (255, 210, 70) if on else (58, 46, 26), (int(x0 + S(28) + i * S(22)), S(386), S(16), S(46)), border_radius=S(3))
         plane = vals.get("plane_name")
-        if isinstance(plane, str) and plane and self.p1_in(vals):
-            self.label(screen, plane, W / 2, S(344), 26, GOLD, key="xbold", align="center", alpha=130)
+        said = now - self.cbar.said[1]                                 # +1 CRÉDIT rises over it: it steps aside (1.36)
+        fade = 1.0 if said >= 1.5 else (0.0 if said < 1.2 else (said - 1.2) / 0.3)   # / il s'efface pour + 1 CRÉDIT
+        if isinstance(plane, str) and plane and self.p1_in(vals) and fade > 0:
+            self.label(screen, plane, W / 2, S(344), 26, GOLD, key="xbold", align="center", alpha=130, fade=fade)
 
 
 # ============================================================================ Street Hoop
