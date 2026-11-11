@@ -317,8 +317,6 @@ class PreviewOutput:
         self.release_at = None
         self.next_check = 0.0
         self.hwnd = None
-        self.home = None              # the window's place when made, kept (1.36) / sa place à la création, gardée
-        self.misplaced = None
         self.pos = (int(cfg.get("x", 100)), int(cfg.get("y", 100)))
         self.watch = sys.platform == "win32" and (self.mode == "games" or bool(cfg.get("topmost", False)))
         self.width = int(cfg.get("width", 1024))
@@ -399,11 +397,6 @@ class PreviewOutput:
                 user32.SetWindowPos(hwnd, after, x, y, 0, 0, 0x0001 | 0x0010)
             except Exception:
                 pass
-        if sys.platform == "win32" and self.hwnd:
-            try:
-                self.home = self._rect()
-            except Exception:
-                self.home = None
 
     def _init_tk(self):
         import tkinter as tk
@@ -452,7 +445,6 @@ class PreviewOutput:
             u.GetAncestor.argtypes = [wintypes.HWND, ctypes.c_uint]
             u.GetAncestor.restype = wintypes.HWND
             u.IsWindowVisible.argtypes = [wintypes.HWND]
-            u.GetWindowRect.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.RECT)]
         return u
 
     def _show(self, on, quiet=False):
@@ -462,7 +454,6 @@ class PreviewOutput:
                 u = self._user32()
                 if on:
                     u.ShowWindow(self.hwnd, 4)           # SW_SHOWNOACTIVATE : le jeu garde le clavier et les manettes
-                    self._place()
                     self._raise()
                 else:
                     u.ShowWindow(self.hwnd, 0)           # SW_HIDE
@@ -495,43 +486,6 @@ class PreviewOutput:
                 self.tk.lift()
             except Exception:
                 pass
-
-    def _rect(self):
-        """(left, top, width, height) of the window on the desktop, or None. / Le rectangle de la fenêtre."""
-        from ctypes import wintypes
-        r = wintypes.RECT()
-        if not self._user32().GetWindowRect(self.hwnd, ctypes.byref(r)):
-            return None
-        return (r.left, r.top, r.right - r.left, r.bottom - r.top)
-
-    def _place(self):
-        """The window back where it was made (1.36). A screen that sleeps (an hour without playing) leaves Windows, and
-        Windows moves the windows it showed to another screen: the hidden window came back there at the next game,
-        nothing on the marquee until ArcadeDMD was started again. Put back once a second during a game, three tries in
-        a row at most for one place. / La fenêtre remise où elle a été créée : un écran en veille disparaît pour Windows,
-        qui déplace ses fenêtres sur un autre écran."""
-        if not (self.backend == "pygame" and self.hwnd and sys.platform == "win32") or self.home is None:
-            return False
-        try:
-            cur = self._rect()
-            if cur is None or cur == self.home:
-                self.misplaced = None
-                return False
-            tries = self.misplaced[1] + 1 if self.misplaced and self.misplaced[0] == cur else 1
-            self.misplaced = (cur, tries)
-            if tries > 3:                                 # Windows will not have it there / Windows refuse
-                return False
-            left, top, w, h = self.home
-            # HWND_TOPMOST, SWP_NOACTIVATE, and SWP_SHOWWINDOW when shown / et SWP_SHOWWINDOW quand elle est montrée
-            self._user32().SetWindowPos(self.hwnd, -1, left, top, w, h, 0x0010 | (0x0040 if self.shown else 0))
-            if tries == 1:
-                self.log(tr(f"écran LCD : la fenêtre était en {cur[0]}, {cur[1]} ({cur[2]} x {cur[3]}), remise en "
-                            f"{left}, {top} ({w} x {h})",
-                            f"LCD screen: the window was at {cur[0]}, {cur[1]} ({cur[2]} x {cur[3]}), put back at "
-                            f"{left}, {top} ({w} x {h})"))
-            return True
-        except Exception:
-            return False
 
     def _covered(self):
         """Une autre fenêtre (marquee du frontal...) est-elle passée devant ? Vérifié à trois endroits."""
@@ -567,7 +521,7 @@ class PreviewOutput:
             return
         if self.watch and now >= self.next_check:
             self.next_check = now + self.CHECK_EVERY
-            if self._place() or self._covered():
+            if self._covered():
                 self._raise()
         if self.hd_view is not None and self.engine is not None:
             pg = self.pg
