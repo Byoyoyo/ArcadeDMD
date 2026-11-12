@@ -19,6 +19,7 @@ WM_COMMAND = 0x0111
 WM_LBUTTONUP = 0x0202
 WM_LBUTTONDBLCLK = 0x0203
 WM_RBUTTONUP = 0x0205
+WM_TIMER = 0x0113
 WM_APP = 0x8000
 WM_TRAY = WM_APP + 1               # the icon's mouse messages / les messages de la souris sur l'icône
 WM_WAKE = WM_APP + 2               # a balloon or a tip to show / une bulle ou une info-bulle à montrer
@@ -177,6 +178,9 @@ class TrayIcon:
         u.DestroyMenu.argtypes = [w.HMENU]
         u.SetForegroundWindow.argtypes = [w.HWND]
         u.GetCursorPos.argtypes = [ctypes.POINTER(w.POINT)]
+        u.SetTimer.argtypes = [w.HWND, ctypes.c_size_t, w.UINT, w.LPVOID]
+        u.SetTimer.restype = ctypes.c_size_t
+        u.KillTimer.argtypes = [w.HWND, ctypes.c_size_t]
         s.Shell_NotifyIconW.argtypes = [w.DWORD, ctypes.POINTER(NOTIFYICONDATAW)]
         s.Shell_NotifyIconW.restype = w.BOOL
         return k.GetModuleHandleW(None)
@@ -203,8 +207,12 @@ class TrayIcon:
                 self.hicon = u.LoadImageW(None, self.icon_path, IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE)
             if not self.hicon:
                 self.hicon = u.LoadIconW(None, ctypes.c_void_p(IDI_APPLICATION))
-            if not self._add():
-                raise OSError(f"Shell_NotifyIconW {ctypes.get_last_error()}")
+            self.added = self._add()
+            if not self.added:
+                # started with Windows, the taskbar may not be there yet: tried again every 2 s, and when it comes
+                # lancé avec Windows, la barre des tâches n'est peut-être pas encore là : réessayé toutes les 2 s
+                self.tries = 0
+                u.SetTimer(self.hwnd, 1, 2000, None)
         except Exception as e:
             self.failed = e
             self.hwnd = None
@@ -251,7 +259,15 @@ class TrayIcon:
                 self._drain()
                 return 0
             if msg == self.taskbar_created:                              # Explorer restarted / l'Explorateur relancé
-                self._add()
+                self.added = self._add()
+                return 0
+            if msg == WM_TIMER:
+                self.tries += 1
+                self.added = self.added or self._add()
+                if self.added or self.tries >= 60:
+                    self.u32.KillTimer(hwnd, 1)
+                    if not self.added:
+                        self.log("tray: Shell_NotifyIconW refused for 2 min")
                 return 0
             if msg == WM_CLOSE:
                 self.u32.DestroyWindow(hwnd)

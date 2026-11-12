@@ -29,7 +29,7 @@ from .textfiles import TextFiles
 from .capture import Capture
 from .i18n import tr
 
-VERSION = "1.36.2"
+VERSION = "1.37.0"
 
 DEFAULT_CONFIG = {
     "language": "auto",

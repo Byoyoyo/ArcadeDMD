@@ -214,6 +214,11 @@ def _retroarch_running():
         return None
 
 
+class _Server(ThreadingHTTPServer):
+    def handle_error(self, request, client_address):
+        pass                                            # a page closed in the middle of an answer / page fermée
+
+
 class ControlPanel:
     """The page's server, alive across the engine's restarts. main() gives it each new engine. / Le serveur de la
     page, vivant d'un redémarrage du moteur à l'autre."""
@@ -238,7 +243,7 @@ class ControlPanel:
         self.server = None
         for p in range(port, port + 10):
             try:
-                self.server = ThreadingHTTPServer(("127.0.0.1", p), self._handler())
+                self.server = _Server(("127.0.0.1", p), self._handler())
                 self.port = p
                 break
             except OSError:
@@ -479,12 +484,22 @@ class ControlPanel:
                     return self._send(500, {"error": repr(e)})
 
             def do_POST(self):
+                try:                                    # the body read first, the connection stays clean / lu d'abord
+                    n = int(self.headers.get("Content-Length") or 0)
+                    raw = self.rfile.read(n) if 0 < n <= 1 << 20 else b""
+                except (ValueError, OSError):
+                    self.close_connection = True
+                    return self._send(400, {"error": "length"})
+                if n > 1 << 20:
+                    self.close_connection = True
+                    return self._send(413, {"error": "size"})
                 if not self._local() or self.headers.get("X-ArcadeDMD-Token") != panel.token:
                     return self._send(403, {"error": "token"})
                 try:
-                    n = int(self.headers.get("Content-Length") or 0)
-                    data = json.loads(self.rfile.read(n) or b"{}") if n else {}
-                except (ValueError, OSError):
+                    data = json.loads(raw or b"{}")
+                except ValueError:
+                    return self._send(400, {"error": "json"})
+                if not isinstance(data, dict):
                     return self._send(400, {"error": "json"})
                 path = urlparse(self.path).path
                 try:

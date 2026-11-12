@@ -13,6 +13,8 @@ Modifie-le avec le Bloc-notes. Un chemin prend des doubles barres obliques inver
 | `show_pause` | `true` | PAUSE clignote sur la dalle LED pendant que le jeu est en pause |
 | `idle` | `{"show": false}` | `"show": true` remet l'ancien écran de veille (l'heure et `"text"`) sur une dalle ZeDMD en dehors des jeux |
 | `intro` | voir plus bas | le logo du jeu quand un jeu démarre |
+| `frontend` | `{"use": "auto", "retrobat": ""}` | d'où viennent les logos des jeux. `"auto"` prend LaunchBox, sinon RetroBat. `"launchbox"`, `"retrobat"` ou `"none"` en imposent un. `"retrobat"` est le dossier de RetroBat quand il n'est pas trouvé tout seul (onglet Frontal de la fenêtre) |
+| `window` | `{"enabled": true}` | `false` coupe la fenêtre et l'icône près de l'horloge |
 
 ### `intro`
 

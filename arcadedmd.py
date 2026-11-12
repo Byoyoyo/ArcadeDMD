@@ -343,11 +343,13 @@ def start_window(cfg, log, open_now=False):
     dog.hooks.append(panel.on_stall)
 
     def quit_all():
+        log(tr("ArcadeDMD s'arrête, demandé depuis la fenêtre ou l'icône", "ArcadeDMD stops, asked from the window or the icon"))
         panel.quitting = True
         if panel.engine is not None:
             panel.engine.quit = True
 
     def restart():
+        log(tr("ArcadeDMD repart, demandé depuis la fenêtre ou l'icône", "ArcadeDMD restarts, asked from the window or the icon"))
         if panel.engine is not None:
             panel.engine.restart = True
 

@@ -44,6 +44,8 @@ Avec `"mode": "games"`, la fenêtre se cache en dehors des jeux et l'écran appa
 
 Le logo est ton Clear Logo LaunchBox. ArcadeDMD trouve tout seul le dossier de LaunchBox quand BigBox tourne, ou aux endroits habituels (`C:\LaunchBox`, `E:\LaunchBox`...). Sinon mets `"launchbox": "E:\\LaunchBox"` dans la section `preview`. Le jeu en cours est relié à son logo par le chemin de la ROM dans LaunchBox, et par le jeu parent pour un clone. Sans logo, le titre du jeu s'affiche en lettres métalliques.
 
+Sans LaunchBox, le logo vient de RetroBat (depuis la 1.37). Son scraper range le logo de chaque jeu au nom de la rom, `roms\mame\images\kof98-marquee.png`, sinon `-wheel.png`, et ArcadeDMD le lit dans `gamelist.xml` et dans les dossiers `images`, les systèmes arcade d'abord. Le dossier de RetroBat est trouvé tout seul quand RetroBat tourne ou à sa place habituelle (`C:\RetroBat`...), sinon indique-le dans l'onglet Frontal de la fenêtre.
+
 ## Logo du jeu au lancement
 
 Quand un jeu démarre, son logo arrive d'abord. Sur l'écran HD, il entre en grand sur un écran sombre, avec un éclair et un reflet, puis glisse à sa place dans la scène. Sur la Pixelcade et les dalles ZeDMD, il grandit sur les LED 128 x 32, puis la scène arrive. La Pixelcade l'affiche dès que pixelweb lui a laissé la dalle.

@@ -6,6 +6,18 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 To update, extract the new version over the old one. Your `config.json`, the addresses learned and your own pictures are kept.
 Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `config.json`, les adresses apprises et tes propres images sont gardés.
 
+## 1.37.0
+
+### English
+- ArcadeDMD gets a window and an icon near the clock, in place of the console. Status shows the game running, with the marquee and the LED panel live. Screens picks the marquee screen and the LED panel. Emulators checks RetroArch and the MAME plugin and fixes them in one click. Frontend picks where the logos come from. Log follows the log live.
+- The game logos can come from RetroBat, from what its scraper downloaded.
+- `run.bat` starts ArcadeDMD without a console and opens its window. `run_console.bat` keeps the console.
+
+### Français
+- ArcadeDMD a une fenêtre et une icône près de l'horloge, à la place de la console. État montre le jeu en cours, avec le marquee et la dalle LED en direct. Écrans choisit l'écran du marquee et la dalle LED. Émulateurs vérifie RetroArch et le plugin MAME et les corrige d'un clic. Frontal choisit d'où viennent les logos. Journal suit le journal en direct.
+- Les logos des jeux peuvent venir de RetroBat, de ce que son scraper a téléchargé.
+- `run.bat` lance ArcadeDMD sans console et ouvre sa fenêtre. `run_console.bat` garde la console.
+
 ## 1.36.2
 
 ### English

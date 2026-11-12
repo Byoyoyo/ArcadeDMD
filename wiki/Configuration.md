@@ -13,6 +13,8 @@ Edit it with Notepad. A path takes double backslashes (`"E:\\LaunchBox"`).
 | `show_pause` | `true` | PAUSE blinks on the LED panel while the game is paused |
 | `idle` | `{"show": false}` | `"show": true` brings back the old idle screen (the time and `"text"`) on a ZeDMD panel outside games |
 | `intro` | see below | the game's logo when a game starts |
+| `frontend` | `{"use": "auto", "retrobat": ""}` | where the game logos come from. `"auto"` takes LaunchBox, else RetroBat. `"launchbox"`, `"retrobat"` or `"none"` force one. `"retrobat"` is RetroBat's folder when it is not found on its own (Frontend tab of the window) |
+| `window` | `{"enabled": true}` | `false` turns off the window and the icon near the clock |
 
 ### `intro`
 

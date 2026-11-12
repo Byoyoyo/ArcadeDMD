@@ -2,7 +2,17 @@
 
 Lance `run.bat`, ou laisse le lancement automatique le faire au démarrage de Windows. Ensuite lance tes jeux comme d'habitude, depuis LaunchBox, BigBox, HyperSpin ou directement dans MAME ou RetroArch. Le frontend n'a besoin d'aucun réglage.
 
-`run.bat` montre la console. Le lancement automatique fait tourner le même moteur sans fenêtre. Tout ce qu'il fait est écrit dans `runtime\arcadedmd.log`.
+ArcadeDMD n'a plus de console depuis la 1.37. Son icône se met près de l'horloge, dans les icônes cachées (la flèche ^) tant que tu ne l'as pas glissée dans la barre des tâches. Un clic ouvre sa fenêtre, un clic droit son menu (ouvrir, journal, relancer, lancer avec Windows, quitter). `run.bat` ouvre aussi la fenêtre, le lancement automatique ne met que l'icône. Lancer `run.bat` alors qu'ArcadeDMD tourne déjà ouvre la fenêtre de celui qui tourne. `run_console.bat` le lance avec sa console, comme avant, pour chercher un problème. Tout ce qu'il fait est écrit dans `runtime\arcadedmd.log`.
+
+## La fenêtre
+
+- **État** montre le jeu en cours, le marquee et la dalle LED en direct, RetroArch, MAME, les écrans, les dernières lignes du journal, et lance ArcadeDMD avec Windows ou non.
+- **Écrans** choisit l'écran du marquee parmi ceux que Windows voit (Identifier les écrans affiche un grand numéro sur chacun), l'affichage HD ou LED virtuelles, et la dalle LED (Pixelcade et son port, ZeDMD et sa luminosité). Tester passe une démo de 12 secondes.
+- **Émulateurs** vérifie les commandes réseau de RetroArch et les corrige d'un clic, RetroArch fermé (une copie de l'ancien `retroarch.cfg` est gardée à côté). Il vérifie MAME et la version du plugin et l'installe ou le met à jour. Il montre tes boutons pièce et START, règle ce qui est enregistré de chaque partie et prépare un zip de la dernière partie avec le journal, prêt à envoyer.
+- **Frontal** choisit d'où viennent les logos, LaunchBox / BigBox, RetroBat ou aucun, et ce que montre le marquee entre deux parties.
+- **Journal** suit `runtime\arcadedmd.log` en direct, avec une recherche.
+
+Ce qui est changé dans la fenêtre va dans `config.json`, et ArcadeDMD repart tout seul avec. La fenêtre est une page qu'ArcadeDMD sert sur ton PC seulement (`127.0.0.1`), ouverte dans Microsoft Edge en mode application.
 
 ## Ce qui se passe pendant un jeu
 
@@ -28,7 +38,8 @@ Avec RetroArch, lance une fois `coin_buttons.bat` pour qu'ArcadeDMD voie chaque 
 | Fichier | Rôle |
 |---|---|
 | `install.bat` | installe tout |
-| `run.bat` | lance le moteur avec la console visible |
+| `run.bat` | lance ArcadeDMD, son icône près de l'horloge et sa fenêtre |
+| `run_console.bat` | lance ArcadeDMD avec sa console, pour chercher un problème |
 | `screen_setup.bat` | met la scène sur un marquee LCD, en LED virtuelles ou en HD lisse |
 | `demo_fight.bat`, `demo_neogeo.bat`, `demo_capcom.bat`, `demo_cave.bat`, `demo_afterburner.bat`, `demo_sonic.bat` | les scènes avec des valeurs simulées |
 | `learn.bat` | trouve une adresse qui manque (score, crédits...), voir [[Apprendre les adresses]] |
