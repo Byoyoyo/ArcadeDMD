@@ -152,12 +152,19 @@ def set_autostart(root, on):
         w = exe[:-len("python.exe")] + "pythonw.exe"
         if os.path.isfile(w):
             exe = w
+    lines = ["@echo off", f'cd /d "{root}"', f'start "" "{exe}" "{os.path.join(root, "arcadedmd.py")}"']
+    # cmd reads a .bat in the console's code page (OEM), else in UTF-8 after chcp 65001
+    # cmd lit un .bat dans la page de code de la console (OEM), sinon en UTF-8 après chcp 65001
+    enc = "oem" if sys.platform == "win32" else "utf-8"
+    try:
+        "\n".join(lines).encode(enc)
+    except (UnicodeEncodeError, LookupError):
+        enc = "utf-8"
+        lines.insert(1, "chcp 65001 >nul")
     try:
         os.makedirs(os.path.dirname(p), exist_ok=True)
-        with open(p, "w", encoding="mbcs" if sys.platform == "win32" else "utf-8") as f:
-            f.write("@echo off\r\n")
-            f.write(f'cd /d "{root}"\r\n')
-            f.write(f'start "" "{exe}" "{os.path.join(root, "arcadedmd.py")}"\r\n')
+        with open(p, "w", encoding=enc, newline="\r\n") as f:
+            f.write("\n".join(lines) + "\n")
         return True
     except OSError:
         return False
@@ -277,7 +284,7 @@ class ControlPanel:
         passe devant (sur l'onglet demandé), sinon une nouvelle."""
         if tab:
             self.goto = [self.goto[0] + 1, tab]
-        if time.monotonic() - self.last_seen < 3.0 and focus_window():
+        if focus_window():                              # even minimized, its page then catches up / même réduite
             return True
         return open_window(self.url + (f"#{tab}" if tab else ""), self.log)
 
