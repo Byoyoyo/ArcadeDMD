@@ -4,7 +4,7 @@ Un écran LCD dans le marquee montre les scènes en HD lisse, avec des décors a
 
 ## Le mettre en place
 
-1. Lance `screen_setup.bat` (l'installeur le propose aussi). Il liste les écrans, devine lequel est le marquee (le plus allongé) et écrit la section `preview` de `config.json`.
+1. Lance `screen_setup.bat` (l'installeur le propose aussi). Il liste les écrans, devine lequel est le marquee (le plus allongé) et écrit la section `preview` de `config.json`. L'onglet Écrans de la fenêtre d'ArcadeDMD le fait aussi, d'un clic sur l'écran (voir [[Utilisation]]).
 2. À la question de l'affichage, choisis la HD lisse, ou les LED virtuelles.
 3. Lance `demo_fight.bat` pour voir le résultat, puis un jeu depuis ton frontend.
 

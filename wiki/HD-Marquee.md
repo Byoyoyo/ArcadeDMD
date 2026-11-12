@@ -4,7 +4,7 @@ An LCD screen in the marquee shows the scenes in smooth HD, with animated backdr
 
 ## Setting it up
 
-1. Run `screen_setup.bat` (the installer offers it too). It lists the screens, guesses which one is the marquee (the most elongated) and writes the `preview` section of `config.json`.
+1. Run `screen_setup.bat` (the installer offers it too). It lists the screens, guesses which one is the marquee (the most elongated) and writes the `preview` section of `config.json`. The Screens tab of ArcadeDMD's window does it too, a click on the screen (see [[Usage]]).
 2. At the display question, choose smooth HD, or virtual LEDs.
 3. Run `demo_fight.bat` to see the result, then a game from your frontend.
 

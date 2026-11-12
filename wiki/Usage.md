@@ -6,13 +6,21 @@ Since 1.37 ArcadeDMD has no console any more. Its icon sits near the clock, amon
 
 ## The window
 
+![The Status tab, The King of Fighters '98 running, the marquee and the LED panel live](images/window_status_en.jpg)
+
 - **Status** shows the game running, the marquee and the LED panel live, RetroArch, MAME, the screens, the last lines of the log, and starts ArcadeDMD with Windows or not.
 - **Screens** picks the marquee screen among those Windows sees (Identify the screens shows a big number on each), the HD or virtual LED display, and the LED panel (Pixelcade and its port, ZeDMD and its brightness). Test plays a 12 second demo.
 - **Emulators** checks RetroArch's network commands and fixes them in one click, with RetroArch closed (a copy of the old `retroarch.cfg` is kept next to it). It checks MAME and the plugin version and installs or updates the plugin. It shows your coin and START buttons, sets what is recorded of each game and zips the last game with the log, ready to send.
 - **Frontend** picks where the logos come from, LaunchBox / BigBox, RetroBat or none, and what the marquee shows between games.
 - **Log** follows `runtime\arcadedmd.log` live, with a search.
 
-What is changed in the window goes into `config.json`, and ArcadeDMD starts again with it by itself. The window is a page ArcadeDMD serves on your PC only (`127.0.0.1`), opened in Microsoft Edge in app mode.
+![The Screens tab, the marquee screen picked among those Windows sees](images/window_screens_en.jpg)
+
+![The Emulators tab, RetroArch ready and the MAME plugin to update](images/window_emulators_en.jpg)
+
+![The Frontend tab, the logos taken from RetroBat](images/window_frontend_retrobat_en.jpg)
+
+The folder fields have a Browse button that opens Windows' own folder window. What is changed in the window goes into `config.json`, and ArcadeDMD starts again with it by itself. The window is a page ArcadeDMD serves on your PC only (`127.0.0.1`), opened in Microsoft Edge in app mode.
 
 ## What happens during a game
 

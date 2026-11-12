@@ -17,10 +17,17 @@ Live score, lives, credits and game events from MAME and RetroArch games, shown 
 - Reads the game memory live, with a MAME plugin or through RetroArch's network commands (FinalBurn Neo, Genesis Plus GX). Nothing in the game or the emulator is modified.
 - Ready-made scenes for Metal Slug 1 to 5 and X, the 57 Neo Geo fighting games, ninety-seven Neo Geo games done one by one and every other Neo Geo game by genre, every Capcom CPS1, CPS2 and CPS3 game (34 fighting games on their own stages and fifty games done one by one, from Final Fight to 1944), every Cave game (37 games, DoDonPachi, Dai-Ou-Jou, Ketsui, Espgaluda, Mushihime-sama, Deathsmiles, Akai Katana...), After Burner II, Sonic 1 and 2.
 - HD scenes with animated backgrounds that follow the game's stage or mission, and an effect for every event (hits, combos, K.O., weapons, bombs, coins...).
-- The game's logo when it starts (your LaunchBox Clear Logo). With nobody playing, the fighting games wait for a coin. Insert one and it drops into the slot, the credits roll, then PRESS START.
+- The game's logo when it starts (your LaunchBox Clear Logo, or the logo RetroBat's scraper downloaded). With nobody playing, the fighting games wait for a coin. Insert one and it drops into the slot, the credits roll, then PRESS START.
 - Everything is drawn by the program. Your own pictures can replace some drawings ([Your Own Pictures](https://github.com/Byoyoyo/ArcadeDMD/wiki/Your-Own-Pictures)).
 - A learning tool finds the missing addresses (score, credits...) from a few captures.
-- Works next to LaunchBox and BigBox, HyperSpin or any other frontend. English and French. Windows, Python 3.12 or newer.
+- A window and an icon near the clock, in place of a console. The game running with the marquee and the LED panel live, the marquee screen picked among those Windows sees, RetroArch and the MAME plugin checked and fixed in one click, the frontend, the log.
+- Works next to LaunchBox and BigBox, RetroBat, HyperSpin or any other frontend. English and French. Windows, Python 3.12 or newer.
+
+## The window
+
+ArcadeDMD runs near the clock. A click on its icon opens its window, with five tabs, Status, Screens, Emulators, Frontend and Log. See [Usage](https://github.com/Byoyoyo/ArcadeDMD/wiki/Usage).
+
+![ArcadeDMD's window, The King of Fighters '98 running, the marquee and the LED panel live](docs/images/window_status_en.jpg)
 
 ## The games done with the most care
 
@@ -40,8 +47,8 @@ The other games read the addresses of the cheat databases and of RetroAchievemen
 1. Download the zip of the latest version from the [Releases](../../releases/latest) page. Before extracting it, right-click it, choose Properties and tick "Unblock".
 2. Extract the `ArcadeDMD` folder to a path with no accented characters, ideally `C:\ArcadeDMD`.
 3. Run `install.bat`. It installs what is needed (Python 3.13 too if it is missing), copies the plugin into MAME and sets up the Pixelcade.
-4. With an LCD marquee, run `screen_setup.bat`. With RetroArch, turn on "Network Commands" (Settings, Network) and play with the Arcade (FinalBurn Neo) core.
-5. Run `demo_fight.bat` to see a scene without a game, then `run.bat`, and play from your frontend.
+4. With an LCD marquee, run `screen_setup.bat`, or pick the screen later in the Screens tab of the window. With RetroArch, turn on "Network Commands" (Settings, Network) and play with the Arcade (FinalBurn Neo) core.
+5. Run `demo_fight.bat` to see a scene without a game, then `run.bat`. Its icon sits near the clock and its window opens. Play from your frontend.
 
 Every step in detail is in [Installation](https://github.com/Byoyoyo/ArcadeDMD/wiki/Installation), and what to do when something goes wrong in [Troubleshooting](https://github.com/Byoyoyo/ArcadeDMD/wiki/Troubleshooting).
 

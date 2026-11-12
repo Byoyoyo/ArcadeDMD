@@ -6,13 +6,21 @@ ArcadeDMD n'a plus de console depuis la 1.37. Son icône se met près de l'horlo
 
 ## La fenêtre
 
+![L'onglet État, The King of Fighters '98 en cours, le marquee et la dalle LED en direct](images/window_status_fr.jpg)
+
 - **État** montre le jeu en cours, le marquee et la dalle LED en direct, RetroArch, MAME, les écrans, les dernières lignes du journal, et lance ArcadeDMD avec Windows ou non.
 - **Écrans** choisit l'écran du marquee parmi ceux que Windows voit (Identifier les écrans affiche un grand numéro sur chacun), l'affichage HD ou LED virtuelles, et la dalle LED (Pixelcade et son port, ZeDMD et sa luminosité). Tester passe une démo de 12 secondes.
 - **Émulateurs** vérifie les commandes réseau de RetroArch et les corrige d'un clic, RetroArch fermé (une copie de l'ancien `retroarch.cfg` est gardée à côté). Il vérifie MAME et la version du plugin et l'installe ou le met à jour. Il montre tes boutons pièce et START, règle ce qui est enregistré de chaque partie et prépare un zip de la dernière partie avec le journal, prêt à envoyer.
 - **Frontal** choisit d'où viennent les logos, LaunchBox / BigBox, RetroBat ou aucun, et ce que montre le marquee entre deux parties.
 - **Journal** suit `runtime\arcadedmd.log` en direct, avec une recherche.
 
-Ce qui est changé dans la fenêtre va dans `config.json`, et ArcadeDMD repart tout seul avec. La fenêtre est une page qu'ArcadeDMD sert sur ton PC seulement (`127.0.0.1`), ouverte dans Microsoft Edge en mode application.
+![L'onglet Écrans, l'écran du marquee choisi parmi ceux que Windows voit](images/window_screens_fr.jpg)
+
+![L'onglet Émulateurs, RetroArch prêt et le plugin MAME à mettre à jour](images/window_emulators_fr.jpg)
+
+![L'onglet Frontal, les logos pris dans RetroBat](images/window_frontend_retrobat_fr.jpg)
+
+Les champs de dossier ont un bouton Parcourir qui ouvre la fenêtre de dossiers de Windows. Ce qui est changé dans la fenêtre va dans `config.json`, et ArcadeDMD repart tout seul avec. La fenêtre est une page qu'ArcadeDMD sert sur ton PC seulement (`127.0.0.1`), ouverte dans Microsoft Edge en mode application.
 
 ## Ce qui se passe pendant un jeu
 
