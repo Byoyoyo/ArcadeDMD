@@ -1,14 +1,16 @@
 ArcadeDMD shows what happens in your arcade game on the marquee of the cabinet, live. Score, lives, credits, health bars, rounds, bosses, special moves, each game with its own animated scene. It runs in smooth HD on an LCD marquee screen (1920 x 460 on a Vewlix, for example) or on a 128 x 32 LED panel (Pixelcade LED, ZeDMD).
 
-It reads the game's memory while you play, through a small MAME plugin or through RetroArch's network commands (FinalBurn Neo, Genesis Plus GX). Nothing in the game or the emulator is modified. It works next to LaunchBox and BigBox, HyperSpin or any other frontend, and shows your LaunchBox Clear Logo when a game starts.
+It reads the game's memory while you play, through a small MAME plugin or through RetroArch's network commands (FinalBurn Neo, Genesis Plus GX). Nothing in the game or the emulator is modified. It works next to LaunchBox and BigBox, HyperSpin or any other frontend, and shows your LaunchBox Clear Logo, or the logo RetroBat's scraper downloaded, when a game starts. It runs near the clock, with a window to watch it and set it up (screens, emulators, frontend).
 
-ArcadeDMD 1.33.1, in BETA. Free and open source, MIT license. Windows, Python 3.12 or newer.
+ArcadeDMD 1.37.0, in BETA. Free and open source, MIT license. Windows, Python 3.12 or newer.
 
 En français, [[Accueil]].
 
 ![The King of Fighters '98 on an HD marquee, King's ILLUSION DANCE](images/kof98_desperation_move.gif)
 
 ![The same games on a 128 x 32 LED panel](images/led_reel.gif)
+
+![ArcadeDMD's window, the Status tab with the marquee and the LED panel live](images/window_status_en.jpg)
 
 ## The games done with the most care
 
@@ -26,7 +28,7 @@ The other games read the addresses of the cheat databases and of RetroAchievemen
 ## Getting started
 
 - [[Installation]], download, install, first try without a game
-- [[Usage]], running ArcadeDMD with your frontend, the demos and test tools
+- [[Usage]], running ArcadeDMD with your frontend, its window and its icon near the clock, the demos and test tools
 - [[Configuration]], every setting of `config.json`
 
 ## Displays

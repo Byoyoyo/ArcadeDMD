@@ -574,7 +574,11 @@ class GaugeEl(Element):
         super().__init__(spec, root, log)
         self.var = spec.get("var", "health")
         self.peak = spec.get("max") == "peak"
-        self.max = 0.0 if self.peak else float(spec.get("max", 100))
+        mx = spec.get("max", 100)
+        # max the name of a value (1.37): full is that value, the player's top life of Mercs; "max_default" without it
+        # / max le nom d'une valeur : la barre pleine est cette valeur, la vie maximale du joueur de Mercs
+        self.max_var = mx if isinstance(mx, str) and not self.peak else None
+        self.max = 0.0 if self.peak else float(spec.get("max_default", 100) if self.max_var else mx)
         self.seen_t = None                              # dernière image dessinée (max "peak") / last image drawn
         self.hold = float(spec.get("peak_hold", 0.5))
         self.x, self.y = int(spec.get("x", 0)), int(spec.get("y", 0))
@@ -603,7 +607,12 @@ class GaugeEl(Element):
                 self.max = 0.0
             self.seen_t = ctx.t
             self.max = max(self.max, float(v))
-        r = max(0.0, min(1.0, v / self.max)) if self.max > 0 else 0.0
+        mx = self.max
+        if self.max_var:
+            m = ctx.state.values.get(self.max_var)
+            if isinstance(m, (int, float)) and not isinstance(m, bool) and m > 0:
+                mx = float(m)
+        r = max(0.0, min(1.0, v / mx)) if mx > 0 else 0.0
         n = int(round(r * self.w))
         col = self.low if r <= self.low_at else self.color
         fl = _flash_color(self.spec, ctx, None)

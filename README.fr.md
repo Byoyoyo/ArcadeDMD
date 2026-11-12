@@ -17,10 +17,17 @@ Score, vies, crédits et événements des jeux MAME et RetroArch en direct sur l
 - Lit la mémoire du jeu en direct, avec un plugin MAME ou par les commandes réseau de RetroArch (FinalBurn Neo, Genesis Plus GX). Rien n'est modifié dans le jeu ni dans l'émulateur.
 - Scènes prêtes pour Metal Slug 1 à 5 et X, les 57 jeux de combat Neo Geo, quatre-vingt-dix-sept jeux Neo Geo faits un par un et tous les autres jeux Neo Geo selon leur genre, tous les jeux Capcom CPS1, CPS2 et CPS3 (34 jeux de combat dans leurs décors et cinquante jeux faits un par un, de Final Fight à 1944), tous les jeux Cave (37 jeux, DoDonPachi, Dai-Ou-Jou, Ketsui, Espgaluda, Mushihime-sama, Deathsmiles, Akai Katana...), After Burner II, Sonic 1 et 2.
 - Scènes HD avec des décors animés qui suivent le stage ou la mission du jeu, et un effet pour chaque événement (coups, combos, K.O., armes, bombes, pièces...).
-- Le logo du jeu au lancement (ton Clear Logo LaunchBox). Quand personne ne joue, les jeux de combat attendent une pièce. Mets-en une, elle tombe dans la fente, les crédits roulent, puis PRESS START.
+- Le logo du jeu au lancement (ton Clear Logo LaunchBox, ou le logo téléchargé par le scraper de RetroBat). Quand personne ne joue, les jeux de combat attendent une pièce. Mets-en une, elle tombe dans la fente, les crédits roulent, puis PRESS START.
 - Tout est dessiné par le programme. Tes propres images peuvent remplacer certains dessins ([Tes propres images](https://github.com/Byoyoyo/ArcadeDMD/wiki/Tes-propres-images)).
 - Un outil d'apprentissage trouve les adresses manquantes (score, crédits...) à partir de quelques captures.
-- Marche à côté de LaunchBox et BigBox, HyperSpin ou n'importe quel autre frontend. En anglais et en français. Windows, Python 3.12 ou plus récent.
+- Une fenêtre et une icône près de l'horloge, à la place d'une console. Le jeu en cours avec le marquee et la dalle LED en direct, l'écran du marquee choisi parmi ceux que Windows voit, RetroArch et le plugin MAME vérifiés et corrigés d'un clic, le frontal, le journal.
+- Marche à côté de LaunchBox et BigBox, RetroBat, HyperSpin ou n'importe quel autre frontend. En anglais et en français. Windows, Python 3.12 ou plus récent.
+
+## La fenêtre
+
+ArcadeDMD tourne près de l'horloge. Un clic sur son icône ouvre sa fenêtre, avec cinq onglets, État, Écrans, Émulateurs, Frontal et Journal. Voir [Utilisation](https://github.com/Byoyoyo/ArcadeDMD/wiki/Utilisation).
+
+![La fenêtre d'ArcadeDMD, The King of Fighters '98 en cours, le marquee et la dalle LED en direct](docs/images/window_status_fr.jpg)
 
 ## Les jeux les plus soignés
 
@@ -40,8 +47,8 @@ Les autres jeux lisent les adresses des bases de codes de triche et de RetroAchi
 1. Télécharge le zip de la dernière version sur la page [Releases](../../releases/latest). Avant de l'extraire, fais un clic droit dessus, Propriétés, et coche « Débloquer ».
 2. Extrais le dossier `ArcadeDMD` dans un chemin sans accents, idéalement `C:\ArcadeDMD`.
 3. Lance `install.bat`. Il installe ce qu'il faut (Python 3.13 aussi s'il manque), copie le plugin dans MAME et règle la Pixelcade.
-4. Avec un marquee LCD, lance `screen_setup.bat`. Avec RetroArch, active « Commandes réseau » (Réglages, Réseau) et joue avec le cœur Arcade (FinalBurn Neo).
-5. Lance `demo_fight.bat` pour voir une scène sans jeu, puis `run.bat`, et joue depuis ton frontend.
+4. Avec un marquee LCD, lance `screen_setup.bat`, ou choisis l'écran plus tard dans l'onglet Écrans de la fenêtre. Avec RetroArch, active « Commandes réseau » (Réglages, Réseau) et joue avec le cœur Arcade (FinalBurn Neo).
+5. Lance `demo_fight.bat` pour voir une scène sans jeu, puis `run.bat`. Son icône se met près de l'horloge et sa fenêtre s'ouvre. Joue depuis ton frontend.
 
 Chaque étape en détail est dans [Installer ArcadeDMD](https://github.com/Byoyoyo/ArcadeDMD/wiki/Installer-ArcadeDMD), et quoi faire quand quelque chose ne va pas dans [Dépannage](https://github.com/Byoyoyo/ArcadeDMD/wiki/D%C3%A9pannage).
 

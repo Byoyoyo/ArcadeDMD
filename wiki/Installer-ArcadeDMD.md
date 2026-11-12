@@ -12,7 +12,7 @@
 2. Avant de l'extraire, fais un clic droit sur le zip, Propriétés, coche « Débloquer », puis OK. Windows ne demandera plus de confirmation à chaque fichier .bat.
 3. Extrais le dossier `ArcadeDMD` dans un chemin sans accents, idéalement `C:\ArcadeDMD`. MAME ne sait pas ouvrir les dossiers avec des accents.
 4. Lance `install.bat`. Il installe Pillow, pyserial et pygame-ce, copie le plugin dans MAME, règle la Pixelcade et propose de lancer ArcadeDMD automatiquement avec Windows. Il ne télécharge libzedmd (le pilote ZeDMD) que si tu dis avoir une dalle ZeDMD. Si tu n'utilises que RetroArch, appuie sur Entrée à la question MAME.
-5. Avec un marquee LCD, lance `screen_setup.bat` (l'installeur le propose aussi). Il trouve l'écran du marquee et règle tout dans `config.json`.
+5. Avec un marquee LCD, lance `screen_setup.bat` (l'installeur le propose aussi). Il trouve l'écran du marquee et règle tout dans `config.json`. Depuis la 1.37, l'onglet Écrans de la fenêtre d'ArcadeDMD fait la même chose avec la liste des écrans que Windows voit (voir [[Utilisation]]).
 
 ## Ce que l'installation change
 

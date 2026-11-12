@@ -4,7 +4,7 @@ An LCD screen in the marquee shows the scenes in smooth HD, with animated backdr
 
 ## Setting it up
 
-1. Run `screen_setup.bat` (the installer offers it too). It lists the screens, guesses which one is the marquee (the most elongated) and writes the `preview` section of `config.json`.
+1. Run `screen_setup.bat` (the installer offers it too). It lists the screens, guesses which one is the marquee (the most elongated) and writes the `preview` section of `config.json`. The Screens tab of ArcadeDMD's window does it too, a click on the screen (see [[Usage]]).
 2. At the display question, choose smooth HD, or virtual LEDs.
 3. Run `demo_fight.bat` to see the result, then a game from your frontend.
 
@@ -43,6 +43,8 @@ With `"mode": "games"`, the window hides outside games and the screen belongs to
 ## The game's logo
 
 The logo is your LaunchBox Clear Logo. ArcadeDMD finds the LaunchBox folder by itself when BigBox is running, or in the usual places (`C:\LaunchBox`, `E:\LaunchBox`...). Otherwise set `"launchbox": "E:\\LaunchBox"` in the `preview` section. The running game is matched to its logo through the ROM path in LaunchBox, and through the parent game for a clone. Without a logo, the game's title shows in metallic lettering.
+
+Without LaunchBox, the logo comes from RetroBat (since 1.37). Its scraper stores each game's logo under the rom's name, `roms\mame\images\kof98-marquee.png`, else `-wheel.png`, and ArcadeDMD reads it from `gamelist.xml` and from the `images` folders, arcade systems first. RetroBat's folder is found by itself when RetroBat is running or in its usual place (`C:\RetroBat`...), otherwise give it in the Frontend tab of the window.
 
 ## Game logo when a game starts
 

@@ -79,6 +79,7 @@ class LogoFinder:
         self.root, self.cfg, self.log = root, cfg or {}, log
         self.label = label           # (français, anglais) : qui cherche les logos, dans les messages
         self.dir = ""
+        self.retrobat = None     # RetroBat's logos when there is no LaunchBox (1.37) / ceux de RetroBat sans LaunchBox
         self.games = {}          # romset -> [(plateforme, titre)]
         self.files = {}          # plateforme -> {titre normalisé: chemin de l'image}
         self.ready = False
@@ -87,9 +88,44 @@ class LogoFinder:
         else:
             self._build()
 
+    def _frontend(self):
+        """"frontend" in config.json (1.37): "use" is "auto" (LaunchBox, else RetroBat), "launchbox", "retrobat" or
+        "none". / Le frontal : LaunchBox, sinon RetroBat, ou l'un des deux, ou aucun."""
+        fe = self.cfg.get("frontend") if isinstance(self.cfg.get("frontend"), dict) else {}
+        use = str(fe.get("use") or "auto").lower()
+        return (use if use in ("auto", "launchbox", "retrobat", "none") else "auto"), str(fe.get("retrobat") or "")
+
+    def _retrobat(self, folder):
+        from .retrobat import RetroBatLogos, find_retrobat
+        d = find_retrobat(self.root, folder)
+        if not d:
+            return False
+        self.retrobat = RetroBatLogos(d, self.log)
+        try:
+            with open(os.path.join(self.root, "runtime", "retrobat_path.txt"), "w", encoding="utf-8") as f:
+                f.write(d)
+        except OSError:
+            pass
+        who = self.label or ("écran HD", "HD screen")
+        self.log(tr(f"{who[0]} : logos des jeux pris dans RetroBat, {d} ({len(self.retrobat.roms)} logos)",
+                    f"{who[1]}: game logos taken from RetroBat, {d} ({len(self.retrobat.roms)} logos)"))
+        return True
+
     def _build(self):
         try:
-            d = find_launchbox(self.root, self.cfg)
+            use, rb = self._frontend()
+            if use == "none":
+                return
+            d = find_launchbox(self.root, self.cfg) if use != "retrobat" else ""
+            if not d and use != "launchbox" and self._retrobat(rb):
+                return
+            if not d and use == "retrobat":
+                who = self.label or ("écran HD", "HD screen")
+                self.log(tr(f"{who[0]} : dossier RetroBat introuvable, le titre du jeu remplace son logo "
+                            "(onglet Frontal de la fenêtre, ou \"retrobat\" de la section frontend dans config.json)",
+                            f"{who[1]}: RetroBat folder not found, the game title replaces its logo "
+                            "(Frontend tab of the window, or \"retrobat\" in the frontend section of config.json)"))
+                return
             if not d:
                 if self.label:
                     self.log(tr(f"{self.label[0]} : dossier LaunchBox introuvable, pas de logo au lancement des jeux "
@@ -162,6 +198,8 @@ class LogoFinder:
 
     def find(self, roms, title=""):
         """Image du logo pour ces romsets (le jeu, puis son parent), sinon d'après le titre. None si rien."""
+        if self.ready and self.retrobat is not None:
+            return self.retrobat.find(roms, title)
         if not self.ready or not self.dir:
             return None
         for rom in [r for r in roms if r]:

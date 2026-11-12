@@ -4,7 +4,7 @@ Game by game, what ArcadeDMD already knows how to show, and what comes next. Upd
 
 Jeu par jeu, ce qu'ArcadeDMD sait déjà afficher, et ce qui vient ensuite. Mis à jour à chaque version.
 
-Up to date with version 1.36.2. / À jour de la version 1.36.2.
+Up to date with version 1.37.0. / À jour de la version 1.37.0.
 
 Tuned on a real cabinet, round after round, with videos, photos, logs of the games and, since 1.33, one game recorded whole: The King of Fighters '98 (its nine stages, the desperation moves, ROUND and FIGHT ! with the game, 1.31 to 1.33), Metal Slug 1 to 5 and X (each from one recorded game, mission 1 checked frame by frame, 1.33), Windjammers (the disc, the players, the supers, the sets, 1.33), Puzzle Bobble 2 (1.33), Puzzle Bobble (from one recorded VS game, 1.35), Twinkle Star Sprites (the players' places, the hearts, the rounds, from one two-player game, 1.33), DoDonPachi; learned on a cabinet too: The King of Fighters 2002, Fatal Fury, Marvel vs. Capcom, X-Men vs. Street Fighter, Marvel Super Heroes vs. Street Fighter, X-Men: Children of the Atom, Hyper Street Fighter II, Strikers 1945 Plus, Giga Wing, Mercs. / Réglés sur une vraie borne, round après round, avec des vidéos, des photos, les journaux des jeux et, depuis la 1.33, une partie enregistrée en entier : The King of Fighters '98 (ses neuf décors, les coups désespérés, ROUND et FIGHT ! avec le jeu, 1.31 à 1.33), Metal Slug 1 à 5 et X (chacun d'après une partie enregistrée, la mission 1 vérifiée image par image, 1.33), Windjammers (le disque, les joueurs, les supers, les sets, 1.33), Puzzle Bobble 2 (1.33), Puzzle Bobble (d'après une partie VS enregistrée, 1.35), Twinkle Star Sprites (la place des joueurs, les cœurs, les manches, d'après une partie à deux, 1.33), DoDonPachi ; appris sur une borne aussi : The King of Fighters 2002, Fatal Fury, Marvel vs. Capcom, X-Men vs. Street Fighter, Marvel Super Heroes vs. Street Fighter, X-Men: Children of the Atom, Hyper Street Fighter II, Strikers 1945 Plus, Giga Wing, Mercs.
 
@@ -309,7 +309,7 @@ Depuis la 1.30, chaque autre jeu Capcom a sa scène de dalle et sa scène HD à 
 | 22 | Mars Matrix: Hyper Solid Shooting | Shoot'em up | 🟡 | ✅ | ✅ | 1.30 |
 | 23 | Dimahoo | Shoot'em up | 🟡 | ✅ | ✅ | 1.30 |
 | 24 | Eco Fighters | Shoot'em up | 🟡 | ✅ | ✅ | 1.30 |
-| 25 | Mercs | Run and gun | ✅ | ✅ | ✅ | 1.30, 1.36 |
+| 25 | Mercs | Run and gun | ✅ | ✅ | ✅ | 1.30, 1.36, 1.37 |
 | 26 | Ghouls'n Ghosts | Platformer / Plateformes | 🟡 | ✅ | ✅ | 1.30 |
 | 27 | Strider | Action | 🟡 | ✅ | ✅ | 1.30 |
 | 28 | Pang! 3 | Action | 🟡 | ✅ | ✅ | 1.30 |

@@ -1,10 +1,16 @@
-Tout ce que fait ArcadeDMD est écrit dans `runtime\arcadedmd.log`. Regarde là d'abord, il dit en général ce qui ne va pas et quoi faire.
+Tout ce que fait ArcadeDMD est écrit dans `runtime\arcadedmd.log`, affiché en direct dans l'onglet Journal de sa fenêtre. Regarde là d'abord, il dit en général ce qui ne va pas et quoi faire.
 
 ## Installation
 
 - **« Python est introuvable ».** Le raccourci `python` du Microsoft Store ne compte pas, il ne lance rien. Relance `install.bat`, il propose d'installer Python 3.13. Les fichiers .bat trouvent aussi un Python installé mais absent du PATH.
 - **Windows demande une confirmation à chaque fichier .bat.** Fais un clic droit sur le zip avant de l'extraire, Propriétés, coche « Débloquer ».
 - **Pas de fenêtre LED virtuelles.** pygame-ce doit être installé (`py -m pip install pygame-ce`).
+
+## La fenêtre
+
+- **Pas d'icône près de l'horloge.** Windows range les nouvelles icônes dans les icônes cachées, derrière la flèche ^. Glisse-la dans la barre des tâches. Si l'icône ne peut pas être ajoutée, ArcadeDMD ouvre sa fenêtre à la place.
+- **La fenêtre ne s'ouvre pas.** Relance `run.bat`, il ouvre la fenêtre de l'ArcadeDMD qui tourne déjà. Sans Microsoft Edge, la fenêtre s'ouvre dans ton navigateur.
+- **Pour voir la console comme avant.** Quitte ArcadeDMD depuis le menu de son icône, puis lance `run_console.bat`.
 
 ## MAME
 
@@ -13,15 +19,15 @@ Tout ce que fait ArcadeDMD est écrit dans `runtime\arcadedmd.log`. Regarde là 
 
 ## RetroArch
 
-- **Rien ne change avec RetroArch.** Vérifie que « Commandes réseau » est activé dans RetroArch et que le journal dit « RetroArch 1.19.x détecté (commandes réseau actives) ». Le jeu doit avoir son fichier dans `games\`.
+- **Rien ne change avec RetroArch.** L'onglet Émulateurs de la fenêtre vérifie les réglages de RetroArch et les corrige d'un clic, RetroArch fermé. Sinon vérifie que « Commandes réseau » est activé dans RetroArch et que le journal dit « RetroArch 1.19.x détecté (commandes réseau actives) ». Le jeu doit avoir son fichier dans `games\`.
 - **La scène s'affiche mais sans valeurs.** Le cœur ne partage sûrement pas sa mémoire (FB Alpha 2012, par exemple). Lance `test_retroarch.bat` pendant le jeu, il dit quel cœur tourne et lequel prendre. Voir [[Avec RetroArch]].
 - **« RetroArch refuse de lire la mémoire du jeu ».** Pareil, c'est le cœur. Le journal dit lequel est chargé.
 - **Une pièce ne tombe pas.** Lance `coin_buttons.bat`. Si elle ne tombe toujours pas, lance `test_coins.bat` pendant que tu mets une pièce et envoie son résultat.
 
 ## Marquee LCD
 
-- **La scène est sur le mauvais écran, ou coupée.** Relance `screen_setup.bat`, ou règle `x`, `y`, `width` et `height` dans la section `preview` d'après Paramètres, Affichage. Voir [[Marquee HD]].
-- **Pas de logo.** Donne le dossier de LaunchBox, `"launchbox": "E:\\LaunchBox"` dans la section `preview`.
+- **La scène est sur le mauvais écran, ou coupée.** Choisis l'écran du marquee dans l'onglet Écrans de la fenêtre, relance `screen_setup.bat`, ou règle `x`, `y`, `width` et `height` dans la section `preview` d'après Paramètres, Affichage. Voir [[Marquee HD]].
+- **Pas de logo.** Donne le dossier de LaunchBox ou de RetroBat dans l'onglet Frontal de la fenêtre, ou `"launchbox": "E:\\LaunchBox"` dans la section `preview`.
 
 ## Pixelcade
 
@@ -38,7 +44,7 @@ Tout ce que fait ArcadeDMD est écrit dans `runtime\arcadedmd.log`. Regarde là 
 - **Dalle noire après une mise en veille ou un débranchement.** Relance ArcadeDMD, libzedmd ne se reconnecte pas tout seul.
 - **Couleurs inversées, lignes fantômes.** Règle l'ordre RGB et le « panel driver » dans le menu de la ZeDMD (ou avec ZeDMD_Updater2).
 - **Animation saccadée.** Monte « USB packet size » et « min refresh » dans le menu de la ZeDMD.
-- **`test_panel.bat` dit que le moteur tourne déjà.** Le lancement automatique tient la dalle. Termine `pythonw.exe` dans le Gestionnaire des tâches, ou teste directement avec un jeu.
+- **`test_panel.bat` dit que le moteur tourne déjà.** Le lancement automatique tient la dalle. Quitte ArcadeDMD depuis le menu de son icône, ou teste directement avec un jeu.
 
 ## Le moteur
 

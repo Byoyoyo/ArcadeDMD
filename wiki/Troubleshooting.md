@@ -1,10 +1,16 @@
-Everything ArcadeDMD does is written to `runtime\arcadedmd.log`. Look there first, it usually says what is wrong and what to do.
+Everything ArcadeDMD does is written to `runtime\arcadedmd.log`, shown live in the Log tab of its window. Look there first, it usually says what is wrong and what to do.
 
 ## Installation
 
 - **"Python was not found".** The Microsoft Store `python` shortcut does not count, it launches nothing. Run `install.bat` again, it offers to install Python 3.13. The .bat files also find a Python that is installed but not in the PATH.
 - **Windows asks for confirmation on every .bat file.** Right-click the zip before extracting it, Properties, tick "Unblock".
 - **No virtual LED window.** pygame-ce must be installed (`py -m pip install pygame-ce`).
+
+## The window
+
+- **No icon near the clock.** Windows puts new icons among the hidden ones, behind the ^ arrow. Drag it onto the taskbar. If the icon cannot be added, ArcadeDMD opens its window instead.
+- **The window does not open.** Run `run.bat` again, it opens the window of the ArcadeDMD already running. Without Microsoft Edge, the window opens in your default browser.
+- **To see the console as before.** Quit ArcadeDMD from its icon's menu, then run `run_console.bat`.
 
 ## MAME
 
@@ -13,15 +19,15 @@ Everything ArcadeDMD does is written to `runtime\arcadedmd.log`. Look there firs
 
 ## RetroArch
 
-- **Nothing changes with RetroArch.** Check that "Network Commands" is on in RetroArch and that the log says "RetroArch 1.19.x detected (network commands active)". The game must have its file in `games\`.
+- **Nothing changes with RetroArch.** The Emulators tab of the window checks RetroArch's settings and fixes them in one click, RetroArch closed. Otherwise check that "Network Commands" is on in RetroArch and that the log says "RetroArch 1.19.x detected (network commands active)". The game must have its file in `games\`.
 - **The scene shows but without values.** The core most likely does not share its memory (FB Alpha 2012, for example). Run `test_retroarch.bat` during the game, it says which core runs and which one to use. See [[RetroArch]].
 - **"RetroArch refuses to read the game memory".** The same, it is the core. The log says which one is loaded.
 - **A coin does not drop.** Run `coin_buttons.bat`. If it still does not, run `test_coins.bat` while you insert a coin and send its result.
 
 ## LCD marquee
 
-- **The scene is on the wrong screen, or cut.** Run `screen_setup.bat` again, or set `x`, `y`, `width` and `height` in the `preview` section from Settings, Display. See [[HD Marquee]].
-- **No logo.** Set the LaunchBox folder, `"launchbox": "E:\\LaunchBox"` in the `preview` section.
+- **The scene is on the wrong screen, or cut.** Pick the marquee screen in the Screens tab of the window, run `screen_setup.bat` again, or set `x`, `y`, `width` and `height` in the `preview` section from Settings, Display. See [[HD Marquee]].
+- **No logo.** Set the LaunchBox or RetroBat folder in the Frontend tab of the window, or `"launchbox": "E:\\LaunchBox"` in the `preview` section.
 
 ## Pixelcade
 
@@ -38,7 +44,7 @@ Everything ArcadeDMD does is written to `runtime\arcadedmd.log`. Look there firs
 - **Black panel after sleep or after unplugging.** Restart ArcadeDMD, libzedmd does not reconnect on its own.
 - **Swapped colours, ghost lines.** Set the RGB order and the "panel driver" in the ZeDMD menu (or with ZeDMD_Updater2).
 - **Choppy animation.** Raise "USB packet size" and "min refresh" in the ZeDMD menu.
-- **`test_panel.bat` says the engine is already running.** The automatic start holds the panel. End `pythonw.exe` in Task Manager, or test directly with a game.
+- **`test_panel.bat` says the engine is already running.** The automatic start holds the panel. Quit ArcadeDMD from its icon's menu, or test directly with a game.
 
 ## The engine
 

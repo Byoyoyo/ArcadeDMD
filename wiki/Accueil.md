@@ -1,14 +1,16 @@
 ArcadeDMD montre en direct ce qui se passe dans ton jeu d'arcade sur le marquee de la borne. Le score, les vies, les crédits, les barres de vie, les rounds, les boss, les coups spéciaux, chaque jeu avec sa propre scène animée. Il tourne en HD lisse sur un écran LCD de marquee (1920 x 460 sur une Vewlix, par exemple) ou sur une dalle LED 128 x 32 (Pixelcade LED, ZeDMD).
 
-Il lit la mémoire du jeu pendant que tu joues, avec un petit plugin MAME ou par les commandes réseau de RetroArch (FinalBurn Neo, Genesis Plus GX). Rien n'est modifié dans le jeu ni dans l'émulateur. Il marche à côté de LaunchBox et BigBox, HyperSpin ou n'importe quel autre frontend, et montre ton Clear Logo LaunchBox quand un jeu démarre.
+Il lit la mémoire du jeu pendant que tu joues, avec un petit plugin MAME ou par les commandes réseau de RetroArch (FinalBurn Neo, Genesis Plus GX). Rien n'est modifié dans le jeu ni dans l'émulateur. Il marche à côté de LaunchBox et BigBox, HyperSpin ou n'importe quel autre frontend, et montre ton Clear Logo LaunchBox, ou le logo téléchargé par le scraper de RetroBat, quand un jeu démarre. Il tourne près de l'horloge, avec une fenêtre pour le suivre et le régler (écrans, émulateurs, frontal).
 
-ArcadeDMD 1.33.1, en BETA. Libre et gratuit, licence MIT. Windows, Python 3.12 ou plus récent.
+ArcadeDMD 1.37.0, en BETA. Libre et gratuit, licence MIT. Windows, Python 3.12 ou plus récent.
 
 In English, [[Home]].
 
 ![The King of Fighters '98 sur un marquee HD, l'ILLUSION DANCE de King](images/kof98_desperation_move.gif)
 
 ![Les mêmes jeux sur une dalle LED 128 x 32](images/led_reel.gif)
+
+![La fenêtre d'ArcadeDMD, l'onglet État avec le marquee et la dalle LED en direct](images/window_status_fr.jpg)
 
 ## Les jeux les plus soignés
 
@@ -26,7 +28,7 @@ Les autres jeux lisent les adresses des bases de codes de triche et de RetroAchi
 ## Pour commencer
 
 - [[Installer ArcadeDMD]], le téléchargement, l'installation, un premier essai sans jeu
-- [[Utilisation]], ArcadeDMD avec ton frontend, les démos et les outils de test
+- [[Utilisation]], ArcadeDMD avec ton frontend, sa fenêtre et son icône près de l'horloge, les démos et les outils de test
 - [[Réglages]], tous les réglages de `config.json`
 
 ## Affichages

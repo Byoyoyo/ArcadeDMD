@@ -4,7 +4,7 @@ Un écran LCD dans le marquee montre les scènes en HD lisse, avec des décors a
 
 ## Le mettre en place
 
-1. Lance `screen_setup.bat` (l'installeur le propose aussi). Il liste les écrans, devine lequel est le marquee (le plus allongé) et écrit la section `preview` de `config.json`.
+1. Lance `screen_setup.bat` (l'installeur le propose aussi). Il liste les écrans, devine lequel est le marquee (le plus allongé) et écrit la section `preview` de `config.json`. L'onglet Écrans de la fenêtre d'ArcadeDMD le fait aussi, d'un clic sur l'écran (voir [[Utilisation]]).
 2. À la question de l'affichage, choisis la HD lisse, ou les LED virtuelles.
 3. Lance `demo_fight.bat` pour voir le résultat, puis un jeu depuis ton frontend.
 
@@ -43,6 +43,8 @@ Avec `"mode": "games"`, la fenêtre se cache en dehors des jeux et l'écran appa
 ## Le logo du jeu
 
 Le logo est ton Clear Logo LaunchBox. ArcadeDMD trouve tout seul le dossier de LaunchBox quand BigBox tourne, ou aux endroits habituels (`C:\LaunchBox`, `E:\LaunchBox`...). Sinon mets `"launchbox": "E:\\LaunchBox"` dans la section `preview`. Le jeu en cours est relié à son logo par le chemin de la ROM dans LaunchBox, et par le jeu parent pour un clone. Sans logo, le titre du jeu s'affiche en lettres métalliques.
+
+Sans LaunchBox, le logo vient de RetroBat (depuis la 1.37). Son scraper range le logo de chaque jeu au nom de la rom, `roms\mame\images\kof98-marquee.png`, sinon `-wheel.png`, et ArcadeDMD le lit dans `gamelist.xml` et dans les dossiers `images`, les systèmes arcade d'abord. Le dossier de RetroBat est trouvé tout seul quand RetroBat tourne ou à sa place habituelle (`C:\RetroBat`...), sinon indique-le dans l'onglet Frontal de la fenêtre.
 
 ## Logo du jeu au lancement
 
