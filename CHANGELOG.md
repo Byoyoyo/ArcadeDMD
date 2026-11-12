@@ -6,6 +6,14 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 To update, extract the new version over the old one. Your `config.json`, the addresses learned and your own pictures are kept.
 Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `config.json`, les adresses apprises et tes propres images sont gardés.
 
+## 1.36.1
+
+### English
+- Marvel vs. Capcom shows on the HD screen a stage closer to the game's for five of its stages. The street of Metro City shows a city, Kazakhstan a palace with domes, the mountains above the clouds a desert, the Japanese bathhouse a Japanese market, the ruined city at night ruins.
+
+### Français
+- Marvel vs. Capcom affiche sur l'écran HD un décor plus proche du jeu pour cinq de ses décors. La rue de Metro City affiche une ville, le Kazakhstan un palais à dômes, les montagnes au-dessus des nuages un désert, les bains japonais un marché japonais, la ville en ruines la nuit des ruines.
+
 ## 1.36.0
 
 ### English
