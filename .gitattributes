@@ -11,5 +11,6 @@ libzedmd/README.txt text eol=crlf
 *.png binary
 *.gif binary
 *.jpg binary
+*.ico binary
 *.otf binary
 *.ttf binary

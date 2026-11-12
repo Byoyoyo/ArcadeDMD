@@ -188,6 +188,8 @@ def ask_colors_ok():
 
 
 def main(argv):
+    window = "--window" in argv               # run.bat: the window opens at once (1.37) / la fenêtre s'ouvre tout de suite
+    argv = [a for a in argv if a != "--window"]
     cmd = argv[1] if len(argv) > 1 else "run"
     os.makedirs(os.path.join(ROOT, "runtime"), exist_ok=True)
     log = app.Logger(os.path.join(ROOT, "runtime", "arcadedmd.log"))
@@ -280,8 +282,15 @@ def main(argv):
     else:
         lock = app.single_instance()
         if lock is None:
-            log(tr("ArcadeDMD tourne déjà.", "ArcadeDMD is already running."))
+            from dmd import gui
+            url = gui.running_url(ROOT)
+            if url and gui.open_window(url):  # the one running shows its window (1.37) / celui qui tourne se montre
+                log(tr("ArcadeDMD tourne déjà, sa fenêtre s'ouvre.", "ArcadeDMD is already running, its window opens."))
+            else:
+                log(tr("ArcadeDMD tourne déjà.", "ArcadeDMD is already running."))
             return 0
+        if sys.stdout is None:                # pythonw, the icon near the clock in place of a console / sans console
+            log.echo = False
         log.background()                      # a console that waits never stops the cabinet (1.36) / jamais bloqué
     log(tr(f"ArcadeDMD {app.VERSION} - dossier {ROOT}", f"ArcadeDMD {app.VERSION} - folder {ROOT}"))
     if not demo:
@@ -293,16 +302,94 @@ def main(argv):
         pv.update({"enabled": True, "x": 80, "y": 80, "width": 1024, "height": 256, "borderless": False, "topmost": False,
                    "mode": "always"})
         cfg["outputs"]["preview"] = pv
-    while True:
-        outs = app.build_outputs(ROOT, cfg, log, zedmd=use_zedmd)
-        if not demo and not any(o.__class__.__name__ in ("ZeDMDOutput", "PreviewOutput", "PixelcadeOutput") for o in outs):
-            log(tr("Aucune sortie active. Active la Pixelcade, la dalle ZeDMD ou la fenêtre LED virtuelles dans config.json",
-                   "No active output. Enable the Pixelcade, the ZeDMD panel or the virtual LED window in config.json"))
-        eng = app.Engine(ROOT, cfg, outs, log, demo_game=demo)
-        if eng.run() != "restart":
-            return 0
-        cfg = app.load_config(ROOT, log)      # réglages modifiés pendant que le moteur tournait
-        set_language(cfg.get("language"))
+    panel, tray = (None, None) if demo else start_window(cfg, log, window)
+    try:
+        while True:
+            outs = app.build_outputs(ROOT, cfg, log, zedmd=use_zedmd)
+            if not demo and not any(o.__class__.__name__ in ("ZeDMDOutput", "PreviewOutput", "PixelcadeOutput") for o in outs):
+                log(tr("Aucune sortie active. Active la Pixelcade, la dalle ZeDMD ou la fenêtre LED virtuelles dans config.json",
+                       "No active output. Enable the Pixelcade, the ZeDMD panel or the virtual LED window in config.json"))
+            eng = app.Engine(ROOT, cfg, outs, log, demo_game=demo)
+            if panel is not None:
+                panel.engine, eng.gui = eng, panel
+                if panel.quitting:
+                    eng.quit = True
+            if eng.run() != "restart" or eng.quit:
+                return 0
+            cfg = app.load_config(ROOT, log)      # réglages modifiés pendant que le moteur tournait
+            set_language(cfg.get("language"))
+    finally:
+        if tray is not None:
+            tray.close()
+        if panel is not None:
+            panel.close()
+
+
+def start_window(cfg, log, open_now=False):
+    """The window (a page served on 127.0.0.1) and the icon near the clock (1.37). Nothing stops the engine if they
+    fail. / La fenêtre et l'icône près de l'horloge. Rien n'arrête le moteur si elles échouent."""
+    wcfg = cfg.get("window") if isinstance(cfg.get("window"), dict) else {}
+    if not wcfg.get("enabled", True):
+        return None, None
+    from dmd import gui, tray as traymod
+    try:
+        panel = gui.ControlPanel(ROOT, log, app.VERSION)
+    except Exception as e:
+        log(tr(f"fenêtre d'ArcadeDMD indisponible ({e})", f"ArcadeDMD's window unavailable ({e})"))
+        return None, None
+    panel.quitting = False
+    dog = app.Watchdog.get(ROOT, log)
+    panel.watchdog = dog
+    dog.hooks.append(panel.on_stall)
+
+    def quit_all():
+        panel.quitting = True
+        if panel.engine is not None:
+            panel.engine.quit = True
+
+    def restart():
+        if panel.engine is not None:
+            panel.engine.restart = True
+
+    def autostart():
+        gui.set_autostart(ROOT, not gui.autostart_on())
+
+    def menu():
+        eng = panel.engine
+        now = (tr(f"{eng.game_title} en cours", f"{eng.game_title} running") if eng is not None and eng.mode == "game"
+               and getattr(eng, "game_title", "") else tr("En attente d'un jeu", "Waiting for a game"))
+        return [(f"ArcadeDMD {app.VERSION} · {now}", None), None,
+                (tr("Ouvrir ArcadeDMD", "Open ArcadeDMD"), panel.open),
+                (tr("Afficher le journal", "Show the log"), lambda: panel.open("journal")),
+                (tr("Relancer", "Restart"), restart), None,
+                (tr("Lancer avec Windows", "Start with Windows"), autostart, gui.autostart_on()),
+                (tr("Quitter", "Quit"), quit_all)]
+
+    panel.actions = {"quit": quit_all, "restart": restart}
+    tray = None
+    if traymod.available():
+        ico = os.path.join(ROOT, "dmd", "gui", "arcadedmd.ico")
+        try:
+            if not os.path.isfile(ico):
+                ico = traymod.make_icon(os.path.join(ROOT, "runtime", "arcadedmd.ico"))
+        except Exception:
+            ico = None
+        try:
+            tray = traymod.TrayIcon(f"ArcadeDMD {app.VERSION}", ico, panel.open, menu, log)
+            if tray.failed is not None or not tray.hwnd:
+                log(tr(f"icône près de l'horloge indisponible ({tray.failed}), la fenêtre s'ouvre à la place",
+                       f"icon near the clock unavailable ({tray.failed}), the window opens instead"))
+                tray = None
+        except Exception as e:
+            log(tr(f"icône près de l'horloge indisponible ({e}), la fenêtre s'ouvre à la place",
+                   f"icon near the clock unavailable ({e}), the window opens instead"))
+            tray = None
+    if tray is not None:
+        panel.notify = tray.notify
+        panel.on_tip = tray.set_tip
+    if open_now or (tray is None and sys.platform == "win32"):
+        panel.open()
+    return panel, tray
 
 
 if __name__ == "__main__":

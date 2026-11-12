@@ -3,6 +3,7 @@ picks the scene and sends each frame to the outputs. Also loads config.json.
 
 Moteur ArcadeDMD : lit les événements du plugin MAME, choisit la scène, envoie les images."""
 
+import collections
 import errno
 import json
 import os
@@ -67,6 +68,8 @@ class Logger:
         self.path = path
         self.echo = echo
         self.lines = None           # the console written by a thread of its own (background) / la console à part
+        self.recent = collections.deque(maxlen=2000)   # the last lines, for the window (1.37) / pour la fenêtre
+        self.count = 0
 
     def background(self):
         """The console written by a thread of its own (1.36): a Windows console that waits (a click in it starts a
@@ -88,6 +91,8 @@ class Logger:
 
     def __call__(self, msg):
         line = time.strftime("%H:%M:%S ") + str(msg)
+        self.count += 1
+        self.recent.append((self.count, line))
         if self.path:
             try:
                 with open(self.path, "a", encoding="utf-8") as f:
@@ -125,7 +130,15 @@ class Watchdog:
     def __init__(self, root, log):
         self.root, self.log = root, log
         self.beats, self.stuck = {}, {}
+        self.hooks = []               # told (name, stuck) when a thread stops or goes on (1.37) / prévenus
         threading.Thread(target=self._run, daemon=True).start()
+
+    def _tell(self, name, stuck):
+        for h in list(self.hooks):
+            try:
+                h(name, stuck)
+            except Exception:
+                pass
 
     def beat(self, name):
         self.beats[name] = time.monotonic()
@@ -145,9 +158,11 @@ class Watchdog:
                     where = self._dump()
                     self.log(tr(f"blocage : {name} arrêté depuis {late:.0f} s" + (f", détail dans {where}" if where else ""),
                                 f"stall: {name} stopped for {late:.0f} s" + (f", details in {where}" if where else "")))
+                    self._tell(name, True)
                 elif late <= self.LIMIT and name in self.stuck:
                     gone = t - self.stuck.pop(name)
                     self.log(tr(f"blocage : {name} repart après {gone:.0f} s", f"stall: {name} goes on after {gone:.0f} s"))
+                    self._tell(name, False)
 
     def _dump(self):
         """Where each thread was, in runtime/blocage-<time>.txt. / Où en était chaque fil."""
@@ -637,6 +652,10 @@ class Engine:
         self.cfg_mtime = _mtime(self.cfg_path)
         self.next_cfg_check = 0.0
         self.restart = False
+        self.quit = False             # asked from the window or the icon (1.37) / demandé par la fenêtre ou l'icône
+        self.gui = None               # the window's server, given a look at each image / le serveur de la fenêtre
+        self.started_at = time.time()
+        self.game_title, self.game_key = "", ""
         for out in outputs:            # l'affichage HD du LCD lit directement l'état du jeu
             attach = getattr(out, "attach", None)
             if attach is not None:
@@ -766,6 +785,7 @@ class Engine:
                  or g.get("title") or clean_title(meta.get("description")) or meta.get("system", ""))
         meta = dict(meta)
         meta["title"] = title
+        self.game_title, self.game_key = title, key or ""     # for the window (1.37) / pour la fenêtre
         meta["game"] = key
         if not meta.get("parent") and not g.get("fallback"):       # RetroArch ne donne pas le parent d'un clone
             m = g.get("match")
@@ -1384,9 +1404,14 @@ class Engine:
                         out.send(frame, now)
                     else:
                         out.send(frame)
+                if self.gui is not None:
+                    try:
+                        self.gui.tick(self, frame)
+                    except Exception:
+                        pass
                 if any(getattr(o, "closed", False) for o in self.outputs):
                     break
-                if self.restart:
+                if self.restart or self.quit:
                     break
                 if seconds is not None and now >= seconds:
                     break

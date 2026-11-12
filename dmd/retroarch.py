@@ -675,6 +675,7 @@ class RetroArchSource:
         self.version = ""
         self.check_now = False        # lecture ratée : RetroArch vient peut-être de se fermer
         self.beat = None              # told at each turn, for the watchdog (1.36) / à chaque tour, pour le chien de garde
+        self.last_answer = None       # when RetroArch last answered, for the window (1.37) / sa dernière réponse
         self.thread = threading.Thread(target=self._run, daemon=True)
         self.thread.start()
 
@@ -712,6 +713,7 @@ class RetroArchSource:
                             continue
                     else:
                         misses = 0
+                        self.last_answer = time.time()
                         if not self.seen:
                             self.seen = True
                             v = self.client.version()

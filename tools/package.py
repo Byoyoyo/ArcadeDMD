@@ -24,7 +24,7 @@ EXCLUDE_EXT = (".pyc", ".pyo", ".log", ".tmp")
 REQUIRED = ["arcadedmd.py", "install.bat", "run.bat", "learn.bat", "config.default.json", "README.md", "README.fr.md",
             "CHANGELOG.md", "LICENSE", "dmd/app.py", "dmd/lang.bat", "dmd/find_python.bat", "dmd/hd.py",
             "mame-plugin/arcadedmd/init.lua", "mame-plugin/arcadedmd/plugin.json", "games/_generic.json",
-            "fonts/OFL.txt"]
+            "fonts/OFL.txt", "dmd/gui.py", "dmd/tray.py", "dmd/gui/index.html", "dmd/gui/app.js", "dmd/gui/app.css"]
 
 
 def read(path):
