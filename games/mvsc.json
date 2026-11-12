@@ -371,9 +371,10 @@
     }
   },
   "hd": {
-    "stages": ["fight_city", "fight_lab", "fight_harbor", "fight_market", "fight_jungle", "fight_desert", "fight_snow", "space", "fight_castle", "fight_ruins"],
+    "stages": ["fight_market", "fight_lab", "fight_palace", "fight_market", "fight_jungle", "fight_desert", "fight_ruins", "fight_city", "fight_desert", "fight_ruins"],
     "places": ["", "", "", "", "", "", "", "", "", ""],
-    "note": "HD theme and place shown for each backdrop value (index = value), made by tools/cps_games.py from the stages of the cheat database, see the wiki, HD Marquee page"
+    "note": "HD theme and place shown for each backdrop value (index = value), made by tools/cps_games.py from the stages of the cheat database, see the wiki, HD Marquee page. Five set by hand after a recorded game of 11 November, each next to the game's own: 0 the Japanese bathhouse (fight_market), 2 Kazakhstan and its golden domes (fight_palace), 6 a ruined city at night (fight_ruins), 7 the street of Metro City and its big letters (fight_city), 8 mountains above the clouds (fight_desert)",
+    "hand": true
   },
   "tag": {
     "health": {
