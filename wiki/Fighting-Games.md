@@ -5,7 +5,8 @@ Each of the 57 Neo Geo fighting games has its own file in `games\`, official var
 ## What the HD screen shows
 
 - At the top, each player's score, or CHALLENGER and BEAT BY in a VS match. In the middle, the health bars with a light trail for the hit just taken, and the timer or KO. At the bottom, P1, P2 or CPU with the current fighter, the full team in The King of Fighters '96 to 2000 (fighters already beaten struck out), and the credits.
-- Sparks on every hit, the combo counter, FIRST ATTACK, a red heartbeat when the health is low.
+- Sparks on every hit, the combo counter, FIRST ATTACK, a red heartbeat when the health is low. A big blow sends a shock wave from the bar, the damage shows on it, and a blow the game empties over several frames counts as one.
+- The rounds won as gold stars under the health bars, read in the game or counted from the K.O. in every game of single fighters. A match won says how many rounds to how many.
 - K.O. in big red letters on the loser's side and WIN in gold on the winner's, DOUBLE K.O., TIME UP, PERFECT, confetti for the winner.
 - ROUND 2, ROUND 3... when the game starts the round, and FIGHT ! when the game says GO.
 - The next King of Fighters fighter entering once the K.O. is over, and when a team loses its third fighter, P1 WINS and the team eliminated.
@@ -26,6 +27,15 @@ Under the name of each human player, a panel.
 - When a button ends an attempt that missed a step, the steps missed are crossed in red with RATÉ, and DM ! or SDM ! shows once the game took its stock.
 - Otherwise the panel shows the inputs pressed, as training mode does.
 - '97 has its own commands, its gauge, its three stock squares and the game's own flag of a desperation move, and 2002 its own commands, MAX by B+C and its timer, a desperation move free in MAX and an SDM taking a stock, the fighting order of each team read.
+
+## The moves panel of the other fighting games
+
+Under the name of each human player, a panel like the one of The King of Fighters '98 (1.38).
+
+- The special moves of the fighter come one after another, their name, their arrows facing the other fighter and their buttons. A dot per move says which one shows. A charge is a blue arrow, a move done close or in the air says so.
+- When the game's gauge is read and allows a super, the panel turns gold and shows only the supers. Samurai Shodown II shows its POW gauge, then POW MAX with its timer and the fighter's weapon-breaking technique. The Capcom games show their super gauge and its level.
+- A game whose gauge is not read shows its supers in gold among the special moves.
+- The moves of 70 games come from the command list of MAME (`command.dat`, by Fabricio Coroquer and AntoPISA), written in the `specials` block of each game file by `tools/command_dat.py`.
 
 ## The desperation move show
 

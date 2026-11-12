@@ -5,7 +5,8 @@ Chacun des 57 jeux de combat Neo Geo a son propre fichier dans `games\`, variant
 ## Ce que montre l'écran HD
 
 - En haut, le score de chaque joueur, ou CHALLENGER et BEAT BY en match VS. Au milieu, les barres de vie avec une traînée claire pour le coup qui vient d'être pris, et le chrono ou KO. En bas, P1, P2 ou CPU avec le combattant en cours, toute l'équipe dans The King of Fighters '96 à 2000 (les combattants déjà battus barrés), et les crédits.
-- Des étincelles à chaque coup, le compteur de combo, FIRST ATTACK, un battement de cœur rouge quand la vie est basse.
+- Des étincelles à chaque coup, le compteur de combo, FIRST ATTACK, un battement de cœur rouge quand la vie est basse. Un gros coup lance une onde de choc depuis la barre, les dégâts s'y affichent, et un coup que le jeu vide en plusieurs images compte pour un.
+- Les rounds gagnés en étoiles dorées sous les barres de vie, lus dans le jeu ou comptés d'après les K.O. dans tous les jeux à un combattant. Un match gagné dit combien de rounds à combien.
 - K.O. en grosses lettres rouges du côté du perdant et WIN en or du côté du gagnant, DOUBLE K.O., TIME UP, PERFECT, des confettis pour le gagnant.
 - ROUND 2, ROUND 3... quand le jeu lance le round, et FIGHT ! quand le jeu dit GO.
 - Le combattant suivant de King of Fighters qui entre une fois le K.O. passé, et quand une équipe perd son troisième combattant, P1 WINS et l'équipe éliminée.
@@ -26,6 +27,15 @@ Sous le nom de chaque joueur humain, un panneau.
 - Quand un bouton finit une tentative qui a raté une étape, les étapes ratées sont barrées en rouge avec RATÉ, et DM ! ou SDM ! s'affiche une fois que le jeu a pris son stock.
 - Sinon le panneau montre les touches appuyées, comme le mode entraînement.
 - '97 a ses propres commandes, sa jauge, ses trois carrés de stock et le drapeau du jeu pour un coup désespéré, et 2002 ses propres commandes, le MAX par B+C et son chrono, un coup désespéré gratuit en MAX et un SDM qui prend un stock, l'ordre de combat de chaque équipe lu.
+
+## Le panneau des coups des autres jeux de combat
+
+Sous le nom de chaque joueur humain, un panneau comme celui de The King of Fighters '98 (1.38).
+
+- Les coups spéciaux du combattant défilent l'un après l'autre, leur nom, leurs flèches tournées vers l'autre combattant et leurs boutons. Un point par coup dit lequel s'affiche. Une charge est une flèche bleue, un coup à faire près ou en l'air le dit.
+- Quand la jauge du jeu est lue et permet un super, le panneau passe en or et ne montre que les supers. Samurai Shodown II montre sa jauge POW, puis POW MAX avec son chrono et la technique de bris d'arme du combattant. Les jeux Capcom montrent leur jauge de super et son niveau.
+- Un jeu dont la jauge n'est pas lue montre ses supers en or parmi les coups spéciaux.
+- Les coups de 70 jeux viennent de la liste des commandes de MAME (`command.dat`, de Fabricio Coroquer et AntoPISA), écrits dans le bloc `specials` de chaque fichier de jeu par `tools/command_dat.py`.
 
 ## Le spectacle du coup désespéré
 

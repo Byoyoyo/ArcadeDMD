@@ -222,5 +222,89 @@
     "stages": ["cs_forest", "fight_temple", "fight_snow", "fight_city", "fight_desert", "fight_snow", "fight_lab", "fight_castle", "fight_factory", "fight_lab", "fight_ruins", "space"],
     "places": ["", "", "", "", "", "", "", "", "", "", "", ""],
     "note": "HD theme and place shown for each backdrop value (index = value), made by tools/cps_games.py from the stages of the cheat database, see the wiki, HD Marquee page"
+  },
+  "specials": {
+    "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+    "kinds": ["Hyper-X", "Special Moves"],
+    "super_needs": ["Needs 3LVs of Super Bar"],
+    "GOUKI": [
+      {"name": "GOU HADOU KEN", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "ZANKUU HADOU KEN", "cmd": "236", "btn": "P", "kind": "special", "when": "air"},
+      {"name": "GOU SHOURYUU KEN", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "TATSUMAKI ZANKUU KYAKU", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "TENMA KUUJIN KYAKU", "cmd": "236", "btn": "K", "kind": "special", "when": "air"},
+      {"name": "MESSATSU GOU SHOURYUU", "cmd": "23623", "btn": "P", "kind": "super"},
+      {"name": "MESSATSU GOU HADOU", "cmd": "236236", "btn": "P", "kind": "super"}
+    ],
+    "JUGGERNAUT": [
+      {"name": "DOUBLE FIST", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "EARTHQUAKE PUNCH", "cmd": "632", "btn": "P", "kind": "special"},
+      {"name": "JUGGERNAUT HEADCRUSH", "cmd": "41236", "btn": "P", "kind": "super"}
+    ],
+    "MAGNETO": [
+      {"name": "HYPER GRAVITY", "cmd": "214", "btn": "LK", "kind": "special"},
+      {"name": "E-M SHOCK", "cmd": "236", "btn": "MP", "kind": "special"},
+      {"name": "MAGNETIC TEMPEST", "cmd": "236", "btn": "LP", "kind": "special"},
+      {"name": "MAGNETIC SHOCKWAVE", "cmd": "236", "btn": "LK", "kind": "super"}
+    ],
+    "COLOSSUS": [
+      {"name": "POWER TACKLE: FORWARD", "cmd": "236", "btn": "LK", "kind": "special"},
+      {"name": "POWER TACKLE: DIAGONAL", "cmd": "236", "btn": "MK/HK", "kind": "special"}
+    ],
+    "CYCLOPS": [
+      {"name": "OPTIC BLAST", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "GENE SPLICE", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "RUNNING NECK BREAKER DROP", "cmd": "66", "btn": "HP+HK", "kind": "special"},
+      {"name": "MEGA OPTIC BLAST", "cmd": "236", "btn": "PP", "kind": "super"},
+      {"name": "SUPER OPTIC BLAST", "cmd": "214", "btn": "P", "kind": "super"}
+    ],
+    "ICEMAN": [
+      {"name": "ICE BEAM", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "ICE AVALANCHE", "cmd": "", "btn": "LP+LK", "kind": "special"},
+      {"name": "ARTIC ATTACK", "cmd": "236", "btn": "PP", "kind": "super"}
+    ],
+    "OMEGA RED": [
+      {"name": "CARBONADIUM COIL", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "AIR CARBONADIUM COIL", "cmd": "236", "btn": "P/K", "kind": "special", "when": "air"},
+      {"name": "OMEGA STRIKE", "cmd": "236", "btn": "K", "kind": "special"},
+      {"name": "OMEGA DESTROYER", "cmd": "236", "btn": "PP", "kind": "super"}
+    ],
+    "PSYLOCKE": [
+      {"name": "PSI-BLADE", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "PSI-SPIN", "cmd": "236", "btn": "K", "kind": "special"},
+      {"name": "PSI-SPIN ARC", "cmd": "236", "btn": "LK+MK+HK", "kind": "special"},
+      {"name": "PSI-SPIN CURVE", "cmd": "236", "btn": "HK+MK+LK", "kind": "special"}
+    ],
+    "S.SAMURAI": [
+      {"name": "SHURIKEN", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "HYAKURETSU TOH", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "RAIMEI KEN", "cmd": "236", "btn": "PP", "kind": "super"},
+      {"name": "CHOU SHURIKEN", "cmd": "214", "btn": "PP", "kind": "super"}
+    ],
+    "SENTINEL": [
+      {"name": "ROCKET PUNCH: DOWNWARDS", "cmd": "236", "btn": "LP", "kind": "special"},
+      {"name": "ROCKET PUNCH: FORWARD", "cmd": "236", "btn": "MP", "kind": "special"},
+      {"name": "ROCKET PUNCH: UPWARDS", "cmd": "236", "btn": "HP", "kind": "special"},
+      {"name": "SENTINEL FORCE: CONTROL", "cmd": "236", "btn": "LK", "kind": "special"},
+      {"name": "SENTINEL FORCE: STRAIGHT", "cmd": "236", "btn": "MK", "kind": "special"},
+      {"name": "SENTINEL FORCE: CARPET BOMB", "cmd": "236", "btn": "HK", "kind": "special"},
+      {"name": "PLASMA STORM", "cmd": "236", "btn": "PP", "kind": "super"}
+    ],
+    "SPIRAL": [
+      {"name": "DANCING SWORD", "cmd": "63214", "btn": "PP", "kind": "special"},
+      {"name": "SIX-HAND GRAPPLE", "cmd": "28", "btn": "P", "kind": "special"},
+      {"name": "KYUUKOUKA DANCE", "cmd": "214", "btn": "HP", "kind": "special", "when": "air"},
+      {"name": "METAMORPHOSE", "cmd": "236", "btn": "PP", "kind": "super"}
+    ],
+    "STORM": [
+      {"name": "WHIRLWIND", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "LIGHTNING ATTACK", "cmd": "", "btn": "LP+LK", "kind": "special"},
+      {"name": "LIGHTNING STORM", "cmd": "236", "btn": "PP", "kind": "super"}
+    ],
+    "WOLVERINE": [
+      {"name": "TORNADO CLAW", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "DRILL CLAW", "cmd": "", "btn": "LP+LK", "kind": "special"},
+      {"name": "BERSERKER BARRAGE", "cmd": "236", "btn": "PP", "kind": "super"}
+    ]
   }
 }

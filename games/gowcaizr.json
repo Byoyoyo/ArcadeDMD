@@ -151,5 +151,109 @@
   "p2_mode": 0,
   "_p1_chr": 0,
   "_p2_chr": 1
+ },
+ "specials": {
+  "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+  "kinds": ["Copyable Moves / Hyper Copyable Moves", "Desperation Moves", "Special Moves"],
+  "super_needs": ["Copyable Moves can only be done after defeating this character", "Hyper Copyable Moves can only be done after defeating himself in a mirror match", "Needs a FLASHING Life Bar"],
+  "BRIDER": [
+   {"name": "BRIDER HURRICANE", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "BRIDER MANJI KICK", "cmd": "2369", "btn": "B/D", "kind": "special"},
+   {"name": "TENKOU BRIDER PUNCH", "cmd": "2147", "btn": "A/C", "kind": "special"},
+   {"name": "BRIDER GETSUMEN KICK", "cmd": "2147", "btn": "B/D", "kind": "special", "when": "air"},
+   {"name": "BRIDER KIRIMOMI SHOOT", "cmd": "632146", "btn": "C", "kind": "special", "when": "close"},
+   {"name": "DOUBLE BRIDER KICK", "cmd": "236236", "btn": "B+D", "kind": "special"},
+   {"name": "BRIDER BREAK", "cmd": "23632147", "btn": "B+C", "kind": "super"},
+   {"name": "DOUBLE BRIDER KICK / DOUBLE BRIDER MANJI KICK", "cmd": "236236", "btn": "C+D", "kind": "super"}
+  ],
+  "CAPTAIN": [
+   {"name": "CAPTAIN SHOOTER", "cmd": "46", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "CAPTAIN CYCLONE", "cmd": "46", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "CAPTAIN SPLASH", "cmd": "28", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "CAPTIAN SMASHER", "cmd": "28", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "HYPER CAPTIAN SPLASH", "cmd": "2146", "btn": "B+C", "kind": "super", "hold": [0]},
+   {"name": "CAPTIAN SMASHER / CAPTIAN NITRO SMASHER", "cmd": "28", "btn": "C+D", "kind": "super", "hold": [0]}
+  ],
+  "FUDOMARU": [
+   {"name": "KASUMIGIRI", "cmd": "46", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "FUDOJIN TEN", "cmd": "623", "btn": "A", "kind": "special"},
+   {"name": "FUDOJIN CHI", "cmd": "623", "btn": "B", "kind": "special"},
+   {"name": "FUDOJIN MEI", "cmd": "623", "btn": "C", "kind": "special"},
+   {"name": "RAITEN TSUTSU", "cmd": "236", "btn": "C", "kind": "special"},
+   {"name": "FUDOMARU NO TOKUSHUUNAGE", "cmd": "632146", "btn": "C", "kind": "special", "when": "close"},
+   {"name": "HONOO MAI TSUTSU", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "FUDOU RETSU KARANAN", "cmd": "1632146", "btn": "A+C", "kind": "super"},
+   {"name": "HONOO MAI TSUTSU / BAKU HONOO TSUTSU", "cmd": "236", "btn": "C+D", "kind": "super"}
+  ],
+  "GOWCAIZER": [
+   {"name": "CAIZER STRIKE", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "BURNING SLASH", "cmd": "236", "btn": "B/D", "kind": "special"},
+   {"name": "HIGH SLASH", "cmd": "236", "btn": "B/D", "kind": "special", "when": "air"},
+   {"name": "RUNNING BLAZE", "cmd": "214214", "btn": "A/C", "kind": "special"},
+   {"name": "TRICKSTER KICK", "cmd": "19", "btn": "B/D", "kind": "special"},
+   {"name": "CAIZER RAGE", "cmd": "21416", "btn": "B+C", "kind": "super"},
+   {"name": "FLAMING DRAGON", "cmd": "2364", "btn": "A+C", "kind": "super"},
+   {"name": "TRICKSTER KICK / HYPER TRICKSTER KICK", "cmd": "19", "btn": "C+D", "kind": "super"}
+  ],
+  "KARIN": [
+   {"name": "NYOI BOUGEKI", "cmd": "46", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "KINTO KUMO SOUHOU", "cmd": "41236", "btn": "A/C", "kind": "special"},
+   {"name": "HIENRESTU KYAKU", "cmd": "2147", "btn": "B/D", "kind": "special"},
+   {"name": "NASHIN KURURI KAMI", "cmd": "63214", "btn": "C", "kind": "special"},
+   {"name": "KAEN RENPOU", "cmd": "163214", "btn": "A+C", "kind": "super"},
+   {"name": "NASHIN KURURI KAMI / NASHIN SOUHOU", "cmd": "63214", "btn": "C+D", "kind": "super"}
+  ],
+  "KYOSUKE": [
+   {"name": "KYOUHIBI RA HOUKAN", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "SUTORA RA SHOUKAN", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "ISAO ORI RA SHOUKAN", "cmd": "214", "btn": "C", "kind": "special"},
+   {"name": "KAGE HASHIRU", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "KAI RA SHOUKAN", "cmd": "632143", "btn": "A+C", "kind": "super"},
+   {"name": "KAGE HASHIRU / HOKAGE KUZUSHI", "cmd": "236", "btn": "C+D", "kind": "super"}
+  ],
+  "MARION": [
+   {"name": "GROUND WASHER", "cmd": "41236", "btn": "A/C", "kind": "special"},
+   {"name": "GLIDING BLOW", "cmd": "41236", "btn": "B/D", "kind": "special"},
+   {"name": "AMBUSH LIFTER", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "HYPER GROUND WASHER", "cmd": "641236", "btn": "B+C", "kind": "super"},
+   {"name": "AMBUSH LIFTER / AMBUSH SKYNET", "cmd": "616", "btn": "C+D", "kind": "super"}
+  ],
+  "OHGA": [
+   {"name": "WAGA, SHUMOAMAMI SHOURAN SERI", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "UNU SAIJIN SANGE SEYO", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "KAMI, HONOO KATO MAU", "cmd": "41236", "btn": "C", "kind": "special"}
+  ],
+  "PLATONIC": [
+   {"name": "RABBIT KNUCKLE", "cmd": "", "btn": "A/C", "kind": "special", "rapid": true},
+   {"name": "PLASMA PUNCH", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "METAMOLE DRIVE", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "GRAVITON THUNDER", "cmd": "63214", "btn": "A/C", "kind": "special"},
+   {"name": "NICKEL TRAP", "cmd": "63214", "btn": "D", "kind": "special", "when": "close"},
+   {"name": "MEGA GRAVITON THUNDER", "cmd": "6321463214", "btn": "B+C", "kind": "super"}
+  ],
+  "SHAIA": [
+   {"name": "SMASH-BANG! BANG!", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "TICK-TACK-BOMB", "cmd": "46", "btn": "C", "kind": "special", "hold": [0]},
+   {"name": "BURNING BALLBOY", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "THREE WAY BEAMER", "cmd": "214", "btn": "C", "kind": "special"},
+   {"name": "SUPER SHAIA JIN", "cmd": "632146", "btn": "A+C", "kind": "super"},
+   {"name": "THREE WAY BEAMER / MADNESS BALLBOY", "cmd": "214", "btn": "C+D", "kind": "super"}
+  ],
+  "SHENLONG": [
+   {"name": "RETSU ASHI OBORU", "cmd": "623", "btn": "B/D", "kind": "special"},
+   {"name": "HANASHI KAGE TANAGOKORO", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "HYAKUBU KAMI GEKI", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "RYUU HONOO RETSU ASHI OBORU", "cmd": "236236", "btn": "B+D", "kind": "super"},
+   {"name": "TENCHI HOUKOU KEN", "cmd": "236236", "btn": "B+C", "kind": "super"},
+   {"name": "HYAKUBU KAMI GEKI / HYAKUBU HASAI GEKI", "cmd": "236", "btn": "C+D", "kind": "super"}
+  ],
+  "STINGER": [
+   {"name": "TREAD-A-GO! GO!", "cmd": "46", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "WRYNECK SWINGER", "cmd": "46", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "BEAT IT NEEDLE", "cmd": "41236987", "btn": "A/C", "kind": "special", "when": "air"},
+   {"name": "VOLTAGE CRACK", "cmd": "28", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "NIGHTMARE GIG", "cmd": "21416", "btn": "B+D", "kind": "super"},
+   {"name": "VOLTAGE CRACK / VOLTAGE EXPLOSION", "cmd": "28", "btn": "C+D", "kind": "super", "hold": [0]}
+  ]
  }
 }

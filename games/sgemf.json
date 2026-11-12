@@ -162,5 +162,91 @@
       ["CHÂTEAU DE DEMITRI", "DEMITRI'S CASTLE"]
     ],
     "note": "HD theme and place shown for each backdrop value (index = value), made by tools/cps_games.py from the stages of the cheat database, see the wiki, HD Marquee page"
+  },
+  "specials": {
+    "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+    "kinds": ["Special Moves", "Super Throw"],
+    "CHUN-LI": [
+      {"name": "HYAKURETSU KYAKU", "cmd": "", "btn": "K", "kind": "special", "rapid": true},
+      {"name": "KIKOU KEN", "cmd": "41236", "btn": "P", "kind": "special"},
+      {"name": "HISHOU KYAKU", "cmd": "623", "btn": "K", "kind": "special"},
+      {"name": "SPINNING BIRD KICK", "cmd": "41236", "btn": "K", "kind": "special"},
+      {"name": "SCHOOLGIRL'S LOVE LETTER", "cmd": "41236", "btn": "P+K", "kind": "super"}
+    ],
+    "DAN": [
+      {"name": "GADOU KEN", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "KOURYUU KEN", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "DANKUU KYAKU", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "KARAOKE SINGING", "cmd": "41236", "btn": "P+K", "kind": "super"}
+    ],
+    "FELICIA": [
+      {"name": "SAND SPLASH", "cmd": "236", "btn": "K", "kind": "special"},
+      {"name": "ROLLING BUCKLER", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "DELTA KICK", "cmd": "623", "btn": "K+K", "kind": "special"},
+      {"name": "HYSTERIC STAR", "cmd": "", "btn": "P", "kind": "special", "rapid": true},
+      {"name": "ROLLING SCRATCH", "cmd": "214", "btn": "P+P", "kind": "special"},
+      {"name": "GAMO SCREW", "cmd": "41236987", "btn": "P+K", "kind": "super"}
+    ],
+    "GOUKI": [
+      {"name": "GOU HADOU KEN", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "ZANKUU HADOU KEN", "cmd": "236", "btn": "P", "kind": "special", "when": "air"},
+      {"name": "GOU SHOURYUU KEN", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "TATSUMAKI ZANKUU KYAKU", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "SHAKUNETSU HADOU KEN", "cmd": "63214", "btn": "P", "kind": "special"},
+      {"name": "HYAKKI SHUU", "cmd": "2369", "btn": "P", "kind": "special"},
+      {"name": "ASHURA SENKUU: ZENPOU", "cmd": "623", "btn": "P+S", "kind": "special"},
+      {"name": "ASHURA SENKUU: KOUHOU", "cmd": "421", "btn": "P+S", "kind": "special"},
+      {"name": "DRAMATIC SPEECH", "cmd": "41236", "btn": "P+K", "kind": "super"}
+    ],
+    "IBUKI": [
+      {"name": "KUNAI", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "KAZEKIRI", "cmd": "623", "btn": "K", "kind": "special"},
+      {"name": "HIEN", "cmd": "421", "btn": "K", "kind": "special"},
+      {"name": "TSUMUJI", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "MAN WITH TOP SPIN", "cmd": "41236", "btn": "P+K", "kind": "super"}
+    ],
+    "KEN": [
+      {"name": "HADOU KEN", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "SHOURYUU KEN", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "TATSUMAKI SENPUU KYAKU", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "SOCCER BALL KICK", "cmd": "41236", "btn": "P+K", "kind": "super"}
+    ],
+    "LEI-LEI": [
+      {"name": "ANKI HOU", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "HENKYOU KI", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "CHIREITOU", "cmd": "41236", "btn": "K", "kind": "special"},
+      {"name": "HOUTEN GEKI", "cmd": "41236", "btn": "P+K", "kind": "super"}
+    ],
+    "MORRIGAN": [
+      {"name": "SOUL FIST", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "SHADOW BLADE", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "PARASITE ROLL", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "FIREWORK LAUNCH", "cmd": "63214", "btn": "P+K", "kind": "super"}
+    ],
+    "RYU": [
+      {"name": "HADOU KEN", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "SHOURYUU KEN", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "TATSUMAKI SENPUU KYAKU", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "REPEATED STOMACH PUNCHES", "cmd": "41236", "btn": "P+K", "kind": "super"}
+    ],
+    "SAKURA": [
+      {"name": "HADOU KEN", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "SHOU'OU SAN", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "SHUNKA SHUUTOU", "cmd": "41236", "btn": "K", "kind": "special"},
+      {"name": "BUNNYGIRL BUTT SMASH", "cmd": "41236", "btn": "P+K", "kind": "super"}
+    ],
+    "TABASA": [
+      {"name": "WINDER FIST", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "REVERIE SWORD", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "DRAGON'S ROAR", "cmd": "236", "btn": "K", "kind": "special"},
+      {"name": "CLOWN WITH GIANT ROCKET LAUNCH", "cmd": "63214", "btn": "P+K", "kind": "super"}
+    ],
+    "ZANGIEF": [
+      {"name": "SPINNING PILEDRIVER", "cmd": "41236987", "btn": "P+K", "kind": "special", "when": "close"},
+      {"name": "DOUBLE LARIAT", "cmd": "", "btn": "P+S", "kind": "special"},
+      {"name": "BANISHING FLAT", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "IRON PRESS", "cmd": "22", "btn": "P", "kind": "special", "when": "air"},
+      {"name": "TWO-HAND TOSS", "cmd": "63214", "btn": "P+K", "kind": "super"}
+    ]
   }
 }

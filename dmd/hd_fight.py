@@ -28,6 +28,7 @@ from .hd_bg import Backdrop
 from .hd_fx import FX, Particle
 from .hd_dm import DMShow
 from .hd_moves import Moves
+from .hd_specials import Specials
 from .hd_themes15 import CPS_STAGES
 from . import hd_themes18
 from .i18n import tr
@@ -69,6 +70,14 @@ SELECT_HOLD = 0.4
 TIMEUP_HOLD = 4.0         # no select screen this long after TIME UP: KOF 2002 keeps no fight (0) for 3 s there (1.33 test 50)
 JUDGE_WAIT = 0.9          # the winner on time judged this long after TIME UP, the last blow landed (1.33) / jugé après
 ROUNDS_TO_WIN = 2         # rounds won that end a match, in a game that counts no round of its own (1.33) / rounds gagnés
+# 1.38: the health a blow takes, read in several steps (a game that empties its bar over half a second, a read between two
+# frames) is one blow for the effects: the shock wave, the flash and the damage once the steps add up to them
+# le coup lu en plusieurs fois (un jeu qui vide sa barre en une demi-seconde, une lecture entre deux images) est un seul coup
+# pour les effets : l'onde de choc, l'éclair et les dégâts quand les étapes les atteignent ensemble
+BLOW_GAP = 0.35           # steps closer than this are one blow / des étapes plus proches sont un seul coup
+BLOW_RING = 15            # % of health: the shock wave / l'onde de choc
+BLOW_SUPER = 25           # %: the screen darkens, rays of light / l'écran s'assombrit, rayons de lumière
+BLOW_SHOW = 8             # %: the damage shown by the bar / les dégâts montrés près de la barre
 CONFETTI = ((255, 80, 80), (255, 210, 60), (80, 220, 255), (120, 255, 140), (255, 120, 220), (255, 255, 255))
 
 # place shown under STAGE n, for each theme ("fight_city" uses "city") / nom du lieu sous STAGE n
@@ -140,6 +149,7 @@ class FightFX:
         self._rays()                                                  # préparés d'avance : pas d'à-coup au premier super
         self.moves = Moves(hd)                                        # the desperation moves (1.32) / les coups désespérés
         self.dm = DMShow(self)                                        # their show (1.33 test 51) / leur spectacle
+        self.specials = Specials()                                    # the panel of the other games (1.38) / des autres jeux
         self.hyper_lv = {}                                            # the gauge level seen, for the supers (1.36)
         self.warm = self._warm_list()
 
@@ -200,6 +210,9 @@ class FightFX:
         self.super_t = -99.0
         self.super_xy = (0, 0)
         self.health = {"p1": None, "p2": None}
+        self.blow = {"p1": None, "p2": None}       # [start, last step, health before, effects done] the blow going on (1.38)
+        self.dmg_txt = {"p1": None, "p2": None}    # the damage shown by the bar / les dégâts montrés près de la barre
+        self.stars = {"p1": 0, "p2": 0}            # the rounds won shown as stars, a game that counts none (1.38) / les étoiles
         self.prev_time = None
         self.rounds = {"p1": None, "p2": None}     # rounds won read in the game / rounds gagnés lus dans le jeu
         self.round_t = {"p1": -99.0, "p2": -99.0}
@@ -246,6 +259,7 @@ class FightFX:
         # them / un jeu qui ne compte pas ses rounds les voit comptés ici, d'après les K.O. et TIME UP
         self.rounds_won = {"p1": 0, "p2": 0}
         self.round_draws = 0
+        self.drain = 0.0                           # how long the game takes to empty a blow from its bar ("health_drain")
         self.won_here = {"p1": 0, "p2": 0}         # rounds won as seen here (K.O., TIME UP), whatever the game reads
         self.lost_named = {}                       # "_lost" as the name of each side was last set / quand le nom a changé
         self.rounds_game = False                   # "rounds" read in the game / « rounds » lu dans le jeu
@@ -320,6 +334,8 @@ class FightFX:
         for the desperation moves (1.32). / Personne ne joue : pas d'effet pour la démo du jeu. hist : le stick et les
         boutons lus, pour les coups désespérés."""
         stages = self.stages(game)
+        dr = ((game or {}).get("hd") or {}).get("health_drain") if isinstance((game or {}).get("hd"), dict) else None
+        self.drain = float(dr) if _n(dr) is not None and 0 < dr <= 2.0 else 0.0
         if key != self.key:
             self.key = key
             self._reset(now)
@@ -333,6 +349,7 @@ class FightFX:
         if jsel or idle:
             self.in_round = self.match_done = False                   # no match going / pas de match en cours
             self.rounds_won, self.round_draws = {"p1": 0, "p2": 0}, 0
+            self.stars = {"p1": 0, "p2": 0}
             self.won_here = {"p1": 0, "p2": 0}
             self.judge = None
         raw = jsel
@@ -508,6 +525,7 @@ class FightFX:
         cleared = (None not in (h1, h2, o1, o2) and h1 <= 0 and h2 <= 0 and o1 > 0 and o2 > 0 and max(o1, o2) > 50)
         if cleared:
             self.won_here = {"p1": 0, "p2": 0}                        # a new match / un nouveau match
+            self.stars = {"p1": 0, "p2": 0}
             if not self.rounds_game:
                 self.rounds_won, self.round_draws = {"p1": 0, "p2": 0}, 0
         for side, h in (("p1", h1), ("p2", h2)):
@@ -517,8 +535,10 @@ class FightFX:
                     if h <= 0 and (cleared or old >= 90 or now - self.live_t < 2.5):
                         continue                                      # a bar emptied, no blow did it / sans coup
                     other = self.zero_t.get("p2" if side == "p1" else "p1")
-                    if h <= 0 and other is not None and now - other > 1.0:
-                        continue                                      # the round was over: the winner's bar cleared
+                    if other is not None and now - other > 1.0:
+                        continue                                      # the round was over: the winner's bar cleared, or
+                        # counted down into the bonus (Samurai Shodown II, 1.38), no blow / le round était fini : la barre
+                        # du vainqueur vidée, ou décomptée dans le bonus, sans coup
                     self._hit(side, old, h, now)
                 elif old <= 0 < h and now - self.fight_t > 2.0 and not self.fs_known:   # combattant suivant ou nouveau
                     self._fight(now)                                                      # round (sans l'état du combat)
@@ -773,6 +793,12 @@ class FightFX:
         g = self.geom()
         x, y, w, h = g[victim]
         d = old - new
+        b = self.blow.get(victim)
+        fresh = b is None or now - b[1] > max(BLOW_GAP, self.drain)  # a new blow, not the next step of one / un nouveau coup
+        if fresh:
+            b = self.blow[victim] = [now, now, old, 0]
+        b[1] = now
+        total = b[2] - new                                          # the whole blow so far / tout le coup jusqu'ici
         f = max(0.0, new / 100.0)
         ex = x + w * (1 - f) if victim == "p1" else x + w * f      # bord de la vie qui vient de partir
         ey = y + h / 2
@@ -782,7 +808,7 @@ class FightFX:
         for _ in range(int(2 + d / 4)):                             # éclats de la barre qui tombent
             fx.obj(col, ex + rng.uniform(-10, 10) * self.s, ey, rng.uniform(-260, 260), -rng.uniform(250, 520), gravity=1600,
                    vrot=rng.uniform(-700, 700), life=0.9, rot=rng.uniform(0, 360))
-        fx.shake(min(9.0, 1.5 + d * 0.35), 0.25)
+        fx.shake(min(9.0, 1.5 + total * 0.3), 0.25)
         self.bd.excite(0.05 + d * 0.025)
         attacker = "p2" if victim == "p1" else "p1"
         ax, ay, aw, _ = g[attacker]
@@ -793,20 +819,38 @@ class FightFX:
                 old_t.dead = True
             self.combo_txt[attacker] = fx.text(tr("PREMIER COUP", "FIRST ATTACK"), ax + aw * 0.5, S(132), (255, 240, 200), 44,
                                                life=1.2, rise=10)
-        if d >= 25:                                                 # super coup : l'écran s'assombrit, rayons de lumière
+        if total >= BLOW_SUPER and b[3] < 2:                        # super coup : l'écran s'assombrit, rayons de lumière
+            b[3] = 2
             self.super_t = now
             self.super_xy = (ex, ey)
-            fx.shake(12, 0.5)
-            fx.flash((255, 255, 255), 0.25, 0.15)
-            self.bd.excite(1.2)
-        if d >= 15:                                                 # gros coup : onde de choc
+            fx.shake(13, 0.55)
+            fx.flash((255, 255, 255), 0.3, 0.18)
+            self.bd.excite(1.4)
+            for k in range(2):                                      # two shock waves, the second wider / deux ondes
+                r = fx.add(Particle("ring", ex, ey, now + 0.08 * k, 0.5, "front"))
+                r.r0, r.r1, r.col, r.a0, r.a1, r.data = 14 * self.s, (220 + 120 * k) * self.s, (255, 220, 160), 0.95, 0.0, 8 * self.s
+            fx.sparks(ex, ey, 40, (255, 210, 120), (500, 1400), (0, 360), (0.3, 0.8), 900, "front", 4, 40)
+        elif total >= BLOW_RING and b[3] < 1:                       # gros coup : onde de choc
+            b[3] = 1
             r = fx.add(Particle("ring", ex, ey, now, 0.4, "front"))
             r.r0, r.r1, r.col, r.a0, r.a1, r.data = 10 * self.s, 170 * self.s, (255, 235, 200), 0.9, 0.0, 6 * self.s
-            fx.flash((255, 240, 220), 0.1, 0.12)
-            self.bd.excite(0.5)
+            fx.flash((255, 240, 220), 0.12, 0.12)
+            self.bd.excite(0.6)
+        if total >= BLOW_SHOW and new > 0:                          # the damage of the blow by the bar, growing with it
+            # (not the K.O.'s, its letters there) / pas celui du K.O., ses lettres y sont
+            old_d = self.dmg_txt.get(victim)                        # les dégâts du coup près de la barre, qui grandissent
+            if old_d is not None:
+                old_d.dead = True
+            pct = int(round(total))
+            col = (255, 70, 50) if total >= BLOW_SUPER else (255, 160, 40) if total >= BLOW_RING else (255, 240, 220)
+            f0 = max(0.0, min(1.0, b[2] / 100.0))                   # on the part of the bar the blow took / sur la part prise
+            sx = x + w * (1 - f0) if victim == "p1" else x + w * f0
+            tx = min(max((sx + ex) / 2, x + S(70)), x + w - S(70))
+            self.dmg_txt[victim] = fx.text(f"-{pct}%", tx, ey, col, 46 + min(34, int(total * 0.8)), life=1.0, rise=30)
         c = self.combo[attacker]
-        c[0] = c[0] + 1 if now - c[1] < 0.7 else 1
-        c[1] = now
+        if fresh or not self.drain:                                 # a game that empties its bar slowly: the steps of one
+            c[0] = c[0] + 1 if now - c[1] < 0.7 else 1              # blow are not hits / les étapes d'un coup ne sont pas
+        c[1] = now                                                  # des coups
         if in_dm:                                                   # the name of the move says the hits / le nom les dit
             old_t = self.combo_txt.get(attacker)
             if old_t is not None:
@@ -875,6 +919,8 @@ class FightFX:
         self.won_here[winner] += 1                                    # counted here, the game's own may come later
         if not self.rounds_game:
             self.rounds_won[winner] += 1
+            self.stars = dict(self.rounds_won)                        # its star, kept until the next round (1.38)
+            self.round_t[winner] = now + 0.6                          # son étoile, gardée jusqu'au round suivant
         if self.won_here[winner] >= ROUNDS_TO_WIN and not team:        # two rounds won in a game of single fighters:
             self._match_won(winner, "p2" if winner == "p1" else "p1", now, later)   # the match is over (Fatal Fury)
             self.rounds_won, self.round_draws = {"p1": 0, "p2": 0}, 0
@@ -887,6 +933,7 @@ class FightFX:
             return                                                    # the same match / le même match
         self.in_round, self.match_done = False, True                  # the match is over / le match est fini
         self.out = (winner, loser, now + later)
+        self.out_score = (self.won_here.get(winner, 0), self.won_here.get(loser, 0))   # the rounds of the match (1.38)
         self.ko_until = now + later + MATCH_END
         self.fx.later(later, self._confetti, 0, self.W, 150)
         if self.humans.get("p1") and self.humans.get("p2"):
@@ -941,6 +988,7 @@ class FightFX:
             self.banner = ("PERFECT !", GOLD, now + 2.1, 1.6)         # once the WIN is over / une fois le WIN fini
 
     def _fight(self, now):
+        self.stars = dict(self.rounds_won)                            # a new round: the rounds won so far (none after a match)
         # pas en même temps que le bandeau du stage, le K.O. et le WIN, ou le nom du combattant suivant
         busy = max([self.stage_t + 1.95 if now - self.stage_t < 2.0 else -99.0, self.ko_until if now < self.ko_until else -99.0] +
                    [t + 1.75 for t in self.next_t.values() if -0.1 <= now - t < 1.75 or 0 < t - now < 2.5])
@@ -1170,7 +1218,12 @@ class FightFX:
         scale = start - (start - 1.0) * min(1.0, k / 0.18)
         hd.put(screen, hd.text(title, "stencil", S(110), GOLD, glow=0.9), W / 2, S(212), "center", "middle", scale=scale, alpha=alpha)
         if k > 0.35:
-            sub = tr(f"ÉQUIPE {self.tag(lose)} ÉLIMINÉE", f"{self.tag(lose)} TEAM ELIMINATED")
+            team = any(_n(v) is not None for v in (self.lost_raw.get("p1"), self.lost_raw.get("p2")))
+            a, b = getattr(self, "out_score", (0, 0))
+            if team or not a:
+                sub = tr(f"ÉQUIPE {self.tag(lose)} ÉLIMINÉE", f"{self.tag(lose)} TEAM ELIMINATED")
+            else:                                                 # a game of single fighters: the rounds (1.38)
+                sub = tr(f"{a} ROUNDS À {b}", f"{a} ROUNDS TO {b}")   # un jeu de combattants seuls : les rounds
             hd.put(screen, hd.text(sub, "stencil", S(54), RED, glow=0.6), W / 2, S(292), "center", "middle",
                    alpha=alpha * min(1.0, (k - 0.35) / 0.2))
 

@@ -151,5 +151,75 @@
   "p2_mode": 0,
   "_p1_chr": 0,
   "_p2_chr": 1
+ },
+ "specials": {
+  "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+  "kinds": ["Special Moves", "Super Death Blows / Ultimate KO"],
+  "super_needs": ["Super Death Blows needs a amount of Spirit Gauge (%) and a FLASHING Life Bar", "Ultimate KO needs a amount of Spirit Gauge (%), a FLASHING Life Bar and opponent's Life Bar is below to 10%"],
+  "JIN": [
+   {"name": "RYU EI JIN", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "SHINKUU ZANKUBI TOH", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "SHINOBI KAKURE", "cmd": "241", "btn": "B", "kind": "special"},
+   {"name": "MOUGO RYUSATSU JIN", "cmd": "641236", "btn": "C", "kind": "special"},
+   {"name": "TOHSHIN SHOH", "cmd": "22", "btn": "C", "kind": "super"}
+  ],
+  "KARMAN": [
+   {"name": "GEBARUTIGAA FUUSUTORITTO FON OOPEN", "cmd": "236", "btn": "B", "kind": "special"},
+   {"name": "HEFUTIGAA SHUUTOHSUAGURIA", "cmd": "2146", "btn": "A", "kind": "special"},
+   {"name": "QUICK UNDER STRAIGHT", "cmd": "646", "btn": "A", "kind": "special"},
+   {"name": "QUICK BACK KNUCKLE", "cmd": "646", "btn": "B", "kind": "special"},
+   {"name": "AOFOIN' BYURUFE", "cmd": "6321463214", "btn": "C", "kind": "super"}
+  ],
+  "KAZUMI": [
+   {"name": "KASANE ATE", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "RAIHO HOH", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "CHOU KASANE ATE", "cmd": "463214", "btn": "A", "kind": "super"}
+  ],
+  "LENNY": [
+   {"name": "FLICK SHOT", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "4 SWISH RAVE", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "WHIP RUSH", "cmd": "646", "btn": "A", "kind": "special"},
+   {"name": "FLICK BREAK", "cmd": "641236", "btn": "C", "kind": "super"}
+  ],
+  "ROBERT": [
+   {"name": "RYUUGEKI KEN", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "RYUUGA", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "HIEN SHIPPUU KYAKU", "cmd": "16", "btn": "B", "kind": "special"},
+   {"name": "HIEN RYUUJIN KYAKU", "cmd": "214", "btn": "B", "kind": "special", "when": "air"},
+   {"name": "GEN'EI KYAKU", "cmd": "646", "btn": "B", "kind": "special"},
+   {"name": "HAOH SHOUKOU KEN", "cmd": "641236", "btn": "C", "kind": "special"},
+   {"name": "RYUUKO RANBU", "cmd": "641236", "btn": "B", "kind": "super"}
+  ],
+  "RODY": [
+   {"name": "REVOLVING ROD", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "MIDDLE IMPACT TT", "cmd": "236", "btn": "B", "kind": "special"},
+   {"name": "DECISIVE IMPACT", "cmd": "646", "btn": "A", "kind": "special", "when": "close"},
+   {"name": "HYPER TONFA", "cmd": "64646", "btn": "C", "kind": "super"}
+  ],
+  "RYO": [
+   {"name": "KO'OU KEN", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "KOHOU", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "HIEN SHIPPUU KYAKU", "cmd": "16", "btn": "B", "kind": "special"},
+   {"name": "ZANRETSU KEN", "cmd": "646", "btn": "A", "kind": "special"},
+   {"name": "HAOH SHOUKOU KEN", "cmd": "641236", "btn": "C", "kind": "special"},
+   {"name": "RYUUKO RANBU", "cmd": "641236", "btn": "B", "kind": "super"}
+  ],
+  "SINCLAIR": [
+   {"name": "SPINNING SWORD", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "VISION CUTTER", "cmd": "646", "btn": "A", "kind": "special"},
+   {"name": "DIVE SWORD", "cmd": "28", "btn": "A", "kind": "special"},
+   {"name": "HYPER AURA SLASH", "cmd": "641236", "btn": "A", "kind": "super"}
+  ],
+  "WANG": [
+   {"name": "MUTEKI RANBU KUN", "cmd": "41236", "btn": "B", "kind": "special"},
+   {"name": "HISHO ISHI ATAMA KUN", "cmd": "623", "btn": "A", "kind": "special"},
+   {"name": "KYORETSU JIRAI SHIRI KUN", "cmd": "22", "btn": "A", "kind": "special"},
+   {"name": "KYUUKYOKU OGI RANDA KUN", "cmd": "466", "btn": "C", "kind": "super"}
+  ],
+  "WYLER": [
+   {"name": "BLACK OUT", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "LEAD SHOULDER", "cmd": "646", "btn": "A", "kind": "special"},
+   {"name": "ORBIT TOSS", "cmd": "28", "btn": "A", "kind": "special"}
+  ]
  }
 }

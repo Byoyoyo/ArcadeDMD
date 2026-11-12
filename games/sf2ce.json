@@ -152,5 +152,62 @@
       ["ESPAGNE", "SPAIN"]
     ],
     "note": "HD theme and place shown for each backdrop value (index = value), made by tools/cps_games.py from the stages of the cheat database, see the wiki, HD Marquee page"
+  },
+  "specials": {
+    "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+    "kinds": ["Special Moves"],
+    "BALROG": [
+      {"name": "DASH STRAIGHT", "cmd": "46", "btn": "P", "kind": "special", "hold": [0]},
+      {"name": "DASH UPPER", "cmd": "46", "btn": "K", "kind": "special", "hold": [0]}
+    ],
+    "BLANKA": [
+      {"name": "ELECTRIC THUNDER", "cmd": "", "btn": "P", "kind": "special", "rapid": true},
+      {"name": "ROLLING ATTACK", "cmd": "46", "btn": "P", "kind": "special", "hold": [0]}
+    ],
+    "CHUN LI": [
+      {"name": "HYAKURETSU KYAKU", "cmd": "", "btn": "K", "kind": "special", "rapid": true},
+      {"name": "SPINNING BIRD KICK", "cmd": "28", "btn": "K", "kind": "special", "hold": [0]}
+    ],
+    "DHALSIM": [
+      {"name": "YOGA FIRE", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "YOGA FLAME", "cmd": "41236", "btn": "P", "kind": "special"}
+    ],
+    "E. HONDA": [
+      {"name": "HYAKURETSU HARITE", "cmd": "", "btn": "P", "kind": "special", "rapid": true},
+      {"name": "SUPER ZUTSUKI", "cmd": "46", "btn": "P", "kind": "special", "hold": [0]}
+    ],
+    "GUILE": [
+      {"name": "SONIC BOOM", "cmd": "46", "btn": "P", "kind": "special", "hold": [0]},
+      {"name": "SOMERSAULT KICK", "cmd": "28", "btn": "K", "kind": "special", "hold": [0]}
+    ],
+    "KEN": [
+      {"name": "HADOU KEN", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "SHOURYUU KEN", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "TATSUMAKI SENPUU KYAKU", "cmd": "214", "btn": "K", "kind": "special"}
+    ],
+    "M. BISON": [
+      {"name": "PSYCHO CRUSHER", "cmd": "46", "btn": "P", "kind": "special", "hold": [0]},
+      {"name": "DOUBLE KNEE PRESS", "cmd": "46", "btn": "K", "kind": "special", "hold": [0]},
+      {"name": "HEAD PRESS", "cmd": "28", "btn": "K", "kind": "special", "hold": [0]}
+    ],
+    "RYU": [
+      {"name": "HADOU KEN", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "SHOURYUU KEN", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "TATSUMAKI SENPUU KYAKU", "cmd": "214", "btn": "K", "kind": "special"}
+    ],
+    "SAGAT": [
+      {"name": "TIGER SHOT", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "GROUND TIGER SHOT", "cmd": "236", "btn": "K", "kind": "special"},
+      {"name": "TIGER UPPERCUT", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "TIGER CRUSH", "cmd": "2369", "btn": "K", "kind": "special"}
+    ],
+    "VEGA": [
+      {"name": "ROLLING CRYSTAL FLASH", "cmd": "46", "btn": "P", "kind": "special", "hold": [0]},
+      {"name": "WALL LEAP", "cmd": "28", "btn": "K", "kind": "special", "hold": [0]}
+    ],
+    "ZANGIEF": [
+      {"name": "DOUBLE LARIAT", "cmd": "", "btn": "PPP", "kind": "special"},
+      {"name": "SPINNING PILEDRIVER", "cmd": "41236987", "btn": "P", "kind": "special", "when": "close"}
+    ]
   }
 }

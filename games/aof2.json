@@ -183,5 +183,124 @@
   "p2_mode": 0,
   "_p1_chr": 1,
   "_p2_chr": 2
+ },
+ "specials": {
+  "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+  "kinds": ["Special Moves", "Super Death Blows", "Super Moves"],
+  "super_needs": ["Needs a amount of Spirit Gauge (%) and a FLASHING Life Bar", "Needs a amount of Spirit Gauge (%)", "On 1P Game, first must be \"mastered\" on bonus rounds"],
+  "EIJI": [
+   {"name": "KIKOU HOU", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "TENBA KYAKU", "cmd": "16", "btn": "B", "kind": "special"},
+   {"name": "KASUMI GIRI", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "RYUU EI JIN", "cmd": "28", "btn": "A", "kind": "special"},
+   {"name": "KOPPA GIRI", "cmd": "646", "btn": "A", "kind": "special"},
+   {"name": "KISARAGI-RYUU RENBU KEN", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "ZANTETSU HA", "cmd": "2363214", "btn": "A", "kind": "super"},
+   {"name": "ZANTETSU TOUROUKEN", "cmd": "4123632", "btn": "B", "kind": "super"}
+  ],
+  "GEESE": [
+   {"name": "REPPUU KEN", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "HISSHOU NICHIRIN ZAN", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "HARD BLOW", "cmd": "236", "btn": "B", "kind": "special"},
+   {"name": "DEADLY RAVE", "cmd": "236", "btn": "A+C", "kind": "special"}
+  ],
+  "JACK": [
+   {"name": "KNUCKLES OF FURY", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "BOMBER DANCE", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "SUPER DROP KICK", "cmd": "19", "btn": "B", "kind": "special"},
+   {"name": "JACK THE DYNAMITE", "cmd": "646", "btn": "A", "kind": "special"},
+   {"name": "BRAIN SHOCK PUNCH", "cmd": "646", "btn": "B", "kind": "special", "when": "close"},
+   {"name": "SUPER HIP ATTACK", "cmd": "463214", "btn": "B", "kind": "super"},
+   {"name": "HELL DIVING", "cmd": "63214", "btn": "A", "kind": "super", "when": "close"}
+  ],
+  "JOHN": [
+   {"name": "MEGA SMASH", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "FLYING CUTTER", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "OVERDRIVE KICK", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "SPIRAL LEG BOMBER", "cmd": "28", "btn": "B", "kind": "special"},
+   {"name": "MEGA SMASHER", "cmd": "641236", "btn": "A", "kind": "super"},
+   {"name": "ATOMIC SMASH", "cmd": "641236", "btn": "B+C", "kind": "super"}
+  ],
+  "KING": [
+   {"name": "VENOM STRIKE", "cmd": "236", "btn": "B", "kind": "special"},
+   {"name": "TRAP SHOT", "cmd": "28", "btn": "B", "kind": "special"},
+   {"name": "TORNADO KICK", "cmd": "646", "btn": "B", "kind": "special"},
+   {"name": "MOUSHUU KYAKU", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "DOUBLE STRIKE", "cmd": "64632", "btn": "B", "kind": "super"},
+   {"name": "SURPRISE ROSE", "cmd": "46321", "btn": "B", "kind": "super"}
+  ],
+  "LEE": [
+   {"name": "KUUTEN TSUME", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "KACHUU MOU WAN KYAKU", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "HYAKURETSU KEN", "cmd": "646", "btn": "A", "kind": "special"},
+   {"name": "KACHUU TAKA TSUME GEKI", "cmd": "28", "btn": "A", "kind": "special"},
+   {"name": "SHINKUU KUUTEN TSUME", "cmd": "641236", "btn": "A", "kind": "super"},
+   {"name": "KACHOU HI MASHIZUME", "cmd": "2141236", "btn": "A", "kind": "super"}
+  ],
+  "MICKEY": [
+   {"name": "BURNING UPPER", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "ROLLING UPPER", "cmd": "236", "btn": "B", "kind": "special"},
+   {"name": "RAPID COMBINATION", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "CHOPPING RIGHT", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "CRAZY UPPER", "cmd": "28", "btn": "A", "kind": "special"},
+   {"name": "PLANET GALE", "cmd": "641236", "btn": "A", "kind": "super"},
+   {"name": "RUSH BOMBER", "cmd": "21412", "btn": "A", "kind": "super"}
+  ],
+  "MR.BIG": [
+   {"name": "GROUND BLASTER", "cmd": "236", "btn": "B", "kind": "special"},
+   {"name": "CRAZY DRUM", "cmd": "16", "btn": "A", "kind": "special"},
+   {"name": "CROSS DIVING", "cmd": "41236", "btn": "A", "kind": "special"},
+   {"name": "SPINNING LANCER", "cmd": "463214", "btn": "B", "kind": "special"},
+   {"name": "BLASTER WAVE", "cmd": "412364", "btn": "A", "kind": "super"},
+   {"name": "RAGING SPEAR", "cmd": "2363214", "btn": "A", "kind": "super", "when": "close"}
+  ],
+  "ROBERT": [
+   {"name": "RYUUGEKI KEN", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "RYUUGA", "cmd": "623", "btn": "A", "kind": "special"},
+   {"name": "KYOKUGEN-RYUU RENBU KEN", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "HIEN SHIPPUU KYAKU", "cmd": "16", "btn": "B", "kind": "special"},
+   {"name": "HIEN RYUUJIN KYAKU", "cmd": "214", "btn": "B", "kind": "special", "when": "air"},
+   {"name": "GEN'EI KYAKU", "cmd": "646", "btn": "B", "kind": "special"},
+   {"name": "HAOH SHOUKOU KEN", "cmd": "641236", "btn": "A", "kind": "super"},
+   {"name": "RYUUKO RANBU", "cmd": "2363214", "btn": "C", "kind": "super"}
+  ],
+  "RYO": [
+   {"name": "KO'OU KEN", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "KUUCHUU KO'OU KEN: TATAME SHITA", "cmd": "236", "btn": "A", "kind": "special", "when": "air"},
+   {"name": "KUUCHUU KO'OU KEN: SUIHEI", "cmd": "236", "btn": "B", "kind": "special", "when": "air"},
+   {"name": "KOHOU", "cmd": "623", "btn": "A", "kind": "special"},
+   {"name": "KYOKUGEN-RYUU RENBU KEN", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "HIEN SHIPPUU KYAKU", "cmd": "16", "btn": "B", "kind": "special"},
+   {"name": "ZANRETSU KEN", "cmd": "646", "btn": "A", "kind": "special"},
+   {"name": "HAOH SHOUKOU KEN", "cmd": "641236", "btn": "A", "kind": "super"},
+   {"name": "RYUUKO RANBU", "cmd": "2363214", "btn": "C", "kind": "super"}
+  ],
+  "TAKUMA": [
+   {"name": "KO'OU KEN", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "KISHIN GEKI", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "HIEN SHIPPUU KYAKU", "cmd": "16", "btn": "B", "kind": "special"},
+   {"name": "ZANRETSU KEN", "cmd": "646", "btn": "A", "kind": "special"},
+   {"name": "SHOURAN KYAKU", "cmd": "63214", "btn": "B", "kind": "special"},
+   {"name": "HAOH SHIKOU KEN", "cmd": "641236", "btn": "A", "kind": "super"},
+   {"name": "RYUUKO RANBU", "cmd": "23646", "btn": "A+C", "kind": "super"}
+  ],
+  "TEMJIN": [
+   {"name": "KIDAN HEKI", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "TATSUMAKI GEKI", "cmd": "41236", "btn": "A", "kind": "special"},
+   {"name": "MOUKO RENGEKI KEN KYAKU", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "RAIGEKI DAN", "cmd": "63214", "btn": "A", "kind": "special", "when": "close"},
+   {"name": "DAISHARIN NAGE", "cmd": "63214", "btn": "B", "kind": "special", "when": "close"},
+   {"name": "MOUKO MOURETSU HASAIDAN", "cmd": "4641236", "btn": "A", "kind": "super"},
+   {"name": "MOUKO TEMJIN RANBU", "cmd": "214632", "btn": "A+C", "kind": "super"}
+  ],
+  "YURI": [
+   {"name": "KO'OU KEN", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "RAI'OU KEN", "cmd": "236", "btn": "B", "kind": "special"},
+   {"name": "SAIHA", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "ENBU KYAKU", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "HYAKURETSU BINTA", "cmd": "646", "btn": "A", "kind": "special"},
+   {"name": "HAOH SHOUKOU KEN", "cmd": "641236", "btn": "A", "kind": "super"},
+   {"name": "HIEN HOU'OU KYAKU", "cmd": "6463214", "btn": "B+C", "kind": "super"}
+  ]
  }
 }

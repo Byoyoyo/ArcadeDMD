@@ -145,5 +145,67 @@
   "p2_mode": 0,
   "_p1_chr": 0,
   "_p2_chr": 1
+ },
+ "specials": {
+  "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+  "kinds": ["Special Moves"],
+  "ARINA": [
+   {"name": "HORIZONTAL ARINA BEAM", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "UPWARD ARINA BEAM", "cmd": "236", "btn": "B", "kind": "special"},
+   {"name": "AIR DOWNWARD ARINA BEAM", "cmd": "236", "btn": "B", "kind": "special", "when": "air"},
+   {"name": "ARINA UPPERCUT", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "ARINA TORNADO", "cmd": "214", "btn": "C/D", "kind": "special"}
+  ],
+  "BONUS": [
+   {"name": "KOU SHUU TAN", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "UZUMAKI BOUFUU KYAKU", "cmd": "214", "btn": "C/D", "kind": "special"},
+   {"name": "BOU BOU KEN", "cmd": "623", "btn": "A/B", "kind": "special"}
+  ],
+  "DANDY-J": [
+   {"name": "HISSATSU ROPE", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "SHAGAMI HISSATSU ROPE", "cmd": "236", "btn": "C/D", "kind": "special"},
+   {"name": "KYOUIJINTEI HATSUHI", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "RANPOO: NATSUMI NAGE", "cmd": "214214", "btn": "A/B", "kind": "special"},
+   {"name": "NATSUMI: RANPOO NAGE", "cmd": "214214", "btn": "C/D", "kind": "special"}
+  ],
+  "FERNANDEZ": [
+   {"name": "TOKUDAI PUNCH DEATH", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "SHAGAMI TOKUDAI PUNCH DEATH", "cmd": "236", "btn": "B", "kind": "special"},
+   {"name": "TOKUDAI KICK DEATH", "cmd": "236", "btn": "C", "kind": "special"},
+   {"name": "SHAGAMI TOKUDAI KICK DEATH", "cmd": "236", "btn": "D", "kind": "special"},
+   {"name": "JUMP TOKUDAI KICK DEATHK", "cmd": "236", "btn": "D", "kind": "special", "when": "air"},
+   {"name": "KURU NARAKOI DEATH", "cmd": "214", "btn": "C/D", "kind": "special"},
+   {"name": "TOBU DEATH DESSUUN", "cmd": "623", "btn": "A/B", "kind": "special"}
+  ],
+  "MAURU": [
+   {"name": "GURUGURU PUNCH", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "BODY PRESS", "cmd": "214", "btn": "C/D", "kind": "special"},
+   {"name": "BUNBUN COPTER", "cmd": "623", "btn": "A/B", "kind": "special"}
+  ],
+  "POLITANK-Z": [
+   {"name": "Z DAMA", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "DOKU DOKU SMOKE", "cmd": "236", "btn": "C/D", "kind": "special"},
+   {"name": "GURURIN MOGURIN", "cmd": "412", "btn": "C/D", "kind": "special"}
+  ],
+  "RAI": [
+   {"name": "INAZUMA UPPER", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "INAZUMA CRASH", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "AIR INAZUMA CRASH", "cmd": "214", "btn": "A/B", "kind": "special", "when": "air"},
+   {"name": "INAZUMA CANNON", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "AIR INAZUMA CANNON", "cmd": "236", "btn": "A/B", "kind": "special", "when": "air"}
+  ],
+  "SLASH": [
+   {"name": "SLASH SHOT", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "SLASH BARRIER", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "SLASH DYNAMIC", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "SLASH TELEPORT", "cmd": "421", "btn": "A/B/C/D", "kind": "special"}
+  ],
+  "TESS": [
+   {"name": "AREKORE POI", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "HIMITSU AREKORE POI", "cmd": "236", "btn": "B", "kind": "special"},
+   {"name": "CHIKUCHIKU ATTACK", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "CHUUCHUU ATTACK", "cmd": "421", "btn": "A/B", "kind": "special"},
+   {"name": "DENSHI KOUSEN", "cmd": "236", "btn": "C/D", "kind": "special"}
+  ]
  }
 }

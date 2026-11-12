@@ -46,6 +46,7 @@ from .hd_spf import SCENES as _SCENES_SPF
 from .hd_games6 import SCENES_PB1 as _SCENES_PB1
 from .hd_mercs import SCENES as _SCENES_MERCS
 from .hd_moves import draw_panel, draw_wins
+from .hd_specials import draw_specials, fighter_rows, hyper_rows, power_label, timer_name
 from .hd_mslug import MetalSlugScene, family
 from .i18n import tr
 
@@ -760,7 +761,7 @@ class HDRenderer:
                           dm.bar("p2", now) if dm else None)
         screen.blit(self.badge, (int(cx - self.badge.get_width() / 2), S(140)))
         if h1 is not None and h2 is not None:
-            self.draw_rounds(screen, vals, S(40) + bw, int(cx + S(160)), now)
+            self.draw_rounds(screen, vals, S(40) + bw, int(cx + S(160)), now, eng)
         ko = h1 is not None and h2 is not None and (h1 <= 0 or h2 <= 0)
         t = _num(vals.get("time"))
         if h1 is not None and h2 is not None and h1 <= 0 and h2 <= 0 and not (self.fight is not None and now - self.fight.ko_t < 3.0):
@@ -799,6 +800,10 @@ class HDRenderer:
             # 1.32: under a human's name, the panel of the desperation moves, the team moved up beside the name, small
             # sous le nom d'un humain, le panneau des coups désespérés, l'équipe montée à côté du nom, en petit
             panel = moves is not None and human and self.fight.panel_on(side)
+            # 1.38: the other fighting games, their special moves and supers ("specials") / les autres jeux de combat
+            spec = (not panel and human and self.fight is not None and self.fight.panel_on(side) and isinstance(name, str)
+                    and (any(fighter_rows(game, name)) or bool(hyper_rows(game, name, None))))
+            panel = panel or spec
             tsize = S(76)
             tw = self.tag_text(tag, tsize)["w"]
             space = room - tw - S(40)
@@ -824,7 +829,11 @@ class HDRenderer:
                 x0, x1 = (S(36), int(cx - S(176))) if side == "p1" else (int(cx + S(176)), W - S(36))
                 lost = sum(1 for _, st in team if st == "done") if team else _num(vals.get(f"_{side}_lost"))
                 health = _num(vals.get("health" if side == "p1" else "health_p2"))
-                draw_panel(self, screen, moves, side, vals, game, name, x0, x1, S(352), now, lost, health)
+                if spec:
+                    draw_specials(self, screen, self.fight.moves, self.fight.specials, side, vals, game, name, x0, x1, S(352), now,
+                                  self._level_top(eng, side))
+                else:
+                    draw_panel(self, screen, moves, side, vals, game, name, x0, x1, S(352), now, lost, health)
             elif team:
                 self.draw_team(screen, team, S(44) if side == "p1" else W - S(44), S(372), side, room)
             else:
@@ -864,13 +873,22 @@ class HDRenderer:
         col = AMBER if state == "now" else (TEAM_DONE if state == "done" else TEAM_GREY)
         return self.text(name, "bold", size, col, glow=0, outline=INK, stroke=max(1, self.S(2)))
 
-    def draw_rounds(self, screen, vals, x1, x2, now):
+    def draw_rounds(self, screen, vals, x1, x2, now, eng=None):
         """The rounds won, gold stars under the inner end of each health bar (Street Fighter II, Alpha), the last one
         won glowing a moment. / Les rounds gagnés, étoiles dorées sous le bout intérieur de chaque barre."""
         S, pg = self.S, self.pg
         r, gap, y = S(15), S(10), S(250)
+        f = self.fight
+        game = self._game(eng) if eng is not None else {}
+        hdo = game.get("hd") if isinstance(game.get("hd"), dict) else {}
+        # a game of teams (King of Fighters) or of two fighters each (Marvel vs. Capcom) counts no round this way
+        # un jeu d'équipes ou de deux combattants chacun ne compte pas de rounds ainsi
+        team = (any(_num(vals.get(k)) is not None for k in ("_p1_lost", "_p2_lost")) or "_p1_chr2" in vals
+                or hdo.get("stars") is False)
         for side, x0, d in (("p1", x1, -1), ("p2", x2, 1)):
             n = _num(vals.get("rounds" if side == "p1" else "rounds_p2"))
+            if n is None and f is not None and not team and not f.rounds_game:
+                n = f.stars.get(side, 0)          # a game that counts no round: the ones counted here (1.38) / comptés ici
             if n is None:
                 continue
             n = max(0, int(n))
@@ -910,7 +928,12 @@ class HDRenderer:
         lv = _num(vals.get("power_level" if side == "p1" else "power_level_p2"))
         if lv is not None and top and lv >= top:
             f = 1.0                                       # top level: the game keeps the bar full / niveau le plus haut
-        word = "SUPER" if lv is None else ("POWER MAX" if top and lv >= top else f"POWER {int(lv)}")
+        timed = False
+        if timer_name(game) and self.fight is not None:   # MAX: its timer in the bar (Samurai Shodown's POW, 1.38)
+            gf, ready, _ = self.fight.specials.gauge(vals, side, game, top)
+            if ready and gf is not None:                  # le MAX : son chrono dans la barre
+                f, timed = gf, True
+        word = power_label(game) if lv is None else ("POWER MAX" if top and lv >= top else f"POWER {int(lv)}")
         lab = self.text(word, "black", S(30), (120, 190, 255), glow=0)
         w, h = int(min(room - lab["w"] - S(60), S(520))), S(24)
         y = S(380)
@@ -920,7 +943,7 @@ class HDRenderer:
             lx, x = W - S(44), W - S(44) - lab["w"] - S(16) - w
         self.put(screen, lab, lx, y + h / 2, "left" if side == "p1" else "right", "middle")
         pg.draw.rect(screen, (24, 28, 44), (x, y, w, h), border_radius=h // 2)
-        full = f >= 0.999
+        full = f >= 0.999 or timed
         if f > 0:
             fw = max(h, int(w * f))
             fx = x if side == "p1" else x + w - fw

@@ -165,5 +165,80 @@
   "p2_mode": 0,
   "_p1_chr": 0,
   "_p2_chr": 1
+ },
+ "specials": {
+  "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+  "kinds": ["Special Moves"],
+  "AMAKUSA": [
+   {"name": "SHIRYOU HA", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "MEIFU MASHOU DAN", "cmd": "", "btn": "A+B+C+D", "kind": "special", "rapid": true},
+   {"name": "OUMAGATOKI: MAE", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "OUMAGATOKI: USHIRO", "cmd": "236", "btn": "C/D", "kind": "special"},
+   {"name": "RIDICULE", "cmd": "", "btn": "A+B", "kind": "special"}
+  ],
+  "CHARLOTTE": [
+   {"name": "SPLASH FOUNT", "cmd": "", "btn": "A/B", "kind": "special", "rapid": true},
+   {"name": "POWER GRADATION", "cmd": "123", "btn": "A/B", "kind": "special"}
+  ],
+  "EARTHQUAKE": [
+   {"name": "FAT CHAINSAW", "cmd": "", "btn": "A/B", "kind": "special", "rapid": true},
+   {"name": "FAT BOUND", "cmd": "2", "btn": "C+D", "kind": "special", "when": "air"}
+  ],
+  "GALFORD": [
+   {"name": "PLASMA BLADE", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "RUSH DOG", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "MACHINE GUN DOG", "cmd": "214", "btn": "C", "kind": "special"},
+   {"name": "DIVING DOG", "cmd": "214", "btn": "D", "kind": "special"},
+   {"name": "STRIKE HEADS", "cmd": "623", "btn": "C/D", "kind": "special", "when": "close"},
+   {"name": "SHADOW COPY", "cmd": "641236", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "REPLICA ATTACK", "cmd": "63214", "btn": "B+C+D", "kind": "special"}
+  ],
+  "GEN-AN": [
+   {"name": "DOKU FUBUKI", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "NIKUTEN TSUKI", "cmd": "623", "btn": "A/B", "kind": "special"}
+  ],
+  "HANZO": [
+   {"name": "NINPOU REPPUU SHURIKEN", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "NINPOU BAKU'EN RYUU", "cmd": "46", "btn": "A/B", "kind": "special", "hold": [0]},
+   {"name": "NINPOU MOZU OTOSHI", "cmd": "623", "btn": "C/D", "kind": "special", "when": "close"},
+   {"name": "NINPOU KAGE BUNSHIN", "cmd": "641236", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "NINPOU UTSUSEMI TENBU", "cmd": "63214", "btn": "B+C+D", "kind": "special"}
+  ],
+  "HAOHMARU": [
+   {"name": "OUGI SENPUU RETSU ZAN", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "OUGI KOGETSU ZAN", "cmd": "623", "btn": "A/B", "kind": "special"}
+  ],
+  "JUBEI": [
+   {"name": "HASSOU HAPPA", "cmd": "", "btn": "A/B", "kind": "special", "rapid": true},
+   {"name": "KATTOTSU SUIGETSU TOU", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "NIKKAKU RATOU", "cmd": "623", "btn": "A/B", "kind": "special"}
+  ],
+  "KYOSHIRO": [
+   {"name": "KAEN KYOKUBU", "cmd": "1236", "btn": "A/B", "kind": "special"},
+   {"name": "KAITEN KYOKUBU: TEN", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "CHIKEMURI KURUWA", "cmd": "82", "btn": "A+B", "kind": "special"},
+   {"name": "FUURETSU SEN", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "CHOUBI JISHI", "cmd": "214", "btn": "C/D", "kind": "special"}
+  ],
+  "NAKORURU": [
+   {"name": "ANNU MUTSUBE", "cmd": "412", "btn": "A/B", "kind": "special"},
+   {"name": "LELA MUTSUBE", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "AMUBE YATORO", "cmd": "63214", "btn": "A/B", "kind": "special"},
+   {"name": "TAKA NI TSUKAMARU", "cmd": "214", "btn": "C", "kind": "special"}
+  ],
+  "TAMTAM": [
+   {"name": "MOORA MOORA", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "PAGUNA PAGUNA", "cmd": "46", "btn": "A/B", "kind": "special", "hold": [0]},
+   {"name": "AHAU GABURU", "cmd": "63214", "btn": "A/B", "kind": "special"},
+   {"name": "PAGUNA DIOS", "cmd": "214", "btn": "C/D", "kind": "special"}
+  ],
+  "UKYO": [
+   {"name": "HIKEN SASAME YUKI", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "HIKEN TSUBAME GAESHI", "cmd": "1236", "btn": "A/B", "kind": "special", "when": "air"}
+  ],
+  "WANG-FU": [
+   {"name": "SHIN KIKOU BAKUTENHOH", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "KIKOU SENPUU GEKI", "cmd": "623", "btn": "A/B", "kind": "special"}
+  ]
  }
 }

@@ -213,5 +213,137 @@
    "fight_temple"
   ],
   "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page"
+ },
+ "specials": {
+  "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+  "kinds": ["Special Moves", "Super Powers (S.POWER)"],
+  "BONNE": [
+   {"name": "BAFFRASS", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "CRAZY IVAN", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "THE HIND", "cmd": "236", "btn": "B/D", "kind": "special"},
+   {"name": "GULF TOMAHAWK", "cmd": "214", "btn": "B/D", "kind": "special"},
+   {"name": "MANY MANY TORPEDOES", "cmd": "236236", "btn": "A", "kind": "super"},
+   {"name": "AURORA", "cmd": "236236", "btn": "B", "kind": "super"}
+  ],
+  "BUTT": [
+   {"name": "KO'OU KEN", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "KOHOU", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "HIEN SHIPPUU KYAKU", "cmd": "236", "btn": "B/D", "kind": "special"},
+   {"name": "JOUDAN HARAI", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "GEDAN HARAI", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "HAOH SHOUKOU KEN", "cmd": "236236", "btn": "A", "kind": "super"},
+   {"name": "KYOKUGEN KOHOU", "cmd": "236236", "btn": "B", "kind": "super"}
+  ],
+  "DONG HWAN": [
+   {"name": "SHIDEN KYAKU", "cmd": "236", "btn": "B/D", "kind": "special"},
+   {"name": "KUU SAJIN", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "RAIMEI ZAN", "cmd": "214", "btn": "B/D", "kind": "special"},
+   {"name": "ASHI BINTA", "cmd": "63214", "btn": "C", "kind": "special"},
+   {"name": "SUPER DONG HWAN KYAKU", "cmd": "236236", "btn": "A", "kind": "super", "when": "air"},
+   {"name": "RAIMEI DAN", "cmd": "236236", "btn": "B", "kind": "super"}
+  ],
+  "FREEMAN": [
+   {"name": "NIGHTMARE", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "V.O.D.", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "CROW", "cmd": "214", "btn": "B/D", "kind": "special"},
+   {"name": "PHOBIA", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "MORBID ANGEL", "cmd": "41236", "btn": "B/D", "kind": "special"},
+   {"name": "FULL BLAST", "cmd": "236236", "btn": "A", "kind": "super"},
+   {"name": "CREEPING DEATH", "cmd": "236236", "btn": "B", "kind": "super"}
+  ],
+  "GATO": [
+   {"name": "SHINGA", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "HOUZAN SAI HEKIGA", "cmd": "28", "btn": "C", "kind": "special", "hold": [0]},
+   {"name": "RAIGA", "cmd": "623", "btn": "B/D", "kind": "special"},
+   {"name": "FUUGA", "cmd": "214", "btn": "B/D", "kind": "special"},
+   {"name": "ZERO KIBA", "cmd": "236236", "btn": "A", "kind": "super"},
+   {"name": "TATSU KIBA", "cmd": "236236", "btn": "B", "kind": "super"}
+  ],
+  "GRANT": [
+   {"name": "KOKUEN RYUU", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "KYOU CHOUJIN", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "GOU RETSU SHOU", "cmd": "646", "btn": "A/C", "kind": "special"},
+   {"name": "GOU DANGAI", "cmd": "236", "btn": "B/D", "kind": "special"},
+   {"name": "MAJIN HATEN DAN", "cmd": "236236", "btn": "A", "kind": "super"},
+   {"name": "MAJIN ENGETSU RIN", "cmd": "236236", "btn": "B", "kind": "super"}
+  ],
+  "HOKUTOMARU": [
+   {"name": "SHURIKEN", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "KUUHA DAN", "cmd": "236", "btn": "B/D", "kind": "special"},
+   {"name": "RAKKA ZAN KYOU", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "RAKKA ZAN JITSU", "cmd": "214", "btn": "D", "kind": "special"},
+   {"name": "KARAKUSA GIRI", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "CHOU HISSATSU SHURIKEN", "cmd": "236236", "btn": "A", "kind": "super"},
+   {"name": "OUGI CHOU HISSATSU TATSUMAKI", "cmd": "236236", "btn": "B", "kind": "super"}
+  ],
+  "HOTARU": [
+   {"name": "HAKKI SHOU", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "SOUSHOU SHIN", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "KOBI KYAKU", "cmd": "214", "btn": "B/D", "kind": "special"},
+   {"name": "TENSHIN SHOU", "cmd": "623", "btn": "B/D", "kind": "special"},
+   {"name": "RENGEKI SHOU", "cmd": "214", "btn": "B/D", "kind": "special", "when": "air"},
+   {"name": "SHINJOU TAI", "cmd": "41236", "btn": "D", "kind": "special", "when": "close"},
+   {"name": "SOUSHOU TENRENGE", "cmd": "236236", "btn": "A", "kind": "super"},
+   {"name": "TENSHOU RANKI", "cmd": "236236", "btn": "B", "kind": "super"}
+  ],
+  "JAE HOON": [
+   {"name": "SHAKKA SHUU", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "RYUUSEI RAKU", "cmd": "236", "btn": "B/D", "kind": "special"},
+   {"name": "HANGETSU ZAN", "cmd": "214", "btn": "B/D", "kind": "special"},
+   {"name": "HIEN ZAN", "cmd": "28", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "HISHOU KYAKU", "cmd": "2", "btn": "B/D", "kind": "special", "when": "air"},
+   {"name": "HOU YOKU TEN SHOU KYAKU", "cmd": "236236", "btn": "A", "kind": "super"},
+   {"name": "HOU'OU KYAKU", "cmd": "236236", "btn": "B", "kind": "super"}
+  ],
+  "KAIN": [
+   {"name": "SCHWARZE FLAMME LOW", "cmd": "46", "btn": "A", "kind": "special", "hold": [0]},
+   {"name": "SCHWARZE FLAMME HIGH", "cmd": "46", "btn": "C", "kind": "special", "hold": [0]},
+   {"name": "SCHWARZE PANZER", "cmd": "46", "btn": "B", "kind": "special", "hold": [0]},
+   {"name": "SCHWARZE PANZER FORCE", "cmd": "46", "btn": "D", "kind": "special", "hold": [0]},
+   {"name": "SCHWARZE LANZE", "cmd": "28", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "HIMMLISCHE ATEM", "cmd": "236236", "btn": "A", "kind": "super"},
+   {"name": "HIMMLISCHE SEELE", "cmd": "236236", "btn": "B", "kind": "super"}
+  ],
+  "KEVIN": [
+   {"name": "HELL ROTOR", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "DOWNWARD HELL ROTOR", "cmd": "214", "btn": "C", "kind": "special"},
+   {"name": "HELL ARREST", "cmd": "41236", "btn": "A/C", "kind": "special", "when": "close"},
+   {"name": "HELL SNIPE", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "HELL CREEPER", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "ABIDE MINE", "cmd": "214", "btn": "D", "kind": "special"},
+   {"name": "HELL TRAP", "cmd": "236", "btn": "B/D", "kind": "special"},
+   {"name": "LUCKY STRIKE", "cmd": "236236", "btn": "A", "kind": "super"},
+   {"name": "GATTLING FREEZER", "cmd": "236236", "btn": "B", "kind": "super"}
+  ],
+  "ROCK": [
+   {"name": "REPPUU KEN", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "DOUBLE REPPUU KEN", "cmd": "236", "btn": "C", "kind": "special"},
+   {"name": "RISING TACKLE", "cmd": "28", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "HARD EDGE", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "SHINKUU NAGE", "cmd": "41236987", "btn": "C", "kind": "special", "when": "close"},
+   {"name": "ATEMI NAGE JOUDAN", "cmd": "236", "btn": "B", "kind": "special"},
+   {"name": "ATEMI NAGE GEDAN", "cmd": "236", "btn": "D", "kind": "special"},
+   {"name": "RAGE RUN • TYPE \"DUNK\"", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "RAGING STORM", "cmd": "236236", "btn": "A", "kind": "super"},
+   {"name": "SHINE KNUCKLE", "cmd": "236236", "btn": "B", "kind": "super"}
+  ],
+  "TERRY": [
+   {"name": "POWER WAVE", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "POWER DUNK", "cmd": "623", "btn": "B/D", "kind": "special"},
+   {"name": "BURN KNUCKLE", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "CRACK SHOOT", "cmd": "214", "btn": "B/D", "kind": "special"},
+   {"name": "POWER CHARGE", "cmd": "66", "btn": "A/C", "kind": "special"},
+   {"name": "POWER GEYSER", "cmd": "236236", "btn": "A", "kind": "super"},
+   {"name": "BUSTER WOLF", "cmd": "236236", "btn": "B", "kind": "super"}
+  ],
+  "TIZOC": [
+   {"name": "OLYMPUS OVER", "cmd": "214", "btn": "B/D", "kind": "special"},
+   {"name": "ACTIVE TUPON", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "POSEIDON WAVE", "cmd": "421", "btn": "A/C", "kind": "special"},
+   {"name": "JUSTICE HURRICANE", "cmd": "41236987", "btn": "A/C", "kind": "special", "when": "close"},
+   {"name": "HERCULES THROW", "cmd": "41236", "btn": "B", "kind": "special", "when": "close"},
+   {"name": "BIG FALL GRIFFON", "cmd": "4123698741236987", "btn": "A", "kind": "super", "when": "close"},
+   {"name": "DAEDALUS ATTACK", "cmd": "236236", "btn": "B", "kind": "super"}
+  ]
  }
 }

@@ -1,6 +1,6 @@
 {
  "title": "Samurai Shodown II",
- "note": "Neo Geo fighting game: health, timer, score, 17 characters.",
+ "note": "Neo Geo fighting game: health, timer, score, POW gauge and its MAX, 17 characters.",
  "match": [
   {
    "system": [
@@ -90,6 +90,52 @@
     "max": 100,
     "zero_from": "0xC0",
     "note": "player 2 health in %, full = 0x80, inside the fighter object (address read at 0x100A4A); a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1 (RetroAchievements code notes, a 16-bit word): from 0xC0 it reads empty (K.O. audit)"
+   },
+   "power": {
+    "ptr": "0x100A46",
+    "addr": "0xF0",
+    "ptr_range": [
+     "0x100000",
+     "0x10FFFF"
+    ],
+    "type": "u8",
+    "mult": 3.125,
+    "min": 0,
+    "max": 100,
+    "note": "player 1 POW gauge in %, full = 0x20 (MAME cheat \"Always have Maximum Power\" sets 0x20 at +0xF0 of the fighter object read at 0x100A46); it fills with the blows taken, stays full while MAX lasts and empties after it"
+   },
+   "power_p2": {
+    "ptr": "0x100A4A",
+    "addr": "0xF0",
+    "ptr_range": [
+     "0x100000",
+     "0x10FFFF"
+    ],
+    "type": "u8",
+    "mult": 3.125,
+    "min": 0,
+    "max": 100,
+    "note": "player 2 POW gauge in %, full = 0x20 (MAME cheat \"Always have Maximum Power\" sets 0x20 at +0xF0 of the fighter object read at 0x100A4A); it fills with the blows taken, stays full while MAX lasts and empties after it"
+   },
+   "_powmax": {
+    "ptr": "0x100A46",
+    "addr": "0xB8",
+    "ptr_range": [
+     "0x100000",
+     "0x10FFFF"
+    ],
+    "type": "u16",
+    "note": "player 1 POW MAX timer in frames (+0xB8 of the fighter object): set to about 0x210 to 0x250 as the gauge fills, counts down to 0, then the gauge empties; the weapon-breaking technique only comes while it runs"
+   },
+   "_powmax_p2": {
+    "ptr": "0x100A4A",
+    "addr": "0xB8",
+    "ptr_range": [
+     "0x100000",
+     "0x10FFFF"
+    ],
+    "type": "u16",
+    "note": "player 2 POW MAX timer in frames (+0xB8 of the fighter object): set to about 0x210 to 0x250 as the gauge fills, counts down to 0, then the gauge empties; the weapon-breaking technique only comes while it runs"
    },
    "time": {
     "addr": "0x100AC6",
@@ -214,6 +260,150 @@
    "fight_ruins",
    "arena"
   ],
-  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page"
+  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page",
+  "power_label": "POW",
+  "power_timer": "_powmax",
+  "health_drain": 0.8,
+  "note_power": "the POW gauge under a human's name, \"POW MAX\" and its timer while MAX lasts (1.38); the game empties a blow from its bar over half a second to a second, read in two or three steps: one blow for the effects (health_drain)"
+ },
+ "specials": {
+  "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+  "kinds": ["Special Moves", "Weapon-Breaking Techniques"],
+  "super_needs": ["Needs a Super Bar in MAX"],
+  "CHAM CHAM": [
+   {"name": "YOKONI NAGERU NDAZO!", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "SHOUNI NAGERU NDAZO!", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "TOBI HIKKAKI", "cmd": "236", "btn": "C/D", "kind": "special"},
+   {"name": "MURA PAKU PAKU", "cmd": "63214", "btn": "C", "kind": "special"},
+   {"name": "PAKU PAKU DIOS", "cmd": "63214", "btn": "D", "kind": "special"},
+   {"name": "PAKUPAKU GABURU", "cmd": "63214", "btn": "C+D", "kind": "special"},
+   {"name": "MOU MOTO NAI NDAKARANA", "cmd": "641236", "btn": "A", "kind": "super"}
+  ],
+  "CHARLOTTE": [
+   {"name": "SPLASH FOUNT", "cmd": "", "btn": "A/B", "kind": "special", "rapid": true},
+   {"name": "POWER GRADATION", "cmd": "123", "btn": "A/B", "kind": "special"},
+   {"name": "TRI-SLASH", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "SPLASH GRADATION", "cmd": "632146", "btn": "B", "kind": "super"}
+  ],
+  "EARTHQUAKE": [
+   {"name": "FAT CHAINSAW", "cmd": "", "btn": "A/B", "kind": "special", "rapid": true},
+   {"name": "FAT BREATH", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "FAT COPY", "cmd": "641236", "btn": "A/B", "kind": "special"},
+   {"name": "FAT REPLICA ATTACK", "cmd": "63214", "btn": "B+C+D", "kind": "special"},
+   {"name": "EARTH GOT 'EM", "cmd": "641236", "btn": "C+D", "kind": "super"}
+  ],
+  "GALFORD": [
+   {"name": "PLASMA BLADE", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "RUSH DOG", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "MACHINE GUN DOG", "cmd": "214", "btn": "C", "kind": "special"},
+   {"name": "REPLICA DOG", "cmd": "214", "btn": "D", "kind": "special"},
+   {"name": "STRIKE HEADS", "cmd": "623", "btn": "C/D", "kind": "special", "when": "close"},
+   {"name": "SHADOW COPY", "cmd": "641236", "btn": "A/B", "kind": "special"},
+   {"name": "REPLICA ATTACK", "cmd": "63214", "btn": "B+C+D", "kind": "special"},
+   {"name": "MEGA STRIKE DOG", "cmd": "632146", "btn": "D", "kind": "super"}
+  ],
+  "GEN-AN": [
+   {"name": "DOKU FUBUKI", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "NIKUTEN TSUKI", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "TSUME TSUNAMI", "cmd": "63214", "btn": "A/B", "kind": "special"},
+   {"name": "GEN-AN UTSUSEMI DAPPI", "cmd": "321", "btn": "B+D", "kind": "special"},
+   {"name": "MADOU DIVING CLAW", "cmd": "632146", "btn": "A+B", "kind": "super"}
+  ],
+  "GENJURO": [
+   {"name": "SANREN SATSU: KIBA", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "TOUHA KOUYOKU JIN", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "OUKA ZAN", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "GOKOU ZAN", "cmd": "632146", "btn": "A", "kind": "super"}
+  ],
+  "HANZO": [
+   {"name": "NINPOU REPPUU SHURIKEN", "cmd": "41236", "btn": "A/B", "kind": "special", "when": "air"},
+   {"name": "NINPOU BAKU'EN RYUU", "cmd": "63214", "btn": "A/B", "kind": "special"},
+   {"name": "NINPOU MOZU OTOSHI", "cmd": "623", "btn": "C/D", "kind": "special", "when": "close"},
+   {"name": "NINPOU KAGE BUNSHIN", "cmd": "641236", "btn": "A/B", "kind": "special"},
+   {"name": "NINPOU UTSUSEMI TENBU", "cmd": "63214", "btn": "B+C+D", "kind": "special"},
+   {"name": "TENMA RIMETSU", "cmd": "632146", "btn": "D", "kind": "super"}
+  ],
+  "HAOHMARU": [
+   {"name": "OUGI SENPUU RETSU ZAN", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "FAKE OUGI SENPUU RETSU ZAN", "cmd": "236", "btn": "C/D", "kind": "special"},
+   {"name": "OUGI KOGETSU ZAN", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "OUGI RESSHIN ZAN", "cmd": "623", "btn": "C/D", "kind": "special"},
+   {"name": "SAKE KOUGEKI", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "TENHA SEIKOU ZAN", "cmd": "632146", "btn": "A", "kind": "super"}
+  ],
+  "JUBEI": [
+   {"name": "HASSOU HAPPA", "cmd": "", "btn": "A/B", "kind": "special", "rapid": true},
+   {"name": "KATTOTSU SUIGETSU TOU", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "NIKKAKU RATOU", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "YAGYU SHINGAN TOU: SOUHA", "cmd": "2146", "btn": "A", "kind": "special"},
+   {"name": "ZETSU SUIGETSU TOU", "cmd": "632146", "btn": "C", "kind": "super"}
+  ],
+  "KUROKO": [
+   {"name": "KUROKO HACHIGOKU TAMA TORA SHOUKEN", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "KUROKO HACHIGOKU TAMA HARU OU SHOUKEN", "cmd": "641236", "btn": "A", "kind": "special"},
+   {"name": "KUROKO HACHIGOKU TAMA BLITZ BALL", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "KUROKO HACHIGOKU TAMA MEGA SMASH", "cmd": "236", "btn": "B", "kind": "special"},
+   {"name": "KUROKO GEKIRA", "cmd": "", "btn": "C", "kind": "special", "rapid": true},
+   {"name": "KUROKO HACHIGOKU TAMA ZANTETSUKEN NAMI", "cmd": "2363214", "btn": "A", "kind": "special"},
+   {"name": "KUROKO MARUHATA GEKI", "cmd": "63214", "btn": "A", "kind": "special"},
+   {"name": "KUROKO SHIRAHATAJIN", "cmd": "6", "btn": "A+B+C", "kind": "special"},
+   {"name": "KUROKO RANBU", "cmd": "632146", "btn": "A+B", "kind": "super"},
+   {"name": "KUROKO TAIRAN MAI", "cmd": "641236", "btn": "C+D", "kind": "super"}
+  ],
+  "KYOSHIRO": [
+   {"name": "KAEN KYOKUBU", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "KAITEN KYOKUBU: TEN", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "FUURETSU SEN", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "CHOUBI JISHI", "cmd": "214", "btn": "C/D", "kind": "special"},
+   {"name": "ARAGOTOSHI KYOSHIRO \"KETSUNIKU NO MAI\"", "cmd": "641236", "btn": "C", "kind": "super"}
+  ],
+  "MIZUKI": [
+   {"name": "JASHIN KYOUMEI", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "HAKI INMETSU JIN", "cmd": "236", "btn": "C+D", "kind": "special"},
+   {"name": "WARE KAMI ERU BAKU KON", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "WARE KAMI KYOUMEI KON", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "WARE KAMI HENRETSU KON", "cmd": "214", "btn": "C", "kind": "special"},
+   {"name": "HOKAI TENSHOU SEN", "cmd": "2", "btn": "A+B+C", "kind": "special"},
+   {"name": "HOKAI TENSHOU ATO", "cmd": "2", "btn": "B+C+D", "kind": "special"},
+   {"name": "TENCHI MAKYOU JIN", "cmd": "632146", "btn": "A", "kind": "super"}
+  ],
+  "NAKORURU": [
+   {"name": "ANNU MUTSUBE", "cmd": "412", "btn": "A/B", "kind": "special"},
+   {"name": "LELA MUTSUBE", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "AMUBE YATORO", "cmd": "63214", "btn": "A/B", "kind": "special"},
+   {"name": "TAKA NI TSUKAMARU", "cmd": "214", "btn": "C", "kind": "special"},
+   {"name": "KAMUI RIMSE", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "IRUSUKA YATORO LISE", "cmd": "641236", "btn": "A", "kind": "super"}
+  ],
+  "NICOTINE": [
+   {"name": "SHIKIGAMI REIFU IKAZUCHI", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "SHIKIGAMI REIFU HANOO", "cmd": "236", "btn": "C/D", "kind": "special"},
+   {"name": "SHITSUE RASEN ASHI: KOUGEKI", "cmd": "1236", "btn": "C/D", "kind": "special", "when": "air"},
+   {"name": "RASHIN JUFU", "cmd": "421", "btn": "A+B", "kind": "special"},
+   {"name": "BAKUSA JOUGEKI", "cmd": "63214", "btn": "A/B", "kind": "special"},
+   {"name": "NIOU FUREI SATSU", "cmd": "641236", "btn": "D", "kind": "super"}
+  ],
+  "SIEGER": [
+   {"name": "WOLF FANGEN", "cmd": "641236", "btn": "A+B", "kind": "special"},
+   {"name": "VULCAN WEINEN", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "BLITZ JAEGER", "cmd": "63214", "btn": "C/D", "kind": "special"},
+   {"name": "TIGERKOPF", "cmd": "236", "btn": "C", "kind": "special"},
+   {"name": "FIRESTORM", "cmd": "3", "btn": "B+C", "kind": "special"},
+   {"name": "OPERATION TIGER", "cmd": "632146", "btn": "C+D", "kind": "super"}
+  ],
+  "UKYO": [
+   {"name": "HIKEN SASAME YUKI", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "HIKEN SASAME YUKI: DAMASHI", "cmd": "214", "btn": "C/D", "kind": "special"},
+   {"name": "HIKEN TSUBAME GAESHI", "cmd": "1236", "btn": "A/B", "kind": "special", "when": "air"},
+   {"name": "HIKEN OBORO GATANA", "cmd": "236", "btn": "C/D", "kind": "special"},
+   {"name": "TSUBAME ROKUREN", "cmd": "641236", "btn": "A+B", "kind": "super"}
+  ],
+  "WAN-FU": [
+   {"name": "SHIN KIKOU BAKUTENHOH", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "KIKOU SENPUU GEKI", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "BENPATSU", "cmd": "214", "btn": "C+D", "kind": "special"},
+   {"name": "KIKOU DAI BOKUSATSU", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "SHIN KIKOU DAI BAKUTEN", "cmd": "641236", "btn": "B", "kind": "super"}
+  ]
  }
 }

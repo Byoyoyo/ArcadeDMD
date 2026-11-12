@@ -149,5 +149,74 @@
   "p2_mode": 0,
   "_p1_chr": 0,
   "_p2_chr": 1
+ },
+ "specials": {
+  "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+  "kinds": ["Desperation Moves", "Special Moves"],
+  "super_needs": ["Needs a FLASHING Life Bar"],
+  "CHINTAO": [
+   {"name": "PIGTAIL FIST", "cmd": "236", "btn": "B", "kind": "special"},
+   {"name": "SNOW SCATTERING PALM", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "THUNDERCLAP KICK", "cmd": "4123", "btn": "C", "kind": "special"},
+   {"name": "THUNDERCLAP SCISSORS", "cmd": "632146", "btn": "A+C", "kind": "super"}
+  ],
+  "GOLRIO": [
+   {"name": "PULSE WAVE", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "PHOENIX FLIGHT", "cmd": "2369", "btn": "B", "kind": "special"},
+   {"name": "TURTLE BELLY", "cmd": "6236", "btn": "C", "kind": "special"},
+   {"name": "TURTLE HOP", "cmd": "46321", "btn": "B+D", "kind": "super"}
+  ],
+  "HAN": [
+   {"name": "TIGER SIMOON", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "VIOLENT FIST", "cmd": "646", "btn": "C", "kind": "special"},
+   {"name": "SUPREMACY KICK", "cmd": "41236", "btn": "B", "kind": "special"},
+   {"name": "FURIOUS FANDANGO", "cmd": "641236", "btn": "B+D", "kind": "super"}
+  ],
+  "KARATE": [
+   {"name": "SCORCHING EARTH", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "REAPING KICK", "cmd": "41236", "btn": "C", "kind": "special"},
+   {"name": "ERUPTION", "cmd": "646", "btn": "A", "kind": "special"},
+   {"name": "DEMON CHARGE", "cmd": "214", "btn": "B", "kind": "special"}
+  ],
+  "KIM": [
+   {"name": "TIGER SIMOON", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "SUPREMACY KICK", "cmd": "41236", "btn": "B", "kind": "special"},
+   {"name": "LIGHTNING KICK", "cmd": "646", "btn": "C", "kind": "special"},
+   {"name": "HUMAN SHURIKEN", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "EAGLE SWOOPING BLOW", "cmd": "641236", "btn": "B+C", "kind": "super"}
+  ],
+  "MAGIC": [
+   {"name": "DUNK SHOT", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "RISING DOUBLE PUNCH", "cmd": "646", "btn": "A", "kind": "special"},
+   {"name": "LAYUP KICK", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "BRAVE STORM", "cmd": "41236", "btn": "C", "kind": "special"},
+   {"name": "BRAVE HURRICANE", "cmd": "64123", "btn": "B+D", "kind": "super"}
+  ],
+  "MASTER": [
+   {"name": "BLAZE BURST", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "STRETCH CATCH", "cmd": "64123", "btn": "A", "kind": "special"},
+   {"name": "TELEPORT STOMP", "cmd": "28", "btn": "C", "kind": "special", "hold": [0]},
+   {"name": "PULLING HAND BLOW", "cmd": "412363216", "btn": "A", "kind": "super"}
+  ],
+  "MIYUKI": [
+   {"name": "FIERCE WINDS", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "DEADLY BULLET", "cmd": "41236", "btn": "B", "kind": "special"},
+   {"name": "LIGHTNING KICK", "cmd": "6236", "btn": "C", "kind": "special"},
+   {"name": "BLOODY CLAWS", "cmd": "28", "btn": "B", "kind": "special"},
+   {"name": "SUPER TWIN CLAW", "cmd": "63216", "btn": "B+D", "kind": "super"}
+  ],
+  "NICK": [
+   {"name": "GRENADE TOSS", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "BULL CHARGE", "cmd": "646", "btn": "B", "kind": "special"},
+   {"name": "CHARGING EAGLE", "cmd": "64123", "btn": "A", "kind": "special"},
+   {"name": "SUPER CHARGING EAGLE", "cmd": "41216", "btn": "B+D", "kind": "super"}
+  ],
+  "ROPHEN": [
+   {"name": "THUNDER WIND PALM", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "ROARING KICK", "cmd": "41236", "btn": "B", "kind": "special"},
+   {"name": "TAICHI BREAKER", "cmd": "64123", "btn": "C", "kind": "special"},
+   {"name": "CRESCENT FLIP", "cmd": "28", "btn": "B", "kind": "special"},
+   {"name": "SUPER TAICHI BREAKER", "cmd": "2364", "btn": "A+C", "kind": "super"}
+  ]
  }
 }
