@@ -15,7 +15,7 @@ Avec `"mode": "always"` (voir [[Réglages]]) le marquee reste à ArcadeDMD tout 
 
 ## Quand personne ne joue
 
-Les jeux de combat attendent une pièce. Le logo du jeu est entre deux monnayeurs, une pièce qui tourne au-dessus de chacun. Mets une pièce, elle tombe dans sa fente avec +1 et les crédits qui roulent, puis les boutons 1P et 2P START et PRESS START s'affichent. La démo du jeu, derrière, ne déclenche rien.
+Les jeux de combat attendent une pièce. Le logo du jeu est entre deux monnayeurs, une pièce qui tourne au-dessus de chacun. Mets une pièce, elle tombe dans sa fente avec +1 et les crédits qui roulent, puis PRESS START s'affiche en grand, les monnayeurs et leurs pièces restent. La démo du jeu, derrière, ne déclenche rien.
 
 ![L'écran des pièces sur le marquee HD](images/coin_screen_hd.gif)
 
