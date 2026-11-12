@@ -1,15 +1,16 @@
 """Attract screen of the fighting games on the HD screen.
 
 Two coin doors, with a coin spinning above each one. When the credits go up, a coin turns on its edge and
-drops into its slot: sparks, +1, and the credit counter rolls. A moment later the doors make way for the 1P and
-2P START buttons and PRESS START. No coin put in, nothing drops: the coins just keep spinning.
+drops into its slot: sparks, +1, and the credit counter rolls. A moment later PRESS START comes in big, the doors and
+their coins stay (no 1P and 2P START buttons since 1.36.2). No coin put in, nothing drops: the coins just keep spinning.
 Coins, doors, buttons and neon texts are prepared once with Pillow, then kept as pygame surfaces.
 
 Écran d'attente des jeux de combat sur l'écran HD.
 
 Deux monnayeurs, une pièce qui tourne au-dessus de chacun. Quand les crédits montent, une pièce se met sur la
-tranche et tombe dans sa fente : étincelles, +1, le compteur de crédits roule. Puis les boutons START 1P et 2P
-et PRESS START. Sans pièce mise, rien ne tombe : les pièces tournent.
+tranche et tombe dans sa fente : étincelles, +1, le compteur de crédits roule. Puis PRESS START en grand, les monnayeurs et
+leurs pièces restent (plus de boutons START 1P et 2P depuis la 1.36.2). Sans pièce mise, rien ne tombe : les pièces
+tournent.
 Pièces, monnayeurs, boutons et textes néon sont préparés une fois avec Pillow, puis gardés en surfaces pygame.
 """
 
@@ -401,10 +402,7 @@ class CoinDoors:
             self.warm()
             return
         dx = (1 - e) * self.S(420)
-        if a_doors > 0.01:
-            self._draw_doors(screen, now, a_doors, dx)
-        if a_doors < 0.99:
-            self._draw_buttons(screen, now, 1.0 - a_doors, dx)
+        self._draw_doors(screen, now, 1.0, dx)                  # they stay with PRESS START (1.36.2) / ils restent
         on = 1.0 if enter >= 1 else (0.2 if int(enter * 24) % 4 == 1 else e)       # the neon turns on
         self._draw_texts(screen, now, a_doors, on)
         for t0, x in self.plus:

@@ -1828,10 +1828,9 @@ class CoinOpEl(Element):
                 else:
                     self._gold(cv, num, nx, 14, t, flash=flash)
                 cv.reset_clip()
-        elif c:                                               # credits: PRESS START with a button
-            lt = t % 1.2
-            self._button(cv, self.SLOT_X + self.SLOT_W / 2, 20.5, 6.0, 0.15 < lt < 0.4, 0.5 + 0.5 * math.sin(t * 6))
-            cv.text(self.small, "1P", int(self.SLOT_X + self.SLOT_W / 2) - 3, 9, (255, 168, 48))
+        elif c:                                               # credits: PRESS START, the coin over its slot (no
+            self._idle_coin(cv, t)                            # 1P button since 1.36.2) / la pièce sur sa fente
+            self._slot(cv, 0.0)
             k = 0.75 + 0.25 * math.sin(t * 6)
             self._gold(cv, "PRESS START", self._centered_x("PRESS START"), 13, t, k=k)
             n = int(c)
