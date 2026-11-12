@@ -218,8 +218,10 @@ def draw_specials(hd, screen, cache, state, side, vals, game, name, x0, x1, y0, 
     room = x1 - S(16) - dots_w - x
     r, sp = S(16), S(5)
 
+    title = str(row.get("name", ""))
+
     def needs(r, nsize):
-        w = hd.text_width(str(row.get("name", "")), "xbold", nsize) + S(16)
+        w = hd.text_width(title, "xbold", nsize) + S(16)
         if when:
             w += hd.text_width(tr(*when), "xbold", S(15)) + S(10)
         w += len(cmd) * (2 * r + sp) + (r * 1.4 + S(4) if cmd else 0)
@@ -232,15 +234,20 @@ def draw_specials(hd, screen, cache, state, side, vals, game, name, x0, x1, y0, 
             w += hd.text_width(tr("RAPIDE", "RAPID"), "xbold", S(15)) + S(8)
         return w
     nsize = S(23)
+    while nsize > S(17) and needs(r, nsize) > room:
+        nsize -= 1
+    while r > S(13) and needs(r, nsize) > room:
+        r -= 1
+    while len(title) > 6 and needs(r, nsize) > room:              # a long name cut short, the command kept whole
+        title = title[:-2].rstrip() + "…"                         # un nom long raccourci, la commande gardée entière
+        title = title.replace("……", "…")
     while nsize > S(13) and needs(r, nsize) > room:
         nsize -= 1
-    while r > S(9) and needs(r, nsize) > room:
-        r -= 1
     alpha = int(255 * a)
     dy = (1 - a) * S(6)                                           # it rises a little as it comes / il monte en arrivant
     yy = y + dy
     ncol = (255, int(214 + 30 * k), 120) if gold else CREAM
-    x += hd.put(screen, hd.text(str(row.get("name", "")), "xbold", nsize, ncol, glow=0), x, yy, "left", "middle", alpha=a) + S(16)
+    x += hd.put(screen, hd.text(title, "xbold", nsize, ncol, glow=0), x, yy, "left", "middle", alpha=a) + S(16)
     if when:
         x += hd.put(screen, hd.text(tr(*when), "xbold", S(15), GREY, glow=0), x, yy, "left", "middle", alpha=a) + S(10)
     for j, d in enumerate(cmd):
