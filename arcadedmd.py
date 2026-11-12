@@ -366,6 +366,11 @@ def start_window(cfg, log, open_now=False):
                 (tr("Quitter", "Quit"), quit_all)]
 
     panel.actions = {"quit": quit_all, "restart": restart}
+    try:
+        from dmd import gui_setup
+        panel.extra.update(gui_setup.Setup(ROOT, log).routes())
+    except Exception as e:
+        log(tr(f"fenêtre : onglets de réglage indisponibles ({e})", f"window: settings tabs unavailable ({e})"))
     tray = None
     if traymod.available():
         ico = os.path.join(ROOT, "dmd", "gui", "arcadedmd.ico")

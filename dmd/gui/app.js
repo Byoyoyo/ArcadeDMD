@@ -104,7 +104,7 @@ function logClass(text) {
 }
 
 TABS.push({
-  id: "etat", fr: "État", en: "Status",
+  id: "etat", fr: "État", en: "Status", order: 1,
   render(main) {
     main.append(
       h("div", { id: "alerts", style: "display:flex;flex-direction:column;gap:10px" }),
@@ -256,7 +256,7 @@ function showStopped() {
 }
 
 TABS.push({
-  id: "journal", fr: "Journal", en: "Log",
+  id: "journal", fr: "Journal", en: "Log", order: 9,
   render(main) {
     const box = h("div", { class: "logbox", id: "logbox", role: "log", "aria-live": "off" });
     const filter = h("input", { type: "search", id: "logfilter", placeholder: t("Chercher dans le journal", "Search the log"),
@@ -380,9 +380,12 @@ async function frames() {
   setTimeout(frames, 500);
 }
 
-buildTabs();
-window.addEventListener("hashchange", route);
-route();
-poll();
-setInterval(poll, 1000);
-frames();
+function start() {
+  TABS.sort((a, b) => (a.order || 0) - (b.order || 0));
+  buildTabs();
+  window.addEventListener("hashchange", route);
+  route();
+  poll();
+  setInterval(poll, 1000);
+  frames();
+}
