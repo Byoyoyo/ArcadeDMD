@@ -3,7 +3,7 @@
 Two coin doors, with a coin spinning above each one. When the credits go up, a coin turns on its edge and
 drops into its slot: sparks, +1, and the credit counter rolls. A moment later PRESS START comes in big, the doors and
 their coins stay (no 1P and 2P START buttons since 1.36.2). No coin put in, nothing drops: the coins just keep spinning.
-Coins, doors, buttons and neon texts are prepared once with Pillow, then kept as pygame surfaces.
+Coins, doors and neon texts are prepared once with Pillow, then kept as pygame surfaces.
 
 Écran d'attente des jeux de combat sur l'écran HD.
 
@@ -11,7 +11,7 @@ Deux monnayeurs, une pièce qui tourne au-dessus de chacun. Quand les crédits m
 tranche et tombe dans sa fente : étincelles, +1, le compteur de crédits roule. Puis PRESS START en grand, les monnayeurs et
 leurs pièces restent (plus de boutons START 1P et 2P depuis la 1.36.2). Sans pièce mise, rien ne tombe : les pièces
 tournent.
-Pièces, monnayeurs, boutons et textes néon sont préparés une fois avec Pillow, puis gardés en surfaces pygame.
+Pièces, monnayeurs et textes néon sont préparés une fois avec Pillow, puis gardés en surfaces pygame.
 """
 
 import math
@@ -25,7 +25,6 @@ NEON = (255, 150, 40)
 ROLL = (255, 170, 50)
 SMALL = (230, 190, 120)
 PLUS = (255, 200, 60)
-RED_BUTTON, BLUE_BUTTON = (225, 30, 20), (30, 90, 235)
 
 
 def _mix(a, b, t):
@@ -57,10 +56,10 @@ def door_label(n):
 
 
 class CoinDoors:
-    HOLD = 2.6                    # CREDITS n stays this long after a coin, then the START buttons
+    HOLD = 2.6                    # CREDITS n stays this long after a coin, then PRESS START
     FALL, FLASH, BACK = 0.35, 0.25, 0.4
     PHASES = 40                   # images of a coin turn
-    SWAP = 0.3                    # doors <-> buttons crossfade
+    SWAP = 0.3                    # CREDITS n <-> PRESS START crossfade
     HOVER, R = 96, 46             # coin above its door (1920 x 460 units)
     SLOT_TOP = 260
 
@@ -199,49 +198,6 @@ class CoinDoors:
                fill=(255, 240, 230, 240), anchor="mm")
         return self.hd._surf(img.reduce(ss))
 
-    def _button(self, color, pressed, glow, label):
-        gi = max(0, min(5, int(round(glow * 5))))
-        return self._get(("button", color, pressed, gi, label), lambda: self._button_img(color, pressed, gi / 5, label))
-
-    def _button_parts(self):
-        def make():
-            ss = 2
-            z = self.s * ss
-            R, pad = 70 * z, 50 * z
-            size = int(2 * (R + pad))
-            c = size / 2
-            m = Image.new("L", (size, size), 0)
-            ImageDraw.Draw(m).ellipse([c - R - 8 * z, c - R - 8 * z, c + R + 8 * z, c + R + 8 * z], fill=255)
-            hl = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-            ImageDraw.Draw(hl).ellipse([c - R * 0.55, c - R * 0.8, c + R * 0.1, c - R * 0.35], fill=(255, 255, 255, 140))
-            return {"blur": m.filter(ImageFilter.GaussianBlur(24 * z)), "hl": hl.filter(ImageFilter.GaussianBlur(6 * z)),
-                    "z": z, "R": R, "size": size, "ss": ss}
-        return self._get("button_parts", make)
-
-    def _button_img(self, color, pressed, glow, label):
-        P = self._button_parts()
-        z, R, size, ss = P["z"], P["R"], P["size"], P["ss"]
-        c = size / 2
-        k = 0.4 + 0.8 * glow
-        img = Image.new("RGBA", (size, size), color + (0,))
-        img.putalpha(P["blur"].point(lambda v: min(255, int(v * k))))
-        d = ImageDraw.Draw(img)
-        d.ellipse([c - R - 12 * z, c - R - 8 * z, c + R + 12 * z, c + R + 16 * z], fill=(20, 20, 26, 255))
-        d.ellipse([c - R - 10 * z, c - R - 10 * z, c + R + 10 * z, c + R + 10 * z], fill=(70, 72, 84, 255),
-                  outline=(150, 152, 166, 255), width=max(1, int(3 * z)))
-        oy = 8 * z if pressed else 0
-        base = _mix(color, (0, 0, 0), 0.35 if pressed else 0.0)
-        for i in range(16):
-            q = i / 16
-            rr = R * (1 - q * 0.75)
-            d.ellipse([c - rr, c - rr + oy - q * 10 * z, c + rr, c + rr + oy - q * 10 * z],
-                      fill=_mix(_mix(base, (0, 0, 0), 0.25), _mix(base, (255, 255, 255), 0.35), q) + (255,))
-        if not pressed:
-            img = Image.alpha_composite(img, P["hl"])
-            d = ImageDraw.Draw(img)
-        d.text((c, c + oy - 4 * z), label, font=self.hd.font("black", max(6, int(40 * z))), fill=(255, 255, 255, 230), anchor="mm")
-        return self.hd._surf(img.reduce(ss))
-
     def _neon(self, text, size, color):
         """Neon text: wide soft glow, tighter glow, light core. Returns the surfaces and where the pen starts."""
         key = ("neon", text, size, color)
@@ -309,10 +265,6 @@ class CoinDoors:
             S = self.S
             self.todo += [lambda: self._neon("INSERT COIN", S(74), NEON), lambda: self._neon("+1", S(70), PLUS),
                           lambda: self._neon("PRESS START", S(74), NEON)]
-            for color, label in ((RED_BUTTON, "1P"), (BLUE_BUTTON, "2P")):
-                for g in range(6):
-                    for p in (False, True):
-                        self.todo.append(lambda c=color, p=p, g=g, lab=label: self._button(c, p, g / 5, lab))
         end = time.perf_counter() + budget
         while self.todo and time.perf_counter() < end:
             self.todo.pop(0)()
@@ -443,15 +395,6 @@ class CoinDoors:
                 cut = int(top - int(y0))
                 if cut > 0:
                     self._blit(screen, coin, (x0, y0), alpha, self.pg.Rect(0, 0, coin.get_width(), min(coin.get_height(), cut)))
-
-    def _draw_buttons(self, screen, now, alpha, dx):
-        S = self.S
-        g = 0.5 + 0.5 * math.sin(now * 6)
-        for side, color, label, pressed, glow in ((0, RED_BUTTON, "1P", 0.15 < now % 1.3 < 0.4, g),
-                                                 (1, BLUE_BUTTON, "2P", 0.8 < now % 1.3 < 1.05, 1 - g)):
-            b = self._button(color, pressed, glow, label)
-            cx = self.door_x(side) + (-dx if side == 0 else dx)
-            self._blit(screen, b, (cx - b.get_width() / 2, S(280) - b.get_height() / 2), alpha)
 
     def _draw_texts(self, screen, now, a_doors, on):
         S, W = self.S, self.W
