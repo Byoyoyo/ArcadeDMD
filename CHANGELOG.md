@@ -6,6 +6,16 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 To update, extract the new version over the old one. Your `config.json`, the addresses learned and your own pictures are kept.
 Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `config.json`, les adresses apprises et tes propres images sont gardés.
 
+## 1.36.2
+
+### English
+- The marquee could stay empty at the first game after a long wait, until ArcadeDMD was started again. Its link to RetroArch could take RetroArch's own port while RetroArch was closed. It now always takes another one.
+- No more 1P and 2P START buttons on the attract screen. With credits, PRESS START shows in big and the coin doors stay. On the LED panel, the coin floats over its slot.
+
+### Français
+- Le marquee pouvait rester vide au premier jeu après une longue attente, jusqu'à ce qu'on relance ArcadeDMD. Son lien avec RetroArch pouvait prendre le port de RetroArch pendant que RetroArch était fermé. Il en prend maintenant toujours un autre.
+- Plus de boutons START 1P et 2P sur l'écran d'attente. Avec des crédits, PRESS START s'affiche en grand et les monnayeurs restent. Sur la dalle LED, la pièce flotte au-dessus de sa fente.
+
 ## 1.36.1
 
 ### English

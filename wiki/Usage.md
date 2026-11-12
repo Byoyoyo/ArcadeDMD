@@ -15,7 +15,7 @@ With `"mode": "always"` (see [[Configuration]]) the marquee stays with ArcadeDMD
 
 ## When nobody plays
 
-The fighting games wait for a coin. The game's logo sits between two coin doors, a coin spinning above each one. Insert a coin and it drops into its slot with +1 and the credits rolling, then the 1P and 2P START buttons and PRESS START show. The game's own demo, behind, sets off nothing.
+The fighting games wait for a coin. The game's logo sits between two coin doors, a coin spinning above each one. Insert a coin and it drops into its slot with +1 and the credits rolling, then PRESS START shows in big while the doors and their coins stay. The game's own demo, behind, sets off nothing.
 
 ![The coin screen on the HD marquee](images/coin_screen_hd.gif)
 
