@@ -139,3 +139,9 @@ code { font: 12.5px var(--mono); background: var(--field); border: 1px solid var
 .screen[aria-pressed="true"] .what { color: var(--amber); }
 .field select { appearance: auto; }
 input:disabled, select:disabled { opacity: .5; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px; background: var(--side); border: 1px solid var(--line);
+  border-radius: 12px; align-self: flex-start; }
+.seg button { font-weight: 600; font-size: 14px; border-radius: 9px; padding: 9px 18px; min-height: 42px; cursor: pointer;
+  border: 1px solid transparent; background: transparent; color: var(--soft); }
+.seg button:hover { color: var(--text); background: var(--raise); }
+.seg button[aria-pressed="true"] { background: var(--amber); border-color: var(--amber); color: var(--amber-ink); }

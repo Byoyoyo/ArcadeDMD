@@ -72,7 +72,8 @@ class Setup:
                 ("POST", "/api/emulators/retroarch/fix"): self.fix_retroarch,
                 ("POST", "/api/emulators/mame/install"): self.install_plugin,
                 ("POST", "/api/emulators/open"): self.open_thing, ("POST", "/api/emulators/record"): self.save_record,
-                ("POST", "/api/coins/learn"): self.learn_coins, ("POST", "/api/captures/pack"): self.pack_last}
+                ("POST", "/api/coins/learn"): self.learn_coins, ("POST", "/api/captures/pack"): self.pack_last,
+                ("GET", "/api/frontend"): self.frontend, ("POST", "/api/frontend"): self.save_frontend}
 
     # ------------------------------------------------------------ remembered folders / dossiers retenus
     def _window_file(self):
@@ -472,3 +473,74 @@ class Setup:
                 pass
         self.log(tr(f"fenêtre : {os.path.basename(out)} prêt à envoyer", f"window: {os.path.basename(out)} ready to send"))
         return {"ok": True, "file": os.path.basename(out), "size": size}
+
+    # ------------------------------------------------------------ the frontend / le frontal
+    def frontend(self, _qs):
+        from .app import load_config
+        from .launchbox import find_launchbox
+        from .retrobat import find_retrobat
+        cfg = load_config(self.root, lambda *_: None)
+        fe = cfg.get("frontend") if isinstance(cfg.get("frontend"), dict) else {}
+        pv = (cfg.get("outputs") or {}).get("preview") or {}
+        lb_set = (cfg.get("intro") or {}).get("launchbox") or pv.get("launchbox") or ""
+        lb = find_launchbox(self.root, {"launchbox": lb_set})
+        rb = find_retrobat(self.root, str(fe.get("retrobat") or ""))
+        platforms = 0
+        if lb:
+            try:
+                platforms = len([n for n in os.listdir(os.path.join(lb, "Data", "Platforms")) if n.lower().endswith(".xml")])
+            except OSError:
+                pass
+        logos, systems = 0, 0
+        if rb:
+            base = os.path.join(rb, "roms")
+            try:
+                for sysname in os.listdir(base):
+                    try:
+                        n = len([f for f in os.listdir(os.path.join(base, sysname, "images"))
+                                 if f.lower().rsplit(".", 1)[0].endswith(("-marquee", "-wheel"))])
+                    except OSError:
+                        continue
+                    if n:
+                        logos += n
+                        systems += 1
+            except OSError:
+                pass
+        use = str(fe.get("use") or "auto").lower()
+        return {"use": use if use in ("auto", "launchbox", "retrobat", "none") else "auto",
+                "launchbox": {"dir": lb or lb_set, "found": bool(lb), "platforms": platforms},
+                "retrobat": {"dir": rb or str(fe.get("retrobat") or ""), "found": bool(rb), "logos": logos, "systems": systems},
+                "between": "games" if str(pv.get("mode") or "always").lower() == "games" else "always",
+                "preview": bool(pv.get("enabled")), "logo_intro": bool((cfg.get("intro") or {}).get("logo", True))}
+
+    def save_frontend(self, data):
+        cfg = self.config()
+        fe = cfg.get("frontend") if isinstance(cfg.get("frontend"), dict) else {}
+        use = data.get("use")
+        if use in ("auto", "launchbox", "retrobat", "none"):
+            fe["use"] = use
+        if use == "launchbox" and data.get("launchbox") is not None:
+            d = str(data["launchbox"]).strip().strip('"')
+            if d:
+                from .launchbox import is_launchbox
+                if os.path.basename(d.rstrip("\\/")).lower() == "core":
+                    d = os.path.dirname(d.rstrip("\\/"))
+                if not is_launchbox(d):
+                    return {"ok": False, "error": tr("LaunchBox introuvable dans ce dossier, il faut celui qui contient Data et Images",
+                                                     "LaunchBox not found in this folder, it must hold Data and Images")}
+            cfg.setdefault("intro", {})["launchbox"] = d
+            cfg.setdefault("outputs", {}).setdefault("preview", {})["launchbox"] = d
+        if use == "retrobat" and data.get("retrobat") is not None:
+            d = str(data["retrobat"]).strip().strip('"')
+            if d:
+                from .retrobat import is_retrobat
+                if not is_retrobat(d):
+                    return {"ok": False, "error": tr("RetroBat introuvable dans ce dossier, il faut celui qui contient roms et emulationstation",
+                                                     "RetroBat not found in this folder, it must hold roms and emulationstation")}
+            fe["retrobat"] = d
+        cfg["frontend"] = fe
+        if data.get("between") in ("games", "always"):
+            cfg.setdefault("outputs", {}).setdefault("preview", {})["mode"] = data["between"]
+        setup_tools.save_config_file(self.root, cfg)
+        self.log(tr("fenêtre : frontal enregistré dans config.json", "window: frontend saved in config.json"))
+        return {"ok": True}

@@ -677,7 +677,8 @@ class Engine:
                 from .launchbox import LogoFinder
                 pv = (config.get("outputs") or {}).get("preview") or {}
                 lb = self.intro_cfg.get("launchbox") or pv.get("launchbox") or ""
-                self.logos = LogoFinder(root, {"launchbox": lb}, log, label=("logo au lancement", "logo at launch"))
+                self.logos = LogoFinder(root, {"launchbox": lb, "frontend": config.get("frontend")}, log,
+                                        label=("logo au lancement", "logo at launch"))
         self.sim = None
         self.demo_until = None
         self.source = None
@@ -1547,7 +1548,10 @@ def build_outputs(root, cfg, log, preview=True, zedmd=True, gif=None, gif_second
         outs.append(ZeDMDOutput(zcfg, root, log))
     if preview and o.get("preview", {}).get("enabled"):
         try:
-            outs.append(PreviewOutput(o["preview"], log))
+            pv = o["preview"]
+            if isinstance(cfg.get("frontend"), dict):      # RetroBat's logos too (1.37) / ceux de RetroBat aussi
+                pv = dict(pv, frontend=cfg["frontend"])
+            outs.append(PreviewOutput(pv, log))
         except Exception as e:
             log(tr(f"aperçu impossible : {e}", f"preview window unavailable: {e}"))
     if zedmd and o.get("pixelcade", {}).get("enabled"):

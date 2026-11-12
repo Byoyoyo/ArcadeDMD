@@ -6,6 +6,7 @@
 const OK_ICON = '<path d="M5 12l5 5 9-10"/>';
 const WARN_ICON = '<circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/>';
 const BAD_ICON = '<path d="M6 6l12 12M18 6L6 18"/>';
+const INFO_ICON = '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>';
 function mark(kind) {
   const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   s.setAttribute("width", "18"); s.setAttribute("height", "18"); s.setAttribute("viewBox", "0 0 24 24");
@@ -13,7 +14,7 @@ function mark(kind) {
   s.setAttribute("stroke", kind === "ok" ? "#5FE08F" : kind === "bad" ? "#FF6B6B" : kind === "warn" ? "#FFB547" : "#6E7588");
   s.style.flex = "none";
   s.style.marginTop = "1px";
-  s.innerHTML = kind === "ok" ? OK_ICON : kind === "bad" ? BAD_ICON : WARN_ICON;
+  s.innerHTML = kind === "ok" ? OK_ICON : kind === "bad" ? BAD_ICON : kind === "info" ? INFO_ICON : WARN_ICON;
   return s;
 }
 function check(kind, text) {
@@ -312,4 +313,96 @@ function recordCard(r, ra) {
       }) }, t("Préparer l'envoi de la dernière partie", "Get the last game ready to send"))),
     r.last ? h("span", { class: "small" }, t(`Dernière partie enregistrée ${r.last}`, `Last game recorded ${r.last}`)) : null);
   return card;
+}
+
+/* ---------------------------------------------------------------- Frontal / Frontend */
+TABS.push({
+  id: "frontal", fr: "Frontal", en: "Frontend", order: 4,
+  async render(main) {
+    loading(main, t("Frontal", "Frontend"), t("Les jeux sont reconnus par RetroArch et MAME, quel que soit le frontal. Le frontal donne les logos et le marquee entre deux parties.",
+                                              "Games are recognised by RetroArch and MAME, whatever the frontend. The frontend gives the logos and the marquee between games."));
+    let d;
+    try { d = await api("/api/frontend"); } catch (e) { $("tabbody").textContent = t("Réglages illisibles.", "Settings unreadable."); return; }
+    if (!APP.tab || APP.tab.id !== "frontal") return;
+    let use = d.use;
+    if (use === "auto") use = d.launchbox.found ? "launchbox" : d.retrobat.found ? "retrobat" : "none";
+    APP.extra.front = { d, use };
+    drawFront();
+  },
+});
+
+function drawFront() {
+  const { d, use } = APP.extra.front;
+  const body = $("tabbody");
+  body.className = "stack";
+  const seg = h("div", { class: "seg", role: "group", "aria-label": t("Frontal utilisé", "Frontend used") });
+  for (const [v, label] of [["launchbox", "LaunchBox / BigBox"], ["retrobat", "RetroBat"], ["none", t("Aucun", "None")]]) {
+    seg.append(h("button", { type: "button", "aria-pressed": String(use === v), onclick: () => {
+      APP.extra.front.use = v;
+      APP.extra.front.between = currentBetween();
+      drawFront();
+    } }, label));
+  }
+  const between = APP.extra.front.between || (use === "launchbox" ? d.between : "always");
+  const radio = (value, text) => h("label", { class: "check" },
+    h("input", { type: "radio", name: "between", value, checked: between === value }), text);
+  let cards;
+  if (use === "launchbox") {
+    const lb = d.launchbox;
+    cards = h("div", { class: "grid", style: "--min:340px" },
+      h("div", { class: "card" }, h("span", { class: "lab" }, t("Les logos", "The logos")),
+        field(t("Dossier de LaunchBox", "LaunchBox folder"), h("input", { id: "fe-lb", value: lb.dir || "", placeholder: "D:\\LaunchBox", spellcheck: "false" })),
+        check(lb.found ? "ok" : "warn", lb.found ? t(`LaunchBox trouvé, ${lb.platforms} plateformes`, `LaunchBox found, ${lb.platforms} platforms`)
+          : t("LaunchBox pas trouvé, indique son dossier", "LaunchBox not found, give its folder")),
+        h("div", { class: "row-c" }, mark("info"), h("span", { class: "soft" },
+          t("Les images Clear Logo de chaque plateforme, le jeu retrouvé par son romset dans ", "The Clear Logo images of each platform, the game found by its romset in "),
+          h("code", {}, "Data\\Platforms")))),
+      h("div", { class: "card" }, h("span", { class: "lab" }, t("Entre deux parties", "Between games")),
+        radio("games", t("ArcadeDMD se cache et BigBox garde le marquee", "ArcadeDMD hides and BigBox keeps the marquee")),
+        radio("always", t("ArcadeDMD garde le marquee avec sa propre animation", "ArcadeDMD keeps the marquee with its own animation"))));
+  } else if (use === "retrobat") {
+    const rb = d.retrobat;
+    cards = h("div", { class: "grid", style: "--min:340px" },
+      h("div", { class: "card" }, h("span", { class: "lab" }, t("Les logos", "The logos")),
+        field(t("Dossier de RetroBat", "RetroBat folder"), h("input", { id: "fe-rb", value: rb.dir || "", placeholder: "C:\\RetroBat", spellcheck: "false" })),
+        check(rb.found ? (rb.logos ? "ok" : "warn") : "warn", rb.found
+          ? (rb.logos ? t(`RetroBat trouvé, ${rb.logos} logos dans ${rb.systems} systèmes`, `RetroBat found, ${rb.logos} logos in ${rb.systems} systems`)
+                      : t("RetroBat trouvé, mais aucun logo téléchargé par son scraper", "RetroBat found, but no logo downloaded by its scraper"))
+          : t("RetroBat pas trouvé, indique son dossier", "RetroBat not found, give its folder")),
+        h("div", { class: "row-c" }, mark("info"), h("span", { class: "soft" },
+          t("Le logo est rangé au nom de la rom, ", "The logo is stored under the rom's name, "), h("code", {}, "roms\\mame\\images\\kof98-marquee.png"),
+          t(", sinon ", ", else "), h("code", {}, "-wheel.png"),
+          t(". Ce que le scraper de RetroBat a téléchargé suffit.", ". What RetroBat's scraper downloaded is enough.")))),
+      h("div", { class: "card" }, h("span", { class: "lab" }, t("Entre deux parties", "Between games")),
+        h("div", { class: "soft" }, t("RetroBat n'a pas d'écran de marquee à lui, ArcadeDMD garde donc l'écran.",
+                                      "RetroBat has no marquee screen of its own, so ArcadeDMD keeps the screen.")),
+        radio("always", t("ArcadeDMD garde le marquee avec sa propre animation", "ArcadeDMD keeps the marquee with its own animation")),
+        radio("games", t("ArcadeDMD se cache, un autre outil tient le marquee", "ArcadeDMD hides, another tool holds the marquee"))));
+  } else {
+    cards = h("div", { class: "card" }, h("span", { class: "lab" }, t("Sans frontal", "Without a frontend")),
+      h("div", { class: "soft" }, t("Le nom du jeu remplace son logo au lancement. Entre deux parties, ArcadeDMD garde le marquee avec sa propre animation.",
+                                    "The game's name replaces its logo at launch. Between games, ArcadeDMD keeps the marquee with its own animation.")));
+  }
+  const notes = [];
+  if (!d.preview) notes.push(check("info", t("Pas d'écran de marquee pour l'instant, le choix Entre deux parties servira quand il y en aura un (onglet Écrans).",
+                                           "No marquee screen for now, the Between games choice is used once there is one (Screens tab).")));
+  body.replaceChildren(seg, cards, ...notes,
+    h("div", { class: "btns", style: "justify-content:flex-end" },
+      h("button", { class: "btn", type: "button", onclick: () => route() }, t("Annuler", "Cancel")),
+      h("button", { class: "btn main", type: "button", onclick: (e) => busy(e.target, saveFront) }, t("Enregistrer", "Save"))));
+}
+
+function currentBetween() {
+  const r = document.querySelector('input[name="between"]:checked');
+  return r ? r.value : null;
+}
+
+async function saveFront() {
+  const { use } = APP.extra.front;
+  const data = { use, between: use === "none" ? "always" : (currentBetween() || "always") };
+  if (use === "launchbox") data.launchbox = $("fe-lb").value;
+  if (use === "retrobat") data.retrobat = $("fe-rb").value;
+  const r = await api("/api/frontend", data);
+  saved(r);
+  if (r.ok) setTimeout(() => { if (APP.tab && APP.tab.id === "frontal") route(); }, 2500);
 }
