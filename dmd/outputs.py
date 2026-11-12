@@ -415,6 +415,24 @@ class PreviewOutput:
         self.backend = "tk"
 
     def _on_close(self):
+        self._asked(None)
+
+    def _asked(self, ev):
+        """The window asked to close: Esc on it, or a close sent by Windows or another program. With ArcadeDMD's window
+        and icon running, it stays open and says so in the log (1.38): it quits from them. Alone (a demo), it closes.
+        / La fenêtre doit se fermer : Échap dessus, ou une fermeture envoyée par Windows ou un autre programme. Avec la
+        fenêtre et l'icône d'ArcadeDMD, elle reste ouverte et le dit dans le journal : on quitte depuis elles."""
+        pg = self.pg if self.backend == "pygame" else None
+        why = "Esc" if pg is not None and ev is not None and ev.type == pg.KEYDOWN else tr("fermeture demandée", "close asked")
+        if getattr(self, "keep_open", False):
+            now = time.monotonic()
+            if now - getattr(self, "_asked_t", -1e9) > 600:
+                self._asked_t = now
+                self.log(tr(f"écran : {why} sur la fenêtre du marquee, ignoré (ArcadeDMD se quitte depuis sa fenêtre ou "
+                            "son icône)", f"screen: {why} on the marquee's window, ignored (ArcadeDMD quits from its window "
+                            "or its icon)"))
+            return
+        self.why = why
         self.closed = True
 
     # -- premier plan pendant les jeux
@@ -517,7 +535,7 @@ class PreviewOutput:
             if self.backend == "pygame":
                 for ev in self.pg.event.get():
                     if ev.type == self.pg.QUIT:
-                        self.closed = True
+                        self._asked(ev)
             return
         if self.watch and now >= self.next_check:
             self.next_check = now + self.CHECK_EVERY
@@ -527,7 +545,7 @@ class PreviewOutput:
             pg = self.pg
             for ev in pg.event.get():
                 if ev.type == pg.QUIT or (ev.type == pg.KEYDOWN and ev.key == pg.K_ESCAPE):
-                    self.closed = True
+                    self._asked(ev)
             if now < self.hd_next:
                 return
             self.hd_next = now + 1.0 / self.hd_view.FPS
@@ -554,7 +572,7 @@ class PreviewOutput:
             pg = self.pg
             for ev in pg.event.get():
                 if ev.type == pg.QUIT or (ev.type == pg.KEYDOWN and ev.key == pg.K_ESCAPE):
-                    self.closed = True
+                    self._asked(ev)
             surf = pg.image.frombuffer(img.tobytes(), img.size, "RGB")
             ox = (self.width - img.size[0]) // 2
             oy = (self.height - img.size[1]) // 2

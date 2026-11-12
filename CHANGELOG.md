@@ -13,6 +13,8 @@ Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `con
 - The rounds won show as gold stars in every fighting game of single fighters, even when the game keeps no count of them. A match won says how many rounds to how many.
 - Big blows hit harder on the marquee. The damage shows on the bar, and a blow the game empties over several frames counts as one, with its shock wave.
 - Samurai Shodown II. The POW gauge under the fighter, POW MAX and its timer, and each fighter's weapon-breaking technique while it lasts. The winner's bar counted into the bonus no longer shows hits.
+- Super Puzzle Fighter II Turbo. Player 2 stays a human, not CPU, when the loser of a VS game starts again.
+- The marquee's window no longer closes on Esc or on a close sent by another program while ArcadeDMD's window and icon run. Any stop is written in the log, and the next start says when the run before ended without a word or crashed (runtime\crash.log).
 - The Last Blade 2. The computer's fighter is named, the rounds won and the super gauge are read from the game, and the stage follows the game's.
 
 ### Français
@@ -20,6 +22,8 @@ Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `con
 - Les rounds gagnés s'affichent en étoiles dorées dans tous les jeux de combat à un combattant, même quand le jeu ne les compte pas. Un match gagné dit combien de rounds à combien.
 - Les gros coups frappent plus fort sur le marquee. Les dégâts s'affichent sur la barre, et un coup que le jeu vide en plusieurs images compte pour un, avec son onde de choc.
 - Samurai Shodown II. La jauge POW sous le combattant, POW MAX et son chrono, et la technique de bris d'arme de chaque combattant tant qu'il dure. La barre du vainqueur décomptée dans le bonus ne montre plus de coups.
+- Super Puzzle Fighter II Turbo. Le joueur 2 reste un humain, et non CPU, quand le perdant d'une partie VS rejoue.
+- La fenêtre du marquee ne se ferme plus sur Échap ni sur une fermeture envoyée par un autre programme tant que la fenêtre et l'icône d'ArcadeDMD tournent. Tout arrêt est écrit dans le journal, et le démarrage suivant dit quand la fois d'avant s'est terminée sans prévenir ou a planté (runtime\crash.log).
 - The Last Blade 2. Le combattant de l'ordinateur a son nom, les rounds gagnés et la jauge de super sont lus dans le jeu, et le décor suit celui du jeu.
 
 ## 1.37.0
