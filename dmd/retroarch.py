@@ -647,6 +647,7 @@ class RetroArchSource:
         self.seen = False
         self.version = ""
         self.check_now = False        # lecture ratée : RetroArch vient peut-être de se fermer
+        self.beat = None              # told at each turn, for the watchdog (1.36) / à chaque tour, pour le chien de garde
         self.thread = threading.Thread(target=self._run, daemon=True)
         self.thread.start()
 
@@ -665,6 +666,8 @@ class RetroArchSource:
         misses = 0
         while not self.stop_ev.is_set():
             try:
+                if self.beat is not None:
+                    self.beat()
                 now = time.monotonic()
                 if now >= next_status or (self.check_now and now - last_status >= 0.2):
                     self.check_now = False

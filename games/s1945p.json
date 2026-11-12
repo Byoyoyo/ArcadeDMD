@@ -144,6 +144,30 @@
     "addr": "0x10FD82",
     "type": "u8",
     "note": "BIOS_MVS_FLAG: 0 home console (AES, no coins), otherwise arcade (MVS)"
+   },
+   "_mission": {
+    "addr": "0x1000D9",
+    "type": "u8",
+    "note": "the mission, 0 for the first: one more when the next mission's title screen comes (a game of 11 November recorded whole, 0 then 1 at 134 s, 2 at 239 s with MISSION 3 on the screen) (1.36)"
+   },
+   "_title": {
+    "addr": "0x100128",
+    "type": "u8",
+    "note": "1 on the screens between two missions and before the first one (the plane select, a mission's title), 0 while a mission is played: back to 0, the mission starts (same game) (1.36)"
+   },
+   "_bhp": {
+    "addr": "0x101EE6",
+    "type": "u16s",
+    "count": 40,
+    "stride": 328,
+    "note": "the life of the enemies, a word at +0x26 of each object of 328 bytes, objects 24 to 63 of the table that begins at 0x100000; 0xFFFF and the values from 0x8000 are a dead enemy. The bosses of the same game took objects 30 to 55: mission 1 one life of 1599 for both its shapes, mission 2 three shapes one after the other (480, 640, 675) (1.36)"
+   },
+   "_bmark": {
+    "addr": "0x101EF8",
+    "type": "u16s",
+    "count": 40,
+    "stride": 328,
+    "note": "the word at +0x38 of the same objects: 0x6FFE for the boss and its parts only (never for the big ships and fortresses in the middle of missions 1 and 2, which have up to 800), it tells the boss (1.36)"
    }
   }
  },

@@ -12,6 +12,7 @@ import math
 
 from .hd_games import CREAM, GOLD, RED, WHITE, GameScene, _clamp, _mix, _n, draw_img
 from .hd_games3 import DARK, AeroFightersScene, _capsule, _lerp, _shape, bomb_icon_draw, bomber_draw
+from .hd_mercs import BossAlert
 from .hd_themes4 import (HOOP_X, LB_FAR, ML_FLOOR, NB_COLS, NB_ROWS, RH_HORIZON, dodge_y, hoop_y, lb_xy, nb_grid,
                           rally_road)                          # (and the backdrops of this batch into hd_bg.BUILDERS)
 from .i18n import tr
@@ -199,7 +200,7 @@ class BarFill:
         return _clamp((v - self.lo) / self.span())
 
 
-class StrikersScene(AeroFightersScene):
+class StrikersScene(BossAlert, AeroFightersScene):
     """Strikers 1945 Plus as in the game: the plane chosen by the player over war-torn ground, its shots, the super shot,
     the bomb that brings a formation of bombers. On the sides, the game's panels: the score, the lives, the bombs and
     the SUPER SHOT box, where the bar fills as the game's own does and the number gives the super shots in stock
@@ -220,6 +221,8 @@ class StrikersScene(AeroFightersScene):
     ODD = "bomber"
     PANEL = 236                                         # width of the side panels / largeur des panneaux de côté
     ZONE = (150, 330)
+    BOSS_MARK = 0x6FFE                                  # the word that tells the boss and its parts (1.36) / le boss
+    BOSS_WAIT = 2.0                                     # a shape down, the next one comes within that / la suivante
 
     def __init__(self, hd, rng=None):
         super().__init__(hd, rng)
@@ -231,10 +234,97 @@ class StrikersScene(AeroFightersScene):
         self.fill = {"p1": 0.0, "p2": 0.0}              # how full it shows / son remplissage à l'écran
         self.stock_t = {"p1": -99.0, "p2": -99.0}       # when a super shot was earned / quand un super tir est gagné
         self.bar_logs = 0
+        # 1.36: the missions and their bosses / les missions et leurs boss
+        self.boss = None
+        self.boss_seen = None                           # the mission whose boss was announced / annoncé pour celle-là
+        self.mission = None
+        self.title_prev = None
+        self.forms = 0                                  # boss shapes shown (tests) / formes du boss montrées
+        self.rise_t = {"p1": -99.0, "p2": -99.0}        # when the lives went up / quand les vies sont montées
 
     def restart(self, vals, now):
         super().restart(vals, now)
         self.fill = {"p1": 0.0, "p2": 0.0}
+        self.boss, self.boss_seen = None, None
+        self.title_prev = _n(vals.get("_title"))
+
+    def missions(self, vals, now):
+        """MISSION n when a mission starts (the screens between two missions end, "_title"), as the game's title of the
+        mission ("_mission", 0 for the first). / MISSION n quand une mission commence, comme le titre du jeu."""
+        m = _n(vals.get("_mission"))
+        m = int(m) + 1 if m is not None and 0 <= m < 20 else None
+        if m != self.mission:
+            self.boss = None                            # another mission: its own boss / une autre mission : son boss
+        self.mission = m
+        t = _n(vals.get("_title"))
+        if t == 0 and self.title_prev == 1 and m is not None:
+            self.slam(f"MISSION {m}", GOLD, now, 2.4, sub=tr("EN AVANT !", "GO!"))
+        self.title_prev = t
+
+    def boss_parts(self, vals):
+        """[(life, entry)] of the boss and its parts alive, or None when the game file reads none. / Le boss et ses
+        parties en vie."""
+        hps, marks = vals.get("_bhp"), vals.get("_bmark")
+        if not isinstance(hps, (list, tuple)) or not isinstance(marks, (list, tuple)):
+            return None
+        return [(int(h), i) for i, (h, m) in enumerate(zip(hps, marks))
+                if m == self.BOSS_MARK and isinstance(h, (int, float)) and 0 < h < 0x8000]
+
+    def track_boss(self, vals, now):
+        """The boss: announced when it comes, its bar under the logo, its shapes one after the other (a shape down and
+        another one within BOSS_WAIT: it changes, its bar fills again), BOSS DÉTRUIT then MISSION n ACCOMPLIE when none
+        comes. / Le boss : annoncé, sa barre, ses formes l'une après l'autre, BOSS DÉTRUIT puis MISSION ACCOMPLIE."""
+        parts = self.boss_parts(vals)
+        if parts is None:
+            return
+        B = self.boss
+        if B is None:
+            if parts and not self.nobody(vals):
+                hp, i = max(parts)
+                self.boss = {"hp": hp, "top": hp, "t0": now, "hit_t": -99.0, "down": None, "gone": None, "i": i}
+                if self.boss_seen != self.mission:
+                    self.boss_seen = self.mission
+                    self.announce(now)
+            return
+        if B["down"] is not None:
+            return
+        if B["gone"] is not None:                       # a shape down: another one, or the end / une autre, ou la fin
+            if parts:
+                hp, i = max(parts)
+                B.update(hp=hp, top=hp, i=i, gone=None, t0=now)
+                self.forms += 1
+                self.slam(tr("IL SE TRANSFORME !", "IT TRANSFORMS!"), RED, now, 1.6)
+                self.fx.shake(10, 0.5)
+            elif now - B["gone"] >= self.BOSS_WAIT:
+                B["down"] = now
+                self.slam(tr("BOSS DÉTRUIT !", "BOSS DESTROYED!"), GOLD, now, 1.6)
+                self.fx.flash((255, 250, 230), 0.5, 0.3)
+                if self.mission is not None:
+                    m = self.mission
+                    self.fx.later(1.6, self.slam, tr(f"MISSION {m} ACCOMPLIE !", f"MISSION {m} COMPLETE!"), GOLD, now + 1.6, 2.2)
+            return
+        alive = {i: hp for hp, i in parts}
+        hp = alive.get(B["i"], 0)
+        if hp > B["hp"]:
+            B["top"] = max(B["top"], hp)
+        elif hp < B["hp"]:
+            B["hit_t"] = now
+            if hp > 0:
+                cx = self.W / 2
+                self.fx.sparks(cx + self.S((hp / max(1, B["top"]) - 0.5) * 460), self.S(140), 10, (255, 220, 160), (150, 500),
+                               (180, 360), (0.2, 0.5), 600, "front", 2, 20)
+        B["hp"] = hp
+        if hp == 0:                                     # this shape is down: it blows up / cette forme saute
+            B["gone"] = now
+            self.shape_down(now)
+
+    def shape_down(self, now):
+        cx = self.W / 2
+        for i in range(7):
+            x = cx + self.rng.uniform(-300, 300) * self.s
+            y = self.S(self.rng.uniform(170, 340))
+            self.fx.later(0.12 * i, self.fx.explosion, x, y, 1.0 if i < 6 else 1.4, True)
+        self.fx.later(0.5, self.fx.shake, 18, 0.6)
 
     def kind(self, vals, side):
         v = _n(vals.get("plane" if side == "p1" else "plane_p2"))
@@ -294,7 +384,19 @@ class StrikersScene(AeroFightersScene):
         return 4
 
     def update(self, vals, now):
+        # a plane taken from the reserve is not a plane lost: the game counts one less when the mission's first plane
+        # takes off (still on the title screen) and just after a continue (1.36, the game of 11 November) / un avion sorti
+        # de la réserve n'est pas un avion perdu : au départ d'une mission et juste après un continue
+        title = _n(vals.get("_title"))
+        for side, suf in (("p1", ""), ("p2", "_p2")):
+            ch = self.changed(vals, "lives" + suf)
+            if ch and ch[1] < ch[0] and (title == 1 or now - self.rise_t[side] < 1.5):
+                self.prev["lives" + suf] = ch[1]
+            elif ch and ch[1] > ch[0]:
+                self.rise_t[side] = now
         super().update(vals, now)
+        self.missions(vals, now)
+        self.track_boss(vals, now)
         for side, suf in (("p1", ""), ("p2", "_p2")):
             P = self.ships[side]
             if not P["in"]:
@@ -364,6 +466,7 @@ class StrikersScene(AeroFightersScene):
     def draw_hud(self, screen, eng, vals, logo, now):
         raid = getattr(self, "raid", None)
         super().draw_hud(screen, eng, vals, logo, now)
+        self.draw_mission(screen, now)
         if raid is not None and now - raid[0] < 1.6:                    # the formation crosses the screen
             S = self.S
             img = self.img("s45_bomber", S(170), S(200), bomber_draw, flip=True)
@@ -377,6 +480,22 @@ class StrikersScene(AeroFightersScene):
                 screen.blit(sh, (int(bx + S(60) - sh.get_width() / 2), int(by + S(46) - sh.get_height() / 2)))
                 screen.blit(img, (int(bx - img.get_width() / 2), int(by - img.get_height() / 2)))
             self.status(screen, eng, vals, logo, now)                  # the panels stay above the formation
+
+    def draw_mission(self, screen, now):
+        """Under the logo: the boss bar while it fights, MISSION n otherwise; the red edges of the alarm (1.36).
+        / Sous le logo : la barre du boss pendant son combat, sinon MISSION n ; les bords rouges de l'alerte."""
+        hd, S, cx = self.hd, self.S, self.W / 2
+        B = self.boss
+        if B is not None and B["down"] is None:
+            if B["gone"] is None:
+                self.draw_boss(screen, B, cx, S(104), now)
+        elif self.mission is not None:
+            t = hd.text(f"MISSION {self.mission}", "stencil", S(30), CREAM, glow=0.3)
+            hd.put(screen, t, cx, S(126), "center", "middle")
+            for d in (-1, 1):
+                hd.put(screen, hd.text("‹‹‹" if d < 0 else "›››", "black", S(26), GOLD, glow=0.3), cx + d * (t["w"] / 2 + S(30)),
+                       S(126), "center", "middle")
+        self.draw_alarm(screen, now)
 
     def panel(self, screen, x, w):
         """A metal plate with rivets, as the panels of the game. / Une plaque de métal rivetée, comme les panneaux du jeu."""
@@ -417,10 +536,10 @@ class StrikersScene(AeroFightersScene):
                 continue
             suf = "" if side == "p1" else "_p2"
             self.box(screen, x0 + S(14), S(14), pw - S(28), S(92), (60, 46, 30), fill=(30, 22, 12, 230), radius=8)
-            self.text(screen, "SCORE", x0 + S(26), S(34), 26, (255, 170, 60), key="black", valign="middle", glow=0.2)
+            self.text(screen, "SCORE", cx, S(34), 26, (255, 170, 60), key="black", align="center", valign="middle", glow=0.2)
             sc = _n(vals.get("score" + suf))
-            if sc is not None:
-                hd._score(screen, eng, "score" + suf, x0 + pw - S(26), S(52), "right", S(44))
+            if sc is not None:                                         # centred in its box (1.36) / centré dans sa case
+                hd._score(screen, eng, "score" + suf, cx, S(52), "center", S(44))
             lives = _n(vals.get("lives" + suf))
             if lives is not None:                                      # the plane and how many are left
                 self.box(screen, x0 + S(14), S(116), pw - S(28), S(64), (60, 46, 30), fill=(30, 22, 12, 230), radius=8)
@@ -466,8 +585,10 @@ class StrikersScene(AeroFightersScene):
                     on = i < int(pwr)
                     pg.draw.rect(screen, (255, 210, 70) if on else (58, 46, 26), (int(x0 + S(28) + i * S(22)), S(386), S(16), S(46)), border_radius=S(3))
         plane = vals.get("plane_name")
-        if isinstance(plane, str) and plane and self.p1_in(vals):
-            self.label(screen, plane, W / 2, S(344), 26, GOLD, key="xbold", align="center", alpha=130)
+        said = now - self.cbar.said[1]                                 # +1 CRÉDIT rises over it: it steps aside (1.36)
+        fade = 1.0 if said >= 1.5 else (0.0 if said < 1.2 else (said - 1.2) / 0.3)   # / il s'efface pour + 1 CRÉDIT
+        if isinstance(plane, str) and plane and self.p1_in(vals) and fade > 0:
+            self.label(screen, plane, W / 2, S(344), 26, GOLD, key="xbold", align="center", alpha=130, fade=fade)
 
 
 # ============================================================================ Street Hoop

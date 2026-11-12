@@ -263,6 +263,113 @@
     "_p1_chr": 2,
     "_p2_chr": 4
   },
+  "hyper": {
+    "note": "the Hyper Combos of each fighter (1.36), one after another under the gauge from its first level (power_level, the number the game writes beside LEVEL), only those its level allows (lv, 1 by default), and over the marquee when a level is spent: named when only one of the fighter's costs that many levels, VARIABLE COMBINATION for two levels at once (both fighters, seen with Captain Commando and Mega Man in a recorded game of 11 November), HYPER COMBO otherwise. Commands from two move lists of the game that agree (rq87.flyingomelette.com and geocities mystix123), the level 3 supers made of buttons left out (Eternal Slumber, Shun Goku Satsu, Final Mission), Onslaught too",
+    "from": 1,
+    "spend": "level",
+    "label": ["HYPER COMBO", "HYPER COMBO"],
+    "team": ["VARIABLE COMBINATION", "VARIABLE COMBINATION"],
+    "moves": {
+      "WAR MACHINE": [
+        {"name": "PROTON CANNON", "cmd": "236", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]},
+        {"name": "WAR DESTROYER", "cmd": "236", "btn": ["+ 2 PIEDS", "+ 2 KICKS"]}
+      ],
+      "C.AMERICA": [
+        {"name": "FINAL JUSTICE", "cmd": "236", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]},
+        {"name": "HYPER CHARGING STAR", "cmd": "236", "btn": ["+ 2 PIEDS", "+ 2 KICKS"]},
+        {"name": "HYPER STARS & STRIPES", "cmd": "623", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]}
+      ],
+      "HULK": [
+        {"name": "GAMMA WAVE", "cmd": "236", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]},
+        {"name": "GAMMA QUAKE", "cmd": "236", "btn": ["+ 2 PIEDS", "+ 2 KICKS"]},
+        {"name": "GAMMA CRUSH", "cmd": "214", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]}
+      ],
+      "WOLVERINE": [
+        {"name": "BERSERKER BARRAGE X", "cmd": "236", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]},
+        {"name": "WEAPON X", "cmd": "623", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]},
+        {"name": "BERSERKER CHARGE", "cmd": "214", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]},
+        {"name": "FATAL CLAW", "cmd": "623", "btn": ["+ 2 PIEDS", "+ 2 KICKS"]}
+      ],
+      "GAMBIT": [
+        {"name": "ROYAL FLUSH", "cmd": "236", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]},
+        {"name": "CAJUN EXPLOSION", "cmd": "236", "btn": ["+ 2 PIEDS", "+ 2 KICKS"]}
+      ],
+      "VENOM": [
+        {"name": "VENOM WEB", "cmd": "236", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]},
+        {"name": "DEATH BITE", "cmd": "236", "btn": ["+ 2 PIEDS", "+ 2 KICKS"]}
+      ],
+      "SPIDER-MAN": [
+        {"name": "MAXIMUM SPIDER", "cmd": "236", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]},
+        {"name": "CRAWLER ASSAULT", "cmd": "236", "btn": ["+ 2 PIEDS", "+ 2 KICKS"]},
+        {"name": "ULTIMATE WEB THROW", "cmd": "214", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]}
+      ],
+      "ROLL": [
+        {"name": "HYPER ROLL", "cmd": "236", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]},
+        {"name": "RUSH DRILL", "cmd": "236", "btn": ["+ 2 PIEDS", "+ 2 KICKS"]},
+        {"name": "BEAT PLANE", "cmd": "214", "btn": ["+ 2 PIEDS", "+ 2 KICKS"]}
+      ],
+      "RYU": [
+        {"name": "SHINKUU HADOKEN", "cmd": "236", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]},
+        {"name": "SHINKUU TATSUMAKI", "cmd": "214", "btn": ["+ 2 PIEDS", "+ 2 KICKS"]},
+        {"name": "SHIN SHORYUKEN", "cmd": "623", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]}
+      ],
+      "C.COMMANDO": [
+        {"name": "CAPTAIN SWORD", "cmd": "236", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]},
+        {"name": "CAPTAIN STORM", "cmd": "236", "btn": ["+ 2 PIEDS", "+ 2 KICKS"]}
+      ],
+      "CHUN-LI": [
+        {"name": "KIKOSHO", "cmd": "236", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]},
+        {"name": "SENRETSU KYAKU", "cmd": "236", "btn": ["+ 2 PIEDS", "+ 2 KICKS"]},
+        {"name": "HAZAN TENSHO KYAKU", "cmd": "623", "btn": ["+ 2 PIEDS", "+ 2 KICKS"]}
+      ],
+      "JIN": [
+        {"name": "BLODIA PUNCH", "cmd": "236", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]},
+        {"name": "SAOTOME CYCLONE", "cmd": "236", "btn": ["+ 2 PIEDS", "+ 2 KICKS"]},
+        {"name": "BLODIA VULCAN", "cmd": "214", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]}
+      ],
+      "ZANGEIF": [
+        {"name": "FINAL ATOMIC BUSTER", "cmd": "63214789", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]},
+        {"name": "ULTRA F.A.B.", "cmd": "63214789", "btn": ["+ 2 PIEDS", "+ 2 KICKS"], "lv": 3}
+      ],
+      "S.HIRYU": [
+        {"name": "OUROBOROS", "cmd": "236", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]},
+        {"name": "LEGION", "cmd": "236", "btn": ["+ 2 PIEDS", "+ 2 KICKS"]},
+        {"name": "RAGNAROK", "cmd": "623", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]}
+      ],
+      "MORRIGAN": [
+        {"name": "SOUL ERASER", "cmd": "236", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]},
+        {"name": "DARKNESS ILLUSION", "cmd": "236", "btn": ["+ 2 PIEDS", "+ 2 KICKS"]},
+        {"name": "SILHOUETTE BLADE", "cmd": "623", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]}
+      ],
+      "ROCKMAN": [
+        {"name": "HYPER MEGA MAN", "cmd": "236", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]},
+        {"name": "RUSH DRILL", "cmd": "236", "btn": ["+ 2 PIEDS", "+ 2 KICKS"]},
+        {"name": "BEAT PLANE", "cmd": "214", "btn": ["+ 2 PIEDS", "+ 2 KICKS"]}
+      ],
+      "ALT-VENOM": [
+        {"name": "VENOM WEB", "cmd": "236", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]},
+        {"name": "DEATH BITE", "cmd": "236", "btn": ["+ 2 PIEDS", "+ 2 KICKS"]}
+      ],
+      "ALT-HULK": [
+        {"name": "GAMMA WAVE", "cmd": "236", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]},
+        {"name": "GAMMA QUAKE", "cmd": "236", "btn": ["+ 2 PIEDS", "+ 2 KICKS"]},
+        {"name": "GAMMA CRUSH", "cmd": "214", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]}
+      ],
+      "ALT-WAR-MAC": [
+        {"name": "PROTON CANNON", "cmd": "236", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]},
+        {"name": "WAR DESTROYER", "cmd": "236", "btn": ["+ 2 PIEDS", "+ 2 KICKS"]}
+      ],
+      "SHADOW LADY": [
+        {"name": "BIG BANG LASER", "cmd": "236", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]},
+        {"name": "GALAXY MISSILE", "cmd": "236", "btn": ["+ 2 PIEDS", "+ 2 KICKS"]}
+      ],
+      "ALT-MORRIGA": [
+        {"name": "BRILLIANT SHOWER", "cmd": "236", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]},
+        {"name": "LUMINOUS ILLUSION", "cmd": "236", "btn": ["+ 2 PIEDS", "+ 2 KICKS"]},
+        {"name": "SPLENDOR LOVE", "cmd": "623", "btn": ["+ 2 POINGS", "+ 2 PUNCHES"]}
+      ]
+    }
+  },
   "hd": {
     "stages": ["fight_city", "fight_lab", "fight_harbor", "fight_market", "fight_jungle", "fight_desert", "fight_snow", "space", "fight_castle", "fight_ruins"],
     "places": ["", "", "", "", "", "", "", "", "", ""],

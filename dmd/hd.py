@@ -44,6 +44,7 @@ from .hd_cave import SCENES as _SCENES_CAVE
 from .hd_panels import SCENES as _SCENES_CPS_PANELS
 from .hd_spf import SCENES as _SCENES_SPF
 from .hd_games6 import SCENES_PB1 as _SCENES_PB1
+from .hd_mercs import SCENES as _SCENES_MERCS
 from .hd_moves import draw_panel, draw_wins
 from .hd_mslug import MetalSlugScene, family
 from .i18n import tr
@@ -80,6 +81,7 @@ GAME_SCENES = dict(_SCENES_117, **_SCENES_118, **_SCENES_119, **_SCENES_120, **_
 GAME_SCENES.update(_SCENES_CPS_PANELS)       # the Capcom games with characters, shown like Metal Slug (1.30)
 GAME_SCENES.update(_SCENES_SPF)              # Super Puzzle Fighter II Turbo, its wells read gem by gem (1.34)
 GAME_SCENES.update(_SCENES_PB1)              # Puzzle Bobble as in the game (1.35)
+GAME_SCENES.update(_SCENES_MERCS)            # Mercs laid out like Metal Slug, its boss announced (1.36)
 MSLUG_WEAPONS = {0: ("PISTOLET", "HANDGUN"), 1: ("FUSIL À POMPE", "SHOTGUN"), 2: ("LANCE-FLAMMES", "FLAMETHROWER"),
                  3: ("LANCE-ROQUETTES", "ROCKET LAUNCHER"), 4: ("MITRAILLETTE", "MACHINE GUN")}
 
@@ -826,7 +828,7 @@ class HDRenderer:
             elif team:
                 self.draw_team(screen, team, S(44) if side == "p1" else W - S(44), S(372), side, room)
             else:
-                self.draw_super(screen, vals, side, now, room, self._level_top(eng, side))
+                self.draw_super(screen, vals, side, now, room, self._level_top(eng, side), game, name if human else None)
         credits = _num(vals.get("credits"))
         if credits is not None and self.fight_cbar is not None:  # as in Metal Slug: the coin (€), CRÉDITS 07 / comme Metal Slug
             self.fight_cbar.set_symbol((getattr(eng, "cfg", None) or {}).get("coin_symbol", "€"))
@@ -894,7 +896,7 @@ class HDRenderer:
         spec = (((g or {}).get("memory") or {}).get("values") or {}).get("power_level" if side == "p1" else "power_level_p2")
         return _num(spec.get("max")) if isinstance(spec, dict) else None
 
-    def draw_super(self, screen, vals, side, now, room, top=None):
+    def draw_super(self, screen, vals, side, now, room, top=None, game=None, name=None):
         """Super gauge of the Capcom fighting games (Alpha, Marvel, Street Fighter III...) under the fighter: it fills up,
         turns gold and says MAX when full. With a level (the Marvel games, X-Men), the bar of the current level and the
         level beside it (POWER 1, POWER 2), full with POWER MAX at the top level (top).
@@ -933,6 +935,56 @@ class HDRenderer:
         pg.draw.rect(screen, (150, 170, 210), (x, y, w, h), max(1, S(2)), border_radius=h // 2)
         if full:
             self.put(screen, self.text("MAX", "black", S(26), MAX_INK, glow=0), x + w / 2, y + h / 2, "center", "middle")
+        hyper = (game or {}).get("hyper") if isinstance(game, dict) else None
+        frm = _num(hyper.get("from")) if isinstance(hyper, dict) else None
+        if frm is not None and lv is not None:                    # a game whose supers take one level (Marvel vs. Capcom,
+            if lv >= frm:                                         # 1.36): from that level on / dès ce niveau
+                self.draw_hyper(screen, side, game, name, now, y + h + S(26), lv)
+        elif full and (lv is None or not top or lv >= top):       # its super at the top level only / au niveau le plus haut
+            self.draw_hyper(screen, side, game, name, now, y + h + S(26), lv)
+
+    HYPER_TURN = 2.6                                              # each super shown this long in turn / chacun à son tour
+
+    def draw_hyper(self, screen, side, game, name, now, y, level=None):
+        """How to do the supers of the fighter under the gauge, as the desperation moves of The King of Fighters '98
+        ("hyper" in the game file, 1.36): the name, the arrows and the buttons, one super after another when it has several,
+        only those its level allows ("lv", 1 by default). / Comment faire les supers du combattant sous la jauge, l'un après
+        l'autre, seulement ceux que son niveau permet."""
+        hyper = (game or {}).get("hyper") if isinstance(game, dict) else None
+        moves = hyper.get("moves") if isinstance(hyper, dict) else None
+        if not isinstance(moves, dict) or not isinstance(name, str):
+            return
+        rows = [m for m in moves.get(name.upper()) or [] if isinstance(m, dict) and m.get("cmd")
+                and (level is None or (_num(m.get("lv")) or 1) <= level)]
+        if not rows:
+            return
+        from .hd_moves import MIRROR, arrow, parse_cmd
+        S, W = self.S, self.W
+        n = len(rows)
+        i, ph = int(now // self.HYPER_TURN) % n, now % self.HYPER_TURN
+        a = 1.0 if n == 1 else max(0.0, min(1.0, ph / 0.3, (self.HYPER_TURN - ph) / 0.3))
+        m = rows[i]
+        k = 0.5 + 0.5 * math.sin(now * 6)
+        fm = self.fight.moves if self.fight is not None else None
+        r = S(15)
+        steps = parse_cmd(m["cmd"])
+        if side == "p2":                                          # P2 on the right faces left / P2 regarde à gauche
+            steps = [MIRROR[c] for c in steps]
+        mv = self.text(str(m.get("name", "")), "stencil", S(26), (255, int(214 + 30 * k), 120), glow=0.4)
+        btn = self.text(str(tr(*m["btn"]) if isinstance(m.get("btn"), list) else m.get("btn", "")), "xbold", S(22), CREAM, glow=0)
+        wa = len(steps) * (2 * r + S(6))
+        pr, pw = S(4), (n * S(14) + S(8) if n > 1 else 0)           # a dot per super, the one shown lit / un point par super
+        total = mv["w"] + S(18) + wa + S(10) + btn["w"] + pw
+        x = S(44) if side == "p1" else W - S(44) - total
+        dy = (1 - a) * S(6)                                       # it rises a little as it comes / il monte en arrivant
+        self.put(screen, mv, x, y + dy, "left", "middle", alpha=a)
+        x += mv["w"] + S(18) + r
+        for d in steps:
+            arrow(self, screen, x, y + dy, r, d, (255, 214, 120), alpha=int(255 * a), moves=fm)
+            x += 2 * r + S(6)
+        x += self.put(screen, btn, x - r + S(4), y + dy, "left", "middle", alpha=a) - r + S(4)
+        for j in range(n if n > 1 else 0):
+            self.pg.draw.circle(screen, (255, 214, 120) if j == i else (90, 96, 120), (int(x + S(16) + j * S(14)), int(y)), pr)
 
     @staticmethod
     def _game(eng):

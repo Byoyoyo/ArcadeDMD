@@ -6,6 +6,22 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 To update, extract the new version over the old one. Your `config.json`, the addresses learned and your own pictures are kept.
 Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `config.json`, les adresses apprises et tes propres images sont gardés.
 
+## 1.36.0
+
+### English
+- Mercs gets an HD scene of its own, laid out like Metal Slug. The weapon held with its power level, the MEGA CRASH bombs, the energy, the time, bigger explosions, the boss announced with its life bar, and MISSION n.
+- X-Men: Children of the Atom shows FIGHT! with the game's own. Under the full gauge, how to do each fighter's Hyper X, and its name in big when it goes off.
+- Marvel vs. Capcom shows the Hyper Combos of the fighter on screen under the gauge, one after the other, and a big title each time a level is spent.
+- Strikers 1945 Plus announces each mission and its boss, follows the boss's life and its shapes, then BOSS DESTROYED and MISSION COMPLETE. Its score is centred, and a plane taken from the reserve no longer shows -1 LIFE.
+- The console window can no longer stop ArcadeDMD. A long stall is written in the log, with a file in `runtime` to find its cause.
+
+### Français
+- Mercs a sa propre scène HD, disposée comme Metal Slug. L'arme tenue et son niveau de puissance, les bombes MÉGA CRASH, l'énergie, le temps, des explosions plus fortes, le boss annoncé avec sa barre de vie, et MISSION n.
+- X-Men: Children of the Atom affiche FIGHT ! en même temps que le jeu. Sous la jauge pleine, comment faire le Hyper X de chaque combattant, et son nom en grand quand il part.
+- Marvel vs. Capcom affiche sous la jauge les Hyper Combos du combattant à l'écran, l'un après l'autre, et un grand titre à chaque niveau dépensé.
+- Strikers 1945 Plus annonce chaque mission et son boss, suit la vie du boss et ses formes, puis BOSS DÉTRUIT et MISSION ACCOMPLIE. Son score est centré, et un avion sorti de la réserve n'affiche plus -1 VIE.
+- La fenêtre de la console ne peut plus arrêter ArcadeDMD. Un long blocage est écrit dans le journal, avec un fichier dans `runtime` pour en trouver la cause.
+
 ## 1.35.0
 
 ### English

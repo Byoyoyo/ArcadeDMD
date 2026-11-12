@@ -28,7 +28,7 @@ from .textfiles import TextFiles
 from .capture import Capture
 from .i18n import tr
 
-VERSION = "1.35.0"
+VERSION = "1.36.0"
 
 DEFAULT_CONFIG = {
     "language": "auto",
@@ -66,20 +66,104 @@ class Logger:
     def __init__(self, path=None, echo=True):
         self.path = path
         self.echo = echo
+        self.lines = None           # the console written by a thread of its own (background) / la console à part
 
-    def __call__(self, msg):
-        line = time.strftime("%H:%M:%S ") + str(msg)
-        if self.echo:
+    def background(self):
+        """The console written by a thread of its own (1.36): a Windows console that waits (a click in it starts a
+        selection, and Windows then holds every program that writes to it) never stops ArcadeDMD, the file gets each
+        line first. / La console écrite à part : une console Windows en attente (un clic dedans commence une sélection,
+        et Windows bloque alors tout programme qui y écrit) n'arrête jamais ArcadeDMD, le fichier reçoit chaque ligne
+        d'abord."""
+        if self.lines is None and self.echo:
+            self.lines = queue.Queue(maxsize=2000)
+            threading.Thread(target=self._echo, daemon=True).start()
+
+    def _echo(self):
+        while True:
+            line = self.lines.get()
             try:
                 print(line, flush=True)
             except Exception:
                 pass
+
+    def __call__(self, msg):
+        line = time.strftime("%H:%M:%S ") + str(msg)
         if self.path:
             try:
                 with open(self.path, "a", encoding="utf-8") as f:
                     f.write(line + "\n")
             except OSError:
                 pass
+        if self.echo:
+            if self.lines is not None:
+                try:
+                    self.lines.put_nowait(line)
+                except queue.Full:                   # the console waits: the file has it / le fichier l'a
+                    pass
+            else:
+                try:
+                    print(line, flush=True)
+                except Exception:
+                    pass
+
+
+class Watchdog:
+    """Writes in the log when the engine or the RetroArch thread stops for more than LIMIT seconds, with where each
+    thread of ArcadeDMD was (runtime/blocage-<time>.txt), and when it goes on again (1.36): after a long wait the marquee
+    could stay empty at the next game with nothing in the log. / Écrit dans le journal quand le moteur ou la lecture de
+    RetroArch s'arrête plus de LIMIT secondes, avec où en était chaque fil d'ArcadeDMD, et quand il repart."""
+    LIMIT = 10.0
+    one = None
+
+    @classmethod
+    def get(cls, root, log):
+        if cls.one is None:
+            cls.one = cls(root, log)
+        cls.one.log = log
+        return cls.one
+
+    def __init__(self, root, log):
+        self.root, self.log = root, log
+        self.beats, self.stuck = {}, {}
+        threading.Thread(target=self._run, daemon=True).start()
+
+    def beat(self, name):
+        self.beats[name] = time.monotonic()
+
+    def forget(self, name):
+        self.beats.pop(name, None)
+        self.stuck.pop(name, None)
+
+    def _run(self):
+        while True:
+            time.sleep(2.0)
+            now = time.monotonic()
+            for name, t in list(self.beats.items()):
+                late = now - t
+                if late > self.LIMIT and name not in self.stuck:
+                    self.stuck[name] = t
+                    where = self._dump()
+                    self.log(tr(f"blocage : {name} arrêté depuis {late:.0f} s" + (f", détail dans {where}" if where else ""),
+                                f"stall: {name} stopped for {late:.0f} s" + (f", details in {where}" if where else "")))
+                elif late <= self.LIMIT and name in self.stuck:
+                    gone = t - self.stuck.pop(name)
+                    self.log(tr(f"blocage : {name} repart après {gone:.0f} s", f"stall: {name} goes on after {gone:.0f} s"))
+
+    def _dump(self):
+        """Where each thread was, in runtime/blocage-<time>.txt. / Où en était chaque fil."""
+        try:
+            import traceback
+            names = {t.ident: t.name for t in threading.enumerate()}
+            out = []
+            for ident, frame in sys._current_frames().items():
+                out.append(f"--- {names.get(ident, ident)}")
+                out.extend(x.rstrip() for x in traceback.format_stack(frame))
+            path = os.path.join(self.root, "runtime", time.strftime("blocage-%Y%m%d-%H%M%S.txt"))
+            with open(path, "w", encoding="utf-8") as f:
+                f.write("\n".join(out) + "\n")
+            return os.path.relpath(path, self.root)
+        except Exception:
+            return None
 
 
 def clean_title(desc):
@@ -1286,8 +1370,13 @@ class Engine:
         period = 1.0 / fps
         t0 = time.monotonic()
         nxt = t0
+        dog = Watchdog.get(self.root, self.log) if seconds is None else None     # the cabinet, not a GIF / la borne
+        if dog is not None and self.retroarch:
+            self.retroarch.beat = lambda: dog.beat("RetroArch")
         try:
             while True:
+                if dog is not None:
+                    dog.beat(tr("le moteur", "the engine"))
                 now = time.monotonic() - t0
                 frame = self.step(now)
                 for out in self.outputs:
@@ -1310,6 +1399,9 @@ class Engine:
         except KeyboardInterrupt:
             pass
         finally:
+            if dog is not None:
+                dog.forget(tr("le moteur", "the engine"))
+                dog.forget("RetroArch")
             for out in self.outputs:
                 try:
                     out.close()

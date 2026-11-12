@@ -140,6 +140,7 @@ class FightFX:
         self._rays()                                                  # préparés d'avance : pas d'à-coup au premier super
         self.moves = Moves(hd)                                        # the desperation moves (1.32) / les coups désespérés
         self.dm = DMShow(self)                                        # their show (1.33 test 51) / leur spectacle
+        self.hyper_lv = {}                                            # the gauge level seen, for the supers (1.36)
         self.warm = self._warm_list()
 
     def _warm_list(self):
@@ -232,6 +233,7 @@ class FightFX:
         self.run_t = -99.0                         # when the timer was last seen counting down / quand il a décompté
         self.sub_prev = None                       # the timer's fraction of a second ("_time_sub") / sa fraction de seconde
         self.sub_moves = []                        # when it changed lately / quand elle a changé dernièrement
+        self.sub_start = None                      # the value it holds until FIGHT, if the game says it / sa valeur d'attente
         self.fs_prev = None                        # the fight's state last read ("_fight_state") / l'état du combat
         self.round_t0 = None                       # when the bars of this round filled / quand les barres se sont remplies
         self.fight_why = ""                        # what gave FIGHT ! (log) / ce qui a donné FIGHT !
@@ -368,6 +370,8 @@ class FightFX:
             self.fs_prev = 0                                          # out of a select screen: no fight before it, its
             # READY is seen even if it came with the screen / pas de combat avant : son READY est vu
         self.sub_read = _n(vals.get("_time_sub")) is not None
+        sdef = (((game or {}).get("memory") or {}).get("values") or {}).get("_time_sub")
+        self.sub_start = _n(sdef.get("start")) if isinstance(sdef, dict) else None
         self.timer_read = self.sub_read or _n(vals.get("time")) is not None
         if self.idle and not idle:
             self.live_t = now                                         # START pressed: the game clears its fighters
@@ -392,6 +396,8 @@ class FightFX:
         if isinstance((game or {}).get("moves"), dict):
             self.moves.update(vals, hist, now, key, game, self.humans)
             self._dm_watch(vals, game, now)
+        if isinstance((game or {}).get("hyper"), dict):
+            self._hyper_watch(vals, game["hyper"], now)
         # "round": the round of a King of Fighters match, from 0, one more at each K.O. (cheat "Select Current Round"),
         # shown as ROUND n when the next fight begins (1.31) / le round du match, ROUND n quand le combat suivant commence
         self.round_v = _n(vals.get("round"))
@@ -535,10 +541,12 @@ class FightFX:
         # its fraction of a second ("_time_sub", The King of Fighters '98) moves at every frame while it runs, three moves
         # in 0.6 s tell it at once, a value put back at a round's start moves once / sa fraction de seconde bouge à chaque
         # image quand il tourne, trois changements en 0,6 s le disent tout de suite ; remise en place, elle ne bouge qu'une fois
+        # a game that holds it at one value until its FIGHT ("start", X-Men: Children of the Atom 40): its first move away
+        # from it tells it (1.36) / un jeu qui la tient à une valeur jusqu'à son FIGHT : la quitter le dit
         sub = _n(vals.get("_time_sub"))
         if sub is not None and self.sub_prev is not None and sub != self.sub_prev:
             self.sub_moves = [x for x in self.sub_moves if now - x < 0.6] + [now]
-            if len(self.sub_moves) >= 3:
+            if len(self.sub_moves) >= 3 or (self.sub_start is not None and self.sub_prev == self.sub_start):
                 self.run_t = now
         self.sub_prev = sub
         fs = _n(vals.get("_fight_state"))
@@ -701,6 +709,39 @@ class FightFX:
         self.prev["p1"], self.prev["p2"] = h1, h2
         self.prev_time = _n(vals.get("time"))
         self._rounds(vals, self.fx.now, play=False)
+
+    def _hyper_watch(self, vals, hyper, now):
+        """The supers of a game whose gauge has levels ("hyper" in the game file, 1.36), shown like a desperation move,
+        its name over the marquee then on its side, the hits counted. X-Men ("spend": "top"): the gauge going from its top
+        level back to the first one. Marvel vs. Capcom ("spend": "level"): any level spent, the super named when only one
+        of the fighter's costs that many levels ("lv"), two levels at once without one being the team super ("team").
+        / Les supers d'un jeu à niveaux, montrés comme un coup désespéré : la jauge qui retombe du plus haut niveau au
+        premier (X-Men), ou chaque niveau dépensé (Marvel vs. Capcom)."""
+        top = hyper.get("top", 3)
+        by_level = hyper.get("spend") == "level"
+        h1, h2 = _n(vals.get("health")), _n(vals.get("health_p2"))
+        fresh = h1 is not None and h2 is not None and h1 >= 99.5 and h2 >= 99.5    # a new round, the gauges set again
+        kind = tr(*hyper.get("label", ("HYPER X", "HYPER X")))
+        for side in ("p1", "p2"):
+            lv = _n(vals.get("power_level" if side == "p1" else "power_level_p2"))
+            old = self.hyper_lv.get(side)
+            self.hyper_lv[side] = lv
+            if lv is None or old is None or fresh:
+                continue
+            spent = (old - lv) if by_level else (top if old >= top and lv <= 1 else 0)
+            if spent <= 0:
+                continue
+            name = vals.get(side + "_char")
+            moves = (hyper.get("moves") or {}).get(name.upper() if isinstance(name, str) else "") or []
+            names = [str(m.get("name")) for m in moves if isinstance(m, dict) and m.get("name")
+                     and (not by_level or (_n(m.get("lv")) or 1) == spent)]
+            fighter = name if isinstance(name, str) else ""
+            if len(names) == 1:                                       # the only one it can be / le seul possible
+                self.dm.start(side, names[0], fighter, False, now, kind=kind)
+            elif by_level and spent >= 2 and hyper.get("team"):       # both fighters at once / les deux à la fois
+                self.dm.start(side, tr(*hyper["team"]), fighter, False, now, kind="")
+            else:                                                     # which one is not known / lequel, on ne sait pas
+                self.dm.start(side, kind, fighter, False, now, kind="")
 
     def _dm_watch(self, vals, game, now):
         """A DM ! or SDM ! the panel just told for a human: its show starts (the choice of 9 November, 1.33 test 51).
