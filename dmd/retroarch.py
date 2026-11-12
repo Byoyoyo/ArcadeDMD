@@ -86,12 +86,38 @@ class RetroArchClient:
                 pass
             self.sock = None
 
+    def _open(self, rcvbuf=None):
+        """The socket, made when missing on a port of its own, never RetroArch's (1.36.2). Windows gives a socket any free
+        port of its range (49152 to 65535), 55355 too: while RetroArch was closed, a new socket every two seconds, and
+        after an hour or two one could land on it. ArcadeDMD then sent its questions to itself, took them for RetroArch's
+        answers (no game), never let the port go, and the next RetroArch could not open it: nothing on the marquee and
+        nothing in the log until ArcadeDMD was started again. / Le socket, créé sur un port à lui, jamais celui de
+        RetroArch : Windows peut lui donner le 55355, ArcadeDMD se parlait alors à lui-même et RetroArch ne pouvait plus
+        ouvrir son port."""
+        if self.sock is None:
+            for _ in range(8):
+                sk = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                try:
+                    sk.bind(("", 0))
+                    if sk.getsockname()[1] != self.addr[1]:
+                        break
+                except OSError:
+                    pass
+                sk.close()
+            else:
+                raise OSError("no port of its own")
+            if rcvbuf:
+                try:
+                    sk.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, rcvbuf)
+                except OSError:
+                    pass
+            self.sock = sk
+        return self.sock
+
     def send(self, text):
         """A command without an answer (SCREENSHOT, 1.33 test 35). / Une commande sans réponse."""
         try:
-            if self.sock is None:
-                self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            self.sock.sendto((text + "\n").encode("ascii"), self.addr)
+            self._open().sendto((text + "\n").encode("ascii"), self.addr)
             return True
         except OSError:
             return False
@@ -99,9 +125,7 @@ class RetroArchClient:
     def cmd(self, text, expect=None):
         """Envoie une commande, renvoie la réponse (texte) ou None sans réponse."""
         try:
-            if self.sock is None:
-                self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s = self.sock
+            s = self._open()
             s.setblocking(False)               # vide les réponses en retard
             try:
                 while True:
@@ -113,6 +137,9 @@ class RetroArchClient:
             end = time.monotonic() + self.timeout
             while True:
                 reply = s.recv(65535).decode("utf-8", "replace").strip()
+                if reply == text.strip():          # its own question: never an answer (1.36.2) / sa propre question
+                    self.close()
+                    return None
                 if expect is None or reply.startswith(expect):
                     return reply
                 if time.monotonic() > end:
@@ -179,13 +206,8 @@ class RetroArchClient:
         même image ; rien n'est redemandé une par une, un RetroArch qui ne répond plus se voit dans le temps habituel."""
         out = {}
         try:
-            if self.sock is None:
-                self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                try:                              # room for a whole batch of replies (Metal Slug 4's enemies, 25 of 1.6 KB)
-                    self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 262144)    # / la place pour toutes les réponses
-                except OSError:
-                    pass
-            s = self.sock
+            # room for a whole batch of replies (Metal Slug 4's enemies, 25 of 1.6 KB) / la place pour toutes les réponses
+            s = self._open(262144)
             s.setblocking(False)
             try:
                 while True:
@@ -193,9 +215,10 @@ class RetroArchClient:
             except OSError:
                 pass
             s.settimeout(self.timeout)
-            want = {}
+            want, asked = {}, set()
             for a, n in reqs:
                 want["READ_CORE_RAM %x " % a] = (a, n)
+                asked.add("READ_CORE_RAM %x %d" % (a, n))
                 s.sendto(("READ_CORE_RAM %x %d\n" % (a, n)).encode("ascii"), self.addr)
             end = time.monotonic() + self.timeout
             while want and time.monotonic() < end:
@@ -203,6 +226,9 @@ class RetroArchClient:
                     reply = s.recv(65535).decode("utf-8", "replace").strip() + " "
                 except socket.timeout:
                     break
+                if reply.strip() in asked:         # its own question / sa propre question
+                    self.close()
+                    return {}
                 for prefix in want:
                     if reply.startswith(prefix):
                         a, n = want.pop(prefix)
@@ -228,9 +254,7 @@ class RetroArchClient:
         se reconnaît à son adresse, ce qui n'est pas revenu est redemandé une par une."""
         out = {}
         try:
-            if self.sock is None:
-                self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s = self.sock
+            s = self._open()
             try:
                 s.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 1 << 20)   # room for the replies / place pour les réponses
             except OSError:
@@ -243,9 +267,10 @@ class RetroArchClient:
                 pass
             s.settimeout(self.timeout)
             for i in range(0, len(reqs), window):
-                want = {}
+                want, asked = {}, set()
                 for a, n in reqs[i:i + window]:
                     want["READ_CORE_RAM %x " % a] = (a, n)
+                    asked.add("READ_CORE_RAM %x %d" % (a, n))
                     s.sendto(("READ_CORE_RAM %x %d\n" % (a, n)).encode("ascii"), self.addr)
                 end = time.monotonic() + max(self.timeout, 0.5)
                 while want and time.monotonic() < end:
@@ -253,6 +278,8 @@ class RetroArchClient:
                         reply = s.recv(65535).decode("utf-8", "replace").strip() + " "
                     except socket.timeout:
                         break
+                    if reply.strip() in asked:     # its own question / sa propre question
+                        raise OSError("its own question")
                     for prefix in want:
                         if reply.startswith(prefix):
                             a, n = want.pop(prefix)
