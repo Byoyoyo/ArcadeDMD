@@ -153,7 +153,7 @@ TABS.push({
     if (g) {
       set("g-lab", g.source === "demo" ? t("Démo en cours", "Demo running") : t("Jeu en cours", "Game running"));
       set("g-title", g.title || g.rom || "?");
-      const bits = [sourceName(g)];
+      const bits = [g.source === "demo" ? "" : sourceName(g)];
       if (g.key) bits.push(`games/${g.key}.json`);
       else if (g.source !== "demo") bits.push(t("pas de fichier dans games, scène de base", "no file in games, basic scene"));
       if (g.values) bits.push(t(`${g.values} valeurs lues`, `${g.values} values read`));
@@ -364,7 +364,7 @@ async function frame(name, imgId, noneId) {
   if (!img) return;
   try {
     const r = await fetch("/api/frame/" + name + "?t=" + Date.now());
-    if (!r.ok) return;
+    if (r.status !== 200) return;
     const url = URL.createObjectURL(await r.blob());
     img.onload = () => { if (APP.frameUrls[name]) URL.revokeObjectURL(APP.frameUrls[name]); APP.frameUrls[name] = url; };
     img.src = url;

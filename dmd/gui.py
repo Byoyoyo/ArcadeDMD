@@ -456,7 +456,7 @@ class ControlPanel:
                 try:
                     if path in ("/", "/index.html"):
                         with open(os.path.join(STATIC, "index.html"), "r", encoding="utf-8") as f:
-                            page = f.read().replace("__TOKEN__", panel.token)
+                            page = f.read().replace("__TOKEN__", panel.token).replace("__VERSION__", panel.version)
                         return self._send(200, page, TYPES[".html"])
                     if path == "/api/state":
                         panel.last_seen = time.monotonic()
@@ -467,8 +467,8 @@ class ControlPanel:
                         panel.want_until = time.monotonic() + 3.0
                         name = path.rsplit("/", 1)[-1]
                         data = panel.frames.get(name)
-                        if data is None:
-                            return self._send(404, {"error": "none"})
+                        if data is None:                    # not drawn yet / pas encore dessinée
+                            return self._send(204, b"", "text/plain")
                         return self._send(200, data, "image/jpeg" if name.endswith(".jpg") else "image/png")
                     route = panel.extra.get(("GET", path))
                     if route is not None:
