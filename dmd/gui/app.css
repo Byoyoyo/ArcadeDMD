@@ -124,8 +124,8 @@ code { font: 12.5px var(--mono); background: var(--field); border: 1px solid var
 .chip.warn { color: var(--amber); background: rgba(255, 181, 71, .12); }
 .chip.bad { color: var(--bad); background: rgba(255, 107, 107, .12); }
 .chip.dim { color: var(--dim); }
-.inline { display: flex; gap: 8px; min-width: 0; }
-.inline input { flex: 1 1 auto; min-width: 0; background: var(--field); color: var(--text); border: 1px solid var(--edge);
+.inline { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; }
+.inline input { flex: 1 1 220px; min-width: 0; background: var(--field); color: var(--text); border: 1px solid var(--edge);
   border-radius: 10px; padding: 9px 12px; min-height: 42px; }
 .inline .btn { flex: none; }
 .pairs { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 8px 16px; font-size: 14px; }

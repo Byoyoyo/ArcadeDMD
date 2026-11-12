@@ -12,11 +12,15 @@ Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `con
 - ArcadeDMD gets a window and an icon near the clock, in place of the console. Status shows the game running, with the marquee and the LED panel live. Screens picks the marquee screen and the LED panel. Emulators checks RetroArch and the MAME plugin and fixes them in one click. Frontend picks where the logos come from. Log follows the log live.
 - The game logos can come from RetroBat, from what its scraper downloaded.
 - `run.bat` starts ArcadeDMD without a console and opens its window. `run_console.bat` keeps the console.
+- The folders of the Emulators and Frontend tabs can be picked in Windows' own folder window (Browse).
+- Mercs. The boss bar follows the whole boss, part after part like the game's, a mega crash included. The boss of mission 3 is announced, its guns no longer. The energy bar is full at the player's top life, which grows in the game.
 
 ### Français
 - ArcadeDMD a une fenêtre et une icône près de l'horloge, à la place de la console. État montre le jeu en cours, avec le marquee et la dalle LED en direct. Écrans choisit l'écran du marquee et la dalle LED. Émulateurs vérifie RetroArch et le plugin MAME et les corrige d'un clic. Frontal choisit d'où viennent les logos. Journal suit le journal en direct.
 - Les logos des jeux peuvent venir de RetroBat, de ce que son scraper a téléchargé.
 - `run.bat` lance ArcadeDMD sans console et ouvre sa fenêtre. `run_console.bat` garde la console.
+- Les dossiers des onglets Émulateurs et Frontal se choisissent dans la fenêtre de dossiers de Windows (Parcourir).
+- Mercs. La barre du boss suit tout le boss, partie après partie comme celle du jeu, méga crash compris. Le boss de la mission 3 est annoncé, ses canons non. La barre d'énergie est pleine au maximum du joueur, qui grandit dans le jeu.
 
 ## 1.36.2
 

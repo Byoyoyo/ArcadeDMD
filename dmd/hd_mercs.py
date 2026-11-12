@@ -22,8 +22,13 @@ NAMES = {0: ("FUSIL D'ASSAUT", "ASSAULT RIFLE"), 1: ("LANCE-FLAMMES", "FLAMETHRO
          3: ("LANCE-GRENADES", "GRENADE LAUNCHER")}
 SHOT = {"mg": (255, 220, 120), "flame": (255, 150, 60), "shotgun": (120, 255, 140), "rocket": (255, 190, 90)}   # the
 # colour of each one's shots, the shotgun's green as in the game / la couleur des tirs, le vert du fusil à pompe
-BOSS_MIN = 200          # a life of at least that much in the enemy table is the boss (400 for the jet of mission 1, the
-                        # other enemies 40 at most, the recording of 11 November) / une vie d'au moins ça est le boss
+ARMOUR = 9000           # a life of 9000 or more is a boss coming in, still armoured: 10000 at mission 2, 9999 at mission 3,
+                        # the game's bar shows full; it then gives the life of each part of the boss in the same entry
+                        # (the recording of 12 November) / une vie de 9000 ou plus est un boss qui arrive, encore blindé
+BOSS_MIN = 350          # without armour, a life of at least that much is the boss: 400 for the jet of mission 1; the guns of
+                        # mission 3 have 300 and the game shows no bar for them / sans blindage, le boss a au moins ça
+GONE = 1.0              # seconds at 0 before a boss whose parts are not known is counted down: one part can fall to 0 just
+                        # before the next comes in (mission 3) / secondes à 0 avant de compter tombé un boss aux parties inconnues
 PIPS = 5                # power cases shown, more when the power goes beyond / cases de puissance montrées
 GREEN = (90, 230, 110)
 
@@ -82,7 +87,7 @@ class BossAlert:
         bw, bh = S(540), S(20)
         r = pg.Rect(int(cx - bw / 2), int(y + S(30)), bw, bh)
         pg.draw.rect(screen, (30, 10, 14), r, border_radius=S(6))
-        frac = _clamp(B["hp"] / max(1, B["top"]))
+        frac = self.boss_left(B) if "armour" in B else _clamp(B["hp"] / max(1, B["top"]))
         grow = _clamp(k / 0.8)                                       # the bar fills as it comes / la barre se remplit
         hit = max(0.0, 1 - (now - B["hit_t"]) / 0.25)
         fill = pg.Rect(r.x + S(3), r.y + S(3), max(0, int((bw - S(6)) * frac * grow)), bh - S(6))
@@ -106,7 +111,7 @@ class MercsScene(BossAlert, GameScene):
         self.panels = {side: hd._surf(panel_img(side, s, ACCENT[side])) for side in ("p1", "p2")}
         self.sides = {"p1": Side(), "p2": Side()}
         self.guns = {}
-        self.boss = None            # {"hp", "top", "t0", "hit_t", "down"} of the mission / le boss de la mission
+        self.boss = None            # {"hp", "top", "part", "parts", "armour", "t0", "hit_t", "down"} of the mission
         self.boss_seen = None       # the mission whose boss was announced / la mission dont le boss a été annoncé
         self.mission = None
         self.alarm = -99.0          # when the boss was announced: the sirens / quand le boss a été annoncé : les sirènes
@@ -265,37 +270,105 @@ class MercsScene(BossAlert, GameScene):
         self.fx.shake(22, 1.0)
 
     # ------------------------------------------------------------ the boss / le boss
+    def boss_parts(self):
+        """How many parts the boss of this mission has, from the game file ("hd": "boss_parts"), None when not known.
+        Le nombre de parties du boss de cette mission, d'après le fichier du jeu, None s'il ne le dit pas."""
+        parts = (getattr(self, "hd_opts", None) or {}).get("boss_parts")
+        if not isinstance(parts, dict) or self.mission is None:
+            return None
+        n = _n(parts.get(str(int(self.mission))))
+        return int(n) if n is not None and n >= 1 else None
+
+    def find_boss(self, hps):
+        """(entry, life, armoured) of the boss in the enemy table, None when it is not there. An armoured one first.
+        (case, vie, blindé) du boss dans la table des ennemis, None s'il n'y est pas. Un blindé d'abord."""
+        lives = [(int(h), i) for i, h in enumerate(hps) if isinstance(h, (int, float))]
+        armour = [(h, i) for h, i in lives if ARMOUR <= h <= 10050]
+        if armour:
+            h, i = max(armour)
+            return i, h, True
+        big = [(h, i) for h, i in lives if BOSS_MIN <= h < ARMOUR]
+        if big:
+            h, i = max(big)
+            return i, h, False
+        return None
+
     def track_boss(self, vals, now):
-        """The boss: the biggest life of the enemy table, at least BOSS_MIN. Announced when it comes, its bar follows it,
-        it blows up when it falls. / Le boss : la plus grosse vie de la table des ennemis, annoncé, sa barre, son explosion."""
+        """The boss: announced when it comes, its bar for the whole boss, every part of it in turn, it blows up when the
+        last one falls. The game keeps the boss in one entry of its table: armoured as it comes in (the bar full), then the
+        life of each part, the next one coming in as the one before falls. / Le boss : annoncé, sa barre pour tout le boss,
+        chacune de ses parties à son tour, son explosion quand la dernière tombe."""
         hps = vals.get("_hps")
         if not isinstance(hps, (list, tuple)):
             return
         B = self.boss
-        if B is None:
-            big = [(int(h), i) for i, h in enumerate(hps) if isinstance(h, (int, float)) and BOSS_MIN <= h <= 9999]
-            if big and not self.nobody(vals):
-                hp, i = max(big)
-                self.boss = {"hp": hp, "top": hp, "t0": now, "hit_t": -99.0, "down": None, "i": i}
-                if self.boss_seen != self.mission:
+        if B is None or (not B["armoured"] and B["down"] is None):
+            found = self.find_boss(hps) if not self.nobody(vals) else None
+            if found is not None and (B is None or (found[2] and not B["armoured"])):   # an armoured boss after a big
+                i, hp, armour = found                                                     # enemy: the real one
+                self.boss = {"i": i, "hp": hp, "top": hp, "armour": armour, "armoured": armour, "part": 0,
+                             "parts": self.boss_parts(), "t0": now, "hit_t": -99.0, "down": None, "zero_t": None}
+                if self.boss_seen != self.mission or (armour and B is not None):
                     self.boss_seen = self.mission
                     self.announce(now)
-            return
+                return
+            if B is None:
+                return
         if B["down"] is not None:
             return
         h = hps[B["i"]] if B["i"] < len(hps) else None              # its own entry, whatever its life now / sa propre case
-        hp = int(h) if isinstance(h, (int, float)) and 0 <= h <= 9999 else 0
-        if hp > B["hp"]:
-            B["top"] = max(B["top"], hp)
-        elif hp < B["hp"]:
-            B["hit_t"] = now
-            cx, y = self.W / 2, self.S(300)
-            self.fx.sparks(cx + self.S((hp / max(1, B["top"]) - 0.5) * 520), y, 12, (255, 220, 160), (150, 500), (180, 360), (0.2, 0.5),
-                           600, "front", 2, 20)
+        hp = int(h) if isinstance(h, (int, float)) and 0 <= h <= 10050 else 0
+        if B["armour"]:
+            if hp >= ARMOUR:                                         # still armoured: the shots only scratch it
+                if hp < B["hp"]:
+                    self.boss_hit(B, now)
+                B["hp"] = hp
+                return
+            B["armour"] = False                                      # its first part / sa première partie
+            if hp > 0:
+                B["hp"] = B["top"] = hp
+                return
+        if hp > B["hp"] + 5 and B["hp"] < B["top"]:                 # the next part comes in / la partie suivante arrive
+            self.part_down(B, now)
+            B["part"] += 1
+            B["hp"] = B["top"] = hp
+            B["zero_t"] = None
+            return
+        if hp < B["hp"]:
+            self.boss_hit(B, now)
         B["hp"] = hp
-        if hp == 0:
+        if hp > 0:
+            B["zero_t"] = None
+            return
+        if B["zero_t"] is None:
+            B["zero_t"] = now
+        last = B["parts"] is not None and B["part"] + 1 >= B["parts"]
+        if last or now - B["zero_t"] >= (GONE if B["parts"] is None else 3.0):
             B["down"] = now
             self.boss_down(now)
+
+    def boss_left(self, B):
+        """What is left of the whole boss, 0 to 1: its parts not fallen yet and the life of the one fighting. Without the
+        number of parts, the life of the one fighting. / Ce qui reste de tout le boss, de 0 à 1."""
+        if B["armour"]:
+            return 1.0
+        part = _clamp(B["hp"] / max(1, B["top"]))
+        n = B["parts"]
+        if not n:
+            return part
+        return _clamp((max(0, n - B["part"] - 1) + part) / n)
+
+    def boss_hit(self, B, now):
+        B["hit_t"] = now
+        left = self.boss_left(B)
+        self.fx.sparks(self.W / 2 + self.S((left - 0.5) * 520), self.S(300), 12, (255, 220, 160), (150, 500), (180, 360), (0.2, 0.5),
+                       600, "front", 2, 20)
+
+    def part_down(self, B, now):
+        """A part of the boss falls: it blows up on its bar. / Une partie du boss tombe : elle explose sur sa barre."""
+        x = self.W / 2 + self.S((self.boss_left(B) - 0.5) * 520)
+        self.fx.explosion(x, self.S(296), 0.7, True)
+        self.fx.shake(10, 0.4)
 
     def boss_down(self, now):
         cx = self.W / 2
@@ -388,7 +461,8 @@ class MercsScene(BossAlert, GameScene):
         e = self.v(vals, side, "health")
         if e is None:
             return
-        f = _clamp(e / 100.0)
+        top = self.v(vals, side, "health_top")                       # the player's top life grows in the game (1.37)
+        f = _clamp(e / (top if top and top > 0 else 100.0))          # / le maximum du joueur grandit dans le jeu
         P.energy = f if P.energy is None else P.energy + (f - P.energy) * 0.15
         bw, bh = S(390), S(30)
         bx = self.X(side, 124, 390)

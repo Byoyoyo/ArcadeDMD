@@ -35,6 +35,27 @@ MAME_GUESSES = (_home("LaunchBox", "Emulators", "MAME")
                    r"D:\RetroBat\emulators\mame", r"C:\Emulateurs\MAME", r"D:\Emulateurs\MAME", r"C:\Emulators\MAME",
                    r"D:\Emulators\MAME", r"C:\MAME", r"D:\MAME", r"E:\MAME"])
 
+# Windows' own folder window, in a process of its own so it comes to the front and never holds the engine (1.37)
+# la fenêtre de dossiers de Windows, dans un processus à part pour qu'elle passe devant et ne bloque jamais le moteur
+BROWSE = r'''
+import ctypes, os, sys, tkinter as tk
+from tkinter import filedialog
+try:
+    ctypes.windll.shcore.SetProcessDpiAwareness(2)
+except Exception:
+    pass
+start, title = sys.argv[1], sys.argv[2]
+while start and not os.path.isdir(start):
+    up = os.path.dirname(start)
+    start = "" if up == start else up
+root = tk.Tk()
+root.withdraw()
+root.attributes("-topmost", True)
+path = filedialog.askdirectory(parent=root, initialdir=start or None, title=title, mustexist=True)
+root.destroy()
+sys.stdout.buffer.write(os.path.normpath(path).encode("utf-8") if path else b"")
+'''
+
 IDENTIFY = r'''
 import ctypes, json, sys, tkinter as tk
 try:
@@ -68,6 +89,7 @@ class Setup:
     def routes(self):
         return {("GET", "/api/screens"): self.screens, ("POST", "/api/screens"): self.save_screens,
                 ("POST", "/api/screens/identify"): self.identify, ("POST", "/api/test"): self.test,
+                ("POST", "/api/browse"): self.browse,
                 ("GET", "/api/emulators"): self.emulators, ("POST", "/api/emulators/folder"): self.set_folder,
                 ("POST", "/api/emulators/retroarch/fix"): self.fix_retroarch,
                 ("POST", "/api/emulators/mame/install"): self.install_plugin,
@@ -179,6 +201,21 @@ class Setup:
             return {"ok": True}
         except OSError as e:
             return {"ok": False, "error": str(e)}
+
+    def browse(self, data):
+        """A folder picked in Windows' own window, the one typed as the start. / Un dossier choisi dans la fenêtre de
+        Windows, en partant de celui tapé."""
+        if sys.platform != "win32":
+            return {"ok": False, "error": tr("Windows seulement", "Windows only")}
+        start = str(data.get("start") or "").strip().strip('"')
+        title = str(data.get("title") or tr("Choisis un dossier", "Pick a folder"))[:120]
+        try:
+            r = subprocess.run([sys.executable, "-c", BROWSE, start, title], capture_output=True, timeout=900,
+                               creationflags=0x08000000)
+        except (OSError, subprocess.SubprocessError) as e:
+            return {"ok": False, "error": str(e)}
+        path = r.stdout.decode("utf-8", "replace").strip()
+        return {"ok": bool(path), "dir": path}
 
     def test(self, data):
         """A demo of a few seconds on the marquee and the LED panel, like demo_fight.bat with ArcadeDMD running.

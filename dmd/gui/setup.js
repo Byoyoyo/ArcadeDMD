@@ -175,13 +175,31 @@ async function loadEmulators() {
   body.replaceChildren(raCard(d.retroarch), mameCard(d.mame), coinsCard(d.coins, d.windows), recordCard(d.record, d.retroarch));
 }
 
+/* a Browse button that opens Windows' own folder window and fills the field (then done() with the folder)
+   un bouton Parcourir qui ouvre la fenêtre de dossiers de Windows et remplit le champ */
+function browseButton(input, title, done) {
+  if (!(APP.state && APP.state.windows)) return null;
+  return h("button", { class: "btn", type: "button", onclick: (e) => busy(e.target, async () => {
+    toast(t("La fenêtre de Windows s'ouvre, elle peut être derrière celle-ci.", "Windows' window opens, it may be behind this one."), 3000);
+    const r = await api("/api/browse", { start: input.value || input.placeholder || "", title });
+    if (r.ok && r.dir) { input.value = r.dir; if (done) await done(r.dir); }
+  }) }, t("Parcourir", "Browse"));
+}
+
 function folderField(id, what, value, placeholder) {
   const input = h("input", { id, value: value || "", placeholder, spellcheck: "false" });
-  const keep = h("button", { class: "btn", type: "button", onclick: (e) => busy(e.target, async () => {
+  const keepIt = async () => {
     const r = await api("/api/emulators/folder", { what, dir: input.value });
     if (r.ok) { toast(t("Dossier retenu.", "Folder kept.")); loadEmulators(); } else toast(r.error || t("Dossier refusé.", "Folder refused."), 6000);
-  }) }, t("Retenir", "Keep"));
-  return h("div", { class: "field" }, t("Dossier", "Folder"), h("div", { class: "inline" }, input, keep));
+  };
+  const keep = h("button", { class: "btn", type: "button", onclick: (e) => busy(e.target, keepIt) }, t("Retenir", "Keep"));
+  const title = what === "mame" ? t("Le dossier de MAME", "MAME's folder") : t("Le dossier de RetroArch", "RetroArch's folder");
+  return h("div", { class: "field" }, t("Dossier", "Folder"), h("div", { class: "inline" }, input, browseButton(input, title, keepIt), keep));
+}
+
+function browseField(label, id, value, placeholder, title) {
+  const input = h("input", { id, value: value || "", placeholder, spellcheck: "false" });
+  return h("div", { class: "field" }, label, h("div", { class: "inline" }, input, browseButton(input, title)));
 }
 
 function raCard(ra) {
@@ -298,7 +316,7 @@ function recordCard(r, ra) {
     h("label", { class: "check" }, h("input", { type: "checkbox", id: "rec-shots", checked: r.shots }),
       t("Des captures d'écran de RetroArch", "RetroArch screenshots")),
     h("div", { class: "field" }, t("Dossier des captures d'écran de RetroArch", "RetroArch's screenshot folder"),
-      h("div", { class: "inline" }, dir, ra.shot_dir ? h("button", { class: "btn", type: "button", onclick: () => { dir.value = ra.shot_dir; } },
+      h("div", { class: "inline" }, dir, browseButton(dir, t("Le dossier des captures d'écran de RetroArch", "RetroArch's screenshot folder")), ra.shot_dir ? h("button", { class: "btn", type: "button", onclick: () => { dir.value = ra.shot_dir; } },
         t("Prendre celui de RetroArch", "Take RetroArch's")) : null)),
     h("div", { class: "btns" },
       h("button", { class: "btn main", type: "button", onclick: (e) => busy(e.target, async () => saved(await api("/api/emulators/record", {
@@ -351,7 +369,7 @@ function drawFront() {
     const lb = d.launchbox;
     cards = h("div", { class: "grid", style: "--min:340px" },
       h("div", { class: "card" }, h("span", { class: "lab" }, t("Les logos", "The logos")),
-        field(t("Dossier de LaunchBox", "LaunchBox folder"), h("input", { id: "fe-lb", value: lb.dir || "", placeholder: "D:\\LaunchBox", spellcheck: "false" })),
+        browseField(t("Dossier de LaunchBox", "LaunchBox folder"), "fe-lb", lb.dir, "D:\\LaunchBox", t("Le dossier de LaunchBox", "LaunchBox's folder")),
         check(lb.found ? "ok" : "warn", lb.found ? t(`LaunchBox trouvé, ${lb.platforms} plateformes`, `LaunchBox found, ${lb.platforms} platforms`)
           : t("LaunchBox pas trouvé, indique son dossier", "LaunchBox not found, give its folder")),
         h("div", { class: "row-c" }, mark("info"), h("span", { class: "soft" },
@@ -364,7 +382,7 @@ function drawFront() {
     const rb = d.retrobat;
     cards = h("div", { class: "grid", style: "--min:340px" },
       h("div", { class: "card" }, h("span", { class: "lab" }, t("Les logos", "The logos")),
-        field(t("Dossier de RetroBat", "RetroBat folder"), h("input", { id: "fe-rb", value: rb.dir || "", placeholder: "C:\\RetroBat", spellcheck: "false" })),
+        browseField(t("Dossier de RetroBat", "RetroBat folder"), "fe-rb", rb.dir, "C:\\RetroBat", t("Le dossier de RetroBat", "RetroBat's folder")),
         check(rb.found ? (rb.logos ? "ok" : "warn") : "warn", rb.found
           ? (rb.logos ? t(`RetroBat trouvé, ${rb.logos} logos dans ${rb.systems} systèmes`, `RetroBat found, ${rb.logos} logos in ${rb.systems} systems`)
                       : t("RetroBat trouvé, mais aucun logo téléchargé par son scraper", "RetroBat found, but no logo downloaded by its scraper"))
