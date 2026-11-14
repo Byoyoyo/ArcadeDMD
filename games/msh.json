@@ -157,5 +157,80 @@
   "hd": {
     "stages": ["fight_lab", "fight_city", "space", "fight_ruins", "fight_snow", "fight_factory", "fight_harbor", "fight_desert"],
     "note": "HD themes of the fights (one per game, no stage value known), made by tools/cps_games.py"
+  },
+  "specials": {
+    "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+    "kinds": ["Special Moves"],
+    "ANITA": [
+      {"name": "KILLSHREAD: KATANA HANASU", "cmd": "", "btn": "LP+LK", "kind": "special"},
+      {"name": "AKUMA SHOUKAN", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "LIN-LIN SHOUKAN", "cmd": "421", "btn": "P", "kind": "special"}
+    ],
+    "BLACKHEART": [
+      {"name": "DARK THUNDER", "cmd": "41236", "btn": "P", "kind": "special"},
+      {"name": "INFERNO", "cmd": "63214", "btn": "P", "kind": "special"}
+    ],
+    "C.AMERICA": [
+      {"name": "SHIELD SLASH", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "STARS & STRIPES", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "CHARGING STAR", "cmd": "236", "btn": "K", "kind": "special"},
+      {"name": "CARTWHEEL", "cmd": "63214", "btn": "P", "kind": "special"}
+    ],
+    "DOC DOOM": [
+      {"name": "PLASMA BEAM", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "PHOTON SHOT", "cmd": "63214", "btn": "P", "kind": "special"},
+      {"name": "MOLECULAR SHIELD", "cmd": "63214", "btn": "K", "kind": "special"},
+      {"name": "FLIGHT", "cmd": "214", "btn": "KK", "kind": "special"}
+    ],
+    "HULK": [
+      {"name": "GAMMA SLAM", "cmd": "41236", "btn": "P", "kind": "special"},
+      {"name": "GAMMA TORNADO", "cmd": "63214", "btn": "P", "kind": "special", "when": "close"},
+      {"name": "GAMMA LIFT", "cmd": "22", "btn": "PP", "kind": "special"}
+    ],
+    "IRON MAN": [
+      {"name": "UNI-BEAM", "cmd": "41236", "btn": "P", "kind": "special"},
+      {"name": "REPULSOR BLAST", "cmd": "63214", "btn": "P", "kind": "special"},
+      {"name": "SMART BOMB", "cmd": "", "btn": "LP+LK", "kind": "special"},
+      {"name": "FLIGHT", "cmd": "214", "btn": "KK", "kind": "special"}
+    ],
+    "JUGGERNAUT": [
+      {"name": "JUGGERNAUT PUNCH", "cmd": "41236", "btn": "P", "kind": "special"},
+      {"name": "EARTHQUAKE PUNCH", "cmd": "632", "btn": "P", "kind": "special"},
+      {"name": "JUGGERNAUT BODY PRESS", "cmd": "41236", "btn": "K", "kind": "special"},
+      {"name": "CYTTORAK POWER-UP", "cmd": "623", "btn": "PP", "kind": "special"}
+    ],
+    "MAGNETO": [
+      {"name": "E-M DISRUPTOR", "cmd": "41236", "btn": "P", "kind": "special"},
+      {"name": "HYPER GRAVITY", "cmd": "63214", "btn": "K", "kind": "special"},
+      {"name": "MAGNETIC BLAST", "cmd": "896", "btn": "P", "kind": "special", "when": "air"},
+      {"name": "FLIGHT", "cmd": "214", "btn": "KK", "kind": "special"}
+    ],
+    "PSYLOCKE": [
+      {"name": "PSI-BLADE", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "PSI-SPIN", "cmd": "236", "btn": "K", "kind": "special"},
+      {"name": "PSI-SPIN ARC", "cmd": "236", "btn": "LK+MK+HK", "kind": "special"},
+      {"name": "PSI-SPIN CURVE", "cmd": "236", "btn": "HK+MK+LK", "kind": "special"},
+      {"name": "NINJITSU", "cmd": "63214", "btn": "P/K", "kind": "special"}
+    ],
+    "S.GORATH": [
+      {"name": "MYSTIC STARE", "cmd": "46", "btn": "P", "kind": "special", "hold": [0]},
+      {"name": "MYSTIC SMASH", "cmd": "46", "btn": "K", "kind": "special", "hold": [0]},
+      {"name": "DEVITALIZATION", "cmd": "63214", "btn": "K", "kind": "special", "when": "close"}
+    ],
+    "SPIDERMAN": [
+      {"name": "WEB BALL", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "SPIDER STING", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "WEB SWING", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "WEB THROW", "cmd": "63214", "btn": "P", "kind": "special"}
+    ],
+    "THANOS": [
+      {"name": "TITAN CRUSH", "cmd": "41236", "btn": "P", "kind": "special"},
+      {"name": "DEATH SPHERE", "cmd": "236", "btn": "K", "kind": "special"}
+    ],
+    "WOLVERINE": [
+      {"name": "BERSERKER BARRAGE", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "TORNADO CLAW", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "DRILL CLAW", "cmd": "", "btn": "LP+LK", "kind": "special"}
+    ]
   }
 }

@@ -68,7 +68,12 @@
       "_vs": {
         "addr": "0xFF0C8B",
         "type": "u8",
-        "note": "0 against the computer, 1 VS between two humans"
+        "note": "1 in a VS game started by two humans; back to 0 when the loser of a VS game starts again, though both still play"
+      },
+      "_p2_in": {
+        "addr": "0xFF8780",
+        "type": "u8",
+        "note": "player 2 playing: 2 while a human plays player 2 (a VS game, or the loser starting again against player 1), 0 against the computer or after player 2 lost (1.38); 0xFF8380 is player 1's"
       },
       "_rounds_vs": {
         "addr": "0xFF80A3",
@@ -306,8 +311,23 @@
               ]
             },
             {
-              "eq": [
-                "_vs",
+              "ge": [
+                {
+                  "sum": [
+                    {
+                      "eq": [
+                        "_p2_in",
+                        2
+                      ]
+                    },
+                    {
+                      "eq": [
+                        "_vs",
+                        1
+                      ]
+                    }
+                  ]
+                },
                 1
               ]
             }
@@ -332,8 +352,23 @@
               ]
             },
             {
-              "eq": [
-                "_vs",
+              "ge": [
+                {
+                  "sum": [
+                    {
+                      "eq": [
+                        "_p2_in",
+                        2
+                      ]
+                    },
+                    {
+                      "eq": [
+                        "_vs",
+                        1
+                      ]
+                    }
+                  ]
+                },
                 1
               ]
             }
@@ -358,15 +393,30 @@
               ]
             },
             {
-              "eq": [
-                "_vs",
+              "ge": [
+                {
+                  "sum": [
+                    {
+                      "eq": [
+                        "_p2_in",
+                        2
+                      ]
+                    },
+                    {
+                      "eq": [
+                        "_vs",
+                        1
+                      ]
+                    }
+                  ]
+                },
                 1
               ]
             }
           ]
         }
       ],
-      "note": "player 2 is a human in a VS game only"
+      "note": "player 2 is a human in a VS game, or while _p2_in says so (1.38): the VS flag alone missed the loser starting again"
     },
     "_one": {
       "value": 1,
@@ -378,6 +428,7 @@
     "_major": 2,
     "_minor": 4,
     "_vs": 1,
+    "_p2_in": 2,
     "_p1_chr": 5,
     "_p2_chr": 1,
     "score": 1840,

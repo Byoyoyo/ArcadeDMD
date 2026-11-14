@@ -157,5 +157,100 @@
   "p2_mode": 0,
   "_p1_chr": 0,
   "_p2_chr": 1
+ },
+ "specials": {
+  "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+  "kinds": ["Special Moves"],
+  "ABOBO": [
+   {"name": "HAMMER BLOW", "cmd": "632", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "HYPER BOMB", "cmd": "236", "btn": "A/B/C/D", "kind": "special", "when": "close"}
+  ],
+  "AMON": [
+   {"name": "YO SO KEN", "cmd": "412", "btn": "A/B/C/D", "kind": "special", "when": "air"},
+   {"name": "REKKA BAKUEN HEKI", "cmd": "28", "btn": "A/B/C/D", "kind": "special", "hold": [0]},
+   {"name": "SHI HO KEN", "cmd": "46", "btn": "A/B/C/D", "kind": "special", "hold": [0]}
+  ],
+  "BILLY": [
+   {"name": "SO SYU GA", "cmd": "236", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "REKKO HA", "cmd": "623", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "RYU BI SEN", "cmd": "214", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "HI RYU KEN", "cmd": "236", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "RYU JIN KEN", "cmd": "623", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "RYU JIN KYAKU", "cmd": "214", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "SHO RYU HA", "cmd": "41236", "btn": "A/B/C/D", "kind": "special"}
+  ],
+  "BURNOV": [
+   {"name": "BURNING BELCH", "cmd": "236", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "RUNNING TACKLE", "cmd": "46", "btn": "A/B/C/D", "kind": "special", "hold": [0]},
+   {"name": "BONE CRUSHER", "cmd": "63214", "btn": "A/B/C/D", "kind": "special", "when": "close"}
+  ],
+  "CHENG-FU": [
+   {"name": "KO RYU KYAKU", "cmd": "623", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "SUIKO RETSU KEN", "cmd": "236", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "HI SHO KYAKU", "cmd": "214", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "COUNTER TOSS", "cmd": "421", "btn": "A/B/C/D", "kind": "special"}
+  ],
+  "DUKE": [
+   {"name": "MOKO RESSHODA", "cmd": "236", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "SHO SO KYAKU", "cmd": "623", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "CHO GEKI HASHO", "cmd": "46", "btn": "A/B/C/D", "kind": "special", "hold": [0]},
+   {"name": "KO SORAN SHOBU", "cmd": "28", "btn": "A/B/C/D", "kind": "special", "hold": [0]},
+   {"name": "HI SO KYAKU", "cmd": "412", "btn": "A/B/C/D", "kind": "special", "when": "air"}
+  ],
+  "DULTON": [
+   {"name": "MACHINE GUN PUNCH", "cmd": "236", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "DYNAMITE COMBO", "cmd": "", "btn": "A/B/C/D", "kind": "special", "rapid": true},
+   {"name": "ELBOW NECKBREAKER", "cmd": "46", "btn": "A/B/C/D", "kind": "special", "hold": [0]}
+  ],
+  "EDDIE": [
+   {"name": "LOW LEG SLASH", "cmd": "46", "btn": "A/B/C/D", "kind": "special", "hold": [0]},
+   {"name": "HIGH LEG SLASH", "cmd": "28", "btn": "A/B/C/D", "kind": "special", "hold": [0]},
+   {"name": "BURNING KNEE", "cmd": "623", "btn": "A/B/C/D", "kind": "special"}
+  ],
+  "JIMMY": [
+   {"name": "SO SYU GA", "cmd": "236", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "REKKO HA", "cmd": "623", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "RYU BI SEN", "cmd": "214", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "HI RYU KEN", "cmd": "236", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "RYU JIN KEN", "cmd": "623", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "RYU JIN KYAKU", "cmd": "214", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "SHO RYU HA", "cmd": "41236", "btn": "A/B/C/D", "kind": "special"}
+  ],
+  "MARIAN": [
+   {"name": "ACCELE BREAKER", "cmd": "28", "btn": "A/B/C/D", "kind": "special", "hold": [0]},
+   {"name": "MOON DRIVE", "cmd": "46", "btn": "A/B/C/D", "kind": "special", "hold": [0]},
+   {"name": "IKAROS CRASH", "cmd": "63214", "btn": "A/B/C/D", "kind": "special", "when": "close"}
+  ],
+  "REBECCA": [
+   {"name": "HI SHO ZAN", "cmd": "623", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "KO BI KEN", "cmd": "236", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "KUCHU KO BI KEN", "cmd": "412", "btn": "A/B/C/D", "kind": "special", "when": "air"}
+  ],
+  "S.BILLY": [
+   {"name": "SO SYU GA", "cmd": "236", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "REKKO HA", "cmd": "623", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "RYU BI SEN", "cmd": "214", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "HI RYU KEN", "cmd": "236", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "RYU JIN KEN", "cmd": "623", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "RYU JIN KYAKU", "cmd": "214", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "SHO RYU HA", "cmd": "41236", "btn": "A/B/C/D", "kind": "special"}
+  ],
+  "S.JIMMY": [
+   {"name": "SO SYU GA", "cmd": "236", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "REKKO HA", "cmd": "623", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "RYU BI SEN", "cmd": "214", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "HI RYU KEN", "cmd": "236", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "RYU JIN KEN", "cmd": "623", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "RYU JIN KYAKU", "cmd": "214", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "SHO RYU HA", "cmd": "41236", "btn": "A/B/C/D", "kind": "special"}
+  ],
+  "SHUKO": [
+   {"name": "SUZAKU", "cmd": "236", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "SUIRYU", "cmd": "623", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "KASUMI", "cmd": "46", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "BYAKKO", "cmd": "28", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "GENBU", "cmd": "632", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "HOOH", "cmd": "412", "btn": "A/B/C/D", "kind": "special", "when": "air"}
+  ]
  }
 }

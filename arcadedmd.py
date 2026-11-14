@@ -294,6 +294,7 @@ def main(argv):
         log.background()                      # a console that waits never stops the cabinet (1.36) / jamais bloqué
     log(tr(f"ArcadeDMD {app.VERSION} - dossier {ROOT}", f"ArcadeDMD {app.VERSION} - folder {ROOT}"))
     if not demo:
+        app.LastRun.start(ROOT, log)          # how the run before ended, and a trace of a hard crash (1.38) / la fin d'avant
         from dmd import learned
         learned.restore(ROOT, log)
         learned.complete(ROOT, log)
@@ -314,7 +315,11 @@ def main(argv):
                 panel.engine, eng.gui = eng, panel
                 if panel.quitting:
                     eng.quit = True
+                for o in outs:                # the window and the icon quit ArcadeDMD, not Esc on the marquee (1.38)
+                    o.keep_open = True        # la fenêtre et l'icône quittent ArcadeDMD, pas Échap sur le marquee
             if eng.run() != "restart" or eng.quit:
+                if not demo:
+                    app.LastRun.stop(ROOT)
                 return 0
             cfg = app.load_config(ROOT, log)      # réglages modifiés pendant que le moteur tournait
             set_language(cfg.get("language"))
@@ -412,5 +417,6 @@ if __name__ == "__main__":
                 f.write(time.strftime("%H:%M:%S ") + tr("ERREUR", "ERROR") + "\n" + msg + "\n")
         except OSError:
             pass
+        app.LastRun.stop(ROOT)                # the error is in the log / l'erreur est dans le journal
         print(msg, file=sys.stderr)
         sys.exit(1)

@@ -210,5 +210,186 @@
       ["REVENGER'S ROOST", "REVENGER'S ROOST"]
     ],
     "note": "HD theme and place shown for each backdrop value (index = value), made by tools/cps_games.py from the stages of the cheat database, see the wiki, HD Marquee page"
+  },
+  "specials": {
+    "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+    "kinds": ["EX Moves", "Special Moves"],
+    "super_needs": ["Needs 1LV of Special Bar"],
+    ".RAPTOR": [
+      {"name": "DEATH HURRICANE", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "SKULL STING", "cmd": "28", "btn": "K", "kind": "special"},
+      {"name": "HELL'S GATE", "cmd": "41236", "btn": "K", "kind": "special"},
+      {"name": "SKULL PUNISH", "cmd": "63214", "btn": "MP/HP", "kind": "special", "when": "close"},
+      {"name": "DEATH VOLTAGE", "cmd": "63214", "btn": "KK", "kind": "super"},
+      {"name": "EVIL SCREAM", "cmd": "64", "btn": "PP", "kind": "super"},
+      {"name": "HELL DUNK", "cmd": "623", "btn": "PP", "kind": "super"},
+      {"name": "SAISHUU KEITAI: ULTIMATE UNDEAD", "cmd": "421", "btn": "KK", "kind": "super"}
+    ],
+    ".TALBAIN": [
+      {"name": "BEAST CANNON: TAICHI", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "BEAST CANNON: TAIKUU", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "BEAST CANNON: KUUCHUU", "cmd": "236", "btn": "P", "kind": "special", "when": "air"},
+      {"name": "MILLION FLICKER", "cmd": "214", "btn": "P", "kind": "special"},
+      {"name": "CLIMB RAZOR", "cmd": "28", "btn": "K", "kind": "special"},
+      {"name": "WILD CIRCULAR", "cmd": "63214", "btn": "MK/HK", "kind": "special", "when": "close"},
+      {"name": "DRAGON CANNON", "cmd": "41236", "btn": "PP", "kind": "super"},
+      {"name": "ZANZOU KOUGEKI: MIRAGE BODY", "cmd": "41236", "btn": "KK", "kind": "super"}
+    ],
+    "LILITH": [
+      {"name": "SOUL FLASH", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "SHINING BLADE", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "MERRY TURN", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "MYSTIC ARROW", "cmd": "63214", "btn": "P", "kind": "special"},
+      {"name": "SPLENDOR LOVE", "cmd": "623", "btn": "KK", "kind": "super"},
+      {"name": "GLOOMY PUPPET SHOW (2LVS)", "cmd": "41236", "btn": "KK", "kind": "super"}
+    ],
+    "OBORO-BISH": [
+      {"name": "NUKIENZAN", "cmd": "41236", "btn": "P", "kind": "special"},
+      {"name": "ONI KUBARI", "cmd": "2369", "btn": "P", "kind": "special"},
+      {"name": "IAI GIRI: JOUDAN", "cmd": "46", "btn": "P", "kind": "special", "hold": [0]},
+      {"name": "IAI GIRI: GEDAN", "cmd": "46", "btn": "K", "kind": "special", "hold": [0]},
+      {"name": "KIEN ZAN", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "KIBI TSUKANE", "cmd": "623", "btn": "K", "kind": "special"},
+      {"name": "KIRISUTE GOMEM", "cmd": "41236987", "btn": "MP/HP", "kind": "special", "when": "close"},
+      {"name": "ENMA ISHI", "cmd": "41236", "btn": "KK", "kind": "super"},
+      {"name": "ONI KUBI HINERI", "cmd": "63214", "btn": "PP", "kind": "super"},
+      {"name": "KIMEN KUDAKI", "cmd": "421", "btn": "PP", "kind": "super"}
+    ],
+    "ANAKARIS": [
+      {"name": "MIIRA DROP", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "COBRA BLOW", "cmd": "46", "btn": "P", "kind": "special"},
+      {"name": "HITSUGI NO MAI", "cmd": "22", "btn": "P/K", "kind": "special"},
+      {"name": "OUKE NO SABAKI", "cmd": "236", "btn": "P", "kind": "special", "when": "air"},
+      {"name": "KOTODAMA GAESHI: SUU", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "NARAKU NO ANA", "cmd": "41236", "btn": "KK", "kind": "super"}
+    ],
+    "BISHAMON": [
+      {"name": "KARAME DAMA", "cmd": "41236", "btn": "P", "kind": "special"},
+      {"name": "IAI GIRI: JOUDAN", "cmd": "46", "btn": "P", "kind": "special", "hold": [0]},
+      {"name": "IAI GIRI: GEDAN", "cmd": "46", "btn": "K", "kind": "special", "hold": [0]},
+      {"name": "MUKURO FUUJI", "cmd": "41236", "btn": "P", "kind": "special", "when": "air"},
+      {"name": "KIRISUTE GOMEM", "cmd": "41236987", "btn": "MP/HP", "kind": "special", "when": "close"},
+      {"name": "ENMA ISHI", "cmd": "41236", "btn": "KK", "kind": "super"},
+      {"name": "ONI KUBI HINERI", "cmd": "63214", "btn": "PP", "kind": "super"}
+    ],
+    "D.BAINE": [
+      {"name": "KILLSHREAD: KATANA HANASU", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "BLIZZARD SWORD", "cmd": "41236", "btn": "P", "kind": "special"},
+      {"name": "IFRIT SWORD", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "LIGHTNING SWORD", "cmd": "421", "btn": "P", "kind": "special"},
+      {"name": "SWORD GRAPPLE", "cmd": "63214", "btn": "MP/HP", "kind": "special", "when": "close"},
+      {"name": "PRESS OF DEATH", "cmd": "41236", "btn": "K", "kind": "super"},
+      {"name": "SUPER KILLSHREAD: SLAY SHRED", "cmd": "421", "btn": "KK", "kind": "super"}
+    ],
+    "D.MAXIMOV": [
+      {"name": "CHAOS FLARE", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "DEMON CRADLE", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "BAT SPIN", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "NEGATIVE STOLEN", "cmd": "41236987", "btn": "MP/HP", "kind": "special", "when": "close"},
+      {"name": "MIDNIGHT BLISS", "cmd": "263", "btn": "PP", "kind": "super"},
+      {"name": "DEMON BILLION", "cmd": "263", "btn": "KK", "kind": "super"},
+      {"name": "KOUMORI SHOUKAN: DARKSIDE MASTER", "cmd": "421", "btn": "KK", "kind": "super"}
+    ],
+    "FELICIA": [
+      {"name": "ROLLING BUCKLER", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "CAT SPIKE", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "DELTA KICK", "cmd": "623", "btn": "K", "kind": "special"},
+      {"name": "HELL CAT", "cmd": "63214", "btn": "MK/HK", "kind": "special", "when": "close"},
+      {"name": "DANCING FLASH", "cmd": "41236", "btn": "PP", "kind": "super"},
+      {"name": "PLEASE HELP ME!", "cmd": "41236", "btn": "KK", "kind": "super"},
+      {"name": "CAT HELPER: KITTY THE HELPER", "cmd": "421", "btn": "KK", "kind": "super"}
+    ],
+    "HSIEN-KO": [
+      {"name": "ANKI HOU", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "SENPUU BU", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "HENKYOU KI", "cmd": "214", "btn": "P", "kind": "special"},
+      {"name": "HOUTEN GEKI", "cmd": "63214", "btn": "MP/HP", "kind": "special", "when": "close"},
+      {"name": "CHIREITOU", "cmd": "41236", "btn": "KK", "kind": "super"},
+      {"name": "CHUUKA DAN", "cmd": "41236", "btn": "PP", "kind": "super"}
+    ],
+    "HUITZIL": [
+      {"name": "PLASMA BEAM: TAICHI", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "PLASMA BEAM: SHAGAMI", "cmd": "236", "btn": "K", "kind": "special"},
+      {"name": "GENOCIDE VULCAN", "cmd": "421", "btn": "P", "kind": "special"},
+      {"name": "MIGHT LAUNCHER", "cmd": "214", "btn": "P", "kind": "special"},
+      {"name": "PLASMA TRAP", "cmd": "214", "btn": "K", "kind": "special", "when": "air"},
+      {"name": "CIRCUIT SCRAPPER", "cmd": "63214", "btn": "MP/HP", "kind": "special", "when": "close"},
+      {"name": "ERASING SPHERE", "cmd": "421", "btn": "KK", "kind": "super"},
+      {"name": "FINAL GUARDIAN BETA", "cmd": "623", "btn": "KK", "kind": "super"},
+      {"name": "OPTION BEAM: RAY OF DOOM", "cmd": "263", "btn": "PP", "kind": "super"}
+    ],
+    "JON TALBAIN": [
+      {"name": "BEAST CANNON: TAICHI", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "BEAST CANNON: TAIKUU", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "BEAST CANNON: KUUCHUU", "cmd": "236", "btn": "P", "kind": "special", "when": "air"},
+      {"name": "MILLION FLICKER", "cmd": "214", "btn": "P", "kind": "special"},
+      {"name": "CLIMB RAZOR", "cmd": "28", "btn": "K", "kind": "special"},
+      {"name": "WILD CIRCULAR", "cmd": "63214", "btn": "MK/HK", "kind": "special", "when": "close"},
+      {"name": "DRAGON CANNON", "cmd": "41236", "btn": "PP", "kind": "super"},
+      {"name": "ZANZOU KOUGEKI: MIRAGE BODY", "cmd": "41236", "btn": "KK", "kind": "super"}
+    ],
+    "LORD RAPTOR": [
+      {"name": "DEATH HURRICANE", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "SKULL STING", "cmd": "28", "btn": "K", "kind": "special"},
+      {"name": "HELL'S GATE", "cmd": "41236", "btn": "K", "kind": "special"},
+      {"name": "SKULL PUNISH", "cmd": "63214", "btn": "MP/HP", "kind": "special", "when": "close"},
+      {"name": "DEATH VOLTAGE", "cmd": "63214", "btn": "KK", "kind": "super"},
+      {"name": "EVIL SCREAM", "cmd": "64", "btn": "PP", "kind": "super"},
+      {"name": "HELL DUNK", "cmd": "623", "btn": "PP", "kind": "super"},
+      {"name": "SAISHUU KEITAI: ULTIMATE UNDEAD", "cmd": "421", "btn": "KK", "kind": "super"}
+    ],
+    "M.AENSLAND": [
+      {"name": "SOUL FIST", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "SHADOW BLADE", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "VECTOR DRAIN", "cmd": "63214", "btn": "MP/HP", "kind": "special", "when": "close"},
+      {"name": "VALKYRIE TURN", "cmd": "63214", "btn": "K+K", "kind": "super"}
+    ],
+    "PYRON": [
+      {"name": "SOL SMASHER", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "ZODIAC FIRE", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "ORBITER BLAZE", "cmd": "214", "btn": "K", "kind": "special", "when": "air"},
+      {"name": "GALAXY TRIP", "cmd": "421", "btn": "P/K", "kind": "special"},
+      {"name": "PLANET BURNING", "cmd": "63214", "btn": "MP/HP", "kind": "special", "when": "close"},
+      {"name": "COSMO DISRUPTION: CLOSE", "cmd": "41236", "btn": "PP", "kind": "super"},
+      {"name": "COSMO DISRUPTION: FAR", "cmd": "41236", "btn": "KK", "kind": "super"},
+      {"name": "PILED HELL", "cmd": "623", "btn": "KK", "kind": "super"},
+      {"name": "BUNSHIN KOUGEKI: SHINING GEMINI", "cmd": "263", "btn": "PP", "kind": "super"}
+    ],
+    "RIKUO": [
+      {"name": "SONIC WAVE", "cmd": "46", "btn": "P", "kind": "special", "hold": [0]},
+      {"name": "POISON BREATH", "cmd": "46", "btn": "K", "kind": "special", "hold": [0]},
+      {"name": "TRICK FISH", "cmd": "623", "btn": "K", "kind": "special"},
+      {"name": "CRYSTAL LANCER", "cmd": "63214", "btn": "MP/HP", "kind": "special", "when": "close"},
+      {"name": "GEM'S ANGER", "cmd": "63214", "btn": "MK/HK", "kind": "special", "when": "close"},
+      {"name": "AQUA SPREAD", "cmd": "632", "btn": "PP/KK", "kind": "super"},
+      {"name": "WATER JAIL", "cmd": "623", "btn": "PP", "kind": "super"},
+      {"name": "SEA RAGE", "cmd": "41236", "btn": "PP", "kind": "super"},
+      {"name": "DIRECT SCISSORS (3LVS)", "cmd": "22", "btn": "PP", "kind": "super"}
+    ],
+    "SASQUATCH": [
+      {"name": "BIG BREATH", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "BIG BLOW", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "BIG TYPHOON", "cmd": "623", "btn": "K", "kind": "special"},
+      {"name": "BIG TOWERS", "cmd": "22", "btn": "P", "kind": "special"},
+      {"name": "BIG BRUNCH", "cmd": "63214", "btn": "P", "kind": "special", "when": "close"},
+      {"name": "BIG SWING", "cmd": "41236987", "btn": "K", "kind": "special", "when": "close"},
+      {"name": "BIG FREEZE", "cmd": "41236", "btn": "PP", "kind": "super"},
+      {"name": "BIG ICE BURN", "cmd": "41236", "btn": "KK", "kind": "super"},
+      {"name": "BIG SLEDGE", "cmd": "4123698741236987", "btn": "KK", "kind": "super", "when": "close"},
+      {"name": "SUPER ARMOR: BIG RESISTOR WITH M.A.P.S.", "cmd": "421", "btn": "KK", "kind": "super"}
+    ],
+    "V.V.GELDENH": [
+      {"name": "GYRO CRUSH", "cmd": "214", "btn": "P", "kind": "special"},
+      {"name": "GIGA BURN", "cmd": "623", "btn": "K", "kind": "special"},
+      {"name": "GIGA BUSTER", "cmd": "46", "btn": "K", "kind": "special", "hold": [0]},
+      {"name": "MEGA FORRID", "cmd": "46", "btn": "P", "kind": "special", "hold": [0]},
+      {"name": "MEGA STAKE", "cmd": "28", "btn": "P", "kind": "special", "hold": [0]},
+      {"name": "MEGA SHOCK", "cmd": "236", "btn": "K", "kind": "special", "when": "close"},
+      {"name": "MEGA SPIKE", "cmd": "41236987", "btn": "MP/HP", "kind": "special", "when": "close"},
+      {"name": "THUNDER BREAK", "cmd": "28", "btn": "KK", "kind": "super", "hold": [0]},
+      {"name": "GERDENHEIM 3", "cmd": "4123698741236987", "btn": "KK", "kind": "super", "when": "close"},
+      {"name": "HYOUI GENSHOU: GREAT GERDENHEIM S", "cmd": "41236", "btn": "KK", "kind": "super"},
+      {"name": "GIGA BRUTE", "cmd": "623", "btn": "PP", "kind": "super"}
+    ]
   }
 }

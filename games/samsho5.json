@@ -215,5 +215,213 @@
   "p2_mode": 0,
   "_p1_chr": 0,
   "_p2_chr": 1
+ },
+ "specials": {
+  "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+  "kinds": ["Special Moves"],
+  "BASARA": [
+   {"name": "CHISASHI", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "SORA SASHI", "cmd": "236", "btn": "A/B", "kind": "special", "when": "air"},
+   {"name": "KAGE IDE", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "TOMOBIKI", "cmd": "623", "btn": "C", "kind": "special", "when": "close"},
+   {"name": "NUE DAMA", "cmd": "236", "btn": "C", "kind": "special"},
+   {"name": "KAGE SUI", "cmd": "214", "btn": "C", "kind": "special"},
+   {"name": "KAGE DAMASHI: ZENPOU JUMP", "cmd": "421", "btn": "A", "kind": "special"},
+   {"name": "KAGE DAMASHI: SUICHOKU JUMP", "cmd": "421", "btn": "B", "kind": "special"}
+  ],
+  "CHARLOTTE": [
+   {"name": "SPLASH FOUNT", "cmd": "6", "btn": "A/B", "kind": "special", "rapid": true},
+   {"name": "POWER GRADATION", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "TRI-SLASH", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "BAYONETTE LUNGE", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "LION LANCE", "cmd": "236", "btn": "C", "kind": "special"}
+  ],
+  "ENJA": [
+   {"name": "RIKUDOU REKKA: JIGOKUDOU", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "GUREN KYAKU", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "ENMETSU", "cmd": "421", "btn": "A/B/C", "kind": "special"}
+  ],
+  "GAIRA": [
+   {"name": "KATSU!", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "JISHIN GAN", "cmd": "22", "btn": "A/B/C", "kind": "special"},
+   {"name": "TSUKAMUZO: KUMI TENJOU", "cmd": "421", "btn": "A", "kind": "special"},
+   {"name": "TSUKAMUZO: ISHI ATAMA", "cmd": "421", "btn": "B", "kind": "special"},
+   {"name": "TSUKAMUZO: SHIRI MEKURI", "cmd": "421", "btn": "C", "kind": "special"},
+   {"name": "ENSHIN SATSU: CHI", "cmd": "47896", "btn": "A+B", "kind": "special", "when": "close"}
+  ],
+  "GALFORD": [
+   {"name": "PLASMA BLADE", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "RUSH DOG", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "MACHINE GUN DOG", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "REPLICA DOG", "cmd": "214", "btn": "A+B", "kind": "special"},
+   {"name": "OVERHEAD CRUSH", "cmd": "214", "btn": "C", "kind": "special"},
+   {"name": "STRIKE HEADS", "cmd": "623", "btn": "A/B", "kind": "special", "when": "close"},
+   {"name": "SHADOW COPY", "cmd": "641236", "btn": "A/B", "kind": "special"},
+   {"name": "REPLICA ATTACK: FRONT", "cmd": "63214", "btn": "A+C", "kind": "special"}
+  ],
+  "GAOH": [
+   {"name": "IMI KAGURA", "cmd": "236", "btn": "B", "kind": "special"},
+   {"name": "OBORO BAYASHI", "cmd": "44", "btn": "A/B", "kind": "special"},
+   {"name": "KUROGANE KUDAKI", "cmd": "66", "btn": "A+B", "kind": "special", "when": "close"},
+   {"name": "DASHING HORN TOSS", "cmd": "623", "btn": "B", "kind": "special"}
+  ],
+  "GENJURO": [
+   {"name": "SANREN SATSU: KIBA", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "TOUHA KOUYOKU JIN", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "URA OUKA", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "SHIZUKU JIN", "cmd": "623", "btn": "C", "kind": "special", "when": "close"},
+   {"name": "HYAKKI SATSU", "cmd": "421", "btn": "A/B", "kind": "special", "when": "close"}
+  ],
+  "HANZO": [
+   {"name": "NINPOU REPPUU SHURIKEN", "cmd": "236", "btn": "A/B", "kind": "special", "when": "air"},
+   {"name": "NINPOU BAKU'EN RYUU", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "NINPOU MOZU OTOSHI", "cmd": "623", "btn": "A/B", "kind": "special", "when": "close"},
+   {"name": "NINPOU KAGE: SHIZUNE", "cmd": "22", "btn": "A/B", "kind": "special"},
+   {"name": "NINPOU ENBU", "cmd": "421", "btn": "A/B/C/D", "kind": "special"},
+   {"name": "NINPOU KAGE BUNSHIN", "cmd": "641236", "btn": "A/B", "kind": "special"},
+   {"name": "NINPOU UTSUSEMI TENBU", "cmd": "63214", "btn": "A+C", "kind": "special"},
+   {"name": "NINPOU UTSUSEMI CHIZAN", "cmd": "63214", "btn": "B+C", "kind": "special"}
+  ],
+  "HAOHMARU": [
+   {"name": "OUGI SENPUU RETSU ZAN", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "FAKE OUGI SENPUU RETSU ZAN", "cmd": "236", "btn": "C", "kind": "special"},
+   {"name": "OUGI KOGETSU ZAN", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "OUGI SHIPPUU KOGETSU ZAN", "cmd": "623", "btn": "A/B", "kind": "special", "when": "run"},
+   {"name": "OUGI RESSHIN ZAN", "cmd": "421", "btn": "A/B", "kind": "special"},
+   {"name": "SAKE KOUGEKI", "cmd": "214", "btn": "C", "kind": "special"},
+   {"name": "TENHA ZANKOUSEN", "cmd": "632146", "btn": "A+B", "kind": "special"}
+  ],
+  "JUBEI": [
+   {"name": "HASSOU HAPPA", "cmd": "6", "btn": "A/B", "kind": "special", "rapid": true},
+   {"name": "KATTOTSU SUIGETSU TOU", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "KATTOTSU SUIGETSU TOU: RETSU", "cmd": "236", "btn": "A+B", "kind": "special"},
+   {"name": "NIKKAKU RATOU", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "YAGYU SHINGAN TOU: SUIGETSU", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "YAGYU SHINGAN TOU: SOUHA", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "YAGYU SHINGAN TOU: TENRA", "cmd": "214", "btn": "C", "kind": "special"}
+  ],
+  "KAZUKI": [
+   {"name": "SHOUNETSU KON: SAIEN NASHI", "cmd": "236", "btn": "A/B/C", "kind": "special"},
+   {"name": "DAI BAKUSATSU: SAIEN NASHI", "cmd": "623", "btn": "A/B/C", "kind": "special", "when": "close"},
+   {"name": "ENMETSU", "cmd": "421", "btn": "A/B/C", "kind": "special"},
+   {"name": "SAIEN", "cmd": "214", "btn": "C", "kind": "special"}
+  ],
+  "KUSARE-GEDOU": [
+   {"name": "AKURYOU YOBI", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "IEKI HAKI", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "NIKU MOCHIAGE", "cmd": "421", "btn": "C", "kind": "special"},
+   {"name": "GEDO NO RAKUIN OSHI", "cmd": "6428", "btn": "C", "kind": "special", "when": "close"},
+   {"name": "DORO NAGE", "cmd": "341236421", "btn": "B", "kind": "special"}
+  ],
+  "KYOSHIRO": [
+   {"name": "KAEN KYOKUBU", "cmd": "421", "btn": "A/B", "kind": "special"},
+   {"name": "KAITEN KYOKUBU", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "GAMA JIGOKU", "cmd": "214", "btn": "C", "kind": "special"},
+   {"name": "OO TSUNAMI", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "CHOUBI JISHI", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "CHOUBI JISHI: RANSHIN", "cmd": "214", "btn": "A+B", "kind": "special"}
+  ],
+  "MINA": [
+   {"name": "JIKYUU SHIN", "cmd": "46", "btn": "A/B", "kind": "special", "hold": [0]},
+   {"name": "TENKYUU SHIN", "cmd": "46", "btn": "A+B", "kind": "special", "hold": [0]},
+   {"name": "SHINIMABUI NO NAGEKI", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "SUNGAN NO SASOI", "cmd": "421", "btn": "A", "kind": "special"},
+   {"name": "CHANPURU, KOCCHIOIDE", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "CHANPURU, OYASUMINASAI", "cmd": "214", "btn": "C", "kind": "special"}
+  ],
+  "NAKORURU": [
+   {"name": "ANNU MUTSUBE", "cmd": "412", "btn": "A/B", "kind": "special"},
+   {"name": "LELA MUTSUBE", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "AMUBE YATORO", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "TAKA NI TSUKAMARU", "cmd": "214", "btn": "C", "kind": "special"},
+   {"name": "KAMUI RIMSE", "cmd": "421", "btn": "A/B", "kind": "special"}
+  ],
+  "POPPY": [
+   {"name": "RUSH DOG", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "MACHINE GUN DOG", "cmd": "236", "btn": "A+B", "kind": "special"},
+   {"name": "REPLICA DOG", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "STRIKE DOG", "cmd": "623", "btn": "C", "kind": "special", "when": "close"}
+  ],
+  "RASETSUMARU": [
+   {"name": "OUGI SENPUU RETSU ZAN: SETSU", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "GOUHA", "cmd": "623", "btn": "C", "kind": "special"},
+   {"name": "SENPUU HA", "cmd": "236", "btn": "C", "kind": "special"},
+   {"name": "NAGI YAIBA", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "SHITATARI", "cmd": "214", "btn": "C", "kind": "special"}
+  ],
+  "RERA": [
+   {"name": "OOKAMI NI MATAGARU", "cmd": "214", "btn": "C", "kind": "special"}
+  ],
+  "RIMURURU": [
+   {"name": "RUPUSH KUARE: NISHI", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "RUPUSH KUARE: TOITOI", "cmd": "236", "btn": "A+B", "kind": "special"},
+   {"name": "KONRU NONNO", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "UPUN OP", "cmd": "6", "btn": "A/B", "kind": "special", "rapid": true},
+   {"name": "KONRU MEM", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "KAMUI SHITUKI", "cmd": "421", "btn": "A/B", "kind": "special"}
+  ],
+  "SANKURO": [
+   {"name": "SUSHI", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "GOSHICHI", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "IPPACHI", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "FUYO", "cmd": "214", "btn": "C", "kind": "special"}
+  ],
+  "SHIZUMARU": [
+   {"name": "HITOU-RYUU KIRISAME JIN", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "HITOU-RYUU BAIU ENSATSU JIN", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "HITOU-RYUU SAMIDARE GIRI", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "HITOU-RYUU HISAME GAESHI", "cmd": "236", "btn": "C", "kind": "special"}
+  ],
+  "SOGETSU": [
+   {"name": "FUZUKI", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "GEKKOU", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "TSUKIGAKURE", "cmd": "214", "btn": "A/B", "kind": "special"}
+  ],
+  "SUIJA": [
+   {"name": "GETSURIN HA KU", "cmd": "421", "btn": "A/B", "kind": "special", "when": "air"},
+   {"name": "ENGETSU", "cmd": "623", "btn": "A/B", "kind": "special", "when": "air"},
+   {"name": "SHOUGETSU", "cmd": "1236", "btn": "A/B", "kind": "special", "when": "air"},
+   {"name": "SHIZUKI", "cmd": "214", "btn": "A/B", "kind": "special", "when": "air"}
+  ],
+  "TAM TAM": [
+   {"name": "HIGH MOORA MOORA", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "LOW MOORA MOORA", "cmd": "236", "btn": "B", "kind": "special"},
+   {"name": "PAGUNA PAGUNA", "cmd": "6", "btn": "A/B", "kind": "special", "rapid": true},
+   {"name": "GABURU GABURU", "cmd": "236", "btn": "C", "kind": "special", "when": "close"},
+   {"name": "AHAU GABURU", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "PAGUNA DIOS", "cmd": "421", "btn": "A/B", "kind": "special"}
+  ],
+  "UKYO": [
+   {"name": "HIKEN SASAME YUKI", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "HIKEN SASAME YUKI: DAMASHI", "cmd": "214", "btn": "C", "kind": "special"},
+   {"name": "HIKEN TSUBAME GAESHI", "cmd": "1236", "btn": "A/B", "kind": "special", "when": "air"},
+   {"name": "HIKEN OBORO GATANA", "cmd": "236", "btn": "A/B", "kind": "special"}
+  ],
+  "YOSHITORA": [
+   {"name": "ICHI NO TACHI: NADESHIKO", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "NI NO TACHI: SHIRAYURI", "cmd": "623", "btn": "A/B", "kind": "special"},
+   {"name": "SAN NO TACHI: BOTAN", "cmd": "236", "btn": "A/B", "kind": "special", "when": "air"},
+   {"name": "YON NO TACHI: TSUBAKI", "cmd": "421", "btn": "A/B", "kind": "special"},
+   {"name": "GO NO TACHI: ASAGAO", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "ROKU NO TACHI: YUUGAO", "cmd": "623", "btn": "C", "kind": "special", "when": "close"},
+   {"name": "NANA NO TACHI: YUUCHOUKA", "cmd": "632146", "btn": "B+C", "kind": "special"}
+  ],
+  "YUMEJI": [
+   {"name": "SHIN MUSOU ITTOU-RYUU: KAGEROU", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "SHIN MUSOU ITTOU-RYUU: SASAME YUKI: SEN", "cmd": "214", "btn": "A/B", "kind": "special"},
+   {"name": "HIKEN TSUBAME GAESHI", "cmd": "1236", "btn": "C", "kind": "special"},
+   {"name": "OUGI KOGETSU ZAN", "cmd": "623", "btn": "A", "kind": "special"},
+   {"name": "BAYONETTE LUNGE", "cmd": "623", "btn": "B", "kind": "special"},
+   {"name": "NINPOU MOZU OTOSHI", "cmd": "623", "btn": "A+B", "kind": "special", "when": "close"},
+   {"name": "SANREN SATSU: RIN", "cmd": "623", "btn": "C", "kind": "special"},
+   {"name": "CHOUBI JISHI", "cmd": "421", "btn": "A", "kind": "special"}
+  ],
+  "YUNFEI": [
+   {"name": "TEN'I DAIHOU", "cmd": "236", "btn": "A/B", "kind": "special"},
+   {"name": "TENKI SHICHIYOU: TSUKI", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "TENKI SHICHIYOU: HI", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "TENKI SHICHIYOU: NICHI", "cmd": "", "btn": "A+C", "kind": "special", "when": "air"},
+   {"name": "TENKOKU HOURA", "cmd": "623", "btn": "C", "kind": "special", "when": "close"}
+  ]
  }
 }

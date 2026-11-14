@@ -137,5 +137,124 @@
     "health": 100,
     "health_p2": 100,
     "time": 99
+  },
+  "specials": {
+    "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+    "kinds": ["Special Moves", "Super Moves"],
+    "super_needs": ["Needs a FULL Attack Bar"],
+    "ANGELA": [
+      {"name": "THUNDER WALL", "cmd": "", "btn": "PP", "kind": "special"},
+      {"name": "LOVE ME WHIP", "cmd": "46", "btn": "P", "kind": "special", "hold": [0]},
+      {"name": "ANGELA BODY ATTACK", "cmd": "46", "btn": "K", "kind": "special", "hold": [0]},
+      {"name": "SMASH KICK", "cmd": "82", "btn": "K", "kind": "special", "when": "air"},
+      {"name": "ANGELA'S GIANT BUSTER", "cmd": "46", "btn": "KK", "kind": "super", "hold": [0]}
+    ],
+    "ANNIE": [
+      {"name": "SWANNY CLASH", "cmd": "41236", "btn": "P", "kind": "special"},
+      {"name": "RAINBOW RISE", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "PHOTON BURST", "cmd": "236", "btn": "P", "kind": "special", "when": "air"},
+      {"name": "COSMIC THROW", "cmd": "6", "btn": "PP", "kind": "super", "when": "close"}
+    ],
+    "KANJI": [
+      {"name": "MIGIKIN SHUUTAI", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "HENSHOU KYAKU", "cmd": "46", "btn": "K", "kind": "special", "hold": [0]},
+      {"name": "RYUUKOU HEKI", "cmd": "28", "btn": "P", "kind": "special", "hold": [0]},
+      {"name": "ISSHAKU FUDA", "cmd": "41236", "btn": "KK", "kind": "special"},
+      {"name": "GEKIJOU JUUJIZUKI", "cmd": "", "btn": "LK", "kind": "special", "rapid": true},
+      {"name": "LOW GEKIJOU JUUJIZUKI", "cmd": "2", "btn": "LK", "kind": "special", "hold": [0], "rapid": true},
+      {"name": "GENMEI KIKO DAN", "cmd": "63214", "btn": "P", "kind": "special"},
+      {"name": "KYOSUI HIZARYOU", "cmd": "46", "btn": "K", "kind": "special", "hold": [0]},
+      {"name": "BAKURETSU HOUHI: FRAIL KANJI", "cmd": "46", "btn": "KK", "kind": "super", "hold": [0]}
+    ],
+    "KEITH": [
+      {"name": "KNUCKLE BOMBER", "cmd": "46", "btn": "P", "kind": "special", "hold": [0]},
+      {"name": "SPIRAL KICK", "cmd": "236", "btn": "K", "kind": "special"},
+      {"name": "LIGHTNING FLASH", "cmd": "214", "btn": "P", "kind": "special"},
+      {"name": "ROLLING CANNON", "cmd": "632", "btn": "K", "kind": "special"},
+      {"name": "FINAL CRASH BOMBER", "cmd": "46", "btn": "PP", "kind": "super", "hold": [0]}
+    ],
+    "KURARA": [
+      {"name": "DREAMING BOOMERANG", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "DREAM TURN ATTACK", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "MIRACLE ATTACK", "cmd": "214", "btn": "PP", "kind": "special"},
+      {"name": "MIRACLE DEATH KISS: SUPER KURARA", "cmd": "6412", "btn": "PP", "kind": "special"},
+      {"name": "SPARK SAVIOR", "cmd": "236", "btn": "LP", "kind": "special"},
+      {"name": "ANGLE SAVIOR", "cmd": "236", "btn": "HP", "kind": "special"},
+      {"name": "SPARK BARRIER", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "STARDUST REVOLUTION", "cmd": "236", "btn": "PP", "kind": "super"}
+    ],
+    "OSHIMA": [
+      {"name": "SEI RYU DAN", "cmd": "41236", "btn": "LP", "kind": "special"},
+      {"name": "KYOKU SUSEI DAN", "cmd": "41236", "btn": "HP", "kind": "special"},
+      {"name": "TENBU KYAKU", "cmd": "63214", "btn": "K", "kind": "special"},
+      {"name": "GAN SAIGA", "cmd": "46", "btn": "P", "kind": "special", "hold": [0]},
+      {"name": "IKAKU HOU", "cmd": "41236987", "btn": "P", "kind": "special", "when": "air"},
+      {"name": "WAREI SUISEI JIN", "cmd": "41236", "btn": "PP", "kind": "super"}
+    ],
+    "OTANE": [
+      {"name": "IKAKU GAN", "cmd": "28", "btn": "P", "kind": "special", "hold": [0]},
+      {"name": "GAN SAISHI", "cmd": "46", "btn": "P", "kind": "special", "hold": [0]},
+      {"name": "RYUSEI RANBU DAN", "cmd": "6", "btn": "P", "kind": "special", "hold": [0], "rapid": true},
+      {"name": "TEN BU KYAKU", "cmd": "82", "btn": "K", "kind": "special", "when": "air"},
+      {"name": "SHINRA KYOU", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "CHOU RENKA", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "KOUSHO KUHEKI", "cmd": "46", "btn": "P", "kind": "special", "hold": [0]},
+      {"name": "GOKETSU RYU OGANDA", "cmd": "28", "btn": "PP", "kind": "super", "hold": [0]}
+    ],
+    "OUME": [
+      {"name": "IKAKU GAN", "cmd": "28", "btn": "P", "kind": "special", "hold": [0]},
+      {"name": "GAN SAISHI", "cmd": "46", "btn": "P", "kind": "special", "hold": [0]},
+      {"name": "RYUSEI RANBU DAN", "cmd": "6", "btn": "P", "kind": "special", "hold": [0], "rapid": true},
+      {"name": "TENBU KYAKU", "cmd": "82", "btn": "K", "kind": "special", "when": "air"},
+      {"name": "CHOU RENKA", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "KOUSHO KUHEKI", "cmd": "46", "btn": "P", "kind": "special", "hold": [0]},
+      {"name": "GOKETSU RYUU OGANDA", "cmd": "28", "btn": "PP", "kind": "super", "hold": [0]}
+    ],
+    "REIJI": [
+      {"name": "RAIKOU KYAKU", "cmd": "", "btn": "K", "kind": "special", "rapid": true},
+      {"name": "GEKI SHOU HADOU HA", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "RYUEN SHOU", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "SHOU ENBU", "cmd": "41236987", "btn": "K", "kind": "special", "when": "air"},
+      {"name": "RYU KISHOU ENZAN", "cmd": "623", "btn": "PP", "kind": "super"}
+    ],
+    "S.KURARA": [
+      {"name": "DREAMING BOOMERANG", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "DREAM TURN ATTACK", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "MIRACLE ATTACK", "cmd": "214", "btn": "PP", "kind": "special"},
+      {"name": "MIRACLE DEATH KISS: SUPER KURARA", "cmd": "6412", "btn": "PP", "kind": "special"},
+      {"name": "SPARK SAVIOR", "cmd": "236", "btn": "LP", "kind": "special"},
+      {"name": "ANGLE SAVIOR", "cmd": "236", "btn": "HP", "kind": "special"},
+      {"name": "SPARK BARRIER", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "STARDUST REVOLUTION", "cmd": "236", "btn": "PP", "kind": "super"}
+    ],
+    "SAHAD": [
+      {"name": "SABER SHOT", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "APIA CHIA CHIA", "cmd": "28", "btn": "P", "kind": "special", "hold": [0]},
+      {"name": "FIRE STORM", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "FLAME ATTACK", "cmd": "46", "btn": "P", "kind": "special", "hold": [0]},
+      {"name": "JUSTIN MAGIC", "cmd": "236", "btn": "PP", "kind": "super"}
+    ],
+    "SAIZO": [
+      {"name": "GOKUEN SHOU RYUDAN", "cmd": "214", "btn": "P", "kind": "special"},
+      {"name": "RYUU EN HA", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "SEIEN RESHOU ZAN", "cmd": "41236", "btn": "K", "kind": "special"},
+      {"name": "SHINKUU SENPUU ZAN", "cmd": "41236987", "btn": "P", "kind": "special", "when": "air"},
+      {"name": "GOKUAKU NOBORU RYUU DAN", "cmd": "214", "btn": "PP", "kind": "super"}
+    ],
+    "THIN NEN": [
+      {"name": "REKKOU KEN", "cmd": "464", "btn": "P", "kind": "special"},
+      {"name": "JUBAKUFU", "cmd": "63214", "btn": "PP", "kind": "special"},
+      {"name": "RENGOKU REIHA", "cmd": "41236", "btn": "PP", "kind": "special"},
+      {"name": "KUUCHUU RENGOKU REIHA", "cmd": "41236", "btn": "PP", "kind": "special", "when": "air"},
+      {"name": "SENKOU REKKYAKU", "cmd": "2369", "btn": "K", "kind": "special"},
+      {"name": "RENKI KOURIN", "cmd": "", "btn": "PP+KK", "kind": "super"}
+    ],
+    "WHITE": [
+      {"name": "ARROW SHOT", "cmd": "41236", "btn": "P", "kind": "special"},
+      {"name": "BUFFALO STORM", "cmd": "28", "btn": "K", "kind": "special", "hold": [0]},
+      {"name": "TACKLE BLOW", "cmd": "46", "btn": "P", "kind": "special", "hold": [0]},
+      {"name": "FLYING ELBOW", "cmd": "41236987", "btn": "P", "kind": "special", "when": "air"},
+      {"name": "SUPER TORNADO TOMAHAWK", "cmd": "41236", "btn": "PP", "kind": "super"}
+    ]
   }
 }

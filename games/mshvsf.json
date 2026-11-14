@@ -265,5 +265,216 @@
         ["_p2_on2", "_p2_hp2", "_p2_hp2"]
       ]
     }
+  },
+  "specials": {
+    "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+    "kinds": ["Hyper Combos", "Special Moves"],
+    "super_needs": ["Needs 1LV of Super Bar"],
+    ".SAKURA#": [
+      {"name": "HADOU KEN", "cmd": "214", "btn": "P", "kind": "special"},
+      {"name": "SHOU'OU KEN", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "SHUNPUU KYAKU", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "MIDARE ZAKURA", "cmd": "236", "btn": "PP", "kind": "super"},
+      {"name": "SHINKUU HADOU KEN", "cmd": "214", "btn": "PP", "kind": "super"},
+      {"name": "HARU ICHIBAN", "cmd": "214", "btn": "KK", "kind": "super"}
+    ],
+    ".SPIDER-MA": [
+      {"name": "WEB BALL", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "SPIDER STING", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "WEB SWING", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "WEB THROW", "cmd": "63214", "btn": "P", "kind": "special"},
+      {"name": "MAXIMUM SPIDER", "cmd": "236", "btn": "PP", "kind": "super"},
+      {"name": "CRAWLER ASSAULT", "cmd": "236", "btn": "KK", "kind": "super"}
+    ],
+    "MECH-ZANGI": [
+      {"name": "DOUBLE LARIAT", "cmd": "", "btn": "PPP", "kind": "special"},
+      {"name": "QUICK DOUBLE LARIAT", "cmd": "", "btn": "KKK", "kind": "special"},
+      {"name": "SPINNING PILEDRIVER", "cmd": "41236987", "btn": "P", "kind": "special", "when": "close"},
+      {"name": "ATOMIC SUPLEX", "cmd": "41236", "btn": "K", "kind": "special", "when": "close"},
+      {"name": "FLYING POWERBOMB", "cmd": "41236", "btn": "K", "kind": "special"},
+      {"name": "VODKA FIRE", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "AERIAL RUSSIAN SLAM", "cmd": "623", "btn": "K", "kind": "special"},
+      {"name": "FINAL ATOMIC BUSTER", "cmd": "41236987", "btn": "PP", "kind": "super", "when": "close"},
+      {"name": "SIBERIAN BLIZZARD", "cmd": "41236987", "btn": "KK", "kind": "super"}
+    ],
+    "MEPHISTO#": [
+      {"name": "DARK THUNDER", "cmd": "41236", "btn": "P", "kind": "special"},
+      {"name": "INFERNO", "cmd": "63214", "btn": "P", "kind": "special"},
+      {"name": "ARMAGEDDON", "cmd": "236", "btn": "PP", "kind": "super"},
+      {"name": "HEART OF DARKNESS", "cmd": "236", "btn": "KK", "kind": "super"},
+      {"name": "JUDGEMENT DAY", "cmd": "214", "btn": "PP", "kind": "super"}
+    ],
+    "NORIMARO#": [
+      {"name": "SUPER FANTASTIC TREASURE", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "GREAT FIGHTING JUMP", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "POWERFUL ROLLING ARMS", "cmd": "236", "btn": "K", "kind": "special"},
+      {"name": "HYPER STRONG MIRACLE TREASURE", "cmd": "236", "btn": "PP", "kind": "super"},
+      {"name": "ULTIMATE GRAND CHAMPION JUMP", "cmd": "623", "btn": "PP", "kind": "super"},
+      {"name": "ULTRA VARIETY PRIVATE MEMORIES", "cmd": "236", "btn": "KK", "kind": "super"}
+    ],
+    "SHADOW#": [
+      {"name": "SONIC BOOM", "cmd": "46", "btn": "P", "kind": "special", "hold": [0]},
+      {"name": "SOMERSAULT SHELL", "cmd": "28", "btn": "K", "kind": "special", "hold": [0]},
+      {"name": "MOONSAULT SLASH", "cmd": "896", "btn": "K", "kind": "special", "when": "air"},
+      {"name": "SHADOW BREAK", "cmd": "236", "btn": "PP", "kind": "super"},
+      {"name": "CROSS SHADOW BLITZ", "cmd": "236", "btn": "KK", "kind": "super"},
+      {"name": "SHADOW JUSTICE", "cmd": "214", "btn": "KK", "kind": "super"},
+      {"name": "FINAL MISSION (^M)", "cmd": "4646", "btn": "PP", "kind": "super", "hold": [0]}
+    ],
+    "U.S.AGENT#": [
+      {"name": "SHIELD SLASH", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "STARS & STRIPES", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "CHARGING STAR", "cmd": "236", "btn": "K", "kind": "special"},
+      {"name": "CARTWHEEL", "cmd": "63214", "btn": "P", "kind": "special"},
+      {"name": "FINAL JUSTICE", "cmd": "236", "btn": "PP", "kind": "super"},
+      {"name": "HYPER STARS & STRIPES", "cmd": "623", "btn": "PP", "kind": "super"},
+      {"name": "HYPER CHARGING STAR", "cmd": "236", "btn": "KK", "kind": "super"}
+    ],
+    "AKUMA": [
+      {"name": "GOU HADOU KEN", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "ZANKUU HADOU KEN", "cmd": "236", "btn": "P", "kind": "special", "when": "air"},
+      {"name": "GOU SHOURYUU KEN", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "TATSUMAKI ZANKUU KYAKU", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "TENMA KUUJIN KYAKU", "cmd": "236", "btn": "K", "kind": "special", "when": "air"},
+      {"name": "ASHURA SENKUU: ZENPOU", "cmd": "623", "btn": "PPP/KKK", "kind": "special"},
+      {"name": "ASHURA SENKUU: KOUHOU", "cmd": "421", "btn": "PPP/KKK", "kind": "special"},
+      {"name": "MESSATSU GOU SHOURYUU", "cmd": "236", "btn": "PP", "kind": "super"},
+      {"name": "MESSATSU GOU HADOU", "cmd": "214", "btn": "PP", "kind": "super"},
+      {"name": "TENMA GOU ZANKUU", "cmd": "236", "btn": "PP", "kind": "super", "when": "air"}
+    ],
+    "BISON": [
+      {"name": "PSYCHO SHOT", "cmd": "41236", "btn": "P", "kind": "special"},
+      {"name": "PSYCHO FIELD", "cmd": "63214", "btn": "P", "kind": "special"},
+      {"name": "DOUBLE KNEE PRESS", "cmd": "41236", "btn": "K", "kind": "special"},
+      {"name": "HEAD PRESS", "cmd": "28", "btn": "K", "kind": "special", "hold": [0]},
+      {"name": "BISON WARP", "cmd": "623", "btn": "P/K", "kind": "special"},
+      {"name": "FLIGHT", "cmd": "214", "btn": "KK", "kind": "special"},
+      {"name": "PSYCHO CRUSHER", "cmd": "236", "btn": "PP", "kind": "super"},
+      {"name": "KNEE PRESS NIGHTMARE", "cmd": "236", "btn": "KK", "kind": "super"}
+    ],
+    "BLACKHEART": [
+      {"name": "DARK THUNDER", "cmd": "41236", "btn": "P", "kind": "special"},
+      {"name": "INFERNO", "cmd": "63214", "btn": "P", "kind": "special"},
+      {"name": "ARMAGEDDON", "cmd": "236", "btn": "PP", "kind": "super"},
+      {"name": "HEART OF DARKNESS", "cmd": "236", "btn": "KK", "kind": "super"},
+      {"name": "JUDGEMENT DAY", "cmd": "214", "btn": "PP", "kind": "super"}
+    ],
+    "C.AMERICA": [
+      {"name": "SHIELD SLASH", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "STARS & STRIPES", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "CHARGING STAR", "cmd": "236", "btn": "K", "kind": "special"},
+      {"name": "CARTWHEEL", "cmd": "63214", "btn": "P", "kind": "special"},
+      {"name": "FINAL JUSTICE", "cmd": "236", "btn": "PP", "kind": "super"},
+      {"name": "HYPER STARS & STRIPES", "cmd": "623", "btn": "PP", "kind": "super"},
+      {"name": "HYPER CHARGING STAR", "cmd": "236", "btn": "KK", "kind": "super"}
+    ],
+    "CHUN-LI": [
+      {"name": "HYAKURETSU KYAKU", "cmd": "", "btn": "K", "kind": "special", "rapid": true},
+      {"name": "KIKOU KEN", "cmd": "41236", "btn": "P", "kind": "special"},
+      {"name": "TENSHOU KYAKU", "cmd": "623", "btn": "K", "kind": "special"},
+      {"name": "SEN'EN SHUU", "cmd": "63214", "btn": "K", "kind": "special"},
+      {"name": "KIKOU SHOU", "cmd": "236", "btn": "PP", "kind": "super"},
+      {"name": "SENRETSU KYAKU", "cmd": "236", "btn": "KK", "kind": "super"},
+      {"name": "HAZAN TENSHOU KYAKU", "cmd": "623", "btn": "KK", "kind": "super"}
+    ],
+    "CYCLOPS": [
+      {"name": "OPTIC BLAST", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "OPTIC SWEEP", "cmd": "632", "btn": "P", "kind": "special"},
+      {"name": "GENE SPLICE", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "CYCLONE KICK", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "RUNNING NECK BREAKER DROP", "cmd": "46", "btn": "K", "kind": "special", "hold": [0]},
+      {"name": "MEGA OPTIC BLAST", "cmd": "236", "btn": "PP", "kind": "super"},
+      {"name": "SUPER OPTIC BLAST", "cmd": "632", "btn": "PP", "kind": "super"}
+    ],
+    "DAN": [
+      {"name": "GADOU KEN", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "KOURYUU KEN", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "DANKUU KYAKU", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "PREMIUM SIGN", "cmd": "236", "btn": "K", "kind": "special"},
+      {"name": "SHINKUU GADOU KEN", "cmd": "236", "btn": "PP", "kind": "super"},
+      {"name": "HISSHOU BURAI KEN", "cmd": "214", "btn": "KK", "kind": "super"},
+      {"name": "KOURYUU REKKA", "cmd": "236", "btn": "KK", "kind": "super"}
+    ],
+    "DHALSIM": [
+      {"name": "YOGA FIRE", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "YOGA FLAME", "cmd": "63214", "btn": "P", "kind": "special"},
+      {"name": "YOGA BLAST", "cmd": "63214", "btn": "K", "kind": "special"},
+      {"name": "YOGA TELEPORT: ZENPOU", "cmd": "623", "btn": "PPP/KKK", "kind": "special"},
+      {"name": "YOGA TELEPORT: KOUHOU", "cmd": "421", "btn": "PPP/KKK", "kind": "special"},
+      {"name": "FUYUU", "cmd": "214", "btn": "KK", "kind": "special"},
+      {"name": "YOGA INFERNO", "cmd": "236", "btn": "PP", "kind": "super"},
+      {"name": "YOGA STRIKE", "cmd": "236", "btn": "KK", "kind": "super"}
+    ],
+    "HULK": [
+      {"name": "GAMMA SLAM", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "GAMMA TORNADO", "cmd": "63214", "btn": "P", "kind": "special", "when": "close"},
+      {"name": "GAMMA CRUSH", "cmd": "214", "btn": "PP", "kind": "super"},
+      {"name": "GAMMA WAVE", "cmd": "236", "btn": "PP", "kind": "super"}
+    ],
+    "KEN": [
+      {"name": "HADOU KEN", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "SHOURYUU KEN", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "TATSUMAKI SENPUU KYAKU", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "SHOURYUU REPPA", "cmd": "236", "btn": "PP", "kind": "super"},
+      {"name": "SHINRYUU KEN", "cmd": "236", "btn": "KK", "kind": "super"},
+      {"name": "SHIPPUU JINRAI KYAKU", "cmd": "214", "btn": "KK", "kind": "super"}
+    ],
+    "OMEGA RED": [
+      {"name": "CARBONADIUM COIL", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "AIR CARBONADIUM COIL", "cmd": "236", "btn": "P/K", "kind": "special", "when": "air"},
+      {"name": "OMEGA STRIKE", "cmd": "236", "btn": "K", "kind": "special"},
+      {"name": "OMEGA DESTROYER", "cmd": "236", "btn": "PP", "kind": "super"},
+      {"name": "CARBONADIUM SMASHER", "cmd": "236", "btn": "PP", "kind": "super", "when": "air"}
+    ],
+    "RYU": [
+      {"name": "HADOU KEN", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "SHOURYUU KEN", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "TATSUMAKI SENPUU KYAKU", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "SHINKUU HADOU KEN", "cmd": "236", "btn": "PP", "kind": "super"},
+      {"name": "SHINKUU TATSUMAKI SENPUU KYAKU", "cmd": "214", "btn": "KK", "kind": "super"},
+      {"name": "SHIN SHOURYUU KEN", "cmd": "623", "btn": "PP", "kind": "super"}
+    ],
+    "S.GORATH": [
+      {"name": "MYSTIC STARE", "cmd": "46", "btn": "P", "kind": "special", "hold": [0]},
+      {"name": "MYSTIC SMASH", "cmd": "46", "btn": "K", "kind": "special", "hold": [0]},
+      {"name": "DEVITALIZATION", "cmd": "63214", "btn": "K", "kind": "special", "when": "close"},
+      {"name": "CHAOS DIMENSION (^M)", "cmd": "236", "btn": "PP", "kind": "super"},
+      {"name": "CHAOS SPLIT", "cmd": "236", "btn": "KK", "kind": "super"}
+    ],
+    "SAKURA": [
+      {"name": "HADOU KEN", "cmd": "214", "btn": "P", "kind": "special"},
+      {"name": "SHOU'OU KEN", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "SHUNPUU KYAKU", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "MIDARE ZAKURA", "cmd": "236", "btn": "PP", "kind": "super"},
+      {"name": "SHINKUU HADOU KEN", "cmd": "214", "btn": "PP", "kind": "super"},
+      {"name": "HARU ICHIBAN", "cmd": "214", "btn": "KK", "kind": "super"}
+    ],
+    "SPIDER-MAN": [
+      {"name": "WEB BALL", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "SPIDER STING", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "WEB SWING", "cmd": "214", "btn": "K", "kind": "special"},
+      {"name": "WEB THROW", "cmd": "63214", "btn": "P", "kind": "special"},
+      {"name": "MAXIMUM SPIDER", "cmd": "236", "btn": "PP", "kind": "super"},
+      {"name": "CRAWLER ASSAULT", "cmd": "236", "btn": "KK", "kind": "super"}
+    ],
+    "WOLVERINE": [
+      {"name": "BERSERKER BARRAGE", "cmd": "236", "btn": "P", "kind": "special"},
+      {"name": "TORNADO CLAW", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "DRILL CLAW", "cmd": "", "btn": "MP+LK", "kind": "special"},
+      {"name": "BERSERKER BARRAGE X", "cmd": "236", "btn": "PP", "kind": "super"},
+      {"name": "WEAPON X", "cmd": "623", "btn": "PP", "kind": "super"},
+      {"name": "FATAL CLAW", "cmd": "623", "btn": "KK", "kind": "super"},
+      {"name": "BERSERKER CHARGE", "cmd": "214", "btn": "PP", "kind": "super"}
+    ],
+    "ZANGIEF": [
+      {"name": "DOUBLE LARIAT", "cmd": "", "btn": "PPP", "kind": "special"},
+      {"name": "QUICK DOUBLE LARIAT", "cmd": "", "btn": "KKK", "kind": "special"},
+      {"name": "SPINNING PILEDRIVER", "cmd": "41236987", "btn": "P", "kind": "special", "when": "close"},
+      {"name": "ATOMIC SUPLEX", "cmd": "41236", "btn": "K", "kind": "special", "when": "close"},
+      {"name": "FLYING POWERBOMB", "cmd": "41236", "btn": "K", "kind": "special"},
+      {"name": "BANISHING FLAT", "cmd": "623", "btn": "P", "kind": "special"},
+      {"name": "AERIAL RUSSIAN SLAM", "cmd": "623", "btn": "K", "kind": "special"},
+      {"name": "FINAL ATOMIC BUSTER", "cmd": "41236987", "btn": "PP", "kind": "super", "when": "close"}
+    ]
   }
 }

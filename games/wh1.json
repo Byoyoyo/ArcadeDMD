@@ -179,5 +179,46 @@
    "arena"
   ],
   "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page"
+ },
+ "specials": {
+  "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+  "kinds": ["Special Moves"],
+  "BROCKEN": [
+   {"name": "SPARK THUNDER", "cmd": "", "btn": "A", "kind": "special", "rapid": true},
+   {"name": "ROCKET PUNCH", "cmd": "46", "btn": "A", "kind": "special"},
+   {"name": "HURRICANE ARM", "cmd": "263", "btn": "A", "kind": "special"}
+  ],
+  "DRAGON": [
+   {"name": "HYAKURETSU KEN", "cmd": "", "btn": "A", "kind": "special", "rapid": true},
+   {"name": "DRAGON KICK", "cmd": "46", "btn": "B", "kind": "special"}
+  ],
+  "FUUMA": [
+   {"name": "REPPU ZAN", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "DOUBLE REPPU ZAN", "cmd": "236236", "btn": "A", "kind": "special"},
+   {"name": "ENRYU HA", "cmd": "623", "btn": "A", "kind": "special"},
+   {"name": "NINPOU FURIN KAZAN", "cmd": "214", "btn": "B", "kind": "special"}
+  ],
+  "HANZO": [
+   {"name": "REKKO ZAN", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "DOUBLE REKKO ZAN", "cmd": "236236", "btn": "A", "kind": "special"},
+   {"name": "KOURYU HA", "cmd": "623", "btn": "A", "kind": "special"},
+   {"name": "NINPOU KOHRIN KAZAN", "cmd": "214", "btn": "B", "kind": "special"}
+  ],
+  "J.CARN": [
+   {"name": "MONGOLIAN TIGER MASH", "cmd": "46", "btn": "A", "kind": "special", "hold": [0]},
+   {"name": "MONGOLIAN DYNAMITE", "cmd": "28", "btn": "A", "kind": "special", "hold": [0]}
+  ],
+  "JANNE": [
+   {"name": "AURA BIRD", "cmd": "46", "btn": "A", "kind": "special", "hold": [0]},
+   {"name": "FLASH SWORD", "cmd": "28", "btn": "B", "kind": "special", "hold": [0]}
+  ],
+  "MUSCLE": [
+   {"name": "MUSCLE BOMBER", "cmd": "46", "btn": "A", "kind": "special", "hold": [0]},
+   {"name": "TORNADO BODY SMASH", "cmd": "41236987", "btn": "A", "kind": "special", "when": "close"}
+  ],
+  "RASPUTIN": [
+   {"name": "FIREBALL", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "AXLE SPIN", "cmd": "214", "btn": "B", "kind": "special"}
+  ]
  }
 }

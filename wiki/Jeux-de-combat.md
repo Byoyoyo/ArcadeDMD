@@ -5,7 +5,8 @@ Chacun des 57 jeux de combat Neo Geo a son propre fichier dans `games\`, variant
 ## Ce que montre l'écran HD
 
 - En haut, le score de chaque joueur, ou CHALLENGER et BEAT BY en match VS. Au milieu, les barres de vie avec une traînée claire pour le coup qui vient d'être pris, et le chrono ou KO. En bas, P1, P2 ou CPU avec le combattant en cours, toute l'équipe dans The King of Fighters '96 à 2000 (les combattants déjà battus barrés), et les crédits.
-- Des étincelles à chaque coup, le compteur de combo, FIRST ATTACK, un battement de cœur rouge quand la vie est basse.
+- Des étincelles à chaque coup, le compteur de combo, FIRST ATTACK, un battement de cœur rouge quand la vie est basse. Un gros coup lance une onde de choc depuis la barre, les dégâts s'y affichent, et un coup que le jeu vide en plusieurs images compte pour un.
+- Les rounds gagnés en étoiles dorées sous les barres de vie, lus dans le jeu ou comptés d'après les K.O. dans tous les jeux à un combattant. Un match gagné dit combien de rounds à combien.
 - K.O. en grosses lettres rouges du côté du perdant et WIN en or du côté du gagnant, DOUBLE K.O., TIME UP, PERFECT, des confettis pour le gagnant.
 - ROUND 2, ROUND 3... quand le jeu lance le round, et FIGHT ! quand le jeu dit GO.
 - Le combattant suivant de King of Fighters qui entre une fois le K.O. passé, et quand une équipe perd son troisième combattant, P1 WINS et l'équipe éliminée.
@@ -27,6 +28,15 @@ Sous le nom de chaque joueur humain, un panneau.
 - Sinon le panneau montre les touches appuyées, comme le mode entraînement.
 - '97 a ses propres commandes, sa jauge, ses trois carrés de stock et le drapeau du jeu pour un coup désespéré, et 2002 ses propres commandes, le MAX par B+C et son chrono, un coup désespéré gratuit en MAX et un SDM qui prend un stock, l'ordre de combat de chaque équipe lu.
 
+## Le panneau des coups des autres jeux de combat
+
+Sous le nom de chaque joueur humain, un panneau comme celui de The King of Fighters '98 (1.38).
+
+- Les coups spéciaux du combattant défilent l'un après l'autre, leur nom, leurs flèches tournées vers l'autre combattant et leurs boutons. Un point par coup dit lequel s'affiche. Une charge est une flèche bleue, un coup à faire près ou en l'air le dit.
+- Quand la jauge du jeu est lue et permet un super, le panneau passe en or et ne montre que les supers. Samurai Shodown II montre sa jauge POW, puis POW MAX avec son chrono et la technique de bris d'arme du combattant. Les jeux Capcom montrent leur jauge de super et son niveau.
+- Un jeu dont la jauge n'est pas lue montre ses supers en or parmi les coups spéciaux.
+- Les coups de 70 jeux viennent de la liste des commandes de MAME (`command.dat`, de Fabricio Coroquer et AntoPISA), écrits dans le bloc `specials` de chaque fichier de jeu par `tools/command_dat.py`.
+
 ## Le spectacle du coup désespéré
 
 Quand un humain place un coup désespéré, son nom prend tout le marquee un instant, puis vole au-dessus de sa barre pendant que les coups tombent, en les comptant. La barre de celui qui les prend sursaute à chaque coup, la partie perdue blanche puis rouge, et à son bord l'étincelle de chaque coup éclate avec des morceaux de la barre qui volent. Deux à la fois, chaque nom s'écrase de son côté avec DOUBLE DM ! entre les deux.
@@ -39,7 +49,7 @@ Dans un match à deux joueurs, les King of Fighters affichent CHALLENGER au-dess
 
 ## Ce que lit chaque jeu
 
-Chaque jeu de combat Neo Geo a son propre fichier dans `games\`, versions officielles comprises (japonaise, coréenne, prototype). Les adresses viennent des codes de triche de FinalBurn Neo, des scripts d'entraînement FinalBurn Neo de peon2 et de la base de triche de MAME 2003-Plus, vérifiées avec la collection de codes de MAME (mamecheat.co.uk). Elle donne la jauge de super d'Art of Fighting et Art of Fighting 2, Garou, King of Fighters '96, Ninja Master's, des trois Real Bout Fatal Fury, Rage of the Dragons, Samurai Shodown III, IV, V et V Special et World Heroes Perfect, affichée sous les combattants sur l'écran HD, les personnages de Fatal Fury 2 et le chrono de Karnov's Revenge. Le score est connu pour les King of Fighters et pour Samurai Shodown II. RetroAchievements le donne pour Art of Fighting, Fatal Fury 1, 2, 3 et Special, Galaxy Fight, Garou, Karnov's Revenge, King of Fighters '94 et 2003, Rage of the Dragons, Real Bout Fatal Fury 1 et Special, Samurai Shodown, The Last Blade 1 et 2 et Waku Waku 7 (ses scripts publics sur GitHub et les données que télécharge `tools/ra_notes.py`, à vérifier en jeu), avec les rounds gagnés de Fatal Fury 3 et Karnov's Revenge, des étoiles dorées sous les barres de vie sur l'écran HD. Pour les autres, apprends-le avec `learn.bat` (`score=...` et `score2=...`).
+Chaque jeu de combat Neo Geo a son propre fichier dans `games\`, versions officielles comprises (japonaise, coréenne, prototype). Les adresses viennent des codes de triche de FinalBurn Neo, des scripts d'entraînement FinalBurn Neo de peon2 et de la base de triche de MAME 2003-Plus, vérifiées avec la collection de codes de MAME (mamecheat.co.uk). Elle donne la jauge de super d'Art of Fighting et Art of Fighting 2, Garou, The Last Blade 2 (avec ses rounds gagnés et ses décors, 1.38), Samurai Shodown II (son POW, 1.38), King of Fighters '96, Ninja Master's, des trois Real Bout Fatal Fury, Rage of the Dragons, Samurai Shodown III, IV, V et V Special et World Heroes Perfect, affichée sous les combattants sur l'écran HD, les personnages de Fatal Fury 2 et le chrono de Karnov's Revenge. Le score est connu pour les King of Fighters et pour Samurai Shodown II. RetroAchievements le donne pour Art of Fighting, Fatal Fury 1, 2, 3 et Special, Galaxy Fight, Garou, Karnov's Revenge, King of Fighters '94 et 2003, Rage of the Dragons, Real Bout Fatal Fury 1 et Special, Samurai Shodown, The Last Blade 1 et 2 et Waku Waku 7 (ses scripts publics sur GitHub et les données que télécharge `tools/ra_notes.py`, à vérifier en jeu), avec les rounds gagnés de Fatal Fury 3 et Karnov's Revenge, des étoiles dorées sous les barres de vie sur l'écran HD. Pour les autres, apprends-le avec `learn.bat` (`score=...` et `score2=...`).
 
 Quand une barre de vie, un chrono ou un nom ne colle pas à l'écran, lance `test_retroarch.bat` pendant un combat et poste le résultat dans une issue GitHub.
 

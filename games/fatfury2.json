@@ -186,5 +186,80 @@
     "12": "KRAUSER"
    }
   }
+ },
+ "specials": {
+  "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+  "kinds": ["Desperation Moves", "Special Moves"],
+  "super_needs": ["Needs a FLASHING Life Bar"],
+  "ANDY": [
+   {"name": "HISHOU KEN", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "SHOURYUU DAN", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "KUUHA DAN", "cmd": "19", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "ZAN'EI KEN", "cmd": "16", "btn": "A/C", "kind": "special"},
+   {"name": "CHOU REPPA DAN", "cmd": "236", "btn": "B+D", "kind": "super", "hold": [0]}
+  ],
+  "AXEL": [
+   {"name": "SHINKUU CUTTER", "cmd": "46", "btn": "C", "kind": "special", "hold": [0]},
+   {"name": "AXEL RUSH", "cmd": "46", "btn": "D", "kind": "special", "hold": [0]},
+   {"name": "SMASH BOMBER", "cmd": "214", "btn": "C", "kind": "special"}
+  ],
+  "BIG BEAR": [
+   {"name": "GIANT BOMB", "cmd": "16", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "FIRE BREATH", "cmd": "63216", "btn": "B+C", "kind": "super"}
+  ],
+  "BILLY": [
+   {"name": "SENPUU KON", "cmd": "", "btn": "A", "kind": "special", "rapid": true},
+   {"name": "SANSETSU KON: CHUUDAN UCHI", "cmd": "46", "btn": "C", "kind": "special", "hold": [0]},
+   {"name": "KYOUSHUU HISHOU KON", "cmd": "28", "btn": "D", "kind": "special", "hold": [0]},
+   {"name": "SUZUME OTOSHI", "cmd": "19", "btn": "C", "kind": "special", "hold": [0]}
+  ],
+  "CHENG": [
+   {"name": "KITEN HINZAN", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "DAI TAIKOBARA UCHI", "cmd": "28", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "HAGAN GEKI", "cmd": "46", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "BUKURAI HOH", "cmd": "1236", "btn": "B+C", "kind": "super", "hold": [0]}
+  ],
+  "JOE": [
+   {"name": "BAKURETSU KEN", "cmd": "", "btn": "A/C", "kind": "special", "rapid": true},
+   {"name": "HURRICANE UPPER", "cmd": "41236", "btn": "A/C", "kind": "special"},
+   {"name": "TIGER KICK", "cmd": "2369", "btn": "B/D", "kind": "special"},
+   {"name": "SLASH KICK", "cmd": "19", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "SCREW UPPER", "cmd": "641236", "btn": "B+C", "kind": "super"}
+  ],
+  "JUBEI": [
+   {"name": "NIHON SEOI DASH", "cmd": "46", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "OOIZUNA OTOSHI", "cmd": "28", "btn": "A/C", "kind": "special", "hold": [0], "when": "close"},
+   {"name": "SENBE SHURIKEN", "cmd": "46", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "DYNAMITE IZUNA OTOSHI", "cmd": "123", "btn": "B+C", "kind": "super", "hold": [0], "when": "close"}
+  ],
+  "KIM": [
+   {"name": "HANGETSU ZAN", "cmd": "214", "btn": "B/D", "kind": "special"},
+   {"name": "HIEN ZAN", "cmd": "28", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "HOU'OU KYAKU", "cmd": "21416", "btn": "B+D", "kind": "super"}
+  ],
+  "KRAUSER": [
+   {"name": "HIGH BLITZ BALL", "cmd": "236", "btn": "C", "kind": "special"},
+   {"name": "LOW BLITZ BALL", "cmd": "236", "btn": "D", "kind": "special"},
+   {"name": "KAISER WAVE", "cmd": "46", "btn": "C", "kind": "special", "hold": [0]}
+  ],
+  "LAURENCE": [
+   {"name": "BLOODY SABER", "cmd": "46", "btn": "D", "kind": "special", "hold": [0]},
+   {"name": "BLOODY CUTTER", "cmd": "28", "btn": "C", "kind": "special", "hold": [0]},
+   {"name": "BLOODY SPIN", "cmd": "46", "btn": "C", "kind": "special", "hold": [0]}
+  ],
+  "MAI": [
+   {"name": "KACHOU SEN", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "RYUU ENBU", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "HISSATSU SHINOBI BACHI", "cmd": "41236", "btn": "B/D", "kind": "special"},
+   {"name": "MUSASABI NO MAI", "cmd": "28", "btn": "C", "kind": "special", "hold": [0]},
+   {"name": "CHOU HISSATSU SHINOBI BACHI", "cmd": "616", "btn": "B+C", "kind": "super"}
+  ],
+  "TERRY": [
+   {"name": "POWER WAVE", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "RISING TACKLE", "cmd": "28", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "BURN KNUCKLE", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "CRACK SHOOT", "cmd": "2147", "btn": "B/D", "kind": "special"},
+   {"name": "POWER GEYSER", "cmd": "21416", "btn": "B+C", "kind": "super"}
+  ]
  }
 }

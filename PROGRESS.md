@@ -4,7 +4,7 @@ Game by game, what ArcadeDMD already knows how to show, and what comes next. Upd
 
 Jeu par jeu, ce qu'ArcadeDMD sait déjà afficher, et ce qui vient ensuite. Mis à jour à chaque version.
 
-Up to date with version 1.37.0. / À jour de la version 1.37.0.
+Up to date with version 1.38.0. / À jour de la version 1.38.0.
 
 Tuned on a real cabinet, round after round, with videos, photos, logs of the games and, since 1.33, one game recorded whole: The King of Fighters '98 (its nine stages, the desperation moves, ROUND and FIGHT ! with the game, 1.31 to 1.33), Metal Slug 1 to 5 and X (each from one recorded game, mission 1 checked frame by frame, 1.33), Windjammers (the disc, the players, the supers, the sets, 1.33), Puzzle Bobble 2 (1.33), Puzzle Bobble (from one recorded VS game, 1.35), Twinkle Star Sprites (the players' places, the hearts, the rounds, from one two-player game, 1.33), DoDonPachi; learned on a cabinet too: The King of Fighters 2002, Fatal Fury, Marvel vs. Capcom, X-Men vs. Street Fighter, Marvel Super Heroes vs. Street Fighter, X-Men: Children of the Atom, Hyper Street Fighter II, Strikers 1945 Plus, Giga Wing, Mercs. / Réglés sur une vraie borne, round après round, avec des vidéos, des photos, les journaux des jeux et, depuis la 1.33, une partie enregistrée en entier : The King of Fighters '98 (ses neuf décors, les coups désespérés, ROUND et FIGHT ! avec le jeu, 1.31 à 1.33), Metal Slug 1 à 5 et X (chacun d'après une partie enregistrée, la mission 1 vérifiée image par image, 1.33), Windjammers (le disque, les joueurs, les supers, les sets, 1.33), Puzzle Bobble 2 (1.33), Puzzle Bobble (d'après une partie VS enregistrée, 1.35), Twinkle Star Sprites (la place des joueurs, les cœurs, les manches, d'après une partie à deux, 1.33), DoDonPachi ; appris sur une borne aussi : The King of Fighters 2002, Fatal Fury, Marvel vs. Capcom, X-Men vs. Street Fighter, Marvel Super Heroes vs. Street Fighter, X-Men: Children of the Atom, Hyper Street Fighter II, Strikers 1945 Plus, Giga Wing, Mercs.
 
@@ -34,9 +34,9 @@ Les adresses prises dans les bases de codes de triche doivent encore être confi
 
 ### Fighting games / Jeux de combat (57 games / jeux)
 
-Shared fighting scene on the panel, with the coin screen since 1.16. On the HD screen, the fighting scene with its effects. The background follows the game's stages when they are known (18 games). The score is found for 3 games, the others still have to be learned or confirmed. The King of Fighters '97 has the panel of the desperation moves of '98 since 1.33.1, The King of Fighters 2002 too, each from one game recorded on the cabinet.
+Shared fighting scene on the panel, with the coin screen since 1.16. On the HD screen, the fighting scene with its effects. The background follows the game's stages when they are known (18 games). The score is found for 3 games, the others still have to be learned or confirmed. The King of Fighters '97 has the panel of the desperation moves of '98 since 1.33.1, The King of Fighters 2002 too, each from one game recorded on the cabinet. Since 1.38 the others show the moves of the fighter under a human's name, the rounds won as stars, and Samurai Shodown II its POW gauge and POW MAX.
 
-Scène de combat commune sur la dalle, avec l'écran des pièces depuis la 1.16. Sur l'écran HD, la scène de combat et ses effets. Le décor suit les stages du jeu quand ils sont connus (18 jeux). Le score est trouvé pour 3 jeux, les autres restent à apprendre ou à confirmer. The King of Fighters '97 a le panneau des coups désespérés de '98 depuis la 1.33.1, The King of Fighters 2002 aussi, chacun d'après une partie enregistrée sur la borne.
+Scène de combat commune sur la dalle, avec l'écran des pièces depuis la 1.16. Sur l'écran HD, la scène de combat et ses effets. Le décor suit les stages du jeu quand ils sont connus (18 jeux). Le score est trouvé pour 3 jeux, les autres restent à apprendre ou à confirmer. The King of Fighters '97 a le panneau des coups désespérés de '98 depuis la 1.33.1, The King of Fighters 2002 aussi, chacun d'après une partie enregistrée sur la borne. Depuis la 1.38 les autres montrent les coups du combattant sous le nom d'un humain, les rounds gagnés en étoiles, et Samurai Shodown II sa jauge POW et POW MAX.
 
 | Game / Jeu | Health / Vie | Timer / Chrono | Names / Noms | Score | Stages (HD) |
 |---|---|---|---|---|---|
@@ -236,9 +236,9 @@ Les crédits d'une MVS sont devinés d'après son BIOS depuis la 1.29. Depuis la
 
 ### Fighting games / Jeux de combat (34 games / jeux)
 
-Since 1.30, the 34 Capcom fighting games share the fight scene, on the panel with the coin screen and the super gauges, on the HD screen with the stages of the game. 22 of them read their stage, the others always get the same backgrounds, taken from a list that fits them (🟡). The score still has to be learned with `learn.bat`.
+Since 1.30, the 34 Capcom fighting games share the fight scene, on the panel with the coin screen and the super gauges, on the HD screen with the stages of the game. 22 of them read their stage, the others always get the same backgrounds, taken from a list that fits them (🟡). The score still has to be learned with `learn.bat`. Since 1.38 they show the moves of the fighter under a human's name, the supers in gold once the gauge allows them.
 
-Depuis la 1.30, les 34 jeux de combat Capcom partagent la scène de combat, sur la dalle avec l'écran des pièces et les jauges de super, sur l'écran HD avec les décors du jeu. 22 lisent leur décor, les autres ont toujours les mêmes décors, pris dans une liste qui leur va (🟡). Le score reste à apprendre avec `learn.bat`.
+Depuis la 1.30, les 34 jeux de combat Capcom partagent la scène de combat, sur la dalle avec l'écran des pièces et les jauges de super, sur l'écran HD avec les décors du jeu. 22 lisent leur décor, les autres ont toujours les mêmes décors, pris dans une liste qui leur va (🟡). Le score reste à apprendre avec `learn.bat`. Depuis la 1.38 ils montrent les coups du combattant sous le nom d'un humain, les supers en or une fois que la jauge les permet.
 
 | Game / Jeu | System / Système | Health / Vie | Timer / Chrono | Names / Noms | Super | Stages (HD) |
 |---|---|---|---|---|---|---|

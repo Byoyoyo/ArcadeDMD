@@ -326,5 +326,121 @@
         "15": "H.K.JOSEPH"
       }
     }
+  },
+  "specials": {
+    "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+    "kinds": ["Special Moves", "Super Combos"],
+    "super_needs": ["Needs 1LV of Super Bar"],
+    "ALESSY": [
+      {"name": "HACHI NO SUDA!", "cmd": "41236", "btn": "A/B/C", "kind": "special"},
+      {"name": "GEKINCHOGA!", "cmd": "63214", "btn": "A/B/C", "kind": "special"},
+      {"name": "ZETSUBOUOOOO DANE!", "cmd": "236", "btn": "A+B", "kind": "super"},
+      {"name": "USHI USHI USHI", "cmd": "214", "btn": "A+B", "kind": "super"}
+    ],
+    "AVDOL": [
+      {"name": "CROSSFIRE HURRICANE", "cmd": "236", "btn": "A/B/C", "kind": "special"},
+      {"name": "FIRE WALL", "cmd": "623", "btn": "A/B/C", "kind": "special"},
+      {"name": "HONOO NO TANSAKI", "cmd": "214", "btn": "A/B/C", "kind": "special"},
+      {"name": "FIRE EAGLE", "cmd": "236", "btn": "A/B/C", "kind": "special", "when": "air"},
+      {"name": "JIGOKU NO GOUKA", "cmd": "63214", "btn": "A/B/C", "kind": "special", "when": "close"},
+      {"name": "NAPALM BOMB", "cmd": "236", "btn": "A+B", "kind": "super"},
+      {"name": "CROSSFIRE HURRICANE SPECIAL", "cmd": "214", "btn": "A+B", "kind": "super"}
+    ],
+    "CHACA": [
+      {"name": "OBOE TAZO", "cmd": "214", "btn": "A/B/C", "kind": "special"},
+      {"name": "KIRENZAN", "cmd": "236", "btn": "A/B/C", "kind": "special"},
+      {"name": "TSUBAME GAISHI", "cmd": "623", "btn": "A/B/C", "kind": "special"},
+      {"name": "KETSUBAZAN", "cmd": "236", "btn": "A+B", "kind": "super"},
+      {"name": "BLOODY FLOWER", "cmd": "236", "btn": "A+B", "kind": "super"}
+    ],
+    "D'BO": [
+      {"name": "PIRANHA DIVE", "cmd": "236", "btn": "A/B/C", "kind": "special"},
+      {"name": "AIR PIRANHA DIVE", "cmd": "236", "btn": "A/B/C", "kind": "special", "when": "air"},
+      {"name": "PROPELLER CUTTER", "cmd": "22", "btn": "A/B/C", "kind": "special"},
+      {"name": "RAPID PROPELLOR CUTTER", "cmd": "22", "btn": "A/B/C", "kind": "special"},
+      {"name": "HOPPING HUNTER", "cmd": "214", "btn": "A/B/C", "kind": "special"},
+      {"name": "JUNK CARNIVAL", "cmd": "236", "btn": "A+B", "kind": "super"},
+      {"name": "BARREL ROLL CRUSHER", "cmd": "214", "btn": "A+B", "kind": "super"}
+    ],
+    "DIO": [
+      {"name": "MURDER MURDER", "cmd": "236", "btn": "A/B/C", "kind": "special"},
+      {"name": "AIR MURDER MURDER", "cmd": "236", "btn": "A/B/C", "kind": "special", "when": "air"},
+      {"name": "MURDEEEEER!", "cmd": "214", "btn": "A/B/C", "kind": "special"},
+      {"name": "THE WORLD", "cmd": "623", "btn": "A/B/C", "kind": "special"},
+      {"name": "SHINEI!", "cmd": "623", "btn": "A/B/C", "kind": "special"},
+      {"name": "CHECKMATE DA!", "cmd": "236", "btn": "A+B", "kind": "super"},
+      {"name": "AIR CHECKMATE DA!", "cmd": "236", "btn": "A+B", "kind": "super", "when": "air"},
+      {"name": "ROAD ROLLER DA!", "cmd": "214", "btn": "A+B", "kind": "super"}
+    ],
+    "H.K.JOSEPH": [
+      {"name": "TURQUOISE BLUE ATTACK", "cmd": "236", "btn": "A/B/C", "kind": "special"},
+      {"name": "HERMIT WEB", "cmd": "236", "btn": "A/B/C", "kind": "special"},
+      {"name": "SUNLIGHT YELLOW OVERDRIVE", "cmd": "623", "btn": "A/B/C", "kind": "special"},
+      {"name": "HAMON NO BEAT", "cmd": "41236987", "btn": "A/B/C", "kind": "special", "when": "close"},
+      {"name": "SAKUSHI NO WAZA", "cmd": "214", "btn": "A/B/C", "kind": "special"},
+      {"name": "SHI NO OSHIE", "cmd": "236", "btn": "A+B", "kind": "super"},
+      {"name": "RIPPLE OVERDRIVE", "cmd": "4123698741236987", "btn": "A/B/C", "kind": "super", "when": "close"}
+    ],
+    "IGGI": [
+      {"name": "SAND CRUSH", "cmd": "46", "btn": "A/B/C", "kind": "special", "hold": [0]},
+      {"name": "SAND ATTACK", "cmd": "28", "btn": "A/B/C", "kind": "special", "hold": [0]},
+      {"name": "SAND CLUTCH", "cmd": "63214", "btn": "A/B/C", "kind": "special", "when": "close"},
+      {"name": "SAND MAGIC: FORWARD", "cmd": "623", "btn": "A/B/C", "kind": "special"},
+      {"name": "SAND MAGIC: BACKWARD", "cmd": "421", "btn": "A/B/C", "kind": "special"},
+      {"name": "BIG SAND WAVE", "cmd": "236", "btn": "A+B", "kind": "super"}
+    ],
+    "J.JOSTER": [
+      {"name": "TURQUOISE BLUE ATTACK", "cmd": "236", "btn": "A/B/C", "kind": "special"},
+      {"name": "HERMIT WEB", "cmd": "236", "btn": "A/B/C", "kind": "special"},
+      {"name": "SUNLIGHT YELLOW OVERDRIVE", "cmd": "623", "btn": "A/B/C", "kind": "special"},
+      {"name": "HAMON NO BEAT", "cmd": "41236987", "btn": "A/B/C", "kind": "special", "when": "close"},
+      {"name": "SAKUSHI NO WAZA", "cmd": "214", "btn": "A/B/C", "kind": "special"},
+      {"name": "SHI NO OSHIE", "cmd": "236", "btn": "A+B", "kind": "super"},
+      {"name": "RIPPLE OVERDRIVE", "cmd": "4123698741236987", "btn": "A/B/C", "kind": "super", "when": "close"}
+    ],
+    "J.K.DIO": [
+      {"name": "MURDER MURDER", "cmd": "236", "btn": "A/B/C", "kind": "special"},
+      {"name": "AIR MURDER MURDER", "cmd": "236", "btn": "A/B/C", "kind": "special", "when": "air"},
+      {"name": "MURDEEEEER!", "cmd": "214", "btn": "A/B/C", "kind": "special"},
+      {"name": "THE WORLD", "cmd": "623", "btn": "A/B/C", "kind": "special"},
+      {"name": "SHINEI!", "cmd": "623", "btn": "A/B/C", "kind": "special"},
+      {"name": "CHECKMATE DA!", "cmd": "236", "btn": "A+B", "kind": "super"},
+      {"name": "AIR CHECKMATE DA!", "cmd": "236", "btn": "A+B", "kind": "super", "when": "air"},
+      {"name": "ROAD ROLLER DA!", "cmd": "214", "btn": "A+B", "kind": "super"}
+    ],
+    "JOUTARO": [
+      {"name": "ORA ORA", "cmd": "236", "btn": "A/B/C", "kind": "special"},
+      {"name": "AIR ORA ORA", "cmd": "236", "btn": "A/B/C", "kind": "special", "when": "air"},
+      {"name": "MAHA ORA", "cmd": "214", "btn": "A/B/C", "kind": "special"},
+      {"name": "STAR FINGER", "cmd": "623", "btn": "A/B/C", "kind": "special"},
+      {"name": "PUTTSUN ORA", "cmd": "236", "btn": "A+B", "kind": "super"},
+      {"name": "AIR PUTTSUN ORA", "cmd": "236", "btn": "A+B", "kind": "super", "when": "air"},
+      {"name": "STAR BREAKER", "cmd": "214", "btn": "A+B", "kind": "super"}
+    ],
+    "KAKYOUIN": [
+      {"name": "EMERALD SPLASH", "cmd": "236", "btn": "A/B/C", "kind": "special"},
+      {"name": "AIR EMERALD SPLASH", "cmd": "236", "btn": "A/B/C", "kind": "special", "when": "air"},
+      {"name": "TIE WRAP SNAKE", "cmd": "463214", "btn": "A/B/C", "kind": "special"},
+      {"name": "HOUOU NO KEKKAI", "cmd": "214", "btn": "A/B/C", "kind": "special"},
+      {"name": "20 METER RADIUS EMERALD SPLASH", "cmd": "236", "btn": "A+B", "kind": "super"},
+      {"name": "AIR 20 METER RADIUS EMERALD SPLASH", "cmd": "236", "btn": "A+B", "kind": "super", "when": "air"},
+      {"name": "INDIA'S ARM", "cmd": "214", "btn": "A+B", "kind": "super"}
+    ],
+    "MIDLER": [
+      {"name": "HARPOON SHOT", "cmd": "236", "btn": "A/B/C", "kind": "special"},
+      {"name": "MOTOR HEAD", "cmd": "214", "btn": "A/B/C", "kind": "special"},
+      {"name": "IRON WILD", "cmd": "623", "btn": "A/B/C", "kind": "special"},
+      {"name": "MEGA HARPOON STRIKE", "cmd": "236", "btn": "A+B", "kind": "super"},
+      {"name": "MOTOR SHOW", "cmd": "214", "btn": "A+B", "kind": "super"},
+      {"name": "DINNER TIME", "cmd": "623", "btn": "A+B", "kind": "super"}
+    ],
+    "POLNAREFF": [
+      {"name": "MILLION SPITS", "cmd": "", "btn": "A/B/C", "kind": "special", "rapid": true},
+      {"name": "RAY DARTS", "cmd": "46", "btn": "A/B/C", "kind": "special", "hold": [0]},
+      {"name": "SHOOTING STAR", "cmd": "28", "btn": "A/B/C", "kind": "special", "hold": [0]},
+      {"name": "HARIKUSHIZASHI NO KEI", "cmd": "214", "btn": "A/B/C", "kind": "special"},
+      {"name": "ARMOR TAKEOFF", "cmd": "236", "btn": "A+B", "kind": "super"},
+      {"name": "LAST SHOT", "cmd": "214", "btn": "A+B", "kind": "super"}
+    ]
   }
 }

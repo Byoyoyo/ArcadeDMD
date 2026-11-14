@@ -161,5 +161,91 @@
   "p2_mode": 0,
   "_p1_chr": 0,
   "_p2_chr": 1
+ },
+ "specials": {
+  "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+  "kinds": ["Special Moves"],
+  "BULL": [
+   {"name": "BULL CHARGING", "cmd": "2", "btn": "D", "kind": "special"}
+  ],
+  "CLOWN": [
+   {"name": "PICK A CARD", "cmd": "46", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "HEAD STAMP", "cmd": "19", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "SPIN ATTACK", "cmd": "16", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "SPIN DROP", "cmd": "18", "btn": "B/D", "kind": "special", "hold": [0]}
+  ],
+  "FEILIN": [
+   {"name": "TOUROH ZAN", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "KUUCHUU TOUROH ZAN", "cmd": "412", "btn": "A/C", "kind": "special", "when": "air"},
+   {"name": "HAKKAKU SOUBI KEN", "cmd": "28", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "KAKKOU HAKKAKU SOUBI KEN", "cmd": "12369", "btn": "A/C", "kind": "special", "hold": [0]}
+  ],
+  "JEAN": [
+   {"name": "NEEDLE SHOWER", "cmd": "", "btn": "A/C", "kind": "special", "rapid": true},
+   {"name": "BALL ROSE", "cmd": "46", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "FLIC FLAC", "cmd": "26", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "RONDATO", "cmd": "3214", "btn": "B/D", "kind": "special", "hold": [0]}
+  ],
+  "KARNOV": [
+   {"name": "FIREBALL", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "FIRE BREATH", "cmd": "66", "btn": "A/C", "kind": "special"},
+   {"name": "LOW FIRE BREATH", "cmd": "66", "btn": "B/D", "kind": "special"},
+   {"name": "SUPER 100 KICK", "cmd": "46", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "BALLON ATTACK", "cmd": "632147", "btn": "A/C", "kind": "special"}
+  ],
+  "LEE": [
+   {"name": "ZESSHOU HOU", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "SUPER ZESSHOU HOU", "cmd": "2364", "btn": "A/C", "kind": "special"},
+   {"name": "SENKYUU TAI", "cmd": "236", "btn": "B/D", "kind": "special"},
+   {"name": "MOUKO KOUHAZAN", "cmd": "46123", "btn": "A+B", "kind": "special"}
+  ],
+  "MARSTORIUS": [
+   {"name": "DASH LARIAT", "cmd": "46", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "CATCH GERMAN", "cmd": "46", "btn": "A/C", "kind": "special", "hold": [0], "when": "close"},
+   {"name": "MOONSAULT PRESS", "cmd": "28", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "HEEL KICK", "cmd": "46", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "JUMPING KNEE PRESS", "cmd": "28", "btn": "B/D", "kind": "special", "hold": [0]}
+  ],
+  "MATLOCK": [
+   {"name": "SPINNING WAVE", "cmd": "46", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "OVERHEAD KICK", "cmd": "46", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "ROAD HURRICANE", "cmd": "28", "btn": "B/D", "kind": "special", "hold": [0]}
+  ],
+  "MIZOGUCHI": [
+   {"name": "TIGER BAZOOKA", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "KORYUU SAI", "cmd": "412", "btn": "A/C", "kind": "special"},
+   {"name": "REN ZOKU KERI", "cmd": "236", "btn": "B/D", "kind": "special"},
+   {"name": "GOTTSUI TIGER BAZOOKA", "cmd": "236", "btn": "A+B+C+D", "kind": "special"},
+   {"name": "SHO TEN SAI", "cmd": "412", "btn": "A+B+C+D", "kind": "special", "when": "close"}
+  ],
+  "RAY": [
+   {"name": "BIG TORNADO", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "DYNAMITE TACKLE", "cmd": "66", "btn": "A/C", "kind": "special"},
+   {"name": "WHEEL KICK", "cmd": "214", "btn": "B/D", "kind": "special"},
+   {"name": "THUNDER DYNAMITE TACKLE", "cmd": "466", "btn": "A/C", "kind": "special", "hold": [0]}
+  ],
+  "RYOKO": [
+   {"name": "ZENTEN UKEMI", "cmd": "46", "btn": "C/D", "kind": "special", "hold": [0]}
+  ],
+  "SAMCHAY": [
+   {"name": "MADDRON JUSAROP", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "TI KAUKOUN", "cmd": "236", "btn": "B/D", "kind": "special"},
+   {"name": "TI KAU ROI", "cmd": "6123", "btn": "B/D", "kind": "special"},
+   {"name": "PAP SOUKAU", "cmd": "", "btn": "A+C", "kind": "special"}
+  ],
+  "YUNGMIE": [
+   {"name": "AURA SMASH", "cmd": "236", "btn": "A/C", "kind": "special", "when": "air"},
+   {"name": "NERICHAGI", "cmd": "6123", "btn": "B/D", "kind": "special"},
+   {"name": "FIRE BINTA", "cmd": "", "btn": "A/C+B/D", "kind": "special", "rapid": true}
+  ],
+  "ZAZIE": [
+   {"name": "VULCAN HOOK", "cmd": "", "btn": "A/C", "kind": "special", "rapid": true},
+   {"name": "HELLFIRE", "cmd": "412", "btn": "A/C", "kind": "special"},
+   {"name": "DUCKING", "cmd": "66", "btn": "B/D", "kind": "special"},
+   {"name": "DOUBLE BACKSTEP", "cmd": "64", "btn": "C", "kind": "special"},
+   {"name": "TRICKY FEET", "cmd": "64", "btn": "D", "kind": "special"},
+   {"name": "DESHIKAKATO", "cmd": "82", "btn": "C", "kind": "special"},
+   {"name": "AXE DESHIKAKATO", "cmd": "82", "btn": "D", "kind": "special"}
+  ]
  }
 }

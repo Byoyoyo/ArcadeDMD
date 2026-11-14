@@ -168,5 +168,121 @@
   "p2_mode": 0,
   "_p1_chr": 1,
   "_p2_chr": 2
+ },
+ "specials": {
+  "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+  "kinds": ["Special Moves"],
+  "BROCKEN": [
+   {"name": "SPARK THUNDER", "cmd": "", "btn": "A", "kind": "special", "rapid": true},
+   {"name": "LONG SPARK THUNDER", "cmd": "41236", "btn": "A", "kind": "special"},
+   {"name": "ROCKET PUNCH", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "GERMAN MISSILE", "cmd": "236", "btn": "B", "kind": "special"},
+   {"name": "HURRICANE ARM", "cmd": "263", "btn": "A", "kind": "special"},
+   {"name": "JACK HAMMER", "cmd": "214", "btn": "A", "kind": "special"}
+  ],
+  "DRAGON": [
+   {"name": "HYAKURETSU KEN", "cmd": "", "btn": "A", "kind": "special", "rapid": true},
+   {"name": "DRAGON KICK", "cmd": "28", "btn": "B", "kind": "special"},
+   {"name": "TOBISOKUTOU", "cmd": "236", "btn": "B", "kind": "special"},
+   {"name": "HIRYU KYAKU", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "HYAKURETSU SHUU", "cmd": "6321", "btn": "B", "kind": "special"}
+  ],
+  "ERICK": [
+   {"name": "BLIZZARD BREATH", "cmd": "41236", "btn": "A", "kind": "special"},
+   {"name": "THOR'S HAMMER", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "AEGYR'S HALBERD", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "LONG HORN", "cmd": "46", "btn": "A", "kind": "special", "hold": [0]},
+   {"name": "HURRICANE DROP", "cmd": "641236", "btn": "A", "kind": "special", "when": "close"}
+  ],
+  "FUUMA": [
+   {"name": "REPPU ZAN", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "DOUBLE REPPU ZAN", "cmd": "236236", "btn": "A", "kind": "special"},
+   {"name": "ENRYU HA", "cmd": "623", "btn": "A", "kind": "special"},
+   {"name": "NINPOU FURIN KAZAN", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "BAKURETSU KYUUKYOKU KEN", "cmd": "632147", "btn": "A", "kind": "special"}
+  ],
+  "HANZOU": [
+   {"name": "REKKO ZAN", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "DOUBLE REKKO ZAN", "cmd": "236236", "btn": "A", "kind": "special"},
+   {"name": "KOURYU HA", "cmd": "623", "btn": "A", "kind": "special"},
+   {"name": "NINPOU KOHRIN KAZAN", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "NINJA LEG LARIAT", "cmd": "236", "btn": "B", "kind": "special"},
+   {"name": "MIJIN KOMORU NO SUBI", "cmd": "623", "btn": "B", "kind": "special"}
+  ],
+  "J.CARN": [
+   {"name": "MONGOLIAN TIGER MASH", "cmd": "46", "btn": "A", "kind": "special", "hold": [0]},
+   {"name": "MONGOLIAN DYNAMITE", "cmd": "28", "btn": "A", "kind": "special", "hold": [0]},
+   {"name": "MONGOLIAN TACKLE", "cmd": "46", "btn": "B", "kind": "special", "hold": [0]},
+   {"name": "MONGOLIAN PRESS", "cmd": "236", "btn": "B", "kind": "special"}
+  ],
+  "J.MAX": [
+   {"name": "JOHNNY SPECIAL", "cmd": "41236", "btn": "A", "kind": "special", "when": "close"},
+   {"name": "LIGHTNING TACKLE", "cmd": "623", "btn": "A", "kind": "special"},
+   {"name": "SHOULDER BUTT CRASH", "cmd": "236", "btn": "B", "kind": "special"},
+   {"name": "HEAD CRASH", "cmd": "28", "btn": "A", "kind": "special", "hold": [0]}
+  ],
+  "JACK": [
+   {"name": "MIXER CRUSH", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "JAWS OF DEATH", "cmd": "623", "btn": "B", "kind": "special"},
+   {"name": "IRON CRAWL", "cmd": "236", "btn": "B", "kind": "special"},
+   {"name": "KNEE SMASHER", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "TAUNT", "cmd": "", "btn": "A+B+C", "kind": "special"}
+  ],
+  "JANNE": [
+   {"name": "AURA BIRD", "cmd": "46", "btn": "A", "kind": "special"},
+   {"name": "FLASH SWORD", "cmd": "28", "btn": "B", "kind": "special"},
+   {"name": "JUSTICE SWORD", "cmd": "46", "btn": "B", "kind": "special"},
+   {"name": "FIRE BIRD", "cmd": "62369", "btn": "A", "kind": "special"}
+  ],
+  "KIDD": [
+   {"name": "SHARK KNUCKLE", "cmd": "46", "btn": "A", "kind": "special", "hold": [0]},
+   {"name": "SHARK UPPER", "cmd": "28", "btn": "A", "kind": "special", "hold": [0]},
+   {"name": "SPIRAL KICK", "cmd": "46", "btn": "B", "kind": "special", "hold": [0]},
+   {"name": "PIRATE SHIP BLAST", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "HYPER DASH KICK", "cmd": "63214", "btn": "B", "kind": "special"},
+   {"name": "SPECIAL TAUNT", "cmd": "", "btn": "A+B+C", "kind": "special"}
+  ],
+  "MUDMAN": [
+   {"name": "MUD ATTACK", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "MUD LAUNCHER", "cmd": "236", "btn": "B", "kind": "special"},
+   {"name": "MUD CUTTER", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "MUD GYRO", "cmd": "28", "btn": "A", "kind": "special", "hold": [0]},
+   {"name": "MUD DANCE", "cmd": "", "btn": "A+B+C", "kind": "special"}
+  ],
+  "MUSCLE": [
+   {"name": "MUSCLE BOMBER", "cmd": "46", "btn": "B", "kind": "special"},
+   {"name": "TORNADO BODY SMASH", "cmd": "41236987", "btn": "A", "kind": "special", "when": "close"},
+   {"name": "SUPER DROP KICK", "cmd": "2369", "btn": "B", "kind": "special"}
+  ],
+  "RASPUTIN": [
+   {"name": "FIREBALL", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "THUNDER BALL", "cmd": "41236", "btn": "A", "kind": "special"},
+   {"name": "AXLE SPIN", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "KOSSAK DANCE", "cmd": "236", "btn": "B", "kind": "special"}
+  ],
+  "RYOFU": [
+   {"name": "SOU GEKI HA", "cmd": "236", "btn": "B", "kind": "special"},
+   {"name": "SOU RANBU", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "KAEN KEN", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "PSYCHIC KICK", "cmd": "63214", "btn": "B", "kind": "special"}
+  ],
+  "RYOKO": [
+   {"name": "BO SATSU SHO", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "IAKERI", "cmd": "623", "btn": "B", "kind": "special"},
+   {"name": "NI DAN SEOI NAGE", "cmd": "41236", "btn": "A", "kind": "special", "when": "close"},
+   {"name": "KUBI KIRI NAGE", "cmd": "41236", "btn": "B", "kind": "special"}
+  ],
+  "SHURA": [
+   {"name": "TIGER CLAW", "cmd": "46", "btn": "B", "kind": "special", "hold": [0]},
+   {"name": "TIGER FANG", "cmd": "46", "btn": "A", "kind": "special", "hold": [0]},
+   {"name": "MUAI THAI KICK", "cmd": "28", "btn": "B", "kind": "special", "hold": [0]},
+   {"name": "DOUBLE KNEE KICK", "cmd": "236", "btn": "B", "kind": "special"}
+  ],
+  "ZEUS": [
+   {"name": "MEGATON PUNCH", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "ATOMIC HEAT", "cmd": "46", "btn": "A", "kind": "special", "hold": [0]},
+   {"name": "GIGGER SMASHER", "cmd": "2141236", "btn": "A", "kind": "special"},
+   {"name": "GRAB AND UPPER", "cmd": "2141236", "btn": "B", "kind": "special", "when": "close"}
+  ]
  }
 }

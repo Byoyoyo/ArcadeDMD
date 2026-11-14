@@ -29,7 +29,7 @@ from .textfiles import TextFiles
 from .capture import Capture
 from .i18n import tr
 
-VERSION = "1.37.0"
+VERSION = "1.38.0"
 
 DEFAULT_CONFIG = {
     "language": "auto",
@@ -110,6 +110,57 @@ class Logger:
                     print(line, flush=True)
                 except Exception:
                     pass
+
+
+class LastRun:
+    """How the run before ended (1.38). Each start writes a line in runtime/crash.log, each normal stop another; a start
+    that finds no stop after the last start says ArcadeDMD ended without a word, with the trace Python left there on a hard
+    crash (faulthandler). / Comment la fois d'avant s'est terminée. Chaque démarrage écrit une ligne dans runtime/crash.log,
+    chaque arrêt normal une autre ; un démarrage qui ne trouve pas d'arrêt après le dernier démarrage dit qu'ArcadeDMD s'est
+    terminé sans prévenir, avec la trace que Python y a laissée lors d'un plantage."""
+    NAME = "crash.log"
+    MAX = 256 * 1024
+    file = None
+
+    @classmethod
+    def start(cls, root, log):
+        path = os.path.join(root, "runtime", cls.NAME)
+        try:
+            text = ""
+            if os.path.isfile(path):
+                with open(path, encoding="utf-8", errors="replace") as f:
+                    text = f.read()
+            k = text.rfind("--- start ")
+            if k >= 0 and "--- stop " not in text[k:]:
+                last = text[k:].splitlines()
+                when = last[0][len("--- start "):].strip()
+                trace = [x for x in last[1:] if x.strip()]
+                if trace:
+                    first = next((x for x in trace if "fatal" in x.lower() or "error" in x.lower()), trace[0])
+                    log(tr(f"la fois d'avant (démarrée {when}), ArcadeDMD s'est planté : {first.strip()}, détail dans "
+                           f"runtime\\{cls.NAME}", f"the run before (started {when}), ArcadeDMD crashed: {first.strip()}, "
+                           f"details in runtime\\{cls.NAME}"))
+                else:
+                    log(tr(f"la fois d'avant (démarrée {when}), ArcadeDMD s'est arrêté sans rien écrire : fermé par Windows "
+                           "ou par un autre programme, ou l'ordinateur éteint", f"the run before (started {when}), ArcadeDMD "
+                           "stopped without a word: closed by Windows or another program, or the computer turned off"))
+            mode = "w" if len(text) > cls.MAX else "a"
+            cls.file = open(path, mode, encoding="utf-8")
+            cls.file.write(f"--- start {time.strftime('%Y-%m-%d %H:%M:%S')} {VERSION}\n")
+            cls.file.flush()
+            import faulthandler
+            faulthandler.enable(file=cls.file, all_threads=True)
+        except Exception as e:
+            log(tr(f"runtime\\{cls.NAME} : {e}", f"runtime\\{cls.NAME}: {e}"))
+
+    @classmethod
+    def stop(cls, root):
+        try:
+            if cls.file is not None:
+                cls.file.write(f"--- stop {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+                cls.file.flush()
+        except Exception:
+            pass
 
 
 class Watchdog:
@@ -1410,7 +1461,10 @@ class Engine:
                         self.gui.tick(self, frame)
                     except Exception:
                         pass
-                if any(getattr(o, "closed", False) for o in self.outputs):
+                gone = [o for o in self.outputs if getattr(o, "closed", False)]
+                if gone:                             # never without a word (1.38) / jamais sans un mot
+                    self.log(tr(f"ArcadeDMD s'arrête : fenêtre {gone[0].__class__.__name__} fermée ({getattr(gone[0], 'why', '?')})",
+                                f"ArcadeDMD stops: window {gone[0].__class__.__name__} closed ({getattr(gone[0], 'why', '?')})"))
                     break
                 if self.restart or self.quit:
                     break

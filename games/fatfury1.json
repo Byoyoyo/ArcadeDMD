@@ -255,5 +255,38 @@
   "_rnd_b": "round",
   "_rr_b": "_round_result",
   "note": "values renamed since the captures of 2026-11-04 (probes confirmed), for tools/replay_capture.py"
+ },
+ "hd": {
+  "health_drain": 0.3,
+  "note": "the game empties a blow from its bar in two steps a fifth of a second apart: one blow for the effects and the hits counted (1.38)"
+ },
+ "specials": {
+  "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+  "kinds": ["Special Moves"],
+  "ANDY": [
+   {"name": "HISHOU KEN (US/EU)", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "HISHOU KEN (JP)", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "SHOURYUU DAN (US/EU)", "cmd": "28", "btn": "A", "kind": "special", "hold": [0]},
+   {"name": "SHOURYUU DAN (JP)", "cmd": "2369", "btn": "A", "kind": "special"},
+   {"name": "KUUHA DAN", "cmd": "19", "btn": "B", "kind": "special", "hold": [0]},
+   {"name": "ZAN'EI KEN (US/EU)", "cmd": "46", "btn": "A", "kind": "special"},
+   {"name": "ZAN'EI KEN (JP)", "cmd": "16", "btn": "A", "kind": "special"}
+  ],
+  "JOE": [
+   {"name": "BAKURETSU KEN", "cmd": "", "btn": "A", "kind": "special", "rapid": true},
+   {"name": "HURRICANE UPPER (US/EU)", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "HURRICANE UPPER (JP)", "cmd": "41236", "btn": "A", "kind": "special"},
+   {"name": "TIGER KICK (US/EU)", "cmd": "19", "btn": "B", "kind": "special"},
+   {"name": "TIGER KICK (JP)", "cmd": "2369", "btn": "B", "kind": "special"},
+   {"name": "SLASH KICK (US/EU)", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "SLASH KICK (JP)", "cmd": "19", "btn": "B", "kind": "special"}
+  ],
+  "TERRY": [
+   {"name": "POWER WAVE", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "RISING TACKLE", "cmd": "28", "btn": "A", "kind": "special", "hold": [0]},
+   {"name": "BURN KNUCKLE", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "CRACK SHOOT (US/EU)", "cmd": "19", "btn": "B", "kind": "special"},
+   {"name": "CRACK SHOOT (JP)", "cmd": "632147", "btn": "B", "kind": "special"}
+  ]
  }
 }
