@@ -525,16 +525,36 @@ def _client(cfg):
     return RetroArchClient(ra.get("host", "127.0.0.1"), int(ra.get("port", 55355)), timeout=0.5)
 
 
+def snapshots(path):
+    """How many snapshots of the memory a .ram file or a game's zip holds. / Le nombre d'instantanés de la mémoire."""
+    try:
+        if path.endswith(".zip"):
+            with zipfile.ZipFile(path) as z:
+                data = b"".join(z.read(n) for n in z.namelist() if n.endswith(".ram"))
+        else:
+            with open(path, "rb") as f:
+                data = f.read()
+    except (OSError, zipfile.BadZipFile):
+        return 0
+    n, pos = 0, data.find(b"\n") + 1
+    while 0 < pos <= len(data) - 12:
+        size = struct.unpack_from("<dI", data, pos)[1]
+        pos += 12 + size
+        n += 1
+    return n
+
+
 def _result(root, rom, since, say, head=""):
     """Puts the game's recording in its file and says what it holds. / Range l'enregistrement du jeu et dit ce qu'il a."""
     path, files, shots, ram = bundle(root, rom, since)
     name = os.path.join("runtime", "robot", os.path.basename(path))
+    count = snapshots(path) if ram else 0
     if not files:
         say(tr(f"{head}ArcadeDMD n'a rien enregistré. Est-il lancé ? ({shots} captures d'écran dans {name})",
                f"{head}ArcadeDMD recorded nothing. Is it running? ({shots} screenshots in {name})"))
     else:
-        say(tr(f"{head}{name} : {'mémoire enregistrée' if ram else 'SANS la mémoire'}, {shots} captures d'écran",
-               f"{head}{name}: {'memory recorded' if ram else 'WITHOUT the memory'}, {shots} screenshots"))
+        say(tr(f"{head}{name} : {f'mémoire enregistrée ({count} instantanés)' if ram else 'SANS la mémoire'}, {shots} captures d'écran",
+               f"{head}{name}: {f'memory recorded ({count} snapshots)' if ram else 'WITHOUT the memory'}, {shots} screenshots"))
     return files, shots, ram
 
 
@@ -567,6 +587,8 @@ def test(root, cfg, wait=300, seconds=120, out=print):
                        "Cannot tell how RetroArch was started (its program, its core, the ROM folder). Test stopped."))
                 return 1
             if found is not None:
+                if setup is not None and setup.get("done"):
+                    found["done"] = setup["done"]             # the games the tour has played stay played / restent faits
                 setup = found
                 save_setup(root, setup)
             say(tr(f"RetroArch : {setup['exe']}", f"RetroArch: {setup['exe']}"))
