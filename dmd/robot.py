@@ -3,18 +3,21 @@
 RetroArch takes the buttons of a pad from the network (its "Network RetroPad": one UDP port per player from 55400, the
 settings network_remote_enable and network_remote_enable_user_p1, a message of 20 bytes per button). The robot starts
 RetroArch with a game, puts a coin, presses START, plays at random for a few minutes, closes the game and goes on with
-the next one. ArcadeDMD, running beside it with its full recording on, records each game as it does for a game played
-by hand (runtime/captures). Nothing of RetroArch is changed: its settings for the robot are in a file of ArcadeDMD
-(runtime/robot.cfg) given on its command line.
+the next one. ArcadeDMD, running beside it, records each game as it does for a game played by hand (runtime/captures),
+its whole memory included while the robot runs. The robot asks RetroArch for a screenshot every ten seconds, and puts
+the recording and the screenshots of each game in one file, runtime/robot/<game>.zip. Nothing of RetroArch is changed:
+its settings for the robot are in a file of ArcadeDMD (runtime/robot.cfg) given on its command line.
 
   python arcadedmd.py robot-test          one game, two minutes: does RetroArch take the buttons the robot sends?
   python arcadedmd.py robot [MINUTES]     every game whose ROM is in the folder, MINUTES each (6 by default)
 
 Le robot : les jeux jouent tout seuls pour que leur mémoire soit enregistrée. RetroArch accepte les boutons d'une
 manette par le réseau. Le robot lance RetroArch avec un jeu, met une pièce, appuie sur START, joue au hasard quelques
-minutes, ferme le jeu et passe au suivant. ArcadeDMD, lancé à côté avec son enregistrement complet, enregistre chaque
-partie comme une partie jouée à la main. Rien n'est changé dans RetroArch : ses réglages pour le robot sont dans un
-fichier d'ArcadeDMD donné sur sa ligne de commande."""
+minutes, ferme le jeu et passe au suivant. ArcadeDMD, lancé à côté, enregistre chaque partie comme une partie jouée à
+la main, toute sa mémoire comprise tant que le robot tourne. Le robot demande une capture d'écran à RetroArch toutes
+les dix secondes, et range l'enregistrement et les captures de chaque jeu dans un seul fichier, runtime/robot/<jeu>.zip.
+Rien n'est changé dans RetroArch : ses réglages pour le robot sont dans un fichier d'ArcadeDMD donné sur sa ligne de
+commande."""
 import collections
 import json
 import os
@@ -25,6 +28,7 @@ import struct
 import subprocess
 import threading
 import time
+import zipfile
 
 from .i18n import tr
 from .retroarch import RetroArchClient, layout_for
@@ -33,6 +37,7 @@ JOYPAD = 1                                    # RETRO_DEVICE_JOYPAD
 B, Y, SELECT, START, UP, DOWN, LEFT, RIGHT, A, X, L, R = range(12)      # RETRO_DEVICE_ID_JOYPAD_*
 ACTIONS = (B, A, Y, X, L, R)
 BASE_PORT = 55400
+SHOT_EVERY = 10.0                             # a screenshot that often during a game / une capture d'écran aussi souvent
 PACE = 0.018                                  # a little slower than the images / un peu moins vite que les images
 CFG = """network_remote_enable = "true"
 network_remote_enable_user_p1 = "true"
@@ -41,6 +46,14 @@ network_remote_base_port = "%d"
 network_cmd_enable = "true"
 pause_nonactive = "false"
 quit_press_twice = "false"
+screenshot_directory = "%s"
+screenshots_in_content_dir = "false"
+sort_screenshots_by_content_enable = "false"
+auto_screenshot_filename = "true"
+notification_show_screenshot = "false"
+notification_show_screenshot_flash = "0"
+history_list_enable = "false"
+config_save_on_exit = "false"
 """
 
 
@@ -145,12 +158,72 @@ class Player:
             pad.tap(START)
 
 
+def shots_dir(root):
+    return os.path.join(os.path.abspath(root), "runtime", "robot_shots")
+
+
 def write_cfg(root, base=BASE_PORT):
-    path = os.path.join(root, "runtime", "robot.cfg")
-    os.makedirs(os.path.dirname(path), exist_ok=True)
+    """RetroArch's settings for the robot: the pad from the network, its screenshots in a folder of ArcadeDMD without
+    their message on the screen, the games played left out of its history, and nothing saved to its own settings when
+    it quits. / Les réglages de RetroArch pour le robot : la manette par le réseau, ses captures d'écran dans un dossier
+    d'ArcadeDMD, les jeux joués hors de son historique, et rien d'écrit dans ses propres réglages quand il quitte."""
+    path = os.path.join(os.path.abspath(root), "runtime", "robot.cfg")
+    os.makedirs(shots_dir(root), exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
-        f.write(CFG % base)
+        f.write(CFG % (base, shots_dir(root)))
     return path
+
+
+def flag(root, on=True):
+    """Tells ArcadeDMD that the robot plays (runtime/robot.on, touched every few seconds): it records the whole memory
+    and leaves the screenshots to the robot. / Dit à ArcadeDMD que le robot joue."""
+    path = os.path.join(root, "runtime", "robot.on")
+    try:
+        if on:
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(time.strftime("%Y-%m-%d %H:%M:%S"))
+        elif os.path.exists(path):
+            os.remove(path)
+    except OSError:
+        pass
+
+
+def bundle(root, rom, since, wait=8.0):
+    """One file per game: what ArcadeDMD recorded since the game started and the screenshots RetroArch took, in
+    runtime/robot/<game>.zip. Returns (the path, recordings, screenshots, memory recorded). The screenshots are then
+    removed from their folder, the recordings stay in runtime/captures. / Un fichier par jeu."""
+    caps = os.path.join(root, "runtime", "captures")
+    end = time.monotonic() + wait
+    files = []
+    while True:                                                   # ArcadeDMD closes its files a moment after the game
+        files = [n for n in _recorded(root, since) if n.endswith((".log", ".ram"))]
+        if any(n.endswith(".ram") for n in files) or time.monotonic() >= end:
+            break
+        time.sleep(1.0)
+    time.sleep(1.0)
+    sdir = shots_dir(root)
+    try:
+        shots = sorted(n for n in os.listdir(sdir) if n.lower().endswith((".png", ".bmp", ".jpg")))
+    except OSError:
+        shots = []
+    out = os.path.join(root, "runtime", "robot")
+    os.makedirs(out, exist_ok=True)
+    path = os.path.join(out, rom + ".zip")
+    try:
+        with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as z:
+            for n in files:
+                z.write(os.path.join(caps, n), n)
+            for n in shots:
+                z.write(os.path.join(sdir, n), "screenshots/" + n, zipfile.ZIP_STORED)
+    except OSError:
+        return path, 0, 0, False
+    for n in shots:
+        try:
+            os.remove(os.path.join(sdir, n))
+        except OSError:
+            pass
+    return path, len(files), len(shots), any(n.endswith(".ram") for n in files)
 
 
 def _setup_path(root):
@@ -274,12 +347,14 @@ def close_game(client, proc=None, wait=12.0):
 
 
 def play(client, seconds, rng, base=BASE_PORT, two_from=0.7, alive=None, tick=None):
-    """Plays the game that runs: a coin, START, then at random; a second player joins for the last part. Returns False
-    when RetroArch stopped answering. / Joue le jeu en cours : une pièce, START, puis au hasard."""
+    """Plays the game that runs: a coin, START, then at random; a second player joins for the last part; a screenshot
+    asked of RetroArch every ten seconds. Returns False when RetroArch stopped answering.
+    / Joue le jeu en cours : une pièce, START, puis au hasard, une capture d'écran toutes les dix secondes."""
     p1, p2 = RemotePad(1, base=base), RemotePad(2, base=base)
     one, two = Player(p1, rng), Player(p2, rng)
     t0 = time.monotonic()
     coin_t = seen_t = t0
+    shot_t = t0 + 8.0
     ok = True
     try:
         time.sleep(2.0)
@@ -304,6 +379,9 @@ def play(client, seconds, rng, base=BASE_PORT, two_from=0.7, alive=None, tick=No
                     time.sleep(0.5)
                     p2.tap(START, 0.15)
                 two.step(now)
+            if now >= shot_t:
+                shot_t = now + SHOT_EVERY
+                client.send("SCREENSHOT")
             if now - seen_t >= 5.0:
                 seen_t = now
                 st = client.status()
@@ -396,14 +474,17 @@ def _client(cfg):
     return RetroArchClient(ra.get("host", "127.0.0.1"), int(ra.get("port", 55355)), timeout=0.5)
 
 
-def _recording_note(cfg, say):
-    ra = cfg.get("retroarch", {}) or {}
-    dump = ra.get("ram_dump") if isinstance(ra.get("ram_dump"), dict) else {}
-    if not dump.get("enabled"):
-        say(tr("Attention, l'enregistrement de la mémoire est coupé dans ArcadeDMD. Coche « Toute la mémoire de "
-               "RetroArch » dans sa fenêtre (Enregistrer les parties) avant le grand tour.",
-               "Warning, the memory recording is off in ArcadeDMD. Tick \"The whole RetroArch memory\" in its window "
-               "(Record the games) before the full tour."))
+def _result(root, rom, since, say, head=""):
+    """Puts the game's recording in its file and says what it holds. / Range l'enregistrement du jeu et dit ce qu'il a."""
+    path, files, shots, ram = bundle(root, rom, since)
+    name = os.path.join("runtime", "robot", os.path.basename(path))
+    if not files:
+        say(tr(f"{head}ArcadeDMD n'a rien enregistré. Est-il lancé ? ({shots} captures d'écran dans {name})",
+               f"{head}ArcadeDMD recorded nothing. Is it running? ({shots} screenshots in {name})"))
+    else:
+        say(tr(f"{head}{name} : {'mémoire enregistrée' if ram else 'SANS la mémoire'}, {shots} captures d'écran",
+               f"{head}{name}: {'memory recorded' if ram else 'WITHOUT the memory'}, {shots} screenshots"))
+    return files, shots, ram
 
 
 def test(root, cfg, wait=300, seconds=120, out=print):
@@ -446,6 +527,7 @@ def test(root, cfg, wait=300, seconds=120, out=print):
         rom = setup.get("last") or ""
         say(tr(f"Lancement de {rom}", f"Starting {rom}"))
         since = time.time()
+        flag(root)
         proc = launch(setup, rom, write_cfg(root))
         st = wait_playing(client, 60, proc)
         if st is None:
@@ -468,21 +550,16 @@ def test(root, cfg, wait=300, seconds=120, out=print):
                    "Not a Neo Geo game, the stick cannot be checked in its memory. Playing anyway."))
         say(tr(f"Je joue {seconds // 60} minutes. Regarde l'écran : une pièce, START, puis le personnage bouge tout seul.",
                f"Playing for {seconds // 60} minutes. Watch the screen: a coin, START, then the character moves alone."))
-        ok = play(client, seconds, random.Random(), alive=lambda: proc.poll() is None)
+        ok = play(client, seconds, random.Random(), alive=lambda: proc.poll() is None, tick=lambda t: flag(root))
         say(tr("Partie finie, je ferme le jeu.", "Game over, closing it.") if ok
             else tr("RetroArch s'est arrêté pendant la partie.", "RetroArch stopped during the game."))
         close_game(client, proc)
-        time.sleep(2.0)
-        files = _recorded(root, since)
-        if files:
-            say(tr(f"Enregistré par ArcadeDMD : {', '.join(files)}", f"Recorded by ArcadeDMD: {', '.join(files)}"))
-        else:
-            say(tr("ArcadeDMD n'a rien enregistré pendant l'essai. Est-il lancé ?",
-                   "ArcadeDMD recorded nothing during the test. Is it running?"))
-        _recording_note(cfg, say)
-        say(tr("Envoie-moi runtime\\robot_test.txt.", "Send me runtime\\robot_test.txt."))
-        return 0 if seen is not False and ok else 1
+        files, shots, ram = _result(root, rom, since, say)
+        say(tr(f"Envoie-moi runtime\\robot_test.txt et runtime\\robot\\{rom}.zip.",
+               f"Send me runtime\\robot_test.txt and runtime\\robot\\{rom}.zip."))
+        return 0 if seen is not False and ok and ram and shots else 1
     finally:
+        flag(root, False)
         client.close()
 
 
@@ -505,7 +582,6 @@ def tour(root, cfg, minutes=6, only=None, out=print):
     long_en = f"{total / 60:.1f} hours" if total >= 90 else f"{total:.0f} minutes"
     say(tr(f"Tour du robot : {len(todo)} jeu(x), {minutes} minute(s) chacun, environ {long_fr}. Ctrl+C pour arrêter.",
            f"Robot tour: {len(todo)} game(s), {minutes} minute(s) each, about {long_en}. Ctrl+C to stop."))
-    _recording_note(cfg, say)
     client = _client(cfg)
     cfg_path = write_cfg(root)
     rng = random.Random()
@@ -517,6 +593,7 @@ def tour(root, cfg, minutes=6, only=None, out=print):
             time.sleep(3.0)
         for i, rom in enumerate(todo, 1):
             since = time.time()
+            flag(root)
             proc = launch(setup, rom, cfg_path)
             st = wait_playing(client, 45, proc)
             if st is None:
@@ -524,19 +601,18 @@ def tour(root, cfg, minutes=6, only=None, out=print):
                        f"{i}/{len(todo)} {rom}: does not start, going on with the next"))
                 close_game(client, proc, 6.0)
             else:
-                ok = play(client, minutes * 60, rng, alive=lambda: proc.poll() is None)
+                ok = play(client, minutes * 60, rng, alive=lambda: proc.poll() is None, tick=lambda t: flag(root))
                 close_game(client, proc)
-                files = _recorded(root, since)
-                say(tr(f"{i}/{len(todo)} {rom} : {'joué' if ok else 'arrêté avant la fin'}, {len(files)} fichier(s) enregistré(s)",
-                       f"{i}/{len(todo)} {rom}: {'played' if ok else 'stopped early'}, {len(files)} file(s) recorded"))
+                _result(root, rom, since, say, tr(f"{i}/{len(todo)} {'' if ok else 'arrêté avant la fin, '}",
+                                                  f"{i}/{len(todo)} {'' if ok else 'stopped early, '}"))
             proc = None
             done.add(rom)
             if not only:
                 setup["done"] = sorted(done)
                 save_setup(root, setup)
             time.sleep(3.0)
-        say(tr("Tour fini. Les enregistrements sont dans runtime\\captures.",
-               "Tour over. The recordings are in runtime\\captures."))
+        say(tr("Tour fini. Un fichier par jeu dans runtime\\robot.",
+               "Tour over. One file per game in runtime\\robot."))
         return 0
     except KeyboardInterrupt:
         say(tr("Arrêté. Relance robot.bat pour reprendre où il en était.",
@@ -545,4 +621,5 @@ def tour(root, cfg, minutes=6, only=None, out=print):
             close_game(client, proc, 6.0)
         return 0
     finally:
+        flag(root, False)
         client.close()

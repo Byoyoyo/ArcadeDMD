@@ -642,6 +642,17 @@ SHOT_ON = ("lives", "lives_p2", "mission", "vehicle", "boss_flag", "stage_state"
 SHOT_GAP = 0.5                # not two screenshots closer than this / pas deux captures plus proches
 
 
+def robot_running(root):
+    """True while the robot plays the games (dmd/robot.py, 1.39): it touches runtime/robot.on every few seconds. The
+    whole memory is then recorded whatever the settings, and the screenshots are left to the robot, which keeps a few
+    per game. / Vrai tant que le robot joue les jeux : toute la mémoire est alors enregistrée quels que soient les
+    réglages, et les captures d'écran sont laissées au robot, qui en garde quelques-unes par jeu."""
+    try:
+        return time.time() - os.path.getmtime(os.path.join(root, "runtime", "robot.on")) < 90.0
+    except OSError:
+        return False
+
+
 def _secs(v, default, least):
     """A duration setting, or its default. / Une durée du réglage, ou sa valeur par défaut."""
     if isinstance(v, (int, float)) and not isinstance(v, bool) and v > 0:
@@ -808,7 +819,9 @@ class RetroArchSource:
                         "core": core, "mt": getattr(self.library, "mtimes", {}).get(key) if key else None,
                         "dump": None, "dump_at": 0.0, "dump_prev": None,
                         "shot_at": -9.0, "shots": 0, "shot_seen": None, "shot_check": 0.0}
-        if self.dump_all or (isinstance(game, dict) and game.get("ram_dump")):
+        robot = robot_running(getattr(self.library, "root", "."))
+        self.session["robot"] = robot
+        if self.dump_all or robot or (isinstance(game, dict) and game.get("ram_dump")):
             self._dump_open(st["content"], key, layout)
         title = own or game_title(game, parent or st["content"])
         ev = {"t": "start", "game": key or "", "system": st["content"], "description": title,
@@ -918,7 +931,7 @@ class RetroArchSource:
         in its screenshots folder with the date and time in its name, to see what happened on the screen when a byte
         moved (1.33 test 35). / Demande une capture d'écran à RetroArch : l'image tombe dans son dossier avec l'heure."""
         s = self.session
-        if not s or not self.shots_on:
+        if not s or not self.shots_on or s.get("robot"):
             return False
         now = time.monotonic() if now is None else now
         if now - s["shot_at"] < SHOT_GAP:
@@ -944,7 +957,7 @@ class RetroArchSource:
         """A screenshot every shot_every seconds while somebody plays, and at once when one of the values that mark a
         moment changes (a life lost, a mission, a vehicle, the game's flags). / Une toutes les shot_every secondes
         pendant qu'on joue, et à chaque changement d'une des valeurs qui marquent un moment."""
-        if not self.shots_on:
+        if not self.shots_on or s.get("robot"):
             return
         if s["shot_check"] and now >= s["shot_check"]:                # the first one: did a file appear? / un fichier ?
             s["shot_check"] = 0.0
