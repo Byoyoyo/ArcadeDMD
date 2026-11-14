@@ -31,7 +31,7 @@ Then zip and attach to a GitHub [issue](https://github.com/Byoyoyo/ArcadeDMD/iss
 
 The games can play by themselves, so that their memory is recorded with nobody at the cabinet (1.39). RetroArch takes the buttons of a pad from the network, and the robot sends them: a coin, START, then the stick and the buttons at random, and a second player for the last part of each game.
 
-1. Leave ArcadeDMD running. While the robot plays, it records the whole memory of each game whatever its settings, and leaves the screenshots to the robot.
+1. Leave ArcadeDMD running. While the robot plays, it records the whole memory of each game whatever its settings, and leaves the screenshots to the robot. The robot waits for ArcadeDMD's word before it plays a game, and stops when ArcadeDMD says nothing.
 2. Run `robot_test.bat` with a Neo Geo game started from your frontend. It reads how RetroArch was started, closes the game, starts it again itself, checks that the game sees the stick it holds and plays for two minutes. Its result is in `runtime\robot_test.txt`.
 3. Run `robot.bat`. It plays every game of ArcadeDMD whose ROM is in the same folder, six minutes each, the fighting games first. `robot.bat 10` plays ten minutes each, `robot.bat samsho2 garou` only those games. Ctrl+C stops it, and it goes on where it stopped when started again.
 

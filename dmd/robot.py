@@ -37,6 +37,8 @@ JOYPAD = 1                                    # RETRO_DEVICE_JOYPAD
 B, Y, SELECT, START, UP, DOWN, LEFT, RIGHT, A, X, L, R = range(12)      # RETRO_DEVICE_ID_JOYPAD_*
 ACTIONS = (B, A, Y, X, L, R)
 BASE_PORT = 55400
+SHOT_BIG = 400_000                            # a screenshot heavier than this is made smaller / une capture plus lourde est réduite
+SHOT_WIDTH = 640
 SHOT_EVERY = 10.0                             # a screenshot that often during a game / une capture d'écran aussi souvent
 PACE = 0.018                                  # a little slower than the images / un peu moins vite que les images
 CFG = """network_remote_enable = "true"
@@ -54,6 +56,7 @@ notification_show_screenshot = "false"
 notification_show_screenshot_flash = "0"
 history_list_enable = "false"
 config_save_on_exit = "false"
+video_gpu_screenshot = "false"
 """
 
 
@@ -189,6 +192,43 @@ def flag(root, on=True):
         pass
 
 
+def acked(root, rom, since, wait=10.0):
+    """ArcadeDMD's word that it records this game (runtime/robot.ack, written when it sees the game start while the
+    robot's flag is up): its dict, or None when it says nothing. / La parole d'ArcadeDMD qu'il enregistre ce jeu."""
+    path = os.path.join(root, "runtime", "robot.ack")
+    end = time.monotonic() + wait
+    while True:
+        try:
+            with open(path, encoding="utf-8") as f:
+                d = json.load(f)
+            if isinstance(d, dict) and d.get("time", 0) >= since - 1.0 and str(d.get("content", "")).lower() == rom.lower():
+                return d
+        except (OSError, ValueError):
+            pass
+        if time.monotonic() >= end:
+            return None
+        time.sleep(0.5)
+
+
+def _small(path):
+    """A heavy screenshot (RetroArch kept its shader and its screen size) as a JPEG 640 wide, or None to keep the file
+    as it is. / Une capture lourde en JPEG de 640 de large, ou None pour garder le fichier tel quel."""
+    try:
+        if os.path.getsize(path) <= SHOT_BIG:
+            return None
+        import io
+        import pygame
+        img = pygame.image.load(path)
+        w, h = img.get_size()
+        if w > SHOT_WIDTH:
+            img = pygame.transform.smoothscale(img, (SHOT_WIDTH, max(1, round(h * SHOT_WIDTH / w))))
+        buf = io.BytesIO()
+        pygame.image.save(img, buf, "shot.jpg")
+        return buf.getvalue()
+    except Exception:                                             # no pygame, a file it cannot read: kept as it is
+        return None
+
+
 def bundle(root, rom, since, wait=8.0):
     """One file per game: what ArcadeDMD recorded since the game started and the screenshots RetroArch took, in
     runtime/robot/<game>.zip. Returns (the path, recordings, screenshots, memory recorded). The screenshots are then
@@ -215,7 +255,12 @@ def bundle(root, rom, since, wait=8.0):
             for n in files:
                 z.write(os.path.join(caps, n), n)
             for n in shots:
-                z.write(os.path.join(sdir, n), "screenshots/" + n, zipfile.ZIP_STORED)
+                small = _small(os.path.join(sdir, n))
+                if small is not None:
+                    z.writestr(zipfile.ZipInfo("screenshots/" + os.path.splitext(n)[0] + ".jpg",
+                                               time.localtime(os.path.getmtime(os.path.join(sdir, n)))[:6]), small)
+                else:
+                    z.write(os.path.join(sdir, n), "screenshots/" + n, zipfile.ZIP_STORED)
     except OSError:
         return path, 0, 0, False
     for n in shots:
@@ -397,10 +442,16 @@ def play(client, seconds, rng, base=BASE_PORT, two_from=0.7, alive=None, tick=No
     return ok
 
 
-def inputs_seen(client, st):
+def inputs_seen(client, st, root):
     """Neo Geo: does the BIOS see the stick the robot holds? True, False, or None when it cannot be told (another
     system). / Le BIOS voit-il le stick que tient le robot ?"""
-    lay = layout_for(None, st.get("system") or "")
+    from .app import GameLibrary
+    from .retroarch import resolve
+    try:                                                          # the game as ArcadeDMD knows it: where its memory is
+        game = resolve(GameLibrary(root, lambda m: None).games, st.get("content") or "", st.get("system") or "")[1]
+    except Exception:
+        game = None
+    lay = layout_for(game, st.get("system") or "")
     if not lay.contains(0x10FD96, 0x10FD96):
         return None
     pad = RemotePad(1)
@@ -537,7 +588,19 @@ def test(root, cfg, wait=300, seconds=120, out=print):
             return 1
         say(tr(f"Le jeu tourne ({st.get('content')}).", f"The game runs ({st.get('content')})."))
         time.sleep(6.0)
-        seen = inputs_seen(client, st)
+        ack = acked(root, rom, since)
+        if ack is None:
+            say(tr("ÉCHEC, ArcadeDMD ne dit pas qu'il enregistre ce jeu. Il doit tourner pendant l'essai, depuis ce "
+                   "dossier et dans cette version. Lance ArcadeDMD, puis relance robot_test.bat.",
+                   "FAILED, ArcadeDMD does not say it records this game. It must run during the test, from this folder "
+                   "and in this version. Start ArcadeDMD, then run robot_test.bat again."))
+            close_game(client, proc)
+            return 1
+        say(tr("OK, ArcadeDMD enregistre ce jeu avec toute sa mémoire." if ack.get("memory")
+               else "ArcadeDMD voit ce jeu mais n'enregistre pas sa mémoire.",
+               "OK, ArcadeDMD records this game with its whole memory." if ack.get("memory")
+               else "ArcadeDMD sees this game but does not record its memory."))
+        seen = inputs_seen(client, st, root)
         if seen is True:
             say(tr("OK, le jeu voit le stick que j'envoie.", "OK, the game sees the stick I send."))
         elif seen is False:
@@ -600,6 +663,13 @@ def tour(root, cfg, minutes=6, only=None, out=print):
                 say(tr(f"{i}/{len(todo)} {rom} : ne démarre pas, je passe au suivant",
                        f"{i}/{len(todo)} {rom}: does not start, going on with the next"))
                 close_game(client, proc, 6.0)
+            elif acked(root, rom, since) is None:                 # nobody records: no use playing for two days
+                close_game(client, proc, 6.0)
+                say(tr(f"{i}/{len(todo)} {rom} : ArcadeDMD ne dit pas qu'il enregistre ce jeu. Tour arrêté. Il doit "
+                       "tourner depuis ce dossier et dans cette version. Lance ArcadeDMD, puis relance robot.bat.",
+                       f"{i}/{len(todo)} {rom}: ArcadeDMD does not say it records this game. Tour stopped. It must run "
+                       "from this folder and in this version. Start ArcadeDMD, then run robot.bat again."))
+                return 1
             else:
                 ok = play(client, minutes * 60, rng, alive=lambda: proc.poll() is None, tick=lambda t: flag(root))
                 close_game(client, proc)

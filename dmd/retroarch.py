@@ -823,6 +823,15 @@ class RetroArchSource:
         self.session["robot"] = robot
         if self.dump_all or robot or (isinstance(game, dict) and game.get("ram_dump")):
             self._dump_open(st["content"], key, layout)
+        if robot:                                                     # the robot waits for this before it plays
+            self.log(tr(f"Robot : {key or st['content']} est enregistré avec toute sa mémoire",
+                        f"Robot: {key or st['content']} is recorded with its whole memory"))
+            try:
+                with open(os.path.join(getattr(self.library, "root", "."), "runtime", "robot.ack"), "w", encoding="utf-8") as f:
+                    json.dump({"content": st["content"], "game": key or "", "time": time.time(),
+                               "memory": bool(self.session.get("dump"))}, f)
+            except OSError:
+                pass
         title = own or game_title(game, parent or st["content"])
         ev = {"t": "start", "game": key or "", "system": st["content"], "description": title,
               "media": [], "values": sorted(defs), "source": "retroarch", "core": st["system"]}
