@@ -35,3 +35,6 @@ jobs:
 
       - name: Window answers
         run: python tools/gui_check.py
+
+      - name: Moves recognised at the stick
+        run: python tools/stick_check.py

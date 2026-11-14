@@ -16,8 +16,10 @@ from .hd_moves import BTN_COL, CREAM, GOLD, GREY, MIRROR, _icon, _plate, arrow, 
 from .i18n import tr
 
 TURN = 2.8                # each move shown this long / chaque coup montré ce temps
+SHOWN = 1.8               # the move the stick just did stays that long (SHOW of hd_stick) / le coup fait au stick reste
 FADE = 0.25               # its arrival and departure / son arrivée et son départ
 HOLD_COL = (90, 200, 255)     # a direction held (charge) / une direction tenue (charge)
+LIT = (110, 255, 150)         # a direction the stick just did (1.39) / une direction que le stick vient de faire
 PUNCH_COL = (60, 120, 235)
 KICK_COL = (225, 70, 55)
 OTHER_COL = (120, 128, 150)
@@ -133,15 +135,23 @@ def chip(hd, surf, cx, cy, r, label, alpha, cache):
     surf.blit(tmp, (int(cx - c), int(cy - c)))
 
 
+def _disc(pg, r, col):
+    tmp = pg.Surface((2 * r + 2, 2 * r + 2), pg.SRCALPHA)
+    pg.draw.circle(tmp, (*col, 255), (r + 1, r + 1), r)
+    return tmp
+
+
 def _buttons(btn):
     """'A/B' -> [['A', 'B']], 'B+C' -> [['B'], ['C']]: the groups pressed together, each its alternatives.
     / Les groupes appuyés ensemble, chacun avec ses possibilités."""
     return [[x for x in g.split("/") if x] for g in str(btn).split("+") if g]
 
 
-def draw_specials(hd, screen, cache, state, side, vals, game, name, x0, x1, y0, now, top=None):
-    """The panel under a human's name. Returns its height, 0 when the fighter has no move known.
-    / Le panneau sous le nom d'un humain. Renvoie sa hauteur, 0 quand le combattant n'a aucun coup connu."""
+def draw_specials(hd, screen, cache, state, side, vals, game, name, x0, x1, y0, now, top=None, stick=None):
+    """The panel under a human's name. Returns its height, 0 when the fighter has no move known. stick: the motions the
+    player does (hd_stick, 1.39); the move one of them just ended takes the place of the one shown in turn, lit.
+    / Le panneau sous le nom d'un humain. Renvoie sa hauteur, 0 quand le combattant n'a aucun coup connu. stick : les
+    gestes du joueur ; le coup que l'un d'eux vient de finir prend la place de celui montré à son tour, allumé."""
     pg, S = hd.pg, hd.S
     specials, supers = fighter_rows(game, name)
     fill, ready, level = state.gauge(vals, side, game, top)
@@ -162,13 +172,26 @@ def draw_specials(hd, screen, cache, state, side, vals, game, name, x0, x1, y0, 
     i, ph = int(now // TURN) % n, now % TURN
     a = 1.0 if n == 1 else max(0.0, min(1.0, ph / FADE, (TURN - ph) / FADE))
     row = rows[i]
+    face = stick.facing(side, vals) if stick is not None else None
+    mirrored = face < 0 if face else side == "p2"                 # P2 on the right faces left / P2 regarde à gauche
+    hit = stick.shown(side, now) if stick is not None else None
+    age = times = None
+    if hit is not None:                                           # the move the stick just did / le coup que le stick a fait
+        row, mirrored, age, times = hit
+        i = next((j for j, r in enumerate(rows) if r is row), None)
+        a = max(0.0, min(1.0, (SHOWN - age) / FADE))
     sup = row.get("kind") == "super"
     gold = bool(ready) or sup
     h = S(64)
     k = 0.5 + 0.5 * math.sin(now * 7)
     flash = max(0.0, 1.0 - (now - state.ready_t.get(side, -99.0)) / 0.8)
-    edge = GOLD if ready else (120, 90, 40)
+    edge = LIT if hit is not None else GOLD if ready else (120, 90, 40)
     screen.blit(_plate(cache, hd, int(x1 - x0), int(h), edge, S(18)), (int(x0), int(y0)))
+    if hit is not None:                                           # it flashes as it comes / il claque en arrivant
+        pop = max(0.0, 1.0 - age / 0.45)
+        glow = _plate(cache, hd, int(x1 - x0 + S(10)), int(h + S(10)), LIT, S(22), fill=(110, 255, 150, 46))
+        glow.set_alpha(int(90 + 165 * pop))
+        screen.blit(glow, (int(x0 - S(5)), int(y0 - S(5))))
     if ready:                                                     # MAX: the edge glows / le MAX : le bord brille
         glow = _plate(cache, hd, int(x1 - x0 + S(10)), int(h + S(10)), GOLD, S(22), fill=(255, 214, 120, 40))
         glow.set_alpha(int(110 + 100 * k + 120 * flash))
@@ -182,6 +205,8 @@ def draw_specials(hd, screen, cache, state, side, vals, game, name, x0, x1, y0, 
     else:
         word = tr("COUP SPÉCIAL", "SPECIAL MOVE")
     bcol, ink = (GOLD, (40, 24, 0)) if gold else (CREAM, (10, 14, 28))
+    if hit is not None:
+        bcol, ink = LIT, (4, 30, 12)
     t = hd.text(word, "black", S(20), ink, glow=0)
     bw, bh = int(t["w"] + S(20)), S(26)
     screen.blit(_plate(cache, hd, bw, bh, bcol, bh // 2, fill=(*bcol, 255)), (int(x0 + S(14)), int(y0 - bh / 2)))
@@ -208,13 +233,17 @@ def draw_specials(hd, screen, cache, state, side, vals, game, name, x0, x1, y0, 
     names = (game or {}).get("buttons") if isinstance(game, dict) else None
     names = names if isinstance(names, dict) else {}
     cmd = [int(c) for c in str(row.get("cmd", "")) if c.isdigit() and c not in "05"]
-    if side == "p2":                                              # P2 on the right faces left / P2 regarde à gauche
+    if mirrored:
         cmd = [MIRROR[c] for c in cmd]
+    lit = len(cmd) if hit is not None else stick.done(side, row, mirrored, now) if stick is not None else 0
     held = set(row.get("hold") or [])
     label = row.get("label")
     groups = [] if label else _buttons(row.get("btn", ""))
     when = WHEN.get(row.get("when"))
     dots_w = n * S(14) + S(8) if n > 1 else 0
+    count = f"×{times}" if hit is not None and times and times > 1 else ""
+    if hit is not None:                                           # the times it was done, in place of the dots
+        dots_w = hd.text_width(count, "black", S(22)) + S(12) if count else 0
     room = x1 - S(16) - dots_w - x
     r, sp = S(16), S(5)
 
@@ -247,11 +276,17 @@ def draw_specials(hd, screen, cache, state, side, vals, game, name, x0, x1, y0, 
     dy = (1 - a) * S(6)                                           # it rises a little as it comes / il monte en arrivant
     yy = y + dy
     ncol = (255, int(214 + 30 * k), 120) if gold else CREAM
+    if hit is not None:
+        ncol = (255, 255, 255) if age < 0.12 else (215, 255, 225)
     x += hd.put(screen, hd.text(title, "xbold", nsize, ncol, glow=0), x, yy, "left", "middle", alpha=a) + S(16)
     if when:
         x += hd.put(screen, hd.text(tr(*when), "xbold", S(15), GREY, glow=0), x, yy, "left", "middle", alpha=a) + S(10)
     for j, d in enumerate(cmd):
-        col = HOLD_COL if j in held else (GOLD if gold else (200, 205, 225))
+        col = LIT if j < lit else HOLD_COL if j in held else (GOLD if gold else (200, 205, 225))
+        if j < lit:                                               # done at the stick: a wide green ring / fait au stick
+            halo = _icon(cache, ("lit", r), lambda: _disc(pg, r + S(4), LIT)) if cache is not None else _disc(pg, r + S(4), LIT)
+            halo.set_alpha(alpha)
+            screen.blit(halo, (int(x + r - halo.get_width() / 2), int(yy - halo.get_height() / 2)))
         arrow(hd, screen, x + r, yy, r, d, col, alpha=alpha, moves=cache)
         if j in held:                                             # held: two dots under it / tenue : deux points dessous
             for q in (-1, 1):
@@ -277,7 +312,10 @@ def draw_specials(hd, screen, cache, state, side, vals, game, name, x0, x1, y0, 
             x += 2 * r + sp
     if row.get("rapid"):
         x += hd.put(screen, hd.text(tr("RAPIDE", "RAPID"), "xbold", S(15), GREY, glow=0), x + S(4), yy, "left", "middle", alpha=a)
-    if n > 1:                                                     # a dot per move, the one shown lit / un point par coup
+    if hit is not None:
+        if count:
+            hd.put(screen, hd.text(count, "black", S(22), LIT, glow=0), x1 - S(16), y, "right", "middle", alpha=a)
+    elif n > 1:                                                   # a dot per move, the one shown lit / un point par coup
         for j in range(n):
             cx = x1 - S(16) - (n - 1 - j) * S(14)
             on = j == i

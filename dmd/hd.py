@@ -831,7 +831,7 @@ class HDRenderer:
                 health = _num(vals.get("health" if side == "p1" else "health_p2"))
                 if spec:
                     draw_specials(self, screen, self.fight.moves, self.fight.specials, side, vals, game, name, x0, x1, S(352), now,
-                                  self._level_top(eng, side))
+                                  self._level_top(eng, side), self.fight.stick if self.fight.stick.wanted(game) else None)
                 else:
                     draw_panel(self, screen, moves, side, vals, game, name, x0, x1, S(352), now, lost, health)
             elif team:

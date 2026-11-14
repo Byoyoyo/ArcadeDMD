@@ -23,6 +23,16 @@
  "memory": {
   "cpu": ":maincpu",
   "values": {
+   "_p1_dir": {
+    "addr": "0x108131",
+    "type": "u8",
+    "note": "the side player 1's fighter faces (FBNeo training mode by peon2 and contributors): a motion of the stick reads the other way round when the fighter faces left (1.39). What the byte holds when a round starts is learnt as facing right; not seen in a recorded game yet"
+   },
+   "_p2_dir": {
+    "addr": "0x108331",
+    "type": "u8",
+    "note": "the side player 2's fighter faces (FBNeo training mode by peon2 and contributors): a motion of the stick reads the other way round when the fighter faces left (1.39). What the byte holds when a round starts is learnt as facing left; not seen in a recorded game yet"
+   },
    "credits": {
     "addr": "0xD00034",
     "type": "bcd",
