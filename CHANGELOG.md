@@ -9,7 +9,7 @@ Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `con
 ## 1.38.0
 
 ### English
-- Every fighting game shows its moves under a human player's name, as The King of Fighters '98 does. The special moves come one after another, their name, their arrows and their buttons, and the supers in gold when the game's gauge allows them. The moves of 70 games come from MAME's command list.
+- The fighting games whose fighters are read show their moves under a human player's name, as The King of Fighters '98 does. The special moves come one after another, their name, their arrows and their buttons, and the supers in gold when the game's gauge allows them. The moves of 60 games come from MAME's command list.
 - The rounds won show as gold stars in every fighting game of single fighters, even when the game keeps no count of them. A match won says how many rounds to how many.
 - Big blows hit harder on the marquee. The damage shows on the bar, and a blow the game empties over several frames counts as one, with its shock wave.
 - Samurai Shodown II. The POW gauge under the fighter, POW MAX and its timer, and each fighter's weapon-breaking technique while it lasts. The winner's bar counted into the bonus no longer shows hits.
@@ -18,7 +18,7 @@ Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `con
 - The Last Blade 2. The computer's fighter is named, the rounds won and the super gauge are read from the game, and the stage follows the game's.
 
 ### Français
-- Tous les jeux de combat montrent leurs coups sous le nom d'un joueur humain, comme The King of Fighters '98. Les coups spéciaux défilent l'un après l'autre, leur nom, leurs flèches et leurs boutons, et les supers en or quand la jauge du jeu les permet. Les coups de 70 jeux viennent de la liste des commandes de MAME.
+- Les jeux de combat dont les combattants sont lus montrent leurs coups sous le nom d'un joueur humain, comme The King of Fighters '98. Les coups spéciaux défilent l'un après l'autre, leur nom, leurs flèches et leurs boutons, et les supers en or quand la jauge du jeu les permet. Les coups de 60 jeux viennent de la liste des commandes de MAME.
 - Les rounds gagnés s'affichent en étoiles dorées dans tous les jeux de combat à un combattant, même quand le jeu ne les compte pas. Un match gagné dit combien de rounds à combien.
 - Les gros coups frappent plus fort sur le marquee. Les dégâts s'affichent sur la barre, et un coup que le jeu vide en plusieurs images compte pour un, avec son onde de choc.
 - Samurai Shodown II. La jauge POW sous le combattant, POW MAX et son chrono, et la technique de bris d'arme de chaque combattant tant qu'il dure. La barre du vainqueur décomptée dans le bonus ne montre plus de coups.
