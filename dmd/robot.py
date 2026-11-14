@@ -177,6 +177,18 @@ def write_cfg(root, base=BASE_PORT):
     return path
 
 
+def awake(on=True):
+    """Keeps Windows from going to sleep while the robot plays: its buttons go to RetroArch by the network, Windows sees
+    nobody at the keyboard. / Empêche Windows de se mettre en veille tant que le robot joue : ses touches passent par le
+    réseau, Windows ne voit personne au clavier."""
+    try:
+        import ctypes
+        ES_CONTINUOUS, ES_SYSTEM_REQUIRED = 0x80000000, 0x00000001
+        ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS | (ES_SYSTEM_REQUIRED if on else 0))
+    except (AttributeError, OSError):
+        pass                                                      # not Windows / pas Windows
+
+
 def flag(root, on=True):
     """Tells ArcadeDMD that the robot plays (runtime/robot.on, touched every few seconds): it records the whole memory
     and leaves the screenshots to the robot. / Dit à ArcadeDMD que le robot joue."""
@@ -564,6 +576,7 @@ def test(root, cfg, wait=300, seconds=120, out=print):
     say = Report(root, "robot_test.txt", out)
     say(tr("Essai du robot", "Robot test"))
     client = _client(cfg)
+    awake()
     try:
         st = client.status()
         running = bool(st) and st.get("state") in ("PLAYING", "PAUSED")
@@ -645,6 +658,7 @@ def test(root, cfg, wait=300, seconds=120, out=print):
         return 0 if seen is not False and ok and ram and shots else 1
     finally:
         flag(root, False)
+        awake(False)
         client.close()
 
 
@@ -671,6 +685,7 @@ def tour(root, cfg, minutes=6, only=None, out=print):
     cfg_path = write_cfg(root)
     rng = random.Random()
     proc = None
+    awake()
     try:
         if client.status() is not None:
             say(tr("RetroArch tourne déjà, je le ferme.", "RetroArch is already running, closing it."))
@@ -714,4 +729,5 @@ def tour(root, cfg, minutes=6, only=None, out=print):
         return 0
     finally:
         flag(root, False)
+        awake(False)
         client.close()
