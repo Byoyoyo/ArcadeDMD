@@ -195,6 +195,32 @@ def awake(on=True):
         pass                                                      # not Windows / pas Windows
 
 
+def steady_console():
+    """Windows freezes a program whose console window is clicked (its "quick edit" selection) until a key is pressed:
+    turned off for the robot's console, a tour would wait for hours. / Windows fige un programme dont on clique la
+    fenêtre de console jusqu'à l'appui d'une touche : coupé pour la console du robot, un tour attendrait des heures."""
+    try:
+        import ctypes
+        k = ctypes.windll.kernel32
+        h = k.GetStdHandle(-10)                                   # STD_INPUT_HANDLE
+        mode = ctypes.c_uint32()
+        if k.GetConsoleMode(h, ctypes.byref(mode)):
+            k.SetConsoleMode(h, (mode.value & ~0x0040) | 0x0080)  # without ENABLE_QUICK_EDIT_MODE, ENABLE_EXTENDED_FLAGS
+    except (AttributeError, OSError):
+        pass                                                      # not Windows / pas Windows
+
+
+def clear_shots(root):
+    """The screenshots of a game that was cut short are not the next game's. / Les captures d'un jeu coupé."""
+    sdir = shots_dir(root)
+    try:
+        for n in os.listdir(sdir):
+            if n.lower().endswith((".png", ".bmp", ".jpg")):
+                os.remove(os.path.join(sdir, n))
+    except OSError:
+        pass
+
+
 def flag(root, on=True):
     """Tells ArcadeDMD that the robot plays (runtime/robot.on, touched every few seconds): it records the whole memory
     and leaves the screenshots to the robot. / Dit à ArcadeDMD que le robot joue."""
@@ -578,7 +604,7 @@ def _result(root, rom, since, say, head=""):
     else:
         say(tr(f"{head}{name} : {f'mémoire enregistrée ({count} instantanés)' if ram else 'SANS la mémoire'}, {shots} captures d'écran",
                f"{head}{name}: {f'memory recorded ({count} snapshots)' if ram else 'WITHOUT the memory'}, {shots} screenshots"))
-    return files, shots, ram
+    return files, shots, ram, count
 
 
 def test(root, cfg, wait=300, seconds=120, out=print):
@@ -588,6 +614,7 @@ def test(root, cfg, wait=300, seconds=120, out=print):
     say(tr("Essai du robot", "Robot test"))
     client = _client(cfg)
     awake()
+    steady_console()
     try:
         st = client.status()
         running = bool(st) and st.get("state") in ("PLAYING", "PAUSED")
@@ -625,6 +652,7 @@ def test(root, cfg, wait=300, seconds=120, out=print):
         say(tr(f"Lancement de {rom}", f"Starting {rom}"))
         since = time.time()
         flag(root)
+        clear_shots(root)
         proc = launch(setup, rom, write_cfg(root))
         st = wait_playing(client, 60, proc)
         if st is None:
@@ -663,7 +691,7 @@ def test(root, cfg, wait=300, seconds=120, out=print):
         say(tr("Partie finie, je ferme le jeu.", "Game over, closing it.") if ok
             else tr("RetroArch s'est arrêté pendant la partie.", "RetroArch stopped during the game."))
         close_game(client, proc)
-        files, shots, ram = _result(root, rom, since, say)
+        files, shots, ram, _count = _result(root, rom, since, say)
         say(tr(f"Envoie-moi runtime\\robot_test.txt et runtime\\robot\\{rom}.zip.",
                f"Send me runtime\\robot_test.txt and runtime\\robot\\{rom}.zip."))
         return 0 if seen is not False and ok and ram and shots else 1
@@ -698,6 +726,7 @@ def tour(root, cfg, minutes=6, only=None, out=print):
     proc = None
     dead = blind = 0                                              # games in a row not started, or blind to the stick
     awake()
+    steady_console()
     try:
         if client.status() is not None:
             say(tr("RetroArch tourne déjà, je le ferme.", "RetroArch is already running, closing it."))
@@ -706,6 +735,7 @@ def tour(root, cfg, minutes=6, only=None, out=print):
         for i, rom in enumerate(todo, 1):
             since = time.time()
             flag(root)
+            clear_shots(root)
             proc = launch(setup, rom, cfg_path)
             st = wait_playing(client, 45, proc)
             if st is None:
@@ -722,7 +752,6 @@ def tour(root, cfg, minutes=6, only=None, out=print):
                        f"{i}/{len(todo)} {rom}: does not start, going on with the next (tried again at the next run)"))
                 time.sleep(3.0)
                 continue                                          # not counted as played / pas compté comme joué
-            dead = 0
             if acked(root, rom, since) is None:                   # nobody records: no use playing for two days
                 close_game(client, proc, 6.0)
                 say(tr(f"{i}/{len(todo)} {rom} : ArcadeDMD ne dit pas qu'il enregistre ce jeu. Tour arrêté. Il doit "
@@ -742,11 +771,23 @@ def tour(root, cfg, minutes=6, only=None, out=print):
                 return 1
             ok = play(client, minutes * 60, rng, alive=lambda: proc.poll() is None, tick=lambda t: flag(root))
             close_game(client, proc)
-            _result(root, rom, since, say, tr(f"{i}/{len(todo)} {'' if ok else 'arrêté avant la fin, '}"
-                                              f"{'le jeu ne voit pas le stick, ' if seen is False else ''}",
-                                              f"{i}/{len(todo)} {'' if ok else 'stopped early, '}"
-                                              f"{'the game does not see the stick, ' if seen is False else ''}"))
+            count = _result(root, rom, since, say, tr(f"{i}/{len(todo)} {'' if ok else 'arrêté avant la fin, '}"
+                                                      f"{'le jeu ne voit pas le stick, ' if seen is False else ''}",
+                                                      f"{i}/{len(todo)} {'' if ok else 'stopped early, '}"
+                                                      f"{'the game does not see the stick, ' if seen is False else ''}"))[3]
             proc = None
+            if count < minutes * 60:                              # less than half its memory: cut short, not played
+                dead += 1
+                if dead >= 3:
+                    say(tr("Trois jeux de suite coupés avant la moitié ou sans mémoire. Tour arrêté. Envoie "
+                           "runtime\\robot.txt et arcadedmd.log.",
+                           "Three games in a row cut before half or without memory. Tour stopped. Send "
+                           "runtime\\robot.txt and arcadedmd.log."))
+                    return 1
+                say(tr(f"    {rom} sera rejoué au prochain lancement", f"    {rom} will be played again at the next run"))
+                time.sleep(3.0)
+                continue
+            dead = 0
             done.add(rom)
             if not only:
                 setup["done"] = sorted(done)
