@@ -35,7 +35,7 @@ Under the name of each human player, a panel like the one of The King of Fighter
 - The special moves of the fighter come one after another, their name, their arrows facing the other fighter and their buttons. A dot per move says which one shows. A charge is a blue arrow, a move done close or in the air says so.
 - When the game's gauge is read and allows a super, the panel turns gold and shows only the supers. Samurai Shodown II shows its POW gauge, then POW MAX with its timer and the fighter's weapon-breaking technique. The Capcom games show their super gauge and its level.
 - A game whose gauge is not read shows its supers in gold among the special moves.
-- The moves of 70 games come from the command list of MAME (`command.dat`, by Fabricio Coroquer and AntoPISA), written in the `specials` block of each game file by `tools/command_dat.py`.
+- The moves of 60 games come from the command list of MAME (`command.dat`, by Fabricio Coroquer and AntoPISA), written in the `specials` block of each game file by `tools/command_dat.py`.
 
 ## The desperation move show
 

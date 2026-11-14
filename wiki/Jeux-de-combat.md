@@ -35,7 +35,7 @@ Sous le nom de chaque joueur humain, un panneau comme celui de The King of Fight
 - Les coups spéciaux du combattant défilent l'un après l'autre, leur nom, leurs flèches tournées vers l'autre combattant et leurs boutons. Un point par coup dit lequel s'affiche. Une charge est une flèche bleue, un coup à faire près ou en l'air le dit.
 - Quand la jauge du jeu est lue et permet un super, le panneau passe en or et ne montre que les supers. Samurai Shodown II montre sa jauge POW, puis POW MAX avec son chrono et la technique de bris d'arme du combattant. Les jeux Capcom montrent leur jauge de super et son niveau.
 - Un jeu dont la jauge n'est pas lue montre ses supers en or parmi les coups spéciaux.
-- Les coups de 70 jeux viennent de la liste des commandes de MAME (`command.dat`, de Fabricio Coroquer et AntoPISA), écrits dans le bloc `specials` de chaque fichier de jeu par `tools/command_dat.py`.
+- Les coups de 60 jeux viennent de la liste des commandes de MAME (`command.dat`, de Fabricio Coroquer et AntoPISA), écrits dans le bloc `specials` de chaque fichier de jeu par `tools/command_dat.py`.
 
 ## Le spectacle du coup désespéré
 
