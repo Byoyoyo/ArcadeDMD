@@ -61,6 +61,15 @@ video_fullscreen = "false"
 audio_mute_enable = "true"
 input_joypad_driver = "null"
 """
+# no window and no sound device: nothing of the screen is needed, the television may be off. RetroArch then has neither
+# the screen nor the sound to keep its pace, so its loop keeps the game's own frame rate (it runs flat out otherwise)
+# / ni fenêtre ni son : rien de l'écran n'est nécessaire, la télé peut être éteinte. La boucle de RetroArch tient alors
+# elle-même la cadence du jeu (il tourne à fond sinon)
+CFG_UNSEEN = """video_driver = "null"
+audio_driver = "null"
+vrr_runloop_enable = "true"
+fastforward_ratio = "1.000000"
+"""
 
 
 class RemotePad:
@@ -168,19 +177,63 @@ def shots_dir(root):
     return os.path.join(os.path.abspath(root), "runtime", "robot_shots")
 
 
-def write_cfg(root, base=BASE_PORT):
+def write_cfg(root, base=BASE_PORT, window=False):
     """RetroArch's settings for the robot: the pad from the network, its screenshots in a folder of ArcadeDMD without
     their message on the screen, the games played left out of its history, and nothing saved to its own settings when
-    it quits. It runs in a window, without sound and without reading the pads of the computer, so that the computer
-    can be used meanwhile. / Les réglages de RetroArch pour le robot : la manette par le réseau, ses captures d'écran
-    dans un dossier d'ArcadeDMD, les jeux joués hors de son historique, et rien d'écrit dans ses propres réglages quand
-    il quitte. Il tourne en fenêtre, sans son et sans lire les manettes de l'ordinateur, pour que l'ordinateur reste
-    utilisable pendant ce temps."""
+    it quits. It runs without a window, without sound and without reading the pads of the computer: the computer can be
+    used meanwhile and its screen can be off. window: in a window instead, to watch it ("window": true in
+    runtime/robot.json). / Les réglages de RetroArch pour le robot : la manette par le réseau, ses captures d'écran dans
+    un dossier d'ArcadeDMD, les jeux joués hors de son historique, et rien d'écrit dans ses propres réglages quand il
+    quitte. Il tourne sans fenêtre, sans son et sans lire les manettes de l'ordinateur : l'ordinateur reste utilisable
+    et son écran peut être éteint. window : en fenêtre à la place, pour le regarder."""
     path = os.path.join(os.path.abspath(root), "runtime", "robot.cfg")
     os.makedirs(shots_dir(root), exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
-        f.write(CFG % (base, shots_dir(root)))
+        f.write(CFG % (base, shots_dir(root)) + ("" if window else CFG_UNSEEN))
     return path
+
+
+_JOB = []
+
+
+def tie(proc):
+    """Windows: the RetroArch the robot started ends with the robot, however the robot ends (its window closed, the
+    computer shut down). Without a window nobody would see it left behind. / Windows : le RetroArch lancé par le robot
+    s'arrête avec le robot, quelle que soit la façon dont le robot s'arrête. Sans fenêtre, personne ne le verrait
+    rester."""
+    try:
+        import ctypes
+        from ctypes import wintypes
+        k = ctypes.windll.kernel32
+
+        class Basic(ctypes.Structure):
+            _fields_ = [("PerProcessUserTimeLimit", ctypes.c_int64), ("PerJobUserTimeLimit", ctypes.c_int64),
+                        ("LimitFlags", wintypes.DWORD), ("MinimumWorkingSetSize", ctypes.c_size_t),
+                        ("MaximumWorkingSetSize", ctypes.c_size_t), ("ActiveProcessLimit", wintypes.DWORD),
+                        ("Affinity", ctypes.c_size_t), ("PriorityClass", wintypes.DWORD),
+                        ("SchedulingClass", wintypes.DWORD)]
+
+        class Extended(ctypes.Structure):
+            _fields_ = [("BasicLimitInformation", Basic), ("IoInfo", ctypes.c_uint64 * 6),
+                        ("ProcessMemoryLimit", ctypes.c_size_t), ("JobMemoryLimit", ctypes.c_size_t),
+                        ("PeakProcessMemoryUsed", ctypes.c_size_t), ("PeakJobMemoryUsed", ctypes.c_size_t)]
+
+        k.CreateJobObjectW.restype = wintypes.HANDLE
+        k.CreateJobObjectW.argtypes = [ctypes.c_void_p, ctypes.c_wchar_p]
+        k.SetInformationJobObject.argtypes = [wintypes.HANDLE, ctypes.c_int, ctypes.c_void_p, wintypes.DWORD]
+        k.AssignProcessToJobObject.argtypes = [wintypes.HANDLE, wintypes.HANDLE]
+        if not _JOB:
+            job = k.CreateJobObjectW(None, None)
+            if not job:
+                return False
+            info = Extended()
+            info.BasicLimitInformation.LimitFlags = 0x2000        # JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
+            if not k.SetInformationJobObject(job, 9, ctypes.byref(info), ctypes.sizeof(info)):
+                return False
+            _JOB.append(job)                                      # kept open as long as the robot lives
+        return bool(k.AssignProcessToJobObject(_JOB[0], int(proc._handle)))
+    except Exception:                                             # not Windows, or refused: the game is simply not tied
+        return False
 
 
 def awake(on=True):
@@ -397,8 +450,10 @@ def launch(setup, rom, cfg_path):
     if setup.get("fullscreen", False):
         args.append("-f")
     args.append(path)
-    return subprocess.Popen(args, cwd=os.path.dirname(setup["exe"]) or None,
+    proc = subprocess.Popen(args, cwd=os.path.dirname(setup["exe"]) or None,
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    tie(proc)
+    return proc
 
 
 def wait_playing(client, timeout, proc=None):
@@ -489,18 +544,42 @@ def play(client, seconds, rng, base=BASE_PORT, two_from=0.7, alive=None, tick=No
 _LIBRARY = {}
 
 
-def inputs_seen(client, st, root):
-    """Neo Geo: does the BIOS see the stick the robot holds? True, False, or None when it cannot be told (another
-    system). / Le BIOS voit-il le stick que tient le robot ?"""
+def _layout(st, root):
+    """Where the game's memory is, as ArcadeDMD knows the game. / Où est la mémoire du jeu."""
     from .app import GameLibrary
     from .retroarch import resolve
-    try:                                                          # the game as ArcadeDMD knows it: where its memory is
+    try:
         if root not in _LIBRARY:
             _LIBRARY[root] = GameLibrary(root, lambda m: None).games
         game = resolve(_LIBRARY[root], st.get("content") or "", st.get("system") or "")[1]
     except Exception:
         game = None
-    lay = layout_for(game, st.get("system") or "")
+    return layout_for(game, st.get("system") or "")
+
+
+def game_speed(client, st, root, wait=1.5):
+    """Neo Geo: the frames the game runs in a second, counted by its BIOS (the four bytes at 0x10FE88, one more at
+    each frame), or None when it cannot be told. 59 is right; hundreds mean RetroArch runs flat out.
+    / Neo Geo : les images que le jeu fait en une seconde, comptées par son BIOS, ou None."""
+    lay = _layout(st, root)
+    if not lay.contains(0x10FE88, 0x10FE8B):
+        return None
+
+    def read():
+        got = lay.read_cpu(client, 0x10FE88, 0x10FE8B)
+        return (int.from_bytes(got[1][0x10FE88 - got[0]:0x10FE8C - got[0]], "big"), time.monotonic()) if got else None
+    a = read()
+    time.sleep(wait)
+    b = read()
+    if a is None or b is None or b[1] <= a[1]:
+        return None
+    return ((b[0] - a[0]) % (1 << 32)) / (b[1] - a[1])
+
+
+def inputs_seen(client, st, root):
+    """Neo Geo: does the BIOS see the stick the robot holds? True, False, or None when it cannot be told (another
+    system). / Le BIOS voit-il le stick que tient le robot ?"""
+    lay = _layout(st, root)
     if not lay.contains(0x10FD96, 0x10FD96):
         return None
     pad = RemotePad(1)
@@ -653,7 +732,7 @@ def test(root, cfg, wait=300, seconds=120, out=print):
         since = time.time()
         flag(root)
         clear_shots(root)
-        proc = launch(setup, rom, write_cfg(root))
+        proc = launch(setup, rom, write_cfg(root, window=bool(setup.get("window"))))
         st = wait_playing(client, 60, proc)
         if st is None:
             say(tr("RetroArch n'a pas démarré le jeu en une minute. Essai arrêté.",
@@ -685,8 +764,14 @@ def test(root, cfg, wait=300, seconds=120, out=print):
         else:
             say(tr("Pas un jeu Neo Geo, je ne peux pas vérifier le stick dans sa mémoire. Je joue quand même.",
                    "Not a Neo Geo game, the stick cannot be checked in its memory. Playing anyway."))
-        say(tr(f"Je joue {seconds // 60} minutes. Regarde l'écran : une pièce, START, puis le personnage bouge tout seul.",
-               f"Playing for {seconds // 60} minutes. Watch the screen: a coin, START, then the character moves alone."))
+        fps = game_speed(client, st, root)
+        if fps is not None:
+            say(tr(f"{'OK' if 50 <= fps <= 70 else 'ANORMAL'}, le jeu tourne à {fps:.0f} images par seconde (59 attendues).",
+                   f"{'OK' if 50 <= fps <= 70 else 'ABNORMAL'}, the game runs at {fps:.0f} frames a second (59 expected)."))
+        say(tr(f"Je joue {seconds // 60} minutes. Rien ne s'affiche, c'est normal : RetroArch tourne sans fenêtre et "
+               "sans son. Les captures du zip montrent la partie.",
+               f"Playing for {seconds // 60} minutes. Nothing shows, as expected: RetroArch runs without a window and "
+               "without sound. The screenshots of the zip show the game."))
         ok = play(client, seconds, random.Random(), alive=lambda: proc.poll() is None, tick=lambda t: flag(root))
         say(tr("Partie finie, je ferme le jeu.", "Game over, closing it.") if ok
             else tr("RetroArch s'est arrêté pendant la partie.", "RetroArch stopped during the game."))
@@ -694,7 +779,7 @@ def test(root, cfg, wait=300, seconds=120, out=print):
         files, shots, ram, _count = _result(root, rom, since, say)
         say(tr(f"Envoie-moi runtime\\robot_test.txt et runtime\\robot\\{rom}.zip.",
                f"Send me runtime\\robot_test.txt and runtime\\robot\\{rom}.zip."))
-        return 0 if seen is not False and ok and ram and shots else 1
+        return 0 if seen is not False and ok and ram and shots and (fps is None or 50 <= fps <= 70) else 1
     finally:
         flag(root, False)
         awake(False)
@@ -721,7 +806,7 @@ def tour(root, cfg, minutes=6, only=None, out=print):
     say(tr(f"Tour du robot : {len(todo)} jeu(x), {minutes} minute(s) chacun, environ {long_fr}. Ctrl+C pour arrêter.",
            f"Robot tour: {len(todo)} game(s), {minutes} minute(s) each, about {long_en}. Ctrl+C to stop."))
     client = _client(cfg)
-    cfg_path = write_cfg(root)
+    cfg_path = write_cfg(root, window=bool(setup.get("window")))
     rng = random.Random()
     proc = None
     dead = blind = 0                                              # games in a row not started, or blind to the stick
@@ -761,13 +846,18 @@ def tour(root, cfg, minutes=6, only=None, out=print):
                 return 1
             time.sleep(max(0.0, since + 9.0 - time.time()))       # the BIOS reads the stick once it has started
             seen = inputs_seen(client, st, root)                  # Neo Geo: the game must see the robot's stick
+            fps = game_speed(client, st, root, 1.0)               # and run at its own pace / et tourner à sa vitesse
+            if fps is not None and not 50 <= fps <= 70:
+                seen = False
+                say(tr(f"    {rom} tourne à {fps:.0f} images par seconde au lieu de 59",
+                       f"    {rom} runs at {fps:.0f} frames a second instead of 59"))
             blind = blind + 1 if seen is False else 0
             if blind >= 3:
                 close_game(client, proc, 6.0)
-                say(tr(f"{i}/{len(todo)} {rom} : le jeu ne voit pas le stick du robot, comme les deux jeux d'avant. "
-                       "Tour arrêté, RetroArch ne prend plus ses touches. Envoie runtime\\robot.txt.",
-                       f"{i}/{len(todo)} {rom}: the game does not see the robot's stick, like the two games before. "
-                       "Tour stopped, RetroArch no longer takes its buttons. Send runtime\\robot.txt."))
+                say(tr(f"{i}/{len(todo)} {rom} : le jeu ne voit pas le stick du robot ou ne tourne pas à sa vitesse, "
+                       "comme les deux jeux d'avant. Tour arrêté. Envoie runtime\\robot.txt.",
+                       f"{i}/{len(todo)} {rom}: the game does not see the robot's stick or does not run at its pace, "
+                       "like the two games before. Tour stopped. Send runtime\\robot.txt."))
                 return 1
             ok = play(client, minutes * 60, rng, alive=lambda: proc.poll() is None, tick=lambda t: flag(root))
             close_game(client, proc)
