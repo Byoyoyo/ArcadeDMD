@@ -37,7 +37,9 @@ Les jeux peuvent jouer tout seuls, pour que leur mémoire soit enregistrée sans
 
 Le robot demande une capture d'écran à RetroArch toutes les dix secondes. Quand un jeu est fermé, son enregistrement et ses captures vont dans un seul fichier, `runtime\robot\<jeu>.zip`.
 
-Tant que le robot joue, RetroArch tourne sans fenêtre, sans son et sans lire les manettes de l'ordinateur. L'ordinateur reste utilisable pour autre chose et son écran peut être éteint. Windows est empêché de se mettre en veille. Un jeu qui ne démarre pas, ou qui est coupé avant la moitié, est rejoué au prochain lancement, et le tour s'arrête seul quand trois jeux de suite ne démarrent pas, sont coupés, ne voient pas le stick du robot ou ne tournent pas à leur vitesse. `"window": true` dans `runtime\robot.json` montre RetroArch en fenêtre à la place.
+Tant que le robot joue, RetroArch tourne en fenêtre, sans son et sans lire les manettes de l'ordinateur. L'écran doit rester allumé : RetroArch ne peut pas ouvrir sa fenêtre sans lui. Windows est empêché de se mettre en veille. Un jeu qui ne démarre pas, ou qui est coupé avant la moitié, est rejoué au prochain lancement, et le tour s'arrête seul quand trois jeux de suite ne démarrent pas, sont coupés, ne voient pas le stick du robot ou ne tournent pas à leur vitesse.
+
+`robot_screen_off.bat` est le même tour pour un écran éteint, la nuit par exemple. RetroArch tourne sans aucune fenêtre et la mémoire est enregistrée, mais sans captures d'écran : RetroArch se ferme quand on lui en demande une sans pilote vidéo. Les jeux joués ainsi sont rejoués, avec leurs captures, par `robot.bat`.
 
 Les réglages de RetroArch ne sont pas modifiés, et les jeux joués par le robot restent hors de son historique. Les réglages du robot sont dans `runtime\robot.cfg`, donné à RetroArch sur sa ligne de commande.
 

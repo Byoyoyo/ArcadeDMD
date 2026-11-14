@@ -61,10 +61,12 @@ video_fullscreen = "false"
 audio_mute_enable = "true"
 input_joypad_driver = "null"
 """
-# no window and no sound device: nothing of the screen is needed, the television may be off. RetroArch then has neither
-# the screen nor the sound to keep its pace, so its loop keeps the game's own frame rate (it runs flat out otherwise)
-# / ni fenêtre ni son : rien de l'écran n'est nécessaire, la télé peut être éteinte. La boucle de RetroArch tient alors
-# elle-même la cadence du jeu (il tourne à fond sinon)
+# screen off ("robot --unseen"): no window and no sound device, nothing of the screen is needed. RetroArch then has
+# neither the screen nor the sound to keep its pace, so its loop keeps the game's own frame rate (it runs flat out
+# otherwise). No screenshot there: on Windows RetroArch closes when asked for one without a video driver (1.21.0)
+# / écran éteint : ni fenêtre ni son, rien de l'écran n'est nécessaire. La boucle de RetroArch tient alors elle-même la
+# cadence du jeu (il tourne à fond sinon). Pas de capture d'écran là : sous Windows RetroArch se ferme quand on lui en
+# demande une sans pilote vidéo
 CFG_UNSEEN = """video_driver = "null"
 audio_driver = "null"
 vrr_runloop_enable = "true"
@@ -177,19 +179,18 @@ def shots_dir(root):
     return os.path.join(os.path.abspath(root), "runtime", "robot_shots")
 
 
-def write_cfg(root, base=BASE_PORT, window=False):
+def write_cfg(root, base=BASE_PORT, unseen=False):
     """RetroArch's settings for the robot: the pad from the network, its screenshots in a folder of ArcadeDMD without
     their message on the screen, the games played left out of its history, and nothing saved to its own settings when
-    it quits. It runs without a window, without sound and without reading the pads of the computer: the computer can be
-    used meanwhile and its screen can be off. window: in a window instead, to watch it ("window": true in
-    runtime/robot.json). / Les réglages de RetroArch pour le robot : la manette par le réseau, ses captures d'écran dans
-    un dossier d'ArcadeDMD, les jeux joués hors de son historique, et rien d'écrit dans ses propres réglages quand il
-    quitte. Il tourne sans fenêtre, sans son et sans lire les manettes de l'ordinateur : l'ordinateur reste utilisable
-    et son écran peut être éteint. window : en fenêtre à la place, pour le regarder."""
+    it quits. It runs in a window, without sound and without reading the pads of the computer. unseen: without a window
+    at all, for a screen that is off. / Les réglages de RetroArch pour le robot : la manette par le réseau, ses captures
+    d'écran dans un dossier d'ArcadeDMD, les jeux joués hors de son historique, et rien d'écrit dans ses propres
+    réglages quand il quitte. Il tourne en fenêtre, sans son et sans lire les manettes de l'ordinateur. unseen : sans
+    fenêtre du tout, pour un écran éteint."""
     path = os.path.join(os.path.abspath(root), "runtime", "robot.cfg")
     os.makedirs(shots_dir(root), exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
-        f.write(CFG % (base, shots_dir(root)) + ("" if window else CFG_UNSEEN))
+        f.write(CFG % (base, shots_dir(root)) + (CFG_UNSEEN if unseen else ""))
     return path
 
 
@@ -490,7 +491,7 @@ def close_game(client, proc=None, wait=12.0):
     return False
 
 
-def play(client, seconds, rng, base=BASE_PORT, two_from=0.7, alive=None, tick=None):
+def play(client, seconds, rng, base=BASE_PORT, two_from=0.7, alive=None, tick=None, shots=True):
     """Plays the game that runs: a coin, START, then at random; a second player joins for the last part; a screenshot
     asked of RetroArch every ten seconds. Returns False when RetroArch stopped answering.
     / Joue le jeu en cours : une pièce, START, puis au hasard, une capture d'écran toutes les dix secondes."""
@@ -523,7 +524,7 @@ def play(client, seconds, rng, base=BASE_PORT, two_from=0.7, alive=None, tick=No
                     time.sleep(0.5)
                     p2.tap(START, 0.15)
                 two.step(now)
-            if now >= shot_t:
+            if shots and now >= shot_t:
                 shot_t = now + SHOT_EVERY
                 client.send("SCREENSHOT")
             if now - seen_t >= 5.0:
@@ -732,7 +733,7 @@ def test(root, cfg, wait=300, seconds=120, out=print):
         since = time.time()
         flag(root)
         clear_shots(root)
-        proc = launch(setup, rom, write_cfg(root, window=bool(setup.get("window"))))
+        proc = launch(setup, rom, write_cfg(root))
         st = wait_playing(client, 60, proc)
         if st is None:
             say(tr("RetroArch n'a pas démarré le jeu en une minute. Essai arrêté.",
@@ -768,10 +769,10 @@ def test(root, cfg, wait=300, seconds=120, out=print):
         if fps is not None:
             say(tr(f"{'OK' if 50 <= fps <= 70 else 'ANORMAL'}, le jeu tourne à {fps:.0f} images par seconde (59 attendues).",
                    f"{'OK' if 50 <= fps <= 70 else 'ABNORMAL'}, the game runs at {fps:.0f} frames a second (59 expected)."))
-        say(tr(f"Je joue {seconds // 60} minutes. Rien ne s'affiche, c'est normal : RetroArch tourne sans fenêtre et "
-               "sans son. Les captures du zip montrent la partie.",
-               f"Playing for {seconds // 60} minutes. Nothing shows, as expected: RetroArch runs without a window and "
-               "without sound. The screenshots of the zip show the game."))
+        say(tr(f"Je joue {seconds // 60} minutes, dans une fenêtre et sans son : une pièce, START, puis le personnage "
+               "bouge tout seul.",
+               f"Playing for {seconds // 60} minutes, in a window and without sound: a coin, START, then the character "
+               "moves alone."))
         ok = play(client, seconds, random.Random(), alive=lambda: proc.poll() is None, tick=lambda t: flag(root))
         say(tr("Partie finie, je ferme le jeu.", "Game over, closing it.") if ok
             else tr("RetroArch s'est arrêté pendant la partie.", "RetroArch stopped during the game."))
@@ -786,9 +787,13 @@ def test(root, cfg, wait=300, seconds=120, out=print):
         client.close()
 
 
-def tour(root, cfg, minutes=6, only=None, out=print):
+def tour(root, cfg, minutes=6, only=None, out=print, unseen=False):
     """Every game whose ROM is in the folder, a few minutes each. Ctrl+C stops it; started again, it goes on where it
-    stopped. / Tous les jeux dont la ROM est là, quelques minutes chacun. Relancé, il reprend où il s'est arrêté."""
+    stopped. unseen: for a screen that is off, RetroArch without a window and no screenshot (it closes when asked for
+    one without a video driver); these games keep their place in the tour with the screen on, which plays them again
+    with their screenshots. / Tous les jeux dont la ROM est là, quelques minutes chacun. Relancé, il reprend où il
+    s'est arrêté. unseen : pour un écran éteint, RetroArch sans fenêtre et sans capture d'écran ; ces jeux gardent leur
+    place dans le tour écran allumé, qui les rejoue avec leurs captures."""
     say = Report(root, "robot.txt", out)
     setup = load_setup(root)
     if setup is None:
@@ -796,17 +801,32 @@ def tour(root, cfg, minutes=6, only=None, out=print):
                "Run robot_test.bat first, it learns where RetroArch and the ROMs are."))
         return 1
     games = [g for g in roms(root, setup) if not only or g in only]
+    key = "unseen" if unseen else "done"
     done = set(setup.get("done") or []) if not only else set()
+    if unseen and not only:
+        done |= set(setup.get("unseen") or [])                    # with or without its screenshots / avec ou sans
     todo = [g for g in games if g not in done]
     if not todo and games:
+        if unseen:
+            say(tr("Tous les jeux sont déjà enregistrés. Rien à faire écran éteint.",
+                   "Every game is already recorded. Nothing to do with the screen off."))
+            return 0
         done, todo = set(), games                                 # all done: a new tour / tout est fait : un nouveau tour
     total = len(todo) * (minutes + 0.7)
     long_fr = f"{total / 60:.1f} heures" if total >= 90 else f"{total:.0f} minutes"
     long_en = f"{total / 60:.1f} hours" if total >= 90 else f"{total:.0f} minutes"
-    say(tr(f"Tour du robot : {len(todo)} jeu(x), {minutes} minute(s) chacun, environ {long_fr}. Ctrl+C pour arrêter.",
-           f"Robot tour: {len(todo)} game(s), {minutes} minute(s) each, about {long_en}. Ctrl+C to stop."))
+    if unseen:
+        say(tr(f"Tour du robot écran éteint : {len(todo)} jeu(x), {minutes} minute(s) chacun, environ {long_fr}. "
+               "RetroArch tourne sans fenêtre, la mémoire est enregistrée, sans captures d'écran. Ctrl+C pour arrêter.",
+               f"Robot tour, screen off: {len(todo)} game(s), {minutes} minute(s) each, about {long_en}. RetroArch "
+               "runs without a window, the memory is recorded, without screenshots. Ctrl+C to stop."))
+    else:
+        say(tr(f"Tour du robot : {len(todo)} jeu(x), {minutes} minute(s) chacun, environ {long_fr}. L'écran doit "
+               "rester allumé. Ctrl+C pour arrêter.",
+               f"Robot tour: {len(todo)} game(s), {minutes} minute(s) each, about {long_en}. The screen must stay "
+               "on. Ctrl+C to stop."))
     client = _client(cfg)
-    cfg_path = write_cfg(root, window=bool(setup.get("window")))
+    cfg_path = write_cfg(root, unseen=unseen)
     rng = random.Random()
     proc = None
     dead = blind = 0                                              # games in a row not started, or blind to the stick
@@ -859,7 +879,8 @@ def tour(root, cfg, minutes=6, only=None, out=print):
                        f"{i}/{len(todo)} {rom}: the game does not see the robot's stick or does not run at its pace, "
                        "like the two games before. Tour stopped. Send runtime\\robot.txt."))
                 return 1
-            ok = play(client, minutes * 60, rng, alive=lambda: proc.poll() is None, tick=lambda t: flag(root))
+            ok = play(client, minutes * 60, rng, alive=lambda: proc.poll() is None, tick=lambda t: flag(root),
+                      shots=not unseen)
             close_game(client, proc)
             count = _result(root, rom, since, say, tr(f"{i}/{len(todo)} {'' if ok else 'arrêté avant la fin, '}"
                                                       f"{'le jeu ne voit pas le stick, ' if seen is False else ''}",
@@ -880,7 +901,7 @@ def tour(root, cfg, minutes=6, only=None, out=print):
             dead = 0
             done.add(rom)
             if not only:
-                setup["done"] = sorted(done)
+                setup[key] = sorted(set(setup.get(key) or []) | {rom}) if unseen else sorted(done)
                 save_setup(root, setup)
             time.sleep(3.0)
         say(tr("Tour fini. Un fichier par jeu dans runtime\\robot.",
