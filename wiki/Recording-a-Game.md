@@ -37,6 +37,8 @@ The games can play by themselves, so that their memory is recorded with nobody a
 
 The robot asks RetroArch for a screenshot every ten seconds. When a game is closed, its recording and its screenshots go into one file, `runtime\robot\<game>.zip`.
 
+While the robot plays, RetroArch runs in a window, without sound and without reading the computer's pads, so the computer can be used for something else. Windows is kept awake. A game that does not start is tried again at the next run, and the tour stops by itself when three games in a row do not start or do not see the robot's stick.
+
 RetroArch's own settings are not changed, and the games the robot plays stay out of its history. The robot's settings are in `runtime\robot.cfg`, given to RetroArch on its command line.
 
 ## Tools for the curious
