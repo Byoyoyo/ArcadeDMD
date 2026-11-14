@@ -19,6 +19,7 @@ import collections
 import json
 import os
 import random
+import re
 import socket
 import struct
 import subprocess
@@ -171,6 +172,17 @@ def save_setup(root, setup):
         json.dump(setup, f, indent=1, ensure_ascii=False)
 
 
+def _command_line():
+    """The command line of the RetroArch that runs (Windows), as a list, or []. / La ligne de commande de RetroArch."""
+    try:
+        out = subprocess.run(["powershell", "-NoProfile", "-Command",
+                              "(Get-CimInstance Win32_Process -Filter \"name='retroarch.exe'\").CommandLine"],
+                             capture_output=True, text=True, timeout=15).stdout
+    except (OSError, subprocess.SubprocessError):
+        return []
+    return [a or b for a, b in re.findall(r'"([^"]*)"|(\S+)', out.strip().splitlines()[0])] if out.strip() else []
+
+
 def learn_setup(content):
     """How RetroArch was started for the game that runs: its program, its core and the folder of its ROMs, read from its
     process and its history. None when it cannot be told. / Comment RetroArch a été lancé pour le jeu en cours."""
@@ -196,9 +208,21 @@ def learn_setup(content):
                     break
             if rom:
                 break
+        args = _command_line()
+        config = ""
+        for i, a in enumerate(args):
+            stem = os.path.splitext(os.path.basename(a.replace("\\", "/")))[0].lower()
+            if not rom and stem == (content or "").lower() and os.path.isabs(a):
+                rom = a                                               # not in the history: on the command line
+            if a in ("-c", "--config") and i + 1 < len(args):
+                config = args[i + 1]                                  # a settings file of its own / son fichier de réglages
+            elif a.startswith("--config="):
+                config = a.split("=", 1)[1]
+            if not core and a in ("-L", "--libretro") and i + 1 < len(args):
+                core = args[i + 1]
         if core and rom:
             return {"exe": exe, "core": core, "rom_dir": os.path.dirname(rom), "ext": os.path.splitext(rom)[1] or ".zip",
-                    "last": content}
+                    "last": content, "config": config}
     return None
 
 
@@ -206,6 +230,8 @@ def launch(setup, rom, cfg_path):
     """Starts RetroArch with this game and the robot's settings on top of its own. / Lance RetroArch avec ce jeu."""
     path = os.path.join(setup["rom_dir"], rom + setup.get("ext", ".zip"))
     args = [setup["exe"], "-L", setup["core"], "--appendconfig", cfg_path]
+    if setup.get("config"):
+        args += ["-c", setup["config"]]
     if setup.get("fullscreen", True):
         args.append("-f")
     args.append(path)
