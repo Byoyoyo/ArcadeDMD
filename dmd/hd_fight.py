@@ -827,6 +827,7 @@ class FightFX:
                                                life=1.2, rise=10)
         if total >= BLOW_SUPER and b[3] < 2:                        # super coup : l'écran s'assombrit, rayons de lumière
             b[3] = 2
+            self._light("blow")
             self.super_t = now
             self.super_xy = (ex, ey)
             fx.shake(13, 0.55)
@@ -869,6 +870,7 @@ class FightFX:
             self.combo_txt[attacker] = fx.text(f"{c[0]} HITS", ax + aw * 0.5, S(132), GOLD, 58 + min(20, c[0] * 3), life=1.1, rise=15)
         if new <= 0:
             self.ko_t = now
+            self._light("ko")
             self.dm.ko(now)
             fx.explosion(x + w / 2, ey, 1.25, layer_back=False)
             fx.flash((255, 220, 200), 0.25, 0.25)
@@ -938,6 +940,8 @@ class FightFX:
         if self.out is not None and -1.0 < now + later - self.out[2] < MATCH_END:
             return                                                    # the same match / le même match
         self.in_round, self.match_done = False, True                  # the match is over / le match est fini
+        if self.humans.get(winner):
+            self._light("win")
         self.out = (winner, loser, now + later)
         self.out_score = (self.won_here.get(winner, 0), self.won_here.get(loser, 0))   # the rounds of the match (1.38)
         self.ko_until = now + later + MATCH_END
@@ -992,6 +996,12 @@ class FightFX:
         self.bd.excite(1.5)
         if perfect:
             self.banner = ("PERFECT !", GOLD, now + 2.1, 1.6)         # once the WIN is over / une fois le WIN fini
+
+    def _light(self, name):
+        """An event for the LEDs of the cabinet (dmd/lights.py), when a game is played. / Un événement pour les LED."""
+        lights = getattr(self.hd, "lights", None)
+        if lights is not None and not self.idle:
+            lights.event(name)
 
     def _fight(self, now):
         self.stars = dict(self.rounds_won)                            # a new round: the rounds won so far (none after a match)

@@ -1176,6 +1176,9 @@ class MetalSlugScene:
         def alert():
             """WARNING: the boss of the mission comes. / Le boss de la mission arrive."""
             self.boss_alerts += 1
+            lights = getattr(self.hd, "lights", None)
+            if lights is not None:
+                lights.event("boss")                              # the LEDs of the cabinet (1.39) / les LED de la borne
             self.fx.flash(RED, 0.25, 0.5)
             self.fx.shake(8, 0.6)
             for i in range(3):

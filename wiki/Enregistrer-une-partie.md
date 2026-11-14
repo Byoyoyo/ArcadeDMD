@@ -27,6 +27,16 @@ Ensuite zippe et joins à une [issue](https://github.com/Byoyoyo/ArcadeDMD/issue
 - le zip des captures d'écran
 - `runtime\arcadedmd.log`
 
+## Le robot
+
+Les jeux peuvent jouer tout seuls, pour que leur mémoire soit enregistrée sans personne devant la borne (1.39). RetroArch accepte les boutons d'une manette par le réseau, et le robot les envoie : une pièce, START, puis le stick et les boutons au hasard, et un deuxième joueur pour la fin de chaque partie.
+
+1. Laisse ArcadeDMD tourner, avec « Toute la mémoire de RetroArch » cochée dans sa fenêtre.
+2. Lance `robot_test.bat` avec un jeu Neo Geo démarré depuis ton frontend. Il lit comment RetroArch a été lancé, ferme le jeu, le relance lui-même, vérifie que le jeu voit le stick qu'il tient et joue deux minutes. Son résultat est dans `runtime\robot_test.txt`.
+3. Lance `robot.bat`. Il joue tous les jeux d'ArcadeDMD dont la ROM est dans le même dossier, six minutes chacun, les jeux de combat d'abord. `robot.bat 10` joue dix minutes chacun, `robot.bat samsho2 garou` seulement ces jeux. Ctrl+C l'arrête, et il reprend où il en était quand il est relancé.
+
+Les réglages de RetroArch ne sont pas modifiés. Ceux du robot sont dans `runtime\robot.cfg`, donné à RetroArch sur sa ligne de commande.
+
 ## Des outils pour les curieux
 
 - `python tools\replay_capture.py runtime\captures\<fichier>` écrit ce que montrait l'écran HD seconde par seconde, `--frames 30,47` le dessine à ces secondes.

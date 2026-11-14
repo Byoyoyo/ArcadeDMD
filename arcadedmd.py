@@ -33,6 +33,7 @@ Usage :
   python arcadedmd.py setup-pixelcade  choisit le port de la Pixelcade et l'active
   python arcadedmd.py enable-zedmd     active la sortie ZeDMD (désactivée par défaut)
   python arcadedmd.py test-retroarch   vérifie RetroArch, le cœur chargé et la lecture de la mémoire
+  python arcadedmd.py test-lights      vérifie HyperHDR et joue chaque effet de lumière sur les LED de la borne
   python arcadedmd.py robot-test       le robot joue un jeu deux minutes : RetroArch prend-il ses touches ?
   python arcadedmd.py robot [MINUTES]  le robot joue tous les jeux dont la ROM est là, pour enregistrer leur mémoire
   python arcadedmd.py test-coins       note ce que fait le BIOS Neo Geo quand une pièce entre (RetroArch)
@@ -55,6 +56,7 @@ Usage:
   python arcadedmd.py setup-pixelcade  chooses the Pixelcade port and enables it
   python arcadedmd.py enable-zedmd     enables the ZeDMD output (disabled by default)
   python arcadedmd.py test-retroarch   checks RetroArch, the loaded core and memory reading
+  python arcadedmd.py test-lights      checks HyperHDR and plays every light effect on the cabinet's LEDs
   python arcadedmd.py robot-test       the robot plays one game for two minutes: does RetroArch take its buttons?
   python arcadedmd.py robot [MINUTES]  the robot plays every game whose ROM is there, to record their memory
   python arcadedmd.py test-coins       writes down what the Neo Geo BIOS does when a coin goes in (RetroArch)
@@ -257,6 +259,10 @@ def main(argv):
         from dmd import radiag
         wait = int(argv[2]) if len(argv) > 2 and argv[2].isdigit() else 180
         return radiag.run(ROOT, cfg, wait=wait)
+
+    if cmd == "test-lights":
+        from dmd import lights
+        return lights.test(cfg.get("lights"))
 
     if cmd == "robot-test":
         from dmd import robot

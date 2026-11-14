@@ -38,3 +38,6 @@ jobs:
 
       - name: Moves recognised at the stick
         run: python tools/stick_check.py
+
+      - name: Orders sent to HyperHDR
+        run: python tools/lights_check.py

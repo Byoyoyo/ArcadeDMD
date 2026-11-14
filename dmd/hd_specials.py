@@ -159,6 +159,9 @@ def draw_specials(hd, screen, cache, state, side, vals, game, name, x0, x1, y0, 
     hyper = hyper_rows(game, name, lv)
     if ready and not state.was.get(side):
         state.ready_t[side] = now                                 # the super just came: the panel flashes / il vient
+        lights = getattr(hd, "lights", None)
+        if lights is not None:
+            lights.event("super")                                 # and the LEDs of the cabinet / et les LED de la borne
     state.was[side] = bool(ready)
     if ready:
         rows = hyper or supers or specials

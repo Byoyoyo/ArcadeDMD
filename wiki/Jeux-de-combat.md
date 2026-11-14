@@ -37,6 +37,16 @@ Sous le nom de chaque joueur humain, un panneau comme celui de The King of Fight
 - Un jeu dont la jauge n'est pas lue montre ses supers en or parmi les coups spéciaux.
 - Les coups de 70 jeux viennent de la liste des commandes de MAME (`command.dat`, de Fabricio Coroquer et AntoPISA), écrits dans le bloc `specials` de chaque fichier de jeu par `tools/command_dat.py`.
 
+## Les coups reconnus au stick, Neo Geo
+
+Dans 32 jeux de combat Neo Geo, le stick et les boutons de chaque joueur sont lus à chaque image (1.39).
+
+- Quand un bouton finit le geste d'un des coups du combattant, le panneau montre ce coup un instant, ses flèches et son bord allumés en vert, et le nombre de fois qu'il a été fait dès la deuxième.
+- Le coup montré à son tour allume ses flèches à mesure que le stick les fait.
+- Le marquee lit de quel côté regarde chaque combattant. Les flèches se retournent quand les combattants changent de côté, et un quart de cercle est nommé comme le coup qu'il est dans ce sens. Tant que ce côté n'est pas connu, un geste qui serait un autre coup du combattant dans l'autre sens n'est pas nommé.
+- Un super est nommé quand la jauge du jeu le permet. Ce qui est reconnu, c'est le geste, seul le jeu sait si le coup est sorti.
+- L'octet que chaque jeu garde pour le côté que regarde un combattant vient du mode entraînement de FBNeo, par peon2 et ses contributeurs. Ce qu'il contient au début d'un round est appris là, et il n'est plus utilisé dans une partie où deux rounds se contredisent.
+
 ## Le spectacle du coup désespéré
 
 Quand un humain place un coup désespéré, son nom prend tout le marquee un instant, puis vole au-dessus de sa barre pendant que les coups tombent, en les comptant. La barre de celui qui les prend sursaute à chaque coup, la partie perdue blanche puis rouge, et à son bord l'étincelle de chaque coup éclate avec des morceaux de la barre qui volent. Deux à la fois, chaque nom s'écrase de son côté avec DOUBLE DM ! entre les deux.

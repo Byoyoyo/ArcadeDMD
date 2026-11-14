@@ -6,6 +6,18 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 To update, extract the new version over the old one. Your `config.json`, the addresses learned and your own pictures are kept.
 Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `config.json`, les adresses apprises et tes propres images sont gardés.
 
+## 1.39.0
+
+### English
+- Neo Geo fighting games recognise the special moves done at the stick. When a button ends the motion of one of the fighter's moves, the panel under the name shows that move, lit, and how many times it was done. The move shown in turn lights its arrows as the stick does them. The marquee reads which side each fighter faces, so the arrows turn round when the fighters swap sides. 32 games, The King of Fighters '97, '98 and 2002 keeping their own panel.
+- The robot. `robot_test.bat`, then `robot.bat`, let the games play by themselves through RetroArch, a few minutes each, so that ArcadeDMD records their memory with nobody at the cabinet. RetroArch's own settings are not changed.
+- The cabinet's LEDs can follow the game through HyperHDR: a coin, a big blow, a K.O., a full gauge, a win, a boss warning. Off by default (`lights` in `config.json`). `test_lights.bat` plays every effect.
+
+### Français
+- Les jeux de combat Neo Geo reconnaissent les coups spéciaux faits au stick. Quand un bouton finit le geste d'un des coups du combattant, le panneau sous le nom montre ce coup, allumé, et le nombre de fois qu'il a été fait. Le coup montré à son tour allume ses flèches à mesure que le stick les fait. Le marquee lit de quel côté regarde chaque combattant, les flèches se retournent donc quand les combattants changent de côté. 32 jeux, The King of Fighters '97, '98 et 2002 gardant leur propre panneau.
+- Le robot. `robot_test.bat`, puis `robot.bat`, font jouer les jeux tout seuls dans RetroArch, quelques minutes chacun, pour qu'ArcadeDMD enregistre leur mémoire sans personne devant la borne. Les réglages de RetroArch ne sont pas modifiés.
+- Les LED de la borne peuvent suivre le jeu par HyperHDR : une pièce, un gros coup, un K.O., une jauge pleine, une victoire, l'alerte d'un boss. Coupé par défaut (`lights` dans `config.json`). `test_lights.bat` joue chaque effet.
+
 ## 1.38.0
 
 ### English

@@ -540,6 +540,7 @@ class HDRenderer:
     # ------------------------------------------------------------ dessin d'une image
     def render(self, screen, eng):
         now = self.clock()
+        self.lights = getattr(eng, "lights", None)                # the LEDs of the cabinet (1.39) / les LED de la borne
         if eng.mode != "game":
             screen.fill((0, 0, 0))
             self.FPS = HDRenderer.FPS
