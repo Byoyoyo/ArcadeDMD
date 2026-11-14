@@ -30,8 +30,14 @@ jobs:
           SDL_VIDEODRIVER: dummy
         run: |
           for lang in en fr; do
-            ARCADEDMD_LANG=$lang python -c "import arcadedmd, dmd.hd, dmd.hd_mslug, dmd.hd_fight, dmd.learn, dmd.radiag, dmd.gui, dmd.gui_setup, dmd.tray, dmd.retrobat; print('$lang ok')"
+            ARCADEDMD_LANG=$lang python -c "import arcadedmd, dmd.hd, dmd.hd_mslug, dmd.hd_fight, dmd.learn, dmd.radiag, dmd.gui, dmd.gui_setup, dmd.tray, dmd.retrobat, dmd.hd_stick, dmd.lights, dmd.robot; print('$lang ok')"
           done
 
       - name: Window answers
         run: python tools/gui_check.py
+
+      - name: Moves recognised at the stick
+        run: python tools/stick_check.py
+
+      - name: Orders sent to HyperHDR
+        run: python tools/lights_check.py

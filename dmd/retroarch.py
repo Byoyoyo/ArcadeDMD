@@ -106,12 +106,18 @@ class RetroArchClient:
                 sk.close()
             else:
                 raise OSError("no port of its own")
-            if rcvbuf:
-                try:
-                    sk.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, rcvbuf)
-                except OSError:
-                    pass
             self.sock = sk
+            self.rcvbuf = 0
+        if rcvbuf and rcvbuf > getattr(self, "rcvbuf", 0):
+            # asked of the socket in use too: the first question (GET_STATUS) makes it without any room asked, and
+            # Windows then gives it 64 KB, less than the 100 KB of answers of a whole-memory read, most of which were
+            # lost (1.39) / demandé aussi au socket déjà ouvert : la première question le crée sans rien demander, et
+            # Windows lui donne alors 64 Ko, moins que les 100 Ko de réponses d'une lecture de toute la mémoire
+            try:
+                self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, rcvbuf)
+            except OSError:
+                pass
+            self.rcvbuf = rcvbuf
         return self.sock
 
     def send(self, text):
@@ -406,10 +412,13 @@ class Layout:
             pos += n
         return self.base + lo, self._unswap(bytes(out))
 
-    def read_cpu_many(self, client, spans):
+    def read_cpu_many(self, client, spans, sure=False):
         """read_cpu for several spans, the requests sent together: RetroArch answers them all at its next image, where
-        one at a time takes an image each (1.32, the stick read between). [(address, bytes)] or None.
-        / read_cpu pour plusieurs plages, les demandes envoyées ensemble : RetroArch y répond à la même image."""
+        one at a time takes an image each (1.32, the stick read between). [(address, bytes)] or None. sure: what did not
+        come back in time is asked again, where one late answer otherwise loses the whole read (the robot's recordings,
+        1.39). / read_cpu pour plusieurs plages, les demandes envoyées ensemble : RetroArch y répond à la même image.
+        sure : ce qui n'est pas revenu à temps est redemandé, là où une réponse en retard fait sinon perdre toute la
+        lecture (les enregistrements du robot)."""
         plan, reqs = [], []
         for start, end in spans:
             lo, hi = start - self.base, end - self.base
@@ -425,7 +434,7 @@ class Layout:
                 pos += n
             plan.append((lo, parts))
             reqs += parts
-        got = client.read_batch(reqs) if hasattr(client, "read_batch") else client.read_many(reqs)
+        got = client.read_batch(reqs) if hasattr(client, "read_batch") and not sure else client.read_many(reqs)
         out = []
         for lo, parts in plan:
             data = bytearray()
@@ -637,9 +646,21 @@ def read_values(client, layout, defs, clusters=None, batch=False):
 # entre deux lectures du stick : RetroArch répond à l'image suivante, la lecture suit d'elle-même le rythme du jeu
 FAST_POLL = 0.001
 DUMP_EVERY = 0.25             # seconds between two snapshots of the whole memory ("ram_dump") / entre deux instantanés
+ROBOT_DUMP_EVERY = 0.5        # while the robot plays: hundreds of games, twice lighter (1.39) / pendant que le robot joue
 SHOT_EVERY = 2.0              # seconds between two screenshots asked of RetroArch while a game is played / entre deux
 SHOT_ON = ("lives", "lives_p2", "mission", "vehicle", "boss_flag", "stage_state")   # and when one of these changes
 SHOT_GAP = 0.5                # not two screenshots closer than this / pas deux captures plus proches
+
+
+def robot_running(root):
+    """True while the robot plays the games (dmd/robot.py, 1.39): it touches runtime/robot.on every few seconds. The
+    whole memory is then recorded whatever the settings, and the screenshots are left to the robot, which keeps a few
+    per game. / Vrai tant que le robot joue les jeux : toute la mémoire est alors enregistrée quels que soient les
+    réglages, et les captures d'écran sont laissées au robot, qui en garde quelques-unes par jeu."""
+    try:
+        return time.time() - os.path.getmtime(os.path.join(root, "runtime", "robot.on")) < 90.0
+    except OSError:
+        return False
 
 
 def _secs(v, default, least):
@@ -808,8 +829,19 @@ class RetroArchSource:
                         "core": core, "mt": getattr(self.library, "mtimes", {}).get(key) if key else None,
                         "dump": None, "dump_at": 0.0, "dump_prev": None,
                         "shot_at": -9.0, "shots": 0, "shot_seen": None, "shot_check": 0.0}
-        if self.dump_all or (isinstance(game, dict) and game.get("ram_dump")):
+        robot = robot_running(getattr(self.library, "root", "."))
+        self.session["robot"] = robot
+        if self.dump_all or robot or (isinstance(game, dict) and game.get("ram_dump")):
             self._dump_open(st["content"], key, layout)
+        if robot:                                                     # the robot waits for this before it plays
+            self.log(tr(f"Robot : {key or st['content']} est enregistré avec toute sa mémoire",
+                        f"Robot: {key or st['content']} is recorded with its whole memory"))
+            try:
+                with open(os.path.join(getattr(self.library, "root", "."), "runtime", "robot.ack"), "w", encoding="utf-8") as f:
+                    json.dump({"content": st["content"], "game": key or "", "time": time.time(),
+                               "memory": bool(self.session.get("dump"))}, f)
+            except OSError:
+                pass
         title = own or game_title(game, parent or st["content"])
         ev = {"t": "start", "game": key or "", "system": st["content"], "description": title,
               "media": [], "values": sorted(defs), "source": "retroarch", "core": st["system"]}
@@ -885,14 +917,16 @@ class RetroArchSource:
 
     def _dump_tick(self, s, now):
         d = s.get("dump")
-        if not d or now - s["dump_at"] < self.dump_every:
+        if not d or now - s["dump_at"] < (max(self.dump_every, ROBOT_DUMP_EVERY) if s.get("robot") else self.dump_every):
             return
         s["dump_at"] = now
         lay = s["layout"]
         half = lay.size // 2
         raw = bytearray()
         for start, end in ((lay.base, lay.base + half - 1), (lay.base + half, lay.base + lay.size - 1)):
-            got = lay.read_cpu_many(self.client, [(start, end)])     # 64 requests of 512 bytes, one image / une image
+            # 64 requests of 512 bytes, one image. Nobody plays while the robot does: what came back late is asked again
+            # there, a snapshot is never lost (2 in 100 were kept on a busy cabinet, 1.39)
+            got = lay.read_cpu_many(self.client, [(start, end)], bool(s.get("robot")))
             if not got:
                 return
             raw += got[0][1]
@@ -918,7 +952,7 @@ class RetroArchSource:
         in its screenshots folder with the date and time in its name, to see what happened on the screen when a byte
         moved (1.33 test 35). / Demande une capture d'écran à RetroArch : l'image tombe dans son dossier avec l'heure."""
         s = self.session
-        if not s or not self.shots_on:
+        if not s or not self.shots_on or s.get("robot"):
             return False
         now = time.monotonic() if now is None else now
         if now - s["shot_at"] < SHOT_GAP:
@@ -944,7 +978,7 @@ class RetroArchSource:
         """A screenshot every shot_every seconds while somebody plays, and at once when one of the values that mark a
         moment changes (a life lost, a mission, a vehicle, the game's flags). / Une toutes les shot_every secondes
         pendant qu'on joue, et à chaque changement d'une des valeurs qui marquent un moment."""
-        if not self.shots_on:
+        if not self.shots_on or s.get("robot"):
             return
         if s["shot_check"] and now >= s["shot_check"]:                # the first one: did a file appear? / un fichier ?
             s["shot_check"] = 0.0

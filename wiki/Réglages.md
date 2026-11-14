@@ -84,6 +84,20 @@ Voir [[ZeDMD et matériel]].
 
 Voir [[Avec RetroArch]].
 
+## `lights`
+
+Les LED de la borne suivent le jeu par [HyperHDR](https://github.com/awawa-dev/HyperHDR) (1.39). ArcadeDMD envoie une courte suite de couleurs à un événement, puis rend le ruban à la capture de l'écran.
+
+| Réglage | Par défaut | Effet |
+|---|---|---|
+| `enabled` | `false` | envoie les événements à HyperHDR |
+| `host`, `port` | `"127.0.0.1"`, `8090` | le port web d'HyperHDR |
+| `priority` | `50` | la priorité des couleurs d'ArcadeDMD, un nombre plus petit que celui de la capture de l'écran |
+| `brightness` | `1.0` | de 0 à 1 |
+| `events` | aucun | `{"blow": false}` coupe un événement, parmi `coin`, `blow`, `ko`, `super`, `win` et `boss` |
+
+`test_lights.bat` demande à HyperHDR qui il est et joue chaque événement.
+
 ## `coin_buttons`
 
 Écrit par `coin_buttons.bat`. `left`, `right`, `start1` et `start2` sont tes boutons de pièce et de START. `mvs_credits` est le nombre de crédits que donne chaque fente, `[1, 2]` comme une MVS par défaut.

@@ -62,6 +62,13 @@
     "host": "127.0.0.1",
     "port": 8081
   },
+  "lights": {
+    "enabled": false,
+    "host": "127.0.0.1",
+    "port": 8090,
+    "priority": 50,
+    "brightness": 1.0
+  },
   "retroarch": {
     "enabled": true,
     "host": "127.0.0.1",

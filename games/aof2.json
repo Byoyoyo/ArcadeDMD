@@ -23,6 +23,28 @@
  "memory": {
   "cpu": ":maincpu",
   "values": {
+   "_in_p1": {
+    "addr": "0x10FD96",
+    "type": "u8",
+    "fast": true,
+    "note": "BIOS_P1CURRENT: the stick and buttons of player 1 (bit 0 up, 1 down, 2 left, 3 right, 4 A, 5 B, 6 C, 7 D), read at every frame (\"fast\") for the moves recognised at the stick (1.39); read the other way round if up and down show together"
+   },
+   "_in_p2": {
+    "addr": "0x10FD9C",
+    "type": "u8",
+    "fast": true,
+    "note": "BIOS_P2CURRENT: the stick and buttons of player 2, same bits"
+   },
+   "_p1_dir": {
+    "addr": "0x1080BD",
+    "type": "u8",
+    "note": "the side player 1's fighter faces (FBNeo training mode by peon2 and contributors): a motion of the stick reads the other way round when the fighter faces left (1.39). What the byte holds when a round starts is learnt as facing right; not seen in a recorded game yet"
+   },
+   "_p2_dir": {
+    "addr": "0x10847D",
+    "type": "u8",
+    "note": "the side player 2's fighter faces (FBNeo training mode by peon2 and contributors): a motion of the stick reads the other way round when the fighter faces left (1.39). What the byte holds when a round starts is learnt as facing left; not seen in a recorded game yet"
+   },
    "credits": {
     "addr": "0xD00034",
     "type": "bcd",

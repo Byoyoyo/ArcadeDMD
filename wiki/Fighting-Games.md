@@ -37,6 +37,16 @@ Under the name of each human player, a panel like the one of The King of Fighter
 - A game whose gauge is not read shows its supers in gold among the special moves.
 - The moves of 70 games come from the command list of MAME (`command.dat`, by Fabricio Coroquer and AntoPISA), written in the `specials` block of each game file by `tools/command_dat.py`.
 
+## Moves recognised at the stick, Neo Geo
+
+In 32 Neo Geo fighting games the stick and buttons of each player are read at every frame (1.39).
+
+- When a button ends the motion of one of the fighter's moves, the panel shows that move for a moment, its arrows and its edge lit in green, and how many times it was done once it is more than one.
+- The move shown in turn lights its arrows as the stick does them.
+- The marquee reads which side each fighter faces. The arrows turn round when the fighters swap sides, and a quarter circle is named as the move it is that way round. Until that side is known, a motion that would be another move of the fighter the other way round is not named.
+- A super is named when the game's gauge allows it. What is recognised is the motion, the game alone knows whether the move came out.
+- The byte each game keeps for the side a fighter faces comes from the FBNeo training mode by peon2 and contributors. What it holds when a round starts is learnt there, and it is no longer used in a game where two rounds disagree.
+
 ## The desperation move show
 
 When a human lands a desperation move, its name takes the whole marquee for a moment, then flies above his bar while the hits land, counting them. The bar of the one taking them jolts at each hit, the part just lost white then red, and at its edge the spark of each hit bursts with pieces of the bar flying off. Two at once, each name slams onto its side with DOUBLE DM ! between them.

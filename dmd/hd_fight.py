@@ -29,6 +29,7 @@ from .hd_fx import FX, Particle
 from .hd_dm import DMShow
 from .hd_moves import Moves
 from .hd_specials import Specials
+from .hd_stick import Stick
 from .hd_themes15 import CPS_STAGES
 from . import hd_themes18
 from .i18n import tr
@@ -150,6 +151,7 @@ class FightFX:
         self.moves = Moves(hd)                                        # the desperation moves (1.32) / les coups désespérés
         self.dm = DMShow(self)                                        # their show (1.33 test 51) / leur spectacle
         self.specials = Specials()                                    # the panel of the other games (1.38) / des autres jeux
+        self.stick = Stick(hd)                                        # their moves recognised at the stick (1.39)
         self.hyper_lv = {}                                            # the gauge level seen, for the supers (1.36)
         self.warm = self._warm_list()
 
@@ -404,6 +406,7 @@ class FightFX:
         if idle or select:
             self._idle(vals, stages, game)
             self.moves.skip(hist)                                     # no fight: the inputs only followed / suivies
+            self.stick.skip(hist)
             return
         if r1:                                                        # the first round's intro: ROUND 1 / l'intro : ROUND 1
             self.round_v = _n(vals.get("round"))
@@ -413,6 +416,9 @@ class FightFX:
         if isinstance((game or {}).get("moves"), dict):
             self.moves.update(vals, hist, now, key, game, self.humans)
             self._dm_watch(vals, game, now)
+        elif self.stick.wanted(game):                                 # the other games: the motions done at the stick
+            self.stick.update(vals, hist, now, key, game, self.humans,   # les autres jeux : les gestes faits au stick
+                              {sd: self.specials.gauge(vals, sd, game)[1] for sd in ("p1", "p2")})
         if isinstance((game or {}).get("hyper"), dict):
             self._hyper_watch(vals, game["hyper"], now)
         # "round": the round of a King of Fighters match, from 0, one more at each K.O. (cheat "Select Current Round"),
@@ -821,6 +827,7 @@ class FightFX:
                                                life=1.2, rise=10)
         if total >= BLOW_SUPER and b[3] < 2:                        # super coup : l'écran s'assombrit, rayons de lumière
             b[3] = 2
+            self._light("blow")
             self.super_t = now
             self.super_xy = (ex, ey)
             fx.shake(13, 0.55)
@@ -863,6 +870,7 @@ class FightFX:
             self.combo_txt[attacker] = fx.text(f"{c[0]} HITS", ax + aw * 0.5, S(132), GOLD, 58 + min(20, c[0] * 3), life=1.1, rise=15)
         if new <= 0:
             self.ko_t = now
+            self._light("ko")
             self.dm.ko(now)
             fx.explosion(x + w / 2, ey, 1.25, layer_back=False)
             fx.flash((255, 220, 200), 0.25, 0.25)
@@ -932,6 +940,8 @@ class FightFX:
         if self.out is not None and -1.0 < now + later - self.out[2] < MATCH_END:
             return                                                    # the same match / le même match
         self.in_round, self.match_done = False, True                  # the match is over / le match est fini
+        if self.humans.get(winner):
+            self._light("win")
         self.out = (winner, loser, now + later)
         self.out_score = (self.won_here.get(winner, 0), self.won_here.get(loser, 0))   # the rounds of the match (1.38)
         self.ko_until = now + later + MATCH_END
@@ -987,8 +997,15 @@ class FightFX:
         if perfect:
             self.banner = ("PERFECT !", GOLD, now + 2.1, 1.6)         # once the WIN is over / une fois le WIN fini
 
+    def _light(self, name):
+        """An event for the LEDs of the cabinet (dmd/lights.py), when a game is played. / Un événement pour les LED."""
+        lights = getattr(self.hd, "lights", None)
+        if lights is not None and not self.idle:
+            lights.event(name)
+
     def _fight(self, now):
         self.stars = dict(self.rounds_won)                            # a new round: the rounds won so far (none after a match)
+        self.stick.round_start(now)                                   # the side each fighter faces is learnt there
         # pas en même temps que le bandeau du stage, le K.O. et le WIN, ou le nom du combattant suivant
         busy = max([self.stage_t + 1.95 if now - self.stage_t < 2.0 else -99.0, self.ko_until if now < self.ko_until else -99.0] +
                    [t + 1.75 for t in self.next_t.values() if -0.1 <= now - t < 1.75 or 0 < t - now < 2.5])
