@@ -81,7 +81,7 @@ When a health bar, a timer or a name does not match the screen, run `test_retroa
 | Fight Fever | `fightfev.json` | yes | yes | yes (10) | to learn |
 | Galaxy Fight | `galaxyfg.json` | yes | yes | - | RetroAchievements, checked on a recording |
 | Garou | `garou.json` | yes | yes | yes (14) | RetroAchievements, to be checked |
-| Kabuki Klash | `kabukikl.json` | yes | yes | - | to learn |
+| Kabuki Klash | `kabukikl.json` | yes | yes | yes (8 of 12) | to learn |
 | Karnov's Revenge | `karnovr.json` | yes | yes | yes (14) | RetroAchievements, checked on a recording |
 | King of the Monsters | `kotm.json` | yes | - | - | to learn |
 | King of the Monsters 2 | `kotm2.json` | yes | yes | yes (10) | to learn |

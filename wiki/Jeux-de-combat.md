@@ -81,7 +81,7 @@ Quand une barre de vie, un chrono ou un nom ne colle pas à l'écran, lance `tes
 | Fight Fever | `fightfev.json` | oui | oui | oui (10) | à apprendre |
 | Galaxy Fight | `galaxyfg.json` | oui | oui | - | RetroAchievements, vérifié sur un enregistrement |
 | Garou | `garou.json` | oui | oui | oui (14) | RetroAchievements, à vérifier |
-| Kabuki Klash | `kabukikl.json` | oui | oui | - | à apprendre |
+| Kabuki Klash | `kabukikl.json` | oui | oui | oui (8 sur 12) | à apprendre |
 | Karnov's Revenge | `karnovr.json` | oui | oui | oui (14) | RetroAchievements, vérifié sur un enregistrement |
 | King of the Monsters | `kotm.json` | oui | - | - | à apprendre |
 | King of the Monsters 2 | `kotm2.json` | oui | oui | oui (10) | à apprendre |
