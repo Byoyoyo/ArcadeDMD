@@ -106,16 +106,16 @@
     "note": "timer (cheat database)"
    },
    "score": {
-    "addr": "0x1081FC",
+    "addr": "",
     "type": "bcd",
     "bytes": 4,
-    "note": "player 1 score, same place as in KOF 98 (identical player record), to be confirmed in game"
+    "note": "not shown: this game counts battle ability points, not a score, and the place of KOF 98's score (0x1081FC) holds a small number that is on no screenshot (the robot's recording of 2026-11-15)"
    },
    "score_p2": {
-    "addr": "0x1083FC",
+    "addr": "",
     "type": "bcd",
     "bytes": 4,
-    "note": "player 2 score, same place as in KOF 98 (identical player record), to be confirmed in game"
+    "note": "not shown, as player 1's"
    },
    "beat": {
     "addr": "",

@@ -127,7 +127,7 @@
   "stages": [
    "arena",
    "fight_city",
-   "fight_ruins",
+   "fight_harbor",
    "fight_jungle",
    "fight_desert",
    "fight_temple",
@@ -143,6 +143,6 @@
    "fight_ruins",
    "fight_temple"
   ],
-  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page"
+  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page. Set from the screenshots of the robot's recording of 2026-11-15 for the stages it met: 2 a quay at night"
  }
 }

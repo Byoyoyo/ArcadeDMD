@@ -59,7 +59,7 @@ Dans un match à deux joueurs, les King of Fighters affichent CHALLENGER au-dess
 
 ## Ce que lit chaque jeu
 
-Chaque jeu de combat Neo Geo a son propre fichier dans `games\`, versions officielles comprises (japonaise, coréenne, prototype). Les adresses viennent des codes de triche de FinalBurn Neo, des scripts d'entraînement FinalBurn Neo de peon2 et de la base de triche de MAME 2003-Plus, vérifiées avec la collection de codes de MAME (mamecheat.co.uk). Elle donne la jauge de super d'Art of Fighting et Art of Fighting 2, Garou, The Last Blade 2 (avec ses rounds gagnés et ses décors, 1.38), Samurai Shodown II (son POW, 1.38), King of Fighters '96, Ninja Master's, des trois Real Bout Fatal Fury, Rage of the Dragons, Samurai Shodown III, IV, V et V Special et World Heroes Perfect, affichée sous les combattants sur l'écran HD, les personnages de Fatal Fury 2 et le chrono de Karnov's Revenge. Le score est connu pour les King of Fighters et pour Samurai Shodown II. RetroAchievements le donne pour Art of Fighting, Fatal Fury 1, 2, 3 et Special, Galaxy Fight, Garou, Karnov's Revenge, King of Fighters '94 et 2003, Rage of the Dragons, Real Bout Fatal Fury 1 et Special, Samurai Shodown, The Last Blade 1 et 2 et Waku Waku 7 (ses scripts publics sur GitHub et les données que télécharge `tools/ra_notes.py`, à vérifier en jeu), avec les rounds gagnés de Fatal Fury 3 et Karnov's Revenge, des étoiles dorées sous les barres de vie sur l'écran HD. Pour les autres, apprends-le avec `learn.bat` (`score=...` et `score2=...`).
+Chaque jeu de combat Neo Geo a son propre fichier dans `games\`, versions officielles comprises (japonaise, coréenne, prototype). Les adresses viennent des codes de triche de FinalBurn Neo, des scripts d'entraînement FinalBurn Neo de peon2 et de la base de triche de MAME 2003-Plus, vérifiées avec la collection de codes de MAME (mamecheat.co.uk). Elle donne la jauge de super d'Art of Fighting et Art of Fighting 2, Garou, The Last Blade 2 (avec ses rounds gagnés et ses décors, 1.38), Samurai Shodown II (son POW, 1.38), King of Fighters '96, Ninja Master's, des trois Real Bout Fatal Fury, Rage of the Dragons, Samurai Shodown III, IV, V et V Special et World Heroes Perfect, affichée sous les combattants sur l'écran HD, les personnages de Fatal Fury 2 et le chrono de Karnov's Revenge. Le score est connu pour les King of Fighters ('99 et 2000 comptent des points de combat à la place, rien n'est affiché) et pour Samurai Shodown II. RetroAchievements le donne pour Art of Fighting, Fatal Fury 1, 2, 3 et Special, Galaxy Fight, Garou, Karnov's Revenge, King of Fighters '94 et 2003, Rage of the Dragons, Real Bout Fatal Fury 1 et Special, Samurai Shodown, The Last Blade 1 et 2 et Waku Waku 7 (ses scripts publics sur GitHub et les données que télécharge `tools/ra_notes.py`, à vérifier en jeu), avec les rounds gagnés de Fatal Fury 3 et Karnov's Revenge, des étoiles dorées sous les barres de vie sur l'écran HD. Pour les autres, apprends-le avec `learn.bat` (`score=...` et `score2=...`).
 
 Quand une barre de vie, un chrono ou un nom ne colle pas à l'écran, lance `test_retroarch.bat` pendant un combat et poste le résultat dans une issue GitHub.
 
@@ -75,14 +75,14 @@ Quand une barre de vie, un chrono ou un nom ne colle pas à l'écran, lance `tes
 | Double Dragon | `doubledr.json` | oui | oui | oui (14) | à apprendre |
 | Dragon's Heaven | `dragonsh.json` | - | - | - | à apprendre |
 | Fatal Fury | `fatfury1.json` | oui | oui | oui (14) | RetroAchievements, à vérifier |
-| Fatal Fury 2 | `fatfury2.json` | oui | oui | - | RetroAchievements, à vérifier |
+| Fatal Fury 2 | `fatfury2.json` | oui | oui | oui (12) | RetroAchievements, vérifié sur un enregistrement |
 | Fatal Fury 3 | `fatfury3.json` | oui | oui | oui (13) | RetroAchievements, à vérifier |
 | Fatal Fury Special | `fatfursp.json` | oui | oui | - | RetroAchievements, à vérifier |
 | Fight Fever | `fightfev.json` | oui | oui | oui (10) | à apprendre |
-| Galaxy Fight | `galaxyfg.json` | oui | - | - | RetroAchievements, à vérifier |
+| Galaxy Fight | `galaxyfg.json` | oui | oui | - | RetroAchievements, vérifié sur un enregistrement |
 | Garou | `garou.json` | oui | oui | oui (14) | RetroAchievements, à vérifier |
 | Kabuki Klash | `kabukikl.json` | oui | oui | - | à apprendre |
-| Karnov's Revenge | `karnovr.json` | oui | - | oui (14) | RetroAchievements, à vérifier |
+| Karnov's Revenge | `karnovr.json` | oui | oui | oui (14) | RetroAchievements, vérifié sur un enregistrement |
 | King of the Monsters | `kotm.json` | oui | - | - | à apprendre |
 | King of the Monsters 2 | `kotm2.json` | oui | oui | oui (10) | à apprendre |
 | Kizuna Encounter | `kizuna.json` | oui | oui | - | à apprendre |
@@ -108,8 +108,8 @@ Quand une barre de vie, un chrono ou un nom ne colle pas à l'écran, lance `tes
 | The King of Fighters '96 | `kof96.json` | oui | oui | oui (29) | supposé, à vérifier |
 | The King of Fighters '97 | `kof97.json` | oui | oui | oui (32) | trouvé (1.33.1) |
 | The King of Fighters '98 | `kof98.json` | oui | oui | oui (38) | trouvé |
-| The King of Fighters '99 | `kof99.json` | oui | oui | oui (34) | supposé, à vérifier |
-| The King of Fighters 2000 | `kof2000.json` | oui | oui | oui (36) | supposé, à vérifier |
+| The King of Fighters '99 | `kof99.json` | oui | oui | oui (34) | - (le jeu n'a pas de score) |
+| The King of Fighters 2000 | `kof2000.json` | oui | oui | oui (36) | - (le jeu n'a pas de score) |
 | The King of Fighters 2001 | `kof2001.json` | oui | oui | - | supposé, à vérifier |
 | The King of Fighters 2002 | `kof2002.json` | oui | oui | - | supposé, à vérifier |
 | The King of Fighters 2003 | `kof2003.json` | - | oui | - | RetroAchievements, à vérifier |

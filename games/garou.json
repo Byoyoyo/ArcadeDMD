@@ -221,9 +221,9 @@
   "stages": [
    "fight_city",
    "arena",
-   "fight_temple",
    "fight_city",
-   "fight_ruins",
+   "fight_city",
+   "fight_temple",
    "fight_snow",
    "fight_harbor",
    "fight_jungle",
@@ -234,7 +234,7 @@
    "fight_ruins",
    "fight_temple"
   ],
-  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page"
+  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page. Set from the screenshots of the robot's recording of 2026-11-15 for the stages it met: 2 a street of neon signs, 4 a belfry"
  },
  "specials": {
   "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",

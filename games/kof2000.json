@@ -98,16 +98,16 @@
     "note": "timer (cheat database)"
    },
    "score": {
-    "addr": "0x1081FC",
+    "addr": "",
     "type": "bcd",
     "bytes": 4,
-    "note": "player 1 score, same place as in KOF 98 (identical player record), to be confirmed in game"
+    "note": "not shown: this game counts battle ability points, not a score, and the place of KOF 98's score (0x1081FC) holds a small number that is on no screenshot (the robot's recording of 2026-11-15)"
    },
    "score_p2": {
-    "addr": "0x1083FC",
+    "addr": "",
     "type": "bcd",
     "bytes": 4,
-    "note": "player 2 score, same place as in KOF 98 (identical player record), to be confirmed in game"
+    "note": "not shown, as player 1's"
    },
    "beat": {
     "addr": "",
@@ -360,13 +360,13 @@
    "fight_city",
    "fight_ruins",
    "fight_desert",
-   "arena",
+   "fight_city",
    "fight_harbor",
    "fight_temple",
    "fight_snow",
    "fight_snow"
   ],
-  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page"
+  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page. Set from the screenshots of the robot's recording of 2026-11-15 for the stages it met: 4 a street of neon signs"
  },
  "specials": {
   "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",

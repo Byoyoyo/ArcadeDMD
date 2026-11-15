@@ -79,6 +79,11 @@
     "zero_from": "0x85FF",
     "note": "player 2 health in %, full = 0xBFF; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0x85FF it reads empty (K.O. audit)"
    },
+   "_time": {
+    "addr": "0x10B649",
+    "type": "u8",
+    "note": "the timer, from 120 (the robot's recording of 2026-11-15: the only byte that holds the number of five screenshots). Read but not shown yet: the same byte counts 11, 10 before the round, which the fight engine takes for a round of its own, and three digits do not fit the timer's frame"
+   },
    "score": {
     "addr": "",
     "type": "bcd",

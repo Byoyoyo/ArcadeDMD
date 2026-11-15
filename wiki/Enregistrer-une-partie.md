@@ -46,6 +46,7 @@ Les réglages de RetroArch ne sont pas modifiés, et les jeux joués par le robo
 ## Des outils pour les curieux
 
 - `python tools\replay_capture.py runtime\captures\<fichier>` écrit ce que montrait l'écran HD seconde par seconde, `--frames 30,47` le dessine à ces secondes.
+- `python tools\values_check.py runtime\robot\<jeu>.zip` vérifie chaque valeur du fichier du jeu contre une partie enregistrée par le robot (1.39). Un chrono descend et repart de son plus haut, une barre de vie descend coup après coup et se lit pleine au début d'un round, un score ne fait que monter. `--sheet out.jpg` met six captures d'écran sur une image avec ce que lit le fichier à la même seconde, pour vérifier à l'œil. `--find` cherche le chrono et les barres de vie dans toute la mémoire, `--match 45:35 105:25` les octets qui valent les nombres lus sur les captures.
 - `python tools\ram_diff.py <fichier.ram> --down 120 160` liste les mots de mémoire qui ne font que baisser entre deux moments (une vie), `--watch 0x1012AA` en suit un, `--diff 118 121` montre ce qui a changé.
 
 Les enregistrements déjà reçus sont gardés dans `tests\captures` et rejoués comme tests.

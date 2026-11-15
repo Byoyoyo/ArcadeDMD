@@ -46,6 +46,7 @@ RetroArch's own settings are not changed, and the games the robot plays stay out
 ## Tools for the curious
 
 - `python tools\replay_capture.py runtime\captures\<file>` prints what the HD screen showed second by second, `--frames 30,47` draws it at those seconds.
+- `python tools\values_check.py runtime\robot\<game>.zip` checks each value of the game's file against a game the robot recorded (1.39): a timer counts down and starts again from its top, a life bar goes down hit after hit and reads full when a round starts, a score only rises. `--sheet out.jpg` puts six screenshots on one image with what the file reads at the same second, to check by eye. `--find` looks for the timer and the life bars in the whole memory, `--match 45:35 105:25` for the bytes that hold the numbers read on the screenshots.
 - `python tools\ram_diff.py <file.ram> --down 120 160` lists the memory words that only go down between two moments (a life), `--watch 0x1012AA` follows one, `--diff 118 121` shows what changed.
 
 The recordings already received are kept in `tests\captures` and replayed as tests.

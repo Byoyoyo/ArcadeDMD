@@ -158,7 +158,7 @@
  "hd": {
   "stages": [
    "arena",
-   "fight_city",
+   "fight_desert",
    "fight_ruins",
    "fight_jungle",
    "fight_desert",
@@ -171,7 +171,7 @@
    "arena",
    "fight_ruins"
   ],
-  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page"
+  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page. Set from the screenshots of the robot's recording of 2026-11-15 for the stages it met: 1 red rocks and carved heads"
  },
  "derived": {
   "p1_char": {

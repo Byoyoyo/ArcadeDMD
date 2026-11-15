@@ -60,22 +60,26 @@
     "note": "BIOS_MVS_FLAG: 0 home console (AES, no coins), otherwise arcade (MVS)"
    },
    "health": {
-    "addr": "0x100E56",
+    "ptr": "0x105094",
+    "ptr_range": ["0x100000", "0x10FFFF"],
+    "addr": "0x56",
     "type": "u8",
     "mult": 1.0,
     "min": 0,
     "max": 100,
     "zero_from": "0xB2",
-    "note": "player 1 health in %, full = 0x64; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xB2 it reads empty (K.O. audit)"
+    "note": "player 1 health in %, full = 0x64, 0x56 bytes into the fighter's object. The object changes place at every round: the game keeps where it is at 0x105094 (the robot's recording of 2026-11-15: 100 at each of the nine round starts, the bar of the screenshots; the fixed place 0x100E56 was right in the first round only). A K.O. takes it below zero, read 0xFF: from 0xB2 it reads empty"
    },
    "health_p2": {
-    "addr": "0x100F56",
+    "ptr": "0x105098",
+    "ptr_range": ["0x100000", "0x10FFFF"],
+    "addr": "0x56",
     "type": "u8",
     "mult": 1.0,
     "min": 0,
     "max": 100,
     "zero_from": "0xB2",
-    "note": "player 2 health in %, full = 0x64; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xB2 it reads empty (K.O. audit)"
+    "note": "player 2 or computer health in %, the same way, its object kept at 0x105098 (the robot's recording of 2026-11-15)"
    },
    "rounds": {
     "addr": "0x1050E8",
@@ -88,10 +92,10 @@
     "note": "rounds won by player 2 (RetroAchievements code notes, 0x50e8 --CPU ROUND WIN--, the byte next to it in the 68000's order), gold stars under the bars and the winner of a round; to confirm in game (1.31.1, K.O. audit)"
    },
    "time": {
-    "addr": "0x103A16",
+    "addr": "0x1060DA",
     "type": "bcd",
     "bytes": 1,
-    "note": "timer (BCD)"
+    "note": "timer (BCD), from 99, the number of the screenshots (the robot's recording of 2026-11-15; 0x103A16 was not the timer)"
    },
    "score": {
     "addr": "",
