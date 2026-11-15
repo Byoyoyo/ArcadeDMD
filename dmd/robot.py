@@ -558,23 +558,33 @@ def _layout(st, root):
     return layout_for(game, st.get("system") or "")
 
 
-def game_speed(client, st, root, wait=1.5):
-    """Neo Geo: the frames the game runs in a second, counted by its BIOS (the four bytes at 0x10FE88, one more at
-    each frame), or None when it cannot be told. 59 is right; hundreds mean RetroArch runs flat out.
-    / Neo Geo : les images que le jeu fait en une seconde, comptées par son BIOS, ou None."""
+def game_speed(client, st, root, wait=1.0, tries=4):
+    """Neo Geo: the frames the game runs in a second, counted by its BIOS (the bytes at 0x10FE88, one more at each
+    frame), or None when it cannot be told. 59 is right; hundreds mean RetroArch runs flat out. The BIOS sets its
+    counter again while a game starts (Fatal Fury 2, ten seconds in), so only its low 16 bits are compared, a measure
+    out of range is taken again, and the middle one of those taken is kept.
+    / Neo Geo : les images que le jeu fait en une seconde, comptées par son BIOS, ou None. Le BIOS remet son compteur
+    pendant le démarrage d'un jeu, donc seuls ses 16 bits bas sont comparés, une mesure hors norme est refaite, et
+    celle du milieu est gardée."""
     lay = _layout(st, root)
     if not lay.contains(0x10FE88, 0x10FE8B):
         return None
 
     def read():
         got = lay.read_cpu(client, 0x10FE88, 0x10FE8B)
-        return (int.from_bytes(got[1][0x10FE88 - got[0]:0x10FE8C - got[0]], "big"), time.monotonic()) if got else None
-    a = read()
-    time.sleep(wait)
-    b = read()
-    if a is None or b is None or b[1] <= a[1]:
-        return None
-    return ((b[0] - a[0]) % (1 << 32)) / (b[1] - a[1])
+        return (int.from_bytes(got[1][0x10FE8A - got[0]:0x10FE8C - got[0]], "big"), time.monotonic()) if got else None
+    seen = []
+    for _ in range(tries):
+        a = read()
+        time.sleep(wait)
+        b = read()
+        if a is None or b is None or b[1] <= a[1]:
+            continue
+        fps = ((b[0] - a[0]) % 65536) / (b[1] - a[1])
+        seen.append(fps)
+        if 50 <= fps <= 70:
+            return fps                                            # as it should: no need to measure again
+    return sorted(seen)[len(seen) // 2] if seen else None
 
 
 def inputs_seen(client, st, root):
@@ -866,12 +876,12 @@ def tour(root, cfg, minutes=6, only=None, out=print, unseen=False):
                 return 1
             time.sleep(max(0.0, since + 9.0 - time.time()))       # the BIOS reads the stick once it has started
             seen = inputs_seen(client, st, root)                  # Neo Geo: the game must see the robot's stick
-            fps = game_speed(client, st, root, 1.0)               # and run at its own pace / et tourner à sa vitesse
-            if fps is not None and not 50 <= fps <= 70:
-                seen = False
+            fps = game_speed(client, st, root)                    # and run at its own pace / et tourner à sa vitesse
+            slow = fps is not None and not 50 <= fps <= 70
+            if slow:
                 say(tr(f"    {rom} tourne à {fps:.0f} images par seconde au lieu de 59",
                        f"    {rom} runs at {fps:.0f} frames a second instead of 59"))
-            blind = blind + 1 if seen is False else 0
+            blind = blind + 1 if seen is False or slow else 0
             if blind >= 3:
                 close_game(client, proc, 6.0)
                 say(tr(f"{i}/{len(todo)} {rom} : le jeu ne voit pas le stick du robot ou ne tourne pas à sa vitesse, "
