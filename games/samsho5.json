@@ -118,10 +118,10 @@
     "note": "rounds won by player 2 (RetroAchievements code notes, 0x8675 P2 won rounds, the byte next to it in the 68000's order), gold stars under the bars and the winner of a round; to confirm in game (1.31.1, K.O. audit)"
    },
    "time": {
-    "addr": "0x10836B",
-    "type": "u8",
-    "note": "timer",
-    "max": 99
+    "addr": "0x10836A",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "timer (BCD), as in Samurai Shodown V Special (the robot's recording of 2026-11-15: the only byte that holds the number of six screenshots; 0x10836B, read before, is the frames of the second)"
    },
    "score": {
     "addr": "",

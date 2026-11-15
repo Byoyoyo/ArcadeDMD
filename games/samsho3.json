@@ -139,12 +139,14 @@
    "_p1_chr": {
     "addr": "0x108470",
     "type": "u8",
-    "note": "player 1 character (FBNeo cheat codes)"
+    "mask": "0x0F",
+    "note": "player 1 character (FBNeo cheat codes), its low four bits: the high ones hold something else while a fight goes on (the robot's recording of 2026-11-15: 0xD0 with Haohmaru on the screenshots, 0x59 then 0xD9 with Shizumaru, and no name was shown)"
    },
    "_p2_chr": {
     "addr": "0x108471",
     "type": "u8",
-    "note": "player 2 or computer character"
+    "mask": "0x0F",
+    "note": "player 2 or computer character, its low four bits (the robot's recording of 2026-11-15: 0x54 with Galford, 0x59 with Shizumaru)"
    },
    "backdrop": {
     "addr": "0x109069",
