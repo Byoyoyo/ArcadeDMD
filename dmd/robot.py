@@ -28,6 +28,7 @@ import struct
 import subprocess
 import threading
 import time
+import traceback
 import zipfile
 
 from .i18n import tr
@@ -491,7 +492,8 @@ def close_game(client, proc=None, wait=12.0):
     return False
 
 
-def play(client, seconds, rng, base=BASE_PORT, two_from=0.7, alive=None, tick=None, shots=True):
+def play(client, seconds, rng, base=BASE_PORT, two_from=0.7, alive=None, tick=None, shots=True, probe=None,
+         trace=None):
     """Plays the game that runs: a coin, START, then at random; a second player joins for the last part; a screenshot
     asked of RetroArch every ten seconds. Returns False when RetroArch stopped answering.
     / Joue le jeu en cours : une pièce, START, puis au hasard, une capture d'écran toutes les dix secondes."""
@@ -535,6 +537,10 @@ def play(client, seconds, rng, base=BASE_PORT, two_from=0.7, alive=None, tick=No
                     break
                 if tick is not None:
                     tick(now - t0)
+                if probe is not None and trace is not None:       # the stick the game sees, its frame count
+                    got = probe()
+                    if got is not None:
+                        trace.append(got)
             time.sleep(0.015)
     finally:
         p1.close()
@@ -585,6 +591,37 @@ def game_speed(client, st, root, wait=1.0, tries=4):
         if 50 <= fps <= 70:
             return fps                                            # as it should: no need to measure again
     return sorted(seen)[len(seen) // 2] if seen else None
+
+
+def prober(client, st, root):
+    """Neo Geo: a function that reads what the game sees of player 1's stick and the frames it has run (the low 16
+    bits of the BIOS counter), with the time; None for another system. Read every few seconds while the robot plays:
+    a game does not read its stick during its start, which one reading there would take for a robot it does not see.
+    / Neo Geo : une fonction qui lit ce que le jeu voit du stick du joueur 1 et les images qu'il a faites, avec
+    l'heure ; None pour un autre système. Lu toutes les quelques secondes pendant que le robot joue : un jeu ne lit
+    pas son stick pendant son démarrage."""
+    lay = _layout(st, root)
+    if not (lay.contains(0x10FD96, 0x10FD96) and lay.contains(0x10FE88, 0x10FE8B)):
+        return None
+
+    def probe():
+        a = lay.read_cpu(client, 0x10FD96, 0x10FD96)
+        b = lay.read_cpu(client, 0x10FE88, 0x10FE8B)
+        if not a or not b:
+            return None
+        return (a[1][0x10FD96 - a[0]], int.from_bytes(b[1][0x10FE8A - b[0]:0x10FE8C - b[0]], "big"), time.monotonic())
+    return probe
+
+
+def judged(trace):
+    """(the game saw the robot's stick, its frames a second) from the readings of a whole game; None for what cannot
+    be told. The stick is seen when the byte took several values; the speed is the middle one of all the intervals.
+    / (le jeu a vu le stick du robot, ses images par seconde) d'après les lectures de toute une partie."""
+    if not trace or len(trace) < 6:
+        return None, None
+    stick = len({t[0] for t in trace}) >= 3
+    rates = sorted(((b[1] - a[1]) % 65536) / (b[2] - a[2]) for a, b in zip(trace, trace[1:]) if b[2] > a[2])
+    return stick, rates[len(rates) // 2] if rates else None
 
 
 def inputs_seen(client, st, root):
@@ -728,8 +765,9 @@ def test(root, cfg, wait=300, seconds=120, out=print):
                        "Cannot tell how RetroArch was started (its program, its core, the ROM folder). Test stopped."))
                 return 1
             if found is not None:
-                if setup is not None and setup.get("done"):
-                    found["done"] = setup["done"]             # the games the tour has played stay played / restent faits
+                for k in ("done", "unseen", "aside"):             # what the tour knows stays known / reste su
+                    if setup is not None and setup.get(k):
+                        found[k] = setup[k]
                 setup = found
                 save_setup(root, setup)
             say(tr(f"RetroArch : {setup['exe']}", f"RetroArch: {setup['exe']}"))
@@ -765,6 +803,11 @@ def test(root, cfg, wait=300, seconds=120, out=print):
                "OK, ArcadeDMD records this game with its whole memory." if ack.get("memory")
                else "ArcadeDMD sees this game but does not record its memory."))
         seen = inputs_seen(client, st, root)
+        for _ in range(9):                                        # a game reads its stick once it has started
+            if seen is not False:
+                break
+            time.sleep(1.5)
+            seen = inputs_seen(client, st, root)
         if seen is True:
             say(tr("OK, le jeu voit le stick que j'envoie.", "OK, the game sees the stick I send."))
         elif seen is False:
@@ -797,21 +840,112 @@ def test(root, cfg, wait=300, seconds=120, out=print):
         client.close()
 
 
+WAIT = 300.0              # between two looks at a screen that is off / entre deux regards à un écran éteint
+
+
+def _pause(seconds):
+    end = time.monotonic() + seconds
+    while time.monotonic() < end:
+        time.sleep(5.0)
+
+
+def _trouble(root):
+    """An error nobody foresaw, kept in runtime/robot_crash.log. / Une erreur imprévue, gardée dans ce fichier."""
+    try:
+        with open(os.path.join(root, "runtime", "robot_crash.log"), "a", encoding="utf-8") as f:
+            f.write("\n" + time.strftime("%Y-%m-%d %H:%M:%S") + "\n" + traceback.format_exc())
+    except OSError:
+        pass
+
+
+def works(client, root, setup, rom, cfg_path, seconds=15.0):
+    """A game that was recorded before, started for a quarter of a minute: True when RetroArch runs it, ArcadeDMD says
+    it records it and its memory can be read. It tells games that cannot be played from a screen that is off, an
+    ArcadeDMD that is closed or ROMs that are gone, which fail the same way.
+    / Un jeu déjà enregistré, lancé un quart de minute : True quand RetroArch le fait tourner, qu'ArcadeDMD dit
+    l'enregistrer et que sa mémoire se lit. Distingue des jeux injouables d'un écran éteint, d'un ArcadeDMD fermé ou
+    de ROM disparues, qui échouent de la même façon."""
+    proc = None
+    try:
+        since = time.time()
+        flag(root)
+        proc = launch(setup, rom, cfg_path)
+        st = wait_playing(client, 45, proc)
+        if st is None or acked(root, rom, since, 20.0) is None:
+            return False
+        end = time.monotonic() + seconds
+        while time.monotonic() < end:
+            time.sleep(1.0)
+            flag(root)
+            now = client.status()
+            if not now or now.get("state") not in ("PLAYING", "PAUSED") or proc.poll() is not None:
+                return False
+        probe = prober(client, st, root)
+        return probe is None or probe() is not None
+    except Exception:
+        _trouble(root)
+        return False
+    finally:
+        if proc is not None:
+            close_game(client, proc, 6.0)
+        clear_shots(root)
+
+
+def _attempt(client, root, setup, rom, cfg_path, minutes, rng, unseen, say, head):
+    """One game played and put in its file: None when it is recorded, else why it is not. / Un jeu joué et rangé."""
+    since = time.time()
+    flag(root)
+    clear_shots(root)
+    proc = launch(setup, rom, cfg_path)
+    trace = []
+    try:
+        st = wait_playing(client, 45, proc)
+        if st is None:
+            return tr("ne démarre pas", "does not start")
+        if acked(root, rom, since, 20.0) is None:                 # nobody records / personne n'enregistre
+            return tr("ArcadeDMD ne dit pas qu'il l'enregistre", "ArcadeDMD does not say it records it")
+        say(tr(f"{head} : en cours, {minutes} minute{'s' if minutes > 1 else ''}",
+               f"{head}: playing, {minutes} minute{'s' if minutes > 1 else ''}"))
+        ok = play(client, minutes * 60, rng, alive=lambda: proc.poll() is None, tick=lambda t: flag(root),
+                  shots=not unseen, probe=prober(client, st, root), trace=trace)
+    finally:
+        close_game(client, proc)
+    stick, fps = judged(trace)
+    notes = "" if ok else tr("arrêté avant la fin, ", "stopped early, ")
+    if stick is False:                                            # said, never a reason to stop / dit, jamais un arrêt
+        notes += tr("stick du robot pas vu par le jeu, ", "the robot's stick not seen by the game, ")
+    if fps is not None and not 50 <= fps <= 70:
+        notes += tr(f"{fps:.0f} images par seconde au lieu de 59, ", f"{fps:.0f} frames a second instead of 59, ")
+    count = _result(root, rom, since, say, f"{head} : {notes}")[3]
+    if count < minutes * 60:                                      # less than half its memory / moins de la moitié
+        return tr("pas assez de mémoire enregistrée", "not enough memory recorded")
+    return None
+
+
 def tour(root, cfg, minutes=6, only=None, out=print, unseen=False):
-    """Every game whose ROM is in the folder, a few minutes each. Ctrl+C stops it; started again, it goes on where it
-    stopped. unseen: for a screen that is off, RetroArch without a window and no screenshot (it closes when asked for
+    """Every game whose ROM is in the folder, a few minutes each. Only Ctrl+C stops it; started again, it goes on where
+    it stopped. A game that cannot be played is tried once more at the end of the tour, then left aside. Three games
+    failing in a row are not taken for their own fault: a game recorded before is started, and when it fails too (the
+    screen is off, ArcadeDMD is closed) the tour waits and looks again every five minutes, then takes those games
+    again. unseen: for a screen that is off, RetroArch without a window and no screenshot (it closes when asked for
     one without a video driver); these games keep their place in the tour with the screen on, which plays them again
-    with their screenshots. / Tous les jeux dont la ROM est là, quelques minutes chacun. Relancé, il reprend où il
-    s'est arrêté. unseen : pour un écran éteint, RetroArch sans fenêtre et sans capture d'écran ; ces jeux gardent leur
-    place dans le tour écran allumé, qui les rejoue avec leurs captures."""
+    with their screenshots.
+    / Tous les jeux dont la ROM est là, quelques minutes chacun. Seul Ctrl+C l'arrête ; relancé, il reprend où il
+    s'est arrêté. Un jeu injouable est réessayé une fois à la fin du tour, puis laissé de côté. Trois jeux qui
+    échouent de suite ne sont pas tenus pour fautifs : un jeu déjà enregistré est lancé, et s'il échoue aussi (écran
+    éteint, ArcadeDMD fermé) le tour attend et regarde à nouveau toutes les cinq minutes, puis reprend ces jeux.
+    unseen : pour un écran éteint, RetroArch sans fenêtre et sans capture d'écran ; ces jeux gardent leur place dans
+    le tour écran allumé, qui les rejoue avec leurs captures."""
     say = Report(root, "robot.txt", out)
     setup = load_setup(root)
     if setup is None:
         say(tr("Lance d'abord robot_test.bat, il apprend où sont RetroArch et les ROM.",
                "Run robot_test.bat first, it learns where RetroArch and the ROMs are."))
         return 1
-    games = [g for g in roms(root, setup) if not only or g in only]
+    have = roms(root, setup)
+    games = [g for g in have if not only or g in only]
     key = "unseen" if unseen else "done"
+    known = [g for g in have if g in set(setup.get("done") or []) | set(setup.get("unseen") or [])]
     done = set(setup.get("done") or []) if not only else set()
     if unseen and not only:
         done |= set(setup.get("unseen") or [])                    # with or without its screenshots / avec ou sans
@@ -822,6 +956,8 @@ def tour(root, cfg, minutes=6, only=None, out=print, unseen=False):
                    "Every game is already recorded. Nothing to do with the screen off."))
             return 0
         done, todo = set(), games                                 # all done: a new tour / tout est fait : un nouveau tour
+    aside = set(setup.get("aside") or []) if not only else set()
+    todo = [g for g in todo if g not in aside] + [g for g in todo if g in aside]   # those left aside before come last
     total = len(todo) * (minutes + 0.7)
     long_fr = f"{total / 60:.1f} heures" if total >= 90 else f"{total:.0f} minutes"
     long_en = f"{total / 60:.1f} hours" if total >= 90 else f"{total:.0f} minutes"
@@ -838,8 +974,24 @@ def tour(root, cfg, minutes=6, only=None, out=print, unseen=False):
     client = _client(cfg)
     cfg_path = write_cfg(root, unseen=unseen)
     rng = random.Random()
-    proc = None
-    dead = blind = 0                                              # games in a row not started, or blind to the stick
+    place = {g: i + 1 for i, g in enumerate(todo)}
+    queue = collections.deque(todo)
+    tries = collections.Counter({g: 1 for g in todo if g in aside})   # left aside before: one try / un seul essai
+    streak = []                                                   # the games that failed in a row / échecs de suite
+    left, fresh, waits = [], [], 0                                # fresh: recorded by this tour / enregistrés ici
+    if setup.get("last") in have:
+        known.insert(0, setup["last"])
+
+    def keep():
+        if only:
+            return
+        setup[key] = sorted(set(setup.get(key) or []) | set(fresh)) if unseen else sorted(done)
+        setup["aside"] = sorted(aside)
+        try:
+            save_setup(root, setup)
+        except OSError:
+            pass
+
     awake()
     steady_console()
     try:
@@ -847,82 +999,89 @@ def tour(root, cfg, minutes=6, only=None, out=print, unseen=False):
             say(tr("RetroArch tourne déjà, je le ferme.", "RetroArch is already running, closing it."))
             close_game(client)
             time.sleep(3.0)
-        for i, rom in enumerate(todo, 1):
-            since = time.time()
-            flag(root)
-            clear_shots(root)
-            proc = launch(setup, rom, cfg_path)
-            st = wait_playing(client, 45, proc)
-            if st is None:
-                close_game(client, proc, 6.0)
-                proc = None
-                dead += 1
-                if dead >= 3:                                     # not this game: RetroArch itself / pas ce jeu
-                    say(tr(f"{i}/{len(todo)} {rom} : ne démarre pas, comme les deux jeux d'avant. Tour arrêté, "
-                           "RetroArch ne lance plus les jeux. Envoie runtime\\robot.txt.",
-                           f"{i}/{len(todo)} {rom}: does not start, like the two games before. Tour stopped, RetroArch "
-                           "no longer starts the games. Send runtime\\robot.txt."))
-                    return 1
-                say(tr(f"{i}/{len(todo)} {rom} : ne démarre pas, je passe au suivant (il sera réessayé au prochain lancement)",
-                       f"{i}/{len(todo)} {rom}: does not start, going on with the next (tried again at the next run)"))
-                time.sleep(3.0)
-                continue                                          # not counted as played / pas compté comme joué
-            if acked(root, rom, since) is None:                   # nobody records: no use playing for two days
-                close_game(client, proc, 6.0)
-                say(tr(f"{i}/{len(todo)} {rom} : ArcadeDMD ne dit pas qu'il enregistre ce jeu. Tour arrêté. Il doit "
-                       "tourner depuis ce dossier et dans cette version. Lance ArcadeDMD, puis relance robot.bat.",
-                       f"{i}/{len(todo)} {rom}: ArcadeDMD does not say it records this game. Tour stopped. It must run "
-                       "from this folder and in this version. Start ArcadeDMD, then run robot.bat again."))
-                return 1
-            time.sleep(max(0.0, since + 9.0 - time.time()))       # the BIOS reads the stick once it has started
-            seen = inputs_seen(client, st, root)                  # Neo Geo: the game must see the robot's stick
-            fps = game_speed(client, st, root)                    # and run at its own pace / et tourner à sa vitesse
-            slow = fps is not None and not 50 <= fps <= 70
-            if slow:
-                say(tr(f"    {rom} tourne à {fps:.0f} images par seconde au lieu de 59",
-                       f"    {rom} runs at {fps:.0f} frames a second instead of 59"))
-            blind = blind + 1 if seen is False or slow else 0
-            if blind >= 3:
-                close_game(client, proc, 6.0)
-                say(tr(f"{i}/{len(todo)} {rom} : le jeu ne voit pas le stick du robot ou ne tourne pas à sa vitesse, "
-                       "comme les deux jeux d'avant. Tour arrêté. Envoie runtime\\robot.txt.",
-                       f"{i}/{len(todo)} {rom}: the game does not see the robot's stick or does not run at its pace, "
-                       "like the two games before. Tour stopped. Send runtime\\robot.txt."))
-                return 1
-            say(tr(f"{i}/{len(todo)} {rom} : en cours, {minutes} minutes", f"{i}/{len(todo)} {rom}: playing, {minutes} minutes"))
-            ok = play(client, minutes * 60, rng, alive=lambda: proc.poll() is None, tick=lambda t: flag(root),
-                      shots=not unseen)
-            close_game(client, proc)
-            count = _result(root, rom, since, say, tr(f"{i}/{len(todo)} {'' if ok else 'arrêté avant la fin, '}"
-                                                      f"{'le jeu ne voit pas le stick, ' if seen is False else ''}",
-                                                      f"{i}/{len(todo)} {'' if ok else 'stopped early, '}"
-                                                      f"{'the game does not see the stick, ' if seen is False else ''}"))[3]
-            proc = None
-            if count < minutes * 60:                              # less than half its memory: cut short, not played
-                dead += 1
-                if dead >= 3:
-                    say(tr("Trois jeux de suite coupés avant la moitié ou sans mémoire. Tour arrêté. Envoie "
-                           "runtime\\robot.txt et arcadedmd.log.",
-                           "Three games in a row cut before half or without memory. Tour stopped. Send "
-                           "runtime\\robot.txt and arcadedmd.log."))
-                    return 1
-                say(tr(f"    {rom} sera rejoué au prochain lancement", f"    {rom} will be played again at the next run"))
+        while queue:
+            rom = queue.popleft()
+            head = f"{place[rom]}/{len(todo)} {rom}"
+            try:
+                why = _attempt(client, root, setup, rom, cfg_path, minutes, rng, unseen, say, head)
+            except Exception as e:                                # one game lost, not the tour / un jeu, pas le tour
+                _trouble(root)
+                why = tr(f"erreur imprévue ({type(e).__name__}), notée dans runtime\\robot_crash.log",
+                         f"unforeseen error ({type(e).__name__}), written in runtime\\robot_crash.log")
+            if why is None:
+                streak, waits = [], 0
+                fresh.append(rom)
+                done.add(rom)
+                aside.discard(rom)
+                keep()
                 time.sleep(3.0)
                 continue
-            dead = 0
-            done.add(rom)
-            if not only:
-                setup[key] = sorted(set(setup.get(key) or []) | {rom}) if unseen else sorted(done)
-                save_setup(root, setup)
+            tries[rom] += 1
+            streak.append(rom)
+            if tries[rom] < 2:
+                say(tr(f"{head} : {why}, il sera réessayé à la fin du tour", f"{head}: {why}, tried again at the end of the tour"))
+                queue.append(rom)
+            else:
+                say(tr(f"{head} : {why}, je le laisse de côté", f"{head}: {why}, left aside"))
+                left.append(rom)
+                aside.add(rom)
+                keep()
             time.sleep(3.0)
-        say(tr("Tour fini. Un fichier par jeu dans runtime\\robot.",
-               "Tour over. One file per game in runtime\\robot."))
+            if len(streak) < 3:
+                continue
+            # three in a row: these games, or the screen that went off, ArcadeDMD that was closed?
+            # trois de suite : ces jeux, ou l'écran qui s'est éteint, ArcadeDMD qui a été fermé ?
+            good = [g for g in fresh[::-1] + known[::-1] if g not in streak]
+            good = list(dict.fromkeys(good))[:2]                  # two games that were recorded / deux jeux enregistrés
+            if good:
+                if any(works(client, root, setup, g, cfg_path) for g in good):
+                    streak = []                                   # these games: each keeps what was said of it
+                    continue
+                say(tr(f"{time.strftime('%H:%M')}, trois jeux de suite n'ont pas marché, et {' et '.join(good)}, "
+                       f"{'déjà enregistrés, ne marchent' if len(good) > 1 else 'déjà enregistré, ne marche'} plus non "
+                       "plus. L'écran est éteint, ArcadeDMD est fermé ou les ROM ne sont plus là. J'attends et je "
+                       "regarde toutes les cinq minutes. Je reprends tout seul dès que ça remarche.",
+                       f"{time.strftime('%H:%M')}, three games in a row did not work, and {' and '.join(good)}, "
+                       f"recorded before, {'do' if len(good) > 1 else 'does'} not work any more either. The screen is "
+                       "off, ArcadeDMD is closed or the ROMs are gone. Waiting, and looking every five minutes. The "
+                       "tour goes on by itself as soon as it works again."))
+                while True:
+                    _pause(WAIT)
+                    if any(works(client, root, setup, g, cfg_path) for g in good):
+                        break
+                say(tr(f"{time.strftime('%H:%M')}, ça remarche. Je reprends à {streak[0]}.",
+                       f"{time.strftime('%H:%M')}, it works again. Going on from {streak[0]}."))
+            elif waits < 2:                                       # no game known to work: waits twice, no more
+                waits += 1
+                say(tr("Trois jeux de suite n'ont pas marché. L'écran est-il allumé, ArcadeDMD ouvert ? J'attends "
+                       "cinq minutes et je les reprends.",
+                       "Three games in a row did not work. Is the screen on, ArcadeDMD open? Waiting five minutes, "
+                       "then taking them again."))
+                _pause(WAIT)
+            else:
+                streak = []
+                continue
+            again = list(dict.fromkeys(streak))                   # a game may have failed twice in these three
+            for g in again:                                       # not their fault: as if they had not been tried
+                tries[g] -= streak.count(g)
+                while g in queue:
+                    queue.remove(g)
+                if g in left:
+                    left.remove(g)
+                    if tries[g] < 1:
+                        aside.discard(g)
+            queue.extendleft(reversed(again))
+            streak = []
+            keep()
+        say(tr(f"Tour fini, {len(fresh)} jeu(x) enregistré(s). Un fichier par jeu dans runtime\\robot.",
+               f"Tour over, {len(fresh)} game(s) recorded. One file per game in runtime\\robot."))
+        if left:
+            say(tr(f"Laissés de côté, à vérifier (ROM que FinalBurn Neo n'accepte pas ?) : {', '.join(left)}",
+                   f"Left aside, to check (a ROM FinalBurn Neo does not take?): {', '.join(left)}"))
         return 0
     except KeyboardInterrupt:
         say(tr("Arrêté. Relance robot.bat pour reprendre où il en était.",
                "Stopped. Run robot.bat again to go on where it was."))
-        if proc is not None:
-            close_game(client, proc, 6.0)
         return 0
     finally:
         flag(root, False)

@@ -41,3 +41,6 @@ jobs:
 
       - name: Orders sent to HyperHDR
         run: python tools/lights_check.py
+
+      - name: The robot's tour
+        run: python tools/robot_check.py
