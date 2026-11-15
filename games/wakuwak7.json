@@ -98,10 +98,10 @@
     "note": "player 2 health in %, full = 0xFF"
    },
    "time": {
-    "addr": "0x100B02",
-    "type": "bcd",
-    "bytes": 1,
-    "note": "timer (BCD)"
+    "addr": "0x1066D5",
+    "type": "u8",
+    "max": 99,
+    "note": "timer, from 60 (the robot's recording of 2026-11-15: the number of six screenshots, one less at each second; 0x100B02, read before, counts faster and from higher, 66 when the screen says 40)"
    },
    "score": {
     "addr": "0x100166",

@@ -206,6 +206,8 @@ def judge(name, d, seq, idx, starts, ser):
         other = len(steps) - ones - refill - sum(1 for a, b in zip(r, r[1:]) if b[0] == 0)
         if flat:
             return "BAD", f"always {vals[0]}"
+        if top > 999 and downs >= 20 and ups <= 0.2 * downs:          # not seconds: the scene turns it into the game's number
+            return "", f"a counter that runs down from {top}, not seconds: to check on the sheet with the scene's own rule"
         if ones >= 20 and other <= 0.25 * ones and top <= 999:
             return "ok", f"{ones} seconds counted down, {refill} starts from {top}"
         return "BAD", f"{ones} steps of one second, {other} other changes, top {top}"

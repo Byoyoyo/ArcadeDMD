@@ -37,6 +37,12 @@
     "bytes": 1,
     "note": "seconds of the stage timer (MAME 2003-Plus cheats, Infinite Time)"
    },
+   "time_min": {
+    "addr": "0x107E26",
+    "type": "u8",
+    "valid": [0, 9],
+    "note": "minutes of the stage timer, TIME 1:59 on the screen (the robot's recording of 2026-11-15: 1 on six screenshots that say 1:59 to 1:46, 2 for the instant the timer is set to 2:00)"
+   },
    "lives": {
     "addr": "0x10209D",
     "type": "bcd",
@@ -128,6 +134,7 @@
   "p1_mode": 1,
   "p2_mode": 0,
   "time": 59,
+  "time_min": 1,
   "lives": 2,
   "ammo_auto": 0,
   "ammo_wide": 0,

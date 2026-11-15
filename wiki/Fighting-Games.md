@@ -117,7 +117,7 @@ When a health bar, a timer or a name does not match the screen, run `test_retroa
 | The Last Blade | `lastblad.json` | yes | yes | yes (15) | RetroAchievements, to be checked |
 | The Last Blade 2 | `lastbld2.json` | yes | yes | yes (20) | RetroAchievements, to be checked |
 | Voltage Fighter Gowcaizer | `gowcaizr.json` | yes | yes | yes (12) | to learn |
-| Waku Waku 7 | `wakuwak7.json` | yes | yes | yes (9) | RetroAchievements, to be checked |
+| Waku Waku 7 | `wakuwak7.json` | yes | yes | yes (9) | RetroAchievements, checked on a recording |
 | World Heroes | `wh1.json` | yes | yes | yes (9) | to learn |
 | World Heroes 2 | `wh2.json` | yes | yes | yes (16) | to learn |
 | World Heroes 2 Jet | `wh2j.json` | yes | yes | yes (17) | to learn |

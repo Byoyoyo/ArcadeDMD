@@ -27,7 +27,13 @@
     "addr": "0x104290",
     "type": "bcd",
     "bytes": 1,
-    "note": "seconds of the game time (FinalBurn Neo cheats, Infinite Game Time, to be confirmed in game)"
+    "note": "seconds of the game time (FinalBurn Neo cheats, Infinite Game Time; the robot's recording of 2026-11-15: the seconds of the clock on three screenshots)"
+   },
+   "time_min": {
+    "addr": "0x10428F",
+    "type": "u8",
+    "valid": [0, 9],
+    "note": "minutes of the game time, the byte before the seconds (the robot's recording of 2026-11-15: 2 with 02:36 and 02:57 on the screen, 1 with 01:05; one less each time the seconds go round)"
    },
    "outs_total": {
     "addr": "0x1000C0",
@@ -83,6 +89,7 @@
   "p1_mode": 1,
   "p2_mode": 0,
   "time": 59,
+  "time_min": 2,
   "outs_total": 0,
   "sim": {
    "time": {

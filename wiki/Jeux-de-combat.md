@@ -117,7 +117,7 @@ Quand une barre de vie, un chrono ou un nom ne colle pas à l'écran, lance `tes
 | The Last Blade | `lastblad.json` | oui | oui | oui (15) | RetroAchievements, à vérifier |
 | The Last Blade 2 | `lastbld2.json` | oui | oui | oui (20) | RetroAchievements, à vérifier |
 | Voltage Fighter Gowcaizer | `gowcaizr.json` | oui | oui | oui (12) | à apprendre |
-| Waku Waku 7 | `wakuwak7.json` | oui | oui | oui (9) | RetroAchievements, à vérifier |
+| Waku Waku 7 | `wakuwak7.json` | oui | oui | oui (9) | RetroAchievements, vérifié sur un enregistrement |
 | World Heroes | `wh1.json` | oui | oui | oui (9) | à apprendre |
 | World Heroes 2 | `wh2.json` | oui | oui | oui (16) | à apprendre |
 | World Heroes 2 Jet | `wh2j.json` | oui | oui | oui (17) | à apprendre |

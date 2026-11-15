@@ -485,7 +485,8 @@ class BluesJourneyScene(CyberLipScene):
             self.text(screen, f"x{int(lives)}", S(380), S(30), 28, WHITE, key="black", valign="middle")
         t = _n(vals.get("time"))
         if t is not None:
-            self.text(screen, f"TIME={int(t) // 60}", S(440), S(30), 28, (190, 210, 255), key="black", valign="middle")
+            # 48 to a unit of the game's TIME= (read on screenshots of a recorded game) / 48 par unité du TIME= du jeu
+            self.text(screen, f"TIME={int(t) // 48}", S(440), S(30), 28, (190, 210, 255), key="black", valign="middle")
         self.text(screen, "LIFE", S(28), S(76), 24, WHITE, key="black", valign="middle")
         e = _n(vals.get("energy"))
         if e is not None:

@@ -325,7 +325,8 @@ class BaseballStarsProScene(BaseballScene):
                 pg.draw.circle(screen, col if on else (60, 60, 70), (int(bx + S(80) + i * S(40)), int(ry)), S(13))
         t = _n(vals.get("time"))
         if t is not None:
-            self.label(screen, f"0:{int(t):02d}", S(120), S(170), 30, WHITE, key="black", align="center")
+            m = _n(vals.get("time_min"))                               # the minutes read in the game / lues dans le jeu
+            self.label(screen, f"{0 if m is None else int(m)}:{int(t):02d}", S(120), S(170), 30, WHITE, key="black", align="center")
 
 
 class Baseball2020Scene(BaseballScene):
@@ -354,7 +355,8 @@ class Baseball2020Scene(BaseballScene):
         self.text(screen, "1P - CPU", x + S(110), y + S(66), 26, WHITE, key="black", align="center", valign="middle")
         t = _n(vals.get("time"))
         if t is not None:
-            self.text(screen, f"01:{int(t):02d}", x + S(110), y + S(108), 28, (250, 230, 120), key="stencil", align="center", valign="middle")
+            m = _n(vals.get("time_min"))                               # the minutes read in the game / lues dans le jeu
+            self.text(screen, f"{1 if m is None else int(m):02d}:{int(t):02d}", x + S(110), y + S(108), 28, (250, 230, 120), key="stencil", align="center", valign="middle")
 
 
 # ============================================================================ Top Player's Golf
