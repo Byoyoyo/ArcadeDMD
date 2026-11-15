@@ -75,6 +75,11 @@
     "max": 100,
     "note": "player 2 health in %, full = 0xFF; read as a signed 16-bit word since 1.31.1 (the game writes it as a word, 0x00FF full (MAME cheat, MOVE.W #$00FF)): a K.O. below zero reads empty, it read full by its low byte (K.O. audit)"
    },
+   "_time": {
+    "addr": "0x1099F4",
+    "type": "u8",
+    "note": "the timer, from 60 (the robot's recording of 2026-11-15: the only byte that holds the number of six screenshots). Read but not shown yet: it starts fifteen seconds after the life bars are set, which the fight engine takes for a second ROUND 1"
+   },
    "score": {
     "addr": "",
     "type": "bcd",

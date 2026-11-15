@@ -59,6 +59,12 @@
     "type": "u8",
     "note": "BIOS_MVS_FLAG: 0 home console (AES, no coins), otherwise arcade (MVS)"
    },
+   "_time": {
+    "addr": "0x1084A8",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "the timer (BCD), from 60 (the robot's recording of 2026-11-15: the only byte that holds the number of six screenshots). Read but not shown yet: without the life bars, not found yet, the fight engine would announce ROUND 1 at every round"
+   },
    "score": {
     "addr": "",
     "type": "bcd",
