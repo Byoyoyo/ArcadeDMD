@@ -889,6 +889,7 @@ def tour(root, cfg, minutes=6, only=None, out=print, unseen=False):
                        f"{i}/{len(todo)} {rom}: the game does not see the robot's stick or does not run at its pace, "
                        "like the two games before. Tour stopped. Send runtime\\robot.txt."))
                 return 1
+            say(tr(f"{i}/{len(todo)} {rom} : en cours, {minutes} minutes", f"{i}/{len(todo)} {rom}: playing, {minutes} minutes"))
             ok = play(client, minutes * 60, rng, alive=lambda: proc.poll() is None, tick=lambda t: flag(root),
                       shots=not unseen)
             close_game(client, proc)
