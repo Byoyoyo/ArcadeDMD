@@ -32,6 +32,7 @@ import traceback
 import zipfile
 
 from .i18n import tr
+from .memvalues import game_values, parse_addr
 from .retroarch import RetroArchClient, layout_for
 
 JOYPAD = 1                                    # RETRO_DEVICE_JOYPAD
@@ -328,7 +329,7 @@ def _small(path):
         return None
 
 
-def bundle(root, rom, since, wait=8.0):
+def bundle(root, rom, since, wait=8.0, sub=""):
     """One file per game: what ArcadeDMD recorded since the game started and the screenshots RetroArch took, in
     runtime/robot/<game>.zip. Returns (the path, recordings, screenshots, memory recorded). The screenshots are then
     removed from their folder, the recordings stay in runtime/captures. / Un fichier par jeu."""
@@ -346,8 +347,8 @@ def bundle(root, rom, since, wait=8.0):
         shots = sorted(n for n in os.listdir(sdir) if n.lower().endswith((".png", ".bmp", ".jpg")))
     except OSError:
         shots = []
-    out = os.path.join(root, "runtime", "robot")
-    os.makedirs(out, exist_ok=True)
+    out = os.path.join(root, "runtime", "robot", sub) if sub else os.path.join(root, "runtime", "robot")
+    os.makedirs(out, exist_ok=True)                               # sub: the files of another tour, kept apart
     path = os.path.join(out, rom + ".zip")
     try:
         with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as z:
@@ -492,15 +493,231 @@ def close_game(client, proc=None, wait=12.0):
     return False
 
 
+WIN_TICK = 0.3            # seconds between two looks at the fight / entre deux regards au combat
+WIN_COUNT = 3             # seconds a round is let run before its clock is run out / secondes de round avant la fin du chrono
+WIN_LOW = 10              # the opponent's life is kept at one part in so many / la vie adverse gardée à un dixième
+WIN_DEAF = 10             # looks where a write did not hold before giving up / écritures sans effet avant d'abandonner
+
+
+def _tag_names(spec, out):
+    """Every name a tag reads. / Tous les noms lus par un tag."""
+    if isinstance(spec, str):
+        out.add(spec)
+    elif isinstance(spec, list):
+        for x in spec:
+            _tag_names(x, out)
+    elif isinstance(spec, dict):
+        for k, x in spec.items():
+            if k not in ("note", "names"):
+                _tag_names(x, out)
+    return out
+
+
+class Winner:
+    """Makes player 1 win its fights, so that the robot crosses a game from its first opponent to its last and meets
+    every fighter and every stage (the second tour, 1.39). While a round is fought, player 1's life is put back to
+    the highest it was in the round, the opponent's is kept at a tenth, and the clock is run out once it has counted
+    three seconds: the fighter with more life wins. Only what the game's file reads is written (the two life bars and
+    the timer), at the place it is read, and only while both fighters stand and the BIOS says player 1 plays. Where
+    the file works a life out from several (the computer's or player 2's), the one it picks at that moment is the one
+    written. A game whose life bars the file does not know, or where a write does not hold, is played as in the first
+    tour.
+
+    Fait gagner ses combats au joueur 1, pour que le robot traverse un jeu de son premier adversaire au dernier et
+    rencontre chaque combattant et chaque stage. Pendant un round, la vie du joueur 1 est remise au plus haut qu'elle
+    a eu dans le round, celle de l'adversaire est gardée à un dixième, et le chrono est mis à sa fin dès qu'il a
+    compté trois secondes : celui qui a le plus de vie gagne. Seul ce que le fichier du jeu lit est écrit (les deux
+    barres de vie et le chrono), là où c'est lu, et seulement tant que les deux combattants sont debout et que le
+    BIOS dit que le joueur 1 joue. Quand le fichier calcule une vie à partir de plusieurs (celle de l'ordinateur ou
+    du joueur 2), celle qu'il choisit à cet instant est celle qui est écrite. Un jeu dont le fichier ne connaît pas
+    les barres, ou qui ne garde pas une écriture, est joué comme au premier tour."""
+
+    SIDES = ("health", "health_p2")
+    ALONE = {"p1_mode": 1, "p2_mode": 0}                          # player 1 against the computer / contre l'ordinateur
+
+    def __init__(self, client, layout, game, system=""):
+        self.client, self.lay = client, layout
+        g = game if isinstance(game, dict) else {}
+        vals = game_values(g, system)
+        self.tag = {k: v for k, v in (g.get("tag") or {}).items() if isinstance(v, dict)} if isinstance(g.get("tag"), dict) else {}
+        read = set(self.SIDES)
+        for side in self.SIDES:
+            _tag_names(self.tag.get(side), read)
+        self.cands = {}                                           # name -> where and how a life is read
+        for name in sorted(read):
+            bar = self._bar(vals.get(name))
+            if bar is not None:
+                self.cands[name] = bar
+        t = vals.get("time")
+        ok = isinstance(t, dict) and parse_addr(t.get("addr")) is not None and t.get("ptr") is None
+        self.clock = t if ok and (t.get("type") or "u8").lower() in ("u8", "bcd") and (t.get("bytes") or 1) == 1 else None
+        self.bios = layout.contains(0x10FDAE, 0x10FDB7)            # a Neo Geo: its BIOS says who plays / qui joue
+        self.cur = self._pick(self.ALONE)
+        self.ready = all(b is not None for b in self.cur)
+        self.rounds = self.wins = self.written = 0
+        self.off = None               # why nothing is written any more / pourquoi plus rien n'est écrit
+        self.on = False               # a round is being fought / un round est en cours
+        self.top = [0, 0]             # the highest life read in this round / la plus haute vie lue dans ce round
+        self.last = None
+        self.t_top = self.t_prev = None
+        self.deaf = 0
+        self.asked = False
+
+    @staticmethod
+    def _bar(d):
+        if not isinstance(d, dict) or not d.get("addr") or d.get("mame_only") or d.get("mask") is not None or d.get("shift"):
+            return None
+        kind = (d.get("type") or "u8").lower()
+        size = 2 if kind in ("u16", "s16") or (kind == "be" and d.get("bytes") == 2) else 1 if kind == "u8" else 0
+        mult = d.get("mult")
+        if not size or isinstance(mult, bool) or not isinstance(mult, (int, float)) or mult <= 0 or parse_addr(d.get("addr")) is None:
+            return None
+        full = round((100 - (d.get("add") or 0)) / mult)
+        if full < 8:
+            return None
+        rng = d.get("ptr_range") if isinstance(d.get("ptr_range"), list) and len(d.get("ptr_range")) == 2 else None
+        return {"addr": parse_addr(d.get("addr")), "ptr": parse_addr(d.get("ptr")), "size": size, "signed": kind == "s16",
+                "range": (parse_addr(rng[0]), parse_addr(rng[1])) if rng else None,
+                "cap": int(full * 1.3) + 1, "zero": parse_addr(d.get("zero_from"))}
+
+    def _pick(self, modes):
+        """The life the file reads for each side right now: its tags are worked out with each life's own name in the
+        place of its value, as the engine works them out. / La vie que le fichier lit pour chaque côté à cet instant."""
+        from .memvalues import resolve_value
+        values = {name: name for name in self.cands}
+        values.update(modes)
+        for k, spec in self.tag.items():
+            try:
+                v = resolve_value(spec, values)
+            except Exception:
+                v = None
+            if v is not None:
+                values[k] = v
+        return [self.cands.get(values.get(side)) if isinstance(values.get(side), str) else None for side in self.SIDES]
+
+    def _look(self):
+        """(where and what each life is, the clock, does player 1 play), or None when RetroArch does not answer.
+        / (où et combien vaut chaque vie, le chrono, le joueur 1 joue-t-il), ou None."""
+        spans = [(0x10FDAE, 0x10FDB7)] if self.bios else []
+        if self.clock:
+            a = parse_addr(self.clock["addr"])
+            spans.append((a, a))
+        for b in self.cands.values():
+            spans.append((b["ptr"], b["ptr"] + 3) if b["ptr"] is not None else (b["addr"], b["addr"] + b["size"] - 1))
+        got = self.lay.read_cpu_many(self.client, spans, True)
+        if got is None:
+            return None
+
+        def cell(a, n):
+            for base, data in got:
+                if base <= a and a + n <= base + len(data):
+                    return int.from_bytes(data[a - base:a - base + n], "big")
+            return None
+        modes, plays = self.ALONE, True
+        if self.bios:
+            modes = {"p1_mode": cell(0x10FDB6, 1), "p2_mode": cell(0x10FDB7, 1)}
+            plays = modes["p1_mode"] == 1 and cell(0x10FDAF, 1) == 2
+        clock = None
+        if self.clock:
+            raw = cell(parse_addr(self.clock["addr"]), 1)
+            if (self.clock.get("type") or "u8").lower() == "bcd":
+                clock = (raw >> 4) * 10 + (raw & 15) if (raw >> 4) <= 9 and (raw & 15) <= 9 else None
+            else:
+                clock = raw
+        self.cur = self._pick(modes)
+        out = []
+        for b in self.cur:
+            if b is None:
+                out.append((None, None))
+                continue
+            if b["ptr"] is not None:                              # an object that moves: read where it points
+                where = cell(b["ptr"], 4) & 0xFFFFFF
+                if b["range"] and not b["range"][0] <= where <= b["range"][1]:
+                    out.append((None, None))
+                    continue
+                addr = where + b["addr"]
+                r = self.lay.read_cpu(self.client, addr, addr + b["size"] - 1)
+                v = int.from_bytes(r[1][addr - r[0]:addr - r[0] + b["size"]], "big") if r is not None else None
+            else:
+                addr, v = b["addr"], cell(b["addr"], b["size"])
+            if v is not None and b["signed"] and v >= 0x8000:
+                v -= 0x10000
+            out.append((addr, v))
+        return out, clock, plays
+
+    def _stands(self, k, v):
+        b = self.cur[k]
+        return b is not None and v is not None and 0 < v <= b["cap"] and (b["zero"] is None or v < b["zero"])
+
+    def _set(self, k, addr, v):
+        self.written += 1
+        b = self.cur[k]
+        return self.lay.write_cpu(self.client, addr, int(v).to_bytes(b["size"], "big", signed=b["signed"]))
+
+    def _end(self):
+        if self.on:
+            self.on = False
+            if self.last is not None and self.last[0] > self.last[1]:
+                self.wins += 1
+        self.asked = False
+
+    def tick(self, now):
+        """One look at the fight, and what it takes to keep player 1 ahead. / Un regard au combat."""
+        if self.off or not self.ready:
+            return
+        try:
+            self._tick()
+        except Exception as e:                                    # a game that does not fit: played as it is
+            self.off = tr(f"erreur {type(e).__name__}", f"error {type(e).__name__}")
+
+    def _tick(self):
+        look = self._look()
+        if look is None:
+            return self._end()
+        ((a1, h1), (a2, h2)), clock, plays = look
+        fought = plays and self._stands(0, h1) and self._stands(1, h2) \
+            and (self.clock is None or (clock is not None and 1 <= clock <= 999))
+        if not fought:
+            return self._end()
+        if self.on and clock is not None and self.t_prev is not None and clock > self.t_prev + 1:
+            self._end()                                           # the clock set again: another round / un autre round
+        if not self.on:
+            self.on = True
+            self.rounds += 1
+            self.top = [h1, h2]
+            self.t_top = clock
+            self.deaf = 0
+        self.t_prev = clock
+        self.top = [max(self.top[0], h1), max(self.top[1], h2)]
+        self.last = (h1, h2)
+        if h1 < self.top[0]:
+            self._set(0, a1, self.top[0])
+        low = max(1, self.top[1] // WIN_LOW)
+        if h2 > low:
+            if self.asked:                                        # asked at the last look, and still above
+                self.deaf += 1
+                if self.deaf >= WIN_DEAF:
+                    self.off = tr("le jeu ne garde pas ce que j'écris", "the game does not keep what is written")
+                    return
+            self._set(1, a2, low)
+            self.asked = True
+        else:
+            self.asked = False
+            self.deaf = 0
+        if self.clock and clock > 1 and self.t_top is not None and self.t_top - clock >= WIN_COUNT:
+            self.written += 1
+            self.lay.write_cpu(self.client, parse_addr(self.clock["addr"]), [1])
+
+
 def play(client, seconds, rng, base=BASE_PORT, two_from=0.7, alive=None, tick=None, shots=True, probe=None,
-         trace=None):
+         trace=None, winner=None):
     """Plays the game that runs: a coin, START, then at random; a second player joins for the last part; a screenshot
     asked of RetroArch every ten seconds. Returns False when RetroArch stopped answering.
     / Joue le jeu en cours : une pièce, START, puis au hasard, une capture d'écran toutes les dix secondes."""
     p1, p2 = RemotePad(1, base=base), RemotePad(2, base=base)
     one, two = Player(p1, rng), Player(p2, rng)
     t0 = time.monotonic()
-    coin_t = seen_t = t0
+    coin_t = seen_t = win_t = t0
     shot_t = t0 + 8.0
     ok = True
     try:
@@ -518,6 +735,8 @@ def play(client, seconds, rng, base=BASE_PORT, two_from=0.7, alive=None, tick=No
             if now >= coin_t + 20.0:                              # a coin now and then: CONTINUE / une pièce : CONTINUE
                 coin_t = now
                 p1.tap(SELECT, 0.15)
+                if joined and two_from <= 0:                      # two players from the start: the second stays too
+                    p2.tap(SELECT, 0.15)
             one.step(now)
             if now - t0 >= seconds * two_from:                    # the second player joins / le deuxième joueur arrive
                 if not joined:
@@ -526,6 +745,9 @@ def play(client, seconds, rng, base=BASE_PORT, two_from=0.7, alive=None, tick=No
                     time.sleep(0.5)
                     p2.tap(START, 0.15)
                 two.step(now)
+            if winner is not None and now >= win_t:               # player 1 kept ahead / le joueur 1 gardé devant
+                win_t = now + WIN_TICK
+                winner.tick(now)
             if shots and now >= shot_t:
                 shot_t = now + SHOT_EVERY
                 client.send("SCREENSHOT")
@@ -551,17 +773,21 @@ def play(client, seconds, rng, base=BASE_PORT, two_from=0.7, alive=None, tick=No
 _LIBRARY = {}
 
 
-def _layout(st, root):
-    """Where the game's memory is, as ArcadeDMD knows the game. / Où est la mémoire du jeu."""
+def _game(st, root):
+    """The game that runs, as ArcadeDMD knows it: its file, or None. / Le jeu en cours, tel qu'ArcadeDMD le connaît."""
     from .app import GameLibrary
     from .retroarch import resolve
     try:
         if root not in _LIBRARY:
             _LIBRARY[root] = GameLibrary(root, lambda m: None).games
-        game = resolve(_LIBRARY[root], st.get("content") or "", st.get("system") or "")[1]
+        return resolve(_LIBRARY[root], st.get("content") or "", st.get("system") or "")[1]
     except Exception:
-        game = None
-    return layout_for(game, st.get("system") or "")
+        return None
+
+
+def _layout(st, root):
+    """Where the game's memory is, as ArcadeDMD knows the game. / Où est la mémoire du jeu."""
+    return layout_for(_game(st, root), st.get("system") or "")
 
 
 def game_speed(client, st, root, wait=1.0, tries=4):
@@ -651,8 +877,9 @@ def inputs_seen(client, st, root):
         pad.close()
 
 
-def roms(root, setup):
-    """The games of ArcadeDMD whose ROM is in the folder, the fighting games first. / Les jeux dont la ROM est là."""
+def roms(root, setup, fights=False):
+    """The games of ArcadeDMD whose ROM is in the folder, the fighting games first; fights: those alone.
+    / Les jeux dont la ROM est là, les jeux de combat d'abord ; fights : eux seuls."""
     out = []
     ext = setup.get("ext", ".zip")
     for name in sorted(os.listdir(os.path.join(root, "games"))):
@@ -667,7 +894,7 @@ def roms(root, setup):
         if isinstance(g, dict) and isinstance(g.get("memory"), dict):
             fight = isinstance(g.get("scene_from"), str) and "combat" in g["scene_from"]
             out.append((0 if fight else 1, key))
-    return [k for _, k in sorted(out)]
+    return [k for kind, k in sorted(out) if kind == 0 or not fights]
 
 
 class Report:
@@ -720,10 +947,10 @@ def snapshots(path):
     return n
 
 
-def _result(root, rom, since, say, head=""):
+def _result(root, rom, since, say, head="", sub=""):
     """Puts the game's recording in its file and says what it holds. / Range l'enregistrement du jeu et dit ce qu'il a."""
-    path, files, shots, ram = bundle(root, rom, since)
-    name = os.path.join("runtime", "robot", os.path.basename(path))
+    path, files, shots, ram = bundle(root, rom, since, sub=sub)
+    name = os.path.join("runtime", "robot", sub, os.path.basename(path)) if sub else os.path.join("runtime", "robot", os.path.basename(path))
     count = snapshots(path) if ram else 0
     if not files:
         say(tr(f"{head}ArcadeDMD n'a rien enregistré. Est-il lancé ? ({shots} captures d'écran dans {name})",
@@ -765,7 +992,7 @@ def test(root, cfg, wait=300, seconds=120, out=print):
                        "Cannot tell how RetroArch was started (its program, its core, the ROM folder). Test stopped."))
                 return 1
             if found is not None:
-                for k in ("done", "unseen", "aside"):             # what the tour knows stays known / reste su
+                for k in ("done", "unseen", "aside", "won", "aside_won"):   # what the tours know stays known
                     if setup is not None and setup.get(k):
                         found[k] = setup[k]
                 setup = found
@@ -891,8 +1118,14 @@ def works(client, root, setup, rom, cfg_path, seconds=15.0):
         clear_shots(root)
 
 
-def _attempt(client, root, setup, rom, cfg_path, minutes, rng, unseen, say, head):
-    """One game played and put in its file: None when it is recorded, else why it is not. / Un jeu joué et rangé."""
+def _attempt(client, root, setup, rom, cfg_path, minutes, rng, unseen, say, head, win=False, state=None):
+    """One game played and put in its file: None when it is recorded, else why it is not. win: player 1 is made to
+    win its fights and no second player comes in. state: what the second tour remembers from a game to the next;
+    "versus" in it: nothing is written, two players play from the start instead.
+    / Un jeu joué et rangé. win : le joueur 1 gagne ses combats et le deuxième joueur ne vient pas. state : ce que le
+    deuxième tour retient d'un jeu à l'autre ; avec "versus", rien n'est écrit, deux joueurs jouent dès le début."""
+    state = state if isinstance(state, dict) else {}
+    versus = win and bool(state.get("versus"))
     since = time.time()
     flag(root)
     clear_shots(root)
@@ -906,36 +1139,58 @@ def _attempt(client, root, setup, rom, cfg_path, minutes, rng, unseen, say, head
             return tr("ArcadeDMD ne dit pas qu'il l'enregistre", "ArcadeDMD does not say it records it")
         say(tr(f"{head} : en cours, {minutes} minute{'s' if minutes > 1 else ''}",
                f"{head}: playing, {minutes} minute{'s' if minutes > 1 else ''}"))
+        champ = Winner(client, _layout(st, root), _game(st, root), st.get("system") or "") if win and not versus else None
         ok = play(client, minutes * 60, rng, alive=lambda: proc.poll() is None, tick=lambda t: flag(root),
-                  shots=not unseen, probe=prober(client, st, root), trace=trace)
+                  shots=not unseen, probe=prober(client, st, root), trace=trace, winner=champ,
+                  two_from=0.0 if versus else 2.0 if win else 0.7)
     finally:
         close_game(client, proc)
     stick, fps = judged(trace)
     notes = "" if ok else tr("arrêté avant la fin, ", "stopped early, ")
+    if versus:
+        notes += tr("à deux joueurs, ", "two players, ")
+    if champ is not None:
+        if not champ.ready:
+            notes += tr("barres de vie inconnues, joué sans gagner, ", "life bars not known, played without winning, ")
+        elif champ.off:
+            notes += tr(f"{champ.wins} rounds gagnés puis {champ.off}, ", f"{champ.wins} rounds won, then {champ.off}, ")
+        else:
+            notes += tr(f"{champ.wins} rounds gagnés, ", f"{champ.wins} rounds won, ")
+        if champ.ready:                                           # three games in a row that keep no write: not them
+            state["deaf"] = state.get("deaf", 0) + 1 if champ.off and champ.wins == 0 else 0
+            if state["deaf"] >= 3:
+                state["versus"] = True
+                say(tr("Trois jeux de suite n'ont rien gardé de ce que j'écris : RetroArch ne prend pas mes écritures. "
+                       "Je continue le tour à deux joueurs, sans rien écrire, pour rencontrer plus de combattants.",
+                       "Three games in a row kept nothing of what is written: RetroArch does not take the writes. The "
+                       "tour goes on with two players, writing nothing, to meet more fighters."))
     if stick is False:                                            # said, never a reason to stop / dit, jamais un arrêt
         notes += tr("stick du robot pas vu par le jeu, ", "the robot's stick not seen by the game, ")
     if fps is not None and not 50 <= fps <= 70:
         notes += tr(f"{fps:.0f} images par seconde au lieu de 59, ", f"{fps:.0f} frames a second instead of 59, ")
-    count = _result(root, rom, since, say, f"{head} : {notes}")[3]
+    count = _result(root, rom, since, say, f"{head} : {notes}", "win" if win else "")[3]
     if count < minutes * 60:                                      # less than half its memory / moins de la moitié
         return tr("pas assez de mémoire enregistrée", "not enough memory recorded")
     return None
 
 
-def tour(root, cfg, minutes=6, only=None, out=print, unseen=False):
+def tour(root, cfg, minutes=6, only=None, out=print, unseen=False, win=False):
     """Every game whose ROM is in the folder, a few minutes each. Only Ctrl+C stops it; started again, it goes on where
     it stopped. A game that cannot be played is tried once more at the end of the tour, then left aside. Three games
     failing in a row are not taken for their own fault: a game recorded before is started, and when it fails too (the
     screen is off, ArcadeDMD is closed) the tour waits and looks again every five minutes, then takes those games
     again. unseen: for a screen that is off, RetroArch without a window and no screenshot (it closes when asked for
     one without a video driver); these games keep their place in the tour with the screen on, which plays them again
-    with their screenshots.
+    with their screenshots. win: the second tour, the fighting games alone, player 1 made to win so that each game
+    is crossed to its end (Winner); its files go to runtime/robot/win and its list is its own.
     / Tous les jeux dont la ROM est là, quelques minutes chacun. Seul Ctrl+C l'arrête ; relancé, il reprend où il
     s'est arrêté. Un jeu injouable est réessayé une fois à la fin du tour, puis laissé de côté. Trois jeux qui
     échouent de suite ne sont pas tenus pour fautifs : un jeu déjà enregistré est lancé, et s'il échoue aussi (écran
     éteint, ArcadeDMD fermé) le tour attend et regarde à nouveau toutes les cinq minutes, puis reprend ces jeux.
     unseen : pour un écran éteint, RetroArch sans fenêtre et sans capture d'écran ; ces jeux gardent leur place dans
-    le tour écran allumé, qui les rejoue avec leurs captures."""
+    le tour écran allumé, qui les rejoue avec leurs captures. win : le deuxième tour, les jeux de combat seuls, le
+    joueur 1 gagne pour que chaque jeu soit traversé jusqu'au bout ; ses fichiers vont dans runtime/robot/win et sa
+    liste est la sienne."""
     say = Report(root, "robot.txt", out)
     setup = load_setup(root)
     if setup is None:
@@ -943,10 +1198,11 @@ def tour(root, cfg, minutes=6, only=None, out=print, unseen=False):
                "Run robot_test.bat first, it learns where RetroArch and the ROMs are."))
         return 1
     have = roms(root, setup)
-    games = [g for g in have if not only or g in only]
-    key = "unseen" if unseen else "done"
-    known = [g for g in have if g in set(setup.get("done") or []) | set(setup.get("unseen") or [])]
-    done = set(setup.get("done") or []) if not only else set()
+    games = [g for g in (roms(root, setup, True) if win else have) if not only or g in only]
+    key = "won" if win else "unseen" if unseen else "done"
+    side = "aside_won" if win else "aside"
+    known = [g for g in have if g in set(setup.get("done") or []) | set(setup.get("unseen") or []) | set(setup.get("won") or [])]
+    done = set(setup.get(key if win else "done") or []) if not only else set()
     if unseen and not only:
         done |= set(setup.get("unseen") or [])                    # with or without its screenshots / avec ou sans
     todo = [g for g in games if g not in done]
@@ -956,12 +1212,17 @@ def tour(root, cfg, minutes=6, only=None, out=print, unseen=False):
                    "Every game is already recorded. Nothing to do with the screen off."))
             return 0
         done, todo = set(), games                                 # all done: a new tour / tout est fait : un nouveau tour
-    aside = set(setup.get("aside") or []) if not only else set()
+    aside = set(setup.get(side) or []) if not only else set()
     todo = [g for g in todo if g not in aside] + [g for g in todo if g in aside]   # those left aside before come last
     total = len(todo) * (minutes + 0.7)
     long_fr = f"{total / 60:.1f} heures" if total >= 90 else f"{total:.0f} minutes"
     long_en = f"{total / 60:.1f} hours" if total >= 90 else f"{total:.0f} minutes"
-    if unseen:
+    if win:
+        say(tr(f"Deuxième tour, le robot gagne ses combats : {len(todo)} jeu(x) de combat, {minutes} minute(s) chacun, "
+               f"environ {long_fr}. L'écran doit rester allumé. Ctrl+C pour arrêter.",
+               f"Second tour, the robot wins its fights: {len(todo)} fighting game(s), {minutes} minute(s) each, about "
+               f"{long_en}. The screen must stay on. Ctrl+C to stop."))
+    elif unseen:
         say(tr(f"Tour du robot écran éteint : {len(todo)} jeu(x), {minutes} minute(s) chacun, environ {long_fr}. "
                "RetroArch tourne sans fenêtre, la mémoire est enregistrée, sans captures d'écran. Ctrl+C pour arrêter.",
                f"Robot tour, screen off: {len(todo)} game(s), {minutes} minute(s) each, about {long_en}. RetroArch "
@@ -979,6 +1240,7 @@ def tour(root, cfg, minutes=6, only=None, out=print, unseen=False):
     tries = collections.Counter({g: 1 for g in todo if g in aside})   # left aside before: one try / un seul essai
     streak = []                                                   # the games that failed in a row / échecs de suite
     left, fresh, waits = [], [], 0                                # fresh: recorded by this tour / enregistrés ici
+    memo = {}                                                     # what the second tour remembers between games
     if setup.get("last") in have:
         known.insert(0, setup["last"])
 
@@ -986,7 +1248,7 @@ def tour(root, cfg, minutes=6, only=None, out=print, unseen=False):
         if only:
             return
         setup[key] = sorted(set(setup.get(key) or []) | set(fresh)) if unseen else sorted(done)
-        setup["aside"] = sorted(aside)
+        setup[side] = sorted(aside)
         try:
             save_setup(root, setup)
         except OSError:
@@ -1003,7 +1265,7 @@ def tour(root, cfg, minutes=6, only=None, out=print, unseen=False):
             rom = queue.popleft()
             head = f"{place[rom]}/{len(todo)} {rom}"
             try:
-                why = _attempt(client, root, setup, rom, cfg_path, minutes, rng, unseen, say, head)
+                why = _attempt(client, root, setup, rom, cfg_path, minutes, rng, unseen, say, head, win, memo)
             except Exception as e:                                # one game lost, not the tour / un jeu, pas le tour
                 _trouble(root)
                 why = tr(f"erreur imprévue ({type(e).__name__}), notée dans runtime\\robot_crash.log",
@@ -1073,15 +1335,16 @@ def tour(root, cfg, minutes=6, only=None, out=print, unseen=False):
             queue.extendleft(reversed(again))
             streak = []
             keep()
-        say(tr(f"Tour fini, {len(fresh)} jeu(x) enregistré(s). Un fichier par jeu dans runtime\\robot.",
-               f"Tour over, {len(fresh)} game(s) recorded. One file per game in runtime\\robot."))
+        where = "runtime\\robot\\win" if win else "runtime\\robot"
+        say(tr(f"Tour fini, {len(fresh)} jeu(x) enregistré(s). Un fichier par jeu dans {where}.",
+               f"Tour over, {len(fresh)} game(s) recorded. One file per game in {where}."))
         if left:
             say(tr(f"Laissés de côté, à vérifier (ROM que FinalBurn Neo n'accepte pas ?) : {', '.join(left)}",
                    f"Left aside, to check (a ROM FinalBurn Neo does not take?): {', '.join(left)}"))
         return 0
     except KeyboardInterrupt:
-        say(tr("Arrêté. Relance robot.bat pour reprendre où il en était.",
-               "Stopped. Run robot.bat again to go on where it was."))
+        bat = "robot_win.bat" if win else "robot.bat"
+        say(tr(f"Arrêté. Relance {bat} pour reprendre où il en était.", f"Stopped. Run {bat} again to go on where it was."))
         return 0
     finally:
         flag(root, False)

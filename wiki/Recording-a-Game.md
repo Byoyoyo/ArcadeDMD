@@ -41,6 +41,8 @@ While the robot plays, RetroArch runs in a window, without sound and without rea
 
 `robot_screen_off.bat` is the same tour for a screen that is off, at night for instance. RetroArch runs without any window and the memory is recorded, but without screenshots: RetroArch closes when asked for one without a video driver. The games played that way are played again, with their screenshots, by `robot.bat`.
 
+`robot_win.bat` is a second tour, for the fighting games alone, ten minutes each (1.39). The robot of the first tour loses quickly and meets three to five fighters and two to four stages of a game. In this one it wins its fights, so that it crosses each game from its first opponent to its last. While a round is fought it writes three things in the game's memory, where the game's file reads them: player 1's life, put back to the highest it had in the round, the opponent's, kept at a tenth, and the timer, run out once it has counted three seconds. Nothing is written outside a round, and never in a game played by hand. A game whose life bars the file does not know is played as in the first tour, and when RetroArch does not take the writes the tour goes on with two robot players, who meet more fighters than one. Its files go to `runtime\robot\win`, its list of games done is its own, and it is stopped and started again like the first.
+
 RetroArch's own settings are not changed, and the games the robot plays stay out of its history. The robot's settings are in `runtime\robot.cfg`, given to RetroArch on its command line.
 
 ## Tools for the curious

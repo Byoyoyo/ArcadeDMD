@@ -37,6 +37,7 @@ Usage :
   python arcadedmd.py robot-test       le robot joue un jeu deux minutes : RetroArch prend-il ses touches ?
   python arcadedmd.py robot [MINUTES]  le robot joue tous les jeux dont la ROM est là, pour enregistrer leur mémoire
   python arcadedmd.py robot --unseen   le même tour écran éteint : RetroArch sans fenêtre, sans captures d'écran
+  python arcadedmd.py robot --win      le deuxième tour : les jeux de combat, le robot gagne pour aller au bout de chacun
   python arcadedmd.py test-coins       note ce que fait le BIOS Neo Geo quand une pièce entre (RetroArch)
   python arcadedmd.py coin-buttons     montre à ArcadeDMD les boutons des pièces de gauche et de droite
   python arcadedmd.py setup-screen     place la fenêtre LED virtuelles sur un écran LCD qui sert de DMD
@@ -61,6 +62,7 @@ Usage:
   python arcadedmd.py robot-test       the robot plays one game for two minutes: does RetroArch take its buttons?
   python arcadedmd.py robot [MINUTES]  the robot plays every game whose ROM is there, to record their memory
   python arcadedmd.py robot --unseen   the same tour with the screen off: RetroArch without a window, no screenshots
+  python arcadedmd.py robot --win      the second tour: the fighting games, the robot wins to reach the end of each
   python arcadedmd.py test-coins       writes down what the Neo Geo BIOS does when a coin goes in (RetroArch)
   python arcadedmd.py coin-buttons     shows ArcadeDMD the coin buttons on the left and on the right
   python arcadedmd.py setup-screen     puts the virtual LED window on an LCD screen used as a DMD
@@ -272,10 +274,11 @@ def main(argv):
 
     if cmd == "robot":
         from dmd import robot
-        args = [a for a in argv[2:] if a != "--unseen"]
-        minutes = int(args[0]) if args and args[0].isdigit() else 6
+        win = "--win" in argv
+        args = [a for a in argv[2:] if a not in ("--unseen", "--win")]
+        minutes = int(args[0]) if args and args[0].isdigit() else 10 if win else 6
         only = [a.lower().rstrip(".") for a in args if not a.isdigit()]
-        return robot.tour(ROOT, cfg, minutes=max(1, minutes), only=only or None, unseen="--unseen" in argv)
+        return robot.tour(ROOT, cfg, minutes=max(1, minutes), only=only or None, unseen="--unseen" in argv, win=win)
 
     if cmd == "test-coins":
         from dmd import coinwatch

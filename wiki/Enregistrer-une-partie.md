@@ -41,6 +41,8 @@ Tant que le robot joue, RetroArch tourne en fenêtre, sans son et sans lire les 
 
 `robot_screen_off.bat` est le même tour pour un écran éteint, la nuit par exemple. RetroArch tourne sans aucune fenêtre et la mémoire est enregistrée, mais sans captures d'écran : RetroArch se ferme quand on lui en demande une sans pilote vidéo. Les jeux joués ainsi sont rejoués, avec leurs captures, par `robot.bat`.
 
+`robot_win.bat` est un deuxième tour, pour les seuls jeux de combat, dix minutes chacun (1.39). Le robot du premier tour perd vite et ne rencontre que trois à cinq combattants et deux à quatre stages d'un jeu. Dans celui-ci il gagne ses combats, pour traverser chaque jeu de son premier adversaire au dernier. Pendant un round il écrit trois choses dans la mémoire du jeu, là où le fichier du jeu les lit. La vie du joueur 1 est remise au plus haut qu'elle a eu dans le round, celle de l'adversaire est gardée à un dixième, et le chrono est mis à sa fin dès qu'il a compté trois secondes. Rien n'est écrit hors d'un round, et jamais dans une partie jouée à la main. Un jeu dont le fichier ne connaît pas les barres de vie est joué comme au premier tour, et si RetroArch ne prend pas les écritures le tour continue avec deux joueurs robots, qui rencontrent plus de combattants qu'un seul. Ses fichiers vont dans `runtime\robot\win`, sa liste de jeux faits est la sienne, et il s'arrête et reprend comme le premier.
+
 Les réglages de RetroArch ne sont pas modifiés, et les jeux joués par le robot restent hors de son historique. Les réglages du robot sont dans `runtime\robot.cfg`, donné à RetroArch sur sa ligne de commande.
 
 ## Des outils pour les curieux

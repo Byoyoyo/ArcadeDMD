@@ -38,17 +38,22 @@ def names(*i):
     return [f"g{k:02d}" for k in i]
 
 
-def run(script, off=(), closed=(), setup=None, runs=1, only=None, unseen=False, limit=4000):
+CALLS = []                                                        # (game, two_from, a winner given) of each game played
+
+
+def run(script, off=(), closed=(), setup=None, runs=1, only=None, unseen=False, limit=4000, win=False, fights=(),
+        deaf=()):
     """script: what each game does (good, bad, nostart, boom, blind). off / closed: [(from, to)] in seconds of the tour
-    during which the screen is off / ArcadeDMD is closed. Returns (code, robot.json, lines said, games started, folder).
+    during which the screen is off / ArcadeDMD is closed. win: the second tour; fights: the games that are fighting
+    games; deaf: those that keep nothing of what is written. Returns (code, robot.json, lines said, games started, folder).
     / script : ce que fait chaque jeu. off / closed : les moments où l'écran est éteint / ArcadeDMD fermé."""
     root = tempfile.mkdtemp(dir=TOP.name)
     for d in ("games", "runtime", "roms"):
         os.makedirs(os.path.join(root, d))
     games = names(*range(len(script)))
-    for n in games:
+    for i, n in enumerate(games):
         with open(os.path.join(root, "games", n + ".json"), "w") as f:
-            json.dump({"memory": {"values": {}}}, f)
+            json.dump(dict({"memory": {"values": {}}}, **({"scene_from": "neogeo_combat"} if i in fights else {})), f)
         open(os.path.join(root, "roms", n + ".zip"), "w").close()
     base = {"exe": "x", "core": "c", "rom_dir": os.path.join(root, "roms"), "ext": ".zip"}
     base.update(setup or {})
@@ -96,7 +101,16 @@ def run(script, off=(), closed=(), setup=None, runs=1, only=None, unseen=False, 
             return None
         return {"memory": True}
 
+    class Champ:                                                  # the winner's stand-in / la doublure du gagnant
+        def __init__(self, *a):
+            hard = cur["rom"] in deaf
+            self.ready, self.wins, self.rounds = True, 0 if hard else 24, 1 if hard else 24
+            self.off = "refused" if hard else None
+
+    del CALLS[:]
+
     def play(client, seconds, rng, **k):
+        CALLS.append((cur["rom"], k.get("two_from", 0.7), k.get("winner") is not None))
         cur["played"] = bool(cur["runs"])
         time.sleep(seconds if cur["runs"] else 5.0)
         if cur["runs"] and k.get("trace") is not None:
@@ -107,17 +121,18 @@ def run(script, off=(), closed=(), setup=None, runs=1, only=None, unseen=False, 
         cur["runs"] = False
         return True
 
-    def result(root, rom, since, say, head=""):
-        say(head + "rangé")
+    def result(root, rom, since, say, head="", sub=""):
+        say(head + "rangé" + (" dans " + sub if sub else ""))
         return 2, 36, True, 639 if cur.get("played") else 3
 
     robot._client = lambda cfg: Client()
     robot.launch, robot.wait_playing, robot.acked, robot.play = launch, wait_playing, acked, play
     robot.close_game, robot._result = close_game, result
     robot.prober = lambda client, st, root: None
+    robot.Winner = Champ
     out, rc = [], None
     for _ in range(runs):
-        rc = robot.tour(root, {}, minutes=6, out=out.append, only=only, unseen=unseen)
+        rc = robot.tour(root, {}, minutes=6, out=out.append, only=only, unseen=unseen, win=win)
     with open(os.path.join(root, "runtime", "robot.json")) as f:
         return rc, json.load(f), out, started, root
 
@@ -167,7 +182,8 @@ def readings():
     check("a game cut after twenty seconds: nothing is said", night(0, 59.2, n=4), (None, None))
 
 
-prober = robot.prober                                             # the real one, run() puts a stand-in in its place
+prober = robot.prober                                             # the real ones, run() puts stand-ins in their place
+WINNER = robot.Winner
 readings()
 
 # ---------------------------------------------------------------------- the tour
@@ -235,6 +251,197 @@ check("games asked by name leave the lists alone",
 
 rc, st, out, la, _ = run(["good"] * 4, setup={"done": names(0)}, unseen=True)
 check("the tour for a screen that is off keeps its own list", (rc, st["done"], st["unseen"]), (0, names(0), names(1, 2, 3)))
+
+# ---------------------------------------------------------------------- the second tour
+rc, st, out, la, _ = run(["good"] * 5, fights=(0, 2, 3), win=True, setup={"done": names(0, 1, 2, 3, 4)})
+check("the second tour takes the fighting games alone, with its own list",
+      (rc, la, st["won"], st["done"]), (0, names(0, 2, 3), names(0, 2, 3), names(0, 1, 2, 3, 4)))
+check("player 1 is made to win, no second player comes", [c[1:] for c in CALLS], [(2.0, True)] * 3)
+check("its files are kept apart from the first tour's", said(out, "rangé dans win"), 3)
+rc, st, out, la, _ = run(["good"] * 6, fights=range(6), win=True, deaf=names(0, 1, 2, 3, 4, 5))
+check("three games that keep no write: the tour goes on with two players, writing nothing",
+      (rc, [c[1:] for c in CALLS], said(out, "à deux joueurs, sans rien écrire")),
+      (0, [(2.0, True)] * 3 + [(0.0, False)] * 3, 1))
+rc, st, out, la, _ = run(["good"] * 6, fights=range(6), win=True, deaf=names(0, 1, 3))
+check("two that keep no write, then one that does: the tour keeps writing", [c[2] for c in CALLS], [True] * 6)
+rc, st, out, la, _ = run(["good", "bad", "good"], fights=range(3), win=True, setup={"aside": names(0)})
+check("a game left aside by the second tour is its own business",
+      (st["won"], st["aside_won"], st["aside"]), (names(0, 2), names(1), names(0)))
+
+# ---------------------------------------------------------------------- the robot that wins
+from dmd.retroarch import Layout, layout_for, swap16  # noqa: E402
+
+H1, H2, CLK, P1PTR, P2PTR = 0x100489, 0x100589, 0x105680, 0x105094, 0x105098
+
+
+class Arcade:
+    """A fighting game in 64 KB of Neo Geo memory, as RetroArch would serve it: rounds with a clock, a robot that
+    takes a blow every 0.8 s and lands one every 2.5 s, best of three, the next opponent after a win, the same one
+    after a loss. Its lives and its clock live in the memory, so what is written there counts. moving: the fighters
+    are objects that change place at each round, found through two pointers. refuse: writes are not taken.
+    / Un jeu de combat dans 64 Ko de mémoire Neo Geo. Ses vies et son chrono vivent dans la mémoire, donc ce qui y
+    est écrit compte. moving : les combattants changent de place à chaque round. refuse : les écritures sont refusées."""
+
+    def __init__(self, moving=False, refuse=False, demo=False):
+        self.lay = Layout(0x100000, 0x10000, True)
+        self.cpu = bytearray(0x10000)
+        self.moving, self.refuse = moving, refuse
+        self.state, self.t = "title", 0.0
+        self.beaten = self.lost = self.rounds = 0
+        self.score = [0, 0]
+        self.slot = 0
+        self.writes = []                                          # (state, address) of every write taken
+        self.poke(0x10FDB6, 0 if demo else 1)
+        self.poke(0x10FDAF, 1 if demo else 2)
+
+    # the memory, in the processor's order, served in RetroArch's / la mémoire
+    def poke(self, a, v):
+        self.cpu[a - 0x100000] = v & 0xFF
+
+    def peek(self, a):
+        return self.cpu[a - 0x100000]
+
+    def read(self, pos, n):
+        return swap16(bytes(self.cpu))[pos:pos + n]
+
+    def read_many(self, reqs):
+        return {pos: self.read(pos, n) for pos, n in reqs}
+
+    def write(self, pos, data):
+        for i, b in enumerate(data):
+            a = 0x100000 + ((pos + i) ^ 1)
+            self.writes.append((self.state, a))
+            if not self.refuse:
+                self.poke(a, b)
+        return True
+
+    def bar(self, k):
+        if not self.moving:
+            return (H1, H2)[k]
+        base = int.from_bytes(self.cpu[(P1PTR, P2PTR)[k] - 0x100000:(P1PTR, P2PTR)[k] - 0x100000 + 4], "big")
+        return base + 0x56 if base else None
+
+    def life(self, k):
+        v = self.peek(self.bar(k))
+        return v - 256 if v >= 0xB0 else v
+
+    def begin(self):
+        self.state, self.t, self.hit1, self.hit2, self.sec = "intro", 0.0, 0.8, 2.5, 1.0
+        self.rounds += 1
+        if self.moving:
+            self.slot = (self.slot + 3) % 20
+            for k, cell in enumerate((P1PTR, P2PTR)):
+                self.cpu[cell - 0x100000:cell - 0x100000 + 4] = (0x100800 + 0x100 * (self.slot + k)).to_bytes(4, "big")
+        for k in (0, 1):
+            self.poke(self.bar(k), 0x60)
+        self.poke(CLK, 0x60)
+
+    def step(self, dt):
+        self.t += dt
+        if self.state == "title":
+            if self.t >= 2.0:
+                self.begin()
+        elif self.state == "intro":
+            if self.t >= 3.0:
+                self.state, self.t = "fight", 0.0
+        elif self.state == "fight":
+            for k, attr, every, hurt in ((0, "hit1", 0.8, 12), (1, "hit2", 2.5, 6)):
+                if self.t >= getattr(self, attr):
+                    setattr(self, attr, getattr(self, attr) + every)
+                    self.poke(self.bar(k), self.life(k) - hurt)
+            if self.t >= self.sec:
+                self.sec += 1.0
+                c = self.peek(CLK)
+                c = (c >> 4) * 10 + (c & 15)
+                c = max(0, c - 1)
+                self.poke(CLK, (c // 10) << 4 | c % 10)
+            if self.life(0) <= 0 or self.life(1) <= 0 or self.peek(CLK) == 0:
+                self.score[0 if self.life(0) > self.life(1) else 1] += 1
+                self.state, self.t = "pose", 0.0
+        elif self.state == "pose":
+            if self.t >= 3.0:
+                if self.moving:
+                    for cell in (P1PTR, P2PTR):
+                        self.cpu[cell - 0x100000:cell - 0x100000 + 4] = bytes(4)
+                self.poke(CLK, 0)
+                if max(self.score) >= 2:
+                    if self.score[0] > self.score[1]:
+                        self.beaten += 1
+                    else:
+                        self.lost += 1
+                    self.score = [0, 0]
+                    self.state, self.t = "title", 0.0
+                else:
+                    self.begin()
+
+
+FILE = {"memory": {"values": {
+    "_hp": {"addr": "0x100489", "type": "u8", "mult": 1.041667, "min": 0, "max": 100, "zero_from": "0xB0"},
+    "_hp_vs": {"addr": "0x100489", "type": "u8", "mult": 0.833333, "min": 0, "max": 100, "zero_from": "0xBC"},
+    "health_p2": {"addr": "0x100589", "type": "u8", "mult": 1.041667, "min": 0, "max": 100, "zero_from": "0xB0"},
+    "time": {"addr": "0x105680", "type": "bcd", "bytes": 1}}},
+    "tag": {"health": {"pick": ["_hp", "_hp_vs"], "at": {"eq": ["p2_mode", 1]}}}}
+MOVING = {"memory": {"values": {
+    "health": {"ptr": "0x105094", "ptr_range": ["0x100000", "0x10FFFF"], "addr": "0x56", "type": "u8", "mult": 1.041667,
+               "min": 0, "max": 100, "zero_from": "0xB0"},
+    "health_p2": {"ptr": "0x105098", "ptr_range": ["0x100000", "0x10FFFF"], "addr": "0x56", "type": "u8",
+                  "mult": 1.041667, "min": 0, "max": 100, "zero_from": "0xB0"},
+    "time": {"addr": "0x105680", "type": "bcd", "bytes": 1}}}}
+NO_CLOCK = {"memory": {"values": {k: v for k, v in FILE["memory"]["values"].items() if k != "time"}}, "tag": FILE["tag"]}
+NO_BARS = {"memory": {"values": {"time": {"addr": "0x105680", "type": "bcd", "bytes": 1}}}}
+
+
+def six_minutes(game_file, with_winner=True, **kind):
+    game = Arcade(**kind)
+    champ = WINNER(game, game.lay, game_file) if with_winner else None
+    t = 0.0
+    while t < 360.0:
+        game.step(0.1)
+        t += 0.1
+        if champ is not None and round(t * 10) % 3 == 0:
+            champ.tick(t)
+    return game, champ
+
+
+game, _ = six_minutes(FILE, with_winner=False)
+check("the robot alone beats nobody", (game.beaten, game.lost > 3), (0, True))
+game, champ = six_minutes(FILE)
+check("made to win, it goes through the opponents", (game.beaten >= 12, game.lost, champ.off), (True, 0, None))
+check("it counts the rounds it won", champ.wins >= 2 * game.beaten, True)
+check("nothing is written outside a round", sorted({st for st, _ in game.writes}), ["fight", "intro"])
+check("only the two lives and the clock are written", sorted({a for _, a in game.writes}), [H1, H2, CLK])
+game, champ = six_minutes(MOVING, moving=True)
+check("fighters that change place at every round", (game.beaten >= 12, game.lost, champ.off), (True, 0, None))
+check("written where the pointers lead, nowhere else",
+      all(a == CLK or (a & 0xFF) == 0x56 for _, a in game.writes), True)
+game, champ = six_minutes(NO_CLOCK)
+check("a game whose clock the file does not know: won by the blows that land", (game.beaten >= 6, game.lost), (True, 0))
+game, champ = six_minutes(FILE, refuse=True)
+check("writes that are not taken: said, and the game played as it is", (game.beaten, bool(champ.off)), (0, True))
+check("it stopped asking", len(game.writes) < 80, True)
+game, champ = six_minutes(NO_BARS)
+check("life bars the file does not know: nothing written", (champ.ready, len(game.writes)), (False, 0))
+game, champ = six_minutes(FILE, demo=True)
+check("a demo the BIOS does not call a game: nothing written", len(game.writes), 0)
+
+
+def picked(name, **modes):
+    """Where the winner would write the two lives of a real game file, for what the BIOS says of the players."""
+    with open(os.path.join(ROOT, "games", name + ".json"), encoding="utf-8") as f:
+        g = json.load(f)
+    w = WINNER(None, layout_for(g, name), g, name)
+    return w.ready, [b and (b["ptr"], b["addr"]) for b in w._pick(modes)]
+
+
+check("Fatal Fury against the computer: the computer's own life",
+      picked("fatfury1", p1_mode=1, p2_mode=2), (True, [(None, 0x1003B8), (None, 0x1005B8)]))
+check("Fatal Fury with a second player: player 2's",
+      picked("fatfury1", p1_mode=1, p2_mode=1), (True, [(None, 0x1003B8), (None, 0x1004B8)]))
+check("King of the Monsters, the computer in player 2's place",
+      picked("kotm", p1_mode=1, p2_mode=1), (True, [(None, 0x10206B), (None, 0x10216B)]))
+check("Kabuki Klash: through the pointers",
+      picked("kabukikl", p1_mode=1, p2_mode=0), (True, [(0x105094, 0x56), (0x105098, 0x56)]))
+check("a life counted as damage taken is left alone", picked("doubledr", p1_mode=1, p2_mode=0)[0], False)
 
 TOP.cleanup()
 if FAILS:

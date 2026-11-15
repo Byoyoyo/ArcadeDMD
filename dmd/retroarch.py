@@ -128,6 +128,12 @@ class RetroArchClient:
         except OSError:
             return False
 
+    def write(self, addr, data):
+        """Writes bytes in the game's memory, at the address READ_CORE_RAM reads them (WRITE_CORE_RAM, no answer).
+        Only the robot does (1.39): no game played by hand is ever written to.
+        / Écrit des octets dans la mémoire du jeu. Seul le robot le fait : jamais dans une partie jouée à la main."""
+        return self.send("WRITE_CORE_RAM %x %s" % (addr, " ".join("%02x" % (b & 0xFF) for b in data)))
+
     def cmd(self, text, expect=None):
         """Envoie une commande, renvoie la réponse (texte) ou None sans réponse."""
         try:
@@ -411,6 +417,18 @@ class Layout:
             out += data
             pos += n
         return self.base + lo, self._unswap(bytes(out))
+
+    def write_cpu(self, client, addr, data):
+        """Writes bytes at a processor address, one by one where RetroArch holds them: swapped within a word as they
+        are read. False outside the memory. / Écrit des octets à une adresse du processeur, un par un là où RetroArch
+        les tient."""
+        ok = True
+        for i, b in enumerate(data):
+            off = addr + i - self.base
+            if off < 0 or off >= self.size:
+                return False
+            ok = client.write(off ^ (self.align - 1) if self.align > 1 else off, [b]) and ok
+        return ok
 
     def read_cpu_many(self, client, spans, sure=False):
         """read_cpu for several spans, the requests sent together: RetroArch answers them all at its next image, where
