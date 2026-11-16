@@ -236,18 +236,61 @@
  "hd": {
   "stages": [
    "arena",
-   "fight_jungle",
-   "fight_city",
    "fight_temple",
    "fight_city",
-   "fight_ruins",
-   "fight_city",
-   "arena",
-   "fight_snow",
+   "fight_kof_korea",
+   "fight_kof_dojo",
+   "fight_gothic",
+   "fight_kof_korea",
    "fight_desert",
-   "fight_harbor"
+   "arena",
+   "fight_temple",
+   "fight_market"
   ],
-  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page"
+  "note": "HD screen theme and place for each backdrop value (index = value), see the wiki, HD Marquee page. Themes and places set from the screenshots of the robot's recording of 2026-11-16, the names after those of the MAME cheat database (its 7, 8 and 9 are one further on the recording): 1 a wisteria at night, 2 a city of billboards at night, 3 a square, 4 the hall of Geese Tower, 5 a castle hall, 6 a crosswalk, 7 a rest stop in the desert, 8 a ring, 9 a chamber with a dragon, 10 a street",
+  "places": [
+   "",
+   [
+    "GLYCINE",
+    "WISTERIA"
+   ],
+   [
+    "VILLE DE NUIT",
+    "CITY AT NIGHT"
+   ],
+   [
+    "PLACE",
+    "SQUARE"
+   ],
+   [
+    "GEESE TOWER",
+    "GEESE TOWER"
+   ],
+   [
+    "CHÂTEAU STROLHEIM",
+    "STROLHEIM CASTLE"
+   ],
+   [
+    "PASSAGE PIÉTON",
+    "CROSSWALK"
+   ],
+   [
+    "RELAIS ROUTIER",
+    "REST STOP"
+   ],
+   [
+    "RING",
+    "FIGHTING RING"
+   ],
+   [
+    "CHAMBRE DES JIN",
+    "JIN CHAMBER"
+   ],
+   [
+    "RUE",
+    "STREET"
+   ]
+  ]
  },
  "specials": {
   "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",

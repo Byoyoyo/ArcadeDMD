@@ -219,22 +219,80 @@
  },
  "hd": {
   "stages": [
-   "fight_city",
+   "fight_kof_yard",
    "arena",
    "fight_city",
-   "fight_city",
-   "fight_temple",
-   "fight_snow",
+   "fight_market",
+   "fight_gothic",
+   "fight_jungle",
    "fight_harbor",
    "fight_jungle",
    "fight_city",
+   "fight_kof_yard",
    "arena",
-   "arena",
-   "base",
-   "fight_ruins",
-   "fight_temple"
+   "fight_base",
+   "fight_gothic",
+   "fight_gothic"
   ],
-  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page. Set from the screenshots of the robot's recording of 2026-11-15 for the stages it met: 2 a street of neon signs, 4 a belfry"
+  "note": "HD screen theme and place for each backdrop value (index = value), see the wiki, HD Marquee page. The places are the game's own, as the MAME cheat database names them; the themes are set from the screenshots of the robot's recordings of 2026-11-15 and 16: 0 a train, 1 a concert hall, 2 a casino under its neon signs, 3 a market, 4 a belfry, 5 a waterfall, 6 a wreck in a harbor, 7 a forest, 8 a street with cars, 9 a basketball court, 10 a wrestling ring, 11 a military field at dusk, 12 and 13 the mansion",
+  "places": [
+   [
+    "FREIGHT EXPRESS",
+    "FREIGHT EXPRESS"
+   ],
+   [
+    "LIVE HOUSE OLD LINE",
+    "LIVE HOUSE OLD LINE"
+   ],
+   [
+    "ORIENTAL CASINO WOO",
+    "ORIENTAL CASINO WOO"
+   ],
+   [
+    "YOK CHONG MARKET",
+    "YOK CHONG MARKET"
+   ],
+   [
+    "PHILANTHROPY BELFRY",
+    "PHILANTHROPY BELFRY"
+   ],
+   [
+    "BARBAROI FALLS",
+    "BARBAROI FALLS"
+   ],
+   [
+    "BLUE WAVE HARBOR",
+    "BLUE WAVE HARBOR"
+   ],
+   [
+    "SARAH FOREST",
+    "SARAH FOREST"
+   ],
+   [
+    "5TH AVE. AND 2ND ST.",
+    "5TH AVE. AND 2ND ST."
+   ],
+   [
+    "SLAM FREE FIELD",
+    "SLAM FREE FIELD"
+   ],
+   [
+    "UNIVERSAL ARENA",
+    "UNIVERSAL ARENA"
+   ],
+   [
+    "S.S.P. MANEUVER FIELD",
+    "S.S.P. MANEUVER FIELD"
+   ],
+   [
+    "SOUS-SOL DU MANOIR",
+    "MANSION BASEMENT"
+   ],
+   [
+    "MANOIR",
+    "MANSION"
+   ]
+  ]
  },
  "specials": {
   "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",

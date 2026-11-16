@@ -363,20 +363,48 @@
   "_p2_ord2": 2
  },
  "hd": {
-  "stages": [
-   "fight_city",
-   "fight_city",
-   "fight_desert",
-   "fight_jungle",
-   "fight_harbor",
-   "arena",
-   "fight_temple",
-   "fight_ruins",
-   "base",
-   "fight_temple",
-   "arena"
-  ],
-  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page. Set from the screenshots of the robot's recording of 2026-11-15 for the stages it met: 0 a street under a motorway, 6 a palace gate over water"
+  "stages": ["fight_kof_osaka", "fight_kof_yard", "fight_desert", "fight_ruins", "fight_market", "fight_palace", "fight_kof_korea", "fight_city", "base", "arena", "arena"],
+  "note": "HD screen theme and place for each backdrop value (index = value), see the wiki, HD Marquee page. The MAME cheat database names each backdrop after its team; themes and places set from the screenshots of the robot's recording of 2026-11-16: 0 a street with a crowd (Japan), 1 a level crossing (Fatal Fury), 2 a western town at sunset (Art of Fighting), 3 ruins (Ikari), 4 a square (Psycho Soldier), 5 a hall under a glass roof (Gals Fighters), 6 a Korean gate, 7 a bridge at night (Iori), 9 a stadium (Chizuru). 8 and 10 were not seen: the arena, no place named",
+  "places": [
+   [
+    "RUE",
+    "STREET"
+   ],
+   [
+    "PASSAGE À NIVEAU",
+    "LEVEL CROSSING"
+   ],
+   [
+    "VILLE DE L'OUEST",
+    "WESTERN TOWN"
+   ],
+   [
+    "RUINES",
+    "RUINS"
+   ],
+   [
+    "PLACE",
+    "SQUARE"
+   ],
+   [
+    "HALL",
+    "HALL"
+   ],
+   [
+    "CORÉE",
+    "KOREA"
+   ],
+   [
+    "PONT DE NUIT",
+    "BRIDGE AT NIGHT"
+   ],
+   "",
+   [
+    "STADE",
+    "STADIUM"
+   ],
+   ""
+  ]
  },
  "specials": {
   "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",

@@ -232,19 +232,69 @@
  "hd": {
   "stages": [
    "fight_temple",
-   "fight_harbor",
+   "fight_snow",
    "fight_jungle",
    "fight_temple",
-   "fight_snow",
-   "fight_desert",
-   "fight_harbor",
    "fight_jungle",
-   "fight_snow",
+   "fight_kof_dojo",
+   "fight_harbor",
+   "fight_desert",
+   "fight_ruins",
    "fight_ruins",
    "fight_ruins",
    "fight_ruins"
   ],
-  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page"
+  "note": "HD screen theme and place for each backdrop value (index = value), see the wiki, HD Marquee page. The places are the game's own, as the MAME cheat database names them; the themes are set from the screenshots of the robot's recordings of 2026-11-15 and 16: 0 a cherry tree under the moon, 1 mountains at night, 2 a dark forest, 4 a bamboo forest, 5 a hall lit by candles, 6 a shore at night, 7 a red sky, 8 dark rocks, 9 to 11 a hall of columns in the mist. Koga (3) is not clear on the screenshots and keeps the theme it had",
+  "places": [
+   [
+    "ARIE",
+    "ARIE"
+   ],
+   [
+    "OBAMA",
+    "OBAMA"
+   ],
+   [
+    "KUCHINOTSU",
+    "KUCHINOTSU"
+   ],
+   [
+    "KOGA",
+    "KOGA"
+   ],
+   [
+    "KUSHIYAMA",
+    "KUSHIYAMA"
+   ],
+   [
+    "DOHSAKI",
+    "DOHSAKI"
+   ],
+   [
+    "FUNATSU",
+    "FUNATSU"
+   ],
+   [
+    "FUKAE",
+    "FUKAE"
+   ],
+   [
+    "KUSENBUTAKE",
+    "KUSENBUTAKE"
+   ],
+   [
+    "CHÂTEAU D'AMAKUSA",
+    "AMAKUSA CASTLE"
+   ],
+   [
+    "CHÂTEAU D'AMAKUSA",
+    "AMAKUSA CASTLE"
+   ],
+   [
+    "CHÂTEAU D'AMAKUSA",
+    "AMAKUSA CASTLE"
+   ]
+  ]
  },
  "specials": {
   "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",

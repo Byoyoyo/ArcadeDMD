@@ -181,28 +181,95 @@
  },
  "hd": {
   "stages": [
-   "fight_ruins",
+   "arena",
    "fight_temple",
-   "fight_harbor",
+   "fight_kof_china",
    "arena",
    "fight_desert",
    "fight_snow",
-   "base",
+   "fight_factory",
    "fight_temple",
-   "fight_ruins",
+   "space",
    "arena",
-   "fight_temple",
-   "fight_harbor",
    "arena",
-   "fight_desert",
-   "fight_snow",
    "arena",
-   "fight_temple",
-   "fight_ruins",
    "arena",
-   "arena"
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "fight_kof_china",
+   "fight_kof_china"
   ],
-  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page. Set from the screenshots of the robot's recording of 2026-11-15 for the stages it met: 9 and 15, two death matches, a ring and a cage before a crowd"
+  "note": "HD screen theme and place for each backdrop value (index = value), see the wiki, HD Marquee page. The MAME cheat database names each backdrop after its fighter, 0 to 8 in the normal mode, 9 to 17 in the death match mode, 18 and 19 the bonus stages; themes and places set from the screenshots of the robot's recording of 2026-11-16: 0 a circus (Janne), 1 a red temple gate (Hanzou), 2 a Chinese temple (Dragon), 4 a camp in the steppe at sunset (J. Carn), 6 a factory (Brocken), 8 a space station (Geegus), 10 and 11 rings of the death match mode, 18 and 19 the Chinese temple again. 3 was not met; 5 and 7 are not clear on the screenshots and keep the theme they had",
+  "places": [
+   [
+    "CIRQUE",
+    "CIRCUS"
+   ],
+   [
+    "TEMPLE",
+    "TEMPLE"
+   ],
+   [
+    "TEMPLE CHINOIS",
+    "CHINESE TEMPLE"
+   ],
+   "",
+   [
+    "STEPPE",
+    "STEPPE"
+   ],
+   "",
+   [
+    "USINE",
+    "FACTORY"
+   ],
+   "",
+   [
+    "STATION SPATIALE",
+    "SPACE STATION"
+   ],
+   [
+    "DEATH MATCH",
+    "DEATH MATCH"
+   ],
+   [
+    "DEATH MATCH",
+    "DEATH MATCH"
+   ],
+   [
+    "DEATH MATCH",
+    "DEATH MATCH"
+   ],
+   [
+    "DEATH MATCH",
+    "DEATH MATCH"
+   ],
+   [
+    "DEATH MATCH",
+    "DEATH MATCH"
+   ],
+   [
+    "DEATH MATCH",
+    "DEATH MATCH"
+   ],
+   [
+    "DEATH MATCH",
+    "DEATH MATCH"
+   ],
+   [
+    "DEATH MATCH",
+    "DEATH MATCH"
+   ],
+   [
+    "DEATH MATCH",
+    "DEATH MATCH"
+   ],
+   "",
+   ""
+  ]
  },
  "specials": {
   "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",

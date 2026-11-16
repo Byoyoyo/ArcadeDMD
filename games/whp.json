@@ -222,20 +222,70 @@
  },
  "hd": {
   "stages": [
-   "arena",
+   "fight_desert",
    "fight_jungle",
    "fight_snow",
    "fight_desert",
    "fight_ruins",
-   "fight_ruins",
-   "fight_temple",
-   "base",
+   "fight_gothic",
+   "fight_market",
+   "fight_kof_yard",
    "city_war",
-   "fight_city",
-   "fight_ruins",
-   "arena"
+   "fight_kof_korea",
+   "fight_gothic",
+   "fight_desert"
   ],
-  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page"
+  "note": "HD screen theme and place for each backdrop value (index = value), see the wiki, HD Marquee page. The places are the game's own, as the MAME cheat database names them; the themes are set from the screenshots of the robot's recording of 2026-11-16: 0 a volcano, 1 a jungle with dinosaurs, 2 ice and a mammoth's bones, 3 a camp of hides, 4 pyramids and columns, 5 a castle hall, 6 a Japanese street by day, 7 a station with a steam engine, 8 a warship at night, 9 a crowd in a city, 10 a hall of columns, 11 red rocks",
+  "places": [
+   [
+    "GENÈSE",
+    "GENESIS"
+   ],
+   [
+    "JURASSIQUE",
+    "JURASSIC PERIOD"
+   ],
+   [
+    "ÈRE GLACIAIRE",
+    "THE ICE AGE"
+   ],
+   [
+    "ÂGE DE PIERRE",
+    "THE STONE AGE"
+   ],
+   [
+    "ÂGE MÉGALITHIQUE",
+    "THE MEGALITHIC AGE"
+   ],
+   [
+    "ÂGE SOMBRE",
+    "THE DARK AGE"
+   ],
+   [
+    "ÈRE GENROKU",
+    "GENROKU PERIOD"
+   ],
+   [
+    "RÉVOLUTION INDUSTRIELLE",
+    "THE INDUSTRIAL REVOLUTION"
+   ],
+   [
+    "GRANDE GUERRE",
+    "GREAT WAR PERIOD"
+   ],
+   [
+    "NOTRE ÉPOQUE",
+    "THE PERIOD"
+   ],
+   [
+    "CHÂTEAU DES TÉNÈBRES",
+    "BLACKNESS CASTLE"
+   ],
+   [
+    "DERNIER STAGE",
+    "FINAL STAGE"
+   ]
+  ]
  },
  "specials": {
   "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",

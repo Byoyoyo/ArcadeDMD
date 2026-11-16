@@ -262,17 +262,60 @@
   "stages": [
    "arena",
    "fight_temple",
-   "fight_snow",
+   "fight_kof_korea",
    "fight_jungle",
    "fight_harbor",
-   "fight_ruins",
-   "fight_desert",
+   "fight_market",
+   "fight_kof_korea",
    "arena",
-   "fight_city",
-   "fight_ruins",
+   "fight_palace",
+   "fight_gothic",
    "fight_city"
   ],
-  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page"
+  "note": "HD screen theme and place for each backdrop value (index = value), see the wiki, HD Marquee page. The places are the countries the MAME cheat database gives each stage (its 4 and 5 are the other way round on the recording); the themes are set from the screenshots of the robot's recording of 2026-11-16: 1 a shrine at night, 2 a Korean palace, 3 a dark jungle, 4 mountains over the water at dusk, 5 a street with a tram, 6 a beach, 7 a stage, 8 and 9 a castle by day then by night. 10 was not met and keeps the theme its name calls for",
+  "places": [
+   "",
+   [
+    "JAPON",
+    "JAPAN"
+   ],
+   [
+    "CORÉE",
+    "KOREA"
+   ],
+   [
+    "BRÉSIL",
+    "BRAZIL"
+   ],
+   [
+    "CHINE",
+    "CHINA"
+   ],
+   [
+    "HONG KONG",
+    "HONG KONG"
+   ],
+   [
+    "ÉTATS-UNIS",
+    "U.S.A."
+   ],
+   [
+    "ÉTATS-UNIS",
+    "U.S.A."
+   ],
+   [
+    "ALLEMAGNE",
+    "GERMANY"
+   ],
+   [
+    "ALLEMAGNE",
+    "GERMANY"
+   ],
+   [
+    "GEESE TOWER",
+    "GEESE TOWER"
+   ]
+  ]
  },
  "specials": {
   "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",

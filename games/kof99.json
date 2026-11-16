@@ -395,13 +395,41 @@
  "hd": {
   "stages": [
    "fight_jungle",
-   "fight_city",
-   "base",
+   "fight_kof_osaka",
+   "fight_base",
    "fight_ruins",
-   "fight_harbor",
-   "fight_temple"
+   "fight_factory",
+   "fight_temple",
+   "arena"
   ],
-  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page"
+  "note": "HD screen theme and place for each backdrop value (index = value), see the wiki, HD Marquee page. The places are the game's own, as the MAME cheat database names them; the themes are set from the screenshots of the robot's recordings of 2026-11-15 and 16: 0 a park with a pavilion, 1 an alley at night under garlands, 2 an airport at dusk, 3 a museum with a skeleton, 4 a tunnel lit in orange, 5 a dark temple. 6 is a hall of golden lights the cheat database does not name: the arena, no place named",
+  "places": [
+   [
+    "PARC",
+    "PARK"
+   ],
+   [
+    "RUELLE",
+    "ALLEY"
+   ],
+   [
+    "AÉROPORT",
+    "AIRPORT"
+   ],
+   [
+    "MUSÉE",
+    "MUSEUM"
+   ],
+   [
+    "ÉGOUTS",
+    "SEWAGE SYSTEM"
+   ],
+   [
+    "TEMPLE",
+    "TEMPLE"
+   ],
+   ""
+  ]
  },
  "specials": {
   "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",

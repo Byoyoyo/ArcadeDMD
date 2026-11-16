@@ -229,18 +229,50 @@
    "fight_snow",
    "fight_temple",
    "fight_harbor",
-   "arena",
    "fight_temple",
+   "fight_jungle",
    "fight_desert",
    "fight_ruins",
    "fight_jungle",
-   "fight_temple",
+   "fight_thai",
    "fight_ruins",
    "arena",
-   "fight_snow",
-   "fight_ruins"
+   "fight_ruins",
+   "fight_ruins",
+   "arena",
+   "arena",
+   "arena"
   ],
-  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page"
+  "note": "HD screen theme and place for each backdrop value (index = value), see the wiki, HD Marquee page. The MAME cheat database names each backdrop after its fighter; themes set from the screenshots of the robot's recording of 2026-11-16, places only where the screenshot shows the place plainly: 0 cherry trees (Haohmaru), 2 a village in the snow (Rimururu), 5 red maples (Kyoshiro), 6 a forest at night (Ukyo), 10 a temple lit in orange (Gaira), 13 and 14 a dark place with fires (Zankuro). 9 and 11 were not met and keep the theme they had; 15 to 17 are not stages",
+  "places": [
+   [
+    "CERISIERS",
+    "CHERRY TREES"
+   ],
+   "",
+   [
+    "VILLAGE ENNEIGÉ",
+    "SNOWY VILLAGE"
+   ],
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   [
+    "TEMPLE",
+    "TEMPLE"
+   ],
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   ""
+  ]
  },
  "specials": {
   "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",

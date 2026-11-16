@@ -356,17 +356,55 @@
  },
  "hd": {
   "stages": [
-   "base",
-   "fight_city",
+   "fight_factory",
+   "fight_harbor",
    "fight_ruins",
    "fight_desert",
-   "fight_city",
-   "fight_harbor",
+   "fight_kof_korea",
+   "fight_lab",
    "fight_temple",
    "fight_snow",
    "fight_snow"
   ],
-  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page. Set from the screenshots of the robot's recording of 2026-11-15 for the stages it met: 4 a street of neon signs"
+  "note": "HD screen theme and place for each backdrop value (index = value), see the wiki, HD Marquee page. The places are the game's own, as the MAME cheat database names them; the themes are set from the screenshots of the robot's recordings of 2026-11-15 and 16: 0 a dark factory, 1 a wreck and cranes in the mist, 2 a dump under a yellow sky, 4 a street of shops, 5 an aquarium, 6 a dark temple, 7 a frozen factory. 3 and 8 were not met and keep the theme their name calls for",
+  "places": [
+   [
+    "USINE",
+    "FACTORY"
+   ],
+   [
+    "CASSE",
+    "SCRAP DUMP"
+   ],
+   [
+    "DÉCHARGE",
+    "GARBAGE DUMP"
+   ],
+   [
+    "DÉSERT",
+    "DESERT"
+   ],
+   [
+    "CORÉE",
+    "KOREA"
+   ],
+   [
+    "AQUARIUM",
+    "AQUARIUM"
+   ],
+   [
+    "TEMPLE",
+    "TEMPLE"
+   ],
+   [
+    "USINE GELÉE",
+    "FROZEN FACTORY"
+   ],
+   [
+    "CASSE GELÉE",
+    "FROZEN SCRAP DUMP"
+   ]
+  ]
  },
  "specials": {
   "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",

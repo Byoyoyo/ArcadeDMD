@@ -268,29 +268,85 @@
  "hd": {
   "stages": [
    "fight_temple",
-   "fight_jungle",
+   "fight_snow",
    "fight_temple",
    "fight_harbor",
    "fight_ruins",
    "fight_temple",
    "arena",
-   "fight_jungle",
+   "fight_ruins",
    "fight_desert",
    "fight_snow",
    "arena",
-   "fight_ruins",
-   "fight_snow",
+   "fight_palace",
+   "fight_thai",
    "fight_jungle",
-   "fight_ruins",
+   "fight_gothic",
    "fight_temple",
-   "fight_ruins",
+   "fight_gothic",
    "arena"
   ],
-  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page",
+  "note": "HD screen theme and place for each backdrop value (index = value), see the wiki, HD Marquee page. The MAME cheat database names each backdrop after its fighter; themes and places set from the screenshots of the robot's recording of 2026-11-16: 0 red maples (Haohmaru), 1 a village at night (Nakoruru), 3 a ship in a harbor (Galford), 5 a red shrine (Ukyo), 7 a cave with a cauldron (Gen-An), 9 bamboo in the snow (Jubei), 11 a palace hall (Charlotte), 12 a golden field (Genjuro), 13 a jungle (Cham Cham), 14 a castle hall (Sieger), 15 a sacred tree (Nicotine), 16 a dark shrine (Mizuki). Earthquake's (8) is too dark on the screenshot to be named; 2, 4, 6, 10 and 17 were not met and keep the theme they had, no place named",
   "power_label": "POW",
   "power_timer": "_powmax",
   "health_drain": 0.8,
-  "note_power": "the POW gauge under a human's name, \"POW MAX\" and its timer while MAX lasts (1.38); the game empties a blow from its bar over half a second to a second, read in two or three steps: one blow for the effects (health_drain)"
+  "note_power": "the POW gauge under a human's name, \"POW MAX\" and its timer while MAX lasts (1.38); the game empties a blow from its bar over half a second to a second, read in two or three steps: one blow for the effects (health_drain)",
+  "places": [
+   [
+    "ÉRABLES ROUGES",
+    "RED MAPLES"
+   ],
+   [
+    "VILLAGE DE NUIT",
+    "VILLAGE AT NIGHT"
+   ],
+   "",
+   [
+    "PORT",
+    "HARBOR"
+   ],
+   "",
+   [
+    "SANCTUAIRE",
+    "SHRINE"
+   ],
+   "",
+   [
+    "CAVERNE",
+    "CAVE"
+   ],
+   "",
+   [
+    "BAMBOUS SOUS LA NEIGE",
+    "BAMBOO IN THE SNOW"
+   ],
+   "",
+   [
+    "PALAIS",
+    "PALACE"
+   ],
+   [
+    "CHAMP DORÉ",
+    "GOLDEN FIELD"
+   ],
+   [
+    "JUNGLE",
+    "JUNGLE"
+   ],
+   [
+    "CHÂTEAU",
+    "CASTLE"
+   ],
+   [
+    "ARBRE SACRÉ",
+    "SACRED TREE"
+   ],
+   [
+    "SANCTUAIRE SOMBRE",
+    "DARK SHRINE"
+   ],
+   ""
+  ]
  },
  "specials": {
   "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
