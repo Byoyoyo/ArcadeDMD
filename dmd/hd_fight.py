@@ -431,14 +431,6 @@ class FightFX:
             self.rounds_won = {"p1": int(rw1), "p2": int(rw2)}
         if self.round_v is None:                                      # counted here (1.33) / compté ici
             self.round_v = self.rounds_won["p1"] + self.rounds_won["p2"] + self.round_draws
-        # a game without the state of its fights sets its timer as a round begins (0 -> 60, 90): ROUND n then, unless one
-        # just showed (1.33, the captures of KOF '99 and Fatal Fury) / un jeu sans l'état de ses combats remet son
-        # chrono quand un round commence : ROUND n alors, sauf s'il vient de s'afficher
-        if not self.fs_known:
-            tv, tv0 = _n(vals.get("time")), tv_was
-            if tv is not None and tv0 is not None and tv > tv0 and tv >= 30 and tv0 < tv - 5 and now - self.round_show > 3.0 \
-                    and now - self.fight_t > 3.0:
-                self._fight(now)
         # "stage": match number in the run, from 0 (Rage of the Dragons, cheat "Select Stage"), shown as STAGE n.
         # "backdrop": backdrop of the fight (cheat "Select Backdrop"), picks the theme in the game's "hd" list.
         stage = _n(vals.get("stage"))
@@ -446,8 +438,11 @@ class FightFX:
         pick = back if back is not None else stage
         sig = (stage, back)
         if pick is not None and sig != self.stage_v and self.round_v is not None and stage is None:
-            # a game that counts its rounds: the new backdrop at once, its place under the ROUND 1 of the match
-            # un jeu qui compte ses rounds : le nouveau décor tout de suite, son lieu sous le ROUND 1 du match
+            # a game that counts its rounds: the new backdrop at once, its place under the ROUND 1 of the match. Read
+            # before the round is announced: a game that sets its stage and its timer in the same frame gives that
+            # ROUND 1 its place (1.39, Art of Fighting 3 as the robot recorded it)
+            # un jeu qui compte ses rounds : le nouveau décor tout de suite, son lieu sous le ROUND 1 du match. Lu avant
+            # l'annonce du round : un jeu qui pose son stage et son chrono dans la même image donne son lieu à ce ROUND 1
             theme = stages[int(pick) % len(stages)]
             if self.stage_v is None:
                 self.bd.set_theme(theme, now, wipe=0)
@@ -456,7 +451,15 @@ class FightFX:
             self.bd.set_round(0, now, fade=0)                         # a new match: its first round's look / 1er round
             self.place_next = self.place(game, pick, theme)
             self.stage_v = sig
-        elif pick is not None and sig != self.stage_v:
+        # a game without the state of its fights sets its timer as a round begins (0 -> 60, 90): ROUND n then, unless one
+        # just showed (1.33, the captures of KOF '99 and Fatal Fury) / un jeu sans l'état de ses combats remet son
+        # chrono quand un round commence : ROUND n alors, sauf s'il vient de s'afficher
+        if not self.fs_known:
+            tv, tv0 = _n(vals.get("time")), tv_was
+            if tv is not None and tv0 is not None and tv > tv0 and tv >= 30 and tv0 < tv - 5 and now - self.round_show > 3.0 \
+                    and now - self.fight_t > 3.0:
+                self._fight(now)
+        if pick is not None and sig != self.stage_v:
             theme = stages[int(pick) % len(stages)]
             place = self.place(game, pick, theme)
             label = (f"STAGE {int(stage) + 1}", place) if stage is not None else (place, "")
