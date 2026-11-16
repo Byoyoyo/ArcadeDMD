@@ -142,6 +142,11 @@
     "addr": "0x10102B",
     "type": "u8",
     "note": "player 2 or computer character"
+   },
+   "backdrop": {
+    "addr": "0x10102B",
+    "type": "u8",
+    "note": "the stage, which is the opponent's own: the number of player 2's or the computer's fighter, read again (the robot's recordings of 2026-11-15 and 16: the same backdrop behind the same opponent in both). Picks the HD theme in \"hd\": \"stages\""
    }
   }
  },
@@ -182,6 +187,72 @@
     "12": "AMAKUSA"
    }
   }
+ },
+ "hd": {
+  "stages": [
+   "fight_harbor",
+   "fight_snow",
+   "fight_temple",
+   "fight_harbor",
+   "arena",
+   "fight_snow",
+   "fight_temple",
+   "fight_ruins",
+   "fight_desert",
+   "fight_jungle",
+   "fight_ruins",
+   "fight_palace",
+   "arena"
+  ],
+  "places": [
+   [
+    "RIVAGE",
+    "SHORE"
+   ],
+   [
+    "VILLAGE ENNEIGÉ",
+    "SNOWY VILLAGE"
+   ],
+   [
+    "SANCTUAIRE",
+    "SHRINE"
+   ],
+   [
+    "PORT",
+    "HARBOR"
+   ],
+   "",
+   [
+    "MONT FUJI",
+    "MOUNT FUJI"
+   ],
+   [
+    "THÉÂTRE KABUKI",
+    "KABUKI THEATRE"
+   ],
+   [
+    "CAVERNE",
+    "CAVE"
+   ],
+   [
+    "CANYON",
+    "CANYON"
+   ],
+   [
+    "FORÊT DE BAMBOUS",
+    "BAMBOO FOREST"
+   ],
+   [
+    "TEMPLE DE LA JUNGLE",
+    "JUNGLE TEMPLE"
+   ],
+   [
+    "PALAIS",
+    "PALACE"
+   ],
+   ""
+  ],
+  "note": "HD screen theme and place for each backdrop value (index = value), see the wiki, HD Marquee page. Set from the screenshots of the robot's recordings: 0 a shore under the waves (Haohmaru), 1 a village in the snow (Nakoruru), 2 a shrine in autumn (Hanzo), 3 a harbor at sunset (Galford), 5 a shore at night before Mount Fuji (Ukyo), 6 a kabuki theatre (Kyoshiro), 7 a cave with bonfires (Gen-An), 8 a canyon (Earthquake), 9 a bamboo forest (Jubei), 10 a temple in the jungle (Tam Tam), 11 a palace hall (Charlotte). Wan-Fu's and Amakusa's were not met: the arena, no place named"
  },
  "demo": {
   "health": 100,
