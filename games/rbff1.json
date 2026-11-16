@@ -91,19 +91,21 @@
     "addr": "0x100489",
     "type": "u8",
     "mult": 0.520833,
+    "add": 0.4,
     "min": 0,
     "max": 100,
     "zero_from": "0xE0",
-    "note": "player 1 health in %, full = 0xC0; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xE0 it reads empty (K.O. audit)"
+    "note": "player 1 health in %, full = 0xC0; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xE0 it reads empty (K.O. audit). At exactly zero the fighter still stands, with a hair of life (\"add\"): the K.O. is the fall below zero (as in Fatal Fury 3 and Real Bout Fatal Fury 2, the same engine; every K.O. the robot recorded takes the byte below zero)"
    },
    "health_p2": {
     "addr": "0x100589",
     "type": "u8",
     "mult": 0.520833,
+    "add": 0.4,
     "min": 0,
     "max": 100,
     "zero_from": "0xE0",
-    "note": "player 2 health in %, full = 0xC0; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xE0 it reads empty (K.O. audit)"
+    "note": "player 2 health in %, full = 0xC0; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xE0 it reads empty (K.O. audit). At exactly zero the fighter still stands, with a hair of life (\"add\"): the K.O. is the fall below zero (as in Fatal Fury 3 and Real Bout Fatal Fury 2, the same engine; every K.O. the robot recorded takes the byte below zero)"
    },
    "backdrop": {
     "addr": "0x106A33",

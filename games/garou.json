@@ -91,19 +91,21 @@
     "addr": "0x10048E",
     "type": "u8",
     "mult": 0.833333,
+    "add": 0.4,
     "min": 0,
     "max": 100,
     "zero_from": "0xBC",
-    "note": "player 1 health in %, full = 0x78; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xBC it reads empty (K.O. audit)"
+    "note": "player 1 health in %, full = 0x78; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xBC it reads empty (K.O. audit). At exactly zero the fighter still stands, with a hair of life (\"add\"): the K.O. is the fall below zero (a capture of 2026-11-16: player 2's byte at zero for four seconds of fighting, then 0xFF at the K.O.; the robot's recording of 2026-11-15: thirteen seconds at zero)"
    },
    "health_p2": {
     "addr": "0x10058E",
     "type": "u8",
     "mult": 0.833333,
+    "add": 0.4,
     "min": 0,
     "max": 100,
     "zero_from": "0xBC",
-    "note": "player 2 health in %, full = 0x78; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xBC it reads empty (K.O. audit)"
+    "note": "player 2 health in %, full = 0x78; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xBC it reads empty (K.O. audit). At exactly zero the fighter still stands, with a hair of life (\"add\"): the K.O. is the fall below zero (a capture of 2026-11-16: player 2's byte at zero for four seconds of fighting, then 0xFF at the K.O.; the robot's recording of 2026-11-15: thirteen seconds at zero)"
    },
    "rounds": {
     "addr": "0x107477",
