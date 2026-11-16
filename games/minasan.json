@@ -19,10 +19,10 @@
  "memory": {
   "cpu": ":maincpu",
   "values": {
-   "time": {
+   "_move_time": {
     "addr": "0x1000CD",
     "type": "u8",
-    "note": "time to play (FinalBurn Neo cheats, Infinite Move Time, to be confirmed in game)"
+    "note": "time to play (FinalBurn Neo cheats, Infinite Move Time). Read but not shown: the game shows no timer, and this byte runs over 0 to 255 without counting seconds (the robot's recording of 2026-11-16: 177 and 100 on screenshots without any number)"
    },
    "steps": {
     "addr": "0x10131C",
@@ -77,18 +77,8 @@
   "credits": 0,
   "p1_mode": 1,
   "p2_mode": 0,
-  "time": 30,
   "steps": 1,
   "sim": {
-   "time": {
-    "count": [
-     0,
-     30,
-     -1
-    ],
-    "every": 1.0,
-    "start": 1.0
-   },
    "steps": {
     "cycle": [
      1,

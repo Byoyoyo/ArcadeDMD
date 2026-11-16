@@ -137,9 +137,9 @@ class PleasureGoalScene(SoccerScene):
                 k = now - self.gpop[name]
                 hd.put_number(screen, f"{int(v)}", "stencil", S(50), WHITE if k < 1.0 and int(k * 8) % 2 == 0 else (250, 220, 60), x + S(130),
                               S(46), "center", "middle")
-        t = _n(vals.get("time"))
+        t = _n(vals.get("clock"))                                     # 20'00 down to 0'00 as in the game / comme dans le jeu
         if t is not None:
-            self.label(screen, f"{int(t)}", W / 2 - S(330), S(46), 34, (250, 220, 60), key="stencil", align="center")
+            self.label(screen, f"{int(t) // 60}'{int(t) % 60:02d}", W / 2 - S(330), S(46), 34, (250, 220, 60), key="stencil", align="center")
 
 
 # ============================================================================ Football Frenzy

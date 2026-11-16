@@ -45,12 +45,16 @@
    "lives": {
     "addr": "0x105055",
     "type": "u8",
-    "note": "player 1 helicopters in reserve (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL1)"
+    "add": -1,
+    "min": 0,
+    "note": "player 1 helicopters in reserve as beside the helicopter on the screen, the game counts the one that flies too (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL1; the robot's recording of 2026-11-16: 2 in memory at =1 on the screen, 1 at =0)"
    },
    "lives_p2": {
     "addr": "0x1062D5",
     "type": "u8",
-    "note": "player 2 helicopters in reserve (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL2)"
+    "add": -1,
+    "min": 0,
+    "note": "player 2 helicopters in reserve, counted the same way (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL2; 2 in memory at =1 on the screen)"
    },
    "bombs": {
     "addr": "0x105071",
