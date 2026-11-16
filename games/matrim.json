@@ -77,6 +77,31 @@
     "zero_from": "0xCA",
     "note": "player 2 health in %, full = 0x95; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xCA it reads empty (K.O. audit)"
    },
+   "_p1_chr": {
+    "addr": "0x10B81F",
+    "type": "u8",
+    "note": "player 1's fighter in this fight (MAME cheat database, P1 Select Character; the robot's recordings of 2026-11-15 and 16: 7 with Kanji named under the life bar, 5 with Anny, 6 with Clara, 4 with White, 14 with Hikaru). The byte next to it at 0x10B823 is the choice made, which stays when the game picks a fighter for each fight"
+   },
+   "_p2_chr": {
+    "addr": "0x10B84F",
+    "type": "u8",
+    "note": "player 2's or the computer's fighter in this fight (MAME cheat database, P2 Select Character; the robot's recordings: fourteen opponents named under the life bar)"
+   },
+   "_p1_dir": {
+    "addr": "0x103041",
+    "type": "u8",
+    "note": "the side player 1's fighter faces: a motion of the stick reads the other way round when the fighter faces left (1.39). What the byte holds when a round starts is learnt as facing right. From the FBNeo training mode; the robot's recording of 2026-11-16 reads 0 and 1 at its 22 round starts and opposite values through the fights"
+   },
+   "_p2_dir": {
+    "addr": "0x102E75",
+    "type": "u8",
+    "note": "the side player 2's fighter faces, the same byte of its block"
+   },
+   "backdrop": {
+    "addr": "0x10B135",
+    "type": "u8",
+    "note": "the stage (the robot's recordings: one value through a fight, the same backdrop on the screenshots each time the value comes back). Picks the HD theme in \"hd\": \"stages\""
+   },
    "time": {
     "addr": "0x10B90B",
     "type": "u8",
@@ -97,11 +122,223 @@
    }
   }
  },
+ "derived": {
+  "p1_char": {
+   "value": "_p1_chr",
+   "names": {
+    "1": "KEITH",
+    "3": "SAIZO",
+    "4": "WHITE",
+    "5": "ANNY",
+    "6": "CLARA",
+    "7": "KANJI",
+    "10": "UME",
+    "11": "OLOF",
+    "12": "BUNTARO",
+    "13": "SHINTARO",
+    "14": "HIKARU",
+    "15": "SISSY",
+    "16": "MR. JONES",
+    "17": "LYNN",
+    "18": "ELIAS",
+    "19": "JIMMY"
+   },
+   "note": "read under the life bars on the screenshots of the robot's recordings of 2026-11-15 and 16, but 16, which the MAME cheat database names with the other hidden fighters (15 to 19). 0, 2, 8 and 9 were not met"
+  },
+  "p2_char": {
+   "value": "_p2_chr",
+   "names": {
+    "1": "KEITH",
+    "3": "SAIZO",
+    "4": "WHITE",
+    "5": "ANNY",
+    "6": "CLARA",
+    "7": "KANJI",
+    "10": "UME",
+    "11": "OLOF",
+    "12": "BUNTARO",
+    "13": "SHINTARO",
+    "14": "HIKARU",
+    "15": "SISSY",
+    "16": "MR. JONES",
+    "17": "LYNN",
+    "18": "ELIAS",
+    "19": "JIMMY"
+   }
+  }
+ },
+ "hd": {
+  "stages": [
+   "fight_market",
+   "arena",
+   "fight_gothic",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "fight_kof_dojo",
+   "fight_kof_dojo",
+   "fight_kof_dojo"
+  ],
+  "places": [
+   [
+    "SUPERMARCHÉ",
+    "SUPERMARKET"
+   ],
+   "",
+   [
+    "CABARET",
+    "CABARET"
+   ],
+   "",
+   "",
+   [
+    "RING",
+    "RING"
+   ],
+   [
+    "RING",
+    "RING"
+   ],
+   "",
+   [
+    "RING",
+    "RING"
+   ],
+   [
+    "STADE",
+    "STADIUM"
+   ],
+   "",
+   [
+    "SALON",
+    "LIVING ROOM"
+   ],
+   [
+    "TIPI",
+    "TEEPEE"
+   ],
+   [
+    "DOJO",
+    "DOJO"
+   ]
+  ],
+  "note": "HD screen theme and place for each backdrop value (index = value), see the wiki, HD Marquee page. Set from the screenshots of the robot's recordings: 0 a supermarket on sale, 2 a cabaret, 5, 6 and 8 wrestling rings, 9 a stadium, 11 a living room, 12 a room with a teepee, 13 a room with calligraphy. The other stages were not met: the arena, no place named"
+ },
  "demo": {
   "health": 100,
   "health_p2": 100,
   "time": 60,
   "p1_mode": 1,
   "p2_mode": 0
+ },
+ "specials": {
+  "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+  "kinds": ["Special Moves"],
+  "ANNY": [
+   {"name": "SWANNY CLASH", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "RAINBOW RISE", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "PHOTON BURST", "cmd": "236", "btn": "A/C", "kind": "special", "when": "air"}
+  ],
+  "BUNTARO": [
+   {"name": "BUN-CHAN KICK!", "cmd": "623", "btn": "B/D", "kind": "special"},
+   {"name": "GEKISOKU! SLIDER!", "cmd": "63214", "btn": "B/D", "kind": "special"},
+   {"name": "BAKU! OTOKOGI!", "cmd": "63214", "btn": "A/C", "kind": "special"},
+   {"name": "KAKATSUN KICK", "cmd": "236", "btn": "B/D", "kind": "special", "when": "air"},
+   {"name": "KIAI 17'S", "cmd": "22", "btn": "B/D", "kind": "special"}
+  ],
+  "CLARA": [
+   {"name": "DREAMING BOOMERANG", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "MIRACLE ATTACK", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "DREAM TURN ATTACK", "cmd": "214", "btn": "B/D", "kind": "special"},
+   {"name": "AIR DREAM TURN ATTACK", "cmd": "214", "btn": "B/D", "kind": "special", "when": "air"},
+   {"name": "MIRACLE DEATH KISS", "cmd": "641236", "btn": "B+D", "kind": "special"}
+  ],
+  "ELIAS": [
+   {"name": "HOLY FLARE", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "SINFUL", "cmd": "623", "btn": "A/C", "kind": "special", "when": "close"},
+   {"name": "MAGNUS", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "HELL OR HEAVEN", "cmd": "41236", "btn": "B/D", "kind": "special"}
+  ],
+  "HIKARU": [
+   {"name": "CRONOGRAPH", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "BATTING BRANBAS", "cmd": "214", "btn": "B/D", "kind": "special", "when": "air"},
+   {"name": "INCUBUS", "cmd": "623", "btn": "B/D", "kind": "special"},
+   {"name": "ADDRESS IMPULSE", "cmd": "63214", "btn": "A/C", "kind": "special"},
+   {"name": "BASHUREDDO", "cmd": "63214", "btn": "B/D", "kind": "special"}
+  ],
+  "JIMMY": [
+   {"name": "RED RAGE", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "SHOURYUU DAN", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "CANNON KICK", "cmd": "214", "btn": "B/D", "kind": "special"},
+   {"name": "HEAT HURRICANE", "cmd": "63214", "btn": "A", "kind": "special"},
+   {"name": "HURRICANE CHARGE", "cmd": "63214", "btn": "C", "kind": "special"}
+  ],
+  "KANJI": [
+   {"name": "GEKIJOU JUUJIZUKI", "cmd": "", "btn": "A/C", "kind": "special", "rapid": true},
+   {"name": "GENMEI KIKO DAN", "cmd": "63214", "btn": "A/C", "kind": "special"},
+   {"name": "ISSHAKU FUDA", "cmd": "41236", "btn": "B/D", "kind": "special"},
+   {"name": "KYOSUI HIZARYOU", "cmd": "641236", "btn": "A/C", "kind": "special"}
+  ],
+  "KEITH": [
+   {"name": "LIGHTNING FLASH", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "KNUCKLE BOMBER", "cmd": "46", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "ROLLING CANNON", "cmd": "214", "btn": "B/D", "kind": "special"},
+   {"name": "SPIRAL KICK", "cmd": "236", "btn": "B", "kind": "special"},
+   {"name": "AIR SPIRAL KICK", "cmd": "236", "btn": "B/D", "kind": "special", "when": "air"}
+  ],
+  "LYNN": [
+   {"name": "KO RYU SHO ZAN", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "ENRETSU KEN", "cmd": "63214", "btn": "A/C", "kind": "special"},
+   {"name": "KO RYU KYAKU", "cmd": "28", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "RYU EN HOU", "cmd": "623", "btn": "A/C", "kind": "special"}
+  ],
+  "MR. JONES": [
+   {"name": "GAUDY PUNCH", "cmd": "", "btn": "A/C", "kind": "special", "rapid": true},
+   {"name": "FUNKY IMPACT", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "RETRO KNUCKLE", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "ARC FLIEGEN", "cmd": "214", "btn": "B/D", "kind": "special"}
+  ],
+  "OLOF": [
+   {"name": "VNEZAPNOYE NAPADENIYE", "cmd": "214", "btn": "B/D", "kind": "special"},
+   {"name": "SANKTSIY", "cmd": "623", "btn": "B/D", "kind": "special"},
+   {"name": "BITVA", "cmd": "236", "btn": "A/C/B/D", "kind": "special"},
+   {"name": "AIR VNEZAPNOYE NAPADENIYE", "cmd": "214", "btn": "B/D", "kind": "special", "when": "air"}
+  ],
+  "SAIZO": [
+   {"name": "RYUU EN HA", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "GOKUEN SHOU RYUDAN", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "FEINT GOKUEN SHOU RYUDAN", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "SHINKUU SENPUU ZAN", "cmd": "214", "btn": "A/C", "kind": "special", "when": "air"},
+   {"name": "SEIEN RESHOU ZAN", "cmd": "41236", "btn": "B/D", "kind": "special"}
+  ],
+  "SHINTARO": [
+   {"name": "ZUDADADA KI~CK", "cmd": "623", "btn": "B/D", "kind": "special"},
+   {"name": "DOUBLE HAMMER", "cmd": "63214", "btn": "A/C", "kind": "special"},
+   {"name": "POWER DUNK", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "ATATATATATA~", "cmd": "632", "btn": "A/C", "kind": "special"}
+  ],
+  "SISSY": [
+   {"name": "MISDIRECTION", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "RATSEI REVE", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "AMBITIOUS GUARD", "cmd": "236", "btn": "B/D", "kind": "special"},
+   {"name": "ESPOIR", "cmd": "214", "btn": "B/D", "kind": "special"}
+  ],
+  "UME": [
+   {"name": "GAN SAISHI", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "IKAKU GAN", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "RYUSEI RANBU DAN", "cmd": "63214", "btn": "A/C", "kind": "special"},
+   {"name": "TENBU KYAKU", "cmd": "236", "btn": "B/D", "kind": "special", "when": "air"}
+  ],
+  "WHITE": [
+   {"name": "ARROW SHOT", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "FLYING ELBOW", "cmd": "214", "btn": "A/C", "kind": "special", "when": "air"},
+   {"name": "TACKLE BLOW", "cmd": "46", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "BUFFALO STORM", "cmd": "46", "btn": "B/D", "kind": "special", "hold": [0]}
+  ]
  }
 }
