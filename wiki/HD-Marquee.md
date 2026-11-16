@@ -82,20 +82,20 @@ With the smooth HD display, the Metal Slug games and the fighting games get a fu
 ### Backgrounds that follow the stage
 
 The background changes with the game's stage when the game file knows where to read it.
-- `backdrop` is the backdrop of the current fight, from the cheat databases ("Select Backdrop"). It picks the HD background in the `"hd"` list of the game file.
+- `backdrop` is the backdrop of the current fight, from the cheat databases ("Select Backdrop") or found in the games the robot recorded (1.39). In several games the stage is the opponent's own, and the opponent's number is read again. It picks the HD background in the `"hd"` list of the game file.
 - `stage` is the match number in the run (Rage of the Dragons, "Select Stage"). It is shown as STAGE 2, STAGE 3... with the name of the place.
 - `round` is the round of a King of Fighters match ('96 to 2000, "Select Current Round"), one more at each K.O. Fatal Fury 2 and Special, Real Bout Fatal Fury Special, World Heroes 2 Jet and Perfect read theirs too since 1.31.1 (from 1 in the game, `"add": -1`). It is shown as ROUND 2, ROUND 3... when the next fight begins, and the place of a new match comes under its ROUND 1.
 - For Metal Slug, `mission` picks the backdrop of each mission.
 
 | Games | Values |
 |---|---|
-| The King of Fighters '96, '97, '98, '99 and 2000 | `round` and `backdrop`, with the place of each backdrop in '98 (`"places"`) |
-| Rage of the Dragons | `stage` and `backdrop` |
-| The King of Fighters 2002, Garou, Fatal Fury 2, Fatal Fury Special, Real Bout Fatal Fury 2, Real Bout Fatal Fury Special, Samurai Shodown II, III and IV, World Heroes, World Heroes Perfect, SNK vs. Capcom (JAMMA PCB) | `backdrop` |
+| The King of Fighters '96, '97, '98, '99 and 2000 | `round` and `backdrop`, with the place of each backdrop (`"places"`) |
+| Rage of the Dragons | `stage` and `backdrop`, with the place of each backdrop |
+| The King of Fighters '94, '95, 2001 and 2002, Garou, Fatal Fury 2, 3 and Special, the three Real Bout Fatal Fury, Art of Fighting 1, 2 and 3, Samurai Shodown I to V and V Special, The Last Blade 1 and 2, World Heroes 1, 2, 2 Jet and Perfect, SNK vs. Capcom, Kizuna Encounter, Savage Reign, Ninja Master's, Matrimelee, Ragnagard, Breakers and Breakers Revenge, Galaxy Fight, Kabuki Klash, Waku Waku 7, Fight Fever, Voltage Fighter Gowcaizer, Double Dragon, Aggressors of Dark Kombat | `backdrop`, with the place of each stage met (`"places"`) |
 | Metal Slug 1 to 5 and X | `mission` |
 | Street Fighter II, II' Champion Edition, II' Hyper Fighting, Super Street Fighter II and Turbo, Street Fighter Alpha, Alpha 2, Alpha 3, Zero 2 Alpha, Street Fighter III and its 2nd Impact and 3rd Strike, Darkstalkers, Night Warriors, Vampire Savior, Vampire Hunter 2, Vampire Savior 2, X-Men: Children of the Atom, Marvel vs. Capcom, Cyberbots, Super Gem Fighter, Red Earth | `backdrop`, with the place of each stage (`"places"`) |
 
-These addresses come from the cheat databases and still have to be confirmed in game (`test_retroarch.bat` shows them). The other games always get the same background. `demo_fight.bat` changes the stage every two K.O. (in the King of Fighters when a team has lost its three fighters), so you can see it without playing.
+The Neo Geo ones were checked against the screenshots of the games the robot recorded (1.39): each backdrop met got the theme closest to it and the name of its place, and a backdrop that was not met gets the arena with no place named. The Capcom addresses come from the cheat databases and still have to be confirmed in game (`test_retroarch.bat` shows them). The other games always get the same background. `demo_fight.bat` changes the stage every two K.O. (in the King of Fighters when a team has lost its three fighters), so you can see it without playing.
 
 Each game file says which background goes with each backdrop, in the order of the backdrop numbers. For example, in `games\kof98.json`
 
@@ -132,7 +132,7 @@ Backdrop 0 (Japan, street) gets the street under the viaduct in Osaka, 3 (Mid-Ea
 | `fight_kof_wharf` | The King of Fighters '98, USA: the wharf turned junkyard, the basketball hoop, sunset then night then fog |
 | `fight_kof_noah` | The King of Fighters '98, the Black Noah: the hall under the sea, sharks and jellyfish behind the window, bluer at each round |
 
-A Capcom game file can also give the place shown under the stage banner, in French and English, one per backdrop value (`"places": [["CHINE", "CHINA"], ...]`). Without it, the place of the background is shown.
+A game file can also give the place shown under the stage banner, in French and English, one per backdrop value (`"places": [["CHINE", "CHINA"], ...]`). Without it, the place of the background is shown.
 
 The `fight_` backgrounds and `arena` have a crowd in front. Without the `fight_` prefix (`city`, `temple`, `harbor`, `ruins`, `desert`, `jungle`, `snow`), the same places have no crowd, as in the Metal Slug missions. A Metal Slug file can also have its own `"hd": {"stages": [...]}` list, one background per mission.
 

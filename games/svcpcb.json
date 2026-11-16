@@ -241,18 +241,54 @@
  },
  "hd": {
   "stages": [
-   "base",
-   "fight_city",
-   "fight_desert",
+   "fight_kof_mideast",
+   "fight_kof_yard",
+   "fight_ruins",
    "fight_jungle",
-   "fight_temple",
-   "base",
-   "fight_temple",
-   "arena",
+   "fight_ruins",
+   "fight_base",
    "city_war",
-   "fight_snow"
+   "fight_kof_china",
+   "arena",
+   "fight_lab"
   ],
-  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page"
+  "note": "HD screen theme and place for each backdrop value (index = value), see the wiki, HD Marquee page. Set from the screenshots of the robot's recordings. The game names two of its stages before the fight: 0 Factory abandoned, 9 Blockade space. The others are named after what they show: 1 a railway before a factory, 2 a ruined church, 3 a forest, 4 ruins with stone heads, 6 a cave with a fire, 7 clouds. 5, giant pipes under a white sky, has no place; 8 was not met: the arena, no place named. The same list as SNK vs. Capcom, whose stage is read at the same place",
+  "places": [
+   [
+    "USINE ABANDONNÉE",
+    "FACTORY ABANDONED"
+   ],
+   [
+    "VOIE FERRÉE",
+    "RAILWAY"
+   ],
+   [
+    "ÉGLISE EN RUINE",
+    "RUINED CHURCH"
+   ],
+   [
+    "FORÊT",
+    "FOREST"
+   ],
+   [
+    "RUINES",
+    "RUINS"
+   ],
+   "",
+   [
+    "CAVERNE",
+    "CAVE"
+   ],
+   [
+    "NUAGES",
+    "CLOUDS"
+   ],
+   "",
+   [
+    "ZONE BOUCLÉE",
+    "BLOCKADE SPACE"
+   ]
+  ]
  },
  "specials": {
   "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",

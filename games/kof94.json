@@ -250,7 +250,45 @@
    "fight_city",
    "fight_kof_noah"
   ],
-  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page. Set from the screenshots of the robot's recording of 2026-11-16: 0 a jungle with a wrecked plane, 1 a Chinese temple gate, 2 a street of Osaka at night, 3 a street with a car, 4 a Korean pavilion, 5 gondolas in Venice, 6 a hall under a chandelier, 7 London by the Tower Bridge, 8 Rugal's room on the Black Noah"
+  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page. Set from the screenshots of the robot's recording of 2026-11-16: 0 a jungle with a wrecked plane, 1 a Chinese temple gate, 2 a street of Osaka at night, 3 a street with a car, 4 a Korean pavilion, 5 gondolas in Venice, 6 a hall under a chandelier, 7 London by the Tower Bridge, 8 Rugal's room on the Black Noah. The places are the countries of the game's eight teams, each stage its team's own: the two the screenshots do not name by themselves, a street with a car and a hall under a chandelier, are the two countries left",
+  "places": [
+   [
+    "BRÉSIL",
+    "BRAZIL"
+   ],
+   [
+    "CHINE",
+    "CHINA"
+   ],
+   [
+    "JAPON",
+    "JAPAN"
+   ],
+   [
+    "ÉTATS-UNIS",
+    "U.S.A."
+   ],
+   [
+    "CORÉE",
+    "KOREA"
+   ],
+   [
+    "ITALIE",
+    "ITALY"
+   ],
+   [
+    "MEXIQUE",
+    "MEXICO"
+   ],
+   [
+    "ANGLETERRE",
+    "ENGLAND"
+   ],
+   [
+    "BLACK NOAH",
+    "BLACK NOAH"
+   ]
+  ]
  },
  "demo": {
   "health": 100,

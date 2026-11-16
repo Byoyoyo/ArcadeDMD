@@ -35,11 +35,11 @@ Under the name of each human player, a panel like the one of The King of Fighter
 - The special moves of the fighter come one after another, their name, their arrows facing the other fighter and their buttons. A dot per move says which one shows. A charge is a blue arrow, a move done close or in the air says so.
 - When the game's gauge is read and allows a super, the panel turns gold and shows only the supers. Samurai Shodown II shows its POW gauge, then POW MAX with its timer and the fighter's weapon-breaking technique. The Capcom games show their super gauge and its level.
 - A game whose gauge is not read shows its supers in gold among the special moves.
-- The moves of 70 games come from the command list of MAME (`command.dat`, by Fabricio Coroquer and AntoPISA), written in the `specials` block of each game file by `tools/command_dat.py`.
+- The moves of 86 games come from the command list of MAME (`command.dat`, by Fabricio Coroquer and AntoPISA), written in the `specials` block of each game file by `tools/command_dat.py`.
 
 ## Moves recognised at the stick, Neo Geo
 
-In 32 Neo Geo fighting games the stick and buttons of each player are read at every frame (1.39).
+In 48 Neo Geo fighting games the stick and buttons of each player are read at every frame (1.39).
 
 - When a button ends the motion of one of the fighter's moves, the panel shows that move for a moment, its arrows and its edge lit in green, and how many times it was done once it is more than one.
 - The move shown in turn lights its arrows as the stick does them.
@@ -63,65 +63,65 @@ Each Neo Geo fighting game has its own file in `games\`, official variants inclu
 
 When a health bar, a timer or a name does not match the screen, run `test_retroarch.bat` during a fight and post the result in a GitHub issue.
 
-| Game | File | Health bars | Timer | Character names | Score |
-|---|---|---|---|---|---|
-| 3 Count Bout | `3countb.json` | - | - | - | to learn |
-| Aggressors of Dark Kombat | `aodk.json` | yes | - | - | to learn |
-| Art of Fighting | `aof.json` | yes | yes | yes (10) | RetroAchievements, to be checked |
-| Art of Fighting 2 | `aof2.json` | yes | yes | yes (13) | to learn |
-| Art of Fighting 3 | `aof3.json` | yes | yes | yes (10) | to learn |
-| Breakers | `breakers.json` | yes | yes | - | to learn |
-| Breakers Revenge | `breakrev.json` | yes | yes | - | to learn |
-| Double Dragon | `doubledr.json` | yes | yes | yes (14) | to learn |
-| Dragon's Heaven | `dragonsh.json` | - | - | - | to learn |
-| Fatal Fury | `fatfury1.json` | yes | yes | yes (14) | RetroAchievements, to be checked |
-| Fatal Fury 2 | `fatfury2.json` | yes | yes | yes (12) | RetroAchievements, checked on a recording |
-| Fatal Fury 3 | `fatfury3.json` | yes | yes | yes (13) | RetroAchievements, to be checked |
-| Fatal Fury Special | `fatfursp.json` | yes | yes | - | RetroAchievements, to be checked |
-| Fight Fever | `fightfev.json` | yes | yes | yes (10) | to learn |
-| Galaxy Fight | `galaxyfg.json` | yes | yes | - | RetroAchievements, checked on a recording |
-| Garou | `garou.json` | yes | yes | yes (14) | RetroAchievements, to be checked |
-| Kabuki Klash | `kabukikl.json` | yes | yes | yes (8 of 12) | to learn |
-| Karnov's Revenge | `karnovr.json` | yes | yes | yes (14) | RetroAchievements, checked on a recording |
-| King of the Monsters | `kotm.json` | yes | - | - | to learn |
-| King of the Monsters 2 | `kotm2.json` | yes | yes | yes (10) | to learn |
-| Kizuna Encounter | `kizuna.json` | yes | yes | - | to learn |
-| Legend of Success Joe | `legendos.json` | yes | - | - | to learn |
-| Matrimelee | `matrim.json` | yes | yes | - | to learn |
-| Ninja Master's | `ninjamas.json` | yes | yes | - | to learn |
-| Rage of the Dragons | `rotd.json` | yes | yes | - | RetroAchievements, to be checked |
-| Ragnagard | `ragnagrd.json` | yes | - | - | to learn |
-| Real Bout Fatal Fury | `rbff1.json` | yes | yes | yes (16) | RetroAchievements, to be checked |
-| Real Bout Fatal Fury 2 | `rbff2.json` | yes | yes | yes (23) | to learn |
-| Real Bout Fatal Fury Special | `rbffspec.json` | yes | yes | yes (20) | RetroAchievements, to be checked |
-| Samurai Shodown | `samsho.json` | yes | yes | yes (13) | RetroAchievements, to be checked |
-| Samurai Shodown II | `samsho2.json` | yes | yes | yes (17) | yes |
-| Samurai Shodown III | `samsho3.json` | yes | yes | yes (14) | to learn |
-| Samurai Shodown IV | `samsho4.json` | yes | yes | yes (18) | to learn |
-| Samurai Shodown V | `samsho5.json` | yes | yes | yes (28) | to learn |
-| Samurai Shodown V Special | `samsh5sp.json` | yes | yes | yes (28) | to learn |
-| Savage Reign | `savagere.json` | - | - | - | to learn |
-| SNK vs. Capcom | `svc.json` | yes | yes | yes (36) | to learn |
-| SNK vs. Capcom (JAMMA PCB) | `svcpcb.json` | yes | yes | yes (36) | to learn |
-| The King of Fighters '94 | `kof94.json` | yes | yes | - | RetroAchievements, to be checked |
-| The King of Fighters '95 | `kof95.json` | yes | yes | - | to learn |
-| The King of Fighters '96 | `kof96.json` | yes | yes | yes (29) | assumed, to be checked |
-| The King of Fighters '97 | `kof97.json` | yes | yes | yes (32) | found (1.33.1) |
-| The King of Fighters '98 | `kof98.json` | yes | yes | yes (38) | found |
-| The King of Fighters '99 | `kof99.json` | yes | yes | yes (34) | - (the game has no score) |
-| The King of Fighters 2000 | `kof2000.json` | yes | yes | yes (36) | - (the game has no score) |
-| The King of Fighters 2001 | `kof2001.json` | yes | yes | - | assumed, to be checked |
-| The King of Fighters 2002 | `kof2002.json` | yes | yes | - | assumed, to be checked |
-| The King of Fighters 2003 | `kof2003.json` | - | yes | - | RetroAchievements, to be checked |
-| The King of Fighters 2003 (Japan, JAMMA PCB) | `kf2k3pcb.json` | - | yes | - | to learn |
-| The Last Blade | `lastblad.json` | yes | yes | yes (15) | RetroAchievements, to be checked |
-| The Last Blade 2 | `lastbld2.json` | yes | yes | yes (20) | RetroAchievements, to be checked |
-| Voltage Fighter Gowcaizer | `gowcaizr.json` | yes | yes | yes (12) | to learn |
-| Waku Waku 7 | `wakuwak7.json` | yes | yes | yes (9) | RetroAchievements, checked on a recording |
-| World Heroes | `wh1.json` | yes | yes | yes (9) | to learn |
-| World Heroes 2 | `wh2.json` | yes | yes | yes (16) | to learn |
-| World Heroes 2 Jet | `wh2j.json` | yes | yes | yes (17) | to learn |
-| World Heroes Perfect | `whp.json` | yes | yes | yes (19) | to learn |
+| Game | File | Health bars | Timer | Character names | Moves | Stage | Score |
+|---|---|---|---|---|---|---|---|
+| 3 Count Bout | `3countb.json` | - | - | yes (8 of 10) | yes | - | to learn |
+| Aggressors of Dark Kombat | `aodk.json` | yes | - | - | - | yes | to learn |
+| Art of Fighting | `aof.json` | yes | yes | yes (10) | yes | yes | RetroAchievements, to be checked |
+| Art of Fighting 2 | `aof2.json` | yes | yes | yes (13) | yes | yes | to learn |
+| Art of Fighting 3 | `aof3.json` | yes | yes | yes (10) | yes | yes | to learn |
+| Breakers | `breakers.json` | yes | yes | yes (9) | yes | yes | to learn |
+| Breakers Revenge | `breakrev.json` | yes | yes | yes (10) | yes | yes | to learn |
+| Double Dragon | `doubledr.json` | yes | yes | yes (14) | yes | yes | to learn |
+| Dragon's Heaven | `dragonsh.json` | - | - | - | - | - | to learn |
+| Fatal Fury | `fatfury1.json` | yes | yes | yes (14) | yes | - | RetroAchievements, to be checked |
+| Fatal Fury 2 | `fatfury2.json` | yes | yes | yes (12) | yes | yes | RetroAchievements, checked on a recording |
+| Fatal Fury 3 | `fatfury3.json` | yes | yes | yes (13) | yes | yes | RetroAchievements, to be checked |
+| Fatal Fury Special | `fatfursp.json` | yes | yes | yes (12 of 16) | yes | yes | RetroAchievements, to be checked |
+| Fight Fever | `fightfev.json` | yes | yes | yes (10) | yes | yes | to learn |
+| Galaxy Fight | `galaxyfg.json` | yes | yes | yes (10) | yes | yes | RetroAchievements, checked on a recording |
+| Garou | `garou.json` | yes | yes | yes (14) | yes | yes | RetroAchievements, to be checked |
+| Kabuki Klash | `kabukikl.json` | yes | yes | yes (12) | yes | yes | to learn |
+| Karnov's Revenge | `karnovr.json` | yes | yes | yes (14) | yes | - | RetroAchievements, checked on a recording |
+| King of the Monsters | `kotm.json` | yes | - | - | - | - | to learn |
+| King of the Monsters 2 | `kotm2.json` | yes | yes | yes (10) | - | - | to learn |
+| Kizuna Encounter | `kizuna.json` | yes | yes | yes (13) | yes | yes | to learn |
+| Legend of Success Joe | `legendos.json` | yes | - | - | - | - | to learn |
+| Matrimelee | `matrim.json` | yes | yes | yes (16 of 20) | yes | yes | to learn |
+| Ninja Master's | `ninjamas.json` | yes | yes | yes (12) | yes | yes | to learn |
+| Rage of the Dragons | `rotd.json` | yes | yes | yes (16) | yes | yes | RetroAchievements, to be checked |
+| Ragnagard | `ragnagrd.json` | yes | - | yes (12) | yes | yes | to learn |
+| Real Bout Fatal Fury | `rbff1.json` | yes | yes | yes (16) | yes | yes | RetroAchievements, to be checked |
+| Real Bout Fatal Fury 2 | `rbff2.json` | yes | yes | yes (23) | yes | yes | to learn |
+| Real Bout Fatal Fury Special | `rbffspec.json` | yes | yes | yes (20) | yes | yes | RetroAchievements, to be checked |
+| Samurai Shodown | `samsho.json` | yes | yes | yes (13) | yes | yes | RetroAchievements, to be checked |
+| Samurai Shodown II | `samsho2.json` | yes | yes | yes (17) | yes | yes | yes |
+| Samurai Shodown III | `samsho3.json` | yes | yes | yes (14) | yes | yes | to learn |
+| Samurai Shodown IV | `samsho4.json` | yes | yes | yes (18) | yes | yes | to learn |
+| Samurai Shodown V | `samsho5.json` | yes | yes | yes (28) | yes | yes | to learn |
+| Samurai Shodown V Special | `samsh5sp.json` | yes | yes | yes (28) | yes | yes | to learn |
+| Savage Reign | `savagere.json` | - | - | yes (12) | yes | yes | to learn |
+| SNK vs. Capcom | `svc.json` | yes | yes | yes (36) | yes | yes | to learn |
+| SNK vs. Capcom (JAMMA PCB) | `svcpcb.json` | yes | yes | yes (36) | yes | yes | to learn |
+| The King of Fighters '94 | `kof94.json` | yes | yes | yes (26) | yes | yes | RetroAchievements, to be checked |
+| The King of Fighters '95 | `kof95.json` | yes | yes | yes (26) | yes | yes | to learn |
+| The King of Fighters '96 | `kof96.json` | yes | yes | yes (29) | yes | yes | assumed, to be checked |
+| The King of Fighters '97 | `kof97.json` | yes | yes | yes (32) | yes | yes | found (1.33.1) |
+| The King of Fighters '98 | `kof98.json` | yes | yes | yes (38) | yes | yes | found |
+| The King of Fighters '99 | `kof99.json` | yes | yes | yes (34) | yes | yes | - (the game has no score) |
+| The King of Fighters 2000 | `kof2000.json` | yes | yes | yes (36) | yes | yes | - (the game has no score) |
+| The King of Fighters 2001 | `kof2001.json` | yes | yes | yes (42) | yes | yes | assumed, to be checked |
+| The King of Fighters 2002 | `kof2002.json` | yes | yes | yes (41) | yes | yes | assumed, to be checked |
+| The King of Fighters 2003 | `kof2003.json` | - | yes | yes (37) | yes | - | RetroAchievements, to be checked |
+| The King of Fighters 2003 (Japan, JAMMA PCB) | `kf2k3pcb.json` | - | yes | - | - | - | to learn |
+| The Last Blade | `lastblad.json` | yes | yes | yes (15) | yes | yes | RetroAchievements, to be checked |
+| The Last Blade 2 | `lastbld2.json` | yes | yes | yes (20) | yes | yes | RetroAchievements, to be checked |
+| Voltage Fighter Gowcaizer | `gowcaizr.json` | yes | yes | yes (12) | yes | yes | to learn |
+| Waku Waku 7 | `wakuwak7.json` | yes | yes | yes (9) | yes | yes | RetroAchievements, checked on a recording |
+| World Heroes | `wh1.json` | yes | yes | yes (9) | yes | yes | to learn |
+| World Heroes 2 | `wh2.json` | yes | yes | yes (16) | yes | yes | to learn |
+| World Heroes 2 Jet | `wh2j.json` | yes | yes | yes (17) | yes | yes | to learn |
+| World Heroes Perfect | `whp.json` | yes | yes | yes (19) | yes | yes | to learn |
 
 ## Capcom fighting games
 

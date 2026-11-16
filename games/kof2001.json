@@ -297,14 +297,43 @@
    "fight_temple",
    "fight_kof_wharf",
    "arena",
-   "fight_city",
+   "fight_kof_mideast",
    "fight_market",
    "fight_kof_korea",
    "fight_city",
    "fight_gothic",
    "fight_lab"
   ],
-  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page. Set from the screenshots of the robot's recording of 2026-11-16: 0 a Japanese park under lanterns, 1 the Rialto in Venice, 3 Las Vegas, 4 a Chinese street, 5 a Korean temple under snow, 6 Sao Paulo, 7 a hall of red arches, 8 a dark hall of machines. 2 was not met: the arena"
+  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page. Set from the screenshots of the robot's recording of 2026-11-16: 0 a Japanese park under lanterns, 1 the Rialto in Venice, 3 Las Vegas, 4 a Chinese street, 5 a Korean temple under snow, 6 Sao Paulo, 7 a hall of red arches, 8 a dark hall of machines. 2 was not met: the arena. The places are the countries the screenshots show; 3, a street by day, takes a daytime theme",
+  "places": [
+   [
+    "JAPON",
+    "JAPAN"
+   ],
+   [
+    "ITALIE",
+    "ITALY"
+   ],
+   "",
+   [
+    "ÉTATS-UNIS",
+    "U.S.A."
+   ],
+   [
+    "CHINE",
+    "CHINA"
+   ],
+   [
+    "CORÉE",
+    "KOREA"
+   ],
+   [
+    "BRÉSIL",
+    "BRAZIL"
+   ],
+   "",
+   ""
+  ]
  },
  "demo": {
   "health": 100,

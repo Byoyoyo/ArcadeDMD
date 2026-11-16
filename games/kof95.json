@@ -327,7 +327,45 @@
    "fight_city",
    "fight_lab"
   ],
-  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page. Set from the screenshots of the robot's recording of 2026-11-16: 0 a karate yard at sunset, 1 a waterfall, 2 a shopping arcade, 3 a steel mill, 4 a jungle, 5 a pier by the sea, 6 a wooden hall with a drum, 7 a pub, 8 a control room"
+  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page. Set from the screenshots of the robot's recording of 2026-11-16: 0 a karate yard at sunset, 1 a waterfall, 2 a shopping arcade, 3 a steel mill, 4 a jungle, 5 a pier by the sea, 6 a wooden hall with a drum, 7 a pub, 8 a control room",
+  "places": [
+   [
+    "COUR DE KARATÉ",
+    "KARATE YARD"
+   ],
+   [
+    "CASCADE",
+    "WATERFALL"
+   ],
+   [
+    "GALERIE MARCHANDE",
+    "SHOPPING ARCADE"
+   ],
+   [
+    "ACIÉRIE",
+    "STEEL MILL"
+   ],
+   [
+    "JUNGLE",
+    "JUNGLE"
+   ],
+   [
+    "JETÉE",
+    "PIER"
+   ],
+   [
+    "SALLE DU TAMBOUR",
+    "DRUM HALL"
+   ],
+   [
+    "PUB",
+    "PUB"
+   ],
+   [
+    "SALLE DE CONTRÔLE",
+    "CONTROL ROOM"
+   ]
+  ]
  },
  "demo": {
   "health": 100,
