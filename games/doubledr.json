@@ -119,6 +119,18 @@
     "type": "u8",
     "note": "player 2 or computer character"
    },
+   "_p1_dir": {
+    "addr": "0x10042B",
+    "type": "u8",
+    "mask": 32,
+    "note": "the side player 1's fighter faces, one bit of a byte of its block: a motion of the stick reads the other way round when the fighter faces left (1.39). What it holds when a round starts is learnt as facing right. The byte the FBNeo training mode reads; the robot's recording of 2026-11-16 reads this bit 0 and 1 at its 13 round starts and opposite 94% of the fights"
+   },
+   "_p2_dir": {
+    "addr": "0x10052B",
+    "type": "u8",
+    "mask": 32,
+    "note": "the side player 2's fighter faces, the same bit of its block"
+   },
    "backdrop": {
     "addr": "0x100545",
     "type": "u8",

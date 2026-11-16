@@ -145,6 +145,11 @@
     "type": "u8",
     "note": "player 2 or computer character"
    },
+   "backdrop": {
+    "addr": "0x105627",
+    "type": "u8",
+    "note": "the backdrop of the fight (MAME cheat database, Select Perm. Background; the robot's recordings of 2026-11-15 and 16: one value through a fight, the same backdrop each time it comes back). Picks the HD theme in \"hd\": \"stages\""
+   },
    "rounds": {
     "addr": "0x105666",
     "type": "u8",
@@ -203,11 +208,6 @@
     ]
    },
    "note": "the same for the right bar"
-  },
-  "backdrop": {
-   "addr": "0x105627",
-   "type": "u8",
-   "note": "the backdrop of the fight (MAME cheat database, Select Perm. Background; the robot's recordings of 2026-11-15 and 16: one value through a fight, the same backdrop each time it comes back). Picks the HD theme in \"hd\": \"stages\""
   }
  },
  "derived": {
