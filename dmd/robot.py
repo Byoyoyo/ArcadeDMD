@@ -891,7 +891,7 @@ def roms(root, setup, fights=False):
                 g = json.load(f)
         except (OSError, ValueError):
             continue
-        if isinstance(g, dict) and isinstance(g.get("memory"), dict):
+        if isinstance(g, dict) and isinstance(g.get("memory"), dict) and not g.get("fallback"):   # neogeo.zip is the BIOS
             fight = isinstance(g.get("scene_from"), str) and "combat" in g["scene_from"]
             out.append((0 if fight else 1, key))
     return [k for kind, k in sorted(out) if kind == 0 or not fights]

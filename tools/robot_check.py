@@ -55,6 +55,9 @@ def run(script, off=(), closed=(), setup=None, runs=1, only=None, unseen=False, 
         with open(os.path.join(root, "games", n + ".json"), "w") as f:
             json.dump(dict({"memory": {"values": {}}}, **({"scene_from": "neogeo_combat"} if i in fights else {})), f)
         open(os.path.join(root, "roms", n + ".zip"), "w").close()
+    with open(os.path.join(root, "games", "shared.json"), "w") as f:      # a shared file named like the BIOS's zip
+        json.dump({"fallback": True, "memory": {"values": {}}, "scene_from": "neogeo_combat"}, f)
+    open(os.path.join(root, "roms", "shared.zip"), "w").close()
     base = {"exe": "x", "core": "c", "rom_dir": os.path.join(root, "roms"), "ext": ".zip"}
     base.update(setup or {})
     with open(os.path.join(root, "runtime", "robot.json"), "w") as f:
@@ -81,6 +84,7 @@ def run(script, off=(), closed=(), setup=None, runs=1, only=None, unseen=False, 
             pass
 
     def launch(setup, rom, cfg):
+        assert rom != "shared", "the tour started a shared file, which is no game"
         started.append(rom)
         if len(started) > limit:
             raise KeyboardInterrupt                               # a tour that never ends / un tour sans fin
