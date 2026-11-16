@@ -243,11 +243,15 @@ def judge(name, d, seq, idx, starts, ser):
     if base == "score":
         if flat:
             return "flat", f"always {vals[0]}"
-        if ups >= 3 and downs <= max(3, 0.2 * ups):
+        again = sum(1 for a, b in zip(r, r[1:]) if b[0] < a[0] and b[0] <= 0.1 * a[0])   # a new game starts from nothing
+        falls = downs - again
+        if ups >= 3 and falls <= max(3, 0.2 * ups):
             small = max(vals) < 100
-            return ("ok", f"{ups} rises, up to {max(vals)}") if not small else \
+            return ("ok", f"{ups} rises, up to {max(vals)}" + (f", {again} new games" if again else "")) if not small else \
                 ("BAD", f"never above {max(vals)}: not a score")
-        return "BAD", f"{ups} ups, {downs} downs"
+        if ups < 3 and falls == 0:                                    # a player who came for a minute
+            return "", f"{ups} rises, up to {max(vals)}: too few to judge"
+        return "BAD", f"{ups} ups, {falls} downs" + (f", {again} new games" if again else "")
     if base in ("power", "_pow", "_stock", "_maxv", "power_level", "_dm"):
         if flat:
             return "flat", f"always {vals[0]}"

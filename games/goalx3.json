@@ -29,10 +29,17 @@
     "type": "u8",
     "note": "goals of the other team (FinalBurn Neo cheats and MAME 2003-Plus cheats, Select Score Now! PL2)"
    },
-   "time": {
-    "addr": "0x1004E5",
+   "_time_min": {
+    "addr": "0x1004E2",
     "type": "u8",
-    "note": "seconds of the time (FinalBurn Neo cheats, Infinite Time, to be confirmed in game)"
+    "mult": 60,
+    "note": "the minute of the clock, counted in seconds (the robot's recording of 2026-11-16: 1 at 1:37 and 1:02, 0 at 0:26)"
+   },
+   "_time_sec": {
+    "addr": "0x1004E3",
+    "type": "digits",
+    "bytes": 2,
+    "note": "the seconds of the clock, one digit a byte (the robot's recording: 03 07 at 1:37, 05 09 at 0:59). The byte after them, 0x1004E5, counts the frames of the second (FinalBurn Neo cheats, Infinite Time)"
    },
    "credits": {
     "addr": "0xD00034",
@@ -73,6 +80,9 @@
     "note": "BIOS_MVS_FLAG: 0 home console (AES, no coins), otherwise arcade (MVS)"
    }
   }
+ },
+ "derived": {
+  "time": {"sum": ["_time_min", "_time_sec"], "note": "the time left in seconds, the clock of the game (2:00 down to 0:00)"}
  },
  "hd": {
   "scene": "goalx3"

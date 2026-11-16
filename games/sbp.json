@@ -20,10 +20,10 @@
   "cpu": ":maincpu",
   "values": {
    "score": {
-    "addr": "",
-    "type": "bcd",
+    "addr": "0x1074A4",
+    "type": "be",
     "bytes": 4,
-    "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+    "note": "player 1 score, a 32-bit number (the robot's recording of 2026-11-16: 1200, 5400, 9000 and 2800 as on the screen)"
    },
    "score_p2": {
     "addr": "",

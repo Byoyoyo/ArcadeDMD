@@ -35,26 +35,26 @@
     "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
    },
    "lives": {
-    "addr": "0x103C00",
+    "addr": "0x103B00",
     "type": "u8",
-    "note": "lives in reserve (FinalBurn Neo cheats, Infinite Lives PL1; MAME 2003-Plus lists the same values 0x100 lower, to be confirmed in game)"
+    "note": "lives in reserve (FinalBurn Neo cheats, Infinite Lives PL1; read 0x100 lower, where player 1 is in a one-player game: 1 then 2 lives as on the screen, form 1, in the robot's recording of 2026-11-16)"
    },
    "energy": {
-    "addr": "0x103C07",
+    "addr": "0x103B07",
     "type": "u8",
     "max": 5,
-    "note": "HP, 5 at most (FinalBurn Neo cheats, Infinite Energy PL1)"
+    "note": "HP, 5 at most (FinalBurn Neo cheats, Infinite Energy PL1; read 0x100 lower, where player 1 is in a one-player game: 1 then 2 lives as on the screen, form 1, in the robot's recording of 2026-11-16)"
    },
    "power": {
-    "addr": "0x103C04",
+    "addr": "0x103B04",
     "type": "u8",
     "max": 2,
-    "note": "POW of the magic, 0 to 2 (FinalBurn Neo cheats, Infinite Power PL1)"
+    "note": "POW of the magic, 0 to 2 (FinalBurn Neo cheats, Infinite Power PL1; read 0x100 lower, where player 1 is in a one-player game: 1 then 2 lives as on the screen, form 1, in the robot's recording of 2026-11-16)"
    },
    "form": {
-    "addr": "0x103C05",
+    "addr": "0x103B05",
     "type": "u8",
-    "note": "shape of the hero, 1 Magician Lord, 13 Shinobi, 9 Waterman, 14 Samurai, 5 Dragon Warrior, 10 Poseidon, 15 Raijin (FinalBurn Neo cheats, Select Character PL1)"
+    "note": "shape of the hero, 1 Magician Lord, 13 Shinobi, 9 Waterman, 14 Samurai, 5 Dragon Warrior, 10 Poseidon, 15 Raijin (FinalBurn Neo cheats, Select Character PL1; read 0x100 lower, where player 1 is in a one-player game: 1 then 2 lives as on the screen, form 1, in the robot's recording of 2026-11-16)"
    },
    "credits": {
     "addr": "0xD00034",

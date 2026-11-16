@@ -211,7 +211,7 @@ class NinjaCombatScene(BrawlerScene):
         t = _n(vals.get("time"))
         self.text(screen, "TIME", S(110), y0 + S(76), 22, (240, 80, 70), key="black", valign="middle")
         if t is not None:
-            sec = int(t) // 60
+            sec = int(t) // 64                                        # 64 to a second of the game's TIME / 64 par seconde
             self.text(screen, f"{sec // 60:02d}:{sec % 60:02d}", S(180), y0 + S(76), 26, WHITE, key="black", valign="middle")
         lives = _n(vals.get("lives"))
         if lives is not None:
