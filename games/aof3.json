@@ -186,7 +186,10 @@
    "arena",
    "fight_snow",
    "arena",
-   "fight_ruins"
+   "fight_ruins",
+   "arena",
+   "arena",
+   "arena"
   ],
   "places": [
    "",
@@ -233,9 +236,12 @@
    [
     "CIMETIÈRE",
     "GRAVEYARD"
-   ]
+   ],
+   "",
+   "",
+   ""
   ],
-  "note": "HD screen theme and place for each backdrop value (index = value), see the wiki, HD Marquee page. Set from the screenshots of the robot's recordings: 1 and 2 a gas station in the desert, at sunset then at night, 3 and 4 a freight yard by day then by night, 5 a street at night, 6 a cantina terrace, 7 a barn with a crowd, 9 a conservatory, 12 a dam, 14 a graveyard. The other values were not met: the arena, no place named"
+  "note": "HD screen theme and place for each backdrop value (index = value), see the wiki, HD Marquee page. Set from the screenshots of the robot's recordings: 1 and 2 a gas station in the desert, at sunset then at night, 3 and 4 a freight yard by day then by night, 5 a street at night, 6 a cantina terrace, 7 a barn with a crowd, 9 a conservatory, 12 a dam, 14 a graveyard. The other values were not met: the arena, no place named The values above the last stage are read between the fights: the arena, no place named, so that they do not come round onto a stage"
  },
  "demo": {
   "health": 100,

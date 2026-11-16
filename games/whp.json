@@ -233,9 +233,29 @@
    "city_war",
    "fight_kof_korea",
    "fight_gothic",
-   "fight_desert"
+   "fight_desert",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena"
   ],
-  "note": "HD screen theme and place for each backdrop value (index = value), see the wiki, HD Marquee page. The places are the game's own, as the MAME cheat database names them; the themes are set from the screenshots of the robot's recording of 2026-11-16: 0 a volcano, 1 a jungle with dinosaurs, 2 ice and a mammoth's bones, 3 a camp of hides, 4 pyramids and columns, 5 a castle hall, 6 a Japanese street by day, 7 a station with a steam engine, 8 a warship at night, 9 a crowd in a city, 10 a hall of columns, 11 red rocks",
+  "note": "HD screen theme and place for each backdrop value (index = value), see the wiki, HD Marquee page. The places are the game's own, as the MAME cheat database names them; the themes are set from the screenshots of the robot's recording of 2026-11-16: 0 a volcano, 1 a jungle with dinosaurs, 2 ice and a mammoth's bones, 3 a camp of hides, 4 pyramids and columns, 5 a castle hall, 6 a Japanese street by day, 7 a station with a steam engine, 8 a warship at night, 9 a crowd in a city, 10 a hall of columns, 11 red rocks The values above the last stage are read between the fights: the arena, no place named, so that they do not come round onto a stage",
   "places": [
    [
     "GENÈSE",
@@ -284,7 +304,27 @@
    [
     "DERNIER STAGE",
     "FINAL STAGE"
-   ]
+   ],
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   ""
   ]
  },
  "specials": {

@@ -258,9 +258,73 @@
   "_p2_chr": 1
  },
  "hd": {
-  "stages": ["fight_jungle", "fight_ruins", "fight_harbor", "fight_temple", "fight_ruins", "fight_jungle", "fight_snow", "fight_temple", "arena", "fight_city"],
-  "places": [["COL DE SHIMIJI", "SHIMIJI PASS"], ["CIEL NUAGEUX", "CLOUDY SKY"], ["PORT 13", "13 PORTTOWN"], ["VILLAGE DU CRÉPUSCULE", "VILLAGE OF TWILIGHT"], ["CIMETIÈRE", "THE GRAVEYARD"], ["FORÊT DE L'OUBLI", "FOREST OF FORGETFULNESS"], ["VEILLE DE YUKI-MACHI", "NIGHT BEFORE YUKI-MACHI"], ["SANCTUAIRE DES VAINCUS", "SHRINE OF THE VANQUISHED"], ["DERNIER COMBAT", "BOSS STAGE"], ["INCENDIE DU WADAMOYA", "FIRE AT THE WADAMOYA"]],
-  "note": "HD theme and place shown for each backdrop value (index = value), see the wiki, HD Marquee page"
+  "stages": [
+   "fight_jungle",
+   "fight_ruins",
+   "fight_harbor",
+   "fight_temple",
+   "fight_ruins",
+   "fight_jungle",
+   "fight_snow",
+   "fight_temple",
+   "arena",
+   "fight_city",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena"
+  ],
+  "places": [
+   [
+    "COL DE SHIMIJI",
+    "SHIMIJI PASS"
+   ],
+   [
+    "CIEL NUAGEUX",
+    "CLOUDY SKY"
+   ],
+   [
+    "PORT 13",
+    "13 PORTTOWN"
+   ],
+   [
+    "VILLAGE DU CRÉPUSCULE",
+    "VILLAGE OF TWILIGHT"
+   ],
+   [
+    "CIMETIÈRE",
+    "THE GRAVEYARD"
+   ],
+   [
+    "FORÊT DE L'OUBLI",
+    "FOREST OF FORGETFULNESS"
+   ],
+   [
+    "VEILLE DE YUKI-MACHI",
+    "NIGHT BEFORE YUKI-MACHI"
+   ],
+   [
+    "SANCTUAIRE DES VAINCUS",
+    "SHRINE OF THE VANQUISHED"
+   ],
+   [
+    "DERNIER COMBAT",
+    "BOSS STAGE"
+   ],
+   [
+    "INCENDIE DU WADAMOYA",
+    "FIRE AT THE WADAMOYA"
+   ],
+   "",
+   "",
+   "",
+   "",
+   "",
+   ""
+  ],
+  "note": "HD theme and place shown for each backdrop value (index = value), see the wiki, HD Marquee page The values above the last stage are read between the fights: the arena, no place named, so that they do not come round onto a stage"
  },
  "specials": {
   "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",

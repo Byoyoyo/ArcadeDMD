@@ -200,9 +200,21 @@
    "arena",
    "arena",
    "fight_kof_china",
-   "fight_kof_china"
+   "fight_kof_china",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena",
+   "arena"
   ],
-  "note": "HD screen theme and place for each backdrop value (index = value), see the wiki, HD Marquee page. The MAME cheat database names each backdrop after its fighter, 0 to 8 in the normal mode, 9 to 17 in the death match mode, 18 and 19 the bonus stages; themes and places set from the screenshots of the robot's recording of 2026-11-16: 0 a circus (Janne), 1 a red temple gate (Hanzou), 2 a Chinese temple (Dragon), 4 a camp in the steppe at sunset (J. Carn), 6 a factory (Brocken), 8 a space station (Geegus), 10 and 11 rings of the death match mode, 18 and 19 the Chinese temple again. 3 was not met; 5 and 7 are not clear on the screenshots and keep the theme they had",
+  "note": "HD screen theme and place for each backdrop value (index = value), see the wiki, HD Marquee page. The MAME cheat database names each backdrop after its fighter, 0 to 8 in the normal mode, 9 to 17 in the death match mode, 18 and 19 the bonus stages; themes and places set from the screenshots of the robot's recording of 2026-11-16: 0 a circus (Janne), 1 a red temple gate (Hanzou), 2 a Chinese temple (Dragon), 4 a camp in the steppe at sunset (J. Carn), 6 a factory (Brocken), 8 a space station (Geegus), 10 and 11 rings of the death match mode, 18 and 19 the Chinese temple again. 3 was not met; 5 and 7 are not clear on the screenshots and keep the theme they had The values above the last stage are read between the fights: the arena, no place named, so that they do not come round onto a stage",
   "places": [
    [
     "CIRQUE",
@@ -267,6 +279,18 @@
     "DEATH MATCH",
     "DEATH MATCH"
    ],
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
    "",
    ""
   ]

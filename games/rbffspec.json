@@ -140,9 +140,9 @@
     "note": "player 1 character (FBNeo cheat codes)"
    },
    "_p2_chr": {
-    "addr": "0x106A2B",
+    "addr": "0x100511",
     "type": "u8",
-    "note": "player 2 or computer character (the robot's recording of 2026-11-15: 4 with Mai on the screenshots, 6 with Sokaku, set when the fighters are chosen; 0x106B25, read before, stayed at 0 and no name was shown. 0x100511, in the fighter's own block, holds the same but shows the cursor's fighter for a few seconds first)"
+    "note": "player 2's or the computer's fighter, in the fighter's own block (MAME cheat database, P2 Select Character; the robot's recording of 2026-11-16: it follows the eighteen opponents met, checked against the portraits and the names on the screenshots). While the fighters are chosen it shows the cursor's fighter. 0x106A2B, read before, is a second player's choice and does not follow the computer's fighters"
    },
    "backdrop": {
     "addr": "0x106A31",

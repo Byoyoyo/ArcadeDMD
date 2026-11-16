@@ -194,7 +194,7 @@
    "fight_snow",
    "fight_temple",
    "fight_harbor",
-   "arena",
+   "fight_kof_china",
    "fight_snow",
    "fight_temple",
    "fight_ruins",
@@ -221,7 +221,10 @@
     "PORT",
     "HARBOR"
    ],
-   "",
+   [
+    "PALAIS CHINOIS",
+    "CHINESE PALACE"
+   ],
    [
     "MONT FUJI",
     "MOUNT FUJI"
@@ -252,7 +255,7 @@
    ],
    ""
   ],
-  "note": "HD screen theme and place for each backdrop value (index = value), see the wiki, HD Marquee page. Set from the screenshots of the robot's recordings: 0 a shore under the waves (Haohmaru), 1 a village in the snow (Nakoruru), 2 a shrine in autumn (Hanzo), 3 a harbor at sunset (Galford), 5 a shore at night before Mount Fuji (Ukyo), 6 a kabuki theatre (Kyoshiro), 7 a cave with bonfires (Gen-An), 8 a canyon (Earthquake), 9 a bamboo forest (Jubei), 10 a temple in the jungle (Tam Tam), 11 a palace hall (Charlotte). Wan-Fu's and Amakusa's were not met: the arena, no place named"
+  "note": "HD screen theme and place for each backdrop value (index = value), see the wiki, HD Marquee page. Set from the screenshots of the robot's recordings of 2026-11-15 and 16: 0 a shore under the waves (Haohmaru), 1 a village in the snow (Nakoruru), 2 a shrine in autumn (Hanzo), 3 a harbor at sunset (Galford), 4 a Chinese palace (Wan-Fu), 5 a shore at night before Mount Fuji (Ukyo), 6 a kabuki theatre (Kyoshiro), 7 a cave with bonfires (Gen-An), 8 a canyon (Earthquake), 9 a bamboo forest (Jubei), 10 a temple in the jungle (Tam Tam), 11 a palace hall (Charlotte). Amakusa's was not met: the arena, no place named"
  },
  "demo": {
   "health": 100,
