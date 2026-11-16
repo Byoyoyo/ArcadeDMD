@@ -79,6 +79,26 @@
     "zero_from": "0xB0",
     "note": "player 2 health in %, full = 0x60; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xB0 it reads empty (K.O. audit)"
    },
+   "_p1_chr": {
+    "addr": "0x10045D",
+    "type": "u8",
+    "note": "player 1's fighter, a byte of its block (the robot's recording of 2026-11-16: 1 with Terry Bogard named under the life bar)"
+   },
+   "_p2_chr": {
+    "addr": "0x10055D",
+    "type": "u8",
+    "note": "player 2's or the computer's fighter, the same byte of its block (the robot's recording of 2026-11-16: 1 to 12 through the twelve opponents met)"
+   },
+   "_p1_dir": {
+    "addr": "0x100469",
+    "type": "u8",
+    "note": "the side player 1's fighter faces: a motion of the stick reads the other way round when the fighter faces left (1.39). What the byte holds when a round starts is learnt as facing right. FBNeo training mode by peon2 and contributors; in the robot's recording of 2026-11-16 the pair reads 1 and 0 at the 22 round starts and stays opposite 99% of the fight"
+   },
+   "_p2_dir": {
+    "addr": "0x100569",
+    "type": "u8",
+    "note": "the side player 2's fighter faces, the same byte of its block"
+   },
    "time": {
     "addr": "0x10092A",
     "type": "bcd",
@@ -116,6 +136,43 @@
    }
   }
  },
+ "derived": {
+  "p1_char": {
+   "value": "_p1_chr",
+   "names": {
+    "1": "TERRY",
+    "2": "ANDY",
+    "3": "JOE",
+    "4": "BIG BEAR",
+    "5": "JUBEI",
+    "6": "CHENG",
+    "7": "KIM",
+    "8": "MAI",
+    "9": "DUCK KING",
+    "10": "TUNG",
+    "11": "BILLY",
+    "12": "AXEL"
+   },
+   "note": "read under the life bars on the screenshots of the robot's recording of 2026-11-16, the first twelve numbers as in Fatal Fury 2 with Duck King and Tung Fu Rue in between. 13 and above (Laurence, Krauser, Geese, Ryo) were not met: no name is shown for them"
+  },
+  "p2_char": {
+   "value": "_p2_chr",
+   "names": {
+    "1": "TERRY",
+    "2": "ANDY",
+    "3": "JOE",
+    "4": "BIG BEAR",
+    "5": "JUBEI",
+    "6": "CHENG",
+    "7": "KIM",
+    "8": "MAI",
+    "9": "DUCK KING",
+    "10": "TUNG",
+    "11": "BILLY",
+    "12": "AXEL"
+   }
+  }
+ },
  "demo": {
   "health": 100,
   "health_p2": 100,
@@ -144,5 +201,88 @@
    "fight_temple"
   ],
   "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page. Set from the screenshots of the robot's recording of 2026-11-15 for the stages it met: 2 a quay at night"
+ },
+ "specials": {
+  "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+  "kinds": ["Desperation Moves", "Special Moves"],
+  "super_needs": ["Needs a FLASHING Life Bar"],
+  "ANDY": [
+   {"name": "HISHOU KEN", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "SHOURYUU DAN", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "KUUHA DAN", "cmd": "19", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "ZAN'EI KEN", "cmd": "16", "btn": "A/C", "kind": "special"},
+   {"name": "CHOU REPPA DAN", "cmd": "236", "btn": "B+D", "kind": "super", "hold": [0]}
+  ],
+  "AXEL": [
+   {"name": "AXEL DANCE", "cmd": "", "btn": "A/C", "kind": "special", "rapid": true},
+   {"name": "TORNADO UPPER", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "SMASH BOMBER", "cmd": "16", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "AXEL RUSH", "cmd": "4632149", "btn": "B+C", "kind": "super"}
+  ],
+  "BIG BEAR": [
+   {"name": "GIANT BOMB", "cmd": "16", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "BEAR BOMBER", "cmd": "6428", "btn": "C", "kind": "special"},
+   {"name": "FIRE BREATH", "cmd": "63216", "btn": "B+C", "kind": "super"}
+  ],
+  "BILLY": [
+   {"name": "SENPUU KON", "cmd": "", "btn": "A/C", "kind": "special", "rapid": true},
+   {"name": "SANSETSU KON: CHUUDAN UCHI", "cmd": "46", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "KYOUSHUU HISHOU KON", "cmd": "1236", "btn": "B/D", "kind": "special"},
+   {"name": "SUZUME OTOSHI", "cmd": "19", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "CHOU KAEN SENPUU KON", "cmd": "23632147", "btn": "A+C", "kind": "super"}
+  ],
+  "CHENG": [
+   {"name": "KITEN HINZAN", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "DAI TAIKOBARA UCHI", "cmd": "28", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "HAGAN GEKI", "cmd": "46", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "BUKURAI HOH", "cmd": "1236", "btn": "B+C", "kind": "super", "hold": [0]}
+  ],
+  "DUCK KING": [
+   {"name": "HEAD SPIN ATTACK", "cmd": "46", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "BREAK STORM", "cmd": "2369", "btn": "B/D", "kind": "special"},
+   {"name": "DANCING DIVE", "cmd": "214", "btn": "B/D", "kind": "special"},
+   {"name": "BEAT RUSH", "cmd": "646", "btn": "C", "kind": "special"},
+   {"name": "BREAK SPIRAL", "cmd": "4123692", "btn": "B+C", "kind": "super", "when": "close"}
+  ],
+  "JOE": [
+   {"name": "BAKURETSU KEN", "cmd": "", "btn": "A/C", "kind": "special", "rapid": true},
+   {"name": "HURRICANE UPPER", "cmd": "41236", "btn": "A/C", "kind": "special"},
+   {"name": "TIGER KICK", "cmd": "2369", "btn": "B/D", "kind": "special"},
+   {"name": "SLASH KICK", "cmd": "19", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "SCREW UPPER", "cmd": "641236", "btn": "B+C", "kind": "super"}
+  ],
+  "JUBEI": [
+   {"name": "NIHON SEOI DASH", "cmd": "46", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "OOIZUNA OTOSHI", "cmd": "28", "btn": "A/C", "kind": "special", "hold": [0], "when": "close"},
+   {"name": "SENBE SHURIKEN", "cmd": "46", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "NEKO JARASHI", "cmd": "63214", "btn": "C", "kind": "special", "when": "close"},
+   {"name": "DYNAMITE IZUNA OTOSHI", "cmd": "123", "btn": "B+C", "kind": "super", "hold": [0], "when": "close"}
+  ],
+  "KIM": [
+   {"name": "HANGETSU ZAN", "cmd": "214", "btn": "B/D", "kind": "special"},
+   {"name": "HIEN ZAN", "cmd": "28", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "HOU'OU KYAKU", "cmd": "21416", "btn": "B+D", "kind": "super"}
+  ],
+  "MAI": [
+   {"name": "KACHOU SEN", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "RYUU ENBU", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "HISSATSU SHINOBI BACHI", "cmd": "41236", "btn": "B/D", "kind": "special"},
+   {"name": "MUSASABI NO MAI", "cmd": "28", "btn": "C", "kind": "special", "hold": [0]},
+   {"name": "CHOU HISSATSU SHINOBI BACHI", "cmd": "616", "btn": "B+C", "kind": "super"}
+  ],
+  "TERRY": [
+   {"name": "POWER WAVE", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "RISING TACKLE", "cmd": "28", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "BURN KNUCKLE", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "CRACK SHOOT", "cmd": "2147", "btn": "B/D", "kind": "special"},
+   {"name": "POWER GEYSER", "cmd": "21416", "btn": "B+C", "kind": "super"}
+  ],
+  "TUNG": [
+   {"name": "SEN SHIPPO", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "SHOU HA", "cmd": "16", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "RESSEN KYAKU", "cmd": "19", "btn": "B/D", "kind": "special", "hold": [0], "when": "close"},
+   {"name": "GEKIHOU", "cmd": "", "btn": "C", "kind": "special", "rapid": true},
+   {"name": "SENPUU GOU KEN", "cmd": "6328", "btn": "B+C", "kind": "super"}
+  ]
  }
 }
