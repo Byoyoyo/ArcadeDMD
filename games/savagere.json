@@ -110,9 +110,11 @@
     "6": "JOKER",
     "7": "CHUNG",
     "8": "GORDON",
-    "9": "KING LEO"
+    "9": "KING LION",
+    "10": "KING LEO",
+    "11": "CHUNG"
    },
-   "note": "0, 1, 2, 5, 6, 7 and 8 read beside the timer on the screenshots of the robot's recordings of 2026-11-15 and 16: the numbers Kizuna Encounter gives the same fighters. 3, 4 and 9 were not met: Mezu and King Leo keep their number of Kizuna Encounter, and Carol is the one fighter left"
+   "note": "0, 1, 2, 5, 6, 7 and 8 read beside the timer on the screenshots of the robot's recordings of 2026-11-15 and 16: the numbers Kizuna Encounter gives the same fighters. 3, 4 and 9 were not met: Mezu and King Lion keep their number of Kizuna Encounter, and Carol is the one fighter left of the ten of the selection screen. 10 and 11 are the two bosses the MAME cheat database names (King Leo, and Chung in anger)"
   },
   "p2_char": {
    "value": "_p2_chr",
@@ -126,7 +128,9 @@
     "6": "JOKER",
     "7": "CHUNG",
     "8": "GORDON",
-    "9": "KING LEO"
+    "9": "KING LION",
+    "10": "KING LEO",
+    "11": "CHUNG"
    }
   }
  },
@@ -141,6 +145,8 @@
    "arena",
    "fight_market",
    "fight_harbor",
+   "arena",
+   "arena",
    "arena"
   ],
   "places": [
@@ -168,6 +174,8 @@
     "PORT",
     "HARBOR"
    ],
+   "",
+   "",
    ""
   ],
   "note": "HD screen theme and place for each backdrop value (index = value), see the wiki, HD Marquee page. Set from the screenshots of the robot's recordings: 0 a temple with golden guardians, 1 a wrestling ring, 6 a circus tent, 7 a Chinese market street, 8 a harbor on fire. The other stages were not met: the arena, no place named"
@@ -242,6 +250,14 @@
    {"name": "THUNDER GOD BREATH", "cmd": "421", "btn": "B", "kind": "special"},
    {"name": "SHIN KING STRAIGHT", "cmd": "63214646", "btn": "A", "kind": "super"},
    {"name": "KING UPPER", "cmd": "63214646", "btn": "B", "kind": "super"}
+  ],
+  "KING LION": [
+   {"name": "NIGHTMARE KNOCKER", "cmd": "2369", "btn": "C", "kind": "special"},
+   {"name": "BEAST BLOW", "cmd": "146", "btn": "A/B", "kind": "special"},
+   {"name": "EARTH CHOPPER", "cmd": "2147", "btn": "C", "kind": "special"},
+   {"name": "SILENT STORM", "cmd": "6328", "btn": "B+C", "kind": "special"},
+   {"name": "GOD BREATH", "cmd": "28", "btn": "B+C", "kind": "special", "hold": [0]},
+   {"name": "KING STRAIGHT", "cmd": "63214646", "btn": "A", "kind": "super"}
   ],
   "MEZU": [
    {"name": "YOUEN KYAKU", "cmd": "", "btn": "B", "kind": "special", "rapid": true},
