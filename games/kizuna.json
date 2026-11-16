@@ -79,6 +79,18 @@
     "zero_from": "0xE0",
     "note": "player 2 health in %, full = 0xC0; a K.O. can take it below zero, read 0xFF... and shown full before 1.31.1: from 0xE0 it reads empty (K.O. audit)"
    },
+   "_p1_chr": {
+    "addr": "0x10821F",
+    "type": "u8",
+    "mask": 127,
+    "note": "player 1's fighter in the ring, one of the two of its team (MAME cheat database, P1 Select Character A and B at 0x1088EC and 0x1088EE); the high bit is the colour (the robot's recording of 2026-11-16: 0x88 then 0x01 as Gordon and Eagle take turns)"
+   },
+   "_p2_chr": {
+    "addr": "0x10841F",
+    "type": "u8",
+    "mask": 127,
+    "note": "player 2's or the computer's fighter in the ring, the same byte of its block (the robot's recording of 2026-11-16: always one of the two at 0x1088ED and 0x1088EF)"
+   },
    "time": {
     "addr": "0x10892A",
     "type": "bcd",
@@ -99,11 +111,148 @@
    }
   }
  },
+ "derived": {
+  "p1_char": {
+   "value": "_p1_chr",
+   "names": {
+    "0": "HAYATE",
+    "1": "EAGLE",
+    "2": "GOZU",
+    "3": "MEZU",
+    "4": "ROSA",
+    "5": "KIM",
+    "6": "JOKER",
+    "7": "CHUNG",
+    "8": "GORDON",
+    "9": "KING LION",
+    "10": "SHIN KING LION",
+    "11": "CHUNG",
+    "12": "JYAZU"
+   },
+   "note": "numbers from the MAME cheat database (Select Character), which agree with the portraits beside the life bars on the screenshots of the robot's recording of 2026-11-16 (this game shows no name there)"
+  },
+  "p2_char": {
+   "value": "_p2_chr",
+   "names": {
+    "0": "HAYATE",
+    "1": "EAGLE",
+    "2": "GOZU",
+    "3": "MEZU",
+    "4": "ROSA",
+    "5": "KIM",
+    "6": "JOKER",
+    "7": "CHUNG",
+    "8": "GORDON",
+    "9": "KING LION",
+    "10": "SHIN KING LION",
+    "11": "CHUNG",
+    "12": "JYAZU"
+   }
+  }
+ },
  "demo": {
   "health": 100,
   "health_p2": 100,
   "time": 60,
   "p1_mode": 1,
   "p2_mode": 0
+ },
+ "specials": {
+  "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+  "kinds": ["Desperation Moves", "Special Moves"],
+  "super_needs": ["Needs a FLASHING Life Bar"],
+  "CHUNG": [
+   {"name": "SEN SHUSHOU UCHI", "cmd": "623", "btn": "A", "kind": "special"},
+   {"name": "HAKUKOH DAN", "cmd": "623", "btn": "C", "kind": "special"},
+   {"name": "KIDEN DAMA", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "SHIEN RYU", "cmd": "63214", "btn": "C", "kind": "special"},
+   {"name": "CHIN KAEN", "cmd": "236", "btn": "C", "kind": "special"},
+   {"name": "CHOCHO HENKA", "cmd": "646", "btn": "C", "kind": "special"},
+   {"name": "SENNIN HAPPA", "cmd": "632146", "btn": "A", "kind": "super"}
+  ],
+  "EAGLE": [
+   {"name": "FLASH WING", "cmd": "623", "btn": "B", "kind": "special"},
+   {"name": "FRONT SUPLEX", "cmd": "41236", "btn": "A", "kind": "special"},
+   {"name": "AXE BOOM", "cmd": "214", "btn": "C", "kind": "special"},
+   {"name": "AXE THROW", "cmd": "236", "btn": "C", "kind": "special"},
+   {"name": "EAGLE SPECIAL", "cmd": "632146", "btn": "A", "kind": "super"}
+  ],
+  "GORDON": [
+   {"name": "FRICTION HEATER", "cmd": "623", "btn": "A", "kind": "special"},
+   {"name": "MOON-SHOT UPPER", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "SPARK BOLT", "cmd": "28", "btn": "C", "kind": "special", "hold": [0]},
+   {"name": "CYCLONE TONFA", "cmd": "236", "btn": "C", "kind": "special"},
+   {"name": "MAD POLICE", "cmd": "632146", "btn": "A", "kind": "super", "when": "close"}
+  ],
+  "GOZU": [
+   {"name": "YOUEN KEN", "cmd": "", "btn": "A", "kind": "special", "rapid": true},
+   {"name": "GOUTEN", "cmd": "214", "btn": "C", "kind": "special"},
+   {"name": "MUDOU GOENHA", "cmd": "28", "btn": "A", "kind": "special", "hold": [0]},
+   {"name": "METSU SASSOU", "cmd": "28", "btn": "C", "kind": "special", "hold": [0]},
+   {"name": "GOUEN DAN", "cmd": "623", "btn": "A/B/C", "kind": "special"},
+   {"name": "GOKUENKAI", "cmd": "41236", "btn": "A", "kind": "special"},
+   {"name": "MIKAZUKI", "cmd": "236", "btn": "C", "kind": "special"},
+   {"name": "KAGEROU KEN", "cmd": "632146", "btn": "A", "kind": "super"}
+  ],
+  "HAYATE": [
+   {"name": "KYOURETSU ZAN", "cmd": "41236", "btn": "A", "kind": "special"},
+   {"name": "HITEN SHOU OU KYAKU", "cmd": "623", "btn": "B", "kind": "special"},
+   {"name": "GEN'EI HITSUE", "cmd": "28", "btn": "A/B/C", "kind": "special", "hold": [0]},
+   {"name": "NENDOU HITSUE", "cmd": "63214", "btn": "C", "kind": "special"},
+   {"name": "HIKONTOU JUTSU", "cmd": "236", "btn": "C", "kind": "special"},
+   {"name": "OUGI! MUSOU RANBU", "cmd": "632146", "btn": "A", "kind": "super"}
+  ],
+  "JOKER": [
+   {"name": "CRAZY TOY", "cmd": "623", "btn": "C", "kind": "special"},
+   {"name": "ROLLER DASH", "cmd": "41236", "btn": "A", "kind": "special"},
+   {"name": "TRANSPORTER", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "TRANSPORTER DIVE", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "MURDER HAT HEAVE", "cmd": "63214", "btn": "C", "kind": "special"},
+   {"name": "MAGICIAN'S CARD", "cmd": "236", "btn": "C", "kind": "special"},
+   {"name": "GOOD FACE", "cmd": "632146", "btn": "A", "kind": "super"}
+  ],
+  "JYAZU": [
+   {"name": "KAGEROU KEN", "cmd": "", "btn": "A", "kind": "special", "rapid": true},
+   {"name": "KAGEROU KYAKU", "cmd": "", "btn": "B", "kind": "special", "rapid": true},
+   {"name": "GOUTEN", "cmd": "214", "btn": "C", "kind": "special"},
+   {"name": "JYAEN MA", "cmd": "28", "btn": "A", "kind": "special"},
+   {"name": "GOUEN DAN", "cmd": "623", "btn": "A/B/C", "kind": "special"},
+   {"name": "MUDOU SUIRYUU HA", "cmd": "63214", "btn": "B", "kind": "special"},
+   {"name": "HAISUI KYOUKAN SATSU", "cmd": "236", "btn": "A", "kind": "special"},
+   {"name": "MIKAZUKI", "cmd": "236", "btn": "C", "kind": "special"},
+   {"name": "JYAGA ZETSUMEI CHUU", "cmd": "632146", "btn": "A", "kind": "super"}
+  ],
+  "KIM": [
+   {"name": "HANGETSU ZAN", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "HISEN ZAN", "cmd": "28", "btn": "C", "kind": "special", "hold": [0]},
+   {"name": "RYUUSEI RAKU", "cmd": "236", "btn": "C", "kind": "special"},
+   {"name": "HOU'OU KYAKU", "cmd": "632146", "btn": "A", "kind": "super"}
+  ],
+  "KING LION": [
+   {"name": "BEAST BLOW", "cmd": "214", "btn": "A", "kind": "special"},
+   {"name": "MINIMUM UPPER", "cmd": "623", "btn": "A", "kind": "special"},
+   {"name": "SILENT STORM", "cmd": "63214", "btn": "C", "kind": "special"},
+   {"name": "GOD BREATH", "cmd": "28", "btn": "C", "kind": "special"},
+   {"name": "EARTH CHOPPER", "cmd": "236", "btn": "C", "kind": "special"},
+   {"name": "NIGHTMARE KNOCKER", "cmd": "41236", "btn": "A", "kind": "special"},
+   {"name": "KING STRAIGHT", "cmd": "632146", "btn": "A", "kind": "super"}
+  ],
+  "MEZU": [
+   {"name": "YOUEN KYAKU", "cmd": "", "btn": "B", "kind": "special", "rapid": true},
+   {"name": "GOUTEN", "cmd": "214", "btn": "C", "kind": "special"},
+   {"name": "HIGOROMO", "cmd": "63214", "btn": "B", "kind": "special"},
+   {"name": "RYUUHYOU DAN", "cmd": "41236", "btn": "B", "kind": "special"},
+   {"name": "MUDOU SUIRYUU HA", "cmd": "623", "btn": "B", "kind": "special"},
+   {"name": "MIKAZUKI", "cmd": "236", "btn": "C", "kind": "special"},
+   {"name": "KAGEROU KYAKU", "cmd": "632146", "btn": "A", "kind": "super"}
+  ],
+  "ROSA": [
+   {"name": "WELTICS", "cmd": "623", "btn": "C", "kind": "special"},
+   {"name": "METEOORU ANGRURIFU", "cmd": "214", "btn": "B", "kind": "special"},
+   {"name": "BEE NEEDLE", "cmd": "421", "btn": "C", "kind": "special"},
+   {"name": "ROSES SANCTION", "cmd": "63214", "btn": "C", "kind": "special"},
+   {"name": "CRESCENT SLICER", "cmd": "236", "btn": "C", "kind": "special"},
+   {"name": "SHORI NO AKATSUKI", "cmd": "632146", "btn": "A", "kind": "super"}
+  ]
  }
 }
