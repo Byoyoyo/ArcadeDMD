@@ -109,6 +109,109 @@
     "type": "u8",
     "note": "VS match, player 2 win streak (BEAT BY at the top of the screen), to find with learn.bat (beat2=...)"
    },
+   "_p1_lost": {
+    "addr": "0x10A842",
+    "type": "u8",
+    "note": "P1, characters already beaten (the robot's recording of 2026-11-16: 0, 1, 2 through a match, the same block as The King of Fighters '96 three bytes lower)"
+   },
+   "_p1_ch0": {
+    "addr": "0x10A843",
+    "type": "u8",
+    "note": "P1, team character A (MAME cheat database, P1 Select 1st Character)"
+   },
+   "_p1_ch1": {
+    "addr": "0x10A844",
+    "type": "u8",
+    "note": "P1, team character B"
+   },
+   "_p1_ch2": {
+    "addr": "0x10A845",
+    "type": "u8",
+    "note": "P1, team character C"
+   },
+   "_p1_ord0": {
+    "addr": "0x10A849",
+    "type": "u8",
+    "note": "P1, first to fight (0 = A)"
+   },
+   "_p1_ord1": {
+    "addr": "0x10A84A",
+    "type": "u8",
+    "note": "P1, second to fight (0 = A)"
+   },
+   "_p1_ord2": {
+    "addr": "0x10A84B",
+    "type": "u8",
+    "note": "P1, third to fight (0 = A)"
+   },
+   "_p2_lost": {
+    "addr": "0x10A852",
+    "type": "u8",
+    "note": "P2, characters already beaten"
+   },
+   "_p2_ch0": {
+    "addr": "0x10A853",
+    "type": "u8",
+    "note": "P2, team character A"
+   },
+   "_p2_ch1": {
+    "addr": "0x10A854",
+    "type": "u8",
+    "note": "P2, team character B"
+   },
+   "_p2_ch2": {
+    "addr": "0x10A855",
+    "type": "u8",
+    "note": "P2, team character C"
+   },
+   "_p2_ord0": {
+    "addr": "0x10A859",
+    "type": "u8",
+    "note": "P2, first to fight (0 = A)"
+   },
+   "_p2_ord1": {
+    "addr": "0x10A85A",
+    "type": "u8",
+    "note": "P2, second to fight (0 = A)"
+   },
+   "_p2_ord2": {
+    "addr": "0x10A85B",
+    "type": "u8",
+    "note": "P2, third to fight (0 = A)"
+   },
+   "backdrop": {
+    "addr": "0x10A7E8",
+    "type": "u8",
+    "note": "backdrop of the fight, at the place of The King of Fighters '96's: 0 to 8, one for each stage (the robot's recording of 2026-11-16, nine stages met). Picks the HD theme in \"hd\": \"stages\""
+   },
+   "power": {
+    "addr": "0x108219",
+    "type": "u8",
+    "note": "POW gauge of player 1 in %, full = 0x7F (MAME cheat database, P1 Always have Max POW; the robot's recording of 2026-11-16: 36 with the bar a little over a quarter full)",
+    "mult": 0.7874,
+    "round": 1,
+    "min": 0,
+    "max": 100
+   },
+   "power_p2": {
+    "addr": "0x108419",
+    "type": "u8",
+    "note": "POW gauge of player 2 in %, full = 0x7F (MAME cheat database)",
+    "mult": 0.7874,
+    "round": 1,
+    "min": 0,
+    "max": 100
+   },
+   "_p1_dir": {
+    "addr": "0x108131",
+    "type": "u8",
+    "note": "the side player 1's fighter faces: a motion of the stick reads the other way round when the fighter faces left (1.39). What the byte holds when a round starts is learnt as facing right. Found in the robot's recording of 2026-11-16: the only pair of bytes 0x200 apart that reads 1 and 0 at 22 of 24 round starts and stays opposite 97% of the fight, at the place of The King of Fighters '96's"
+   },
+   "_p2_dir": {
+    "addr": "0x108331",
+    "type": "u8",
+    "note": "the side player 2's fighter faces, the same byte of its block"
+   },
    "_in_p1": {
     "addr": "0x10FD96",
     "type": "u8",
@@ -123,11 +226,321 @@
    }
   }
  },
+ "derived": {
+  "p1_char": {
+   "pick": [
+    "_p1_ch0",
+    "_p1_ch1",
+    "_p1_ch2"
+   ],
+   "at": {
+    "pick": [
+     "_p1_ord0",
+     "_p1_ord1",
+     "_p1_ord2"
+    ],
+    "at": "_p1_lost"
+   },
+   "names": {
+    "0": "HEIDERN",
+    "1": "RALF",
+    "2": "CLARK",
+    "3": "ATHENA",
+    "4": "KENSOU",
+    "5": "CHIN",
+    "6": "KYO",
+    "7": "BENIMARU",
+    "8": "DAIMON",
+    "9": "IORI",
+    "10": "EIJI",
+    "11": "BILLY",
+    "12": "KIM",
+    "13": "CHANG",
+    "14": "CHOI",
+    "15": "TERRY",
+    "16": "ANDY",
+    "17": "JOE",
+    "18": "RYO",
+    "19": "ROBERT",
+    "20": "TAKUMA",
+    "21": "YURI",
+    "22": "MAI",
+    "23": "KING",
+    "24": "SAISYU",
+    "25": "RUGAL"
+   },
+   "note": "the fighter in the ring: the team, the order chosen and how many are beaten, as in The King of Fighters '96. Numbers from the MAME cheat database (Select Character), checked against the names on the screenshots of the robot's recording of 2026-11-16"
+  },
+  "p2_char": {
+   "pick": [
+    "_p2_ch0",
+    "_p2_ch1",
+    "_p2_ch2"
+   ],
+   "at": {
+    "pick": [
+     "_p2_ord0",
+     "_p2_ord1",
+     "_p2_ord2"
+    ],
+    "at": "_p2_lost"
+   },
+   "names": {
+    "0": "HEIDERN",
+    "1": "RALF",
+    "2": "CLARK",
+    "3": "ATHENA",
+    "4": "KENSOU",
+    "5": "CHIN",
+    "6": "KYO",
+    "7": "BENIMARU",
+    "8": "DAIMON",
+    "9": "IORI",
+    "10": "EIJI",
+    "11": "BILLY",
+    "12": "KIM",
+    "13": "CHANG",
+    "14": "CHOI",
+    "15": "TERRY",
+    "16": "ANDY",
+    "17": "JOE",
+    "18": "RYO",
+    "19": "ROBERT",
+    "20": "TAKUMA",
+    "21": "YURI",
+    "22": "MAI",
+    "23": "KING",
+    "24": "SAISYU",
+    "25": "RUGAL"
+   }
+  }
+ },
+ "hd": {
+  "stages": [
+   "fight_kof_dojo",
+   "fight_jungle",
+   "fight_market",
+   "fight_factory",
+   "fight_jungle",
+   "fight_harbor",
+   "fight_temple",
+   "fight_city",
+   "fight_lab"
+  ],
+  "note": "HD screen theme for each backdrop value (index = value), see the wiki, HD Marquee page. Set from the screenshots of the robot's recording of 2026-11-16: 0 a karate yard at sunset, 1 a waterfall, 2 a shopping arcade, 3 a steel mill, 4 a jungle, 5 a pier by the sea, 6 a wooden hall with a drum, 7 a pub, 8 a control room"
+ },
  "demo": {
   "health": 100,
   "health_p2": 100,
   "time": 60,
   "p1_mode": 1,
   "p2_mode": 0
+ },
+ "specials": {
+  "note": "special moves and supers of each fighter, shown under a human player's name (1.38): from the command list of MAME (command.dat 0.273, Fabricio Coroquer and AntoPISA), made by tools/command_dat.py",
+  "kinds": ["Desperation Moves", "Special Moves"],
+  "super_needs": ["Needs a Super Bar in MAX / FLASHING Life Bar"],
+  "ANDY": [
+   {"name": "HISHOU KEN", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "SHOURYUU DAN", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "KUUHA DAN", "cmd": "19", "btn": "B/D", "kind": "special"},
+   {"name": "ZAN'EI KEN", "cmd": "16", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "GEKIHEKI HAISUI SHOU", "cmd": "214", "btn": "B/D", "kind": "special"},
+   {"name": "CHOU REPPA DAN", "cmd": "236", "btn": "B+D", "kind": "super", "hold": [0]}
+  ],
+  "ATHENA": [
+   {"name": "PSYCHO BALL ATTACK", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "PSYCHO SWORD", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "PHOENIX ARROW", "cmd": "214", "btn": "A/C", "kind": "special", "when": "air"},
+   {"name": "PSYCHO REFLECTOR", "cmd": "41236", "btn": "B/D", "kind": "special"},
+   {"name": "SHINING CRYSTAL BIT", "cmd": "4632147", "btn": "B+C", "kind": "super"}
+  ],
+  "BENIMARU": [
+   {"name": "RAIJIN KEN", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "SHINKUU KATATEGOMA", "cmd": "63214", "btn": "B/D", "kind": "special"},
+   {"name": "IAI GERI", "cmd": "236", "btn": "B/D", "kind": "special"},
+   {"name": "HANDOU SANDAN GERI", "cmd": "28", "btn": "B/D", "kind": "special"},
+   {"name": "RAIKOU KEN", "cmd": "236236", "btn": "C", "kind": "super"}
+  ],
+  "BILLY": [
+   {"name": "SENPUU KON", "cmd": "", "btn": "A/C", "kind": "special", "rapid": true},
+   {"name": "SANSETSU KON: CHUUDAN UCHI", "cmd": "41236", "btn": "A/C", "kind": "special"},
+   {"name": "KYOUSHUU HISHOU KON", "cmd": "1236", "btn": "B/D", "kind": "special"},
+   {"name": "SUZUME OTOSHI", "cmd": "2147", "btn": "A/C", "kind": "special"},
+   {"name": "CHOU KAEN SENPUU KON", "cmd": "2363214", "btn": "A+C", "kind": "super"}
+  ],
+  "CHANG": [
+   {"name": "TEKKYUU DAI KAITEN", "cmd": "", "btn": "A/C", "kind": "special", "rapid": true},
+   {"name": "TEKKYUU FUNSAI GEKI", "cmd": "46", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "TEKKYUU HIEN ZAN", "cmd": "28", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "TEKKYUU DAI BOUSOU", "cmd": "2363214", "btn": "C", "kind": "super"}
+  ],
+  "CHIN": [
+   {"name": "HYOUTAN GEKI", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "RYUURIN HOURAI", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "KAITEN-TEKI KUUTOTSU KEN", "cmd": "41236", "btn": "B/D", "kind": "special"},
+   {"name": "GOURAN ENPOU", "cmd": "236236", "btn": "C", "kind": "super"}
+  ],
+  "CHOI": [
+   {"name": "KAITEI HIEN ZAN", "cmd": "46", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "TATSUMAKI SHIPPUU ZAN", "cmd": "28", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "SENPUU HIEN SASHI", "cmd": "46", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "HISHOU KYAKU", "cmd": "236", "btn": "B/D", "kind": "special", "when": "air"},
+   {"name": "SHIN! CHOUZETSU TATSUMAKI SHINKUU ZAN", "cmd": "4128", "btn": "B+C", "kind": "super", "hold": [0]}
+  ],
+  "CLARK": [
+   {"name": "VULCAN PUNCH", "cmd": "", "btn": "A/C", "kind": "special", "rapid": true},
+   {"name": "GATLING ATTACK", "cmd": "46", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "SUPER ARABIAN BURGLARY BACKBREAKER", "cmd": "41236", "btn": "C", "kind": "special", "when": "close"},
+   {"name": "SUPER ARGENTINE BACKBREAKER", "cmd": "41236", "btn": "D", "kind": "special", "when": "close"},
+   {"name": "ULTRA ARGENTINE BACKBREAKER", "cmd": "6321463214", "btn": "C", "kind": "super", "when": "close"}
+  ],
+  "DAIMON": [
+   {"name": "JIRAISHIN", "cmd": "623", "btn": "A", "kind": "special"},
+   {"name": "FAKE JIRAISHIN", "cmd": "623", "btn": "C", "kind": "special"},
+   {"name": "KUMO TSUKAMI NAGE", "cmd": "41236", "btn": "A", "kind": "special"},
+   {"name": "KIRIKABU GAESHI", "cmd": "41236", "btn": "C", "kind": "special"},
+   {"name": "CHOU OOSOTOGARI", "cmd": "6123", "btn": "D", "kind": "special", "when": "close"},
+   {"name": "TENCHI GAESHI", "cmd": "632146", "btn": "C", "kind": "special", "when": "close"},
+   {"name": "CHOU UKEMI", "cmd": "214", "btn": "B/D", "kind": "special"},
+   {"name": "JIGOKU GOKURAKU OTOSHI", "cmd": "6321463214", "btn": "C", "kind": "super", "when": "close"}
+  ],
+  "EIJI": [
+   {"name": "KIKOU HOU", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "TENBA KYAKU", "cmd": "2147", "btn": "B/D", "kind": "special"},
+   {"name": "KASUMI GIRI", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "RYUU EI JIN", "cmd": "41236", "btn": "A/C", "kind": "special"},
+   {"name": "EIUTSUSHI", "cmd": "236", "btn": "B/D", "kind": "special"},
+   {"name": "KOPPA GIRI", "cmd": "63214", "btn": "B/D", "kind": "special"},
+   {"name": "ZANTETSU HA", "cmd": "2363214", "btn": "A/C", "kind": "special"},
+   {"name": "ZANTETSU TOUROUKEN", "cmd": "4123632", "btn": "B", "kind": "super"}
+  ],
+  "HEIDERN": [
+   {"name": "CROSS CUTTER", "cmd": "46", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "MOON SLASHER", "cmd": "28", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "NECK ROLLER", "cmd": "28", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "STORM BRINGER", "cmd": "63214", "btn": "C", "kind": "special", "when": "close"},
+   {"name": "FINAL BRINGER", "cmd": "4128", "btn": "B+C", "kind": "super", "hold": [0]}
+  ],
+  "IORI": [
+   {"name": "108 SHIKI: YAMI BARAI", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "100 SHIKI: ONIYAKI", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "127 SHIKI: AOI HANA", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "212 SHIKI: KOTOTSUKI IN", "cmd": "63214", "btn": "B/D", "kind": "special"},
+   {"name": "KIN 1211 SHIKI: YA OTOME", "cmd": "2141236", "btn": "C", "kind": "super"}
+  ],
+  "JOE": [
+   {"name": "BAKURETSU KEN", "cmd": "", "btn": "A/C", "kind": "special", "rapid": true},
+   {"name": "HURRICANE UPPER", "cmd": "41236", "btn": "A/C", "kind": "special"},
+   {"name": "TIGER KICK", "cmd": "2369", "btn": "B/D", "kind": "special"},
+   {"name": "SLASH KICK", "cmd": "16", "btn": "B/D", "kind": "special"},
+   {"name": "OUGON NO KAKATO", "cmd": "214", "btn": "B/D", "kind": "special"},
+   {"name": "SCREW UPPER", "cmd": "641236", "btn": "B+C", "kind": "super"}
+  ],
+  "KENSOU": [
+   {"name": "CHOUKYUU DAN", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "RYUU RENGA: CHIRYUU", "cmd": "41236", "btn": "A/C", "kind": "special"},
+   {"name": "RYUU GAKUSAI", "cmd": "421", "btn": "B/D", "kind": "special"},
+   {"name": "RYUU SOUGEKI", "cmd": "214", "btn": "A/C", "kind": "special", "when": "air"},
+   {"name": "SHINRYUU TENBU KYAKU", "cmd": "23646", "btn": "D", "kind": "super"}
+  ],
+  "KIM": [
+   {"name": "HANGETSU ZAN", "cmd": "214", "btn": "B/D", "kind": "special"},
+   {"name": "HIEN ZAN", "cmd": "28", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "RYUUSEI RAKU", "cmd": "46", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "HISHOU KYAKU", "cmd": "236", "btn": "B/D", "kind": "special", "when": "air"},
+   {"name": "HOU'OU KYAKU", "cmd": "21416", "btn": "B+D", "kind": "super"}
+  ],
+  "KING": [
+   {"name": "VENOM STRIKE", "cmd": "236", "btn": "B/D", "kind": "special"},
+   {"name": "DOUBLE STRIKE", "cmd": "64632", "btn": "B/D", "kind": "special"},
+   {"name": "TRAP SHOT", "cmd": "623", "btn": "B/D", "kind": "special"},
+   {"name": "SURPRISE ROSE", "cmd": "2147", "btn": "B/D", "kind": "special"},
+   {"name": "TORNADO KICK", "cmd": "63214", "btn": "B/D", "kind": "special"},
+   {"name": "ILLUSION DANCE", "cmd": "463214", "btn": "B+D", "kind": "super"}
+  ],
+  "KYO": [
+   {"name": "108 SHIKI: YAMI BARAI", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "100 SHIKI: ONIYAKI", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "101 SHIKI: OBORO GURUMA", "cmd": "421", "btn": "B/D", "kind": "special"},
+   {"name": "212 SHIKI: KOTOTSUKI YOU", "cmd": "63214", "btn": "B/D", "kind": "special"},
+   {"name": "75 SHIKI KAI", "cmd": "236", "btn": "B/D+B/D", "kind": "special"},
+   {"name": "URA 108 SHIKI: OROCHINAGI", "cmd": "2141236", "btn": "C", "kind": "super"}
+  ],
+  "MAI": [
+   {"name": "KACHO SEN", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "RYUU ENBU", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "HISSATSU SHINOBI BACHI", "cmd": "41236", "btn": "B/D", "kind": "special"},
+   {"name": "HISHOU RYUU'EN JIN", "cmd": "623", "btn": "B/D", "kind": "special"},
+   {"name": "MUSASABI NO MAI: KUUCHUU", "cmd": "214", "btn": "A/C", "kind": "special", "when": "air"},
+   {"name": "CHOU HISSATSU SHINOBI BACHI", "cmd": "616", "btn": "B+C", "kind": "super"}
+  ],
+  "RALF": [
+   {"name": "VULCAN PUNCH", "cmd": "", "btn": "A/C", "kind": "special", "rapid": true},
+   {"name": "GATLING ATTACK", "cmd": "46", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "KYUUKOUKA BAKUDAN PUNCH", "cmd": "28", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "SUPER ARGENTINE BACKBREAKER", "cmd": "41236", "btn": "D", "kind": "special", "when": "close"},
+   {"name": "BARIBARI VULCAN PUNCH", "cmd": "146", "btn": "C", "kind": "super", "hold": [0]}
+  ],
+  "ROBERT": [
+   {"name": "RYUUGEKI KEN", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "RYUUGA", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "HIEN SHIPPUU KYAKU", "cmd": "16", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "HIEN RYUUJIN KYAKU", "cmd": "214", "btn": "B/D", "kind": "special", "when": "air"},
+   {"name": "GEN'EI KYAKU", "cmd": "63214", "btn": "B/D", "kind": "special"},
+   {"name": "KYOKUGEN-RYUU RENBU KYAKU", "cmd": "41236", "btn": "D", "kind": "special", "when": "close"},
+   {"name": "HAOH SHOUKOU KEN", "cmd": "641236", "btn": "A/C", "kind": "special"},
+   {"name": "RYUUKO RANBU", "cmd": "2363214", "btn": "C", "kind": "super"}
+  ],
+  "RUGAL": [
+   {"name": "REPPUU KEN", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "KAISER WAVE", "cmd": "641236", "btn": "A/C", "kind": "special"},
+   {"name": "GENOCIDE CUTTER", "cmd": "2147", "btn": "B/D", "kind": "special"},
+   {"name": "GOD PRESS", "cmd": "63214", "btn": "A/C", "kind": "special"},
+   {"name": "DARK BARRIER", "cmd": "236", "btn": "B/D", "kind": "special"},
+   {"name": "GIGANTIC PRESSURE", "cmd": "6321463214", "btn": "B+C", "kind": "super"}
+  ],
+  "RYO": [
+   {"name": "KO'OU KEN", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "KUUCHUU KO'OU KEN", "cmd": "236", "btn": "A/C", "kind": "special", "when": "air"},
+   {"name": "KOHOU", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "HIEN SHIPPUU KYAKU", "cmd": "16", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "ZANRETSU KEN", "cmd": "63214", "btn": "A/C", "kind": "special"},
+   {"name": "KYOKUGEN-RYUU RENBU KEN", "cmd": "41236", "btn": "C", "kind": "special", "when": "close"},
+   {"name": "HAOH SHOUKOU KEN", "cmd": "641236", "btn": "A/C", "kind": "special"},
+   {"name": "RYUUKO RANBU", "cmd": "2363214", "btn": "C", "kind": "super"}
+  ],
+  "SAISYU": [
+   {"name": "108 SHIKI: YAMI BARAI", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "100 SHIKI: ONIYAKI", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "427 SHIKI: KAMU KAKARI", "cmd": "63214", "btn": "A/C", "kind": "special"},
+   {"name": "URA 108 SHIKI: OROCHINAGI", "cmd": "2141236", "btn": "C", "kind": "super"}
+  ],
+  "TAKUMA": [
+   {"name": "KO'OU KEN", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "HIEN SHIPPUU KYAKU", "cmd": "16", "btn": "B/D", "kind": "special", "hold": [0]},
+   {"name": "ZANRETSU KEN", "cmd": "63214", "btn": "A/C", "kind": "special"},
+   {"name": "SHOURAN KYAKU", "cmd": "63214", "btn": "B", "kind": "special", "when": "close"},
+   {"name": "HAOH SHIKOU KEN", "cmd": "641236", "btn": "A/C", "kind": "special"},
+   {"name": "RYUUKO RANBU", "cmd": "23646", "btn": "A+C", "kind": "super"}
+  ],
+  "TERRY": [
+   {"name": "POWER WAVE", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "RISING TACKLE", "cmd": "28", "btn": "A/C", "kind": "special", "hold": [0]},
+   {"name": "POWER DUNK", "cmd": "623", "btn": "B/D", "kind": "special"},
+   {"name": "BURN KNUCKLE", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "CRACK SHOOT", "cmd": "2147", "btn": "B/D", "kind": "special"},
+   {"name": "POWER GEYSER", "cmd": "21416", "btn": "B+C", "kind": "super"}
+  ],
+  "YURI": [
+   {"name": "KO'OU KEN", "cmd": "236", "btn": "A/C", "kind": "special"},
+   {"name": "RAI'OU KEN", "cmd": "236", "btn": "B/D", "kind": "special"},
+   {"name": "YURI CHOU UPPER", "cmd": "623", "btn": "A/C", "kind": "special"},
+   {"name": "SAIHA", "cmd": "214", "btn": "A/C", "kind": "special"},
+   {"name": "HYAKURETSU BINTA: HISSATSU NAGE", "cmd": "63214", "btn": "A", "kind": "special", "when": "close"},
+   {"name": "HYAKURETSU BINTA: IDOU NAGE", "cmd": "63214", "btn": "C", "kind": "special"},
+   {"name": "HAOH SHOUKOU KEN", "cmd": "641236", "btn": "A/C", "kind": "special"},
+   {"name": "HIEN HOU'OU KYAKU", "cmd": "6463214", "btn": "B+C", "kind": "super"}
+  ]
  }
 }
