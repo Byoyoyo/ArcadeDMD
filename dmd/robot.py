@@ -251,6 +251,50 @@ def awake(on=True):
         pass                                                      # not Windows / pas Windows
 
 
+def engine_runs():
+    """ArcadeDMD runs: nothing is recorded without it. / ArcadeDMD tourne : sans lui rien n'est enregistré."""
+    from . import app
+    return app.engine_running()
+
+
+def engine_start(root):
+    """Starts ArcadeDMD as run.bat does, without its window and apart from the robot's console, whose Ctrl+C must not
+    stop it. / Lance ArcadeDMD comme run.bat, sans sa fenêtre et hors de la console du robot."""
+    import sys
+    exe = sys.executable or "python"
+    pyw = os.path.join(os.path.dirname(exe), "pythonw.exe")
+    flags = 0x00000008 | 0x00000200 if os.name == "nt" else 0     # DETACHED_PROCESS, CREATE_NEW_PROCESS_GROUP
+    subprocess.Popen([pyw if os.path.isfile(pyw) else exe, os.path.join(root, "arcadedmd.py")], cwd=root,
+                     stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                     creationflags=flags, close_fds=True)
+
+
+def engine(root, say, quiet=False, wait=20.0):
+    """ArcadeDMD must run for a game to be recorded. When it does not (the PC started again, it was closed) the robot
+    starts it itself and says so. True when it runs. quiet: tries without a word, it was said before.
+    / ArcadeDMD doit tourner pour qu'un jeu soit enregistré. S'il ne tourne pas (le PC a redémarré, il a été fermé) le
+    robot le lance lui-même et le dit. Vrai s'il tourne."""
+    if engine_runs():
+        return True
+    if not quiet:
+        say(tr(f"{time.strftime('%H:%M')}, ArcadeDMD n'est pas lancé, je le lance.",
+               f"{time.strftime('%H:%M')}, ArcadeDMD is not running, starting it."))
+    try:
+        engine_start(root)
+    except OSError:
+        pass
+    end = time.monotonic() + wait
+    while time.monotonic() < end:
+        if engine_runs():
+            time.sleep(5.0)                                       # the time to open its panel / le temps d'ouvrir sa dalle
+            return True
+        time.sleep(0.5)
+    if not quiet:
+        say(tr("ArcadeDMD ne démarre pas. Lance run.bat, je reprends tout seul dès qu'il tourne.",
+               "ArcadeDMD does not start. Run run.bat, the tour goes on by itself as soon as it runs."))
+    return False
+
+
 def steady_console():
     """Windows freezes a program whose console window is clicked (its "quick edit" selection) until a key is pressed:
     turned off for the robot's console, a tour would wait for hours. / Windows fige un programme dont on clique la
@@ -1254,6 +1298,12 @@ def tour(root, cfg, minutes=6, only=None, out=print, unseen=False, win=False):
         except OSError:
             pass
 
+    down = [False]                                                # said once that ArcadeDMD does not start
+
+    def alive():
+        down[0] = not engine(root, say, quiet=down[0])
+        return not down[0]
+
     awake()
     steady_console()
     try:
@@ -1264,6 +1314,7 @@ def tour(root, cfg, minutes=6, only=None, out=print, unseen=False, win=False):
         while queue:
             rom = queue.popleft()
             head = f"{place[rom]}/{len(todo)} {rom}"
+            alive()
             try:
                 why = _attempt(client, root, setup, rom, cfg_path, minutes, rng, unseen, say, head, win, memo)
             except Exception as e:                                # one game lost, not the tour / un jeu, pas le tour
@@ -1309,6 +1360,7 @@ def tour(root, cfg, minutes=6, only=None, out=print, unseen=False, win=False):
                        "tour goes on by itself as soon as it works again."))
                 while True:
                     _pause(WAIT)
+                    alive()
                     if any(works(client, root, setup, g, cfg_path) for g in good):
                         break
                 say(tr(f"{time.strftime('%H:%M')}, ça remarche. Je reprends à {streak[0]}.",

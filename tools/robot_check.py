@@ -42,7 +42,7 @@ CALLS = []                                                        # (game, two_f
 
 
 def run(script, off=(), closed=(), setup=None, runs=1, only=None, unseen=False, limit=4000, win=False, fights=(),
-        deaf=()):
+        deaf=(), restart=False):
     """script: what each game does (good, bad, nostart, boom, blind). off / closed: [(from, to)] in seconds of the tour
     during which the screen is off / ArcadeDMD is closed. win: the second tour; fights: the games that are fighting
     games; deaf: those that keep nothing of what is written. Returns (code, robot.json, lines said, games started, folder).
@@ -65,6 +65,7 @@ def run(script, off=(), closed=(), setup=None, runs=1, only=None, unseen=False, 
     what = dict(zip(games, script))
     cur, started = {}, []
     t0 = CLOCK[0]
+    revived = []                                                  # when the robot started ArcadeDMD again
 
     def within(spans):
         return any(a <= CLOCK[0] - t0 < b for a, b in spans)
@@ -100,10 +101,15 @@ def run(script, off=(), closed=(), setup=None, runs=1, only=None, unseen=False, 
         return {"content": cur["rom"], "system": "arcade"}
 
     def acked(root, rom, since, wait=10.0):
-        if within(closed):
+        if within(closed) and not revived:
             time.sleep(wait)
             return None
         return {"memory": True}
+
+    def engine_start(root):                                       # restart: the robot can start ArcadeDMD itself
+        if not restart:
+            raise OSError("no python")
+        revived.append(CLOCK[0] - t0)
 
     class Champ:                                                  # the winner's stand-in / la doublure du gagnant
         def __init__(self, *a):
@@ -134,6 +140,8 @@ def run(script, off=(), closed=(), setup=None, runs=1, only=None, unseen=False, 
     robot.close_game, robot._result = close_game, result
     robot.prober = lambda client, st, root: None
     robot.Winner = Champ
+    robot.engine_runs = lambda: bool(revived) or not within(closed)
+    robot.engine_start = engine_start
     out, rc = [], None
     for _ in range(runs):
         rc = robot.tour(root, {}, minutes=6, out=out.append, only=only, unseen=unseen, win=win)
@@ -216,6 +224,17 @@ check("said once, and said when it works again", (said(out, "J'attends"), said(o
 
 rc, st, out, la, _ = run(["good"] * 6, closed=[(400, 3000)])
 check("ArcadeDMD closed for a while: the same", (rc, st["done"], st["aside"]), (0, names(*range(6)), []))
+check("it cannot be started here: said once, not at each game",
+      (said(out, "ArcadeDMD n'est pas lancé"), said(out, "ArcadeDMD ne démarre pas")), (1, 1))
+
+rc, st, out, la, _ = run(["good"] * 6, closed=[(400, 10 ** 6)], restart=True)
+check("ArcadeDMD closed for good, the robot starts it itself: every game recorded, none tried twice",
+      (rc, st["done"], st["aside"], len(la), said(out, "je le lance"), said(out, "J'attends")),
+      (0, names(*range(6)), [], 6, 1, 0))
+
+rc, st, out, la, _ = run(["good"] * 4, closed=[(0, 10 ** 6)], restart=True)
+check("ArcadeDMD not running when the tour starts (the PC started again): started before the first game",
+      (rc, st["done"], len(la), said(out, "je le lance")), (0, names(*range(4)), 4, 1))
 
 rc, st, out, la, _ = run(["good"] * 6, off=[(0, 30000)], setup={"done": ["g05"]})
 check("the screen off from the start, a game known: waits as long as it takes",
