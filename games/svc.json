@@ -115,6 +115,12 @@
     "bytes": 1,
     "note": "timer (BCD)"
    },
+   "_fight_cue": {
+    "addr": "0x10CC8A",
+    "type": "u8",
+    "start": 225,
+    "note": "the game's own call of the fight: held at 225 while the fighters speak, it moves 34 frames before the timer starts, as the letters of FIGHT fly in (the filmed starts of its rounds, 48 rounds of three recorded games). Its first move away from 225 gives FIGHT ! with the game's own, the timer's start came as that text left the screen (1.39)"
+   },
    "score": {
     "addr": "",
     "type": "bcd",

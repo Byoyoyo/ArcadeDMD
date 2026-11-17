@@ -785,6 +785,8 @@
   "note": "names of the buttons on the HD screen, as in The King of Fighters '98"
  },
  "hd": {
+  "ready_go": 0.85,
+  "ready_go_note": "GO! comes 0.85 s after the fight's state takes READY, sooner than in The King of Fighters '98 (1.15 s): on the filmed starts of its rounds GO! was on the screen 0.2 s before FIGHT ! and READY still there 0.4 s before (1.39)",
   "stages": [
    "arena",
    "fight_market",

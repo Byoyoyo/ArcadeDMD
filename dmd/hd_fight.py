@@ -252,6 +252,9 @@ class FightFX:
         self.hid_prev = None                       # a timer read but not shown ("_time") / un chrono lu mais pas montré
         self.cue_prev = None                       # the game's own call of the fight ("_fight_cue") / l'annonce du jeu
         self.cue_start = None
+        self.cue_delay = None                      # "delay" of the cue: the call shows that long after it / son retard
+        self.ready_go = READY_GO                   # from READY to GO, "ready_go" in hd where a game differs / de READY à GO
+        self.cue_t = None                          # when a delayed call is due / l'heure d'une annonce retardée
         self.fight_after = None                    # "fight_after" in hd: the call a set time after the round is set up
         self.hid_read = False
         self.sub_moves = []                        # when it changed lately / quand elle a changé dernièrement
@@ -400,12 +403,16 @@ class FightFX:
         self.sub_start = _n(sdef.get("start")) if isinstance(sdef, dict) else None
         cdef = (((game or {}).get("memory") or {}).get("values") or {}).get("_fight_cue")
         self.cue_start = _n(cdef.get("start")) if isinstance(cdef, dict) else None
+        self.cue_delay = _n(cdef.get("delay")) if isinstance(cdef, dict) else None
         # a game whose own call comes a set time after it sets the round up, well before its timer starts, and keeps
         # nothing to read for it ("fight_after" in hd, seconds: Samurai Shodown's BEGIN, 47 frames after the round is
         # set up in its 28 recorded rounds, the timer starting 150 frames after): FIGHT ! then, its ROUND n over (1.39)
         # un jeu dont l'annonce vient un temps fixe après la mise en place du round, bien avant le départ du chrono
         hdd = (game or {}).get("hd")
         self.fight_after = _n(hdd.get("fight_after")) if isinstance(hdd, dict) else None
+        # GO! comes sooner after READY in The King of Fighters '97 than in '98 ("ready_go" in hd, seconds: 0.85 against
+        # 1.15, the filmed starts of its rounds, 1.39) / GO! vient plus tôt après READY dans KOF '97 que dans '98
+        self.ready_go = (_n(hdd.get("ready_go")) if isinstance(hdd, dict) else None) or READY_GO
         # a timer read but not shown ("_time", Ragnagard: it starts thirteen seconds after the bars are set) still tells
         # when the fight runs, FIGHT ! waits for its first count (1.39) / un chrono lu mais pas montré dit quand même
         # quand le combat tourne, FIGHT ! attend son premier décompte
@@ -612,9 +619,16 @@ class FightFX:
         # le jeu quand elle vient avant le départ du chrono : une valeur tenue pendant l'annonce du round, la quitter
         # est cette annonce
         cue = _n(vals.get("_fight_cue"))
-        if cue is not None and self.cue_prev is not None and cue != self.cue_prev and self.cue_prev == self.cue_start:
-            self.run_t = now
+        if (cue is not None and self.cue_prev is not None and cue != self.cue_prev and self.cue_prev == self.cue_start
+                and self.fight_wait is not None):                     # only a round that waits for its FIGHT hears it
+            if self.cue_delay:                                        # the game's step moves before its text shows
+                self.cue_t = now + self.cue_delay                     # ("delay", Real Bout Fatal Fury: 0.45 s)
+            else:
+                self.run_t = now
         self.cue_prev = cue
+        if self.cue_t is not None and now >= self.cue_t:
+            self.cue_t = None
+            self.run_t = now
         hid = _n(vals.get("_time")) if self.hid_read else None
         if hid is not None and self.hid_prev is not None and hid == self.hid_prev - 1:
             self.run_t = now                                          # the timer not shown counts one down / il décompte
@@ -656,7 +670,7 @@ class FightFX:
             if fs & 0x02:                                             # the fight runs / le combat a commencé
                 self.run_t = now
             elif fs == READY_STATE and self.fight_wait is not None and now - self.fight_wait[1] >= READY_MIN:
-                self.fight_t = min(self.fight_t, max(self.fight_wait[0], now + READY_GO))   # GO after READY
+                self.fight_t = min(self.fight_t, max(self.fight_wait[0], now + self.ready_go))   # GO after READY
                 self.fight_why = "READY"
             self.fs_prev = fs
         if self.fight_wait is not None:
@@ -667,7 +681,8 @@ class FightFX:
                 self._go(self.fight_t, now, tr("chrono lancé", "timer running"))
             elif now >= self.fight_t:                                 # READY, or never ran (infinite time) / jamais lancé
                 self.fight_wait = None
-                self._go(self.fight_t, now, "READY + 1,15 s" if self.fight_why == "READY" else tr("délai maximum", "longest wait"))
+                self._go(self.fight_t, now, ("READY + 1,15 s" if self.ready_go == READY_GO else f"READY + {self.ready_go:.2f} s")
+                         if self.fight_why == "READY" else tr("délai maximum", "longest wait"))
         if not self.run_logged and self.run_t > (self.round_t0 or 0) and self.fs_prev is not None:
             self.run_logged = True                                    # its start, to set READY_GO / son départ
             self.hd.log(tr(f"Combat, le chrono démarre à {self.run_t - self.round_t0:.2f} s du début du round",
@@ -1059,6 +1074,7 @@ class FightFX:
             lights.event(name)
 
     def _fight(self, now):
+        self.cue_t = None                                             # a call still due belongs to the round before
         self.stars = dict(self.rounds_won)                            # a new round: the rounds won so far (none after a match)
         self.stick.round_start(now)                                   # the side each fighter faces is learnt there
         # pas en même temps que le bandeau du stage, le K.O. et le WIN, ou le nom du combattant suivant

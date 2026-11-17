@@ -123,6 +123,12 @@
     "start": 30,
     "note": "the timer's fraction of a second (RetroAchievements code notes, 0x42f5 Round timer osclilator), it moves at every frame once the round's timer runs, FIGHT ! waits for it to come with the game's own FIGHT or GO (1.31.1). Held at 30 while the round is announced in the 12 rounds of the robot's two recorded games: its first move away gives FIGHT ! at once (1.39)"
    },
+   "_fight_cue": {
+    "addr": "0x10767E",
+    "type": "u8",
+    "start": 0,
+    "note": "the game's own call of the fight: held at 0 while ROUND n shows, it moves 32 frames before the timer starts, as FIGHT! comes (the filmed starts of its rounds, 16 rounds of three recorded games). Its first move away from 0 gives FIGHT ! with the game's own, the timer's start came as that text left the screen (1.39)"
+   },
    "score": {
     "addr": "0x104308",
     "type": "bcd",

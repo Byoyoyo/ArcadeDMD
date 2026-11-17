@@ -122,6 +122,12 @@
     "type": "u8",
     "note": "a count of frames going up, the timer losing one each time it wraps (256 frames) (the robot's two recorded games, 19 rounds). It stands still while the round is announced and moves at every frame once the timer runs: FIGHT ! comes with the timer's start, it waited for its first count (1.39)"
    },
+   "_fight_cue": {
+    "addr": "0x100FE8",
+    "type": "u8",
+    "start": 8,
+    "note": "the game's own call of the fight: held at 8 while READY shows, it moves 48 frames before the timer starts, as GO comes (the filmed starts of its rounds, 18 of 24 rounds of three recorded games). Its first move away from 8 gives FIGHT ! with the game's own, the timer's start came as that text left the screen (1.39)"
+   },
    "score": {
     "addr": "0x106B36",
     "type": "bcd",
