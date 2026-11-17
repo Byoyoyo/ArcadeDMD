@@ -39,13 +39,17 @@ def names(*i):
 
 
 CALLS = []                                                        # (game, two_from, a winner given) of each game played
+FILMS = []                                                        # (the winner's hold, a film given, a journal given)
+QUITS = []                                                        # the games at which ArcadeDMD was asked to quit
 
 
 def run(script, off=(), closed=(), setup=None, runs=1, only=None, unseen=False, limit=4000, win=False, fights=(),
-        deaf=(), restart=False):
+        deaf=(), restart=False, film=False, old=None):
     """script: what each game does (good, bad, nostart, boom, blind). off / closed: [(from, to)] in seconds of the tour
     during which the screen is off / ArcadeDMD is closed. win: the second tour; fights: the games that are fighting
-    games; deaf: those that keep nothing of what is written. Returns (code, robot.json, lines said, games started, folder).
+    games; deaf: those that keep nothing of what is written. old: the ArcadeDMD that runs was started before these files
+("quits": it quits when asked, "stays": it cannot be asked, "still": the one started after it is no newer).
+Returns (code, robot.json, lines said, games started, folder).
     / script : ce que fait chaque jeu. off / closed : les moments où l'écran est éteint / ArcadeDMD fermé."""
     root = tempfile.mkdtemp(dir=TOP.name)
     for d in ("games", "runtime", "roms"):
@@ -66,6 +70,7 @@ def run(script, off=(), closed=(), setup=None, runs=1, only=None, unseen=False, 
     cur, started = {}, []
     t0 = CLOCK[0]
     revived = []                                                  # when the robot started ArcadeDMD again
+    stale, gone = [bool(old)], [False]                            # the one that runs is old / it was asked to quit
 
     def within(spans):
         return any(a <= CLOCK[0] - t0 < b for a, b in spans)
@@ -104,23 +109,34 @@ def run(script, off=(), closed=(), setup=None, runs=1, only=None, unseen=False, 
         if within(closed) and not revived:
             time.sleep(wait)
             return None
-        return {"memory": True}
+        return dict({"memory": True}, **({} if stale[0] else {"clock": True}))
 
     def engine_start(root):                                       # restart: the robot can start ArcadeDMD itself
         if not restart:
             raise OSError("no python")
         revived.append(CLOCK[0] - t0)
+        if gone[0]:
+            gone[0], stale[0] = False, old == "still"
+
+    def engine_quit(root, wait=20.0):
+        QUITS.append(cur.get("rom"))
+        gone[0] = old != "stays"
+        return gone[0]
 
     class Champ:                                                  # the winner's stand-in / la doublure du gagnant
-        def __init__(self, *a):
+        def __init__(self, *a, hold=0):
             hard = cur["rom"] in deaf
             self.ready, self.wins, self.rounds = True, 0 if hard else 24, 1 if hard else 24
             self.off = "refused" if hard else None
+            self.hold = hold
 
     del CALLS[:]
+    del FILMS[:]
+    del QUITS[:]
 
     def play(client, seconds, rng, **k):
         CALLS.append((cur["rom"], k.get("two_from", 0.7), k.get("winner") is not None))
+        FILMS.append((getattr(k.get("winner"), "hold", None), k.get("film") is not None, k.get("journal") is not None))
         cur["played"] = bool(cur["runs"])
         time.sleep(seconds if cur["runs"] else 5.0)
         if cur["runs"] and k.get("trace") is not None:
@@ -131,7 +147,7 @@ def run(script, off=(), closed=(), setup=None, runs=1, only=None, unseen=False, 
         cur["runs"] = False
         return True
 
-    def result(root, rom, since, say, head="", sub=""):
+    def result(root, rom, since, say, head="", sub="", journal=None):
         say(head + "rangé" + (" dans " + sub if sub else ""))
         return 2, 36, True, 639 if cur.get("played") else 3
 
@@ -140,11 +156,11 @@ def run(script, off=(), closed=(), setup=None, runs=1, only=None, unseen=False, 
     robot.close_game, robot._result = close_game, result
     robot.prober = lambda client, st, root: None
     robot.Winner = Champ
-    robot.engine_runs = lambda: bool(revived) or not within(closed)
-    robot.engine_start = engine_start
+    robot.engine_runs = lambda: not gone[0] and (bool(revived) or not within(closed))
+    robot.engine_start, robot.engine_quit = engine_start, engine_quit
     out, rc = [], None
     for _ in range(runs):
-        rc = robot.tour(root, {}, minutes=6, out=out.append, only=only, unseen=unseen, win=win)
+        rc = robot.tour(root, {}, minutes=6, out=out.append, only=only, unseen=unseen, win=win, film=film)
     with open(os.path.join(root, "runtime", "robot.json")) as f:
         return rc, json.load(f), out, started, root
 
@@ -291,6 +307,131 @@ rc, st, out, la, _ = run(["good", "bad", "good"], fights=range(3), win=True, set
 check("a game left aside by the second tour is its own business",
       (st["won"], st["aside_won"], st["aside"]), (names(0, 2), names(1), names(0)))
 
+check("the first two tours film nothing, and leave no round alone", set(FILMS), {(0, False, True)})
+
+# ---------------------------------------------------------------------- the third tour
+rc, st, out, la, _ = run(["good"] * 5, fights=(0, 2, 3), film=True, setup={"done": names(0, 1, 2, 3, 4), "won": names(0, 2, 3)})
+check("the third tour takes the fighting games alone, with its own list",
+      (rc, la, st["filmed"], st["won"], st["done"]), (0, names(0, 2, 3), names(0, 2, 3), names(0, 2, 3), names(0, 1, 2, 3, 4)))
+check("player 1 wins there too, each round left alone at its start and filmed",
+      ([c[1:] for c in CALLS], set(FILMS)), ([(2.0, True)] * 3, {(robot.FILM_HOLD, True, True)}))
+check("its files are kept apart from the other tours'", said(out, "rangé dans film"), 3)
+check("it says what it is", said(out, "Troisième tour, le robot filme le début de chaque round"), 1)
+rc, st, out, la, _ = run(["good", "bad", "good"], fights=range(3), film=True, setup={"aside": names(0), "aside_won": names(2)})
+check("a game left aside by the third tour is its own business",
+      (st["filmed"], st["aside_filmed"], st["aside_won"], st["aside"]), (names(0, 2), names(1), names(2), names(0)))
+rc, st, out, la, _ = run(["good"] * 3, unseen=True)
+check("no screenshot with the screen off: no journal of them", set(FILMS), {(None, False, False)})
+rc, st, out, la, _ = run(["good"] * 3, fights=range(3), film=True, old="quits", restart=True)
+check("an ArcadeDMD started before these files: closed and started again by the robot, the game taken again",
+      (rc, la, st["filmed"], QUITS, said(out, "datait d'avant cette version"), said(out, "je le lance")),
+      (0, names(0, 0, 1, 2), names(0, 1, 2), names(0), 1, 1))
+check("and that game is not held to have failed", (said(out, "réessayé"), st["aside_filmed"]), (0, []))
+rc, st, out, la, _ = run(["good"] * 3, fights=range(3), film=True, old="stays", restart=True)
+check("one that cannot be asked to quit: the tour stops and says what to do, nothing is filmed",
+      (rc, la, st.get("filmed") or [], said(out, "clic droit, Quitter"), len(FILMS)), (1, names(0), [], 1, 0))
+rc, st, out, la, _ = run(["good"] * 3, fights=range(3), film=True, old="still", restart=True)
+check("the one started in its place is no newer: asked to quit once, not for ever",
+      (rc, la, QUITS, said(out, "clic droit, Quitter")), (1, names(0, 0), names(0), 1))
+rc, st, out, la, _ = run(["good"] * 3, fights=range(3), win=True, old="quits", restart=True)
+check("the first two tours ask nothing of an older ArcadeDMD", (rc, la, st["won"], QUITS), (0, names(0, 1, 2), names(0, 1, 2), []))
+
+
+# ---------------------------------------------------------------------- the journal of the screenshots, the film
+class Wire:                                                       # RetroArch's stand-in: counts what is asked
+    def __init__(self, deaf=False):
+        self.sent, self.deaf = [], deaf
+
+    def send(self, text):
+        self.sent.append(text)
+        return not self.deaf
+
+
+def shot_file(folder, name):
+    open(os.path.join(folder, name), "w").close()
+
+
+sdir = tempfile.mkdtemp(dir=TOP.name)
+shot_file(sdir, "old-261117-100000.png")                          # left by the game before / laissée par le jeu d'avant
+wire = Wire()
+book = robot.Shots(wire, sdir)
+check("a screenshot is asked and written down", (book.ask(10.0, "tick"), len(wire.sent), book.log[0]["why"]), (True, 1, "tick"))
+check("never a second one in the same second", (book.ask(10.0 + robot.SHOT_GAP - 0.1, "round"), len(wire.sent)), (False, 1))
+check("the next one a little later, with what the robot knew", (book.ask(10.01 + robot.SHOT_GAP, "round", round=2, clock=60),
+                                                               book.log[1]["round"], book.log[1]["clock"]), (True, 2, 60))
+book.look(11.3)
+check("no file yet: no name", [e["name"] for e in book.log], [None, None])
+shot_file(sdir, "game-261117-100010.png")
+shot_file(sdir, "game-261117-100011.png")
+book.look(11.5)
+check("the files that appear go to the requests in their order, the old one to none",
+      [e["name"] for e in book.log], ["game-261117-100010", "game-261117-100011"])
+check("each with the clock's instant", all(isinstance(e["t"], float) and e["t"] > 1.7e9 for e in book.log), True)
+book.ask(20.0, "tick")
+book.look(26.0)
+shot_file(sdir, "game-261117-100030.png")
+book.look(27.0)
+check("a file that comes after its request was given up names nothing", book.log[2]["name"], None)
+check("RetroArch that does not take the request: nothing written down", (robot.Shots(Wire(True), sdir).ask(1.0, "tick"),), (False,))
+
+
+class Round:                                                      # what the film reads of the winner
+    def __init__(self, ready=True):
+        self.on, self.rounds, self.t_top, self.t_prev = False, 0, None, None
+        self.ready, self.off, self.clock = ready, None, 0
+
+    def peek_clock(self):
+        return self.clock
+
+
+class Fixed:
+    @staticmethod
+    def uniform(a, b):
+        return 0.5
+
+
+wire = Wire()
+book = robot.Shots(wire, sdir)
+reel, rnd = robot.Film(book, Fixed()), Round()
+for i in range(100):                                              # ten seconds between two rounds
+    reel.step(100.0 + i * 0.1, rnd)
+check("nothing filmed outside a round", len(wire.sent), 0)
+rnd.on, rnd.rounds, rnd.t_top, rnd.t_prev = True, 1, 60, 60
+t, asked = 110.0, []
+while t < 116.0:                                                  # the announcement: the clock set, not counting
+    if reel.step(t, rnd):
+        asked.append(round(t - 110.0, 1))
+    t += 0.1
+gaps = [round(b - a, 1) for a, b in zip(asked, asked[1:])]
+check("a round begins: filmed from its random delay on, a screenshot every SHOT_GAP, never closer",
+      (0.5 <= asked[0] <= 0.6, len(asked) in (4, 5), all(robot.SHOT_GAP <= g <= robot.SHOT_GAP + 0.15 for g in gaps)),
+      (True, True, True))
+rnd.t_prev = 60 - robot.WIN_COUNT
+check("the clock has counted its seconds: the film stops", (reel.step(116.5, rnd), reel.step(118.0, rnd)), (False, False))
+rnd.on = False
+reel.step(119.0, rnd)
+rnd.on, rnd.rounds, rnd.t_top, rnd.t_prev = True, 2, 60, 60
+n = len(wire.sent)
+t = 130.0
+while t < 130.0 + robot.FILM_FOR + 10:                            # a clock that never starts
+    reel.step(t, rnd)
+    t += 0.1
+check("a round that never starts is not filmed for ever",
+      abs(len(wire.sent) - n - (robot.FILM_FOR - 0.5) / robot.SHOT_GAP) <= 1.5, True)
+check("the film counts its screenshots, each written down as a round's", (reel.count, {e["why"] for e in book.log}), (len(wire.sent), {"round"}))
+wire = Wire()
+book = robot.Shots(wire, sdir)
+reel, rnd = robot.Film(book, Fixed()), Round(ready=False)         # life bars the file does not know: by the clock
+seen = []
+for i in range(400):
+    t = 200.0 + i * 0.1
+    rnd.clock = 0 if t < 205 else 60 if t < 209 else max(40, 60 - int(t - 209)) if t < 229 else 0 if t < 233 else 60
+    if reel.step(t, rnd):
+        seen.append((book.log[-1]["round"], book.log[-1]["clock"]))
+check("where the winner cannot tell, the clock set again is the round: filmed until it has counted, and the next one too",
+      (sorted({r for r, _ in seen}), min(c for _, c in seen) > 60 - robot.WIN_COUNT, len([1 for r, _ in seen if r == 1]) in (4, 5, 6)),
+      ([1, 2], True, True))
+
 # ---------------------------------------------------------------------- the robot that wins
 from dmd.retroarch import Layout, layout_for, swap16  # noqa: E402
 
@@ -414,9 +555,9 @@ NO_CLOCK = {"memory": {"values": {k: v for k, v in FILE["memory"]["values"].item
 NO_BARS = {"memory": {"values": {"time": {"addr": "0x105680", "type": "bcd", "bytes": 1}}}}
 
 
-def six_minutes(game_file, with_winner=True, **kind):
+def six_minutes(game_file, with_winner=True, hold=0, **kind):
     game = Arcade(**kind)
-    champ = WINNER(game, game.lay, game_file) if with_winner else None
+    champ = WINNER(game, game.lay, game_file, hold=hold) if with_winner else None
     t = 0.0
     while t < 360.0:
         game.step(0.1)
@@ -446,6 +587,9 @@ game, champ = six_minutes(NO_BARS)
 check("life bars the file does not know: nothing written", (champ.ready, len(game.writes)), (False, 0))
 game, champ = six_minutes(FILE, demo=True)
 check("a demo the BIOS does not call a game: nothing written", len(game.writes), 0)
+game, champ = six_minutes(FILE, hold=2)
+check("a filmed round is left alone until its clock has counted two seconds, and still won",
+      (sorted({st for st, _ in game.writes}), game.beaten >= 10, game.lost, champ.off), (["fight"], True, 0, None))
 
 
 def picked(name, **modes):
@@ -456,6 +600,11 @@ def picked(name, **modes):
     return w.ready, [b and (b["ptr"], b["addr"]) for b in w._pick(modes)]
 
 
+for name in ("aodk", "ragnagrd"):
+    with open(os.path.join(ROOT, "games", name + ".json"), encoding="utf-8") as f:
+        g = json.load(f)
+    check(name + ": a timer read but not shown is the round's clock for the robot too",
+          (WINNER(None, layout_for(g, name), g, name).clock or {}).get("addr"), g["memory"]["values"]["_time"]["addr"])
 check("Fatal Fury against the computer: the computer's own life",
       picked("fatfury1", p1_mode=1, p2_mode=2), (True, [(None, 0x1003B8), (None, 0x1005B8)]))
 check("Fatal Fury with a second player: player 2's",

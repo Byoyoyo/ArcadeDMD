@@ -64,6 +64,15 @@ class Recording:
             raise SystemExit(f"{path}: no .ram in it / pas de .ram")
         self.shots = sorted(n for n in names if n.lower().endswith((".png", ".jpg", ".bmp")))
         self.head, self.snaps = self._snaps(self.read(ram[0]))
+        # shots.json: when the robot asked for each screenshot, on the clock whose instant the header holds ("epoch")
+        self.asked = {}
+        if "shots.json" in names and isinstance(self.head.get("epoch"), (int, float)):
+            try:
+                for e in json.loads(self.read("shots.json").decode("utf-8")).get("asked") or []:
+                    if e.get("name") and isinstance(e.get("t"), (int, float)):
+                        self.asked[e["name"]] = e
+            except (ValueError, AttributeError):
+                pass
         self.game = self.head.get("rom") or self.head.get("game") or os.path.basename(ram[0]).split("-")[0]
         self.base = self.head["base"]
 
@@ -95,10 +104,19 @@ class Recording:
         return head, snaps
 
     def shot_times(self):
-        """[(second of the game, name)] from the time in each screenshot's name. / L'heure dans le nom de la capture."""
+        """[(second of the game, name)]: on the snapshots' own clock, to an image or two, when the robot wrote down
+        the instant it asked for the screenshot (self.exact holds those names); else from the time in the
+        screenshot's name, good to a second. / À une image ou deux près quand le robot a noté l'instant de la
+        demande ; sinon d'après l'heure dans le nom de la capture, à la seconde près."""
         start = datetime.datetime.strptime(self.head["date"], "%Y-%m-%d %H:%M:%S")
         out = []
+        self.exact = set()
         for n in self.shots:
+            e = self.asked.get(os.path.splitext(os.path.basename(n))[0])
+            if e is not None:
+                out.append((e["t"] - self.head["epoch"], n))
+                self.exact.add(n)
+                continue
             m = re.search(r"-(\d{6})-(\d{6})\.", os.path.basename(n))
             if m:
                 when = datetime.datetime.strptime(m.group(1) + m.group(2), "%y%m%d%H%M%S")

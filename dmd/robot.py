@@ -29,6 +29,7 @@ import subprocess
 import threading
 import time
 import traceback
+import urllib.request
 import zipfile
 
 from .i18n import tr
@@ -42,6 +43,9 @@ BASE_PORT = 55400
 SHOT_BIG = 400_000                            # a screenshot heavier than this is made smaller / une capture plus lourde est réduite
 SHOT_WIDTH = 640
 SHOT_EVERY = 10.0                             # a screenshot that often during a game / une capture d'écran aussi souvent
+SHOT_GAP = 1.2                                # never two closer: RetroArch names a file by the second / jamais deux plus près
+FILM_FOR = 16.0                               # seconds a round's start is filmed at most / un début de round filmé au plus
+FILM_HOLD = 2                                 # seconds of clock a filmed round is left alone / laissées au round filmé
 PACE = 0.018                                  # a little slower than the images / un peu moins vite que les images
 CFG = """network_remote_enable = "true"
 network_remote_enable_user_p1 = "true"
@@ -336,6 +340,41 @@ def flag(root, on=True):
         pass
 
 
+class Outdated(Exception):
+    """The ArcadeDMD that runs was started before these files were installed: it records without what this tour
+    needs. / L'ArcadeDMD qui tourne a été lancé avant l'installation de ces fichiers."""
+
+
+def engine_quit(root, wait=20.0):
+    """Asks the ArcadeDMD that runs to quit, as the Quit button of its window does (dmd/gui.py: the page holds the
+    token its actions want). True once it has stopped; the robot then starts the one of these files (engine).
+    / Demande à l'ArcadeDMD qui tourne de quitter, comme le bouton Quitter de sa fenêtre. Vrai une fois arrêté."""
+    from . import gui
+    url = gui.running_url(root)
+    if not url:
+        return False
+    web = urllib.request.build_opener(urllib.request.ProxyHandler({}))   # this PC, never through a proxy
+    try:
+        with web.open(url, timeout=5) as r:
+            m = re.search(r'ARCADEDMD_TOKEN\s*=\s*"([0-9a-f]+)"', r.read(1 << 16).decode("utf-8", "replace"))
+        if m is None:
+            return False
+        ask = urllib.request.Request(url + "api/action", data=b'{"do": "quit"}', method="POST", headers={
+            "Content-Type": "application/json", "X-ArcadeDMD-Token": m.group(1)})
+        with web.open(ask, timeout=5) as r:
+            if not json.loads(r.read(1 << 16) or b"{}").get("ok"):
+                return False
+    except (OSError, ValueError):
+        return False
+    end = time.monotonic() + wait
+    while time.monotonic() < end:
+        if not engine_runs():
+            time.sleep(1.0)                                       # its ports and its panel let go / il lâche ses ports
+            return True
+        time.sleep(0.5)
+    return False
+
+
 def acked(root, rom, since, wait=10.0):
     """ArcadeDMD's word that it records this game (runtime/robot.ack, written when it sees the game start while the
     robot's flag is up): its dict, or None when it says nothing. / La parole d'ArcadeDMD qu'il enregistre ce jeu."""
@@ -373,7 +412,7 @@ def _small(path):
         return None
 
 
-def bundle(root, rom, since, wait=8.0, sub=""):
+def bundle(root, rom, since, wait=8.0, sub="", journal=None):
     """One file per game: what ArcadeDMD recorded since the game started and the screenshots RetroArch took, in
     runtime/robot/<game>.zip. Returns (the path, recordings, screenshots, memory recorded). The screenshots are then
     removed from their folder, the recordings stay in runtime/captures. / Un fichier par jeu."""
@@ -387,6 +426,8 @@ def bundle(root, rom, since, wait=8.0, sub=""):
         time.sleep(1.0)
     time.sleep(1.0)
     sdir = shots_dir(root)
+    if journal is not None:
+        journal.look(time.monotonic(), True)
     try:
         shots = sorted(n for n in os.listdir(sdir) if n.lower().endswith((".png", ".bmp", ".jpg")))
     except OSError:
@@ -405,6 +446,8 @@ def bundle(root, rom, since, wait=8.0, sub=""):
                                                time.localtime(os.path.getmtime(os.path.join(sdir, n)))[:6]), small)
                 else:
                     z.write(os.path.join(sdir, n), "screenshots/" + n, zipfile.ZIP_STORED)
+            if journal is not None and journal.log:               # when each screenshot was asked / quand, pour chacune
+                z.writestr("shots.json", json.dumps({"asked": journal.log}))
     except OSError:
         return path, 0, 0, False
     for n in shots:
@@ -579,8 +622,10 @@ class Winner:
     SIDES = ("health", "health_p2")
     ALONE = {"p1_mode": 1, "p2_mode": 0}                          # player 1 against the computer / contre l'ordinateur
 
-    def __init__(self, client, layout, game, system=""):
+    def __init__(self, client, layout, game, system="", hold=0):
         self.client, self.lay = client, layout
+        self.hold = hold              # seconds of clock before anything is written in a round (a filmed round: its
+        # announcement and its first seconds are the game's own) / secondes de chrono avant d'écrire dans un round
         g = game if isinstance(game, dict) else {}
         vals = game_values(g, system)
         self.tag = {k: v for k, v in (g.get("tag") or {}).items() if isinstance(v, dict)} if isinstance(g.get("tag"), dict) else {}
@@ -592,7 +637,7 @@ class Winner:
             bar = self._bar(vals.get(name))
             if bar is not None:
                 self.cands[name] = bar
-        t = vals.get("time")
+        t = vals.get("time") if isinstance(vals.get("time"), dict) else vals.get("_time")   # read, shown or not
         ok = isinstance(t, dict) and parse_addr(t.get("addr")) is not None and t.get("ptr") is None
         self.clock = t if ok and (t.get("type") or "u8").lower() in ("u8", "bcd") and (t.get("bytes") or 1) == 1 else None
         self.bios = layout.contains(0x10FDAE, 0x10FDB7)            # a Neo Geo: its BIOS says who plays / qui joue
@@ -689,6 +734,19 @@ class Winner:
             out.append((addr, v))
         return out, clock, plays
 
+    def peek_clock(self):
+        """The clock alone, or None. / Le chrono seul, ou None."""
+        if not self.clock:
+            return None
+        a = parse_addr(self.clock["addr"])
+        r = self.lay.read_cpu(self.client, a, a)
+        if r is None:
+            return None
+        raw = r[1][a - r[0]]
+        if (self.clock.get("type") or "u8").lower() == "bcd":
+            return (raw >> 4) * 10 + (raw & 15) if (raw >> 4) <= 9 and (raw & 15) <= 9 else None
+        return raw
+
     def _stands(self, k, v):
         b = self.cur[k]
         return b is not None and v is not None and 0 < v <= b["cap"] and (b["zero"] is None or v < b["zero"])
@@ -734,6 +792,8 @@ class Winner:
         self.t_prev = clock
         self.top = [max(self.top[0], h1), max(self.top[1], h2)]
         self.last = (h1, h2)
+        if self.hold and clock is not None and self.t_top is not None and self.t_top - clock < self.hold:
+            return                                                # a filmed round, left as the game plays it
         if h1 < self.top[0]:
             self._set(0, a1, self.top[0])
         low = max(1, self.top[1] // WIN_LOW)
@@ -753,10 +813,121 @@ class Winner:
             self.lay.write_cpu(self.client, parse_addr(self.clock["addr"]), [1])
 
 
+class Shots:
+    """The screenshots asked of RetroArch, and when. RetroArch names a screenshot by its second, which dates it a second
+    wide against the memory ArcadeDMD records; the robot keeps the instant it asked for each one, on the computer's
+    clock, and the file that came of it. That journal goes in the game's zip (shots.json) beside the recording, whose
+    header holds the same clock's instant at its second 0 ("epoch"): a screenshot then falls among the snapshots of
+    the memory to an image or two (1.39). Two screenshots are never asked closer than SHOT_GAP: in the same second the
+    second file would take the first one's name.
+    / Les captures d'écran demandées à RetroArch, et quand. RetroArch nomme une capture par sa seconde ; le robot garde
+    l'instant où il a demandé chacune, sur l'horloge de l'ordinateur, et le fichier qui en est sorti. Ce journal va
+    dans le zip du jeu à côté de l'enregistrement, dont l'en-tête porte l'instant de la même horloge à sa seconde 0 :
+    une capture tombe alors parmi les instantanés de la mémoire à une image ou deux près."""
+
+    def __init__(self, client, folder):
+        self.client, self.dir = client, folder
+        self.log = []                 # {"t": the clock, "name": the file without its extension, "why": ...}
+        self.wait = []                # asked, their file not seen yet / demandées, fichier pas encore vu
+        self.seen = self._files() or set()
+        self.last = self.looked = -99.0
+
+    def _files(self):
+        try:
+            return {n for n in os.listdir(self.dir) if n.lower().endswith((".png", ".bmp", ".jpg"))}
+        except OSError:
+            return None
+
+    def ask(self, now, why, **notes):
+        """Asks for one, unless the last one is too close. / En demande une, sauf si la dernière est trop proche."""
+        if now - self.last < SHOT_GAP or not self.client.send("SCREENSHOT"):
+            return False
+        self.last = now
+        entry = dict({"t": round(time.time(), 3), "name": None, "why": why}, **notes)
+        self.log.append(entry)
+        self.wait.append((now, entry))
+        return True
+
+    def look(self, now, last=False):
+        """The files that appeared go to the requests still waiting, in their order. / Les fichiers apparus vont aux
+        demandes en attente, dans l'ordre."""
+        if not self.wait or (not last and now - self.looked < 0.05):
+            return
+        self.looked = now
+        files = self._files()
+        if files is None:
+            return
+        for n in sorted(files - self.seen):
+            if self.wait:
+                self.wait.pop(0)[1]["name"] = os.path.splitext(n)[0]
+        self.seen |= files
+        self.wait = [w for w in self.wait if now - w[0] < 5.0]    # a file that never came / un fichier jamais venu
+
+
+class Film:
+    """Films the start of each round (the third tour, 1.39): from the moment a round begins a screenshot every
+    SHOT_GAP seconds, until the clock has counted WIN_COUNT seconds or FILM_FOR seconds have gone. The first comes
+    after a delay drawn at random, so that a game's rounds do not all show the same instants of the announcement: put
+    together, they show it to the tenth of a second. A round begins when the winner says so (both fighters stand, the
+    clock is set); where it cannot tell (life bars the file does not know, writes the game does not keep), when the
+    clock is set to thirty or more from much lower.
+    / Filme le début de chaque round : dès qu'un round commence, une capture toutes les SHOT_GAP secondes, jusqu'à ce
+    que le chrono ait compté WIN_COUNT secondes. La première après un délai tiré au hasard, pour que les rounds d'un
+    jeu ne montrent pas tous les mêmes instants de l'annonce. Un round commence quand le gagnant le dit ; là où il ne
+    peut pas le dire, quand le chrono est remis à trente ou plus."""
+
+    def __init__(self, journal, rng):
+        self.journal, self.rng = journal, rng
+        self.cur = None               # the round being filmed / le round filmé
+        self.until = self.next = 0.0
+        self.count = 0
+        self.read_t = 0.0             # by the clock alone: its last value, the round's top, the rounds seen
+        self.prev = self.top = None
+        self.n = 0
+
+    def _round(self, now, winner):
+        """(a round is on, its clock has counted, which round, the clock). / (un round est en cours, son chrono a
+        compté, lequel, le chrono)."""
+        if winner.ready and not winner.off:
+            counted = winner.t_top is not None and winner.t_prev is not None and winner.t_top - winner.t_prev >= WIN_COUNT
+            return bool(winner.on), counted, winner.rounds, winner.t_prev
+        if now >= self.read_t:
+            self.read_t = now + WIN_TICK
+            c = winner.peek_clock()
+            if c is not None:
+                if self.prev is not None and c >= 30 and c > self.prev + 5:
+                    self.top, self.n = c, self.n + 1              # set again: a round / remis : un round
+                elif self.top is not None and (c == 0 or c > self.top):
+                    self.top = None
+                self.prev = c
+        on = self.top is not None and self.prev is not None
+        return on, on and self.top - self.prev >= WIN_COUNT, self.n, self.prev
+
+    def step(self, now, winner):
+        on, counted, n, clock = self._round(now, winner)
+        if not on:
+            self.cur = None
+            return False
+        if n != self.cur:
+            self.cur = n
+            self.until = now + FILM_FOR
+            self.next = now + self.rng.uniform(0.0, SHOT_GAP)
+        if counted or now >= self.until or now < self.next:       # the fight runs for good / le combat tourne
+            return False
+        if self.journal.ask(now, "round", round=n, clock=clock):
+            self.next = now + SHOT_GAP
+            self.count += 1
+            return True
+        self.next = now + 0.1
+        return False
+
+
 def play(client, seconds, rng, base=BASE_PORT, two_from=0.7, alive=None, tick=None, shots=True, probe=None,
-         trace=None, winner=None):
+         trace=None, winner=None, journal=None, film=None):
     """Plays the game that runs: a coin, START, then at random; a second player joins for the last part; a screenshot
     asked of RetroArch every ten seconds. Returns False when RetroArch stopped answering.
+    journal: the screenshots are asked through it, which keeps when (Shots). film: the start of each round is
+    filmed too (Film).
     / Joue le jeu en cours : une pièce, START, puis au hasard, une capture d'écran toutes les dix secondes."""
     p1, p2 = RemotePad(1, base=base), RemotePad(2, base=base)
     one, two = Player(p1, rng), Player(p2, rng)
@@ -792,9 +963,16 @@ def play(client, seconds, rng, base=BASE_PORT, two_from=0.7, alive=None, tick=No
             if winner is not None and now >= win_t:               # player 1 kept ahead / le joueur 1 gardé devant
                 win_t = now + WIN_TICK
                 winner.tick(now)
+            if film is not None and winner is not None:
+                film.step(now, winner)
             if shots and now >= shot_t:
-                shot_t = now + SHOT_EVERY
-                client.send("SCREENSHOT")
+                if journal is None:
+                    shot_t = now + SHOT_EVERY
+                    client.send("SCREENSHOT")
+                else:                                             # too close to the last one: a moment later
+                    shot_t = now + (SHOT_EVERY if journal.ask(now, "tick") else 0.2)
+            if journal is not None:
+                journal.look(now)
             if now - seen_t >= 5.0:
                 seen_t = now
                 st = client.status()
@@ -991,9 +1169,9 @@ def snapshots(path):
     return n
 
 
-def _result(root, rom, since, say, head="", sub=""):
+def _result(root, rom, since, say, head="", sub="", journal=None):
     """Puts the game's recording in its file and says what it holds. / Range l'enregistrement du jeu et dit ce qu'il a."""
-    path, files, shots, ram = bundle(root, rom, since, sub=sub)
+    path, files, shots, ram = bundle(root, rom, since, sub=sub, journal=journal)
     name = os.path.join("runtime", "robot", sub, os.path.basename(path)) if sub else os.path.join("runtime", "robot", os.path.basename(path))
     count = snapshots(path) if ram else 0
     if not files:
@@ -1162,10 +1340,11 @@ def works(client, root, setup, rom, cfg_path, seconds=15.0):
         clear_shots(root)
 
 
-def _attempt(client, root, setup, rom, cfg_path, minutes, rng, unseen, say, head, win=False, state=None):
+def _attempt(client, root, setup, rom, cfg_path, minutes, rng, unseen, say, head, win=False, state=None, film=False):
     """One game played and put in its file: None when it is recorded, else why it is not. win: player 1 is made to
     win its fights and no second player comes in. state: what the second tour remembers from a game to the next;
-    "versus" in it: nothing is written, two players play from the start instead.
+    "versus" in it: nothing is written, two players play from the start instead. film: the third tour, the start of
+    each round is filmed and left as the game plays it (Film, Winner's hold).
     / Un jeu joué et rangé. win : le joueur 1 gagne ses combats et le deuxième joueur ne vient pas. state : ce que le
     deuxième tour retient d'un jeu à l'autre ; avec "versus", rien n'est écrit, deux joueurs jouent dès le début."""
     state = state if isinstance(state, dict) else {}
@@ -1175,18 +1354,26 @@ def _attempt(client, root, setup, rom, cfg_path, minutes, rng, unseen, say, head
     clear_shots(root)
     proc = launch(setup, rom, cfg_path)
     trace = []
+    journal = None if unseen else Shots(client, shots_dir(root))
+    reel = None
     try:
         st = wait_playing(client, 45, proc)
         if st is None:
             return tr("ne démarre pas", "does not start")
-        if acked(root, rom, since, 20.0) is None:                 # nobody records / personne n'enregistre
+        ack = acked(root, rom, since, 20.0)
+        if ack is None:                                           # nobody records / personne n'enregistre
             return tr("ArcadeDMD ne dit pas qu'il l'enregistre", "ArcadeDMD does not say it records it")
+        if film and not ack.get("clock"):                         # no instant in its recordings: nothing to film with
+            raise Outdated()
         say(tr(f"{head} : en cours, {minutes} minute{'s' if minutes > 1 else ''}",
                f"{head}: playing, {minutes} minute{'s' if minutes > 1 else ''}"))
-        champ = Winner(client, _layout(st, root), _game(st, root), st.get("system") or "") if win and not versus else None
+        champ = Winner(client, _layout(st, root), _game(st, root), st.get("system") or "",
+                       **({"hold": FILM_HOLD} if film else {})) if win and not versus else None
+        if film and champ is not None and journal is not None:
+            reel = Film(journal, rng)
         ok = play(client, minutes * 60, rng, alive=lambda: proc.poll() is None, tick=lambda t: flag(root),
                   shots=not unseen, probe=prober(client, st, root), trace=trace, winner=champ,
-                  two_from=0.0 if versus else 2.0 if win else 0.7)
+                  two_from=0.0 if versus else 2.0 if win else 0.7, journal=journal, film=reel)
     finally:
         close_game(client, proc)
     stick, fps = judged(trace)
@@ -1208,17 +1395,19 @@ def _attempt(client, root, setup, rom, cfg_path, minutes, rng, unseen, say, head
                        "Je continue le tour à deux joueurs, sans rien écrire, pour rencontrer plus de combattants.",
                        "Three games in a row kept nothing of what is written: RetroArch does not take the writes. The "
                        "tour goes on with two players, writing nothing, to meet more fighters."))
+    if reel is not None:
+        notes += tr(f"{reel.count} captures de débuts de round, ", f"{reel.count} screenshots of round starts, ")
     if stick is False:                                            # said, never a reason to stop / dit, jamais un arrêt
         notes += tr("stick du robot pas vu par le jeu, ", "the robot's stick not seen by the game, ")
     if fps is not None and not 50 <= fps <= 70:
         notes += tr(f"{fps:.0f} images par seconde au lieu de 59, ", f"{fps:.0f} frames a second instead of 59, ")
-    count = _result(root, rom, since, say, f"{head} : {notes}", "win" if win else "")[3]
+    count = _result(root, rom, since, say, f"{head} : {notes}", "film" if film else "win" if win else "", journal=journal)[3]
     if count < minutes * 60:                                      # less than half its memory / moins de la moitié
         return tr("pas assez de mémoire enregistrée", "not enough memory recorded")
     return None
 
 
-def tour(root, cfg, minutes=6, only=None, out=print, unseen=False, win=False):
+def tour(root, cfg, minutes=6, only=None, out=print, unseen=False, win=False, film=False):
     """Every game whose ROM is in the folder, a few minutes each. Only Ctrl+C stops it; started again, it goes on where
     it stopped. A game that cannot be played is tried once more at the end of the tour, then left aside. Three games
     failing in a row are not taken for their own fault: a game recorded before is started, and when it fails too (the
@@ -1226,7 +1415,9 @@ def tour(root, cfg, minutes=6, only=None, out=print, unseen=False, win=False):
     again. unseen: for a screen that is off, RetroArch without a window and no screenshot (it closes when asked for
     one without a video driver); these games keep their place in the tour with the screen on, which plays them again
     with their screenshots. win: the second tour, the fighting games alone, player 1 made to win so that each game
-    is crossed to its end (Winner); its files go to runtime/robot/win and its list is its own.
+    is crossed to its end (Winner); its files go to runtime/robot/win and its list is its own. film: the third tour,
+    the fighting games again, the start of each round filmed with the instant of each screenshot kept (Film, Shots),
+    to tell what the game shows when; its files go to runtime/robot/film, its list is its own too.
     / Tous les jeux dont la ROM est là, quelques minutes chacun. Seul Ctrl+C l'arrête ; relancé, il reprend où il
     s'est arrêté. Un jeu injouable est réessayé une fois à la fin du tour, puis laissé de côté. Trois jeux qui
     échouent de suite ne sont pas tenus pour fautifs : un jeu déjà enregistré est lancé, et s'il échoue aussi (écran
@@ -1234,7 +1425,9 @@ def tour(root, cfg, minutes=6, only=None, out=print, unseen=False, win=False):
     unseen : pour un écran éteint, RetroArch sans fenêtre et sans capture d'écran ; ces jeux gardent leur place dans
     le tour écran allumé, qui les rejoue avec leurs captures. win : le deuxième tour, les jeux de combat seuls, le
     joueur 1 gagne pour que chaque jeu soit traversé jusqu'au bout ; ses fichiers vont dans runtime/robot/win et sa
-    liste est la sienne."""
+    liste est la sienne. film : le troisième tour, encore les jeux de combat, le début de chaque round filmé avec
+    l'instant de chaque capture ; ses fichiers vont dans runtime/robot/film et sa liste est la sienne aussi."""
+    win = win or film                                             # filmed rounds are won too / gagnés aussi
     say = Report(root, "robot.txt", out)
     setup = load_setup(root)
     if setup is None:
@@ -1243,9 +1436,10 @@ def tour(root, cfg, minutes=6, only=None, out=print, unseen=False, win=False):
         return 1
     have = roms(root, setup)
     games = [g for g in (roms(root, setup, True) if win else have) if not only or g in only]
-    key = "won" if win else "unseen" if unseen else "done"
-    side = "aside_won" if win else "aside"
-    known = [g for g in have if g in set(setup.get("done") or []) | set(setup.get("unseen") or []) | set(setup.get("won") or [])]
+    key = "filmed" if film else "won" if win else "unseen" if unseen else "done"
+    side = "aside_filmed" if film else "aside_won" if win else "aside"
+    known = [g for g in have if g in set(setup.get("done") or []) | set(setup.get("unseen") or []) | set(setup.get("won") or [])
+             | set(setup.get("filmed") or [])]
     done = set(setup.get(key if win else "done") or []) if not only else set()
     if unseen and not only:
         done |= set(setup.get("unseen") or [])                    # with or without its screenshots / avec ou sans
@@ -1261,7 +1455,12 @@ def tour(root, cfg, minutes=6, only=None, out=print, unseen=False, win=False):
     total = len(todo) * (minutes + 0.7)
     long_fr = f"{total / 60:.1f} heures" if total >= 90 else f"{total:.0f} minutes"
     long_en = f"{total / 60:.1f} hours" if total >= 90 else f"{total:.0f} minutes"
-    if win:
+    if film:
+        say(tr(f"Troisième tour, le robot filme le début de chaque round : {len(todo)} jeu(x) de combat, {minutes} "
+               f"minute(s) chacun, environ {long_fr}. L'écran doit rester allumé. Ctrl+C pour arrêter.",
+               f"Third tour, the robot films the start of each round: {len(todo)} fighting game(s), {minutes} minute(s) "
+               f"each, about {long_en}. The screen must stay on. Ctrl+C to stop."))
+    elif win:
         say(tr(f"Deuxième tour, le robot gagne ses combats : {len(todo)} jeu(x) de combat, {minutes} minute(s) chacun, "
                f"environ {long_fr}. L'écran doit rester allumé. Ctrl+C pour arrêter.",
                f"Second tour, the robot wins its fights: {len(todo)} fighting game(s), {minutes} minute(s) each, about "
@@ -1285,6 +1484,7 @@ def tour(root, cfg, minutes=6, only=None, out=print, unseen=False, win=False):
     streak = []                                                   # the games that failed in a row / échecs de suite
     left, fresh, waits = [], [], 0                                # fresh: recorded by this tour / enregistrés ici
     memo = {}                                                     # what the second tour remembers between games
+    renewed = False                                               # the ArcadeDMD that ran was changed for this one
     if setup.get("last") in have:
         known.insert(0, setup["last"])
 
@@ -1316,7 +1516,25 @@ def tour(root, cfg, minutes=6, only=None, out=print, unseen=False, win=False):
             head = f"{place[rom]}/{len(todo)} {rom}"
             alive()
             try:
-                why = _attempt(client, root, setup, rom, cfg_path, minutes, rng, unseen, say, head, win, memo)
+                why = _attempt(client, root, setup, rom, cfg_path, minutes, rng, unseen, say, head, win, memo,
+                               **({"film": True} if film else {}))
+            except Outdated:                                      # started before these files: changed once, by itself
+                if not renewed and engine_quit(root):
+                    renewed = True
+                    say(tr(f"{time.strftime('%H:%M')}, l'ArcadeDMD qui tournait datait d'avant cette version, je "
+                           "l'ai fermé.",
+                           f"{time.strftime('%H:%M')}, the ArcadeDMD that ran was from before this version, it was "
+                           "closed."))
+                    queue.appendleft(rom)
+                    time.sleep(3.0)
+                    continue
+                say(tr("L'ArcadeDMD qui tourne date d'avant cette version, il ne note pas l'instant des captures. "
+                       "Quitte-le par son icône près de l'horloge (clic droit, Quitter), puis relance "
+                       "robot_film.bat, qui lance le bon.",
+                       "The ArcadeDMD that runs is from before this version, it does not keep the instant of the "
+                       "screenshots. Quit it from its icon near the clock (right click, Quit), then run "
+                       "robot_film.bat again, which starts the right one."))
+                return 1
             except Exception as e:                                # one game lost, not the tour / un jeu, pas le tour
                 _trouble(root)
                 why = tr(f"erreur imprévue ({type(e).__name__}), notée dans runtime\\robot_crash.log",
@@ -1387,7 +1605,7 @@ def tour(root, cfg, minutes=6, only=None, out=print, unseen=False, win=False):
             queue.extendleft(reversed(again))
             streak = []
             keep()
-        where = "runtime\\robot\\win" if win else "runtime\\robot"
+        where = "runtime\\robot\\film" if film else "runtime\\robot\\win" if win else "runtime\\robot"
         say(tr(f"Tour fini, {len(fresh)} jeu(x) enregistré(s). Un fichier par jeu dans {where}.",
                f"Tour over, {len(fresh)} game(s) recorded. One file per game in {where}."))
         if left:
@@ -1395,7 +1613,7 @@ def tour(root, cfg, minutes=6, only=None, out=print, unseen=False, win=False):
                    f"Left aside, to check (a ROM FinalBurn Neo does not take?): {', '.join(left)}"))
         return 0
     except KeyboardInterrupt:
-        bat = "robot_win.bat" if win else "robot.bat"
+        bat = "robot_film.bat" if film else "robot_win.bat" if win else "robot.bat"
         say(tr(f"Arrêté. Relance {bat} pour reprendre où il en était.", f"Stopped. Run {bat} again to go on where it was."))
         return 0
     finally:

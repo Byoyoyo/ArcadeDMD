@@ -857,7 +857,8 @@ class RetroArchSource:
             try:
                 with open(os.path.join(getattr(self.library, "root", "."), "runtime", "robot.ack"), "w", encoding="utf-8") as f:
                     json.dump({"content": st["content"], "game": key or "", "time": time.time(),
-                               "memory": bool(self.session.get("dump"))}, f)
+                               "memory": bool(self.session.get("dump")), "clock": True}, f)   # clock: the recordings
+                    # hold the clock's instant ("epoch"), which the robot's third tour needs (1.39)
             except OSError:
                 pass
         title = own or game_title(game, parent or st["content"])
@@ -924,10 +925,17 @@ class RetroArchSource:
         # each record holds the bytes that differ from the record before (XOR), zlib'd: a few KB four times a second
         # instead of 64 KB once ("delta" in the header, 1.33 test 35) / chaque enregistrement, la différence avec le
         # précédent, compressée
+        # "epoch": the clock's instant the records' seconds are counted from, to the millisecond, so that what another
+        # program dates on the same computer (the robot's screenshots) falls among the snapshots to the image; "date"
+        # says it to the second only. "stamp": each record is dated when its first half was read (1.39) / l'instant
+        # d'où les secondes des enregistrements sont comptées, à la milliseconde, pour que ce qu'un autre programme
+        # date sur le même ordinateur (les captures d'écran du robot) tombe parmi les instantanés à l'image près
+        t0, epoch = time.monotonic(), time.time()
         head = {"version": "1.33.0", "game": key, "rom": rom, "date": time.strftime("%Y-%m-%d %H:%M:%S"),
-                "base": layout.base, "size": layout.size, "every": self.dump_every, "delta": True}
+                "base": layout.base, "size": layout.size, "every": self.dump_every, "delta": True,
+                "epoch": round(epoch, 3), "stamp": "read"}
         f.write((json.dumps(head) + "\n").encode("utf-8"))
-        self.session["dump"] = {"f": f, "path": path, "t0": time.monotonic(), "n": 0}
+        self.session["dump"] = {"f": f, "path": path, "t0": t0, "n": 0}
         self.session["dump_prev"] = None
         self.log(tr(f"mémoire : toute la mémoire de {rom} enregistrée {self.dump_every:g} s par {self.dump_every:g} s dans {path} "
                     f"(pour retrouver ce que le jeu range où)",
@@ -941,12 +949,16 @@ class RetroArchSource:
         lay = s["layout"]
         half = lay.size // 2
         raw = bytearray()
+        stamp = None
         for start, end in ((lay.base, lay.base + half - 1), (lay.base + half, lay.base + lay.size - 1)):
             # 64 requests of 512 bytes, one image. Nobody plays while the robot does: what came back late is asked again
             # there, a snapshot is never lost (2 in 100 were kept on a busy cabinet, 1.39)
             got = lay.read_cpu_many(self.client, [(start, end)], bool(s.get("robot")))
             if not got:
                 return
+            if stamp is None:
+                stamp = time.monotonic()      # the first half is in: what it holds is an image old at most. The tick's
+                # own time came before the values were read, some images earlier (1.39) / la première moitié est là
             raw += got[0][1]
         raw = bytes(raw)
         prev = s.get("dump_prev")
@@ -957,7 +969,7 @@ class RetroArchSource:
         s["dump_prev"] = raw
         try:
             z = zlib.compress(diff, 6)
-            d["f"].write(struct.pack("<dI", now - d["t0"], len(z)) + z)
+            d["f"].write(struct.pack("<dI", max(0.0, stamp - d["t0"]), len(z)) + z)
             d["n"] += 1
             if d["n"] % 10 == 0:
                 d["f"].flush()
