@@ -84,6 +84,20 @@ See [[ZeDMD and Hardware]].
 
 See [[RetroArch]].
 
+## `lights`
+
+The cabinet's LEDs follow the game through [HyperHDR](https://github.com/awawa-dev/HyperHDR) (1.39). ArcadeDMD sends a short run of colours at an event, then hands the strip back to the screen capture.
+
+| Setting | Default | Effect |
+|---|---|---|
+| `enabled` | `false` | sends the events to HyperHDR |
+| `host`, `port` | `"127.0.0.1"`, `8090` | HyperHDR's web port |
+| `priority` | `50` | the priority of ArcadeDMD's colours, a lower number than the screen capture's |
+| `brightness` | `1.0` | from 0 to 1 |
+| `events` | none | `{"blow": false}` turns an event off, among `coin`, `blow`, `ko`, `super`, `win` and `boss` |
+
+`test_lights.bat` asks HyperHDR who it is and plays every event.
+
 ## `coin_buttons`
 
 Written by `coin_buttons.bat`. `left`, `right`, `start1` and `start2` are your coin and START buttons. `mvs_credits` is the credits each coin slot gives, `[1, 2]` as an MVS does by default.

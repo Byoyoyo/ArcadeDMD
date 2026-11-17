@@ -27,9 +27,10 @@ from .coinbuttons import CoinButtons, mvs_rates, side_word
 from .neocoins import NeoCoins
 from .textfiles import TextFiles
 from .capture import Capture
+from .lights import Lights
 from .i18n import tr
 
-VERSION = "1.38.0"
+VERSION = "1.39.0"
 
 DEFAULT_CONFIG = {
     "language": "auto",
@@ -50,6 +51,7 @@ DEFAULT_CONFIG = {
     "doflinx_bridge": {"enabled": False, "host": "127.0.0.1", "port": 8081},
     "textfiles": {"enabled": True, "folder": "obs", "history": True},
     "retroarch": {"enabled": True, "host": "127.0.0.1", "port": 55355, "poll_ms": 100},
+    "lights": {"enabled": False, "host": "127.0.0.1", "port": 8090, "priority": 50, "brightness": 1.0},
 }
 
 
@@ -698,6 +700,7 @@ class Engine:
         self.texts = TextFiles(tf, root, log) if tf.get("enabled") and not demo_game else None
         # the captures of the fighting games, to replay them offline (1.33) / les captures des jeux de combat
         self.capture = Capture(root, log, config.get("capture", "all")) if not demo_game else None
+        self.lights = Lights(config.get("lights"), log)              # the LEDs of the cabinet, through HyperHDR (1.39)
         # config.json modifié (screen_setup.bat, réglage à la main) : le moteur redémarre avec les nouveaux réglages
         self.cfg_path = os.path.join(root, "config.json")
         self.cfg_mtime = _mtime(self.cfg_path)
@@ -1200,6 +1203,7 @@ class Engine:
         if self.mode != "game" or self.source not in ("plugin", "retroarch") or self.state.paused:
             return
         self.state.update("coin_side", side, now)
+        self.lights.event("coin")
         self.presses += 1
         self.state.update("coin_press", self.presses, now)                 # every press, with its time, in the capture
         where = side_word(side)

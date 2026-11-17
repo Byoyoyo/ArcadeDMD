@@ -22,10 +22,10 @@
   "cpu": ":maincpu",
   "values": {
    "score": {
-    "addr": "",
+    "addr": "0x101814",
     "type": "bcd",
-    "bytes": 4,
-    "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+    "bytes": 2,
+    "note": "player 1 score as the game shows it, in hundreds, BCD on two bytes right before the timer (the robot's recording of 2026-11-16: 13, 47, 63, 102 and 113 as on the screen)"
    },
    "score_p2": {
     "addr": "",
@@ -36,7 +36,7 @@
    "time": {
     "addr": "0x101818",
     "type": "u16",
-    "note": "player 1 timer in frames, TIME in minutes and seconds (FinalBurn Neo cheats, Infinite Time PL1, to be confirmed in game)"
+    "note": "player 1 timer, 64 to a second of the game's TIME (FinalBurn Neo cheats, Infinite Time PL1; the robot's recording of 2026-11-16: 10343 at 02:41, 9785 at 02:32, 11410 at 02:58)"
    },
    "lives": {
     "addr": "0x102402",

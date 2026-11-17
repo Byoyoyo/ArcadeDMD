@@ -45,7 +45,13 @@
     "addr": "0x10004A",
     "type": "bcd",
     "bytes": 1,
-    "note": "seconds of the clock (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Time, to be confirmed in game)"
+    "note": "seconds of the clock (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Time)"
+   },
+   "time_min": {
+    "addr": "0x100049",
+    "type": "u8",
+    "valid": [0, 9],
+    "note": "minutes of the clock, the byte before the seconds (the robot's recording of 2026-11-15: 4 down to 0, one less each of the six times the seconds went round; the clock itself is on none of its screenshots)"
    },
    "credits": {
     "addr": "0xD00034",
@@ -100,6 +106,7 @@
   "outs": 0,
   "inning": 1,
   "time": 59,
+  "time_min": 3,
   "sim": {
    "balls": {
     "cycle": [

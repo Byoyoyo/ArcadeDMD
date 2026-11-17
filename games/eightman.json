@@ -50,7 +50,9 @@
    "lives": {
     "addr": "0x100CF7",
     "type": "u8",
-    "note": "player 1 lives, PLAYER = on the screen (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL1)"
+    "add": -1,
+    "min": 0,
+    "note": "player 1 lives, one more than PLAYER = on the screen: one is taken off (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL1; the robot's recording of 2026-11-15: 3 with PLAYER = 2 on four screenshots, 1 with 0, 2 with 1)"
    },
    "energy": {
     "addr": "0x100CF6",
@@ -71,7 +73,9 @@
    "lives_p2": {
     "addr": "0x1011F7",
     "type": "u8",
-    "note": "player 2 lives (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL2)"
+    "add": -1,
+    "min": 0,
+    "note": "player 2 lives, one more than on the screen, as player 1's (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL2; the robot's recording of 2026-11-15: 3 with PLAYER = 2)"
    },
    "energy_p2": {
     "addr": "0x1011F6",

@@ -20,26 +20,26 @@
   "cpu": ":maincpu",
   "values": {
    "score": {
-    "addr": "",
-    "type": "bcd",
+    "addr": "0x104652",
+    "type": "be",
     "bytes": 4,
-    "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+    "note": "player 1 score, a 32-bit number (the robot's recording of 2026-11-16: 100 and 750 as on the screen)"
    },
    "score_p2": {
-    "addr": "",
-    "type": "bcd",
+    "addr": "0x104656",
+    "type": "be",
     "bytes": 4,
-    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+    "note": "player 2 score, a 32-bit number after player 1's (the robot's recording of 2026-11-16: 250 and 1500 as on the screen)"
    },
    "lives": {
-    "addr": "0x10465A",
+    "addr": "0x10465B",
     "type": "u8",
-    "note": "player 1 lives (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL1, to be confirmed in game)"
+    "note": "player 1 lives as beside the clown at the top (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL1, a word at 0x10465A whose low byte counts; the robot's recording of 2026-11-16: 1, 2, 0 and 2 as on the screen)"
    },
    "lives_p2": {
-    "addr": "0x10465C",
+    "addr": "0x10465D",
     "type": "u8",
-    "note": "player 2 lives (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL2)"
+    "note": "player 2 lives (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL2, the low byte of the word at 0x10465C; 1 then 0 as on the screen in the robot's recording)"
    },
    "time": {
     "addr": "0x104257",

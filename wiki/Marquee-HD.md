@@ -82,20 +82,20 @@ Avec l'affichage HD lisse, les Metal Slug et les jeux de combat ont une scène c
 ### Des décors qui suivent le stage
 
 Le décor change avec le stage du jeu quand le fichier du jeu sait où le lire.
-- `backdrop` est le décor du combat en cours, tiré des bases de triche (« Select Backdrop »). Il choisit le décor HD dans la liste `"hd"` du fichier du jeu.
+- `backdrop` est le décor du combat en cours, tiré des bases de triche (« Select Backdrop ») ou trouvé dans les parties enregistrées par le robot (1.39). Dans plusieurs jeux le stage est celui de l'adversaire, et c'est le numéro de l'adversaire qui est relu. Il choisit le décor HD dans la liste `"hd"` du fichier du jeu.
 - `stage` est le numéro du match dans la partie (Rage of the Dragons, « Select Stage »). Il s'affiche en STAGE 2, STAGE 3... avec le nom du lieu.
 - `round` est le round d'un match de King of Fighters ('96 à 2000, « Select Current Round »), un de plus à chaque K.O. Fatal Fury 2 et Special, Real Bout Fatal Fury Special, World Heroes 2 Jet et Perfect lisent aussi le leur depuis la 1.31.1 (à partir de 1 dans le jeu, `"add": -1`). Il s'affiche en ROUND 2, ROUND 3... quand le combat suivant commence, et le lieu d'un nouveau match vient sous son ROUND 1.
 - Pour les Metal Slug, `mission` choisit le décor de chaque mission.
 
 | Jeux | Valeurs |
 |---|---|
-| The King of Fighters '96, '97, '98, '99 et 2000 | `round` et `backdrop`, avec le lieu de chaque décor dans le '98 (`"places"`) |
-| Rage of the Dragons | `stage` et `backdrop` |
-| The King of Fighters 2002, Garou, Fatal Fury 2, Fatal Fury Special, Real Bout Fatal Fury 2, Real Bout Fatal Fury Special, Samurai Shodown II, III et IV, World Heroes, World Heroes Perfect, SNK vs. Capcom (JAMMA PCB) | `backdrop` |
+| The King of Fighters '96, '97, '98, '99 et 2000 | `round` et `backdrop`, avec le lieu de chaque décor (`"places"`) |
+| Rage of the Dragons | `stage` et `backdrop`, avec le lieu de chaque décor |
+| The King of Fighters '94, '95, 2001 et 2002, Garou, Fatal Fury 2, 3 et Special, les trois Real Bout Fatal Fury, Art of Fighting 1, 2 et 3, Samurai Shodown I à V et V Special, The Last Blade 1 et 2, World Heroes 1, 2, 2 Jet et Perfect, SNK vs. Capcom, Kizuna Encounter, Savage Reign, Ninja Master's, Matrimelee, Ragnagard, Breakers et Breakers Revenge, Galaxy Fight, Kabuki Klash, Waku Waku 7, Fight Fever, Voltage Fighter Gowcaizer, Double Dragon, Aggressors of Dark Kombat | `backdrop`, avec le lieu de chaque stage rencontré (`"places"`) |
 | Metal Slug 1 à 5 et X | `mission` |
 | Street Fighter II, II' Champion Edition, II' Hyper Fighting, Super Street Fighter II et Turbo, Street Fighter Alpha, Alpha 2, Alpha 3, Zero 2 Alpha, Street Fighter III et ses 2nd Impact et 3rd Strike, Darkstalkers, Night Warriors, Vampire Savior, Vampire Hunter 2, Vampire Savior 2, X-Men: Children of the Atom, Marvel vs. Capcom, Cyberbots, Super Gem Fighter, Red Earth | `backdrop`, avec le lieu de chaque décor (`"places"`) |
 
-Ces adresses viennent des bases de triche et restent à confirmer en jeu (`test_retroarch.bat` les affiche). Les autres jeux gardent toujours le même décor. `demo_fight.bat` change de stage tous les deux K.O. (dans les King of Fighters quand une équipe a perdu ses trois combattants), pour le voir sans jouer.
+Celles des jeux Neo Geo ont été vérifiées sur les captures d'écran des parties enregistrées par le robot (1.39). Chaque décor rencontré a reçu le thème le plus proche et le nom de son lieu, et un décor qui n'a pas été rencontré reçoit l'arène sans nom de lieu. Les adresses des jeux Capcom viennent des bases de triche et restent à confirmer en jeu (`test_retroarch.bat` les affiche). Les autres jeux gardent toujours le même décor. `demo_fight.bat` change de stage tous les deux K.O. (dans les King of Fighters quand une équipe a perdu ses trois combattants), pour le voir sans jouer.
 
 Chaque fichier de jeu dit quel décor HD va avec chaque décor du jeu, dans l'ordre de leurs numéros. Par exemple, dans `games\kof98.json`
 
@@ -132,7 +132,7 @@ Le décor 0 (Japon, rue) donne la rue sous le viaduc à Osaka, le 3 (Moyen-Orien
 | `fight_kof_wharf` | The King of Fighters '98, États-Unis : le quai devenu une casse, le panier de basket, le couchant puis la nuit puis la brume |
 | `fight_kof_noah` | The King of Fighters '98, le Black Noah : la salle sous la mer, requins et méduses derrière la vitre, plus bleue à chaque round |
 
-Un fichier de jeu Capcom peut aussi donner le lieu affiché sous le bandeau du décor, en français et en anglais, un par valeur de `backdrop` (`"places": [["CHINE", "CHINA"], ...]`). Sans lui, c'est le lieu du décor HD qui s'affiche.
+Un fichier de jeu peut aussi donner le lieu affiché sous le bandeau du décor, en français et en anglais, un par valeur de `backdrop` (`"places": [["CHINE", "CHINA"], ...]`). Sans lui, c'est le lieu du décor HD qui s'affiche.
 
 Les décors `fight_` et `arena` ont du public devant. Sans le préfixe `fight_` (`city`, `temple`, `harbor`, `ruins`, `desert`, `jungle`, `snow`), les mêmes lieux n'ont pas de public, comme dans les missions des Metal Slug. Un fichier Metal Slug peut aussi avoir sa propre liste `"hd": {"stages": [...]}`, un décor par mission.
 

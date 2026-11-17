@@ -36,7 +36,7 @@
    "time": {
     "addr": "0x106906",
     "type": "u16",
-    "note": "timer in frames, TIME= in seconds (MAME 2003-Plus cheats, Infinite Time, to be confirmed in game)"
+    "note": "the timer, 48 to each unit of TIME= on the screen (MAME 2003-Plus cheats, Infinite Time; the robot's recording of 2026-11-15: 10180 with TIME=212, 9082 with 189, 11201 with 233, 11385 with 237)"
    },
    "lives": {
     "addr": "0x107000",
@@ -118,7 +118,7 @@
   "credits": 0,
   "p1_mode": 1,
   "p2_mode": 0,
-  "time": 14400,
+  "time": 11520,
   "lives": 2,
   "energy": 3,
   "money": 10,
@@ -127,7 +127,7 @@
    "time": {
     "count": [
      0,
-     14400,
+     11520,
      -60
     ],
     "every": 1.0,

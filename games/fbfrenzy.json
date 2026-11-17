@@ -22,14 +22,14 @@
    "score": {
     "addr": "0x104368",
     "type": "bcd",
-    "bytes": 2,
-    "note": "points of player 1's team (FinalBurn Neo cheats, Score always PL1)"
+    "bytes": 1,
+    "note": "points of player 1's team (FinalBurn Neo cheats, Score always PL1; one byte, 00 to 99, the byte after it is a copy: 07 07 at 7 points in the robot's recording of 2026-11-15)"
    },
    "score_p2": {
     "addr": "0x104468",
     "type": "bcd",
-    "bytes": 2,
-    "note": "points of the other team (FinalBurn Neo cheats, Score always PL2)"
+    "bytes": 1,
+    "note": "points of the other team (FinalBurn Neo cheats, Score always PL2; one byte, 00 to 99, the byte after it is a copy: 07 07 at 7 points in the robot's recording of 2026-11-15)"
    },
    "time_min": {
     "addr": "0x100AD8",

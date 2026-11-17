@@ -200,8 +200,8 @@ def replay(path, show_values=False, step=1 / 60, frames=(), out_dir=None):
                     if shown != state["scene"].get("_cont_" + side, False):
                         state["scene"]["_cont_" + side] = shown
                         note(t, f"  CONTINUE ? {side} {'affiché' if shown else 'caché'}")
-            wins = getattr(sc, "wins", None)
-            if wins and (wins["p1"], wins["p2"]) != state["scene"].get("_wins", (0, 0)):
+            wins = getattr(sc, "wins", None)                         # the fights' matches won; a mahjong scene counts hands there
+            if isinstance(wins, dict) and (wins["p1"], wins["p2"]) != state["scene"].get("_wins", (0, 0)):
                 state["scene"]["_wins"] = (wins["p1"], wins["p2"])
                 note(t, f"MATCHS {wins['p1']} - {wins['p2']}")
             players = getattr(sc, "players", None)                   # Metal Slug: the soldiers, the vehicles, the boss

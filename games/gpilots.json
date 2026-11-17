@@ -49,12 +49,16 @@
    "lives": {
     "addr": "0x103F37",
     "type": "u8",
-    "note": "player 1 planes in reserve (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL1)"
+    "add": -1,
+    "min": 0,
+    "note": "player 1 planes in reserve as beside the plane on the screen, the game counts the one that flies too (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL1; the robot's recording of 2026-11-15: 2 in memory at =1 on the screen, 3 at =2)"
    },
    "lives_p2": {
     "addr": "0x103FB7",
     "type": "u8",
-    "note": "player 2 planes in reserve (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL2)"
+    "add": -1,
+    "min": 0,
+    "note": "player 2 planes in reserve, counted the same way (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL2)"
    },
    "bombs": {
     "addr": "0x103F40",

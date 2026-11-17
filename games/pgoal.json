@@ -29,10 +29,19 @@
     "type": "u8",
     "note": "goals of the other team (FinalBurn Neo cheats, Select Score Now! PL2)"
    },
-   "time": {
+   "_clock": {
     "addr": "0x104C28",
-    "type": "u8",
-    "note": "time of the half (FinalBurn Neo cheats, Infinite Normal Time, to be confirmed in game)"
+    "type": "u16",
+    "mult": 0.125,
+    "round": 0,
+    "note": "the clock of the match in seconds of the game, against the computer: a counter that starts at 9600 for 20'00, eight to a second of the clock (FinalBurn Neo cheats, Infinite Normal Time; the robot's recording of 2026-11-16: 6469 at 13'35, 3649 at 7'40, 589 at 1'18)"
+   },
+   "_clock_vs": {
+    "addr": "0x104C28",
+    "type": "u16",
+    "mult": 0.090909,
+    "round": 0,
+    "note": "the same counter between two players: it starts at 13200 for 20'00, eleven to a second of the clock (the robot's recording of 2026-11-16: 12864 at 19'31, 9842 at 14'58)"
    },
    "credits": {
     "addr": "0xD00034",
@@ -77,6 +86,31 @@
  "hd": {
   "scene": "pgoal"
  },
+ "tag": {
+  "clock": {
+   "pick": [
+    "_clock",
+    "_clock_vs"
+   ],
+   "at": {
+    "all": [
+     {
+      "eq": [
+       "p1_mode",
+       1
+      ]
+     },
+     {
+      "eq": [
+       "p2_mode",
+       1
+      ]
+     }
+    ]
+   },
+   "note": "the clock runs slower between two players: both play, says the BIOS"
+  }
+ },
  "demo": {
   "attract": true,
   "credits": 0,
@@ -84,7 +118,7 @@
   "p2_mode": 0,
   "goals": 0,
   "goals_p2": 0,
-  "time": 99,
+  "clock": 1200,
   "sim": {
    "goals": {
     "cycle": [
@@ -109,11 +143,11 @@
     "every": 9.0,
     "start": 9.0
    },
-   "time": {
+   "clock": {
     "count": [
      0,
-     99,
-     -1
+     1200,
+     -7
     ],
     "every": 1.0,
     "start": 1.0
@@ -390,7 +424,7 @@
     "align": "right",
     "segments": [
      {
-      "text": "{time}",
+      "text": "",
       "color": "#ffe040"
      }
     ],

@@ -72,7 +72,8 @@ class Capture:
         self.flushed = now
         vals = (game.get("memory") or {}).get("values") or {} if isinstance(game, dict) else {}
         head = {"version": version, "game": key, "system": meta.get("system"), "parent": meta.get("parent"),
-                "title": meta.get("title"), "date": time.strftime("%Y-%m-%d %H:%M:%S"), "values": sorted(vals)}
+                "title": meta.get("title"), "date": time.strftime("%Y-%m-%d %H:%M:%S"), "values": sorted(vals),
+                "epoch": round(time.time() - (time.monotonic() - now), 3)}    # the clock at second 0, to the millisecond
         self.f.write("# " + json.dumps(head, ensure_ascii=False) + "\n")
         self.log(tr(f"capture de la partie dans {os.path.relpath(self.path, self.root)}",
                     f"capture of the game in {os.path.relpath(self.path, self.root)}"))

@@ -6,10 +6,34 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 To update, extract the new version over the old one. Your `config.json`, the addresses learned and your own pictures are kept.
 Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `config.json`, les adresses apprises et tes propres images sont gardés.
 
+## 1.39.0
+
+### English
+- Neo Geo fighting games recognise the special moves done at the stick. The move lights up under the fighter's name, with how many times it was done. 48 games.
+- FIGHT ! comes with the game's own FIGHT, GO or EN GARDE in 28 fighting games, up to a second and a half sooner. In the others it comes as the timer starts, no longer a second later.
+- Fifteen more fighting games name their fighters and show their moves. The backdrop follows the game's stage in 48 games, and 45 name the place of the fight.
+- Samurai Shodown III, IV, V and V Special show the weapon-flipping technique under the fighter's name when the gauge is full.
+- No K.O. or victory is announced while a fighter still stands with an empty bar (Garou, the Fatal Fury and Real Bout games, Gowcaizer), and a round won on time is no longer followed by the K.O. of its winner (Samurai Shodown I and II).
+- The robot. `robot.bat` lets the Neo Geo games play by themselves in RetroArch, so that ArcadeDMD records them with nobody at the cabinet. `robot_win.bat` wins the fights to meet every fighter and every stage, `robot_film.bat` films the start of each round.
+- 54 game files corrected from those recordings: timers, life bars, names, and the score of nineteen games that had none.
+- The cabinet's LEDs can follow the game through HyperHDR: a coin, a big blow, a K.O., a full gauge, a win, a boss warning. Off by default (`lights` in `config.json`), `test_lights.bat` plays every effect.
+- The recording of RetroArch's whole memory keeps every snapshot on Windows.
+
+### Français
+- Les jeux de combat Neo Geo reconnaissent les coups spéciaux faits au stick. Le coup s'allume sous le nom du combattant, avec le nombre de fois qu'il a été fait. 48 jeux.
+- FIGHT ! arrive avec le FIGHT, le GO ou le EN GARDE du jeu dans 28 jeux de combat, jusqu'à une seconde et demie plus tôt. Dans les autres il arrive au départ du chrono, et plus une seconde après.
+- Quinze jeux de combat de plus nomment leurs combattants et montrent leurs coups. Le décor suit le stage du jeu dans 48 jeux, et 45 nomment le lieu du combat.
+- Samurai Shodown III, IV, V et V Special montrent sous le nom du combattant la technique qui fait sauter l'arme, quand la jauge est pleine.
+- Plus de K.O. ni de victoire annoncés tant qu'un combattant tient debout avec une barre vide (Garou, les Fatal Fury et les Real Bout, Gowcaizer), et un round gagné au temps n'est plus suivi du K.O. de son vainqueur (Samurai Shodown I et II).
+- Le robot. `robot.bat` fait jouer les jeux Neo Geo tout seuls dans RetroArch, pour qu'ArcadeDMD les enregistre sans personne devant la borne. `robot_win.bat` gagne les combats pour croiser tous les combattants et tous les stages, `robot_film.bat` filme le début de chaque round.
+- 54 fichiers de jeux corrigés d'après ces enregistrements : chronos, barres de vie, noms, et le score de dix-neuf jeux qui n'en avaient pas.
+- Les LED de la borne peuvent suivre le jeu par HyperHDR : une pièce, un gros coup, un K.O., une jauge pleine, une victoire, l'alerte d'un boss. Coupé par défaut (`lights` dans `config.json`), `test_lights.bat` joue chaque effet.
+- L'enregistrement de toute la mémoire de RetroArch garde chaque instantané sous Windows.
+
 ## 1.38.0
 
 ### English
-- Every fighting game shows its moves under a human player's name, as The King of Fighters '98 does. The special moves come one after another, their name, their arrows and their buttons, and the supers in gold when the game's gauge allows them. The moves of 70 games come from MAME's command list.
+- The fighting games whose fighters are read show their moves under a human player's name, as The King of Fighters '98 does. The special moves come one after another, their name, their arrows and their buttons, and the supers in gold when the game's gauge allows them. The moves of 60 games come from MAME's command list.
 - The rounds won show as gold stars in every fighting game of single fighters, even when the game keeps no count of them. A match won says how many rounds to how many.
 - Big blows hit harder on the marquee. The damage shows on the bar, and a blow the game empties over several frames counts as one, with its shock wave.
 - Samurai Shodown II. The POW gauge under the fighter, POW MAX and its timer, and each fighter's weapon-breaking technique while it lasts. The winner's bar counted into the bonus no longer shows hits.
@@ -18,7 +42,7 @@ Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `con
 - The Last Blade 2. The computer's fighter is named, the rounds won and the super gauge are read from the game, and the stage follows the game's.
 
 ### Français
-- Tous les jeux de combat montrent leurs coups sous le nom d'un joueur humain, comme The King of Fighters '98. Les coups spéciaux défilent l'un après l'autre, leur nom, leurs flèches et leurs boutons, et les supers en or quand la jauge du jeu les permet. Les coups de 70 jeux viennent de la liste des commandes de MAME.
+- Les jeux de combat dont les combattants sont lus montrent leurs coups sous le nom d'un joueur humain, comme The King of Fighters '98. Les coups spéciaux défilent l'un après l'autre, leur nom, leurs flèches et leurs boutons, et les supers en or quand la jauge du jeu les permet. Les coups de 60 jeux viennent de la liste des commandes de MAME.
 - Les rounds gagnés s'affichent en étoiles dorées dans tous les jeux de combat à un combattant, même quand le jeu ne les compte pas. Un match gagné dit combien de rounds à combien.
 - Les gros coups frappent plus fort sur le marquee. Les dégâts s'affichent sur la barre, et un coup que le jeu vide en plusieurs images compte pour un, avec son onde de choc.
 - Samurai Shodown II. La jauge POW sous le combattant, POW MAX et son chrono, et la technique de bris d'arme de chaque combattant tant qu'il dure. La barre du vainqueur décomptée dans le bonus ne montre plus de coups.

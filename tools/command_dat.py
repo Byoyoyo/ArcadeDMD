@@ -26,8 +26,11 @@ sys.path.insert(0, ROOT)
 KEEP_SECTIONS = ("CONTROLS", "HOW TO PLAY", "COMMON COMMANDS", "COMBO INFO", "CHEATS", "NOTES", "SPECIAL THANKS", "TIPS",
                  "SECRETS", "HIDDEN", "BOSSES", "MISC", "UNLOCKABLES", "EXTRAS", "ENDINGS", "SYSTEM", "GAME MODES")
 # the kinds of moves, from the words of the game's legend / le genre des coups, d'après la légende du jeu
-SUPER_WORDS = ("SUPER", "DESPERATION", "HYPER", "WEAPON-BREAKING", "WEAPON BREAKING", "CRITICAL", "ULTIMATE", "LEVEL 3",
+SUPER_WORDS = ("SUPER", "DESPERATION", "HYPER", "WEAPON-BREAKING", "WEAPON BREAKING", "WEAPON-FLIPPING", "WEAPON FLIPPING",
+               "CRITICAL", "ULTIMATE", "LEVEL 3",
                "MAX", "SUPER ART", "FATAL", "LIBERATION", "EX ")
+# a whole label that names supers / une étiquette entière qui nomme des supers ("Jutsu": Kabuki Klash, its magic bar full)
+SUPER_LABELS = ("JUTSU",)
 # MAME's glyphs (rendfont.cpp): "_" the default ones, "^" the expanded ones / les symboles de MAME
 LABELS = {"_P": "P", "_K": "K", "^E": "LP", "^F": "MP", "^G": "HP", "^H": "LK", "^I": "MK", "^J": "HK", "^T": "KKK",
           "^U": "PPP", "^V": "KK", "^W": "PP", "_G": "G"}
@@ -61,6 +64,8 @@ ALIASES = {
     "KAZUMI": "KASUMI TODOH",
     "KUSARE-GEDOU": "YOUKAI KUSAREGEDO",
     "SANKURO": "SANKURO YOROZU",
+    "UME": "GOKETSUJI UME",
+    "BRAB.MAN": "BLUBBER MAN",
     "S.BILLY": "BILLY LEE",
     "S.JIMMY": "JIMMY LEE",
     "R.M.NANAKAW": "RAINBOW MIKA NAKANAWA",
@@ -182,7 +187,7 @@ def kind_of(label):
         return None
     if "SPECIAL MOVE" in u or u in ("SPECIALS", "SPECIAL ATTACKS", "SPECIAL ATTACK"):
         return "special"
-    if any(w in u for w in SUPER_WORDS):
+    if any(w in u for w in SUPER_WORDS) or u in SUPER_LABELS:
         return "super"
     return None
 

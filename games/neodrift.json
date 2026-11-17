@@ -19,17 +19,12 @@
  "memory": {
   "cpu": ":maincpu",
   "values": {
-   "time_s": {
+   "time": {
     "addr": "0x103334",
-    "type": "bcd",
-    "bytes": 1,
-    "note": "seconds left on the stage (MAME 2003-Plus cheats, Infinite Time)"
-   },
-   "time_cs": {
-    "addr": "0x103335",
-    "type": "bcd",
-    "bytes": 1,
-    "note": "hundredths of the time left (MAME 2003-Plus cheats, Infinite Time)"
+    "type": "u16",
+    "mult": 0.016667,
+    "round": 2,
+    "note": "seconds left on the stage with their hundredths, as the game's TIME: a 16-bit number of sixtieths of a second (MAME 2003-Plus cheats, Infinite Time; the robot's recording of 2026-11-16: 3600 when the stage starts at 60.00, 98 at 01.62)"
    },
    "credits": {
     "addr": "0xD00034",
@@ -79,46 +74,13 @@
   "credits": 0,
   "p1_mode": 1,
   "p2_mode": 0,
-  "time_s": 30,
-  "time_cs": 0,
+  "time": 30,
   "sim": {
-   "time_cs": {
+   "time": {
     "count": [
      0,
-     99,
-     -7
-    ],
-    "every": 0.07,
-    "start": 1.0
-   },
-   "time_s": {
-    "cycle": [
-     30,
-     29,
-     28,
-     27,
-     26,
-     25,
-     24,
-     23,
-     33,
-     32,
-     31,
-     30,
-     29,
-     28,
-     27,
-     26,
-     25,
-     24,
-     23,
-     22,
-     21,
-     20,
-     45,
-     44,
-     43,
-     42
+     60,
+     -1
     ],
     "every": 1.0,
     "start": 1.0
@@ -453,7 +415,7 @@
     "align": "right",
     "segments": [
      {
-      "text": "{time_s}.{time_cs:02d}",
+      "text": "{time:05.2f}",
       "color": "#5080ff"
      }
     ],

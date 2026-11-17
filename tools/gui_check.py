@@ -1,8 +1,10 @@
 """Checks that ArcadeDMD's window answers (used by the GitHub check, and by hand): the page, the state, the log, the
-settings routes, and that a request without the page's token or from another host is refused.
+settings routes, that a request without the page's token or from another host is refused, and that the robot can ask
+an ArcadeDMD that runs to quit.
 
 Vérifie que la fenêtre d'ArcadeDMD répond : la page, l'état, le journal, les routes de réglage, et qu'une demande
-sans le jeton de la page ou venue d'un autre hôte est refusée.
+sans le jeton de la page ou venue d'un autre hôte est refusée, et que le robot peut demander à un ArcadeDMD qui
+tourne de quitter.
 
 usage: python tools/gui_check.py
 """
@@ -12,11 +14,12 @@ import os
 import re
 import sys
 import tempfile
+import threading
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-from dmd import app, gui, gui_setup  # noqa: E402
+from dmd import app, gui, gui_setup, robot  # noqa: E402
 
 
 def ask(port, method, path, body=None, headers=None):
@@ -53,6 +56,17 @@ def main():
             assert ask(port, "GET", "/api/state", headers={"Host": "example.com"})[0] == 403, "other host"
             st, data = ask(port, "POST", "/api/action", {"do": "nothing"}, {"X-ArcadeDMD-Token": token})
             assert st == 200 and json.loads(data)["ok"] is False, "unknown action"
+            # the robot's third tour closes an ArcadeDMD started before its files (robot.engine_quit)
+            runs, gone = robot.engine_runs, threading.Event()
+            robot.engine_runs = lambda: not gone.is_set()
+            try:
+                assert robot.engine_quit(tmp, wait=3.0) is False and not gone.is_set(), "a window without a Quit"
+                panel.actions["quit"] = gone.set
+                assert robot.engine_quit(tmp, wait=5.0) is True and gone.is_set(), "the robot asks it to quit"
+                with tempfile.TemporaryDirectory() as bare:
+                    assert robot.engine_quit(bare, wait=1.0) is False, "no window to ask"
+            finally:
+                robot.engine_runs = runs
         finally:
             panel.close()
     print("window ok")

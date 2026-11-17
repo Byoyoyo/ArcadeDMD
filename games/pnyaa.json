@@ -22,16 +22,16 @@
   "cpu": ":maincpu",
   "values": {
    "score": {
-    "addr": "",
-    "type": "bcd",
+    "addr": "0x101F9A",
+    "type": "be",
     "bytes": 4,
-    "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+    "note": "player 1 score, a 32-bit number, the blue one in the middle of the screen (the robot's recording of 2026-11-16: 501820, 2580 and 1860 as on the screen)"
    },
    "score_p2": {
-    "addr": "",
-    "type": "bcd",
+    "addr": "0x102C0C",
+    "type": "be",
     "bytes": 4,
-    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+    "note": "score of the right side, player 2 or the computer, a 32-bit number, the orange one in the middle of the screen (the robot's recording of 2026-11-16: 260, 7670, 900 and 550 as on the screen)"
    },
    "p1_input": {
     "addr": "0x10FD96",

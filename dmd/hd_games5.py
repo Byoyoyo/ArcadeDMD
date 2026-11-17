@@ -475,7 +475,9 @@ class CyberLipScene(GameScene):
         if t is not None:
             self.pill(screen, W - S(300), S(8), S(280), S(60), 150)
             self.text(screen, "TIME", W - S(280), S(38), 30, (120, 190, 255), key="black", valign="middle")
-            hd.put_number(screen, f"{int(t):02d}", "stencil", S(48), (160, 220, 255), W - S(44), S(38), "right", "middle")
+            m = _n(vals.get("time_min"))                               # TIME 1:59 as in the game / comme dans le jeu
+            shown = f"{int(t):02d}" if m is None else f"{int(m)}:{int(t):02d}"
+            hd.put_number(screen, shown, "stencil", S(48), (160, 220, 255), W - S(44), S(38), "right", "middle")
         bar = self.imgs.get("clbar")
         if bar is None:                                                # the blue bar at the bottom
             bar = self.imgs["clbar"] = pg.Surface((W, S(48)), pg.SRCALPHA)
