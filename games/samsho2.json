@@ -169,6 +169,12 @@
     "bytes": 1,
     "note": "timer (BCD)"
    },
+   "_time_sub": {
+    "addr": "0x100AD3",
+    "type": "u8",
+    "start": 254,
+    "note": "the count of the round's introduction, read as the timer's fraction of a second for what it tells: held at 254 while DUEL n shows, it counts down one a frame from the game's BEGIN (the announcer's second animation starts with it, full size 31 frames later), the timer starting about 92 frames after, a second and a half. Its first move away from 254 gives FIGHT ! with the game's BEGIN, the timer's first count came after it left the screen (the 31 rounds of two recorded games, 1.39)"
+   },
    "score": {
     "ptr": "0x100A46",
     "addr": "0x90",

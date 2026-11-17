@@ -70,6 +70,7 @@ VS_FORGET = 20.0          # the wins of two humans forgotten when one of them le
 SELECT_HOLD = 0.4
 TIMEUP_HOLD = 4.0         # no select screen this long after TIME UP: KOF 2002 keeps no fight (0) for 3 s there (1.33 test 50)
 JUDGE_WAIT = 0.9          # the winner on time judged this long after TIME UP, the last blow landed (1.33) / jugé après
+TIMEUP_OVER = 20.0        # after a round judged on time, its winner's bar going down is no blow that long (or the next round)
 ROUNDS_TO_WIN = 2         # rounds won that end a match, in a game that counts no round of its own (1.33) / rounds gagnés
 # 1.38: the health a blow takes, read in several steps (a game that empties its bar over half a second, a read between two
 # frames) is one blow for the effects: the shock wave, the flash and the damage once the steps add up to them
@@ -206,6 +207,7 @@ class FightFX:
         self.banner = None           # (texte, couleur, début, durée)
         self.judge = None            # when the winner on time is judged (TIME UP) / quand le vainqueur au temps est jugé
         self.timeup_t = -99.0        # when TIME UP last showed / quand TIME UP s'est affiché
+        self.timeup_win = None       # the side that won that round on time / le côté qui a gagné ce round au temps
         self.dm_seen = {}            # side -> (time, word) of the last DM ! or SDM ! shown / le dernier montré
         if getattr(self, "dm", None) is not None:
             self.dm.reset()
@@ -548,6 +550,15 @@ class FightFX:
                         continue                                      # the round was over: the winner's bar cleared, or
                         # counted down into the bonus (Samurai Shodown II, 1.38), no blow / le round était fini : la barre
                         # du vainqueur vidée, ou décomptée dans le bonus, sans coup
+                    if self.judge is None and self.timeup_t > (self.round_t0 or -99.0) \
+                            and JUDGE_WAIT < now - self.timeup_t < TIMEUP_OVER \
+                            and (side == self.timeup_win or (h1 is not None and h2 is not None and h1 <= 0 and h2 <= 0)):
+                        continue                                      # the round was judged on time: its winner is not
+                        # knocked out after it. Six seconds after TIME UP its bar is counted into the bonus (Samurai
+                        # Shodown II, read as its K.O., the round given to the loser too), or both bars are cleared at
+                        # once (Samurai Shodown, read as a DOUBLE K.O.), two recorded games, 1.39 / le round a été jugé
+                        # au temps : son vainqueur n'est pas mis K.O. ensuite, sa barre décomptée dans le bonus ou les
+                        # deux barres vidées d'un coup
                     self._hit(side, old, h, now)
                 elif old <= 0 < h and now - self.fight_t > 2.0 and not self.fs_known:   # combattant suivant ou nouveau
                     self._fight(now)                                                      # round (sans l'état du combat)
@@ -629,6 +640,7 @@ class FightFX:
                 and (h1 or 0) > 0 and (h2 or 0) > 0):
             self.banner = ("TIME UP", GOLD, now, 1.6)                 # chrono à zéro sans K.O.
             self.timeup_t = now
+            self.timeup_win = None                                    # judged a moment later / jugé un instant après
             self.ko_until = now + 1.7
             self.judge = now + JUDGE_WAIT                             # the winner judged a moment later / jugé après
         if self.judge is not None and now >= self.judge and h1 is not None and h2 is not None:
@@ -638,6 +650,7 @@ class FightFX:
             self.judge = None
             if h1 != h2:                                              # WIN once TIME UP is over / WIN après TIME UP
                 self.win = ["p1" if h1 > h2 else "p2", max(now, self.ko_until), False, False]
+                self.timeup_win = self.win[0]
                 # the last fighter of a team lost on time: the team is out too (1.31.1) / perdu au temps, éliminée aussi
                 loser = "p2" if h1 > h2 else "p1"
                 idx = self.lost_go.get(loser)
