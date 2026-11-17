@@ -120,6 +120,12 @@
     "note": "timer",
     "max": 99
    },
+   "_time_sub": {
+    "addr": "0x107C0D",
+    "type": "u8",
+    "start": 32,
+    "note": "the timer's fraction of a second, 33 frames to one count: it steps with the frames between two snapshots and wraps as the timer counts (the robot's two recorded games, 43 rounds). Held at 32 while the round is announced, its first move away gives FIGHT ! as the timer starts, it waited for the timer's first count (1.39)"
+   },
    "score": {
     "addr": "",
     "type": "bcd",

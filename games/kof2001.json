@@ -87,6 +87,12 @@
     "bytes": 1,
     "note": "timer (BCD)"
    },
+   "_time_sub": {
+    "addr": "0x10A7D3",
+    "type": "u8",
+    "start": 50,
+    "note": "the timer's fraction of a second, 50 frames to one count: it steps with the frames between two snapshots and wraps as the timer counts (the robot's two recorded games, 28 rounds). Held at 50 while the round is announced, its first move away gives FIGHT ! as the timer starts, it waited for the timer's first count (1.39)"
+   },
    "score": {
     "addr": "0x1081FC",
     "type": "bcd",

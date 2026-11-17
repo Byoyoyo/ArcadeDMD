@@ -117,6 +117,11 @@
     "note": "timer",
     "max": 99
    },
+   "_time_sub": {
+    "addr": "0x106B1F",
+    "type": "u8",
+    "note": "a count of frames going up, the timer losing one each time it wraps (256 frames) (the robot's two recorded games, 19 rounds). It stands still while the round is announced and moves at every frame once the timer runs: FIGHT ! comes with the timer's start, it waited for its first count (1.39)"
+   },
    "score": {
     "addr": "0x106B36",
     "type": "bcd",

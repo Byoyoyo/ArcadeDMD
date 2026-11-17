@@ -124,7 +124,8 @@
    "_time_sub": {
     "addr": "0x108369",
     "type": "u8",
-    "note": "the timer's fraction of a second (RetroAchievements code notes, 0x8368 Timer (Milliseconds)), it moves at every frame once the round's timer runs, FIGHT ! waits for it to come with the game's own FIGHT or GO (1.31.1)"
+    "start": 60,
+    "note": "the timer's fraction of a second (RetroAchievements code notes, 0x8368 Timer (Milliseconds)), it moves at every frame once the round's timer runs, FIGHT ! waits for it to come with the game's own FIGHT or GO (1.31.1). Held at 60 while the round is announced in the 31 rounds of the robot's two recorded games: its first move away gives FIGHT ! at once (1.39)"
    },
    "score": {
     "addr": "",
