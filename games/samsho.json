@@ -195,6 +195,8 @@
   }
  },
  "hd": {
+  "fight_after": 0.8,
+  "fight_after_note": "the game calls its BEGIN 47 frames after it sets the round up and starts its timer 150 frames after, the same in the 28 rounds of the two recorded games (the timer set, the announcer changing its routine, the timer's fraction leaving its held value): FIGHT ! with that BEGIN, once ROUND n is over (1.39)",
   "stages": [
    "fight_harbor",
    "fight_snow",

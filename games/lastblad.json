@@ -131,6 +131,12 @@
     "start": 70,
     "note": "the timer's fraction of a second, 72 frames to one count: it steps with the frames between two snapshots and wraps as the timer counts (the robot's two recorded games, 33 rounds). Held at 70 while the round is announced, its first move away gives FIGHT ! as the timer starts, it waited for the timer's first count (1.39)"
    },
+   "_fight_cue": {
+    "addr": "0x10CEDE",
+    "type": "u8",
+    "start": 0,
+    "note": "the game's own call of the fight: 0 through the round's announcement, it takes 255 as Slash replaces Ready on the screen, 42 frames before the timer starts (the film of the 33 rounds of two recorded games, the announcer's animation changing at the same frame). Its first move away from 0 gives FIGHT ! with that Slash (1.39)"
+   },
    "score": {
     "addr": "0x10E2CE",
     "type": "bcd",

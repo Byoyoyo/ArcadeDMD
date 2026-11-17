@@ -250,6 +250,9 @@ class FightFX:
         self.run_t = -99.0                         # when the timer was last seen counting down / quand il a décompté
         self.sub_prev = None                       # the timer's fraction of a second ("_time_sub") / sa fraction de seconde
         self.hid_prev = None                       # a timer read but not shown ("_time") / un chrono lu mais pas montré
+        self.cue_prev = None                       # the game's own call of the fight ("_fight_cue") / l'annonce du jeu
+        self.cue_start = None
+        self.fight_after = None                    # "fight_after" in hd: the call a set time after the round is set up
         self.hid_read = False
         self.sub_moves = []                        # when it changed lately / quand elle a changé dernièrement
         self.sub_start = None                      # the value it holds until FIGHT, if the game says it / sa valeur d'attente
@@ -395,6 +398,14 @@ class FightFX:
         self.sub_read = _n(vals.get("_time_sub")) is not None
         sdef = (((game or {}).get("memory") or {}).get("values") or {}).get("_time_sub")
         self.sub_start = _n(sdef.get("start")) if isinstance(sdef, dict) else None
+        cdef = (((game or {}).get("memory") or {}).get("values") or {}).get("_fight_cue")
+        self.cue_start = _n(cdef.get("start")) if isinstance(cdef, dict) else None
+        # a game whose own call comes a set time after it sets the round up, well before its timer starts, and keeps
+        # nothing to read for it ("fight_after" in hd, seconds: Samurai Shodown's BEGIN, 47 frames after the round is
+        # set up in its 28 recorded rounds, the timer starting 150 frames after): FIGHT ! then, its ROUND n over (1.39)
+        # un jeu dont l'annonce vient un temps fixe après la mise en place du round, bien avant le départ du chrono
+        hdd = (game or {}).get("hd")
+        self.fight_after = _n(hdd.get("fight_after")) if isinstance(hdd, dict) else None
         # a timer read but not shown ("_time", Ragnagard: it starts thirteen seconds after the bars are set) still tells
         # when the fight runs, FIGHT ! waits for its first count (1.39) / un chrono lu mais pas montré dit quand même
         # quand le combat tourne, FIGHT ! attend son premier décompte
@@ -595,6 +606,15 @@ class FightFX:
         # image quand il tourne, trois changements en 0,6 s le disent tout de suite ; remise en place, elle ne bouge qu'une fois
         # a game that holds it at one value until its FIGHT ("start", X-Men: Children of the Atom 40): its first move away
         # from it tells it (1.36) / un jeu qui la tient à une valeur jusqu'à son FIGHT : la quitter le dit
+        # the game's own call of the fight where it comes before its timer starts ("_fight_cue", 1.39): a value held at
+        # "start" while the round is announced, its first move away from it is that call (the BEGIN of Samurai Shodown
+        # II, a second and a half before the timer runs, the film of its 31 recorded rounds) / l'annonce du combat par
+        # le jeu quand elle vient avant le départ du chrono : une valeur tenue pendant l'annonce du round, la quitter
+        # est cette annonce
+        cue = _n(vals.get("_fight_cue"))
+        if cue is not None and self.cue_prev is not None and cue != self.cue_prev and self.cue_prev == self.cue_start:
+            self.run_t = now
+        self.cue_prev = cue
         hid = _n(vals.get("_time")) if self.hid_read else None
         if hid is not None and self.hid_prev is not None and hid == self.hid_prev - 1:
             self.run_t = now                                          # the timer not shown counts one down / il décompte
@@ -1060,7 +1080,12 @@ class FightFX:
         self.round_t0 = now
         self.fight_why = ""
         self.run_logged = False
-        if self.timer_read:
+        if self.fight_after is not None:
+            self.fight_wait = None
+            self.fight_t = max(start, now + self.fight_after)
+            self.lost_go = dict(self.lost_raw)
+            self._go(self.fight_t, now)
+        elif self.timer_read:
             self.fight_wait = (start, now)
             self.fight_t = max(start + 1.0, now + (FIGHT_WAIT_SUB if self.sub_read or self.hid_read else FIGHT_WAIT))
             self.sub_moves = []
