@@ -8,7 +8,7 @@ Each of the 57 Neo Geo fighting games has its own file in `games\`, official var
 - Sparks on every hit, the combo counter, FIRST ATTACK, a red heartbeat when the health is low. A big blow sends a shock wave from the bar, the damage shows on it, and a blow the game empties over several frames counts as one.
 - The rounds won as gold stars under the health bars, read in the game or counted from the K.O. in every game of single fighters. A match won says how many rounds to how many.
 - K.O. in big red letters on the loser's side and WIN in gold on the winner's, DOUBLE K.O., TIME UP, PERFECT, confetti for the winner.
-- ROUND 2, ROUND 3... when the game starts the round, and FIGHT ! when the game says GO.
+- ROUND 2, ROUND 3... when the game starts the round, and FIGHT ! with the game's own FIGHT, GO or EN GARDE (as its timer starts in the games where that call is not read yet).
 - The next King of Fighters fighter entering once the K.O. is over, and when a team loses its third fighter, P1 WINS and the team eliminated.
 - A stage that follows the game's own backdrop, in The King of Fighters '96 to 2000, Rage of the Dragons, Garou, Samurai Shodown II to IV, the Street Fighter games and more (see [[HD Marquee]] for the list of backdrops). The nine stages of The King of Fighters '98 are drawn after the game's places and change with the rounds as in the game.
 - When nobody plays, the coin screen (see [[Usage]]).

@@ -26,7 +26,8 @@ sys.path.insert(0, ROOT)
 KEEP_SECTIONS = ("CONTROLS", "HOW TO PLAY", "COMMON COMMANDS", "COMBO INFO", "CHEATS", "NOTES", "SPECIAL THANKS", "TIPS",
                  "SECRETS", "HIDDEN", "BOSSES", "MISC", "UNLOCKABLES", "EXTRAS", "ENDINGS", "SYSTEM", "GAME MODES")
 # the kinds of moves, from the words of the game's legend / le genre des coups, d'après la légende du jeu
-SUPER_WORDS = ("SUPER", "DESPERATION", "HYPER", "WEAPON-BREAKING", "WEAPON BREAKING", "CRITICAL", "ULTIMATE", "LEVEL 3",
+SUPER_WORDS = ("SUPER", "DESPERATION", "HYPER", "WEAPON-BREAKING", "WEAPON BREAKING", "WEAPON-FLIPPING", "WEAPON FLIPPING",
+               "CRITICAL", "ULTIMATE", "LEVEL 3",
                "MAX", "SUPER ART", "FATAL", "LIBERATION", "EX ")
 # a whole label that names supers / une étiquette entière qui nomme des supers ("Jutsu": Kabuki Klash, its magic bar full)
 SUPER_LABELS = ("JUTSU",)
