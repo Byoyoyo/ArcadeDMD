@@ -23,6 +23,7 @@ Games
 - [[Neo Geo Games]]
 - [[Capcom and Cave]]
 - [[Other Games]]
+- [[Games in Pictures]]
 
 Going further
 - [[Learning Addresses]]
@@ -58,6 +59,7 @@ Jeux
 - [[Jeux Neo Geo]]
 - [[Capcom et Cave]]
 - [[Autres jeux]]
+- [[Les jeux en images]]
 
 Pour aller plus loin
 - [[Apprendre les adresses]]

@@ -50,6 +50,7 @@ Les autres jeux lisent les adresses des bases de codes de triche et de RetroAchi
 - [[Jeux Neo Geo]], quatre-vingt-dix-sept jeux faits un par un et une scène par genre pour tous les autres
 - [[Capcom et Cave]], tous les jeux CPS1, CPS2 et CPS3, tous les jeux Cave
 - [[Autres jeux]], After Burner II, Sonic 1 et 2
+- [[Les jeux en images]], les 155 jeux Neo Geo sur le marquee HD et sur la dalle LED
 
 ## Pour aller plus loin
 

@@ -50,6 +50,7 @@ The other games read the addresses of the cheat databases and of RetroAchievemen
 - [[Neo Geo Games]], ninety-seven games done one by one and a scene by genre for all the others
 - [[Capcom and Cave]], every CPS1, CPS2 and CPS3 game, every Cave game
 - [[Other Games]], After Burner II, Sonic 1 and 2
+- [[Games in Pictures]], the 155 Neo Geo games on the HD marquee and on the LED panel
 
 ## Going further
 
