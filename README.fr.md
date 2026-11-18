@@ -6,6 +6,8 @@ Score, vies, crédits et événements des jeux MAME et RetroArch en direct sur l
 
 **ArcadeDMD est en BETA.** Comment l'installer, le régler et s'en servir est dans le **[wiki](https://github.com/Byoyoyo/ArcadeDMD/wiki/Accueil)**, en français et en anglais.
 
+[Ce qu'il fait](#ce-quil-fait) · [Les jeux en images](#les-jeux-en-images) · [Démarrage rapide](#démarrage-rapide) · [Le wiki](#le-wiki)
+
 ![The King of Fighters '98 sur un marquee HD, l'ILLUSION DANCE de King](wiki/images/kof98_desperation_move.gif)
 ![Metal Slug 3 sur un marquee HD, BOSS DESTROYED et MISSION COMPLETE](wiki/images/metal_slug_3_mission_complete.gif)
 ![Sur la borne de l'auteur, K.O., PERFECT et WINNER sur le marquee et dans le jeu](wiki/images/cabinet_kof98_perfect.gif)
@@ -46,9 +48,9 @@ Les autres jeux lisent les adresses des bases de codes de triche et de RetroAchi
 
 ## Les jeux en images
 
-Les 155 jeux Neo Geo ci-dessous, chacun sur le marquee HD et, dessous, sur la dalle LED 128 x 32. Les deux sont dessinés par ArcadeDMD lui-même à partir d'une partie enregistrée, avec les fichiers de jeux de cette version. Ouvre une famille pour voir ses jeux.
+Les 155 jeux Neo Geo ci-dessous, chacun sur le marquee HD et, dessous, sur la dalle LED 128 x 32. Les deux sont dessinés par ArcadeDMD lui-même à partir d'une partie enregistrée, avec les fichiers de jeux de cette version. Chaque famille peut se replier.
 
-<details>
+<details open>
 <summary><b>Jeux de combat Neo Geo</b> (54)</summary>
 
 **3 Count Bout** (`3countb`). 8 combattants nommés, leurs coups sous le nom, coups reconnus au stick.
@@ -269,7 +271,7 @@ Les 155 jeux Neo Geo ci-dessous, chacun sur le marquee HD et, dessous, sur la da
 
 </details>
 
-<details>
+<details open>
 <summary><b>Shoot'em up</b> (15)</summary>
 
 **Aero Fighters 2** (`sonicwi2`). Score, vies, bombes, puissance.
@@ -334,7 +336,7 @@ Les 155 jeux Neo Geo ci-dessous, chacun sur le marquee HD et, dessous, sur la da
 
 </details>
 
-<details>
+<details open>
 <summary><b>Run and gun</b> (11)</summary>
 
 **Cyber-Lip** (`cyberlip`). Score, chrono, vies.
@@ -383,7 +385,7 @@ Les 155 jeux Neo Geo ci-dessous, chacun sur le marquee HD et, dessous, sur la da
 
 </details>
 
-<details>
+<details open>
 <summary><b>Action et plates-formes</b> (21)</summary>
 
 **Bang Bang Busters** (`b2b`). Vies.
@@ -472,7 +474,7 @@ Les 155 jeux Neo Geo ci-dessous, chacun sur le marquee HD et, dessous, sur la da
 
 </details>
 
-<details>
+<details open>
 <summary><b>Sport</b> (22)</summary>
 
 **2020 Super Baseball** (`2020bb`). Chrono.
@@ -565,7 +567,7 @@ Les 155 jeux Neo Geo ci-dessous, chacun sur le marquee HD et, dessous, sur la da
 
 </details>
 
-<details>
+<details open>
 <summary><b>Course</b> (6)</summary>
 
 **Neo Drift Out - New Technology** (`neodrift`). Chrono.
@@ -594,7 +596,7 @@ Les 155 jeux Neo Geo ci-dessous, chacun sur le marquee HD et, dessous, sur la da
 
 </details>
 
-<details>
+<details open>
 <summary><b>Réflexion</b> (16)</summary>
 
 **Ghostlop** (`ghostlop`). Chrono.
@@ -663,7 +665,7 @@ Les 155 jeux Neo Geo ci-dessous, chacun sur le marquee HD et, dessous, sur la da
 
 </details>
 
-<details>
+<details open>
 <summary><b>Quiz, mahjong et shogi</b> (10)</summary>
 
 **Bakatonosama Mahjong Manyuuki** (`bakatono`). Scène de son genre.
@@ -708,7 +710,7 @@ Les 155 jeux Neo Geo ci-dessous, chacun sur le marquee HD et, dessous, sur la da
 
 </details>
 
-<details>
+<details open>
 <summary><b>Capcom CPS1, CPS2 et CPS3, Cave</b></summary>
 
 Ces scènes sont dessinées avec des valeurs simulées, leurs jeux n'ont pas encore été enregistrés.

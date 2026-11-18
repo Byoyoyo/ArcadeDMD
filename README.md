@@ -6,6 +6,8 @@ Live score, lives, credits and game events from MAME and RetroArch games, shown 
 
 **ArcadeDMD is in BETA.** How to install it, set it up and use it is in the **[wiki](https://github.com/Byoyoyo/ArcadeDMD/wiki)**, in English and in French.
 
+[What it does](#what-it-does) · [The games in pictures](#the-games-in-pictures) · [Quick start](#quick-start) · [The wiki](#the-wiki)
+
 ![The King of Fighters '98 on an HD marquee, King's ILLUSION DANCE](wiki/images/kof98_desperation_move.gif)
 ![Metal Slug 3 on an HD marquee, BOSS DESTROYED and MISSION COMPLETE](wiki/images/metal_slug_3_mission_complete.gif)
 ![On the author's cabinet, K.O., PERFECT and WINNER on the marquee and in the game](wiki/images/cabinet_kof98_perfect.gif)
@@ -46,9 +48,9 @@ The other games read the addresses of the cheat databases and of RetroAchievemen
 
 ## The games in pictures
 
-The 155 Neo Geo games below, each on the HD marquee and, under it, on the 128 x 32 LED panel. Both are drawn by ArcadeDMD itself from a recorded game, with the game files of this version. Open a family to see its games.
+The 155 Neo Geo games below, each on the HD marquee and, under it, on the 128 x 32 LED panel. Both are drawn by ArcadeDMD itself from a recorded game, with the game files of this version. Each family can be folded.
 
-<details>
+<details open>
 <summary><b>Neo Geo fighting games</b> (54)</summary>
 
 **3 Count Bout** (`3countb`). 8 fighters named, their moves under the name, moves recognised at the stick.
@@ -269,7 +271,7 @@ The 155 Neo Geo games below, each on the HD marquee and, under it, on the 128 x 
 
 </details>
 
-<details>
+<details open>
 <summary><b>Shoot'em ups</b> (15)</summary>
 
 **Aero Fighters 2** (`sonicwi2`). Score, lives, bombs, power.
@@ -334,7 +336,7 @@ The 155 Neo Geo games below, each on the HD marquee and, under it, on the 128 x 
 
 </details>
 
-<details>
+<details open>
 <summary><b>Run and gun</b> (11)</summary>
 
 **Cyber-Lip** (`cyberlip`). Score, timer, lives.
@@ -383,7 +385,7 @@ The 155 Neo Geo games below, each on the HD marquee and, under it, on the 128 x 
 
 </details>
 
-<details>
+<details open>
 <summary><b>Action and platform games</b> (21)</summary>
 
 **Bang Bang Busters** (`b2b`). Lives.
@@ -472,7 +474,7 @@ The 155 Neo Geo games below, each on the HD marquee and, under it, on the 128 x 
 
 </details>
 
-<details>
+<details open>
 <summary><b>Sports games</b> (22)</summary>
 
 **2020 Super Baseball** (`2020bb`). Timer.
@@ -565,7 +567,7 @@ The 155 Neo Geo games below, each on the HD marquee and, under it, on the 128 x 
 
 </details>
 
-<details>
+<details open>
 <summary><b>Racing games</b> (6)</summary>
 
 **Neo Drift Out - New Technology** (`neodrift`). Timer.
@@ -594,7 +596,7 @@ The 155 Neo Geo games below, each on the HD marquee and, under it, on the 128 x 
 
 </details>
 
-<details>
+<details open>
 <summary><b>Puzzle games</b> (16)</summary>
 
 **Ghostlop** (`ghostlop`). Timer.
@@ -663,7 +665,7 @@ The 155 Neo Geo games below, each on the HD marquee and, under it, on the 128 x 
 
 </details>
 
-<details>
+<details open>
 <summary><b>Quiz, mahjong and shogi</b> (10)</summary>
 
 **Bakatonosama Mahjong Manyuuki** (`bakatono`). Scene of its genre.
@@ -708,7 +710,7 @@ The 155 Neo Geo games below, each on the HD marquee and, under it, on the 128 x 
 
 </details>
 
-<details>
+<details open>
 <summary><b>Capcom CPS1, CPS2 and CPS3, Cave</b></summary>
 
 These scenes are drawn with simulated values, their games have not been recorded yet.
