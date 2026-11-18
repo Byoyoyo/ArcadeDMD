@@ -1,21 +1,69 @@
-MIT License
+ArcadeDMD License
 
-Copyright (c) 2026 Byoyoyo
+Copyright © 2026 Byoyoyo. All rights reserved, except for what this license allows.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This license applies to ArcadeDMD from version 1.39.1 on. The versions up to 1.39.0 were released under the MIT
+license and stay available under it.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+What you may do, free of charge
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+1. Download, install and run ArcadeDMD on your own cabinets and computers, for your private, non-commercial use.
+2. Modify it for that same personal use: your settings, your game files, your pictures, the code.
+3. Send your changes to the project (issues and pull requests on https://github.com/Byoyoyo/ArcadeDMD). By doing so
+   you allow the author to include them in ArcadeDMD and to distribute them under this license or any other.
+
+What needs the author's written agreement
+
+1. Any commercial use: selling or renting ArcadeDMD, or a product or a service that includes it, and using it on a
+   machine that is sold, rented or operated in the course of a business.
+2. Distributing ArcadeDMD or a modified version of it, in whole or in part, anywhere else than its official
+   repository. A link to the repository is always fine.
+3. Removing or changing this notice.
+
+To ask for an agreement, open an issue on https://github.com/Byoyoyo/ArcadeDMD/issues.
+
+Parts that are not the author's
+
+The fonts and the other third-party parts keep their own licenses, listed under "Licenses and credits" in README.md.
+Game names belong to their owners and are used only to identify the games.
+
+No warranty
+
+ArcadeDMD is provided "as is", without warranty of any kind, express or implied. The author cannot be held liable for
+any damage arising from its use.
+
+
+Licence d'ArcadeDMD (le même texte en français)
+
+Copyright © 2026 Byoyoyo. Tous droits réservés, sauf ce que cette licence autorise.
+
+Cette licence s'applique à ArcadeDMD à partir de la version 1.39.1. Les versions jusqu'à la 1.39.0 ont été publiées
+sous licence MIT et restent disponibles sous cette licence.
+
+Ce que vous pouvez faire, gratuitement
+
+1. Télécharger, installer et faire tourner ArcadeDMD sur vos propres bornes et ordinateurs, pour un usage privé et
+   non commercial.
+2. Le modifier pour ce même usage personnel : vos réglages, vos fichiers de jeux, vos images, le code.
+3. Envoyer vos modifications au projet (tickets et demandes de fusion sur https://github.com/Byoyoyo/ArcadeDMD). Vous
+   autorisez alors l'auteur à les intégrer à ArcadeDMD et à les distribuer sous cette licence ou sous une autre.
+
+Ce qui demande l'accord écrit de l'auteur
+
+1. Tout usage commercial : vendre ou louer ArcadeDMD, ou un produit ou un service qui le contient, et s'en servir sur
+   une machine vendue, louée ou exploitée dans le cadre d'une activité professionnelle.
+2. Distribuer ArcadeDMD ou une version modifiée, en tout ou en partie, ailleurs que sur son dépôt officiel. Un lien
+   vers le dépôt est toujours permis.
+3. Retirer ou modifier cette mention.
+
+Pour demander un accord, ouvrez un ticket sur https://github.com/Byoyoyo/ArcadeDMD/issues.
+
+Ce qui n'est pas à l'auteur
+
+Les polices et les autres éléments de tiers gardent leurs propres licences, listées sous « Licences et crédits » dans
+README.fr.md. Les noms des jeux appartiennent à leurs propriétaires et ne servent qu'à identifier les jeux.
+
+Aucune garantie
+
+ArcadeDMD est fourni « tel quel », sans garantie d'aucune sorte, expresse ou implicite. L'auteur ne peut être tenu
+responsable d'aucun dommage né de son utilisation.
