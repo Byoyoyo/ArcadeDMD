@@ -6,6 +6,16 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 To update, extract the new version over the old one. Your `config.json`, the addresses learned and your own pictures are kept.
 Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `config.json`, les adresses apprises et tes propres images sont gardés.
 
+## 1.39.1
+
+### English
+- License. ArcadeDMD stays free for personal, non-commercial use, on your own cabinets. Selling it, any commercial use and redistributing it now need the author's agreement (`LICENSE` file). The versions up to 1.39.0 stay under the MIT license.
+- The 155 Neo Geo games in pictures, each on the HD marquee and on the LED panel, on the project page and in the wiki.
+
+### Français
+- Licence. ArcadeDMD reste gratuit pour un usage personnel et non commercial, sur tes propres bornes. Le vendre, tout usage commercial et le redistribuer demandent maintenant l'accord de l'auteur (fichier `LICENSE`). Les versions jusqu'à la 1.39.0 restent sous licence MIT.
+- Les 155 jeux Neo Geo en images, chacun sur le marquee HD et sur la dalle LED, sur la page du projet et dans le wiki.
+
 ## 1.39.0
 
 ### English
