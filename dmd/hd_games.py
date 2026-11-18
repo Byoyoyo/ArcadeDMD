@@ -171,7 +171,7 @@ class GameScene:
     def p1_in(vals):
         return vals.get("p1_mode") in (1, 2) or vals.get("p1_mode") is None
 
-    def corner(self, side):
+    def mirror(self, side):
         """(X, near, far) to draw player 1's corner on the left and player 2's the same on the right: X(x, w) is where a
         thing w wide and x from the edge starts (sizes before scaling), near and far the two text alignments.
         / Pour dessiner le coin du joueur 1 à gauche et celui du joueur 2 pareil à droite."""

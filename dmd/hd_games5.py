@@ -294,7 +294,7 @@ class NamScene(GameScene):
                 continue
             if side == "p1" and not self.p1_in(vals):
                 continue
-            X, near, far = self.corner(side)
+            X, near, far = self.mirror(side)
             self.pill(screen, X(16, 420), S(10), S(420), S(64), 150)
             tw = self.text(screen, tag, X(36), S(42), 32, col, key="black", align=near, valign="middle")
             lives = _n(vals.get("lives" + suf))
@@ -388,6 +388,8 @@ class CyberLipScene(GameScene):
     THEME = "cl_city"
     SHADE = (90, 90)
     EXPLOSIONS = True
+    TWO = True                                            # the second player's hero is drawn; a scene built on this one
+                                                          # with a hero of its own says False until it draws two
 
     def __init__(self, hd, rng=None):
         super().__init__(hd, rng)
@@ -523,7 +525,7 @@ class CyberLipScene(GameScene):
                 img = self.foe(int(now * 5 + f["ph"]) % 2)
                 screen.blit(img, (int(f["x"] - img.get_width() / 2), int(f["y"] - img.get_height())))
         self.foes = keep
-        if self.p2_in(vals) and not (now - self.hurt2 < 1.0 and int(now * 16) % 2):
+        if self.TWO and self.p2_in(vals) and not (now - self.hurt2 < 1.0 and int(now * 16) % 2):
             frame = 2 if now < self.fire_t2 - 0.15 else int(now * 8 + 1) % 2
             img = self.hero(frame, "p2")
             screen.blit(img, (int(self.hx("p2") - img.get_width() / 2), int(self.floor() - img.get_height())))
@@ -570,7 +572,7 @@ class CyberLipScene(GameScene):
                 word, colw = self.invite(vals, now)
                 self.text(screen, word, W - S(40), H - S(24), 28, colw, key="black", align="right", valign="middle")
                 continue
-            X, near, far = self.corner(side)
+            X, near, far = self.mirror(side)
             name, col = weapon or ("NORMAL", WHITE)
             self.box(screen, X(20, 240), H - S(46), S(240), S(44), (200, 220, 255), fill=(10, 20, 80, 230), radius=4, width=2)
             self.text(screen, name, X(20, 240) + S(120), H - S(24), 30, col, key="stencil", align="center", valign="middle")
@@ -691,7 +693,7 @@ class GhostPilotsScene(AeroFightersScene):
                 continue
             if side == "p1" and not self.p1_in(vals):
                 continue
-            X, near, far = self.corner(side)
+            X, near, far = self.mirror(side)
             self.pill(screen, X(16, 380), S(8), S(380), S(84), 150)
             self.text(screen, tag, X(34), S(30), 26, (255, 230, 120), key="black", align=near, valign="middle")
             if _n(vals.get("score" + suf)) is not None:
@@ -774,7 +776,7 @@ class AlphaMission2Scene(AeroFightersScene):
                 continue
             if side == "p1" and not self.p1_in(vals):
                 continue
-            X, near, far = self.corner(side)
+            X, near, far = self.mirror(side)
             self.pill(screen, X(16, 460), S(8), S(460), S(64), 150)
             icon = self.life_icon(side, vals)
             screen.blit(icon, (X(30, 40), S(20)))
@@ -940,7 +942,7 @@ class ViewpointScene(BlazingStarScene):
                 continue
             if side == "p1" and not self.p1_in(vals):
                 continue
-            X, near, far = self.corner(side)
+            X, near, far = self.mirror(side)
             self.pill(screen, X(16, 560), H - S(70), S(560), S(60), 160)
             self.text(screen, tag, X(34), H - S(40), 32, (255, 230, 60), key="black", align=near, valign="middle")
             if _n(vals.get("score" + suf)) is not None:
@@ -1113,11 +1115,11 @@ class ZedBladeScene(SideShooterScene):
         for side, suf in (("p1", ""), ("p2", "_p2")):
             if side == "p2" and not two or side == "p1" and not self.p1_in(vals):
                 continue
-            X = self.corner(side)[0]
+            X = self.mirror(side)[0]
             n = _n(vals.get("lives" + suf))
-            if n:                                                      # the ships left under the score, as in the game,
-                icon = self.img(("zblife", side), S(56), S(30), self.ship_fn(side))    # which counts the one that flies too
-                for i in range(min(5, int(n) - 1)):
+            if n:                                                      # the ships left under the score, as in the game
+                icon = self.img(("zblife", side), S(56), S(30), self.ship_fn(side))
+                for i in range(min(5, int(n))):
                     screen.blit(icon, (X(26 + i * 62, 56), S(76)))
             b = _n(vals.get("bombs" + suf))
             for i in range(min(6, int(b or 0))):                       # blue capsules at the bottom, as in the game
@@ -1179,7 +1181,7 @@ class PrehistoricIsle2Scene(SideShooterScene):
                 continue
             if side == "p1" and not self.p1_in(vals):
                 continue
-            X, near, far = self.corner(side)
+            X, near, far = self.mirror(side)
             self.pill(screen, X(16, 480), S(8), S(480), S(104), 150, radius=14)
             self.text(screen, tag, X(34), S(30), 26, col, key="black", align=near, valign="middle")
             sc = _n(vals.get("score" + suf))

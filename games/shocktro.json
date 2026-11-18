@@ -740,9 +740,9 @@
    {
     "type": "text",
     "font": "5x8",
-    "x": 64,
+    "x": 1,
     "y": 21,
-    "align": "center",
+    "align": "left",
     "segments": [
      {
       "text": "{time}",

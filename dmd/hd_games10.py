@@ -672,7 +672,7 @@ class AndroDunosScene(SideShooterScene):
                 continue
             if side == "p1" and not self.p1_in(vals):
                 continue
-            X, near, far = self.corner(side)
+            X, near, far = self.mirror(side)
             self.pill(screen, X(16, 470), S(8), S(470), S(98), 150, radius=14)
             self.text(screen, tag, X(34), S(32), 30, WHITE, key="black", align=near, valign="middle")
             if _n(vals.get("score" + suf)) is not None:
@@ -685,9 +685,9 @@ class AndroDunosScene(SideShooterScene):
                 if v is not None:
                     self.text(screen, f"{int(v)}", x + S(84), S(80), 18, WHITE, key="black", align="right", valign="middle", glow=0)
             lives = _n(vals.get("lives" + suf))
-            if lives:                                                  # the game counts the ship that flies too: one icon less
+            if lives:
                 icon = self.img(("adlife", side), S(46), S(26), small_fighter_draw((240, 200, 90), self.ACC[side]), ss=2)
-                for k in range(int(min(lives - 1, 6))):
+                for k in range(int(min(lives, 6))):
                     screen.blit(icon, (X(24 + k * 52, 46), H - S(40)))
 
 
@@ -736,7 +736,7 @@ class IroncladScene(SideShooterScene):
                 continue
             if side == "p1" and not self.p1_in(vals):
                 continue
-            X, near, far = self.corner(side)
+            X, near, far = self.mirror(side)
             self.pill(screen, X(16, 470), S(8), S(470), S(60), 150, radius=14)
             self.text(screen, tag, X(34), S(38), 30, (255, 200, 120), key="black", align=near, valign="middle")
             if _n(vals.get("score" + suf)) is not None:
@@ -876,7 +876,7 @@ class CaptainTomadayScene(AeroFightersScene):
                 continue
             if side == "p1" and not self.p1_in(vals):
                 continue
-            X, near, far = self.corner(side)
+            X, near, far = self.mirror(side)
             self.pill(screen, X(16, 420), S(8), S(420), S(84), 150)
             self.text(screen, tag, X(34), S(30), 24, col, key="black", align=near, valign="middle")
             sc = _n(vals.get("score" + suf))

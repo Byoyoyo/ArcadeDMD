@@ -88,6 +88,7 @@ class SpinMasterScene(CyberLipScene):
     """Spin Master as in the game: the desert of the pyramids, our hero of our own throws his yo-yo at the soldiers and
     the birds that come. 1P and the score, the health gauge in orange segments, the bombs B, the lives at the bottom.
     / Le désert des pyramides, notre héros lance son yo-yo sur les soldats et les oiseaux, comme dans le jeu."""
+    TWO = False                                           # one hero of its own / un seul héros, le sien
     THEME = "sm_desert"
     SHADE = (60, 60)
     EXPLOSIONS = True

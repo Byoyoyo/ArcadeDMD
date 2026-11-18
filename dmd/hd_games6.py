@@ -321,7 +321,7 @@ class NinjaCommandoScene(ShockTroopers2Scene):
                 continue
             if side == "p1" and not self.p1_in(vals):
                 continue
-            X, near, far = self.corner(side)
+            X, near, far = self.mirror(side)
             self.pill(screen, X(12, 420), S(6), S(420), S(58), 160, radius=14)
             self.text(screen, tag, X(30), S(34), 28, WHITE, key="black", align=near, valign="middle")
             if _n(vals.get("score" + suf)) is not None:
@@ -432,6 +432,7 @@ class BluesJourneyScene(CyberLipScene):
     little hero of our own walks the grass and throws leaves at the snails and the bees. 1P= and the score, the lives,
     TIME=, LIFE and its hearts at the top, the flowers at the bottom left, as in the game.
     / Le pays des plantes géantes, notre petit héros lance des feuilles aux escargots et aux abeilles, comme dans le jeu."""
+    TWO = False                                           # one hero of its own / un seul héros, le sien
     THEME = "bj_jungle"
     SHADE = (60, 60)
     EXPLOSIONS = False

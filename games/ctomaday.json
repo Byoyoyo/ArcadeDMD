@@ -31,6 +31,22 @@
     "bytes": 4,
     "note": "player 2 score, in hundredths, 0x1C after player 1's as his lives (the robot's recording of 2026-11-16: 4.50 and 6.00 as on two screenshots)"
    },
+   "score_units": {
+    "addr": "0x101382",
+    "type": "be",
+    "bytes": 4,
+    "mult": 0.01,
+    "round": 2,
+    "note": "player 1 score as the game writes it (2.75), for the panel: the same four bytes as score, in units"
+   },
+   "score_units_p2": {
+    "addr": "0x10139E",
+    "type": "be",
+    "bytes": 4,
+    "mult": 0.01,
+    "round": 2,
+    "note": "player 2 score as the game writes it, for the panel"
+   },
    "p1_input": {
     "addr": "0x10FD96",
     "type": "u8",
@@ -663,7 +679,7 @@
     "x": 64,
     "y": 3,
     "align": "center",
-    "text": "{score}",
+    "text": "{score_units:.2f}",
     "color": "#ffa830",
     "when": {
      "all": [
@@ -737,7 +753,7 @@
     "x": 64,
     "y": 3,
     "align": "center",
-    "text": "{score_p2}",
+    "text": "{score_units_p2:.2f}",
     "color": "#ff9040",
     "when": {
      "all": [
@@ -912,7 +928,7 @@
     "font": "6x10",
     "x": 1,
     "y": 1,
-    "text": "{score}",
+    "text": "{score_units:.2f}",
     "color": "#ffa830",
     "when": {
      "all": [
@@ -951,7 +967,7 @@
     "x": 127,
     "y": 1,
     "align": "right",
-    "text": "{score_p2}",
+    "text": "{score_units_p2:.2f}",
     "color": "#ff9040",
     "when": {
      "all": [
