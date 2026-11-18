@@ -6,16 +6,27 @@ each P item picked up, a level for three of them), the grenades at the bottom. I
 bar of a big machine being shot at. The gun of the card fires when the player does, what he kills blows up in the
 middle, a grenade flies from the panel.
 
+The mission played is named beside the timer and announced as it starts, STAGE CLEAR when the game counts its bonuses.
+The boss comes when the game says so: ALERT as on its screen, with the name of the mission's boss, then a box under the
+timer where each part of the boss being shot at has its own bar, PHASE 2 when the next ones come, and BOSS DESTROYED at
+the image the game stops its timer again. A player in a vehicle has it on his card, CHARGE as the game's box reads.
+
 Shock Troopers 2nd Squad, disposé comme Metal Slug et Mercs. Dans le panneau de chaque joueur : le soldat choisi et les
 vies en réserve en haut, l'énergie dessous, le score au milieu de sa bande, l'arme tenue dessinée sur sa carte avec sa
 puissance comme le jeu la montre (Lv et trois P, un allumé par bonus P ramassé, un niveau tous les trois), les grenades
 en bas. Au milieu, le chrono, et la barre de vie d'un gros engin sur lequel on tire. L'arme de la carte tire quand le
-joueur tire, ce qu'il abat explose au milieu, une grenade part du panneau."""
+joueur tire, ce qu'il abat explose au milieu, une grenade part du panneau.
+
+La mission jouée est nommée à côté du chrono et annoncée à son départ, STAGE CLEAR quand le jeu compte ses bonus. Le
+boss arrive quand le jeu le dit : ALERT comme à son écran, avec le nom du boss de la mission, puis une boîte sous le
+chrono où chaque pièce du boss sur laquelle on tire a sa barre, PHASE 2 quand les suivantes arrivent, et BOSS DÉTRUIT
+à l'image où le jeu arrête de nouveau son chrono. Un joueur monté dans un véhicule l'a sur sa carte, CHARGE comme
+l'écrit la boîte du jeu."""
 import math
 
 from .hd_fx import Particle
 from .hd_games import BTN_A, WHITE, GameScene, Machines, _clamp, _mix, _n
-from .hd_mslug import ACCENT, CREAM, GOLD, GREY, PH, PW, RED, TIP, grenade_img, helmet_img, panel_img, weapon_img
+from .hd_mslug import ACCENT, CREAM, GOLD, GREY, PH, PW, RED, TIP, grenade_img, helmet_img, panel_img, tank_img, weapon_img
 from .i18n import tr
 
 SOLDIERS = ("LEON", "ANGEL", "LULU", "TOY")     # in the order of the game's SOLDIER SELECT screen / dans l'ordre de l'écran
@@ -28,6 +39,26 @@ FULL = 64               # a soldier's full energy / l'énergie pleine d'un solda
 P_STEP = 4              # what one P item adds to the game's power / ce qu'un bonus P ajoute à la puissance du jeu
 P_TOP = 36              # the top of the power: Lv3 and its three P / le maximum : Lv3 et ses trois P
 GREEN = (90, 230, 110)
+RIDE = ("CHARGE", "tank", (255, 214, 120))      # a player in a vehicle: what the game's box reads, the card, the shells
+# The missions as the game's map names them, by (the mission counted from 1, the route taken after the first: "A" by
+# Austin then Debon, "B" by Sommers then Brozna, None where both routes are the same one).
+# Les missions comme la carte du jeu les nomme, par (la mission comptée à partir de 1, la route prise après la première :
+# « A » par Austin puis Debon, « B » par Sommers puis Brozna, None quand les deux routes n'en font qu'une).
+MISSIONS = {(1, None): "GOLDOMA CITY", (2, "A"): "AUSTIN AIR BASE", (2, "B"): "SOMMERS NAVAL BASE", (3, "A"): "DEBON RAIL LINES",
+            (3, "B"): "BROZNA WARZONE", (4, None): "DIC BARRACKS", (5, None): "DIC HEADQUARTERS"}
+# The bosses. The game itself only writes ALERT: these names are the ones of a reference page (Arcade Quartermaster,
+# "Shock Troopers 2nd Squad, stages & bosses"), which gives none for the last two missions. The truck of mission 1 is
+# the only one seen in a recorded game.
+# Les boss. Le jeu n'écrit que ALERT : ces noms sont ceux d'une page de référence, qui n'en donne pas pour les deux
+# dernières missions. Le camion de la mission 1 est le seul vu dans une partie enregistrée.
+BOSSES = {(1, None): "ARMORED BATTLE TRUCK", (2, "A"): "STEALTH BOMBER", (2, "B"): "WATERCRAFT WAR MACHINE",
+          (3, "A"): "3-SECTION WEAPONS LOCOMOTIVE", (3, "B"): "QUADRA-BATTLE TECH"}
+AUSTIN = 4              # "_mission" on the route of Austin Air Base / « _mission » sur la route d'Austin Air Base
+AUSTIN_AREAS = (7, 8)   # and the first parts of that mission ("_area") / et les premières zones de cette mission
+PART_MIN = 100          # the least energy a part of a boss comes with / la plus petite énergie d'une pièce de boss
+PART_SHOWN = 0.08       # a part gets its bar once it has lost that share of it / sa barre vient quand elle en a perdu ça
+ALERT_FOR = 2.6         # how long ALERT stays across the screen / le temps qu'ALERT reste en travers de l'écran
+BOSS_BOX = (588, 122, 244)                      # width, height, top of the boss's box / la boîte du boss
 
 
 def power_steps(p):
@@ -64,6 +95,8 @@ class Side:
         self.fire_t = 0.0           # next shot of a held button / prochain tir d'un bouton tenu
         self.burst = [0.0, 0]       # autopilot: [next shot, shots left in the burst] / pilote automatique
         self.aim = None             # where the last shot landed / où le dernier tir est tombé
+        self.ride = False           # in a vehicle / dans un véhicule
+        self.zero_t = -99.0         # when his energy was last at zero / la dernière fois que son énergie était à zéro
 
 
 class SecondSquadScene(Machines, GameScene):
@@ -71,8 +104,8 @@ class SecondSquadScene(Machines, GameScene):
     SHADE = (60, 90)
     EXPLOSIONS = True
     TITLE = "Shock Troopers 2nd Squad"
-    BANNERS = GameScene.BANNERS + (("LEVEL 2", GOLD), ("LEVEL 3", GOLD))
-    BOSS_MIN = None                                            # the life of this game's bosses is not known yet
+    BANNERS = GameScene.BANNERS + (("LEVEL 2", GOLD), ("LEVEL 3", GOLD), ("ALERT", RED), ("STAGE CLEAR", GOLD), ("MISSION 1", GOLD))
+    BOSS_MIN = None                                            # the boss is not an object with a big life here: the game says
     BIG_MIN = 150                                              # an object that comes with that much life is a big machine
     MACHINE_HITS = 3                                           # its bar comes once it has been hit that many times
     MACHINE_BOX = (560, 64, 252)                               # width, height, top of the bar's box, between the panels
@@ -89,6 +122,16 @@ class SecondSquadScene(Machines, GameScene):
         self.grenade = hd._surf(grenade_img(S(24), S(30)))
         self.fx.sp.register("grenade", grenade_img(S(34), S(42)))
         self.machines_reset()
+        self.squad_reset()
+
+    def squad_reset(self):
+        self.fight = None           # the boss being fought / le boss qu'on combat
+        self.boss_over = False      # the boss of this alarm is done with / le boss de cette alerte est réglé
+        self.alerts = {}            # the alarms heard in each mission / les alertes entendues dans chaque mission
+        self.route = None           # "A" or "B" once the second mission tells / la route, une fois la deuxième mission lue
+        self.pending = None         # (mission, until) to announce once its name is known / à annoncer quand son nom est su
+        self.lost_t = -99.0         # when a life was last lost / la dernière vie perdue
+        self.after = None           # the objects' energies once the boss is down / les énergies une fois le boss tombé
 
     # ------------------------------------------------------------ places / emplacements
     def x0(self, side):
@@ -114,7 +157,7 @@ class SecondSquadScene(Machines, GameScene):
         g = self.guns.get(key)
         if g is None:
             from PIL import ImageOps
-            img = weapon_img(kind, self.S(w), self.S(h))
+            img = tank_img(self.S(w), self.S(h)) if kind == "tank" else weapon_img(kind, self.S(w), self.S(h))
             if side == "p2":
                 img = ImageOps.mirror(img)
             g = self.guns[key] = self.hd._surf(img)
@@ -135,15 +178,65 @@ class SecondSquadScene(Machines, GameScene):
         return False                                           # written in the panel, in place of the score / dans le panneau
 
     def weapon(self, vals, side):
+        if self.v(vals, side, "_ride"):                        # in a vehicle: its gun, CHARGE in the game's box
+            return RIDE
         code = self.v(vals, side, "weapon")
         return WEAPONS.get(int(code) if code is not None else 0, WEAPONS[0])
 
+    # ------------------------------------------------------------ the mission / la mission
+    def mission(self, vals):
+        """(the mission from 1, its name or None, the name of its boss or None). The route is read at the second
+        mission: Sommers when the game's number is not Austin's, Austin when it is and the mission starts by Austin's
+        own parts; a third mission is named by the route kept from the second. Nothing is named without that.
+        / (la mission à partir de 1, son nom ou None, le nom de son boss ou None). La route se lit à la deuxième mission :
+        Sommers quand le numéro du jeu n'est pas celui d'Austin, Austin quand il l'est et que la mission commence par
+        les zones d'Austin ; la troisième est nommée par la route gardée de la deuxième. Sans ça, rien n'est nommé."""
+        st = _n(vals.get("_stage"))
+        if st is None or not 1 <= st <= 9:
+            return None
+        st = int(st)
+        if st == 1:                                                    # a game starts again by the first mission
+            self.route = None
+        if st == 2 and self.route is None:
+            m = _n(vals.get("_mission"))
+            if m is not None and m < 128:
+                if m != AUSTIN:
+                    self.route = "B"
+                elif _n(vals.get("_area")) in AUSTIN_AREAS:
+                    self.route = "A"
+        key = (st, self.route if st in (2, 3) else None)
+        return st, MISSIONS.get(key), BOSSES.get(key)
+
+    def missions(self, vals, now):
+        """MISSION n and its name as it starts, STAGE CLEAR when the game counts its bonuses. / MISSION n et son nom à
+        son départ, STAGE CLEAR quand le jeu compte ses bonus."""
+        m = self.mission(vals)
+        st = self.changed(vals, "_stage")
+        cl = self.changed(vals, "_clear")
+        if st and m:                                                   # another mission: its alarms are still to come
+            self.alerts.pop(m[0], None)
+        if cl and cl[1] and not cl[0]:                                 # the bonuses of the mission just won
+            self.slam("STAGE CLEAR", GOLD, now, 2.0, sub=m[1] if m else None)
+            self.fx.flash((255, 240, 200), 0.2, 0.4)
+            self.pending = None
+        elif m and ((st and st[1] > st[0] and not vals.get("_clear")) or (cl and cl[0] and not cl[1])):
+            self.pending = (m[0], now + 0.8)                           # the first mission starts, or the map is left
+        if self.pending and m and (m[1] or now >= self.pending[1]):    # its name may come an image or two later
+            if m[0] == self.pending[0]:
+                self.slam(f"MISSION {m[0]}", GOLD, now, 2.0, sub=m[1])
+                self.hd.log(tr(f"{self.TITLE} : mission {m[0]}" + (f", {m[1]}" if m[1] else ", pas encore nommée"),
+                               f"{self.TITLE}: mission {m[0]}" + (f", {m[1]}" if m[1] else ", not named yet")))
+            self.pending = None
+
     # ------------------------------------------------------------ what happens / ce qui se passe
     def restart(self, vals, now):
-        for P in self.sides.values():
+        for side, P in self.sides.items():
             P.score_disp = None
             P.burst = [now + 1.0, 0]
+            P.ride = bool(self.v(vals, side, "_ride"))
         self.machines_reset()
+        self.squad_reset()
+        self.boss_over = bool(vals.get("_boss")) and bool(vals.get("_clear"))   # started on the bonuses of a boss already down
 
     def update(self, vals, now):
         fx, S = self.fx, self.S
@@ -159,6 +252,18 @@ class SecondSquadScene(Machines, GameScene):
             if who is not None and who != P.who:
                 P.name_t = now
             P.who = who
+            ride = bool(self.v(vals, side, "_ride"))                    # into a vehicle or out of it, as the game writes it
+            if ride != P.ride:
+                P.ride = ride
+                P.weapon_t = now
+                sx, sy = self.slot(side)
+                if ride:
+                    fx.glow(sx + S(95), sy + S(54), 30, 190, GREEN, 0.5, "front", 0.9, 0.0, hot=0.6)
+                self.popup("ROLLING IN!" if ride else "ROLLING OUT", sx + S(95), S(14 + 300), GREEN if ride else (255, 110, 90), 32, 1.4,
+                           50)
+            e = self.v(vals, side, "energy")
+            if e is not None and e <= 0:
+                P.zero_t = now
             # the gun: the player's button, or bursts while his stick is not read / l'arme : le bouton du joueur
             st = self.stick(vals, side)
             if st is not None:
@@ -180,7 +285,7 @@ class SecondSquadScene(Machines, GameScene):
             if ch and ch[1] < ch[0] and ch[0] - ch[1] <= 3:
                 self.throw(side, now)
             if lost:                                                   # a life lost: the soldier is down
-                P.down_t = P.hit_t = now
+                P.down_t = P.hit_t = self.lost_t = now
                 x = self.x0(side) + S(PW) / 2
                 fx.shake(10, 0.5)
                 fx.flash((170, 0, 0), 0.25, 0.5)
@@ -204,12 +309,258 @@ class SecondSquadScene(Machines, GameScene):
                 self.power_up(side, ch[0], ch[1], now)
             elif ch and ch[1] < ch[0]:                                 # a hit puts one P out / un coup reçu éteint un P
                 P.power_t = now
-        self.machines(vals, now, anyone)
+        if anyone:
+            self.missions(vals, now)
+        self.boss_watch(vals, now, anyone)
+        if self.fight is None:
+            self.machines(vals, now, anyone)
+        else:                                                          # the boss has the box / le boss a la boîte
+            self.hps, self.boss = None, None
+
+    # ------------------------------------------------------------ the boss / le boss
+    def boss_watch(self, vals, now, playing):
+        """The boss of the mission, from the game's own alarm ("_boss", ALERT on its screen) to the image it stops its
+        timer again with no life lost ("_wait"). Its parts are the objects that come with PART_MIN of energy or more
+        while the alarm is on: each gets a bar once it has lost PART_SHOWN of its energy, so that a part nobody can hurt
+        never gets one, and the bars start again when new parts come after the ones shown are all down (the next phase).
+        / Le boss de la mission, de l'alerte du jeu (« _boss », ALERT à son écran) à l'image où il arrête de nouveau son
+        chrono sans vie perdue (« _wait »). Ses pièces sont les objets qui arrivent avec PART_MIN d'énergie ou plus
+        pendant l'alerte : chacune a sa barre quand elle a perdu PART_SHOWN de son énergie, une pièce intouchable n'en a
+        donc jamais, et les barres repartent quand de nouvelles pièces arrivent après la chute de toutes celles montrées."""
+        fx = self.fx
+        hps = vals.get("_hps")
+        flag = bool(_n(vals.get("_boss")))
+        F = self.fight
+        if not playing or not flag or not isinstance(hps, (list, tuple)):
+            if not flag:
+                self.boss_over = False
+            if F is not None and (not playing or F["down"] is None or now - F["down"] > 2.6):
+                self.fight = None
+            return
+        wait = bool(_n(vals.get("_wait")))
+        cur = [v if isinstance(v, int) and 0 < v < 0x8000 else 0 for v in hps]
+        part_min = _n(self.hd_opts.get("part_min")) or PART_MIN
+        before = None
+        if F is not None and F["down"] is not None and now - F["down"] > 2.6:
+            F = self.fight = None                                      # BOSS DESTROYED has been said
+        if self.boss_over:
+            # down, as far as the timer told. If parts come again under the same alarm, it was only a pause of the game:
+            # the fight goes on / tombé, d'après le chrono. Si des pièces reviennent sous la même alerte, ce n'était
+            # qu'une pause du jeu : le combat reprend
+            before, self.after = self.after, cur
+            if (before is None or len(before) != len(cur) or vals.get("_clear")
+                    or not any(part_min <= v <= 5000 and v > before[i] + 4 for i, v in enumerate(cur))):
+                return
+            self.boss_over = False
+            F = self.fight = None
+            self.hd.log(tr(f"{self.TITLE} : boss, des pièces reviennent, le combat reprend",
+                           f"{self.TITLE}: boss, parts come again, the fight goes on"))
+        if F is None:
+            heard = self.changed(vals, "_boss")
+            heard = bool(heard and heard[1] and not heard[0])           # the alarm starts now: ALERT is on the game's screen
+            m = self.mission(vals)
+            n = m[0] if m else None
+            first = heard and not self.alerts.get(n)
+            self.alerts[n] = self.alerts.get(n, 0) + 1
+            F = self.fight = {"t0": now, "name": m[2] if m and (first or not heard) else None, "mission": n, "heard": heard,
+                              "engaged": None if wait and heard else now, "parts": {}, "row": [], "wave": 0, "down": None,
+                              "hit": -99.0, "maybe": None, "batch": 0, "batch_t": -99.0,
+                              "prev": cur if heard else (before or [0] * len(cur))}   # what was there before the alarm is no part
+            self.hps, self.boss = None, None
+            if heard:
+                self.slam("ALERT", RED, now, ALERT_FOR, sub=F["name"] or tr("LE BOSS DE LA MISSION ARRIVE", "THE MISSION'S BOSS IS COMING"))
+                fx.flash((170, 0, 0), 0.22, 0.6)
+                fx.shake(8, 0.5)
+            self.hd.log(tr(f"{self.TITLE} : ALERT, boss de la mission {n or '?'}" + (f", {F['name']}" if F["name"] else ""),
+                           f"{self.TITLE}: ALERT, boss of mission {n or '?'}" + (f", {F['name']}" if F["name"] else "")))
+        if F["engaged"] is None and not wait:
+            F["engaged"] = now                                         # PLEASE WAIT is gone: the fight is on
+        prev, F["prev"] = F["prev"], cur
+        parts = F["parts"]
+        if len(prev) == len(cur):
+            for i, v in enumerate(cur):
+                p = parts.get(i)
+                if p is not None and p["dead"] is None:
+                    if v >= part_min and v > p["hp"] + 4:              # filled again: the same object, its next phase
+                        if p["shown"]:                                 # the bar it had is done with / sa barre a fini
+                            p["dead"], p["hp"] = now, 0
+                        p = None
+                    elif v > p["hp"] + 4:                              # a small object took its place: it was down or left
+                        if p["shown"] and p["hp"] <= 0.25 * p["max"]:
+                            p["dead"], p["hp"] = now, 0
+                        else:
+                            del parts[i]
+                            if p in F["row"]:
+                                F["row"].remove(p)
+                        continue
+                    elif v < p["hp"]:
+                        gone = v <= 0 and p["hp"] - v > 0.5 * p["max"]   # it left, nobody destroyed it
+                        if gone and not p["shown"]:
+                            del parts[i]
+                            continue
+                        p["hp"], p["hit"] = v, now
+                        F["hit"] = now
+                        if not p["shown"] and (v <= 0 or p["max"] - v >= PART_SHOWN * p["max"]):
+                            self._part_shown(F, p, now)
+                        if v <= 0:
+                            p["dead"] = now
+                            bx, by = self._part_at(F, p)
+                            fx.explosion(bx, by, 0.7, False)
+                            fx.shake(6, 0.3)
+                            self.hd.log(tr(f"{self.TITLE} : boss, pièce détruite (vie de départ {p['max']})",
+                                           f"{self.TITLE}: boss, part destroyed (life at first {p['max']})"))
+                        continue
+                    else:
+                        continue
+                if part_min <= v <= 5000 and v > prev[i] + 4:           # a part comes / une pièce arrive
+                    if now - F["batch_t"] > 1.0:                       # the ones that come together are one phase
+                        F["batch"], F["batch_t"] = F["batch"] + 1, now
+                    parts[i] = {"slot": i, "max": v, "hp": v, "shown": False, "dead": None, "hit": -99.0, "t0": now, "batch": F["batch"]}
+                    self.hd.log(tr(f"{self.TITLE} : boss, pièce de vie {v}", f"{self.TITLE}: boss, part of life {v}"))
+        # destroyed: the game stops its timer again, and no soldier is coming back from a life lost
+        if F["engaged"] is not None:
+            ch = self.changed(vals, "_wait")
+            if ch and ch[1] and not ch[0] and now - F["engaged"] > 1.0:
+                F["maybe"] = now
+            if F["maybe"] is not None:
+                back = now - self.lost_t < 2.5 or any(now - P.zero_t < 2.5 for P in self.sides.values())
+                alive = any(q["dead"] is None for q in F["row"])
+                if back or not wait:
+                    F["maybe"] = None                                  # a soldier back in the game, or a pause that ended
+                elif now - F["maybe"] >= (1.6 if alive else 0.4):
+                    self._boss_down(F, now)
+            if F["down"] is None and vals.get("_clear"):               # the bonuses are counted: it is down for sure
+                self._boss_down(F, now)
+
+    def _part_shown(self, F, p, now):
+        row = F["row"]
+        # the bars start again with the next phase: the parts shown are all down and this one came after them
+        # les barres repartent à la phase suivante : les pièces montrées sont toutes tombées et celle-ci est arrivée après
+        if not row or (all(q["dead"] is not None for q in row) and p["batch"] > max(q["batch"] for q in row)):
+            F["row"] = row = []
+            F["wave"] += 1
+            if F["wave"] > 1:
+                cx, cy = self.machine_at()
+                self.popup(f"PHASE {F['wave']}", cx, cy + self.S(96), GOLD, 40, life=1.5, key="stencil")
+        p["shown"], p["t0"] = True, now
+        row.append(p)
+        if len(row) > 6:                                               # six bars at most: the oldest one down leaves
+            down = [q for q in row if q["dead"] is not None]
+            row.remove(down[0] if down else row[0])
+
+    def _boss_down(self, F, now):
+        fx, S = self.fx, self.S
+        F["down"] = now
+        self.boss_over, self.after = True, None
+        for q in F["row"]:
+            if q["dead"] is None:
+                q["dead"], q["hp"] = now, 0
+        cx, cy = self.machine_at()
+        for i in range(6):
+            fx.later(i * 0.16, fx.explosion, cx + self.rng.uniform(-S(260), S(260)), cy + self.rng.uniform(-S(40), S(40)), 1.1, False)
+        fx.shake(12, 0.7)
+        fx.flash((255, 240, 200), 0.25, 0.5)
+        self.slam(tr("BOSS DÉTRUIT", "BOSS DESTROYED"), GOLD, now, 2.0, sub=F["name"])
+        took = now - (F["engaged"] or F["t0"])
+        self.hd.log(tr(f"{self.TITLE} : boss détruit en {took:.0f} s, {F['wave']} phase(s)",
+                       f"{self.TITLE}: boss destroyed in {took:.0f} s, {F['wave']} phase(s)"))
+
+    def machine_on(self):
+        F = self.fight
+        if F is not None:
+            return F["down"] is None and any(q["dead"] is None for q in F["row"])
+        return super().machine_on()
+
+    def machine_at(self):
+        if self.fight is not None:
+            return self.W / 2, self.S(BOSS_BOX[2] + 67)
+        return super().machine_at()
+
+    def _row_boxes(self, F):
+        """[(part, x, width)] of the bars, each as wide as its life is big. / Les barres, larges comme leur vie."""
+        S = self.S
+        row = F["row"]
+        w = S(BOSS_BOX[0])
+        x, room = self.W / 2 - w / 2 + S(18), w - S(36)
+        gap = S(8)
+        room -= gap * (len(row) - 1)
+        least = min(S(56), room / max(1, len(row)))
+        total = float(sum(q["max"] for q in row)) or 1.0
+        widths = [max(least, room * q["max"] / total) for q in row]
+        k = room / sum(widths) if widths else 1.0
+        out = []
+        for q, bw in zip(row, widths):
+            out.append((q, x, bw * k))
+            x += bw * k + gap
+        return out
+
+    def _part_at(self, F, p):
+        for q, x, bw in self._row_boxes(F):
+            if q is p:
+                return x + bw / 2, self.S(BOSS_BOX[2] + 67)
+        return self.machine_at()
+
+    def draw_machine(self, screen, now):
+        F = self.fight
+        if F is None:
+            return super().draw_machine(screen, now)
+        hd, S, W, pg = self.hd, self.S, self.W, self.pg
+        k = now - F["t0"]
+        if F["heard"] and F["down"] is None and k < ALERT_FOR:           # ALERT is across the screen
+            return
+        w, h, y0 = (S(v) for v in BOSS_BOX)
+        down = F["down"] is not None
+        hit = _clamp(1 - (now - F["hit"]) / 0.25)
+        x0 = W / 2 - w / 2 + (int(math.sin(now * 90) * S(5) * hit) if hit and not down else 0)
+        self.box(screen, x0, y0, w, h, GOLD if down else _mix(RED, WHITE, hit * 0.7))
+        # the first line: BOSS and its name / la première ligne : BOSS et son nom
+        tag = pg.Rect(int(x0 + S(18)), int(y0 + S(12)), S(96), S(36))
+        pg.draw.rect(screen, GOLD if down else RED, tag, border_radius=S(8))
+        hd.put(screen, hd.text("BOSS", "stencil", S(27), (24, 10, 8), glow=0), tag.centerx, tag.centery, "center", "middle")
+        name = F["name"] or (f"MISSION {F['mission']}" if F["mission"] else "")
+        if name:
+            t = hd.text(name, "stencil", S(30), (255, 226, 170), glow=0.35)
+            room = w - S(18 + 96 + 16 + 18)
+            hd.put(screen, t, tag.right + S(16), tag.centery, "left", "middle", scale=min(1.0, room / max(1.0, t["w"])))
+        # the second line: a bar for each part being shot at / la deuxième ligne : une barre par pièce sur laquelle on tire
+        by, bh = y0 + S(54), S(26)
+        row = F["row"]
+        if not row:
+            if F["engaged"] is None and int(now * 3) % 2 == 0:           # the boss is coming in / le boss arrive
+                hd.put(screen, hd.text("ALERT", "stencil", S(30), RED, glow=0.5), W / 2, by + bh / 2, "center", "middle")
+            elif F["engaged"] is not None:                             # the fight is on, nothing hurt yet: a full bar, dim
+                self.bar(screen, x0 + S(18), by, w - S(36), bh, 1.0, _mix(RED, (40, 14, 14), 0.45), back=(40, 14, 14))
+        for q, bx, bw in self._row_boxes(F):
+            bx += x0 - (W / 2 - w / 2)
+            gone = q["dead"] is not None
+            frac = 0.0 if gone else q["hp"] / float(q["max"])
+            fresh = _clamp(1 - (now - q["hit"]) / 0.25)
+            low = not gone and frac < 0.25 and int(now * 6) % 2 == 0
+            self.bar(screen, bx, by, bw, bh, frac, _mix(WHITE if low else RED, WHITE, fresh * 0.8), back=(40, 14, 14))
+            if gone:                                                   # down: struck out / détruite : barrée
+                c = (150, 84, 84)
+                pg.draw.line(screen, c, (int(bx + bw / 2 - S(9)), int(by + S(5))), (int(bx + bw / 2 + S(9)), int(by + bh - S(5))), max(2, S(3)))
+                pg.draw.line(screen, c, (int(bx + bw / 2 + S(9)), int(by + S(5))), (int(bx + bw / 2 - S(9)), int(by + bh - S(5))), max(2, S(3)))
+        # the third line: the phase, the parts down / la troisième ligne : la phase, les pièces détruites
+        ly = y0 + S(100)
+        if down:
+            hd.put(screen, hd.text(tr("DÉTRUIT", "DESTROYED"), "xbold", S(20), GOLD, glow=0.3), W / 2, ly, "center", "middle")
+        elif row:
+            hd.put(screen, hd.text(f"PHASE {F['wave']}", "xbold", S(20), CREAM, glow=0), x0 + S(20), ly, "left", "middle")
+            if len(row) > 1:
+                n = sum(1 for q in row if q["dead"] is not None)
+                hd.put(screen, hd.text(tr(f"CIBLES DÉTRUITES {n} / {len(row)}", f"TARGETS DOWN {n} / {len(row)}"), "xbold", S(20), CREAM,
+                                       glow=0), x0 + w - S(20), ly, "right", "middle")
 
     def target(self, side):
         """Where a shot lands: on the machine whose bar is shown, else in the middle, on the player's side of the timer.
         / Où tombe un tir : sur l'engin dont la barre est montrée, sinon au milieu, du côté du joueur."""
         rng, S = self.rng, self.S
+        F = self.fight
+        if F is not None and self.machine_on():                        # on one of the boss's parts still up
+            up = [(x, bw) for q, x, bw in self._row_boxes(F) if q["dead"] is None]
+            x, bw = up[rng.randrange(len(up))]
+            return x + rng.uniform(0.15, 0.85) * bw, self.machine_at()[1] + rng.uniform(-S(10), S(10))
         if self.machine_on():
             cx, cy = self.machine_at()
             return cx + rng.uniform(-S(220), S(220)), cy + rng.uniform(-S(20), S(20))
@@ -231,9 +582,9 @@ class SecondSquadScene(Machines, GameScene):
                 k = (i + 1) / 4
                 fx.glow(x + (tx - x) * k * 0.5, y + (ty - y) * k * 0.5, 16, 40 + 30 * k, (255, 140 - 40 * k, 50), 0.3, "front", 0.9, 0.0,
                         delay=i * 0.03, hot=0.5)
-        elif kind == "rocket":
+        elif kind in ("rocket", "tank"):                               # a rocket, or the shell of the vehicle's gun
             fx.tracer(x, y, tx, ty, 1600, col, 7, 70, impact=False)
-            fx.later(abs(tx - x) / (1600 * self.s), fx.small_blast, tx, ty, 0.8, "back")
+            fx.later(abs(tx - x) / (1600 * self.s), fx.small_blast, tx, ty, 0.8 if kind == "rocket" else 1.2, "back")
         elif name == "NORMAL" and SHOT.get(P.who) == "WIDE":           # three shots that open / trois tirs qui s'ouvrent
             for a in (-60, 0, 60):
                 fx.tracer(x, y, tx, ty + S(a), 2800, col, 4, 120)
@@ -305,7 +656,8 @@ class SecondSquadScene(Machines, GameScene):
         cx = W / 2
         hd.draw_logo(screen, logo, cx, S(8), S(560), S(124), now)
         tm = _n(vals.get("time"))
-        if tm is not None:
+        on_map = bool(vals.get("_clear")) and not vals.get("_boss")     # the map between two missions has no timer
+        if tm is not None and not on_map:
             low = tm <= 10
             blink = low and int(now * 4) % 2 == 0
             bw, bh = S(170), S(84)
@@ -313,6 +665,18 @@ class SecondSquadScene(Machines, GameScene):
             self.box(screen, cx - bw / 2, y, bw, bh, (255, 120, 100) if blink else (255, 240, 220), fill=(8, 10, 22, 210), radius=14, width=3)
             hd.put(screen, hd.text(tr("TEMPS", "TIME"), "bold", S(18), CREAM, glow=0), cx, y + S(14), "center", "middle")
             hd.put_number(screen, str(int(tm)), "stencil", S(50), RED if low else GOLD, cx, y + S(52), "center", "middle")
+        m = self.mission(vals)
+        if m and not vals.get("_clear"):                               # the mission on the left of the timer, its name on the right
+            hd.put(screen, hd.text("MISSION", "bold", S(18), CREAM, glow=0), cx - S(104), S(176), "right", "middle")
+            hd.put(screen, hd.text(str(m[0]), "stencil", S(44), GOLD, glow=0.35), cx - S(104), S(210), "right", "middle")
+            if m[1]:
+                first, _, rest = m[1].partition(" ")
+                hd.put(screen, hd.text(first, "stencil", S(28), (255, 226, 170), glow=0.3), cx + S(104), S(180), "left", "middle")
+                hd.put(screen, hd.text(rest, "xbold", S(19), CREAM, glow=0), cx + S(104), S(212), "left", "middle")
+        elif m and on_map and self.banner is None:                     # the map: the next mission is chosen
+            k = 0.6 + 0.4 * (0.5 + 0.5 * math.sin(now * 6))
+            self.label(screen, tr("CHOIX DE LA MISSION", "MISSION SELECT"), cx, S(214), 44, GOLD, key="stencil", align="center", alpha=170,
+                       fade=k)
 
     def draw_panel(self, screen, side, vals, now):
         hd, S, pg = self.hd, self.S, self.pg
@@ -413,7 +777,9 @@ class SecondSquadScene(Machines, GameScene):
         nx = self.X(side, 36) + (-1 if side == "p1" else 1) * S(60) * slide
         shot = SHOT.get(P.who) if name == "NORMAL" else None           # NORMAL WIDE, NORMAL FRONT, as in the game's box
         ammo = self.v(vals, side, "ammo")
-        if name != "NORMAL" and ammo is not None:                      # what is left of a weapon picked up, beside its name
+        if kind == "tank":                                             # in a vehicle: CHARGE, as the game's box reads
+            shot = tr("VÉHICULE", "VEHICLE")
+        elif name != "NORMAL" and ammo is not None:                    # what is left of a weapon picked up, beside its name
             shot = f"× {int(ammo)}"
         t = hd.text(name, "stencil", S(40), (255, 226, 170), glow=0.35)
         if shot and side == "p2":                                      # read NORMAL WIDE on both sides / dans le même ordre
