@@ -1490,7 +1490,8 @@ class MetalSlugScene:
             elif d > 0:
                 P.ammo_max = max(P.ammo_max, cur["ammo"])
                 P.weapon_t = now
-                self.fx.text(f"+{d}", self._ammo_xy(side)[0], self.S(250), GREEN, 40, life=1.0)
+                if cur["ammo"] < 60000:                    # 65535 is the pistol's endless ammo, not a gain (the robot's
+                    self.fx.text(f"+{d}", self._ammo_xy(side)[0], self.S(250), GREEN, 40, life=1.0)   # Metal Slug X)
         b, bo = cur["bombs"], old.get("bombs")
         go, goo = cur["grenades_out"], old.get("grenades_out")
         if go is not None and go >= 250:                               # the counter wiped with the block / effacé

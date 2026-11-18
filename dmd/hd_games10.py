@@ -655,7 +655,7 @@ class AndroDunosScene(SideShooterScene):
             ch = self.changed(vals, name)
             if ch and ch[1] > ch[0]:
                 ups.append((lab, col, mx, ch[1]))
-        if len(ups) == 1 and self.ships["p1"]["in"]:                           # several at once: the weapons of a new ship
+        if len(ups) == 1 and self.ships["p1"]["in"] and not self.starting("p1"):   # several at once, or as he starts: the weapons of a new ship
             lab, col, mx, v = ups[0]                                           # / plusieurs d'un coup : un nouveau vaisseau
             x, y = self.pos("p1", now)
             y = max(self.S(196), y - self.S(70))
@@ -1243,7 +1243,8 @@ class CrossedSwordsScene(GameScene):
             if self.ehp <= 0 and self.down is None:
                 self.down = now
         ch = self.changed(vals, "gold")
-        if ch and ch[1] > ch[0]:
+        if ch and ch[1] > ch[0] and not self.starting("p1"):           # the gold a game starts with is not found (500 then
+            # 1900 in the two seconds after the start, the robot's recording of 2026-11-16)
             self.popup(f"+{int(ch[1] - ch[0])} GOLD", self.W * 0.75, S(300), GOLD, 32)
 
     def draw_hud(self, screen, eng, vals, logo, now):

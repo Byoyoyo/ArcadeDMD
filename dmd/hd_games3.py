@@ -883,7 +883,7 @@ class TopHunterScene(GameScene):
             ch = self.changed(vals, "lives" + suf)
             if ch and ch[1] < ch[0]:
                 self.hurt(side, now)
-            elif ch and ch[1] > ch[0]:
+            elif self.one_up(vals, side):                              # one more, not the lives of a start
                 x, y, k = self.hero_pos(side, now)
                 self.popup("1UP !", x, y - S(290) * k, (140, 255, 150), 44)
             ch = self.changed(vals, "power" + suf)
