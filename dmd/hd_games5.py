@@ -8,7 +8,7 @@ Les personnages, les soldats et les engins sont des créations du programme dans
 
 import math
 
-from .hd_games import CREAM, GOLD, WHITE, BlazingStarScene, GameScene, _clamp, _n, draw_img, drone_draw
+from .hd_games import CREAM, GOLD, P1C, P2C, WHITE, BlazingStarScene, GameScene, Machines, _clamp, _n, draw_img, drone_draw
 from .hd_games3 import DARK, AeroFightersScene, _capsule, bomber_draw, heli_draw, lr_ship_draw
 from .hd_themes5 import BRAWL_FLOOR, CL_FLOOR, GP_LANES, NAM_ROAD, ST2_ROAD                    # (and the backdrops of this batch into hd_bg.BUILDERS)
 from .i18n import tr
@@ -1160,28 +1160,48 @@ def tank34_draw(d, W, H):
     d.ellipse([W * 0.5, H * 0.1, W * 0.62, H * 0.24], fill=(90, 80, 40, 255), outline=dark)
 
 
-def face_icon_draw(d, W, H):
+# the four soldiers of the 2nd Squad in the order of the game's SOLDIER SELECT screen, and our commando in the colours
+# of each: (vest, trousers, hair, bandana) / les quatre soldats dans l'ordre de l'écran SOLDIER SELECT, et notre
+# commando aux couleurs de chacun
+ST2_SOLDIERS = ("LEON", "ANGEL", "LULU", "TOY")
+ST2_LOOKS = (((44, 52, 96), (70, 64, 56), (62, 44, 34), (150, 150, 160)),
+             ((232, 234, 240), (60, 104, 170), (240, 208, 104), (60, 104, 170)),
+             ((204, 44, 44), (226, 226, 230), (124, 66, 38), (204, 44, 44)),
+             ((56, 132, 72), (70, 64, 56), (234, 120, 40), (56, 132, 72)))
+ST2_SHOT = {1: "FRONT", 2: "WIDE"}     # the normal gun as the game names it, for the two soldiers seen with theirs
+
+
+def face_icon_draw(d, W, H, hair=(110, 60, 30), band=(210, 40, 40)):
     """Our commando's face for the corner of the screen: brown hair, a red bandana. / Le visage de notre commando."""
     dark = (24, 20, 20, 255)
     d.rectangle([0, 0, W - 1, H - 1], fill=(60, 90, 160, 255))
     d.ellipse([W * 0.18, H * 0.16, W * 0.82, H * 0.96], fill=(232, 184, 144, 255), outline=dark, width=max(1, int(W * 0.03)))
-    d.chord([W * 0.14, H * 0.04, W * 0.86, H * 0.66], 180, 360, fill=(110, 60, 30, 255))
-    d.rectangle([W * 0.16, H * 0.3, W * 0.84, H * 0.38], fill=(210, 40, 40, 255))
+    d.chord([W * 0.14, H * 0.04, W * 0.86, H * 0.66], 180, 360, fill=hair + (255,))
+    d.rectangle([W * 0.16, H * 0.3, W * 0.84, H * 0.38], fill=band + (255,))
     for ex in (0.36, 0.64):
         d.ellipse([W * (ex - 0.06), H * 0.48, W * (ex + 0.06), H * 0.58], fill=dark)
     d.line([(W * 0.42, H * 0.78), (W * 0.58, H * 0.78)], fill=dark, width=max(1, int(W * 0.03)))
     d.rectangle([0, 0, W - 1, H - 1], outline=(250, 250, 250, 255), width=max(2, int(W * 0.05)))
 
 
-class ShockTroopers2Scene(GameScene):
+class ShockTroopers2Scene(Machines, GameScene):
     """Shock Troopers 2nd Squad as in the game: the city street seen from above, our commando goes up the road and
     shoots the soldiers, the jeeps and the tanks that come. The weapon read in the game is the one he fires (normal,
     fire, round, missile, boomerang), a grenade spent is thrown, a life lost blows up next to him. At the top the face,
-    1P- and the score, TIME in big yellow numbers; at the bottom the grenades, the weapon box and LV.
-    / La rue vue du dessus : notre commando remonte la route et tire sur les soldats et les engins, comme dans le jeu."""
+    1P- and the score, the soldier's name and his energy, TIME in big yellow numbers; at the bottom the grenades, the
+    weapon box and LV. The second player has his commando and his own corners; a big machine being shot at gets its
+    life bar under the logo. / La rue vue du dessus : notre commando remonte la route et tire sur les soldats et les
+    engins, comme dans le jeu, avec le nom du soldat, son énergie, le second joueur et la barre des gros engins."""
     THEME = "st2_street"
     SHADE = (90, 60)
     EXPLOSIONS = True
+    TITLE = "Shock Troopers 2nd Squad"
+    SQUAD = True                                          # the soldiers, their energy, the second player, the machines
+    BOSS_MIN = None                                       # no boss announced: the life of this game's bosses is not known
+    BIG_MIN = 150                                         # a machine with that much life and hit three times: its bar
+    MACHINE_HITS = 3
+    MACHINE_BOX = (560, 60, 88)
+    FULL = 64                                             # a soldier's full energy / l'énergie pleine d'un soldat
     HERO = ((60, 96, 170), (70, 64, 56), (110, 60, 30), (210, 40, 40))
     FOE = ((150, 130, 80), (110, 96, 60), (96, 104, 60), (0, 0, 0))
 
@@ -1201,13 +1221,23 @@ class ShockTroopers2Scene(GameScene):
         self.grenades_thrown = 0
         self.specials = 0
         self.hz = 0.5
+        self.look = {"p1": None, "p2": None}              # the soldier of each player / le soldat de chaque joueur
+        self.hz2, self.fire_t2, self.hurt2, self.lv2 = 0.7, 0.0, -99.0, None      # the second player's commando
+        self.epop = {"p1": -99.0, "p2": -99.0}            # when each energy last fell / l'énergie qui baisse
+        self.machines_reset()
         self.warm = ([(self.hero, (f,)) for f in range(3)] + [(self.foe, (f,)) for f in range(4)] +
                      [(self.car, (k,)) for k in ("jeep", "tank")] + self.warm)
 
-    def hero(self, frame):
+    def soldier(self, vals, side):
+        """The soldier of a player, 0 to 3, or None. / Le soldat d'un joueur."""
+        v = _n(vals.get("soldier" if side == "p1" else "soldier_p2")) if self.SQUAD else None
+        return int(v) if v is not None and 0 <= v < len(ST2_SOLDIERS) else None
+
+    def hero(self, frame, side="p1"):
         S = self.S
-        vest, pants, hair, band = self.HERO
-        return self.img(("st2hero", frame), S(150), S(170), soldier_draw(vest, pants, hair, band, frame), ss=2)
+        who = self.look.get(side)
+        vest, pants, hair, band = ST2_LOOKS[who] if who is not None else self.HERO
+        return self.img(("st2hero", frame, who), S(150), S(170), soldier_draw(vest, pants, hair, band, frame), ss=2)
 
     def foe(self, frame):
         S = self.S
@@ -1231,17 +1261,78 @@ class ShockTroopers2Scene(GameScene):
     def move(self, vals, now, idle):
         return 0.15 if idle else 0.5
 
+    def hx2(self):
+        return self.W * 0.15
+
     def restart(self, vals, now):
         self.foes = []
         self.next_foe = now + 0.5
         self.next_car = now + 6.0
+        self.machines_reset()
 
-    def weapon(self, vals):
-        w = _n(vals.get("weapon"))
+    def weapon(self, vals, suf=""):
+        w = _n(vals.get("weapon" + suf))
         return ST2_WEAPONS.get(int(w) if w is not None else 0, ST2_WEAPONS[0])
+
+    def second(self, vals, now):
+        """The second player's commando: his stick, his gun, his grenades, his lives. / Le commando du second joueur."""
+        S, rng, fx = self.S, self.rng, self.fx
+        st = self.stick(vals, "p2")
+        if st is not None:
+            self.hz2 = _clamp(self.hz2 + st[1] * self.dt * 0.8)
+        else:
+            self.hz2 = 0.5 + 0.4 * math.sin(now * 0.3 + 2.0)
+        x0, y0 = self.hx2(), self.road(self.hz2)
+        ch = self.changed(vals, "weapon_p2")
+        if ch:
+            name, col = self.weapon(vals, "_p2")
+            self.popup(name + " !", x0, y0 - S(200), col, 40, key="stencil")
+        ch = self.changed(vals, "ammo_p2")
+        if ch and ch[1] < ch[0]:
+            for i in range(min(3, int(ch[0] - ch[1]))):
+                fx.later(i * 0.07, self.fire, vals, now, True, "p2")
+        elif st is not None and st[2] & 16:
+            if now >= self.fire_t2:
+                self.fire_t2 = now + 0.1
+                self.fire(vals, now, False, "p2")
+        elif st is None and now >= self.fire_t2 and any(not f.get("dead") and f["x"] < self.W * 0.8 for f in self.foes):
+            self.fire_t2 = now + rng.uniform(0.3, 0.7)
+            self.fire(vals, now, False, "p2")
+        ch = self.changed(vals, "grenades_p2")
+        if ch and ch[1] < ch[0]:
+            live = [f for f in self.foes if not f.get("dead") and f["x"] < self.W * 0.95]
+            tgt = rng.choice(live) if live else None
+            tx = tgt["x"] if tgt else self.W * rng.uniform(0.5, 0.8)
+            ty = self.road(tgt["z"]) - S(30) if tgt else self.road(rng.random())
+            fx.projectile("grenade_st2", x0, y0 - S(110), tx, ty, 0.7, 160, lambda x, y: self.grenade_boom(x, y, now), spin=720)
+        ch = self.changed(vals, "lives_p2")
+        if ch and ch[1] < ch[0]:
+            self.hurt2 = now
+            fx.explosion(x0, y0 - S(60), 0.8, False)
+            self.popup(tr("-1 VIE", "-1 LIFE"), x0, y0 - S(220), (255, 90, 70), 38)
+        p = _n(vals.get("power_p2"))
+        if p is not None:
+            lv = 1 + min(2, int(p) // 12)
+            if self.lv2 is not None and lv > self.lv2:
+                self.popup("LV UP !", x0, y0 - S(200), GOLD, 42, key="stencil")
+            self.lv2 = lv
 
     def update(self, vals, now):
         S, rng, fx = self.S, self.rng, self.fx
+        if self.SQUAD:
+            for side, suf, x in (("p1", "", self.hx()), ("p2", "_p2", self.hx2())):
+                who = self.soldier(vals, side)
+                if who is not None:
+                    self.look[side] = who
+                ch = self.changed(vals, "energy" + suf)
+                if ch and ch[1] < ch[0] < 128:                         # hit: the energy falls
+                    self.epop[side] = now
+                    fx.shake(4 + (ch[0] - ch[1]) * 0.1, 0.25)
+                    fx.sparks(x, self.road(self.hz if side == "p1" else self.hz2) - S(90), 12, (255, 120, 90), (200, 600),
+                              (200, 340), (0.2, 0.5), 600, "front", 3, 18)
+            if self.p2_in(vals):
+                self.second(vals, now)
+            self.machines(vals, now, self.p1_in(vals) or self.p2_in(vals))
         st = self.stick(vals, "p1")
         if st is not None:
             self.hz = _clamp(self.hz + st[1] * self.dt * 0.8)
@@ -1298,14 +1389,15 @@ class ShockTroopers2Scene(GameScene):
                 self.popup("LV UP !", self.hx(), self.road(self.hz) - S(200), GOLD, 42, key="stencil")
             self.lv = lv
 
-    def fire(self, vals, now, special):
+    def fire(self, vals, now, special, side="p1"):
         S, fx = self.S, self.fx
-        name, col = self.weapon(vals) if special else ST2_WEAPONS[0]
+        name, col = self.weapon(vals, "" if side == "p1" else "_p2") if special else ST2_WEAPONS[0]
         if special:
             self.specials += 1
-        x0, y0 = self.hx() + S(70), self.road(self.hz) - S(90)
+        hz = self.hz if side == "p1" else self.hz2
+        x0, y0 = (self.hx() if side == "p1" else self.hx2()) + S(70), self.road(hz) - S(90)
         live = [f for f in self.foes if not f.get("dead") and x0 < f["x"] < self.W * 0.85]
-        tgt = min(live, key=lambda f: abs(f["x"] - x0) + abs(f["z"] - self.hz) * S(300)) if live else None
+        tgt = min(live, key=lambda f: abs(f["x"] - x0) + abs(f["z"] - hz) * S(300)) if live else None
         tx, ty = (tgt["x"], self.road(tgt["z"]) - (S(70) if tgt["kind"] == "man" else S(60))) if tgt else (self.W + S(40), y0)
         if name == "FIRE":
             fx.sparks(x0, y0, 16, col, (700, 1100), (-10, 10), (0.25, 0.45), 0, "front", 10, 40)
@@ -1384,50 +1476,85 @@ class ShockTroopers2Scene(GameScene):
             frame = 2 if now < self.fire_t - 0.05 else int(now * 8) % 2
             y = self.road(self.hz)
             items.append((y, self.hero(frame), self.hx(), y))
+        if self.SQUAD and self.p2_in(vals) and not (now - self.hurt2 < 1.0 and int(now * 16) % 2):
+            frame = 2 if now < self.fire_t2 - 0.05 else int(now * 8 + 1) % 2
+            y = self.road(self.hz2)
+            items.append((y, self.hero(frame, "p2"), self.hx2(), y))
         for _z, img, x, y in sorted(items, key=lambda it: it[0]):
             screen.blit(img, (int(x - img.get_width() / 2), int(y - img.get_height())))
         self.status(screen, eng, vals, logo, now)
 
     def status(self, screen, eng, vals, logo, now):
-        """As in the game: the face, 1P- and the score, TIME in big yellow numbers; at the bottom the grenades, the
-        weapon box and LV with its gauge. / Comme dans le jeu : le visage, 1P- et le score, TIME en gros chiffres jaunes."""
+        """As in the game: the face, 1P- and the score, the soldier's name and his energy, TIME in big yellow numbers; at
+        the bottom the grenades, the weapon box and LV with its gauge. The second player has the same on the right.
+        / Comme dans le jeu : le visage, 1P- et le score, le nom du soldat et son énergie, TIME en gros chiffres jaunes ;
+        en bas les grenades, l'arme et LV. Le second joueur a la même chose à droite."""
         S, W, H, hd = self.S, self.W, self.H, self.hd
         hd.draw_logo(screen, logo, W / 2, S(4), S(420), S(76), now)
-        self.pill(screen, S(10), S(6), S(620), S(84), 160, radius=12)
-        screen.blit(self.img("st2face", S(70), S(70), face_icon_draw, ss=2), (S(18), S(12)))
-        self.text(screen, "1P-", S(100), S(30), 28, (230, 200, 255), key="black", valign="middle")
-        if _n(vals.get("score")) is not None:
-            hd._score(screen, eng, "score", S(440), S(12), "right", S(40))
         t = _n(vals.get("time"))
-        if t is not None:
-            self.text(screen, "TIME", S(470), S(26), 24, (255, 220, 60), key="black", valign="middle")
-            hd.put_number(screen, f"{int(t):02d}", "stencil", S(54), (255, 220, 40) if t > 10 else (255, 80, 60), S(540), S(62), "center",
-                          "middle")
-        lives = _n(vals.get("lives"))
-        if lives is not None:
-            self.text(screen, f"x{int(lives)}", S(100), S(66), 26, (255, 230, 120), key="black", valign="middle")
-        y0 = H - S(56)
-        self.pill(screen, S(10), y0 - S(6), S(660), S(58), 160, radius=12)
-        g = _n(vals.get("grenades"))
-        if g is not None:
-            screen.blit(self.img("st2gren", S(30), S(36), lambda d, w, h: (
-                d.ellipse([0, h * 0.2, w, h], fill=(60, 120, 60, 255), outline=(250, 250, 250, 255), width=2),
-                d.rectangle([w * 0.35, 0, w * 0.65, h * 0.3], fill=(150, 150, 150, 255)))), (S(20), y0))
-            self.text(screen, f"{int(g)}", S(58), y0 + S(18), 30, WHITE, key="black", valign="middle")
-        name, col = self.weapon(vals)
-        self.box(screen, S(100), y0, S(200), S(46), (230, 230, 255), fill=(20, 40, 150, 230), radius=4, width=2)
-        self.text(screen, name, S(200), y0 + S(14), 22, WHITE, key="black", align="center", valign="middle", glow=0)
-        self.text(screen, "FRONT", S(200), y0 + S(34), 18, (200, 220, 255), key="black", align="center", valign="middle", glow=0)
-        p = _n(vals.get("power"))
-        if p is not None:
-            self.text(screen, f"LV{self.lv or 1}", S(316), y0 + S(22), 28, (255, 220, 60), key="black", valign="middle")
-            self.bar(screen, S(390), y0 + S(10), S(170), S(24), p / 36.0, (255, 210, 60))
-        a = _n(vals.get("ammo"))
-        if a is not None and int(_n(vals.get("weapon")) or 0):
-            self.text(screen, f"{int(a)}", S(650), y0 + S(22), 30, (255, 140, 120), key="black", align="right", valign="middle")
-        if not self.p2_in(vals):
-            word, colw = self.invite(vals, now)
-            self.label(screen, word, W - S(24), S(40), 30, colw, align="right")
+        for side, suf, col in (("p1", "", P1C), ("p2", "_p2", P2C)):
+            left = side == "p1"
+            if not left and not self.p2_in(vals):
+                word, colw = self.invite(vals, now)
+                self.label(screen, word, W - S(24), S(40), 30, colw, align="right")
+                continue
+            if left and not self.p1_in(vals):
+                continue
+
+            def X(x, w=0):                                             # mirrored for the second player / en miroir
+                return S(x) if left else W - S(x) - S(w)
+            al, ar = ("left", "right") if left else ("right", "left")
+            self.pill(screen, X(10, 620), S(6), S(620), S(84), 160, radius=12)
+            who = self.look.get(side) if self.SQUAD else None
+            hair, band = (ST2_LOOKS[who][2], ST2_LOOKS[who][3]) if who is not None else ((110, 60, 30), (210, 40, 40))
+            face = self.img(("st2face", who), S(70), S(70), lambda d, w, h: face_icon_draw(d, w, h, hair, band), ss=2)
+            screen.blit(face, (X(18, 70), S(12)))
+            self.text(screen, "1P-" if left else "-2P", X(100), S(30), 28, (230, 200, 255), key="black", align=al, valign="middle")
+            name = "score" + suf
+            if _n(vals.get(name)) is not None:
+                hd._score(screen, eng, name, X(440), S(12), ar, S(40))
+            lives = _n(vals.get("lives" + suf))
+            if lives is not None:
+                self.text(screen, f"x{int(lives)}", X(100), S(66), 26, (255, 230, 120), key="black", align=al, valign="middle")
+            if who is not None:                                        # the soldier's name and his energy, as in the game
+                self.text(screen, ST2_SOLDIERS[who], X(150), S(66), 26, WHITE, key="black", align=al, valign="middle", glow=0.3)
+            e = _n(vals.get("energy" + suf)) if self.SQUAD else None
+            if e is not None:
+                frac = 0.0 if e >= 128 else _clamp(e / float(self.FULL))
+                hit = _clamp(1 - (now - self.epop[side]) / 0.3)
+                bx = S(258) if left else W - S(258) - S(182)
+                self.bar(screen, bx, S(56), S(182), S(20), frac, (255, 255, 255) if hit > 0.5 else
+                         ((250, 220, 40) if frac > 0.34 else (255, 80, 60)))
+            if left and t is not None:
+                self.text(screen, "TIME", S(470), S(26), 24, (255, 220, 60), key="black", valign="middle")
+                hd.put_number(screen, f"{int(t):02d}", "stencil", S(54), (255, 220, 40) if t > 10 else (255, 80, 60), S(540), S(62),
+                              "center", "middle")
+            y0 = H - S(56)
+            self.pill(screen, X(10, 660), y0 - S(6), S(660), S(58), 160, radius=12)
+            g = _n(vals.get("grenades" + suf))
+            if g is not None:
+                screen.blit(self.img("st2gren", S(30), S(36), lambda d, w, h: (
+                    d.ellipse([0, h * 0.2, w, h], fill=(60, 120, 60, 255), outline=(250, 250, 250, 255), width=2),
+                    d.rectangle([w * 0.35, 0, w * 0.65, h * 0.3], fill=(150, 150, 150, 255)))), (X(20, 30), y0))
+                self.text(screen, f"{int(g)}", X(58), y0 + S(18), 30, WHITE, key="black", align=al, valign="middle")
+            wname, wcol = self.weapon(vals, suf)
+            self.box(screen, X(100, 200), y0, S(200), S(46), (230, 230, 255), fill=(20, 40, 150, 230), radius=4, width=2)
+            shot = ST2_SHOT.get(who) if self.SQUAD else "FRONT"         # the normal gun's own name, when seen in the game
+            bx = X(100, 200) + S(100)
+            self.text(screen, wname, bx, y0 + (S(14) if shot else S(23)), 22, WHITE, key="black", align="center", valign="middle",
+                      glow=0)
+            if shot:
+                self.text(screen, shot, bx, y0 + S(34), 18, (200, 220, 255), key="black", align="center", valign="middle", glow=0)
+            p = _n(vals.get("power" + suf))
+            if p is not None:
+                lv = (self.lv if left else self.lv2) or 1
+                self.text(screen, f"LV{lv}", X(316), y0 + S(22), 28, (255, 220, 60), key="black", align=al, valign="middle")
+                self.bar(screen, X(390, 170), y0 + S(10), S(170), S(24), p / 36.0, (255, 210, 60))
+            a = _n(vals.get("ammo" + suf))
+            if a is not None and int(_n(vals.get("weapon" + suf)) or 0):
+                self.text(screen, f"{int(a)}", X(650), y0 + S(22), 30, (255, 140, 120), key="black", align=ar, valign="middle")
+        if self.SQUAD:
+            self.draw_machine(screen, now)
 
 
 # ============================================================================ Brawlers: Robo Army, Burning Fight

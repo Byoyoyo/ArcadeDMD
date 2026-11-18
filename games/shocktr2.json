@@ -43,6 +43,28 @@
     "type": "u8",
     "note": "BIOS_P2CURRENT: player 2 stick and buttons, same bits (HD scene)"
    },
+   "energy": {
+    "addr": "0x1001B5",
+    "type": "u8",
+    "max": 64,
+    "note": "player 1 energy, the yellow bar under the score: 64 when full, back to 64 at each life lost (from a recorded game, the lives falling at the same images; same place as in Shock Troopers)"
+   },
+   "energy_p2": {
+    "addr": "0x1021B5",
+    "type": "u8",
+    "max": 64,
+    "note": "player 2 energy, same and 0x2000 further (64 when he joined, then falling, on a recorded game)"
+   },
+   "soldier": {
+    "addr": "0x10903B",
+    "type": "u8",
+    "note": "player 1: the soldier chosen, 0 Leon, 1 Angel, 2 Lulu, 3 Toy in the order of the SOLDIER SELECT screen; on that screen it follows the cursor. 2 and 1 seen with LULU and ANGEL written under the score on two recorded games, 0 and 3 from the order of the screen"
+   },
+   "soldier_p2": {
+    "addr": "0x10913B",
+    "type": "u8",
+    "note": "player 2: the soldier chosen, same (2 with LULU written on his side, on a recorded game)"
+   },
    "time": {
     "addr": "0x108F7B",
     "type": "bcd",
@@ -101,6 +123,13 @@
     "type": "u8",
     "note": "player 2 weapon, same values (FinalBurn Neo cheats, Select Weapon PL2)"
    },
+   "_hps": {
+    "addr": "0x1023B4",
+    "type": "u16s",
+    "count": 93,
+    "stride": 256,
+    "note": "the energy of the game's objects, one word each and 256 bytes apart, at the place of the players' own in theirs (0x1001B4), as in Shock Troopers: the 93 objects from 0x102300 to 0x107F00. On a recorded game the soldiers come with 50 and fall as they are shot, a car with 100. The lives of the bosses are not known yet: the HD scene only shows the bar of an object that came with 150 or more once it has been hit three times, and writes its life in the log"
+   },
    "credits": {
     "addr": "0xD00034",
     "type": "bcd",
@@ -142,7 +171,8 @@
   }
  },
  "hd": {
-  "scene": "shocktr2"
+  "scene": "shocktr2",
+  "note": "the HD scene shows the soldier chosen (his name, our commando in his colours), his energy and the second player. A big machine gets its life bar once it has been hit three times: an object that came with an energy of big_min (150) or more. No boss is announced yet: boss_min can be set here once the life of this game's bosses is known"
  },
  "demo": {
   "attract": true,
@@ -151,6 +181,8 @@
   "p2_mode": 0,
   "time": 99,
   "lives": 3,
+  "energy": 64,
+  "soldier": 0,
   "grenades": 10,
   "power": 0,
   "ammo": 0,
@@ -228,6 +260,23 @@
     ],
     "every": 9.0,
     "start": 12.0
+   },
+   "energy": {
+    "cycle": [
+     64,
+     56,
+     48,
+     48,
+     40,
+     64,
+     32,
+     20
+    ],
+    "every": [
+     2.0,
+     4.0
+    ],
+    "start": 3.0
    }
   }
  },
@@ -1244,6 +1293,63 @@
    },
    {
     "type": "gauge",
+    "var": "energy",
+    "max": 64,
+    "x": 88,
+    "y": 10,
+    "w": 39,
+    "h": 3,
+    "color": "#f0d020",
+    "low": "#ff4030",
+    "back": "#302810",
+    "bevel": "#fff0b0",
+    "shade": false,
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "energy"
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      }
+     ]
+    }
+   },
+   {
+    "type": "gauge",
     "var": "power",
     "max": 36,
     "x": 88,
@@ -1338,5 +1444,25 @@
     ]
    }
   ]
+ },
+ "derived": {
+  "char_name": {
+   "value": "soldier",
+   "names": [
+    "LEON",
+    "ANGEL",
+    "LULU",
+    "TOY"
+   ]
+  },
+  "char_name_p2": {
+   "value": "soldier_p2",
+   "names": [
+    "LEON",
+    "ANGEL",
+    "LULU",
+    "TOY"
+   ]
+  }
  }
 }
