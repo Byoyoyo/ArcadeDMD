@@ -26,10 +26,20 @@
     "note": "player 1 score, BCD (the robot's recording of 2026-11-16: 600, 500 and 200 as on the screen)"
    },
    "score_p2": {
-    "addr": "",
+    "addr": "0x106106",
     "type": "bcd",
     "bytes": 4,
-    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+    "note": "player 2 score, BCD, 0x100 after player 1's as his time, his energy and his ninja (the robot's recording of 2026-11-16: 0 with 0 on the screen for the whole of his game, a score above 0 to confirm in game)"
+   },
+   "ninja": {
+    "addr": "0x10600C",
+    "type": "u8",
+    "note": "player 1: the ninja chosen, 1 Joe Tiger, 2 Rayar Dragon, 3 Ryu Eagle in the order of the select screen, where it follows the cursor; 0 between two games (the robot's recording of 2026-11-16: 2 with the kunoichi in red on the screen, 3 with the hooded ninja who throws two fireballs; 1 from the order)"
+   },
+   "ninja_p2": {
+    "addr": "0x10610C",
+    "type": "u8",
+    "note": "player 2: the ninja chosen, same, 0x100 further as his time and his energy (the robot's recording of 2026-11-16: 3 with the same hooded ninja in another colour)"
    },
    "p1_input": {
     "addr": "0x10FD96",
@@ -101,6 +111,26 @@
     "type": "u8",
     "note": "BIOS_MVS_FLAG: 0 home console (AES, no coins), otherwise arcade (MVS)"
    }
+  }
+ },
+ "derived": {
+  "char_name": {
+   "value": "ninja",
+   "names": [
+    null,
+    "JOE TIGER",
+    "RAYAR DRAGON",
+    "RYU EAGLE"
+   ]
+  },
+  "char_name_p2": {
+   "value": "ninja_p2",
+   "names": [
+    null,
+    "JOE TIGER",
+    "RAYAR DRAGON",
+    "RYU EAGLE"
+   ]
   }
  },
  "hd": {

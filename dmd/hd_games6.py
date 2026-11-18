@@ -225,20 +225,40 @@ class NinjaCombatScene(BrawlerScene):
 
 
 # ============================================================================ Ninja Commando
+# the three ninjas in the order of the game's select screen (1 to 3 in memory), and ours in the colours of each:
+# (suit, trousers, hair, hood) / les trois ninjas dans l'ordre de l'écran de sélection, et le nôtre aux couleurs de chacun
+NCM_NINJAS = {1: ("JOE TIGER", (50, 70, 170), (40, 50, 130), (226, 196, 110), None),
+              2: ("RAYAR DRAGON", (190, 50, 50), (150, 40, 44), (150, 70, 40), None),
+              3: ("RYU EAGLE", (214, 190, 80), (170, 150, 60), (0, 0, 0), (214, 190, 80))}
+
+
 class NinjaCommandoScene(ShockTroopers2Scene):
-    """Ninja Commando as in the game: the jungle seen from above, our blue ninja runs up the dirt path and throws fire
-    dragons at the enemy ninjas that come. At the bottom as in the game a face of our own, LIFE in yellow, TIME in
-    minutes and seconds. / La jungle vue du dessus, notre ninja bleu lance des dragons de feu, comme dans le jeu."""
+    """Ninja Commando as in the game: the jungle seen from above, our ninja runs up the dirt path and throws fire
+    dragons at the enemy ninjas that come. The ninja chosen is named, ours takes his colours. At the bottom as in the
+    game a face of our own, LIFE in yellow, TIME in minutes and seconds; the second player has his ninja and the same
+    on the right. / La jungle vue du dessus, notre ninja lance des dragons de feu, comme dans le jeu. Le ninja choisi
+    est nommé et le nôtre prend ses couleurs ; le second joueur a son ninja et la même chose à droite."""
     THEME = "ncm_jungle"
-    SQUAD = False                                         # none of the 2nd Squad's own: its soldiers, its second player
+    SQUAD = False                                         # none of the 2nd Squad's own: its soldiers, its machines
     NINJA = ("ninja", (50, 70, 170), (40, 50, 130), (226, 176, 136), (0, 0, 0))
     ENEMY = ("ninja", (110, 60, 140), (80, 40, 100), (210, 180, 150), (0, 0, 0), "sword")
 
-    def hero(self, frame):
+    def ninja(self, vals, side):
+        """The ninja of a player, 1 to 3, or None. / Le ninja d'un joueur."""
+        v = _n(vals.get("ninja" if side == "p1" else "ninja_p2"))
+        return int(v) if v is not None and int(v) in NCM_NINJAS else None
+
+    def hero(self, frame, side="p1"):
         S = self.S
         f = {0: 1, 1: 2, 2: 3, 3: 6}[frame]
         style, top, pants, skin, hair = self.NINJA
-        return self.img(("ncmhero", frame), S(130), S(190), fighter_draw(style, top, pants, skin, hair, f), ss=2)
+        who = self.look.get(side)
+        if who in NCM_NINJAS:
+            top, pants = NCM_NINJAS[who][1], NCM_NINJAS[who][2]
+        twin = side == "p2" and who == self.look.get("p1")             # the same ninja twice: the second in another colour
+        if twin or (side == "p2" and who is None):
+            top, pants = (60, 110, 200), (44, 84, 160)
+        return self.img(("ncmhero", frame, who, side, twin), S(130), S(190), fighter_draw(style, top, pants, skin, hair, f), ss=2)
 
     def foe(self, frame):
         S = self.S
@@ -251,18 +271,27 @@ class NinjaCommandoScene(ShockTroopers2Scene):
         return S(NCM_ROAD[0]) + S(70) + z * (S(NCM_ROAD[1]) - S(NCM_ROAD[0]) - S(64))
 
     def update(self, vals, now):
+        for side in ("p1", "p2"):
+            who = self.ninja(vals, side)
+            if who is not None:
+                self.look[side] = who
         super().update(vals, now)
         ch = self.changed(vals, "energy")
         if ch and ch[1] < ch[0]:
             self.hurt = now
             self.fx.shake(6, 0.25)
+        ch = self.changed(vals, "energy_p2")
+        if ch and ch[1] < ch[0] and self.p2_in(vals):
+            self.hurt2 = now
+            self.fx.shake(6, 0.25)
 
-    def fire(self, vals, now, special):
+    def fire(self, vals, now, special, side="p1"):
         """A fire dragon from the hands of the ninja. / Un dragon de feu des mains du ninja."""
         S, fx = self.S, self.fx
-        x0, y0 = self.hx() + S(50), self.road(self.hz) - S(110)
+        hz = self.hz if side == "p1" else self.hz2
+        x0, y0 = (self.hx() if side == "p1" else self.hx2()) + S(50), self.road(hz) - S(110)
         live = [f for f in self.foes if not f.get("dead") and x0 < f["x"] < self.W * 0.85]
-        tgt = min(live, key=lambda f: abs(f["x"] - x0) + abs(f["z"] - self.hz) * S(300)) if live else None
+        tgt = min(live, key=lambda f: abs(f["x"] - x0) + abs(f["z"] - hz) * S(300)) if live else None
         tx, ty = (tgt["x"], self.road(tgt["z"]) - S(80)) if tgt else (self.W + S(40), y0)
         fx.tracer(x0, y0, tx, ty, 1800, (255, 150, 40), 16, 140, "front", False)
         fx.tracer(x0, y0, tx, ty, 1800, (255, 240, 160), 6, 100, "front", False)
@@ -275,32 +304,44 @@ class NinjaCommandoScene(ShockTroopers2Scene):
                 fx.later(0.1, self.kill, tgt, now)
 
     def status(self, screen, eng, vals, logo, now):
-        """As in the game, at the bottom: the face, LIFE in yellow, TIME; 1P and the score at the top.
-        / Comme dans le jeu, en bas : le visage, LIFE en jaune, TIME ; 1P et le score en haut."""
+        """As in the game, at the bottom: the face, LIFE in yellow, TIME, and the ninja's name; 1P and the score at the
+        top. The second player has the same on the right. / Comme dans le jeu, en bas : le visage, LIFE en jaune, TIME,
+        et le nom du ninja ; 1P et le score en haut. Le second joueur a la même chose à droite."""
         S, W, H, pg, hd = self.S, self.W, self.H, self.pg, self.hd
         hd.draw_logo(screen, logo, W / 2, S(6), S(400), S(76), now)
-        self.pill(screen, S(12), S(6), S(420), S(58), 160, radius=14)
-        self.text(screen, "1P", S(30), S(34), 28, WHITE, key="black", valign="middle")
-        if _n(vals.get("score")) is not None:
-            hd._score(screen, eng, "score", S(410), S(12), "right", S(40))
         bar = self.imgs.get("ncmbar")
         if bar is None:
-            bar = self.imgs["ncmbar"] = pg.Surface((S(560), S(70)), pg.SRCALPHA)
+            bar = self.imgs["ncmbar"] = pg.Surface((S(700), S(70)), pg.SRCALPHA)
             bar.fill((0, 0, 0, 210))
         y0 = H - S(74)
-        screen.blit(bar, (S(10), y0))
-        screen.blit(self.img("ncmface", S(60), S(60), portrait_draw((226, 176, 136), (0, 0, 0), hood=(50, 70, 170), bg=(30, 30, 60)), ss=2),
-                    (S(18), y0 + S(5)))
-        self.text(screen, "LIFE", S(90), y0 + S(20), 24, (120, 160, 255), key="black", valign="middle")
-        e = _n(vals.get("energy"))
-        self.bar(screen, S(170), y0 + S(10), S(240), S(22), (e if e is not None else 2) / 2.0, (250, 220, 40))
-        self.text(screen, "TIME", S(90), y0 + S(50), 24, (120, 160, 255), key="black", valign="middle")
-        t = _n(vals.get("time"))
-        if t is not None:
-            self.text(screen, f"{int(t) // 60}:{int(t) % 60:02d}", S(170), y0 + S(50), 28, WHITE, key="black", valign="middle")
-        if not self.p2_in(vals):
-            word, col = self.invite(vals, now)
-            self.label(screen, word, W - S(24), S(40), 30, col, align="right")
+        for side, suf, tag in (("p1", "", "1P"), ("p2", "_p2", "2P")):
+            if side == "p2" and not self.p2_in(vals):
+                word, col = self.invite(vals, now)
+                self.label(screen, word, W - S(24), S(40), 30, col, align="right")
+                continue
+            if side == "p1" and not self.p1_in(vals):
+                continue
+            X, near, far = self.mirror(side)
+            self.pill(screen, X(12, 420), S(6), S(420), S(58), 160, radius=14)
+            self.text(screen, tag, X(30), S(34), 28, WHITE, key="black", align=near, valign="middle")
+            if _n(vals.get("score" + suf)) is not None:
+                hd._score(screen, eng, "score" + suf, X(410), S(12), far, S(40))
+            screen.blit(bar, (X(10, 700), y0))
+            who = self.look.get(side)
+            name, suit, _pants, hair, hood = NCM_NINJAS.get(who, (None, (50, 70, 170), None, (0, 0, 0), (50, 70, 170)))
+            face = self.img(("ncmface", who), S(60), S(60), portrait_draw((226, 176, 136), hair, hood=hood, band=None if hood else suit,
+                                                                           bg=(30, 30, 60)), ss=2)
+            screen.blit(face, (X(18, 60), y0 + S(5)))
+            self.text(screen, "LIFE", X(90), y0 + S(20), 24, (120, 160, 255), key="black", align=near, valign="middle")
+            e = _n(vals.get("energy" + suf))
+            self.bar(screen, X(170, 240), y0 + S(10), S(240), S(22), (e if e is not None else 2) / 2.0, (250, 220, 40))
+            self.text(screen, "TIME", X(90), y0 + S(50), 24, (120, 160, 255), key="black", align=near, valign="middle")
+            t = _n(vals.get("time" + suf))
+            if t is not None:
+                self.text(screen, f"{int(t) // 60}:{int(t) % 60:02d}", X(170), y0 + S(50), 28, WHITE, key="black", align=near, valign="middle")
+            if name:
+                size = hd.fit_size(name, "stencil", S(34), S(260), S(20))
+                hd.put(screen, hd.text(name, "stencil", size, GOLD, 0.3), X(430), y0 + S(35), near, "middle")
 
 
 # ============================================================================ Blue's Journey
@@ -391,6 +432,7 @@ class BluesJourneyScene(CyberLipScene):
     little hero of our own walks the grass and throws leaves at the snails and the bees. 1P= and the score, the lives,
     TIME=, LIFE and its hearts at the top, the flowers at the bottom left, as in the game.
     / Le pays des plantes géantes, notre petit héros lance des feuilles aux escargots et aux abeilles, comme dans le jeu."""
+    TWO = False                                           # one hero of its own / un seul héros, le sien
     THEME = "bj_jungle"
     SHADE = (60, 60)
     EXPLOSIONS = False

@@ -31,10 +31,11 @@
     "note": "player 1 score, BCD, its last two digits always 0 (RetroAchievements stage leaderboards and code notes, from tools/ra_notes.py), to confirm in game"
    },
    "score_p2": {
-    "addr": "",
+    "addr": "0x103FB1",
     "type": "bcd",
-    "bytes": 4,
-    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+    "bytes": 3,
+    "mult": 100,
+    "note": "player 2 score, BCD, 0x80 after player 1's as his other values, its last two digits always 0 (the robot's recording of 2026-11-16: 800 and 400 as on two screenshots)"
    },
    "p1_input": {
     "addr": "0x10FD96",
@@ -75,6 +76,12 @@
     "type": "bcd",
     "bytes": 1,
     "note": "player 1 stars (FinalBurn Neo cheats and MAME 2003-Plus cheats, Always have Maximum Stars PL1)"
+   },
+   "stars_p2": {
+    "addr": "0x103FC4",
+    "type": "bcd",
+    "bytes": 1,
+    "note": "player 2 stars, same byte in his block as his planes and his bombs (0 as on the screen in the robot's recording of 2026-11-16, to confirm with a star picked up)"
    },
    "power": {
     "addr": "0x103F3D",

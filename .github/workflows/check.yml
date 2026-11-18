@@ -44,3 +44,8 @@ jobs:
 
       - name: The robot's tour
         run: python tools/robot_check.py
+
+      - name: Every HD scene plays a made-up game, one player then two
+        env:
+          SDL_VIDEODRIVER: dummy
+        run: python tools/scenes_check.py

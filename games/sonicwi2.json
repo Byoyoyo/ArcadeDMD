@@ -26,10 +26,10 @@
     "note": "player 1 score, BCD (RetroAchievements rich presence, from tools/ra_notes.py), to confirm in game"
    },
    "score_p2": {
-    "addr": "",
+    "addr": "0x10E498",
     "type": "bcd",
     "bytes": 4,
-    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+    "note": "player 2 score, BCD, 0x62 after player 1's as his other values (the robot's recording of 2026-11-16: 4900, 9700 and 11101 as on three screenshots)"
    },
    "p1_input": {
     "addr": "0x10FD96",
@@ -44,12 +44,14 @@
    "lives": {
     "addr": "0x10E43F",
     "type": "u8",
-    "note": "player 1 lives in reserve (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL1)"
+    "zero_from": 240,
+    "note": "player 1 lives in reserve (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL1; 255 once the last one is lost, read as 0, the robot's recording of 2026-11-16)"
    },
    "lives_p2": {
     "addr": "0x10E4A1",
     "type": "u8",
-    "note": "player 2 lives in reserve (FinalBurn Neo cheats, Infinite Lives PL2)"
+    "zero_from": 240,
+    "note": "player 2 lives in reserve (FinalBurn Neo cheats, Infinite Lives PL2; 255 once the last one is lost, read as 0, the robot's recording of 2026-11-16)"
    },
    "bombs": {
     "addr": "0x10E457",

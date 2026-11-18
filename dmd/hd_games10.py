@@ -8,7 +8,7 @@ Les héros, les chevaliers, les vaisseaux et les créatures sont des créations 
 
 import math
 
-from .hd_games import CREAM, GOLD, P1C, WHITE, GameScene, _clamp, _n
+from .hd_games import AMBER, CREAM, GOLD, P1C, WHITE, GameScene, _clamp, _n
 from .hd_games3 import AeroFightersScene, _capsule
 from .hd_games5 import BrawlerScene, SideShooterScene, _mixc
 from .hd_themes10 import (B2B_ROWS, DM_CELL, DM_COLS, DM_ROWS, DM_X0, DM_Y0, IM_HALF, IM_PATH, ZT_CELL, ZT_COLS, ZT_FIELDS, ZT_ROWS,
@@ -646,36 +646,49 @@ class AndroDunosScene(SideShooterScene):
 
     def update(self, vals, now):
         super().update(vals, now)
+        ups = []
         for lab, name, col, mx in ADW:
             ch = self.changed(vals, name)
-            if ch and ch[1] > ch[0] and self.ships["p1"]["in"]:                # the level reached under it / le niveau atteint
-                x, y = self.pos("p1", now)
-                y = max(self.S(196), y - self.S(70))
-                self.popup(f"{lab} MAX" if ch[1] >= mx else f"{lab} UP", x, y, col, 32)
-                if ch[1] < mx:
-                    self.popup(f"LV {int(ch[1])}/{mx}", x, y + self.S(32), CREAM, 24)
+            if ch and ch[1] > ch[0]:
+                ups.append((lab, col, mx, ch[1]))
+        if len(ups) == 1 and self.ships["p1"]["in"]:                           # several at once: the weapons of a new ship
+            lab, col, mx, v = ups[0]                                           # / plusieurs d'un coup : un nouveau vaisseau
+            x, y = self.pos("p1", now)
+            y = max(self.S(196), y - self.S(70))
+            self.popup(f"{lab} MAX" if v >= mx else f"{lab} UP", x, y, col, 32)
+            if v < mx:                                                         # the level reached under it / le niveau atteint
+                self.popup(f"LV {int(v)}/{mx}", x, y + self.S(32), CREAM, 24)
 
     def status(self, screen, eng, vals, logo, now):
+        """1P, the score and the four weapons in their colours with their levels, the ships left at the bottom; the second
+        player has the same on the right. / 1P, le score et les quatre armes à leurs couleurs avec leur niveau, les
+        vaisseaux en bas ; le second joueur a la même chose à droite."""
         S, W, H, hd = self.S, self.W, self.H, self.hd
         hd.draw_logo(screen, logo, W / 2, S(8), S(440), S(84), now)
-        self.pill(screen, S(16), S(8), S(470), S(98), 150, radius=14)
-        self.text(screen, "1P", S(34), S(32), 30, WHITE, key="black", valign="middle")
-        if _n(vals.get("score")) is not None:
-            hd._score(screen, eng, "score", S(460), S(12), "right", S(42))
-        for k, (lab, name, col, mx) in enumerate(ADW):                     # the four weapons in their colours
-            v = _n(vals.get(name))
-            x = S(34) + k * S(112)
-            self.text(screen, lab, x, S(80), 15, col, key="black", valign="middle", glow=0)
-            if v is not None:
-                self.text(screen, f"{int(v)}", x + S(84), S(80), 18, WHITE, key="black", align="right", valign="middle", glow=0)
-        lives = _n(vals.get("lives"))
-        if lives is not None:
-            icon = self.img("adlife", S(46), S(26), small_fighter_draw((240, 200, 90), self.ACC["p1"]), ss=2)
-            for k in range(int(min(lives, 6))):
-                screen.blit(icon, (S(24) + k * S(52), H - S(40)))
-        if not self.p2_in(vals):
-            word, col = self.invite(vals, now)
-            self.label(screen, word, W - S(24), S(44), 30, col, align="right")
+        for side, suf, tag in (("p1", "", "1P"), ("p2", "_p2", "2P")):
+            if side == "p2" and not self.p2_in(vals):
+                word, col = self.invite(vals, now)
+                self.label(screen, word, W - S(24), S(44), 30, col, align="right")
+                continue
+            if side == "p1" and not self.p1_in(vals):
+                continue
+            X, near, far = self.mirror(side)
+            self.pill(screen, X(16, 470), S(8), S(470), S(98), 150, radius=14)
+            self.text(screen, tag, X(34), S(32), 30, WHITE, key="black", align=near, valign="middle")
+            if _n(vals.get("score" + suf)) is not None:
+                hd._score(screen, eng, "score" + suf, X(460), S(12), far, S(42))
+            x0 = X(16, 470) + S(18)                                    # the four weapons, left to right on both sides
+            for k, (lab, name, col, mx) in enumerate(ADW):             # the four weapons in their colours
+                v = _n(vals.get(name + suf))
+                x = x0 + k * S(112)
+                self.text(screen, lab, x, S(80), 15, col, key="black", valign="middle", glow=0)
+                if v is not None:
+                    self.text(screen, f"{int(v)}", x + S(84), S(80), 18, WHITE, key="black", align="right", valign="middle", glow=0)
+            lives = _n(vals.get("lives" + suf))
+            if lives:
+                icon = self.img(("adlife", side), S(46), S(26), small_fighter_draw((240, 200, 90), self.ACC[side]), ss=2)
+                for k in range(int(min(lives, 6))):
+                    screen.blit(icon, (X(24 + k * 52, 46), H - S(40)))
 
 
 class IroncladScene(SideShooterScene):
@@ -710,29 +723,40 @@ class IroncladScene(SideShooterScene):
             self.popup("LEVEL UP", x, max(self.S(180), y - self.S(70)), GOLD, 32)
 
     def status(self, screen, eng, vals, logo, now):
+        """1P and the score at the top; at the bottom the life meter, POWER and the level, the arms above; the second
+        player has the same on the right. The meter is full at 3 and still holds a last red case at 0, as the game's.
+        / 1P et le score en haut ; en bas la jauge de vie, POWER et le niveau ; le second joueur a la même chose à
+        droite. La jauge est pleine à 3 et garde une dernière case rouge à 0, comme celle du jeu."""
         S, W, H, hd = self.S, self.W, self.H, self.hd
         hd.draw_logo(screen, logo, W / 2, S(8), S(440), S(84), now)
-        self.pill(screen, S(16), S(8), S(470), S(60), 150, radius=14)
-        self.text(screen, "1P", S(34), S(38), 30, (255, 200, 120), key="black", valign="middle")
-        if _n(vals.get("score")) is not None:
-            hd._score(screen, eng, "score", S(460), S(14), "right", S(42))
-        e = _n(vals.get("energy"))
-        if e is not None:                                                  # the life meter
-            self.pill(screen, S(16), H - S(56), S(520), S(48), 160, radius=12)
-            self.text(screen, "LIFE", S(32), H - S(32), 20, (255, 120, 90), key="black", valign="middle", glow=0)
-            self.bar(screen, S(96), H - S(44), S(180), S(22), e / 3.0, (255, 90, 70))
-            pw, lv = _n(vals.get("power")), _n(vals.get("level"))
-            if pw is not None:
-                self.text(screen, f"POWER {int(pw)}", S(296), H - S(32), 20, (250, 220, 120), key="black", valign="middle", glow=0)
-            if lv is not None:
-                self.text(screen, f"LV {int(lv)}", S(440), H - S(32), 20, (150, 220, 255), key="black", valign="middle", glow=0)
-        arms = [(lab, _n(vals.get(name))) for lab, name in (("L", "l_arm"), ("R", "r_arm"))]
-        arms = [(lab, v) for lab, v in arms if v is not None]
-        if arms:
-            self.label(screen, "  ".join(f"{lab}-ARM {int(v) // 2}" for lab, v in arms), W - S(170), H - S(32), 22, WHITE, align="center")
-        if not self.p2_in(vals):
-            word, col = self.invite(vals, now)
-            self.label(screen, word, W - S(24), S(44), 30, col, align="right")
+        for side, suf, tag in (("p1", "", "1P"), ("p2", "_p2", "2P")):
+            if side == "p2" and not self.p2_in(vals):
+                word, col = self.invite(vals, now)
+                self.label(screen, word, W - S(24), S(44), 30, col, align="right")
+                continue
+            if side == "p1" and not self.p1_in(vals):
+                continue
+            X, near, far = self.mirror(side)
+            self.pill(screen, X(16, 470), S(8), S(470), S(60), 150, radius=14)
+            self.text(screen, tag, X(34), S(38), 30, (255, 200, 120), key="black", align=near, valign="middle")
+            if _n(vals.get("score" + suf)) is not None:
+                hd._score(screen, eng, "score" + suf, X(460), S(14), far, S(42))
+            e = _n(vals.get("energy" + suf))
+            if e is not None:                                          # the life meter
+                self.pill(screen, X(16, 520), H - S(56), S(520), S(48), 160, radius=12)
+                self.text(screen, "LIFE", X(32), H - S(32), 20, (255, 120, 90), key="black", align=near, valign="middle", glow=0)
+                self.bar(screen, X(96, 180), H - S(44), S(180), S(22), (min(3, e) + 1) / 4.0, (255, 90, 70) if e <= 0 else (90, 170, 255))
+                pw, lv = _n(vals.get("power" + suf)), _n(vals.get("level" + suf))
+                if pw is not None:
+                    self.text(screen, f"POWER {int(pw)}", X(296), H - S(32), 20, (250, 220, 120), key="black", align=near, valign="middle",
+                              glow=0)
+                if lv is not None:
+                    self.text(screen, f"LV {int(lv)}", X(440), H - S(32), 20, (150, 220, 255), key="black", align=near, valign="middle",
+                              glow=0)
+            arms = [(lab, _n(vals.get(name + suf))) for lab, name in (("L", "l_arm"), ("R", "r_arm"))]
+            arms = [(lab, v) for lab, v in arms if v is not None]
+            if arms:
+                self.label(screen, "  ".join(f"{lab}-ARM {int(v) // 2}" for lab, v in arms), X(26), H - S(88), 20, WHITE, align=near)
 
 
 class LastHopeScene(SideShooterScene):
@@ -840,25 +864,37 @@ class CaptainTomadayScene(AeroFightersScene):
         return 5
 
     def status(self, screen, eng, vals, logo, now):
+        """As in the game: PLAYER 1 in red and PLAYER 2 in blue, the score written with its two decimals (2.75), the
+        lives and the power of both arms at the bottom. / Comme dans le jeu : PLAYER 1 en rouge et PLAYER 2 en bleu, le
+        score écrit avec ses deux décimales, les vies et la puissance des deux bras en bas."""
         S, W, H, hd = self.S, self.W, self.H, self.hd
         hd.draw_logo(screen, logo, W / 2, S(8), S(460), S(90), now)
-        self.pill(screen, S(16), S(8), S(420), S(84), 150)
-        self.text(screen, "PLAYER 1", S(34), S(30), 24, (255, 90, 80), key="black", valign="middle")
-        if _n(vals.get("score")) is not None:
-            hd._score(screen, eng, "score", S(410), S(40), "right", S(44))
-        rows = []
-        lives = _n(vals.get("lives"))
-        if lives is not None:
-            rows.append(f"x{int(lives)}")
-        for lab, name in (("R", "power"), ("L", "power_l")):
-            v = _n(vals.get(name))
-            if v is not None:
-                rows.append(f"{lab} {'●' * int(min(v, 5))}{'○' * int(max(0, 5 - v))}")
-        if rows:
-            self.label(screen, "   ".join(rows), S(240), H - S(26), 22, WHITE, align="center")
-        if not self.p2_in(vals):
-            word, col = self.invite(vals, now)
-            self.label(screen, word, W - S(24), S(44), 32, col, align="right")
+        for side, suf, tag, col in (("p1", "", "PLAYER 1", (255, 90, 80)), ("p2", "_p2", "PLAYER 2", (90, 140, 255))):
+            if side == "p2" and not self.p2_in(vals):
+                word, colw = self.invite(vals, now)
+                self.label(screen, word, W - S(24), S(44), 32, colw, align="right")
+                continue
+            if side == "p1" and not self.p1_in(vals):
+                continue
+            X, near, far = self.mirror(side)
+            self.pill(screen, X(16, 420), S(8), S(420), S(84), 150)
+            self.text(screen, tag, X(34), S(30), 24, col, key="black", align=near, valign="middle")
+            sc = _n(vals.get("score" + suf))
+            if sc is not None:                                         # kept in hundredths, written 2.75 by the game
+                t = eng.state.changed_at.get("score" + suf)
+                pop = max(0.0, 1 - (eng.ctx.t - t) / 0.25) if t is not None and eng.ctx.t >= t else 0.0
+                hd.put(screen, hd.text(f"{int(sc) // 100}.{int(sc) % 100:02d}", "black", S(44), AMBER), X(410), S(40), far,
+                       scale=1 + 0.2 * pop)
+            rows = []
+            lives = _n(vals.get("lives" + suf))
+            if lives is not None:
+                rows.append(f"x{int(lives)}")
+            for lab, name in (("R", "power" + suf), ("L", "power_l" + suf)):
+                v = _n(vals.get(name))
+                if v is not None:
+                    rows.append(f"{lab} {'●' * int(min(v, 5))}{'○' * int(max(0, 5 - v))}")
+            if rows:
+                self.label(screen, "   ".join(rows), X(240), H - S(26), 22, WHITE, align="center")
 
 
 # ============================================================================ Bang Bang Busters

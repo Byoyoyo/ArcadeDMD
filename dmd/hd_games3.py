@@ -2566,9 +2566,9 @@ class AeroFightersScene(BlazingStarScene):
             ch = self.changed(vals, "bombs" + suf)
             if ch and ch[1] < ch[0] and now - P["t_dead"] > 1.2:
                 self.bomb(side, now)
-            elif ch and ch[1] > ch[0]:
-                x, y = self.pos(side, now)
-                self.popup(tr("BOMBE +", "BOMB UP"), x, max(S(176), y - S(80)), (255, 190, 90), 36)
+            elif ch and ch[1] == ch[0] + 1 and now - P["t_dead"] > 1.2 and vals.get(side + "_mode") in (1, None):
+                x, y = self.pos(side, now)                             # a bomb picked up; those given back with a new plane
+                self.popup(tr("BOMBE +", "BOMB UP"), x, max(S(176), y - S(80)), (255, 190, 90), 36)    # or a new game are not
                 self.bpop[side] = now
         if now >= self.next_ground:                                    # tanks driving on the avenues
             self.next_ground = now + self.rng.uniform(2.5, 5.0)
@@ -2872,9 +2872,9 @@ class AeroFighters3Scene(AeroFightersScene):
     def status(self, screen, eng, vals, logo, now):
         super().status(screen, eng, vals, logo, now)
         pilot, plane = vals.get("pilot_name"), vals.get("plane_name")
-        if isinstance(pilot, str) and pilot and self.p1_in(vals):
+        if isinstance(pilot, str) and pilot and self.p1_in(vals):      # under the lives, clear of the credits
             txt = pilot + (f"  ·  {plane}" if isinstance(plane, str) and plane else "")
-            self.label(screen, txt, self.W / 2, self.S(412), 28, GOLD, key="xbold", align="center", alpha=130)
+            self.label(screen, txt, self.S(20), self.S(152), 21, GOLD, key="xbold", align="left", alpha=130)
 
 
 SCENES = {"tophuntr": TopHunterScene, "bstars2": BaseballScene, "lresort": LastResortScene, "sonicwi2": AeroFighters2Scene,

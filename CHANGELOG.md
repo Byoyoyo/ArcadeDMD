@@ -13,12 +13,18 @@ Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `con
 - Shock Troopers gives the big machines a life bar, and the boss of a stage its WARNING, its bar and BOSS DESTROYED.
 - Each of the eight soldiers of Shock Troopers throws his own special weapon, with its own animation. The weapon and what is left of it follow the soldier playing (they stayed on the first one), and the energy bar is full when his energy is (it showed half).
 - Shock Troopers 2nd Squad shows the soldier's name and his energy as in the game, our commando in his colours, and the second player with his own commando. A big machine being shot at gets its life bar.
+- The second player has his own corner in the shoot'em ups and the run and guns: his score, his lives, his bombs and his weapons on the right. NAM-1975, Cyber-Lip and Ninja Commando draw his soldier beside the first, and Ninja Commando names the ninja chosen.
+- Values put right in the shoot'em ups. Captain Tomaday's score is written 2.75 as in the game. Ironclad's level starts at 1 and its life bar keeps its last case. Prehistoric Isle 2 shows the game's Lv and its stars. Alpha Mission II shows the energy of the armour while one is worn. Zed Blade and Andro Dunos show the ships left as on their screen.
+- In the shoot'em ups, the last ship lost explodes too, and 1UP and BOMB UP only come for a ship or a bomb really gained (they came at each new game).
 
 ### Français
 - Shock Troopers nomme le soldat choisi et montre l'équipe qui reste : trois plaques, et les trois noms en Team Battle. Le stage et sa route sont à côté du chrono.
 - Shock Troopers donne une barre de vie aux gros engins, et au boss d'un stage son WARNING, sa barre et BOSS DÉTRUIT.
 - Chacun des huit soldats de Shock Troopers lance sa propre arme spéciale, avec son animation. L'arme et ce qu'il en reste suivent le soldat en jeu (elles restaient sur le premier), et la barre d'énergie est pleine quand son énergie l'est (elle s'affichait à moitié).
 - Shock Troopers 2nd Squad montre le nom du soldat et son énergie comme dans le jeu, notre commando à ses couleurs, et le second joueur avec son propre commando. Un gros engin sur lequel on tire a sa barre de vie.
+- Le second joueur a son propre coin dans les shoot'em up et les run and gun : son score, ses vies, ses bombes et ses armes à droite. NAM-1975, Cyber-Lip et Ninja Commando dessinent son soldat à côté du premier, et Ninja Commando nomme le ninja choisi.
+- Valeurs corrigées dans les shoot'em up. Le score de Captain Tomaday s'écrit 2.75 comme dans le jeu. Le niveau d'Ironclad commence à 1 et sa barre de vie garde sa dernière case. Prehistoric Isle 2 montre le Lv du jeu et ses étoiles. Alpha Mission II montre l'énergie de l'armure tant qu'on en porte une. Zed Blade et Andro Dunos montrent les vaisseaux qui restent comme sur leur écran.
+- Dans les shoot'em up, le dernier vaisseau perdu explose aussi, et 1UP et BOMBE + n'arrivent que pour un vaisseau ou une bombe vraiment gagnés (ils arrivaient à chaque nouvelle partie).
 
 ## 1.39.1
 
