@@ -1703,7 +1703,6 @@ class NeoBombermanScene(GameScene):
             if (int(round(e["c"])), int(round(e["r"]))) in cells and not e.get("dead"):
                 e["dead"] = now
                 ex, ey = self.cell_xy(e["c"], e["r"])
-                self.popup("100", ex, ey - self.S(30), CREAM, 28)
 
     def move_blobs(self, now):
         dt, rng = self.dt, self.rng

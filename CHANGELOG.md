@@ -18,7 +18,7 @@ Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `con
 - In the shoot'em ups, the last ship lost explodes too, and 1UP and BOMB UP only come for a ship or a bomb really gained (they came at each new game).
 - The second player has his own panel in fifteen action games (Burning Fight, Mutation Nation, Sengoku 1 and 2, Ninja Combat, Robo Army, Eight Man, Crossed Swords, Spin Master, Blue's Journey, Nightmare in the Dark, Zupapa!, Neo Mr. Do!, Bang Bang Busters, Digger Man), and the beat'em ups draw his fighter beside the first. Ganryu and Magician Lord, where the players take turns, show the one who plays.
 - Action games put right. The score is read in Robo Army, Top Hunter, Bang Bang Busters and Digger Man. Top Hunter and Ganryu show their real life gauge, Ninja Combat's is full when the game's is, Eight Man draws the life cells the game draws, and the lives are counted as on the screen in Top Hunter, Ninja Combat and Ganryu.
-- Nothing made up is shown any more: the floor of The Super Spy, the stage of Bang Bang Busters, the enemy gauge of Crossed Swords, the EXTRA letters of Neo Mr. Do! and the jewel count of Digger Man were not read in the game.
+- Nothing made up is shown any more: the floor of The Super Spy, the stage of Bang Bang Busters, the enemy gauge of Crossed Swords, the EXTRA letters of Neo Mr. Do! and the jewel count of Digger Man were not read in the game, nor the points that popped up in Digger Man, Zupapa!, Neo Bomberman and Bang Bang Busters.
 
 ### Français
 - Shock Troopers nomme le soldat choisi et montre l'équipe qui reste : trois plaques, et les trois noms en Team Battle. Le stage et sa route sont à côté du chrono.
@@ -30,7 +30,7 @@ Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `con
 - Dans les shoot'em up, le dernier vaisseau perdu explose aussi, et 1UP et BOMBE + n'arrivent que pour un vaisseau ou une bombe vraiment gagnés (ils arrivaient à chaque nouvelle partie).
 - Le second joueur a son propre panneau dans quinze jeux d'action (Burning Fight, Mutation Nation, Sengoku 1 et 2, Ninja Combat, Robo Army, Eight Man, Crossed Swords, Spin Master, Blue's Journey, Nightmare in the Dark, Zupapa!, Neo Mr. Do!, Bang Bang Busters, Digger Man), et les beat'em up dessinent son combattant à côté du premier. Ganryu et Magician Lord, où les joueurs jouent tour à tour, montrent celui qui joue.
 - Jeux d'action corrigés. Le score est lu dans Robo Army, Top Hunter, Bang Bang Busters et Digger Man. Top Hunter et Ganryu montrent leur vraie jauge de vie, celle de Ninja Combat est pleine quand celle du jeu l'est, Eight Man dessine les cases de vie que le jeu dessine, et les vies sont comptées comme à l'écran dans Top Hunter, Ninja Combat et Ganryu.
-- Plus rien d'inventé n'est affiché : l'étage de The Super Spy, le stage de Bang Bang Busters, la jauge de l'ennemi de Crossed Swords, les lettres EXTRA de Neo Mr. Do! et le compte de joyaux de Digger Man n'étaient pas lus dans le jeu.
+- Plus rien d'inventé n'est affiché : l'étage de The Super Spy, le stage de Bang Bang Busters, la jauge de l'ennemi de Crossed Swords, les lettres EXTRA de Neo Mr. Do! et le compte de joyaux de Digger Man n'étaient pas lus dans le jeu, ni les points qui surgissaient dans Digger Man, Zupapa!, Neo Bomberman et Bang Bang Busters.
 
 ## 1.39.1
 

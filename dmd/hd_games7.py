@@ -958,7 +958,6 @@ class ZupapaScene(GameScene):
         self.flying.append({"x": f["x"], "y": self.row_y(f["row"]) - self.S(40), "vx": d * self.S(700), "vy": -self.S(600), "kind": f["kind"],
                             "t0": now})
         self.fx.sparks(f["x"], self.row_y(f["row"]) - self.S(40), 14, (255, 230, 80), (200, 500), (0, 360), (0.3, 0.6), 300, "front", 5, 10)
-        self.popup("100", f["x"], self.row_y(f["row"]) - self.S(90), GOLD, 30)
 
     def draw_hud(self, screen, eng, vals, logo, now):
         S, W, dt = self.S, self.W, self.dt

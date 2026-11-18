@@ -1,7 +1,8 @@
 """Plays a short made-up game of every game file on the HD screen, one player then two, and fails if the HD screen of a
-game gives up (an error in its scene sends the marquee back to the LED display). The values of the game's file go up
-and down so that the scene meets a power-up, a life lost, a bomb, a second player who joins, a continue and a game
-over. Run by the check of every pull request.
+game gives up (an error in its scene sends the marquee back to the LED display). The values of the game's file that
+have an address go up and down so that the scene meets a power-up, a life lost, a bomb, a second player who joins, a
+continue and a game over; the values without an address stay unknown, as on a cabinet. Run by the check of every
+pull request.
 
 Joue une courte partie inventée de chaque fichier de jeu sur l'écran HD, à un joueur puis à deux, et échoue si l'écran
 HD d'un jeu abandonne (une erreur dans sa scène renvoie le marquee à l'affichage LED). Les valeurs du fichier montent
@@ -51,8 +52,13 @@ def play(eng, out, clock, game):
     """One made-up game; the error that stopped the HD screen, or None. / Une partie inventée ; l'erreur, ou None."""
     eng.start_demo(game)
     eng.sim, eng.demo_until = None, None
+    for d in (eng.state.values, eng.state.prev, eng.state.changed_at, eng.state.hist):
+        d.clear()                                              # what the demo put there: a real game starts with nothing
+    eng.state.events.clear()
     g = eng.library.get(game) or {}
-    vals = game_values(g, game, "")
+    # a value without an address is never read on a cabinet: the scene must do without it
+    # une valeur sans adresse n'est jamais lue sur une borne : la scène doit s'en passer
+    vals = {n: d for n, d in game_values(g, game, "").items() if isinstance(d, dict) and d.get("addr")}
     tag = g.get("tag") if isinstance(g.get("tag"), dict) else {}
     t, k, last = clock[0] + 1.0, 0, None
     end = t + LENGTH

@@ -342,9 +342,8 @@ class DiggerManScene(GameScene):
         if now >= self.next_step:
             self.next_step = now + 0.2
             step = self.path_to_gem()
-            if step is None:                                             # nothing left to reach: a new mine
-                self.slam(tr("MINE SUIVANTE", "NEXT MINE"), GOLD, now, 1.4)
-                self.new_map(now)
+            if step is None:                                             # nothing left to reach in our mine: a new one,
+                self.new_map(now)                                        # without a word (the game's stage is not read)
             else:
                 c, r = step
                 me = self.me
@@ -358,9 +357,12 @@ class DiggerManScene(GameScene):
                     x, y = self.cell_xy(c, r)
                     col = DM_GEMS[(self.grid[c][r] // 10) % 4]
                     self.fx.sparks(x, y, 12, col, (200, 460), (0, 360), (0.2, 0.4), 300, "front", 4, 12)
-                    self.popup("100", x, y - S(40), GOLD, 28)
                 self.grid[c][r] = EMPTY
                 self.dirty = True
+        ch = self.changed(vals, "score")
+        if ch and 0 < ch[1] - ch[0] <= 5000:                             # the points of the game, where our digger is
+            x, y = self.cell_xy(self.me["c"], self.me["r"])
+            self.popup(f"+{int(ch[1] - ch[0])}", x, y - S(40), GOLD, 28)
         if now >= self.next_fall:                                        # the rocks fall into the tunnels
             self.next_fall = now + 0.25
             for c in range(DM_COLS):
@@ -1057,7 +1059,6 @@ class BangBangBustersScene(GameScene):
         self.flying.append({"x": f["x"], "y": self.row_y(f["row"]) - self.S(40), "vx": d * self.S(800), "vy": -self.S(500), "kind": f["kind"],
                             "t0": now})
         self.fx.sparks(f["x"], self.row_y(f["row"]) - self.S(40), 16, (200, 240, 255), (200, 500), (0, 360), (0.3, 0.6), 300, "front", 5, 10)
-        self.popup("1000", f["x"], self.row_y(f["row"]) - self.S(90), GOLD, 30)
 
     def foe_img(self, kind, frame):
         S = self.S
