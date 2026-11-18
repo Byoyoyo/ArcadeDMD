@@ -6,6 +6,20 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 To update, extract the new version over the old one. Your `config.json`, the addresses learned and your own pictures are kept.
 Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `config.json`, les adresses apprises et tes propres images sont gardés.
 
+## 1.39.2
+
+### English
+- Shock Troopers names the soldier chosen and shows the team left: three dog tags, and the three names in Team Battle. The stage and its route are next to the timer.
+- Shock Troopers gives the big machines a life bar, and the boss of a stage its WARNING, its bar and BOSS DESTROYED.
+- Each of the eight soldiers of Shock Troopers throws his own special weapon, with its own animation. The weapon and what is left of it follow the soldier playing (they stayed on the first one), and the energy bar is full when his energy is (it showed half).
+- Shock Troopers 2nd Squad shows the soldier's name and his energy as in the game, our commando in his colours, and the second player with his own commando. A big machine being shot at gets its life bar.
+
+### Français
+- Shock Troopers nomme le soldat choisi et montre l'équipe qui reste : trois plaques, et les trois noms en Team Battle. Le stage et sa route sont à côté du chrono.
+- Shock Troopers donne une barre de vie aux gros engins, et au boss d'un stage son WARNING, sa barre et BOSS DÉTRUIT.
+- Chacun des huit soldats de Shock Troopers lance sa propre arme spéciale, avec son animation. L'arme et ce qu'il en reste suivent le soldat en jeu (elles restaient sur le premier), et la barre d'énergie est pleine quand son énergie l'est (elle s'affichait à moitié).
+- Shock Troopers 2nd Squad montre le nom du soldat et son énergie comme dans le jeu, notre commando à ses couleurs, et le second joueur avec son propre commando. Un gros engin sur lequel on tire a sa barre de vie.
+
 ## 1.39.1
 
 ### English

@@ -2042,6 +2042,11 @@ SPECIAL_NAMES = (("GRENADE", "GRENADE"), ("FUMIGÈNE", "SMOKE CAN"), ("BIDON", "
                  ("MISSILES", "MISSILE L."), ("ARC", "BOW"), ("CHIMIQUE", "CHEMICAL"), ("BAZOOKA", "BAZOOKA"))
 GUN_TINT = ((90, 96, 84), (70, 74, 66), (110, 112, 120), (96, 110, 80), (120, 90, 140), (170, 90, 40), (90, 110, 70),
             (110, 120, 140), (200, 170, 60))
+# the eight soldiers in the order of the game's PLAYER SELECT screen; each one has a special weapon of his own, so the
+# special weapon's number is the soldier's / les huit soldats dans l'ordre de l'écran PLAYER SELECT
+SOLDIERS = ("JACKAL", "MILKY", "LOKI", "SOUTHERN CROSS", "MARIE BEE", "RIO", "MARU", "BIG MAMA")
+ROUTES = (("MONTAGNE", "MOUNTAIN"), ("JUNGLE", "JUNGLE"), ("VALLÉE", "VALLEY"))
+STAGES_PER_ROUTE = 7
 
 
 def rifle_draw(tint):
@@ -2067,22 +2072,217 @@ def grenade_draw(d, W, H):
     d.ellipse([W * 0.28, H * 0.4, W * 0.48, H * 0.6], fill=(140, 180, 110, 255))
 
 
-class ShockTroopersScene(GameScene):
+def can_draw(tint):
+    """A can with its cap, standing. / Un bidon debout avec son bouchon."""
+    def fn(d, W, H):
+        dark, ow = (20, 22, 20, 255), max(1, int(W * 0.07))
+        d.rectangle([W * 0.34, 0, W * 0.66, H * 0.2], fill=(176, 176, 176, 255), outline=dark, width=ow)
+        d.rounded_rectangle([W * 0.14, H * 0.16, W * 0.86, H - 1], radius=W * 0.16, fill=tint + (255,), outline=dark, width=ow)
+        d.rectangle([W * 0.14 + ow, H * 0.44, W * 0.86 - ow, H * 0.6], fill=_mix(tint, WHITE, 0.6) + (255,))
+    return fn
+
+
+def boomerang_draw(d, W, H):
+    d.polygon([(W * 0.04, H * 0.92), (W * 0.5, H * 0.06), (W * 0.96, H * 0.92), (W * 0.76, H * 0.96), (W * 0.5, H * 0.44),
+               (W * 0.24, H * 0.96)], fill=(204, 156, 86, 255), outline=(64, 42, 16, 255))
+    d.line([(W * 0.2, H * 0.8), (W * 0.5, H * 0.24), (W * 0.8, H * 0.8)], fill=(240, 206, 140, 255), width=max(1, int(W * 0.07)))
+
+
+def rocket_draw(tint):
+    """A rocket standing on its fins, nose up. / Une roquette debout, pointe en haut."""
+    def fn(d, W, H):
+        dark, ow = (20, 22, 26, 255), max(1, int(W * 0.07))
+        d.polygon([(W * 0.08, H - 1), (W * 0.3, H * 0.66), (W * 0.7, H * 0.66), (W * 0.92, H - 1)], fill=(120, 44, 36, 255), outline=dark)
+        d.rectangle([W * 0.3, H * 0.28, W * 0.7, H * 0.86], fill=tint + (255,), outline=dark, width=ow)
+        d.polygon([(W * 0.3, H * 0.3), (W * 0.5, 0), (W * 0.7, H * 0.3)], fill=(214, 70, 50, 255), outline=dark)
+        d.line([(W * 0.4, H * 0.36), (W * 0.4, H * 0.8)], fill=_mix(tint, WHITE, 0.55) + (255,), width=ow)
+    return fn
+
+
+def bow_arrow_draw(d, W, H):
+    ow = max(1, int(W * 0.1))
+    d.line([(W * 0.5, H * 0.14), (W * 0.5, H * 0.94)], fill=(214, 186, 130, 255), width=ow)
+    d.polygon([(W * 0.5, 0), (W * 0.2, H * 0.26), (W * 0.8, H * 0.26)], fill=(206, 212, 220, 255), outline=(40, 44, 50, 255))
+    d.polygon([(W * 0.5, H * 0.72), (W * 0.16, H - 1), (W * 0.5, H * 0.9), (W * 0.84, H - 1)], fill=(214, 70, 50, 255))
+
+
+def flask_draw(d, W, H):
+    dark, ow = (16, 30, 20, 255), max(1, int(W * 0.07))
+    d.rectangle([W * 0.38, 0, W * 0.62, H * 0.4], fill=(196, 214, 210, 255), outline=dark, width=ow)
+    d.ellipse([W * 0.08, H * 0.32, W * 0.92, H - 1], fill=(196, 214, 210, 255), outline=dark, width=ow)
+    d.chord([W * 0.08 + ow, H * 0.32 + ow, W * 0.92 - ow, H - 1 - ow], 0, 180, fill=(96, 220, 90, 255))
+
+
+def tag_draw(color):
+    """A soldier's dog tag. / La plaque d'un soldat."""
+    def fn(d, W, H):
+        ow = max(1, int(W * 0.08))
+        d.rounded_rectangle([ow, ow, W - 1 - ow, H - 1 - ow], radius=W * 0.3, fill=color + (255,),
+                            outline=_mix(color, (0, 0, 0), 0.6) + (255,), width=ow)
+        d.ellipse([W * 0.38, H * 0.1, W * 0.62, H * 0.26], fill=(8, 10, 22, 255))
+        d.line([(W * 0.26, H * 0.5), (W * 0.74, H * 0.5)], fill=_mix(color, (0, 0, 0), 0.4) + (255,), width=ow)
+        d.line([(W * 0.26, H * 0.68), (W * 0.6, H * 0.68)], fill=_mix(color, (0, 0, 0), 0.4) + (255,), width=ow)
+    return fn
+
+
+# what each special weapon looks like in the panel and in flight: (icon, its tint) / l'icône de chaque arme spéciale
+SPECIAL_ICON = (("grenade", None), ("can", (196, 200, 204)), ("can", (200, 60, 44)), ("boomerang", None),
+                ("rocket", (110, 130, 110)), ("arrow", None), ("flask", None), ("rocket", (150, 150, 160)))
+
+
+class Machines:
+    """The big machines of a game whose objects each keep their life at the same place (Shock Troopers and its 2nd
+    Squad): "_hps" in the game's file gives those lives, one word each. An object that comes with a big life is a
+    machine. From BOSS_MIN it is the boss of the stage: WARNING, then its bar. From BIG_MIN a big one on the way: its bar
+    comes once it has taken MACHINE_HITS hits, so that only something being shot at gets one. Both lives can be set in
+    the game's "hd" block (boss_min, big_min). / Les gros engins d'un jeu dont chaque objet garde sa vie au même endroit :
+    un objet qui arrive avec une grosse vie est un engin. À partir de BOSS_MIN c'est le boss du stage (WARNING puis sa
+    barre), à partir de BIG_MIN un gros engin, dont la barre vient quand il a reçu MACHINE_HITS coups."""
+    BOSS_MIN = 300
+    BIG_MIN = 100
+    MACHINE_HITS = 1
+    MACHINE_BOX = (620, 92, 226)                               # width, height, top of the bar's box / la boîte de la barre
+    in_stage = True
+
+    def machines_reset(self):
+        self.hps = None                                      # the lives at the previous image / les vies à l'image d'avant
+        self.boss = None                                     # the machine whose bar is shown / l'engin dont on montre la barre
+
+    def stage(self, vals):
+        return None
+
+    def machine_at(self):
+        """Middle of the bar: where the shots land and the machine blows up. / Le milieu de la barre."""
+        w, h, y0 = self.MACHINE_BOX
+        return self.W / 2, self.S(y0 + h / 2)
+
+    def machine_on(self):
+        B = self.boss
+        return B is not None and B["shown"] and B["down"] is None
+
+    def machines(self, vals, now, playing):
+        hps = vals.get("_hps")
+        if not playing or not self.in_stage or not isinstance(hps, (list, tuple)):
+            self.hps, self.boss = None, None
+            return
+        cur = [v if isinstance(v, int) and v < 0x8000 else 0 for v in hps]
+        prev, self.hps = self.hps, cur
+        if prev is None or len(prev) != len(cur):
+            return
+        fx, S = self.fx, self.S
+        boss_min = _n(self.hd_opts.get("boss_min")) or self.BOSS_MIN
+        big_min = _n(self.hd_opts.get("big_min")) or self.BIG_MIN
+        cx, cy = self.machine_at()
+        title = getattr(self, "TITLE", "")
+        B = self.boss
+        if B is not None and B["down"] is None:
+            v = cur[B["slot"]]
+            if v < B["hp"]:
+                gone = v <= 0 and B["hp"] > 0.25 * B["max"]              # the object left without being destroyed
+                B["hp"] = max(0, v)
+                if gone:
+                    self.boss = B = None
+                else:
+                    B["hit"] = now
+                    B["hits"] += 1
+                    if not B["shown"] and B["hits"] >= self.MACHINE_HITS:
+                        B["shown"] = True
+                        B["t0"] = now
+                    if v <= 0:
+                        B["down"] = now
+                        if B["shown"]:
+                            for i in range(5 if B["boss"] else 3):
+                                fx.later(i * 0.16, fx.explosion, cx + self.rng.uniform(-S(240), S(240)),
+                                         cy + self.rng.uniform(-S(30), S(30)), 1.1 if B["boss"] else 0.8, False)
+                            fx.shake(12 if B["boss"] else 7, 0.6)
+                            if B["boss"]:
+                                self.slam(tr("BOSS DÉTRUIT", "BOSS DESTROYED"), GOLD, now, 2.0)
+                            else:
+                                self.popup(tr("DÉTRUIT !", "DESTROYED!"), cx, cy + S(70), GOLD, 46, life=1.4, key="stencil")
+                        self.hd.log(tr(f"{title} : engin détruit (vie de départ {B['max']})",
+                                       f"{title}: machine destroyed (life at first {B['max']})"))
+        if B is not None and B["down"] is not None and now - B["down"] > 2.4:
+            self.boss = B = None
+        for i, v in enumerate(cur):
+            if not big_min <= v <= 5000 or prev[i] >= big_min / 2:       # comes with a big life, in one step
+                continue
+            is_boss = boss_min is not None and v >= boss_min
+            if B is not None and B["down"] is None and not (is_boss and not B["boss"]) and (B["shown"] or v <= B["max"]):
+                continue                                                 # the bar stays with the one being fought
+            st = self.stage(vals)
+            self.boss = B = {"slot": i, "max": v, "hp": v, "boss": is_boss, "shown": is_boss, "t0": now, "hit": -99.0, "hits": 0,
+                             "down": None}
+            if is_boss:
+                self.slam("WARNING", RED, now, 2.2, sub=tr("LE BOSS DU STAGE ARRIVE", "THE STAGE BOSS IS COMING"))
+                fx.flash((160, 0, 0), 0.2, 0.5)
+            self.hd.log(tr(f"{title} : {'boss' if is_boss else 'gros engin'} de vie {v}"
+                           + (f", stage {st[0]} de la route {ROUTES[st[1] % 3][0].lower()}" if st else ""),
+                           f"{title}: {'boss' if is_boss else 'big machine'} of life {v}"
+                           + (f", stage {st[0]} of the {ROUTES[st[1] % 3][1].lower()} route" if st else "")))
+
+    def draw_machine(self, screen, now):
+        """The life bar of the machine being fought. / La barre de vie de l'engin."""
+        B = self.boss
+        if B is None or not B["shown"]:
+            return
+        S, W, hd = self.S, self.W, self.hd
+        k = now - B["t0"]
+        if B["boss"] and B["down"] is None and k < 2.2:                # WARNING is on the screen
+            return
+        w, h, y0 = (S(v) for v in self.MACHINE_BOX)
+        hit = _clamp(1 - (now - B["hit"]) / 0.25)
+        x0 = W / 2 - w / 2 + (int(math.sin(now * 90) * S(5) * hit) if hit else 0)
+        col = RED if B["boss"] else AMBER
+        self.box(screen, x0, y0, w, h, _mix(col, WHITE, hit * 0.7))
+        name = "BOSS" if B["boss"] else tr("GROS ENGIN", "BIG MACHINE")
+        size = 0.48 * self.MACHINE_BOX[1] if B["boss"] else 0.33 * self.MACHINE_BOX[1]
+        tw = hd.put(screen, hd.text(name, "stencil", S(size), _mix(col, WHITE, hit), 0.5), x0 + S(24), y0 + h / 2, "left", "middle")
+        frac = 0.0 if B["down"] is not None else B["hp"] / float(B["max"])
+        low = frac < 0.25 and int(now * 6) % 2 == 0
+        bx = x0 + S(24) + tw + S(22)
+        bh = S(0.37 * self.MACHINE_BOX[1])
+        self.bar(screen, bx, y0 + h / 2 - bh / 2, x0 + w - S(24) - bx, bh, frac, _mix(WHITE if low else col, WHITE, hit * 0.8),
+                 back=(40, 14, 14))
+
+
+class ShockTroopersScene(Machines, GameScene):
+    """Shock Troopers: the soldier chosen and the team left, the energy as the game counts it, the gun, the special
+    weapon of the soldier and what is left of it, the stage and its route, and the big machines: a life bar for the ones
+    in the middle of a stage, WARNING and a life bar for the boss at its end. / Le soldat choisi et l'équipe qui reste,
+    l'énergie, le fusil, l'arme spéciale du soldat, le stage et sa route, et les gros engins avec leur barre de vie."""
     THEME = "jungle"
     SHADE = (120, 150)
     EXPLOSIONS = True
-    PW = 600                                                   # player panel width / largeur d'un panneau
+    BANNERS = (("GAME OVER", RED), ("WARNING", RED))
+    PW = 610                                                   # player panel width / largeur d'un panneau
+    FULL = 64                                                  # a soldier's full energy / l'énergie pleine d'un soldat
+    TITLE = "Shock Troopers"
+    BOSS_MIN = 300                                             # a machine with that much life is the stage's boss
+    BIG_MIN = 100                                              # and with that much, a big one on the way (its bar only)
 
     def __init__(self, hd, rng=None):
         super().__init__(hd, rng)
         S = self.S
-        self.fx.sp.register("grenade", draw_img(S(24), S(30), grenade_draw))
+        sp = self.fx.sp
+        sp.register("grenade", draw_img(S(24), S(30), grenade_draw))
+        sp.register("can0", draw_img(S(22), S(30), can_draw((196, 200, 204))))
+        sp.register("can1", draw_img(S(22), S(30), can_draw((200, 60, 44))))
+        sp.register("boomerang", draw_img(S(40), S(34), boomerang_draw))
+        sp.register("flask", draw_img(S(24), S(30), flask_draw))
         self.hurt = {"p1": -99.0, "p2": -99.0}
         self.wpop = {"p1": -99.0, "p2": -99.0}
+        self.npop = {"p1": -99.0, "p2": -99.0}               # when the soldier's name last changed / le nom qui change
         self.recoil = {"p1": -99.0, "p2": -99.0}
         self.burst = {"p1": [0.0, 0], "p2": [0.0, 0]}       # autopilot: [next shot, shots left in the burst]
         self.fire_t = {"p1": 0.0, "p2": 0.0}
+        self.who = {"p1": None, "p2": None}                  # the soldier last seen / le dernier soldat vu
+        self.roster = {"p1": [None] * 3, "p2": [None] * 3}   # the team as chosen / l'équipe telle que choisie
+        self.picked = {"p1": True, "p2": True}               # False while the player chooses / False pendant le choix
+        self.machines_reset()
+        self.staged = None                                   # the stage announced / le stage annoncé
+        self.in_stage = False
 
+    # ------------------------------------------------------------ what the game says / ce que dit le jeu
     def move(self, vals, now, idle):
         return 0.1 if idle else 0.45
 
@@ -2094,16 +2294,75 @@ class ShockTroopersScene(GameScene):
         x0 = self.panel_x(side)
         return (x0 + S(self.PW) + S(26), S(292)) if side == "p1" else (x0 - S(26), S(292))
 
+    @staticmethod
+    def _soldier(v):
+        v = _n(v)
+        return int(v) if v is not None and 0 <= v < len(SOLDIERS) else None
+
+    def team(self, vals, side):
+        """([the three members' soldiers, None once out], the member playing). A game file that only reads the first
+        member's special weapon ("special", before 1.39.2) gives a team of one. / L'équipe et le membre en jeu."""
+        suf = "" if side == "p1" else "_p2"
+        if vals.get("_tm1" + suf) is None:
+            return [self._soldier(vals.get("special" + suf)), None, None], 0
+        ids = [self._soldier(vals.get(f"_tm{i}{suf}")) for i in (1, 2, 3)]
+        m = _n(vals.get("member" + suf))
+        return ids, (int(m) if m is not None and 0 <= m <= 2 else 0)
+
+    def energy(self, vals, side):
+        """The playing soldier's energy from 0 to 1, None when not read; under zero the soldier is down.
+        / L'énergie du soldat de 0 à 1 ; sous zéro il est à terre."""
+        e = _n(vals.get("energy" if side == "p1" else "energy_p2"))
+        if e is None:
+            return None
+        return 0.0 if e >= 128 else _clamp(e / float(self.tops.get("energy") or self.FULL))
+
+    def stage(self, vals):
+        """(stage from 1, route 0 to 2) once the game has set them, else None. / Le stage et la route, une fois posés."""
+        sid, area = _n(vals.get("stage_id")), _n(vals.get("area"))
+        if sid is None or area is None or not 0 <= sid < 63:
+            return None
+        return int(area) % STAGES_PER_ROUTE + 1, int(area) // STAGES_PER_ROUTE
+
+    def stage_runs(self, vals):
+        """Whether a stage is being played (not the select screens nor the map between two stages); a game file that
+        does not say is always in a stage. / Si un stage est en cours ; un fichier qui ne le dit pas l'est toujours."""
+        r = _n(vals.get("_route_screen"))
+        return r is None or r == 255
+
+    def choosing(self, vals, side):
+        """Whether the player is on the PLAYER SELECT screen (at the start or after a continue). / S'il choisit."""
+        mode = vals.get("p1_mode" if side == "p1" else "p2_mode")
+        if mode != 1 or vals.get("_tm1" if side == "p1" else "_tm1_p2") is None:
+            return False
+        ids, m = self.team(vals, side)
+        e = _n(vals.get("energy" if side == "p1" else "energy_p2"))
+        down = e is not None and e >= 128
+        if not self.stage_runs(vals) and self.stage(vals) is None:
+            return True
+        return ids[m] is None or (down and m == 0 and ids[1] is None and ids[2] is None)
+
     def restart(self, vals, now):
         for side in ("p1", "p2"):
             self.burst[side] = [now + 1.0, 0]
+        self.machines_reset()
+        self.staged = self.stage(vals)
+        self.in_stage = self.stage_runs(vals)
+
+    # ------------------------------------------------------------ the guns / les armes
+    def aim(self, side):
+        """Where a shot lands: on the machine whose bar is shown, else somewhere in the jungle. / Où tombe un tir."""
+        S, rng = self.S, self.rng
+        d = 1 if side == "p1" else -1
+        if self.machine_on():
+            return self.W / 2 + rng.uniform(-S(230), S(230)), S(272) + rng.uniform(-S(26), S(26))
+        return self.W / 2 + d * rng.uniform(-S(100), S(260)), rng.uniform(S(250), S(340))
 
     def _shoot(self, side, weapon, now):
         fx, S = self.fx, self.S
         mx, my = self.muzzle(side)
         d = 1 if side == "p1" else -1
-        tx = self.W / 2 + d * self.rng.uniform(-S(100), S(500))
-        ty = self.rng.uniform(S(150), S(330))
+        tx, ty = self.aim(side)
         if weapon == 5:                                                # flame gun
             fx.sparks(mx, my, 10, (255, 160, 60), (600, 1000), (-14, 14) if d > 0 else (166, 194), (0.25, 0.45), 0, "front", 10, 50)
             fx.glow(mx + d * S(60), my, 20, 70, FIRE, 0.2, "front", 0.8, 0.0)
@@ -2114,26 +2373,102 @@ class ShockTroopersScene(GameScene):
             fx.tracer(mx, my, tx, ty, speed=3000, color=(255, 230, 150), width=5 if weapon in (1, 4, 8) else 4, length=130)
             if weapon == 3:                                            # 3-way
                 for a in (-1, 1):
-                    fx.tracer(mx, my, tx, ty + a * S(90), speed=3000, color=(255, 230, 150), width=4, length=110)
+                    fx.tracer(mx, my, tx, ty + a * S(70), speed=3000, color=(255, 230, 150), width=4, length=110)
         fx.muzzle(mx, my, d, 0.7)
         self.recoil[side] = self.fx.now
 
+    def _throw(self, side, kind):
+        """The soldier's special weapon goes: each of the eight in its own way. / L'arme spéciale part, chacune à sa façon."""
+        fx, S = self.fx, self.S
+        mx, my = self.muzzle(side)
+        my -= S(10)
+        tx, ty = self.aim(side)
+        dist = abs(tx - mx) / self.s
+        if kind == 1:                                                  # smoke can: a white cloud
+            fx.projectile("can0", mx, my, tx, ty, 0.7, 150, self._smoke_out)
+        elif kind == 2:                                                # can gun: quick, low, a short blast
+            fx.projectile("can1", mx, my, tx, ty, 0.42, 60, self._can_boom)
+        elif kind == 3:                                                # boomerang: there and back
+            fx.projectile("boomerang", mx, my, tx, ty, 0.5, 70, lambda x, y, s=side: self._boomerang_back(x, y, s), spin=1400.0)
+        elif kind in (4, 7):                                           # missile launcher, bazooka: a rocket and its blast
+            big = kind == 7
+            fx.muzzle(mx, my, 1 if side == "p1" else -1, 1.3 if big else 1.0)
+            fx.tracer(mx, my, tx, ty, speed=1700, color=(255, 190, 110), width=12 if big else 8, length=90, impact=False)
+            fx.later(dist / 1700, self._rocket_boom, tx, ty, 1.15 if big else 0.8)
+        elif kind == 5:                                                # bow: an arrow, straight
+            fx.tracer(mx, my, tx, ty, speed=3400, color=(236, 220, 176), width=3, length=170)
+            fx.later(dist / 3400, fx.sparks, tx, ty, 12, (255, 236, 180), (200, 600), (0, 360), (0.2, 0.45), 500, "front", 3, 14)
+        elif kind == 6:                                                # chemical: a flask and its green cloud
+            fx.projectile("flask", mx, my, tx, ty, 0.7, 150, self._chemical_out)
+        else:                                                          # grenade
+            fx.projectile("grenade", mx, my, tx, ty, 0.75, 170, self._grenade_boom)
+
+    def _grenade_boom(self, x, y):
+        self.fx.explosion(x, y, 0.85, layer_back=True)
+        self.bd.excite(0.6)
+
+    def _rocket_boom(self, x, y, size):
+        self.fx.explosion(x, y, size, layer_back=True)
+        self.fx.shake(6 * size, 0.3)
+        self.bd.excite(0.7)
+
+    def _can_boom(self, x, y):
+        self.fx.small_blast(x, y, 1.1, "front")
+        self.fx.sparks(x, y, 14, (255, 200, 120), (200, 700), (0, 360), (0.2, 0.5), 700, "front", 3, 16)
+
+    def _smoke_out(self, x, y):
+        self.fx.glow(x, y, 20, 90, (236, 240, 244), 0.25, "front", 0.7, 0.0)
+        self.fx.smoke(x, y, 16, (22, 44), 2.4, (1.0, 2.0), (20, 70), 60, (214, 218, 222), 190, "front")
+
+    def _chemical_out(self, x, y):
+        self.fx.glow(x, y, 20, 110, (110, 240, 100), 0.35, "front", 0.8, 0.0)
+        self.fx.smoke(x, y, 14, (20, 40), 2.4, (0.9, 1.8), (20, 60), 56, (96, 200, 90), 180, "front")
+        self.fx.sparks(x, y, 10, (170, 255, 150), (150, 500), (0, 360), (0.2, 0.5), 500, "front", 3, 14)
+
+    def _boomerang_back(self, x, y, side):
+        self.fx.sparks(x, y, 10, (255, 226, 160), (200, 600), (0, 360), (0.15, 0.4), 400, "front", 3, 14)
+        mx, my = self.muzzle(side)
+        self.fx.projectile("boomerang", x, y, mx, my, 0.5, 50, lambda *_: None, spin=1400.0)
+
+    # ------------------------------------------------------------ each image / à chaque image
     def update(self, vals, now):
         fx, S = self.fx, self.S
+        anyone = False
         for side, suf in (("p1", ""), ("p2", "_p2")):
             playing = self.p1_in(vals) if side == "p1" else self.p2_in(vals)
             if not playing:
+                self.who[side], self.roster[side], self.picked[side] = None, [None] * 3, True
+                continue
+            anyone = True
+            ids, m = self.team(vals, side)
+            choosing = self.choosing(vals, side)
+            if choosing:
+                if self.picked[side]:
+                    self.roster[side] = [None] * 3
+                seen = [i for i in ids if i is not None]
+                cur = seen[-1] if seen else None                       # the one under the cursor / sous le curseur
+            else:
+                cur = ids[m] if ids[m] is not None else self.who[side]
+                for k, i in enumerate(ids):
+                    if i is not None:
+                        self.roster[side][k] = i
+            if cur is not None and cur != self.who[side]:
+                self.npop[side] = now
+            self.who[side] = cur
+            if self.picked[side] is False and not choosing and cur is not None:    # chosen: the soldier steps in
+                x0 = self.panel_x(side)
+                fx.sparks(x0 + S(self.PW) / 2, S(200), 18, (255, 226, 150), (200, 700), (0, 360), (0.3, 0.7), 500, "front", 3, 18)
+            self.picked[side] = not choosing
+            if choosing:
                 continue
             w = int(_n(vals.get("weapon" + suf)) or 0)
-            mx, my = self.muzzle(side)
-            d = 1 if side == "p1" else -1
             st = self.stick(vals, side)
             ch = self.changed(vals, "ammo" + suf)
             if ch and ch[1] < ch[0]:                                   # one shot per bullet gone (up to 3 at once)
                 for i in range(min(3, int(ch[0] - ch[1]))):
                     fx.later(i * 0.06, self._shoot, side, w, now)
             elif st is not None:                                       # button A held: the gun fires
-                if st[2] & BTN_A and now >= self.fire_t[side]:
+                if st[2] & BTN_A and now >= self.fire_t[side] and self.in_stage:
                     self.fire_t[side] = now + 0.09
                     self._shoot(side, w, now)
             elif w == 0:                                               # autopilot: bursts with the normal gun
@@ -2145,38 +2480,59 @@ class ShockTroopersScene(GameScene):
                     b[1] -= 1
                     b[0] = now + (0.09 if b[1] > 0 else self.rng.uniform(1.2, 2.8))
             ch = self.changed(vals, "bombs" + suf)
-            if ch and ch[1] < ch[0]:                                   # special weapon: a grenade into the jungle
-                tx = self.W / 2 + d * self.rng.uniform(-S(200), S(300))
-                ty = self.rng.uniform(S(280), S(320))
-                fx.projectile("grenade", mx, my - S(10), tx, ty, 0.75, 170, self._grenade_boom)
+            if ch and ch[1] < ch[0] and ch[0] - ch[1] <= 3:            # the special weapon of the soldier playing
+                self._throw(side, cur if cur is not None else 0)
             ch = self.changed(vals, "energy" + suf)
-            if ch and ch[1] < ch[0]:
-                self.hurt[side] = now
-                fx.shake(5 + (ch[0] - ch[1]) * 0.08, 0.3)
-                fx.flash((150, 0, 0), 0.12, 0.25)
+            if ch and ch[1] != ch[0]:
                 x0 = self.panel_x(side)
-                fx.sparks(x0 + S(self.PW) / 2, S(300), 14, (255, 120, 90), (200, 600), (200, 340), (0.2, 0.5), 600, "front", 3, 20)
+                if ch[1] >= 128 > ch[0]:                               # under zero: the soldier is down
+                    self.hurt[side] = now
+                    fx.shake(10, 0.5)
+                    fx.flash((170, 0, 0), 0.25, 0.5)
+                    fx.explosion(x0 + S(self.PW) / 2, S(300), 0.7, False)
+                    self.popup(tr("À TERRE !", "DOWN!"), x0 + S(self.PW) / 2, S(340), RED, 50, life=1.5, key="stencil")
+                elif ch[1] < ch[0] < 128:
+                    self.hurt[side] = now
+                    fx.shake(5 + (ch[0] - ch[1]) * 0.12, 0.3)
+                    fx.flash((150, 0, 0), 0.12, 0.25)
+                    fx.sparks(x0 + S(self.PW) / 2, S(300), 14, (255, 120, 90), (200, 600), (200, 340), (0.2, 0.5), 600, "front", 3, 20)
             ch = self.changed(vals, "weapon" + suf)
-            if ch:
+            if ch and ch[1] > 0:                                       # a gun picked up: its name jumps in the panel
                 self.wpop[side] = now
-                name = tr(*GUN_NAMES[int(ch[1]) % len(GUN_NAMES)])
                 x0 = self.panel_x(side)
-                self.popup(name + " !", x0 + S(self.PW) / 2, S(222), GOLD, 40, life=1.4, key="stencil")
+                fx.sparks(x0 + S(140), S(328), 12, (255, 226, 150), (150, 500), (0, 360), (0.25, 0.5), 400, "front", 3, 14)
+        runs = self.stage_runs(vals)
+        st = self.stage(vals)
+        if anyone and runs and st is not None and (not self.in_stage or st != self.staged) and vals.get("_route_screen") is not None:
+            self.slam(f"STAGE {st[0]}", GOLD, now, 1.8, sub=tr("ROUTE ", "") + tr(*ROUTES[st[1] % 3]) + tr("", " ROUTE"))
+            self.staged = st
+        self.in_stage = runs
+        self.machines(vals, now, anyone)
 
-    def _grenade_boom(self, x, y):
-        self.fx.explosion(x, y, 0.85, layer_back=True)
-        self.bd.excite(0.6)
-
+    # ------------------------------------------------------------ the drawing / le dessin
     def draw_hud(self, screen, eng, vals, logo, now):
         S, W = self.S, self.W
         self.top_bar(screen, eng, vals, logo, now, right=self.p2_in(vals))
+        st = self.stage(vals)
+        runs = self.stage_runs(vals)
         t = _n(vals.get("time"))
-        if t is not None:                                              # timer under the logo
+        if t is not None and runs and (st is not None or vals.get("stage_id") is None):   # timer under the logo
             low = t <= 10
             pulse = 0.5 + 0.5 * math.sin(now * 9) if low else 0.0
             self.box(screen, W / 2 - S(76), S(126), S(152), S(80), RED if low else (190, 200, 120))
             self.hd.put_number(screen, f"{int(t):02d}", "stencil", S(54), RED if low else GOLD, W / 2, S(166), "center", "middle",
                                scale=1 + 0.1 * pulse)
+            if st is not None:                                         # the stage on its left, the route on its right
+                self.label(screen, f"STAGE {st[0]}", W / 2 - S(96), S(166), 30, CREAM, key="stencil", align="right", alpha=140)
+                self.label(screen, tr(*ROUTES[st[1] % 3]), W / 2 + S(96), S(166), 30, (190, 220, 130), key="stencil", align="left",
+                           alpha=140)
+        elif st is not None and not runs:                              # the map: the route under the cursor
+            k = 0.7 + 0.3 * (0.5 + 0.5 * math.sin(now * 5))
+            self.label(screen, tr("CHOIX DE LA ROUTE", "ROUTE SELECT") if st[0] == 1 else tr("PROCHAIN STAGE", "NEXT STAGE"),
+                       W / 2, S(150), 28, CREAM, key="bold", align="center", alpha=150)
+            self.label(screen, f"STAGE {st[0]}", W / 2, S(212), 52, GOLD, key="stencil", align="center", alpha=170, fade=k)
+            self.label(screen, tr("ROUTE ", "") + tr(*ROUTES[st[1] % 3]) + tr("", " ROUTE"), W / 2, S(286), 40, (190, 220, 130),
+                       key="stencil", align="center", alpha=170, fade=k)
         for side, suf, acc in (("p1", "", P1C), ("p2", "_p2", P2C)):
             if side == "p2" and not self.p2_in(vals):
                 x0 = self.panel_x(side)
@@ -2184,10 +2540,11 @@ class ShockTroopersScene(GameScene):
                 self.label(screen, word, x0 + S(self.PW) / 2, S(380), 40, col, align="center")
                 continue
             self.panel(screen, side, suf, acc, vals, now)
+        self.draw_machine(screen, now)
 
     def panel(self, screen, side, suf, acc, vals, now):
         S, pg, hd = self.S, self.pg, self.hd
-        x0, y0, pw, ph = self.panel_x(side), S(258), S(self.PW), S(192)
+        x0, y0, pw, ph = self.panel_x(side), S(150), S(self.PW), S(300)
         hurt = _clamp(1 - (now - self.hurt[side]) / 0.45)
         x0 += int(math.sin(now * 80) * S(6) * hurt) if hurt else 0
         self.box(screen, x0, y0, pw, ph, _mix(acc, RED, math.ceil(hurt * 4) / 4))
@@ -2200,38 +2557,95 @@ class ShockTroopersScene(GameScene):
         left = side == "p1"
         tx = x0 + S(24) if left else x0 + pw - S(24)
         al = "left" if left else "right"
-        e = _n(vals.get("energy" + suf))
+        who = self.who[side]
+        pop = max(0.0, 1 - (now - self.npop[side]) / 0.35)
+        if not self.picked[side]:                                      # PLAYER SELECT: the soldier under the cursor
+            self.text(screen, tr("CHOIX DU SOLDAT", "PLAYER SELECT"), x0 + pw / 2, y0 + S(22), 30, CREAM, key="bold", align="center",
+                      glow=0, alpha=0.6 + 0.4 * (0.5 + 0.5 * math.sin(now * 5)))
+            if who is None:
+                self.text(screen, "LONELY WOLF  ·  TEAM BATTLE", x0 + pw / 2, y0 + S(150), 34, GREY, key="stencil", align="center",
+                          valign="middle", glow=0.2)
+                return
+            name = SOLDIERS[who]
+            size = hd.fit_size(name, "stencil", S(92), pw - S(60), S(40))
+            hd.put(screen, hd.text(name, "stencil", size, _mix(GOLD, WHITE, pop), 0.6), x0 + pw / 2, y0 + S(140), "center", "middle",
+                   scale=1 + 0.2 * pop)
+            kind, tint = SPECIAL_ICON[who]
+            icon = self._icon(who, 30, 40)
+            sname = tr(*SPECIAL_NAMES[who])
+            t = hd.text(sname, "bold", S(34), CREAM, 0.2)
+            wtot = icon.get_width() + S(14) + t["w"]
+            screen.blit(icon, (int(x0 + pw / 2 - wtot / 2), int(y0 + S(216))))
+            hd.put(screen, t, x0 + pw / 2 - wtot / 2 + icon.get_width() + S(14), y0 + S(236), "left", "middle")
+            return
+        ids, m = self.team(vals, side)
+        roster = self.roster[side]
+        team = [r for r in roster if r is not None]
+        if who is not None:                                            # the soldier, and the team left
+            name = SOLDIERS[who]
+            size = hd.fit_size(name, "stencil", S(58), S(390), S(30))
+            hd.put(screen, hd.text(name, "stencil", size, _mix(acc, WHITE, 0.25 + 0.75 * pop), 0.5), tx, y0 + S(46), al, "middle",
+                   scale=1 + 0.15 * pop)
+        if vals.get("_tm1" + suf) is not None:
+            for i in range(3):                                         # three dog tags: the members still standing
+                alive = ids[i] is not None and i >= m
+                tag = self.img(("tag", alive, i == m and alive), S(34), S(48),
+                               tag_draw((236, 214, 150) if i == m and alive else ((150, 156, 150) if alive else (52, 54, 60))))
+                gx = x0 + pw - S(24) - (3 - i) * S(42) if left else x0 + S(24) + i * S(42)
+                screen.blit(tag, (int(gx), int(y0 + S(20))))
+            if len(set(team)) > 1:                                     # TEAM BATTLE: the three names
+                parts = []
+                for i, r in enumerate(roster):
+                    if r is None:
+                        continue
+                    col = GOLD if i == m else ((190, 190, 180) if ids[i] is not None and i > m else (90, 92, 100))
+                    parts.append(hd.text(SOLDIERS[r], "bold", S(20), col, 0))
+                x = tx if left else tx - sum(p["w"] for p in parts) - S(18) * (len(parts) - 1)
+                for p in parts:
+                    hd.put(screen, p, x, y0 + S(92), "left", "middle")
+                    x += p["w"] + S(18)
+        e = self.energy(vals, side)
         if e is not None:                                              # energy
-            frac = e / 128.0
-            col = (90, 240, 90) if frac > 0.4 else ((255, 200, 60) if frac > 0.2 else RED)
-            self.text(screen, tr("ÉNERGIE", "ENERGY"), tx, y0 + S(18), 22, CREAM, key="bold", align=al, glow=0)
+            col = (90, 240, 90) if e > 0.4 else ((255, 200, 60) if e > 0.2 else RED)
+            self.text(screen, tr("ÉNERGIE", "ENERGY"), tx, y0 + S(112), 22, CREAM, key="bold", align=al, glow=0)
             bx = x0 + S(150) if left else x0 + S(24)
-            self.bar(screen, bx, y0 + S(16), pw - S(174), S(28), frac, col)
+            self.bar(screen, bx, y0 + S(110), pw - S(174), S(28), e, col)
         w = _n(vals.get("weapon" + suf))
         if w is not None:                                              # gun: picture, name, ammo
             wi = int(w) % len(GUN_NAMES)
-            k = max(0.0, 1 - (now - self.wpop[side]) / 0.5)
+            k = max(0.0, 1 - (now - self.wpop[side]) / 0.7)
             name = tr(*GUN_NAMES[wi])
-            size = hd.fit_size(name, "stencil", S(40), S(330), S(22))
-            hd.put(screen, hd.text(name, "stencil", size, _mix(GOLD, WHITE, k), 0.4), tx, y0 + S(84), al, "middle", scale=1 + 0.15 * k)
+            size = hd.fit_size(name, "stencil", S(40), S(350), S(22))
+            hd.put(screen, hd.text(name, "stencil", size, _mix(GOLD, WHITE, k), 0.4), tx, y0 + S(178), al, "middle", scale=1 + 0.4 * k)
             rifle = self.img(("rifle", wi, side), S(170), S(60), rifle_draw(GUN_TINT[wi]), flip=not left)
             kick = max(0.0, 1 - (now - self.recoil[side]) / 0.07) * S(8)
-            rx = x0 + pw - S(186) - kick if left else x0 + S(16) + kick
-            screen.blit(rifle, (int(rx), int(y0 + S(56))))
+            rx = x0 + pw - S(196) - kick if left else x0 + S(26) + kick
+            screen.blit(rifle, (int(rx), int(y0 + S(158))))
             a = _n(vals.get("ammo" + suf))
             if a is not None and wi > 0:
-                self.text(screen, f"× {int(a)}", tx, y0 + S(126), 30, WHITE, key="black", align=al, valign="middle")
+                self.text(screen, f"× {int(a)}", tx, y0 + S(220), 30, WHITE, key="black", align=al, valign="middle")
             elif wi == 0:
-                self.text(screen, "∞", tx, y0 + S(126), 38, GREY, key="black", align=al, valign="middle", glow=0)
+                self.text(screen, "∞", tx, y0 + S(220), 38, GREY, key="black", align=al, valign="middle", glow=0)
         b = _n(vals.get("bombs" + suf))
-        sp = _n(vals.get("special")) if left else None
         if b is not None:                                              # special weapon and what is left
-            name = tr(*SPECIAL_NAMES[int(sp) % len(SPECIAL_NAMES)]) if sp is not None else tr("SPÉCIAL", "SPECIAL")
-            self.text(screen, name, tx, y0 + S(166), 24, CREAM, key="bold", align=al, valign="middle", glow=0)
-            icon = self.img("gren", S(20), S(26), grenade_draw)
-            for i in range(min(12, int(b))):
-                gx = x0 + S(210) + i * S(24) if left else x0 + pw - S(210) - (i + 1) * S(24)
-                screen.blit(icon, (int(gx), int(y0 + S(153))))
+            name = tr(*SPECIAL_NAMES[who]) if who is not None else tr("SPÉCIAL", "SPECIAL")
+            tw = self.text(screen, name, tx, y0 + S(268), 24, CREAM, key="bold", align=al, valign="middle", glow=0)
+            icon = self._icon(who if who is not None else 0, 20, 26)
+            n = min(20, int(b)) if b < 128 else 0
+            step = min(S(24), (pw - S(60) - tw - S(60)) / max(1, n))
+            for i in range(n):
+                gx = tx + tw + S(18) + i * step if left else tx - tw - S(18) - (i + 1) * step
+                screen.blit(icon, (int(gx), int(y0 + S(255))))
+            cx = x0 + pw - S(24) if left else x0 + S(24)
+            self.text(screen, str(int(b)) if b < 128 else "0", cx, y0 + S(268), 30, WHITE if n else RED, key="black",
+                      align="right" if left else "left", valign="middle", glow=0.2)
+
+    def _icon(self, who, w, h):
+        kind, tint = SPECIAL_ICON[who % len(SPECIAL_ICON)]
+        fn = {"grenade": grenade_draw, "boomerang": boomerang_draw, "arrow": bow_arrow_draw, "flask": flask_draw}.get(kind)
+        if fn is None:
+            fn = can_draw(tint) if kind == "can" else rocket_draw(tint)
+        return self.img(("spec", who, w), self.S(w), self.S(h), fn)
 
 
 # ============================================================================ Neo Turf Masters

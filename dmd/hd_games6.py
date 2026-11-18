@@ -230,6 +230,7 @@ class NinjaCommandoScene(ShockTroopers2Scene):
     dragons at the enemy ninjas that come. At the bottom as in the game a face of our own, LIFE in yellow, TIME in
     minutes and seconds. / La jungle vue du dessus, notre ninja bleu lance des dragons de feu, comme dans le jeu."""
     THEME = "ncm_jungle"
+    SQUAD = False                                         # none of the 2nd Squad's own: its soldiers, its second player
     NINJA = ("ninja", (50, 70, 170), (40, 50, 130), (226, 176, 136), (0, 0, 0))
     ENEMY = ("ninja", (110, 60, 140), (80, 40, 100), (210, 180, 150), (0, 0, 0), "sword")
 
