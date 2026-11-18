@@ -35,6 +35,7 @@ SHOT = {1: "FRONT", 2: "WIDE"}                  # the normal gun as the game nam
 # les armes du jeu par leur code : le nom, le dessin de sa carte, la couleur de ses tirs
 WEAPONS = {0: ("NORMAL", "mg", (255, 230, 150)), 4: ("FIRE", "flame", (255, 150, 60)), 8: ("ROUND", "shotgun", (120, 220, 255)),
            12: ("MISSILE", "rocket", (255, 190, 110)), 16: ("BOOMERANG", "laser", (170, 255, 140))}
+BONUS_FOR = 2.6         # seconds the BONUS counter stays after its last point / secondes où le compteur BONUS reste
 FULL = 64               # a soldier's full energy / l'énergie pleine d'un soldat
 P_STEP = 4              # what one P item adds to the game's power / ce qu'un bonus P ajoute à la puissance du jeu
 P_TOP = 36              # the top of the power: Lv3 and its three P / le maximum : Lv3 et ses trois P
@@ -97,6 +98,9 @@ class Side:
         self.aim = None             # where the last shot landed / où le dernier tir est tombé
         self.ride = False           # in a vehicle / dans un véhicule
         self.zero_t = -99.0         # when his energy was last at zero / la dernière fois que son énergie était à zéro
+        self.bonus = 0              # the points the game counts at STAGE CLEAR / les points comptés à STAGE CLEAR
+        self.bonus_t = -99.0
+        self.bonus_shown = (0, -99.0)
 
 
 class SecondSquadScene(Machines, GameScene):
@@ -241,6 +245,11 @@ class SecondSquadScene(Machines, GameScene):
     def update(self, vals, now):
         fx, S = self.fx, self.S
         anyone = False
+        counting = bool(_n(vals.get("_clear")))                         # STAGE CLEAR and the map: the game counts its bonuses
+        ch = self.changed(vals, "_clear")
+        if ch and ch[1] and not ch[0]:                                  # a count starts / un décompte commence
+            for P in self.sides.values():
+                P.bonus = 0
         for side in ("p1", "p2"):
             P = self.sides[side]
             suf = "" if side == "p1" else "_p2"
@@ -264,6 +273,12 @@ class SecondSquadScene(Machines, GameScene):
             e = self.v(vals, side, "energy")
             if e is not None and e <= 0:
                 P.zero_t = now
+            if counting:                                               # points counted, not scored: one BONUS counter,
+                ch = self.changed(vals, "score" + suf)                 # nothing is shot at and nothing blows up
+                if ch and ch[1] > ch[0]:
+                    P.score_t = P.bonus_t = now
+                    P.bonus += ch[1] - ch[0]
+                continue
             # the gun: the player's button, or bursts while his stick is not read / l'arme : le bouton du joueur
             st = self.stick(vals, side)
             if st is not None:
@@ -650,6 +665,23 @@ class SecondSquadScene(Machines, GameScene):
         for side in ("p1", "p2"):
             self.draw_panel(screen, side, vals, now)
         self.draw_machine(screen, now)
+        self.draw_bonus(screen, now)
+
+    def draw_bonus(self, screen, now):
+        """The points the game counts at STAGE CLEAR, in one counter per player between the panels, in his colour when
+        both play. / Les points que le jeu compte à STAGE CLEAR, un compteur par joueur entre les panneaux."""
+        S = self.S
+        on = [(side, P) for side, P in self.sides.items() if P.bonus > 0 and now - P.bonus_t <= BONUS_FOR]
+        for i, (side, P) in enumerate(on):
+            k = now - P.bonus_t
+            if now - P.bonus_shown[1] > 0.2 or k > 0.3:                # the counter moves five times a second
+                P.bonus_shown = (P.bonus, now)
+            fade = 1.0 if k < BONUS_FOR - 0.4 else max(0.0, (BONUS_FOR - k) / 0.4)
+            two = len(on) > 1
+            txt = f"BONUS +{_fmt(P.bonus_shown[0])}"
+            y = S(336) if not two else S(284 + 58 * i)
+            self.label(screen, txt, self.W / 2, y, 40 if two else 50, ACCENT[side] if two else GOLD, key="stencil", align="center",
+                       glow=0.6, alpha=190, fade=fade)
 
     def draw_center(self, screen, vals, logo, now):
         hd, S, W = self.hd, self.S, self.W
