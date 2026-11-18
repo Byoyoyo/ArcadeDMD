@@ -99,13 +99,13 @@
     "addr": "0x109021",
     "type": "u8",
     "max": 36,
-    "note": "player 1 power: a P item adds 4 and lights one more P beside Lv on the screen, 36 at most for Lv3 (FinalBurn Neo cheats, Maximum Power(Lv3) PL1; the robot's recording of 2026-11-16: 4 with one P lit at Lv 1, 8 with two)"
+    "note": "player 1 power: a P item adds 4 and lights one more P beside Lv on the screen, 36 at most for Lv3 (FinalBurn Neo cheats, Maximum Power(Lv3) PL1; the robot's recording of 2026-11-16: 4 with one P lit at Lv 1, 8 with two; a hit takes 4 away and puts one P out, each time the energy fell)"
    },
    "power_p2": {
     "addr": "0x109121",
     "type": "u8",
     "max": 36,
-    "note": "player 2 power, same (FinalBurn Neo cheats, Maximum Power(Lv3) PL2; the robot's recording of 2026-11-16: 4 with one P lit, 8 with two)"
+    "note": "player 2 power, same (FinalBurn Neo cheats, Maximum Power(Lv3) PL2; the robot's recording of 2026-11-16: 4 with one P lit, 8 with two, 4 again after a hit)"
    },
    "ammo": {
     "addr": "0x109016",

@@ -202,7 +202,7 @@ class SecondSquadScene(Machines, GameScene):
             ch = self.changed(vals, "power" + suf)
             if ch and ch[1] > ch[0]:
                 self.power_up(side, ch[0], ch[1], now)
-            elif ch and ch[1] < ch[0]:
+            elif ch and ch[1] < ch[0]:                                 # a hit puts one P out / un coup reçu éteint un P
                 P.power_t = now
         self.machines(vals, now, anyone)
 
