@@ -26,10 +26,10 @@
     "note": "player 1 score, BCD (RetroAchievements leaderboard \"8 Men\", from tools/ra_notes.py), to confirm in game"
    },
    "score_p2": {
-    "addr": "",
+    "addr": "0x1011F0",
     "type": "bcd",
     "bytes": 4,
-    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+    "note": "player 2 score, BCD, the same place in his block as player 1's (the robot's recording of 2026-11-16: 100, 500, 700, 900 as on four screenshots)"
    },
    "p1_input": {
     "addr": "0x10FD96",

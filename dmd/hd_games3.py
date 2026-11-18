@@ -1094,6 +1094,9 @@ class TopHunterScene(GameScene):
                     self.text(screen, str(int(lives)), tx + tw_, S(36), 32, WHITE, key="black", align="left", valign="middle")
             if sc is not None:
                 hd._score(screen, eng, "score" + suf, tx, S(54), al, S(52))
+            hp = _n(vals.get("health" + suf))
+            if hp is not None:                                         # the life bar of the game, blue, red when low
+                self.bar(screen, x + S(10), S(154), w - S(20), S(14), hp / 64.0, (60, 170, 255) if hp > 16 else (230, 50, 40))
             if pw is not None:                                         # power: five segments under the head
                 full = pw >= 5
                 py = S(114)

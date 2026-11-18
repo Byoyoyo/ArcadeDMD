@@ -22,16 +22,16 @@
   "cpu": ":maincpu",
   "values": {
    "score": {
-    "addr": "",
+    "addr": "0x108D30",
     "type": "bcd",
     "bytes": 4,
-    "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+    "note": "player 1 score, BCD (the robot's recording of 2026-11-16: 200 then 1300 as on the screenshots)"
    },
    "score_p2": {
-    "addr": "",
+    "addr": "0x108D34",
     "type": "bcd",
     "bytes": 4,
-    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+    "note": "player 2 score, BCD, the four bytes after player 1's; FFFFFFFF before he joins, read as 0 (the robot's recording of 2026-11-16: 500, 700, 900 as on the screenshots)"
    },
    "p1_input": {
     "addr": "0x10FD96",
@@ -46,12 +46,28 @@
    "lives": {
     "addr": "0x108D1D",
     "type": "u8",
-    "note": "player 1 lives in reserve (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL1)"
+    "add": -1,
+    "min": 0,
+    "note": "player 1 lives as beside 1P- on the screen, the game counts the one in play too (FinalBurn Neo cheats, Infinite Lives PL1; the robot's recording of 2026-11-16: 3 in memory at =2 on the screen, 2 at =1, 1 at =0)"
    },
    "lives_p2": {
     "addr": "0x108D21",
     "type": "u8",
-    "note": "player 2 lives in reserve (FinalBurn Neo cheats, Infinite Lives PL2)"
+    "add": -1,
+    "min": 0,
+    "note": "player 2 lives, counted the same way (FinalBurn Neo cheats, Infinite Lives PL2; the robot's recording of 2026-11-16: 3 in memory at 2= on the screen, 2 at 1=)"
+   },
+   "health": {
+    "addr": "0x108D39",
+    "type": "u8",
+    "max": 64,
+    "note": "player 1 life bar, 64 when full (the robot's recording of 2026-11-16: 40, 64 and 16 as the bar on six screenshots)"
+   },
+   "health_p2": {
+    "addr": "0x108D3B",
+    "type": "u8",
+    "max": 64,
+    "note": "player 2 life bar, the next word (the robot's recording of 2026-11-16: fills to 64 when he joins)"
    },
    "power": {
     "addr": "0x108D0D",
