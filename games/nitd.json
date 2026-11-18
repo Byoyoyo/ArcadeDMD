@@ -28,10 +28,10 @@
     "note": "player 1 score, BCD (the robot's recording of 2026-11-16: 0 then 700 as on the screen, the only place that holds both)"
    },
    "score_p2": {
-    "addr": "",
+    "addr": "0x100294",
     "type": "bcd",
     "bytes": 4,
-    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+    "note": "player 2 score, BCD, the same place in his block (0x100286) as player 1's in his (0x100050), the two blocks have the same layout; 0 as on the screen in the robot's recording of 2026-11-16, to confirm with points scored"
    },
    "p1_input": {
     "addr": "0x10FD96",

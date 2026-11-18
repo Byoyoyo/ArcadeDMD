@@ -178,6 +178,19 @@ class GameScene:
         S, W, left = self.S, self.W, side == "p1"
         return (lambda x, w=0: S(x) if left else W - S(x) - S(w)), ("left" if left else "right"), ("right" if left else "left")
 
+    def panels(self, screen, vals, now, width, y=40):
+        """(side, suffix, x) of each player's panel, `width` wide before scaling: player 1's at the left edge, player 2's
+        the same at the right edge. Without a second player his invitation is written there.
+        / Le panneau de chaque joueur : celui du joueur 1 à gauche, celui du joueur 2 pareil à droite, ou son invitation."""
+        S, W = self.S, self.W
+        out = [("p1", "", 0)] if self.p1_in(vals) else []
+        if self.p2_in(vals):
+            out.append(("p2", "_p2", W - S(width) - S(24)))
+        else:
+            word, col = self.invite(vals, now)
+            self.label(screen, word, W - S(24), S(y), 30, col, align="right")
+        return out
+
     def stick(self, vals, side):
         """(dx, dy, buttons) from the Neo Geo BIOS (p1_input / p2_input). None while the player has not touched them
         yet (game demo, or a game that does not use the BIOS for its inputs): the scene then plays by itself.

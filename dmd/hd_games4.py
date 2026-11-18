@@ -2705,24 +2705,29 @@ class MagicianLordScene(GameScene):
         self.status(screen, eng, vals, logo, now)
 
     def status(self, screen, eng, vals, logo, now):
-        """As in the game: 1UP and the score, the lives at the top; HP and POW at the bottom. / 1UP, vies, HP et POW."""
+        """As in the game: 1UP and the score, the lives at the top; HP and POW at the bottom. With two players they take
+        turns: 2UP, his score, his lives, his HP and his POW while it is his.
+        / Comme dans le jeu : 1UP et le score, les vies en haut ; HP et POW en bas. À deux les joueurs jouent tour à tour :
+        2UP, son score, ses vies, son HP et son POW pendant le sien."""
         S, W, H, pg, hd = self.S, self.W, self.H, self.pg, self.hd
         hd.draw_logo(screen, logo, W / 2, S(8), S(480), S(90), now)
+        two = _n(vals.get("_turn")) == 60
+        suf = "_p2" if two else ""
         self.pill(screen, S(16), S(10), S(460), S(64), 150)
-        self.text(screen, "1UP", S(36), S(42), 30, (255, 220, 120), key="black", valign="middle")
-        if _n(vals.get("score")) is not None:
-            hd._score(screen, eng, "score", S(330), S(18), "right", S(48))
-        lives = _n(vals.get("lives"))
+        self.text(screen, "2UP" if two else "1UP", S(36), S(42), 30, (255, 220, 120), key="black", valign="middle")
+        if _n(vals.get("score" + suf)) is not None:
+            hd._score(screen, eng, "score" + suf, S(330), S(18), "right", S(48))
+        lives = _n(vals.get("lives" + suf))
         if lives is not None:
             self.text(screen, f"x{int(lives)}", S(456), S(42), 30, (120, 200, 255), key="black", align="right", valign="middle")
-        hp = _n(vals.get("energy"))
+        hp = _n(vals.get("energy" + suf))
         if hp is not None:                                             # HP, blue segments
             self.pill(screen, S(16), H - S(60), S(360), S(50), 160)
             self.text(screen, "HP", S(34), H - S(35), 28, (255, 220, 120), key="black", valign="middle")
             for i in range(5):
                 on = i < int(hp)
                 pg.draw.rect(screen, (60, 160, 255) if on else (24, 40, 70), (S(90) + i * S(54), H - S(48), S(46), S(26)), border_radius=S(4))
-        pw = _n(vals.get("power"))
+        pw = _n(vals.get("power" + suf))
         if pw is not None:                                             # POW, green to yellow
             self.pill(screen, W - S(376), H - S(60), S(360), S(50), 160)
             self.text(screen, "POW", W - S(356), H - S(35), 28, (255, 220, 120), key="black", valign="middle")

@@ -163,31 +163,30 @@ class SpinMasterScene(CyberLipScene):
                 fx.later(abs(tx - x0) / (2600 * self.s), self.kill, tgt, now)
 
     def status(self, screen, eng, vals, logo, now):
-        """As in the game: 1P and the score, the health gauge in orange segments, the bombs B; the lives at the bottom left.
-        / Comme dans le jeu : 1P et le score, la vie en segments orange, les bombes B ; les vies en bas à gauche."""
+        """As in the game: 1P and the score, the health gauge in orange segments, the bombs B, the lives at the bottom; 2P
+        and the same on the right. / Comme dans le jeu : 1P et le score, la vie en segments orange, les bombes B, les vies
+        en bas ; 2P et la même chose à droite."""
         S, W, H, pg, hd = self.S, self.W, self.H, self.pg, self.hd
         hd.draw_logo(screen, logo, W / 2, S(6), S(400), S(76), now)
-        self.pill(screen, S(12), S(6), S(460), S(112), 160, radius=14)
-        self.text(screen, "1P", S(28), S(28), 28, (255, 230, 80), key="black", valign="middle")
-        if _n(vals.get("score")) is not None:
-            hd._score(screen, eng, "score", S(440), S(10), "right", S(40))
-        e = _n(vals.get("energy"))
-        if e is not None:
-            for i in range(5):
-                c = (250, 140, 30) if i < int(e) else (60, 40, 30)
-                pg.draw.rect(screen, c, (S(28) + i * S(64), S(50), S(60), S(20)))
-            pg.draw.rect(screen, (250, 250, 250), (S(26), S(48), S(324), S(24)), max(1, S(2)))
-        b = _n(vals.get("bombs"))
-        if b is not None:
-            for i in range(min(6, int(b))):
-                pg.draw.rect(screen, (220, 60, 30), (S(28) + i * S(40), S(80), S(34), S(30)), border_radius=S(4))
-                self.text(screen, "B", S(45) + i * S(40), S(95), 22, WHITE, key="black", align="center", valign="middle", glow=0)
-        lives = _n(vals.get("lives"))
-        if lives is not None:
-            self.label(screen, f"={int(lives):02d}", S(80), H - S(34), 30, (255, 230, 120), align="center")
-        if not self.p2_in(vals):
-            word, col = self.invite(vals, now)
-            self.label(screen, word, W - S(24), S(40), 30, col, align="right")
+        for side, suf, ox in self.panels(screen, vals, now, 460):
+            self.pill(screen, ox + S(12), S(6), S(460), S(112), 160, radius=14)
+            self.text(screen, "1P" if side == "p1" else "2P", ox + S(28), S(28), 28, (255, 230, 80), key="black", valign="middle")
+            if _n(vals.get("score" + suf)) is not None:
+                hd._score(screen, eng, "score" + suf, ox + S(440), S(10), "right", S(40))
+            e = _n(vals.get("energy" + suf))
+            if e is not None:
+                for i in range(5):
+                    c = (250, 140, 30) if i < int(e) else (60, 40, 30)
+                    pg.draw.rect(screen, c, (ox + S(28) + i * S(64), S(50), S(60), S(20)))
+                pg.draw.rect(screen, (250, 250, 250), (ox + S(26), S(48), S(324), S(24)), max(1, S(2)))
+            b = _n(vals.get("bombs" + suf))
+            if b is not None:
+                for i in range(min(6, int(b))):
+                    pg.draw.rect(screen, (220, 60, 30), (ox + S(28) + i * S(40), S(80), S(34), S(30)), border_radius=S(4))
+                    self.text(screen, "B", ox + S(45) + i * S(40), S(95), 22, WHITE, key="black", align="center", valign="middle", glow=0)
+            lives = _n(vals.get("lives" + suf))
+            if lives is not None:
+                self.label(screen, f"={int(lives):02d}", ox + (S(80) if side == "p1" else S(404)), H - S(34), 30, (255, 230, 120), align="center")
 
 
 def bird_draw(d, W, H):
@@ -210,11 +209,19 @@ class GanryuScene(SengokuScene):
     HERO = ("jacket", (60, 70, 120), (220, 210, 190), (226, 176, 136), (90, 50, 30), "sword")
     FOES = (("ninja", (40, 44, 70), (30, 34, 54), (210, 180, 150), (0, 0, 0), "sword"), ("ninja", (70, 40, 60), (50, 30, 44), (210, 180, 150),
                                                                                           (0, 0, 0), "sword"))
-    ENERGY_MAX = 6
+    ENERGY_MAX = 10
+    TWO = False                                           # the players take turns, a life each / tour à tour, une vie chacun
 
     def __init__(self, hd, rng=None):
         super().__init__(hd, rng)
         self.thrown = 0                                   # (tests)
+
+    def fighters(self, vals):
+        """One swordsman, for the player whose turn it is. / Un seul sabreur, pour le joueur dont c'est le tour."""
+        if not (self.p1_in(vals) or self.p2_in(vals)):
+            return []
+        two = _n(vals.get("_turn")) == 2
+        return [("p2" if two else "p1", "_p2" if two else "", self.hero, self.HERO)]
 
     def update(self, vals, now):
         super().update(vals, now)
@@ -229,17 +236,22 @@ class GanryuScene(SengokuScene):
             self.fx.tracer(h["x"], self.ground(h["z"]) - S(160), tx, ty, 2400, (220, 230, 255), 6, 30, "front", True)
 
     def status(self, screen, eng, vals, logo, now):
-        """As in the game: PLAYER_1 and the score, the yellow gauge, TIME, a face for each life, the weapon and its count.
-        / Comme dans le jeu : PLAYER_1 et le score, la jauge jaune, TIME, un visage par vie, l'arme et son nombre."""
-        S, W, H, hd = self.S, self.W, self.H, self.hd
+        """As in the game: PLAYER_1 and the score, the yellow gauge, TIME, a face for each life in reserve, the weapon and
+        its count. With two players they take turns: PLAYER_2, his score and his lives while it is his.
+        / Comme dans le jeu : PLAYER_1 et le score, la jauge jaune, TIME, un visage par vie en réserve, l'arme et son
+        nombre. À deux les joueurs jouent tour à tour : PLAYER_2, son score et ses vies pendant le sien."""
+        S, W, H, pg, hd = self.S, self.W, self.H, self.pg, self.hd
         hd.draw_logo(screen, logo, W / 2, S(6), S(380), S(70), now)
+        two = _n(vals.get("_turn")) == 2
+        suf = "_p2" if two else ""
         self.pill(screen, S(12), S(6), S(470), S(120), 160, radius=14)
-        self.text(screen, "PLAYER_1", S(28), S(26), 26, (250, 210, 120), key="black", valign="middle")
-        if _n(vals.get("score")) is not None:
-            hd._score(screen, eng, "score", S(460), S(30), "right", S(36))
-        hit = max(0.0, 1 - (now - self.hero["hurt"]) / 3.0)
-        self.bar(screen, S(28), S(68), S(330), S(18), 1 - 0.3 * hit, (250, 220, 40))
-        lives = _n(vals.get("lives"))
+        self.text(screen, "PLAYER_2" if two else "PLAYER_1", S(28), S(26), 26, (250, 210, 120), key="black", valign="middle")
+        if _n(vals.get("score" + suf)) is not None:
+            hd._score(screen, eng, "score" + suf, S(460), S(30), "right", S(36))
+        e = _n(vals.get("energy"))
+        if e is not None:                                              # the gauge of the player whose turn it is
+            self.bar(screen, S(28), S(68), S(330), S(18), e / float(self.ENERGY_MAX), (250, 220, 40))
+        lives = _n(vals.get("lives" + suf))
         if lives is not None:
             face = self.img("grface", S(30), S(30), portrait_draw((226, 176, 136), (90, 50, 30), (200, 40, 40), bg=(160, 40, 40)), ss=2)
             for i in range(min(6, int(lives))):
@@ -249,13 +261,18 @@ class GanryuScene(SengokuScene):
             self.pill(screen, W / 2 + S(210), S(6), S(150), S(110), 160, radius=14)
             self.text(screen, "TIME", W / 2 + S(285), S(26), 26, (250, 210, 120), key="black", align="center", valign="middle")
             hd.put_number(screen, f"{int(t):02d}", "stencil", S(60), (255, 230, 60), W / 2 + S(285), S(76), "center", "middle")
-        a = _n(vals.get("ammo"))
-        w = _n(vals.get("weapon"))
+        a = _n(vals.get("ammo" + suf))
+        w = _n(vals.get("weapon" + suf))
         if a is not None:
             self.pill(screen, S(12), H - S(64), S(220), S(54), 160, radius=12)
             col = (180, 200, 255) if w == 2 else (250, 140, 60)
             self.text(screen, "✦" if w == 2 else "/", S(40), H - S(37), 30, col, key="black", align="center", valign="middle")
-            self.text(screen, f"x{int(a)}", S(70), H - S(37), 30, WHITE, key="black", valign="middle")
+            if w == 2:
+                self.text(screen, f"x{int(a)}", S(70), H - S(37), 30, WHITE, key="black", valign="middle")
+            else:                                                      # the sword has no count: x and the game's infinity sign
+                self.text(screen, "x", S(70), H - S(37), 30, WHITE, key="black", valign="middle")
+                for k in (0, 1):
+                    pg.draw.circle(screen, WHITE, (S(104) + k * S(22), H - S(36)), S(11), max(2, S(4)))
         if not self.p2_in(vals):
             word, colw = self.invite(vals, now)
             self.label(screen, word, W - S(24), S(40), 30, colw, align="right")
@@ -974,17 +991,16 @@ class ZupapaScene(GameScene):
                 img = self.img(("zupaL", frame), S(84), S(84), zupa_draw(frame), ss=2, flip=True)
             screen.blit(img, (int(x - img.get_width() / 2), int(y - img.get_height())))
         self.hd.draw_logo(screen, logo, W / 2, S(4), S(400), S(76), now)
-        self.pill(screen, S(12), S(6), S(420), S(84), 160, radius=14)
-        self.text(screen, "P1", S(28), S(30), 28, (250, 120, 160), key="black", valign="middle")
-        if _n(vals.get("score")) is not None:
-            self.hd._score(screen, eng, "score", S(410), S(10), "right", S(40))
-        lives = _n(vals.get("lives"))
-        if lives is not None:
-            screen.blit(self.img("zupaicon", S(30), S(30), zupa_draw(0), ss=2), (S(160), S(54)))
-            self.text(screen, f"x{int(lives)}", S(196), S(70), 26, WHITE, key="black", valign="middle")
-        if not self.p2_in(vals):
-            word, col = self.invite(vals, now)
-            self.label(screen, word, W - S(24), S(40), 30, col, align="right")
+        for side, suf, ox in self.panels(screen, vals, now, 420):             # P1 and P2, the score and the lives under it
+            self.pill(screen, ox + S(12), S(6), S(420), S(84), 160, radius=14)
+            self.text(screen, "P1" if side == "p1" else "P2", ox + S(28), S(30), 28, (250, 120, 160) if side == "p1" else (120, 190, 250),
+                      key="black", valign="middle")
+            if _n(vals.get("score" + suf)) is not None:
+                self.hd._score(screen, eng, "score" + suf, ox + S(410), S(10), "right", S(40))
+            lives = _n(vals.get("lives" + suf))
+            if lives is not None:
+                screen.blit(self.img("zupaicon", S(30), S(30), zupa_draw(0), ss=2), (ox + S(160), S(54)))
+                self.text(screen, f"x{int(lives)}", ox + S(196), S(70), 26, WHITE, key="black", valign="middle")
 
 
 # ============================================================================ Neo Mr. Do!
@@ -1125,22 +1141,15 @@ class NeoMrDoScene(GameScene):
             x, y = self.cell(*self.at)
             screen.blit(dg, (int(x - dg.get_width() / 2), int(y - dg.get_height() / 2)))
         self.hd.draw_logo(screen, logo, W / 2, S(4), S(360), S(64), now)
-        self.pill(screen, S(12), S(6), S(380), S(80), 170, radius=14)
-        self.text(screen, "1P-", S(28), S(28), 26, WHITE, key="black", valign="middle")
-        if _n(vals.get("score")) is not None:
-            self.hd._score(screen, eng, "score", S(370), S(8), "right", S(36))
-        lives = _n(vals.get("lives"))
-        if lives is not None:
-            screen.blit(self.img("nmdlife", S(26), S(26), digger_draw, ss=2), (S(28), S(50)))
-            self.text(screen, f"x{int(lives)}", S(60), S(64), 24, WHITE, key="black", valign="middle")
-        for i, ch_ in enumerate("EXTRA"):                                # EXTRA, lit letter by letter
-            on = i < self.extra
-            x = W / 2 + S(220) + i * S(44)
-            pg.draw.circle(screen, (240, 80, 160) if on else (90, 60, 110), (int(x), S(40)), S(20))
-            self.text(screen, ch_, x, S(40), 24, WHITE if on else (170, 150, 190), key="black", align="center", valign="middle", glow=0)
-        if not self.p2_in(vals):
-            word, col = self.invite(vals, now)
-            self.label(screen, word, W - S(24), S(40), 30, col, align="right")
+        for side, suf, ox in self.panels(screen, vals, now, 380):             # 1P- and 2P-, the score and the lives under it
+            self.pill(screen, ox + S(12), S(6), S(380), S(80), 170, radius=14)
+            self.text(screen, "1P-" if side == "p1" else "2P-", ox + S(28), S(28), 26, WHITE, key="black", valign="middle")
+            if _n(vals.get("score" + suf)) is not None:
+                self.hd._score(screen, eng, "score" + suf, ox + S(370), S(8), "right", S(36))
+            lives = _n(vals.get("lives" + suf))
+            if lives is not None:
+                screen.blit(self.img("nmdlife", S(26), S(26), digger_draw, ss=2), (ox + S(28), S(50)))
+                self.text(screen, f"x{int(lives)}", ox + S(60), S(64), 24, WHITE, key="black", valign="middle")
 
 
 SCENES = {"puzzldpr": PuzzleDePonRScene, "panicbom": PanicBomberScene, "popbounc": PopBounceScene, "sbp": SuperBubblePopScene,

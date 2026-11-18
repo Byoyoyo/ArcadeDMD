@@ -103,25 +103,24 @@ class NightmareScene(BangBangBustersScene):
             self.fx.sparks(f["x"], y - S(60), 2, (255, 160, 40), (60, 160), (240, 300), (0.2, 0.4), -200, "front", 4, 10)
 
     def status(self, screen, eng, vals, logo, now):
+        """As in the game: 1UP, the score and the lives under it, TIME in the middle, 2UP and the same on the right.
+        / Comme dans le jeu : 1UP, le score et les vies dessous, TIME au milieu, 2UP et la même chose à droite."""
         S, W, pg, hd = self.S, self.W, self.pg, self.hd
         hd.draw_logo(screen, logo, W / 2, S(4), S(380), S(70), now)
-        self.pill(screen, S(12), S(6), S(420), S(84), 160, radius=14)
-        self.text(screen, "1UP", S(28), S(30), 26, (255, 90, 80), key="black", valign="middle")
-        if _n(vals.get("score")) is not None:
-            hd._score(screen, eng, "score", S(410), S(10), "right", S(40))
-        lives = _n(vals.get("lives"))
-        if lives is not None:
-            for k in range(int(min(lives, 6))):
-                pg.draw.circle(screen, (220, 40, 40), (S(40) + k * S(30), S(68)), S(11))
-                pg.draw.circle(screen, (60, 20, 20), (S(40) + k * S(30), S(68)), S(11), max(1, S(2)))
+        for side, suf, ox in self.panels(screen, vals, now, 420):
+            self.pill(screen, ox + S(12), S(6), S(420), S(84), 160, radius=14)
+            self.text(screen, "1UP" if side == "p1" else "2UP", ox + S(28), S(30), 26, (255, 90, 80) if side == "p1" else P2C, key="black",
+                      valign="middle")
+            if _n(vals.get("score" + suf)) is not None:
+                hd._score(screen, eng, "score" + suf, ox + S(410), S(10), "right", S(40))
+            lives = _n(vals.get("lives" + suf))
+            if lives is not None:
+                for k in range(int(min(lives, 6))):
+                    pg.draw.circle(screen, (220, 40, 40), (ox + S(40) + k * S(30), S(68)), S(11))
+                    pg.draw.circle(screen, (60, 20, 20), (ox + S(40) + k * S(30), S(68)), S(11), max(1, S(2)))
         t = _n(vals.get("time"))
         if t is not None:
             self.label(screen, f"TIME {int(t)}s", W / 2, S(98), 30, (255, 230, 60), key="black", align="center")
-        if self.p2_in(vals):
-            self.text(screen, "2UP", W - S(400), S(30), 26, P2C, key="black", valign="middle")
-        else:
-            word, col = self.invite(vals, now)
-            self.label(screen, word, W - S(24), S(40), 30, col, align="right")
 
 
 # ============================================================================ The Super Spy
@@ -163,7 +162,7 @@ def fist_draw(left, frame):
 class SuperSpyScene(GameScene):
     """The Super Spy as in the game: the corridor of the building and its doors with the red IN sign, a masked fighter of
     our own faces us, our fists strike from below. The energy read in the game drops when he hits us, a bullet spent
-    is a shot. 1P and the score, the floor and its arrows, the energy, the weapon and its ammunition.
+    is a shot. 1P and the score, the energy, the weapon and its ammunition, EX.
     / Le couloir de l'immeuble, un combattant masqué à nous face à nous, nos poings frappent d'en bas ; l'énergie lue
     dans le jeu baisse quand il nous touche, une balle dépensée est un tir, comme dans le jeu."""
     CREDITS = (360, None)                                 # our fists are in the middle / nos poings sont au milieu
@@ -179,7 +178,6 @@ class SuperSpyScene(GameScene):
         self.punch = (-9.0, 0)
         self.foe_act = -9.0
         self.next_punch = 0.8
-        self.floor = 1
         self.hurt = -9.0
         self.punches = 0                                  # (tests)
         self.shots = 0
@@ -202,13 +200,11 @@ class SuperSpyScene(GameScene):
                     self.fhp -= 0.15
                     if self.fhp <= 0:
                         self.down = now
-                        self.popup(tr("ÉTAGE SUIVANT", "NEXT FLOOR"), self.W / 2, self.S(180), GOLD, 40)
         if self.down is not None:
             if now - self.down > 1.5:
                 self.down = None
                 self.foe = (self.foe + 1) % len(self.FOES)
                 self.fhp = 1.0
-                self.floor += 1
             return
         if now >= self.next_punch:                                          # a punch, left or right / un coup de poing
             self.next_punch = now + self.rng.uniform(0.35, 0.7)
@@ -223,7 +219,6 @@ class SuperSpyScene(GameScene):
                 self.foe_act = now
             if self.fhp <= 0:
                 self.down = now
-                self.popup(tr("ÉTAGE SUIVANT", "NEXT FLOOR"), self.W / 2, self.S(180), GOLD, 40)
 
     def draw_hud(self, screen, eng, vals, logo, now):
         S, W, H, pg = self.S, self.W, self.H, self.pg
@@ -251,21 +246,20 @@ class SuperSpyScene(GameScene):
         if _n(vals.get("score")) is not None:
             self.hd._score(screen, eng, "score", S(330), S(10), "right", S(40))
         e = _n(vals.get("energy"))
-        if e is not None:
-            self.text(screen, "EX", S(28), S(70), 20, (255, 100, 80), key="black", valign="middle", glow=0)
+        if e is not None:                                                   # the eight yellow cells of the game, no label
             for k in range(8):
-                pg.draw.rect(screen, (250, 210, 60) if k < e else (60, 50, 40), (S(70) + k * S(32), S(60), S(26), S(20)), border_radius=S(3))
+                pg.draw.rect(screen, (250, 210, 60) if k < e else (60, 50, 40), (S(28) + k * S(34), S(60), S(28), S(20)), border_radius=S(3))
         wpn = _n(vals.get("weapon"))
         ammo = _n(vals.get("ammo_mg" if wpn else "ammo"))
         if wpn is not None:
             name = "M.GUN" if wpn else tr("PISTOLET", "PISTOL")
             self.text(screen, f"{name} {int(ammo) if ammo is not None else ''}", S(28), S(100), 20, CREAM, key="black", valign="middle", glow=0)
-        bx = W - S(250)                                                     # the floor and its arrows / l'étage
-        pg.draw.polygon(screen, (40, 60, 160), [(bx, S(90)), (bx + S(60), S(20)), (bx + S(170), S(20)), (bx + S(230), S(90))])
-        self.text(screen, f"{self.floor}F", bx + S(115), S(58), 34, WHITE, key="black", align="center", valign="middle")
+        ex = _n(vals.get("exp"))
+        if ex is not None:                                                  # EX and its number, in red as in the game
+            self.text(screen, f"EX {int(ex)}", S(330), S(100), 20, (255, 100, 80), key="black", valign="middle", glow=0)
         if not self.p2_in(vals):
             word, colw = self.invite(vals, now)
-            self.label(screen, word, W - S(140), S(120), 26, colw, align="center")
+            self.label(screen, word, W - S(24), S(40), 26, colw, align="right")
 
 
 # ============================================================================ the quizzes / les quiz

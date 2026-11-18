@@ -26,10 +26,10 @@
     "note": "player 1 score, BCD (RetroAchievements leaderboards, from tools/ra_notes.py), to confirm in game"
    },
    "score_p2": {
-    "addr": "",
+    "addr": "0x105034",
     "type": "bcd",
     "bytes": 4,
-    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+    "note": "player 2 score, BCD, 0x28 after player 1's as his lives (the robot's recording of 2026-11-16: 200, 400, 1500, 1700 as on four screenshots)"
    },
    "lives": {
     "addr": "0x105015",
