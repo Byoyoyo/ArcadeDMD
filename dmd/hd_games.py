@@ -171,6 +171,13 @@ class GameScene:
     def p1_in(vals):
         return vals.get("p1_mode") in (1, 2) or vals.get("p1_mode") is None
 
+    def corner(self, side):
+        """(X, near, far) to draw player 1's corner on the left and player 2's the same on the right: X(x, w) is where a
+        thing w wide and x from the edge starts (sizes before scaling), near and far the two text alignments.
+        / Pour dessiner le coin du joueur 1 à gauche et celui du joueur 2 pareil à droite."""
+        S, W, left = self.S, self.W, side == "p1"
+        return (lambda x, w=0: S(x) if left else W - S(x) - S(w)), ("left" if left else "right"), ("right" if left else "left")
+
     def stick(self, vals, side):
         """(dx, dy, buttons) from the Neo Geo BIOS (p1_input / p2_input). None while the player has not touched them
         yet (game demo, or a game that does not use the BIOS for its inputs): the scene then plays by itself.
@@ -680,13 +687,16 @@ class BlazingStarScene(GameScene):
             firing = self._steer(side, vals, now, dt)
             alive = now - P["t_dead"] > 1.2 and now >= P["t_spawn"]
             ch = self.changed(vals, "lives" + suf)
-            if ch and ch[1] < ch[0] and alive:                        # a life lost: the ship explodes
+            mode, was = vals.get(side + "_mode"), self.prev.get(side + "_mode")
+            last = mode in (2, 3) and was == 1 and not (ch and ch[1] < ch[0])   # the last ship, no life left to take off
+            if (last or ch and ch[1] < ch[0]) and alive:              # a life lost: the ship explodes
                 x, y = self.pos(side, now)
                 fx.explosion(x, y, 0.9, layer_back=False)
-                self.popup(tr("-1 VIE", "-1 LIFE"), x, y - S(70), RED, 36)
+                if not last:
+                    self.popup(tr("-1 VIE", "-1 LIFE"), x, y - S(70), RED, 36)
                 P["t_dead"], P["t_spawn"] = now, now + 1.2
                 alive = False
-            elif ch and ch[1] > ch[0]:
+            elif ch and ch[1] == ch[0] + 1 and was in (1, None):      # an extra ship; the lives of a new game are not one
                 x, y = self.pos(side, now)
                 self.popup("1UP !", x, y - S(70), (140, 255, 150), 40)
             ch = self.changed(vals, "power" + suf)

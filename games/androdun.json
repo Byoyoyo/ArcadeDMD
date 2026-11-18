@@ -46,7 +46,7 @@
    "lives": {
     "addr": "0x100343",
     "type": "u8",
-    "note": "player 1 ships left (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL1)"
+    "note": "player 1 ships, the one that flies counted: one icon less under the weapons on the screen (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL1; the robot's recording of 2026-11-16, five screenshots)"
    },
    "shot": {
     "addr": "0x100350",
@@ -75,13 +75,31 @@
    "lives_p2": {
     "addr": "0x100383",
     "type": "u8",
-    "note": "player 2 ships left (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL2)"
+    "note": "player 2 ships, counted the same way (FinalBurn Neo cheats and MAME 2003-Plus cheats, Infinite Lives PL2)"
    },
    "shot_p2": {
     "addr": "0x100390",
     "type": "u8",
     "max": 7,
     "note": "player 2 blue weapon level (FinalBurn Neo cheats and MAME 2003-Plus cheats)"
+   },
+   "bomb_pw_p2": {
+    "addr": "0x100391",
+    "type": "u8",
+    "max": 5,
+    "note": "player 2 bomb power, the orange weapon (FinalBurn Neo cheats and MAME 2003-Plus cheats, Maximum Bomb Power PL2)"
+   },
+   "missile_p2": {
+    "addr": "0x100392",
+    "type": "u8",
+    "max": 8,
+    "note": "player 2 missile power, the yellow weapon (FinalBurn Neo cheats and MAME 2003-Plus cheats, Maximum Missile Power PL2)"
+   },
+   "unit_p2": {
+    "addr": "0x100393",
+    "type": "u8",
+    "max": 8,
+    "note": "player 2 unit power, the green weapon (FinalBurn Neo cheats and MAME 2003-Plus cheats, Maximum Unit Power PL2)"
    },
    "credits": {
     "addr": "0xD00034",

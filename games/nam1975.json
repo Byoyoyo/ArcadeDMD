@@ -31,6 +31,18 @@
     "bytes": 4,
     "note": "player 2 score, BCD, right after player 1's (the robot's recording of 2026-11-16: 5000 and 3800 as on the screen)"
    },
+   "lives": {
+    "addr": "0x10109E",
+    "type": "u8",
+    "mask": "0x0F",
+    "note": "player 1 lives, the small figure by the helmet: the low four bits (FinalBurn Neo cheats, Infinite Lives PL1; the robot's recording of 2026-11-16: 0x81 with 1 on the screen, 0x80 with 0)"
+   },
+   "lives_p2": {
+    "addr": "0x10119E",
+    "type": "u8",
+    "mask": "0x0F",
+    "note": "player 2 lives, same (FinalBurn Neo cheats, Infinite Lives PL2)"
+   },
    "ammo": {
     "addr": "0x1010E7",
     "type": "bcd",
