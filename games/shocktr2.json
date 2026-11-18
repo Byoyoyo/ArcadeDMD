@@ -74,12 +74,16 @@
    "lives": {
     "addr": "0x10905B",
     "type": "u8",
-    "note": "player 1 lives (FinalBurn Neo cheats, Infinite Lives PL1)"
+    "add": -1,
+    "min": 0,
+    "note": "player 1 lives in reserve, the number beside the portrait; the game counts the one in play too (FinalBurn Neo cheats, Infinite Lives PL1; the robot's recording of 2026-11-16: 3 in memory at 2 on the screen, 2 at 1, 1 at 0)"
    },
    "lives_p2": {
     "addr": "0x10915B",
     "type": "u8",
-    "note": "player 2 lives (FinalBurn Neo cheats, Infinite Lives PL2)"
+    "add": -1,
+    "min": 0,
+    "note": "player 2 lives in reserve, counted the same way (FinalBurn Neo cheats, Infinite Lives PL2; the robot's recording of 2026-11-16: 3 in memory at 2 on the screen)"
    },
    "grenades": {
     "addr": "0x10901F",
@@ -95,13 +99,13 @@
     "addr": "0x109021",
     "type": "u8",
     "max": 36,
-    "note": "player 1 power, 36 at most for LV3 (FinalBurn Neo cheats, Maximum Power(Lv3) PL1)"
+    "note": "player 1 power: a P item adds 4 and lights one more P beside Lv on the screen, 36 at most for Lv3 (FinalBurn Neo cheats, Maximum Power(Lv3) PL1; the robot's recording of 2026-11-16: 4 with one P lit at Lv 1, 8 with two)"
    },
    "power_p2": {
     "addr": "0x109121",
     "type": "u8",
     "max": 36,
-    "note": "player 2 power (FinalBurn Neo cheats, Maximum Power(Lv3) PL2)"
+    "note": "player 2 power, same (FinalBurn Neo cheats, Maximum Power(Lv3) PL2; the robot's recording of 2026-11-16: 4 with one P lit, 8 with two)"
    },
    "ammo": {
     "addr": "0x109016",
@@ -172,7 +176,7 @@
  },
  "hd": {
   "scene": "shocktr2",
-  "note": "the HD scene shows the soldier chosen (his name, our commando in his colours), his energy and the second player. A big machine gets its life bar once it has been hit three times: an object that came with an energy of big_min (150) or more. No boss is announced yet: boss_min can be set here once the life of this game's bosses is known"
+  "note": "the HD scene is laid out like Metal Slug: the soldier chosen, the lives in reserve, the energy, the weapon and its power as on the game's screen (Lv and three P, a P item adds 4 to the power, three of them are a level, 36 is Lv3 with its three P), the grenades, and the second player. A big machine gets its life bar once it has been hit three times: an object that came with an energy of big_min (150) or more. No boss is announced yet: boss_min can be set here once the life of this game's bosses is known"
  },
  "demo": {
   "attract": true,
@@ -214,11 +218,14 @@
    "power": {
     "cycle": [
      0,
-     6,
+     4,
+     8,
      12,
-     18,
+     16,
+     20,
      24,
-     30,
+     28,
+     32,
      36,
      36
     ],
@@ -1295,9 +1302,9 @@
     "type": "gauge",
     "var": "energy",
     "max": 64,
-    "x": 88,
+    "x": 101,
     "y": 10,
-    "w": 39,
+    "w": 26,
     "h": 3,
     "color": "#f0d020",
     "low": "#ff4030",
@@ -1352,9 +1359,9 @@
     "type": "gauge",
     "var": "power",
     "max": 36,
-    "x": 88,
+    "x": 101,
     "y": 14,
-    "w": 39,
+    "w": 26,
     "h": 3,
     "color": "#ffc020",
     "low": "#ffc020",
@@ -1404,6 +1411,126 @@
       }
      ]
     }
+   },
+   {
+    "type": "text",
+    "font": "5x8",
+    "x": 99,
+    "y": 10,
+    "align": "right",
+    "segments": [
+     {
+      "text": "{power_lv}",
+      "color": "#ffd030"
+     }
+    ],
+    "flash": {
+     "on": "power",
+     "color": "#ffffff",
+     "ms": 500
+    },
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "has": "power_lv"
+      }
+     ]
+    }
+   },
+   {
+    "type": "events",
+    "events": [
+     {
+      "on": "power",
+      "change": "up",
+      "to": [
+       12
+      ],
+      "when": {
+       "var": "p1_mode",
+       "eq": 1
+      },
+      "text": "LEVEL 2",
+      "color": "#ffd040",
+      "font": "9x15B",
+      "ms": 1500,
+      "priority": 3
+     },
+     {
+      "on": "power",
+      "change": "up",
+      "to": [
+       24
+      ],
+      "when": {
+       "var": "p1_mode",
+       "eq": 1
+      },
+      "text": "LEVEL 3",
+      "color": "#ffd040",
+      "font": "9x15B",
+      "ms": 1500,
+      "priority": 3
+     },
+     {
+      "on": "power",
+      "change": "up",
+      "to": [
+       4,
+       8,
+       16,
+       20,
+       28,
+       32,
+       36
+      ],
+      "when": {
+       "var": "p1_mode",
+       "eq": 1
+      },
+      "text": "POWER UP",
+      "color": "#ff6050",
+      "font": "9x15B",
+      "ms": 1000,
+      "priority": 2
+     }
+    ]
    },
    {
     "type": "coinop",
@@ -1463,6 +1590,36 @@
     "LULU",
     "TOY"
    ]
+  },
+  "power_lv": {
+   "value": "power",
+   "names": {
+    "0": "LV1",
+    "4": "LV1",
+    "8": "LV1",
+    "12": "LV2",
+    "16": "LV2",
+    "20": "LV2",
+    "24": "LV3",
+    "28": "LV3",
+    "32": "LV3",
+    "36": "LV3"
+   }
+  },
+  "power_lv_p2": {
+   "value": "power_p2",
+   "names": {
+    "0": "LV1",
+    "4": "LV1",
+    "8": "LV1",
+    "12": "LV2",
+    "16": "LV2",
+    "20": "LV2",
+    "24": "LV3",
+    "28": "LV3",
+    "32": "LV3",
+    "36": "LV3"
+   }
   }
  }
 }

@@ -45,6 +45,7 @@ from .hd_panels import SCENES as _SCENES_CPS_PANELS
 from .hd_spf import SCENES as _SCENES_SPF
 from .hd_games6 import SCENES_PB1 as _SCENES_PB1
 from .hd_mercs import SCENES as _SCENES_MERCS
+from .hd_squad import SCENES as _SCENES_SQUAD
 from .hd_moves import draw_panel, draw_wins
 from .hd_specials import draw_specials, fighter_rows, hyper_rows, power_label, timer_name
 from .hd_mslug import MetalSlugScene, family
@@ -83,6 +84,7 @@ GAME_SCENES.update(_SCENES_CPS_PANELS)       # the Capcom games with characters,
 GAME_SCENES.update(_SCENES_SPF)              # Super Puzzle Fighter II Turbo, its wells read gem by gem (1.34)
 GAME_SCENES.update(_SCENES_PB1)              # Puzzle Bobble as in the game (1.35)
 GAME_SCENES.update(_SCENES_MERCS)            # Mercs laid out like Metal Slug, its boss announced (1.36)
+GAME_SCENES.update(_SCENES_SQUAD)            # Shock Troopers 2nd Squad laid out like Metal Slug, its power levels (1.39.2)
 MSLUG_WEAPONS = {0: ("PISTOLET", "HANDGUN"), 1: ("FUSIL À POMPE", "SHOTGUN"), 2: ("LANCE-FLAMMES", "FLAMETHROWER"),
                  3: ("LANCE-ROQUETTES", "ROCKET LAUNCHER"), 4: ("MITRAILLETTE", "MACHINE GUN")}
 
