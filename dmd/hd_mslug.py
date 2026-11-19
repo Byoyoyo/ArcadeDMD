@@ -15,7 +15,8 @@ Ce que fait chaque valeur lue dans la mémoire du jeu
   rebond, comme dans le jeu ; quand le jeu dit ses grenades à l'écran (grenades_out, Metal Slug), elle explose au
   moment même où celle du jeu explose, sur un ennemi touché comme au sol ;
 - arme qui change : la carte de l'arme s'illumine, la jauge se remplit ;
-- vie perdue : le casque tombe, le panneau rougit et tremble ; vie gagnée : « 1UP » ;
+- vie perdue : le casque tombe, le panneau rougit et tremble ; vie gagnée en jeu : « 1UP » (pas les vies d'un départ
+  ou d'un continue) ; bombes ramassées dans une caisse : « +10 BOMBES » (pas les dix d'une nouvelle vie) ;
 - prisonniers libérés, crédits, score qui défile, chrono qui passe au rouge, mission suivante (changement de décor),
   arrivée d'un joueur, CONTINUE et GAME OVER ;
 - dans un véhicule (le char du premier Metal Slug) : le char prend la place de l'arme, avec son énergie en coups
@@ -93,6 +94,8 @@ MINOR_IDLE = 8.0                                 # a big enemy's quiet bar fades
 PHASE_WAIT = 5.0                                 # a boss at 0 in a game with a flag: its next phase may fill the entry
                                                  # within this long, else it fell / sa phase suivante, sinon tombé
 SYNC_MIN, SYNC_MAX = 0.8, 10.0                   # quiet after a start: at least this long, until the mission timer runs, at most
+BOMB_WAIT = 1.0                                   # ten bombs from none wait that long: a life taken just after makes them the game's own
+NEW_LIFE, NEW_MISSION = 2.5, 6.0                  # seconds around a new life or a new mission in which the bombs are the game's own
 
 # cadence (secondes entre deux tirs) et allure de chaque arme
 STYLE = {
@@ -604,6 +607,8 @@ class Player:
         self.prison_t = -99.0
         self.bomb_t = -99.0
         self.bomb_add = (-99.0, 0)
+        self.bomb_note = None           # ten bombs from none, held a moment: a crate, or the ten of a new life
+        self.dealt_t = -99.0            # when the game last dealt its soldier his figures (a start, a new life)
         self.shots = []
         self.flame_until = -99.0
         self.laser_until = -99.0        # the laser beam held until then / le rayon du laser tenu jusque-là
@@ -1409,9 +1414,11 @@ class MetalSlugScene:
                 # game of 7 November 22:52, LAST LIFE for 1.4 s at each continue) / retour du CONTINUE, les vies pas encore écrites
                 P.lives_known = False
                 P.lives_t0 = now
+                P.dealt_t = now
             if mode == 1 and P.mode not in (1, 2):
                 P.join_t = now
                 P.lives_t0 = now
+                P.dealt_t = now
                 # quiet until the game has set its soldier up: the first Metal Slug sets his lives 0, 1, 0, 2, 0 over its
                 # HOW TO PLAY screen with its timer at 1, then wipes his block and starts the mission with the timer at 60
                 # (the capture of 20:31: 7 s, 1UP ! and LAST LIFE on the HD screen meanwhile) / au calme jusqu'à ce que
@@ -1449,7 +1456,7 @@ class MetalSlugScene:
         if wiped:
             return
         old = P.seen
-        P.seen = dict(cur, input=inp)
+        P.seen = dict(cur, input=inp, time=_n(vals.get("time")))
         if inp is not None:
             P.move = 1.0 if inp & BTN_RIGHT else (-1.0 if inp & BTN_LEFT else 0.0)
         if quiet or not old:
@@ -1475,11 +1482,25 @@ class MetalSlugScene:
         lv, lo = cur["lives"], old.get("lives")
         if lv is not None and 0 < lv < 250:
             P.lives_known = True                     # the game wrote them once / le jeu les a écrites une fois
+        tm, tmo = P.seen.get("time"), old.get("time")
+        if tm is not None and tmo is not None and tm > tmo:
+            P.dealt_t = now                          # the mission timer goes back up with each new life
         if lv is not None and lo is not None:
             if lv < lo:
                 self._life_lost(side, P, now, lo)
+                P.dealt_t = now
             elif lv > lo:
-                self._life_up(side, P, now)
+                # One more life while he has some is a 1UP. The two or three lives of a start or of a continue are the
+                # game's own and it does not announce them (27 real games of November 2026: 126 times from 0 to 1, 2
+                # or 3 at a start or a continue, not once a life gained in play) / une vie de plus pendant qu'il en a :
+                # un 1UP. Les deux ou trois vies d'un départ ou d'un continue ne s'annoncent pas.
+                P.dealt_t = now
+                if lv == lo + 1 and lo >= 1:
+                    self._life_up(side, P, now)
+        if P.bomb_note is not None and now - P.bomb_note >= BOMB_WAIT:
+            t0, P.bomb_note = P.bomb_note, None
+            if not (t0 - NEW_LIFE <= P.dealt_t or abs(self.mission_t - t0) <= NEW_MISSION):
+                self._bombs_found(side, 10)
         w, wo = cur["weapon"], old.get("weapon")
         if w is not None and wo is not None and w != wo:
             self._weapon_change(side, P, now, w, cur["ammo"])
@@ -1510,9 +1531,18 @@ class MetalSlugScene:
                     self._throws(side, P, min(4, bo - b), bo)
                     thrown = True
             elif b > bo:
+                # Only bombs found are announced, and a crate gives ten. The game puts the bombs back to 10 by itself
+                # with each new life, each continue and each mission, and says nothing (the same 27 games: 174 rises of
+                # another size, all the game's own or a block wiped; 42 times ten more on top of some, the crates; ten
+                # from none 101 times, 92 of them with a new life, a start or a mission). Ten from none waits a moment:
+                # the game writes the bombs of a new life a third of a second before it takes the life.
+                # / Seules les bombes ramassées s'annoncent, une caisse en donne dix. Le jeu remet les bombes à 10 tout
+                # seul à chaque vie, continue ou mission, sans rien dire.
                 P.bomb_add = (now, b - bo)
-                self.fx.text(tr(f"+{b - bo} BOMBES", f"+{b - bo} BOMBS"), self._bomb_xy(side, 0)[0] + (self.S(120) if side == "p1" else -self.S(120)),
-                             self.S(340), GOLD, 36, life=1.2)
+                if b - bo == 10 and b > 10:
+                    self._bombs_found(side, 10)
+                elif b - bo == 10:
+                    P.bomb_note = now
         if counted:
             if go > goo:                                   # the game's grenade left the hand: wait for its explosion
                 if P.bomb_drop is not None:                # the bombs went down just before: those were throws / lancers
@@ -1671,6 +1701,10 @@ class MetalSlugScene:
         self.fx.sparks(x, y, 14, (255, 90, 60), (200, 600), (0, 360), (0.25, 0.6), 600, "front", 3, 24)
         self.fx.text(tr("-1 VIE", "-1 LIFE"), x, y + self.S(36), RED, 40, life=1.2, rise=50)
         self.fx.shake(6, 0.35)
+
+    def _bombs_found(self, side, n):
+        self.fx.text(tr(f"+{n} BOMBES", f"+{n} BOMBS"), self._bomb_xy(side, 0)[0] + (self.S(120) if side == "p1" else -self.S(120)),
+                     self.S(340), GOLD, 36, life=1.2)
 
     def _life_up(self, side, P, now):
         P.up_t = now
