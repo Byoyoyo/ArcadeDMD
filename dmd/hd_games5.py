@@ -2090,4 +2090,5 @@ class BurningFightScene(BrawlerScene):
 
 SCENES = {"nam1975": NamScene, "cyberlip": CyberLipScene, "gpilots": GhostPilotsScene, "alpham2": AlphaMission2Scene,
           "viewpoin": ViewpointScene, "zedblade": ZedBladeScene, "preisle2": PrehistoricIsle2Scene, "roboarmy": RoboArmyScene,
-          "burningf": BurningFightScene, "shocktr2": ShockTroopers2Scene}
+          "burningf": BurningFightScene}                        # Shock Troopers 2nd Squad has its own scene (hd_squad); the class
+# ShockTroopers2Scene above stays as the base of Ninja Commando / reste la base de Ninja Commando
