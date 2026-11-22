@@ -46,12 +46,14 @@
    "energy": {
     "addr": "0x1001B5",
     "type": "u8",
-    "note": "player 1 energy, 128 when full (FinalBurn Neo cheats, Infinite Energy PL1)"
+    "note": "player 1: energy of the soldier playing, 64 when full, 254 (under zero) once he is down; the FinalBurn Neo cheat Infinite Energy PL1 writes 128, above full (from two recorded games with their screenshots: 64, 42, 20 with the game's bar at three thirds, two thirds, one third)",
+    "max": 64
    },
    "energy_p2": {
     "addr": "0x1021B5",
     "type": "u8",
-    "note": "player 2 energy (FinalBurn Neo cheats, Infinite Energy PL2)"
+    "note": "player 2: energy of the soldier playing, 64 when full (FinalBurn Neo cheats, Infinite Energy PL2; seen at 64 then 43 and 22 on a recorded game)",
+    "max": 64
    },
    "weapon": {
     "addr": "0x108DB9",
@@ -64,16 +66,44 @@
     "type": "u8",
     "note": "player 1 gun ammo (FinalBurn Neo cheats, Infinite Normal Ammo PL1)"
    },
-   "special": {
+   "member": {
+    "addr": "0x108DB7",
+    "type": "u8",
+    "shift": 2,
+    "note": "player 1: which of the three team members plays, 0 to 2 (x4 in RAM). In Lonely Wolf the three members are the same soldier, his three lives. It steps at each soldier lost and goes back to 0 at a continue; in Team Battle it follows the change of soldier (from two recorded games)"
+   },
+   "_tm1": {
     "addr": "0x108DC1",
     "type": "u8",
     "shift": 2,
-    "note": "player 1 special weapon, team member 1 (solo), 0 grenade to 7 bazooka (FinalBurn Neo cheats, x4 in RAM)"
+    "note": "player 1, team member 1: his special weapon, which is the soldier himself (0 Jackal, 1 Milky, 2 Loki, 3 Southern Cross, 4 Marie Bee, 5 Rio, 6 Maru, 7 Big Mama, the order of the PLAYER SELECT screen; x4 in RAM; FinalBurn Neo cheats, Special Weapon TM1 PL1). 63 once this member is out; on the select screen it follows the cursor"
    },
-   "bombs": {
+   "_tm2": {
+    "addr": "0x108DC5",
+    "type": "u8",
+    "shift": 2,
+    "note": "player 1, team member 2: same (FinalBurn Neo cheats, Special Weapon TM2 PL1)"
+   },
+   "_tm3": {
+    "addr": "0x108DC9",
+    "type": "u8",
+    "shift": 2,
+    "note": "player 1, team member 3: same (FinalBurn Neo cheats, Special Weapon TM3 PL1)"
+   },
+   "_bombs1": {
     "addr": "0x108DC3",
     "type": "u8",
-    "note": "player 1 special ammo, team member 1 (solo) (FinalBurn Neo cheats, Infinite Special Ammo TM1 PL1)"
+    "note": "player 1, team member 1: special weapon ammo (FinalBurn Neo cheats, Infinite Special Ammo TM1 PL1)"
+   },
+   "_bombs2": {
+    "addr": "0x108DC7",
+    "type": "u8",
+    "note": "player 1, team member 2: special weapon ammo (FinalBurn Neo cheats, Infinite Special Ammo TM2 PL1)"
+   },
+   "_bombs3": {
+    "addr": "0x108DCB",
+    "type": "u8",
+    "note": "player 1, team member 3: special weapon ammo (FinalBurn Neo cheats, Infinite Special Ammo TM3 PL1)"
    },
    "weapon_p2": {
     "addr": "0x108FB9",
@@ -86,11 +116,74 @@
     "type": "u8",
     "note": "player 2 gun ammo (FinalBurn Neo cheats, Infinite Normal Ammo PL2)"
    },
+   "member_p2": {
+    "addr": "0x108FB7",
+    "type": "u8",
+    "shift": 2,
+    "note": "player 2: which of the three team members plays, as for player 1 and 0x200 further"
+   },
+   "_tm1_p2": {
+    "addr": "0x108FC1",
+    "type": "u8",
+    "shift": 2,
+    "note": "player 2, team member 1: his special weapon, which is the soldier (FinalBurn Neo cheats, Special Weapon TM1 PL2; 7, Big Mama, in the three of them on a recorded Lonely Wolf game)"
+   },
+   "_tm2_p2": {
+    "addr": "0x108FC5",
+    "type": "u8",
+    "shift": 2,
+    "note": "player 2, team member 2: his special weapon, which is the soldier (FinalBurn Neo cheats, Special Weapon TM2 PL2; 7, Big Mama, in the three of them on a recorded Lonely Wolf game)"
+   },
+   "_tm3_p2": {
+    "addr": "0x108FC9",
+    "type": "u8",
+    "shift": 2,
+    "note": "player 2, team member 3: his special weapon, which is the soldier (FinalBurn Neo cheats, Special Weapon TM3 PL2; 7, Big Mama, in the three of them on a recorded Lonely Wolf game)"
+   },
+   "_bombs1_p2": {
+    "addr": "0x108FC3",
+    "type": "u8",
+    "note": "player 2, team member 1: special weapon ammo (FinalBurn Neo cheats, Infinite Special Ammo TM1 PL2)"
+   },
+   "_bombs2_p2": {
+    "addr": "0x108FC7",
+    "type": "u8",
+    "note": "player 2, team member 2: special weapon ammo (FinalBurn Neo cheats, Infinite Special Ammo TM2 PL2)"
+   },
+   "_bombs3_p2": {
+    "addr": "0x108FCB",
+    "type": "u8",
+    "note": "player 2, team member 3: special weapon ammo (FinalBurn Neo cheats, Infinite Special Ammo TM3 PL2)"
+   },
    "time": {
     "addr": "0x108D01",
     "type": "bcd",
     "bytes": 1,
     "note": "timer (FinalBurn Neo cheats, Infinite Time)"
+   },
+   "stage_id": {
+    "addr": "0x108D1B",
+    "type": "u8",
+    "shift": 2,
+    "note": "the stage chosen, counted 5 a route (x4 in RAM): 5 the first stage of the jungle route, 6 its second, 10 the first stage of the route on its right; 63 before a route is chosen (from two recorded games). Read to know that a stage is set"
+   },
+   "area": {
+    "addr": "0x108D33",
+    "type": "u8",
+    "shift": 4,
+    "note": "the stage chosen, counted 7 a route (x16 in RAM): 7 and 8 for the first two stages of the jungle route (route 1, in the middle of the map), 14 for the first stage of the route on its right (route 2). The stage's number is the remainder by 7 plus 1 and the route the quotient; 0 as well before a route is chosen, hence stage_id (from two recorded games; from the third stage on, to confirm in game)"
+   },
+   "_route_screen": {
+    "addr": "0x108D2B",
+    "type": "u8",
+    "note": "255 while a stage is played, 0 or 4 on the select screens and on the map between two stages (from two recorded games)"
+   },
+   "_hps": {
+    "addr": "0x1023B4",
+    "type": "u16s",
+    "count": 93,
+    "stride": 256,
+    "note": "the energy of the game's objects, one word each and 256 bytes apart, at the place of the players' own in theirs (0x1001B4): the 93 objects from 0x102300 to 0x107F00. From a recorded game with its screenshots (jungle route, first stage): the soldiers and small tanks come with 32 to 48, the helicopter in the middle of the stage with 120, the tank at its end with 600, and it reaches 0 at the image the 100000 points of the boss are given"
    },
    "credits": {
     "addr": "0xD00034",
@@ -133,19 +226,28 @@
   }
  },
  "hd": {
-  "scene": "shocktro"
+  "scene": "shocktro",
+  "note": "the HD scene shows the soldier playing and the team left, the stage and its route, and the big machines: an object that comes with an energy of at least big_min (100) is a big machine, whose bar comes with the first hit it takes, and from boss_min (300) the boss of the stage, announced by WARNING. Both can be set here"
  },
  "demo": {
   "attract": true,
   "credits": 0,
   "p1_mode": 1,
   "p2_mode": 0,
-  "energy": 128,
+  "energy": 64,
   "weapon": 0,
   "ammo": 0,
-  "special": 0,
-  "bombs": 9,
+  "member": 0,
+  "_tm1": 0,
+  "_tm2": 0,
+  "_tm3": 0,
+  "_bombs1": 9,
+  "_bombs2": 20,
+  "_bombs3": 20,
   "time": 99,
+  "stage_id": 5,
+  "area": 7,
+  "_route_screen": 255,
   "score": 0,
   "sim": {
    "time": {
@@ -159,14 +261,14 @@
    },
    "energy": {
     "cycle": [
-     128,
-     112,
-     96,
-     96,
-     80,
-     128,
      64,
-     40
+     56,
+     48,
+     48,
+     40,
+     64,
+     32,
+     20
     ],
     "every": [
      2.0,
@@ -196,7 +298,7 @@
     "every": 0.25,
     "start": 5.2
    },
-   "bombs": {
+   "_bombs1": {
     "count": [
      0,
      9,
@@ -207,16 +309,6 @@
      5.0
     ],
     "start": 4.0
-   },
-   "special": {
-    "cycle": [
-     0,
-     7,
-     4,
-     0
-    ],
-    "every": 12.0,
-    "start": 12.0
    }
   }
  },
@@ -373,7 +465,7 @@
    {
     "type": "gauge",
     "var": "energy",
-    "max": 128,
+    "max": 64,
     "x": 1,
     "y": 13,
     "w": 54,
@@ -461,6 +553,10 @@
       },
       {
        "has": "weapon_name"
+      },
+      {
+       "var": "weapon",
+       "gt": 0
       }
      ]
     },
@@ -469,6 +565,63 @@
      "color": "#ffffff",
      "ms": 700
     }
+   },
+   {
+    "type": "marquee",
+    "font": "5x8",
+    "y": 12,
+    "x": 58,
+    "w": 70,
+    "speed": 14,
+    "gap": 30,
+    "upper": true,
+    "segments": [
+     {
+      "text": "{char_name}",
+      "color": "#ffd060"
+     }
+    ],
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "has": "char_name"
+      },
+      {
+       "not": {
+        "var": "weapon",
+        "gt": 0
+       }
+      }
+     ]
+    },
+    "static_if_fits": true
    },
    {
     "type": "text",
@@ -587,9 +740,9 @@
    {
     "type": "text",
     "font": "5x8",
-    "x": 64,
+    "x": 1,
     "y": 21,
-    "align": "center",
+    "align": "left",
     "segments": [
      {
       "text": "{time}",
@@ -713,8 +866,21 @@
     ]
    }
   },
+  "special": {
+   "pick": [
+    "_tm1",
+    "_tm2",
+    "_tm3"
+   ],
+   "at": "member"
+  },
   "special_name": {
-   "value": "special",
+   "pick": [
+    "_tm1",
+    "_tm2",
+    "_tm3"
+   ],
+   "at": "member",
    "names": {
     "en": [
      "GRENADE",
@@ -737,6 +903,96 @@
      "BAZOOKA"
     ]
    }
+  },
+  "char_name": {
+   "pick": [
+    "_tm1",
+    "_tm2",
+    "_tm3"
+   ],
+   "at": "member",
+   "names": [
+    "JACKAL",
+    "MILKY",
+    "LOKI",
+    "SOUTHERN CROSS",
+    "MARIE BEE",
+    "RIO",
+    "MARU",
+    "BIG MAMA"
+   ]
+  },
+  "bombs": {
+   "pick": [
+    "_bombs1",
+    "_bombs2",
+    "_bombs3"
+   ],
+   "at": "member"
+  },
+  "special_p2": {
+   "pick": [
+    "_tm1_p2",
+    "_tm2_p2",
+    "_tm3_p2"
+   ],
+   "at": "member_p2"
+  },
+  "special_name_p2": {
+   "pick": [
+    "_tm1_p2",
+    "_tm2_p2",
+    "_tm3_p2"
+   ],
+   "at": "member_p2",
+   "names": {
+    "en": [
+     "GRENADE",
+     "SMOKE CAN",
+     "CAN GUN",
+     "BOOMERANG",
+     "MISSILE L.",
+     "BOW",
+     "CHEMICAL",
+     "BAZOOKA"
+    ],
+    "fr": [
+     "GRENADE",
+     "FUMIGÈNE",
+     "BIDON",
+     "BOOMERANG",
+     "MISSILES",
+     "ARC",
+     "CHIMIQUE",
+     "BAZOOKA"
+    ]
+   }
+  },
+  "char_name_p2": {
+   "pick": [
+    "_tm1_p2",
+    "_tm2_p2",
+    "_tm3_p2"
+   ],
+   "at": "member_p2",
+   "names": [
+    "JACKAL",
+    "MILKY",
+    "LOKI",
+    "SOUTHERN CROSS",
+    "MARIE BEE",
+    "RIO",
+    "MARU",
+    "BIG MAMA"
+   ]
+  },
+  "bombs_p2": {
+   "pick": [
+    "_bombs1_p2",
+    "_bombs2_p2",
+    "_bombs3_p2"
+   ],
+   "at": "member_p2"
   },
   "weapon_name_p2": {
    "value": "weapon_p2",

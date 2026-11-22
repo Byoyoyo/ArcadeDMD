@@ -6,6 +6,34 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 To update, extract the new version over the old one. Your `config.json`, the addresses learned and your own pictures are kept.
 Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `config.json`, les adresses apprises et tes propres images sont gardés.
 
+## 1.39.2
+
+### English
+- Shock Troopers names the soldier chosen and shows the team left, the stage and its route.
+- Shock Troopers gives the big machines a life bar, and the boss of a stage its WARNING, its bar and BOSS DESTROYED.
+- Each soldier of Shock Troopers throws his own special weapon. The weapon follows the soldier playing and the energy bar is full when his energy is.
+- Shock Troopers 2nd Squad is laid out like Metal Slug, with the weapon's power (Lv and three P), the grenades, the missions named and the vehicle on the soldier's card.
+- Shock Troopers 2nd Squad announces its boss when the game does (ALERT, a bar for each part, PHASE 2, BOSS DESTROYED) and counts the bonuses of STAGE CLEAR in one BONUS counter.
+- The second player has his own corner in the shoot'em ups and the run and guns, and his own panel in fifteen action games.
+- What a game deals a player as he starts is no longer announced as a pick-up (1UP, POWER MAX, EXTENDED TIME, gold, +65535).
+- Metal Slug announces only what the game gives in play. The lives of a continue and the ten bombs of a new life are no longer announced.
+- In the shoot'em ups, the last ship lost explodes too, and 1UP and BOMB UP only come for a ship or a bomb really gained.
+- Scores, lives and gauges put right in Captain Tomaday, Ironclad, Prehistoric Isle 2, Alpha Mission II, Zed Blade, Andro Dunos, Robo Army, Top Hunter, Ganryu, Ninja Combat, Eight Man, Bang Bang Busters and Digger Man.
+- Nothing made up is shown any more. The floors, stages, gauges and points that were not read in the game are gone.
+
+### Français
+- Shock Troopers nomme le soldat choisi et montre l'équipe qui reste, le stage et sa route.
+- Shock Troopers donne une barre de vie aux gros engins, et au boss d'un stage son WARNING, sa barre et BOSS DÉTRUIT.
+- Chaque soldat de Shock Troopers lance sa propre arme spéciale. L'arme suit le soldat en jeu et la barre d'énergie est pleine quand son énergie l'est.
+- Shock Troopers 2nd Squad est disposé comme Metal Slug, avec la puissance de l'arme (Lv et trois P), les grenades, les missions nommées et le véhicule sur la carte du soldat.
+- Shock Troopers 2nd Squad annonce son boss quand le jeu le fait (ALERT, une barre par pièce, PHASE 2, BOSS DÉTRUIT) et compte les bonus de STAGE CLEAR dans un compteur BONUS.
+- Le second joueur a son propre coin dans les shoot'em up et les run and gun, et son propre panneau dans quinze jeux d'action.
+- Ce qu'un jeu donne au joueur à son départ n'est plus annoncé comme un bonus ramassé (1UP, POWER MAX, TEMPS EN PLUS, or, +65535).
+- Metal Slug n'annonce plus que ce que le jeu donne en cours de partie. Les vies d'un continue et les dix bombes d'une nouvelle vie ne s'annoncent plus.
+- Dans les shoot'em up, le dernier vaisseau perdu explose aussi, et 1UP et BOMBE + n'arrivent que pour un vaisseau ou une bombe vraiment gagnés.
+- Scores, vies et jauges corrigés dans Captain Tomaday, Ironclad, Prehistoric Isle 2, Alpha Mission II, Zed Blade, Andro Dunos, Robo Army, Top Hunter, Ganryu, Ninja Combat, Eight Man, Bang Bang Busters et Digger Man.
+- Plus rien d'inventé n'est affiché. Les étages, stages, jauges et points qui n'étaient pas lus dans le jeu ont disparu.
+
 ## 1.39.1
 
 ### English

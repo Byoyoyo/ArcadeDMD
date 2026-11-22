@@ -1558,7 +1558,7 @@ class NeoBombermanScene(GameScene):
                 self.popup(tr("-1 VIE", "-1 LIFE"), x, y - S(60), (255, 90, 70), 34)
                 B["dead"] = now
                 B["spawn"] = now + 1.4
-            elif ch and ch[1] > ch[0]:
+            elif self.one_up(vals, side):                              # one more, not the lives of a start
                 x, y = self.cell_xy(B["c"], B["r"])
                 self.popup("1UP !", x, y - S(60), (140, 255, 150), 36)
             for name, label, col in (("fire", "FIRE UP", (255, 140, 40)), ("speed", "SPEED UP", (90, 200, 255))):
@@ -1703,7 +1703,6 @@ class NeoBombermanScene(GameScene):
             if (int(round(e["c"])), int(round(e["r"]))) in cells and not e.get("dead"):
                 e["dead"] = now
                 ex, ey = self.cell_xy(e["c"], e["r"])
-                self.popup("100", ex, ey - self.S(30), CREAM, 28)
 
     def move_blobs(self, now):
         dt, rng = self.dt, self.rng
@@ -1936,7 +1935,8 @@ class RallyScene(GameScene):
         sec = self.secs(vals)
         old = self.last_secs
         self.last_secs = sec
-        if sec is not None and old is not None and sec > old + 1.5:   # time added: a checkpoint
+        if sec is not None and old is not None and old > 0 and sec > old + 1.5:   # time added to a timer that runs: a
+            # checkpoint; a timer that leaves zero is the race that starts (the robot's Over Top and Thrash Rally)
             self.checkpoints += 1
             if sec > old + self.NEW_STAGE:
                 self.next_stage(now)
@@ -2142,13 +2142,14 @@ class RidingHeroScene(GameScene):
         self.burst = max(0.0, self.burst - dt * 0.3)
         self.z += dt * 40 * self.speed(vals)
         ch = self.changed(vals, "turbo")
-        if ch and ch[1] < ch[0]:                                       # a turbo spent: a burst of speed
+        if ch and ch[1] == ch[0] - 1:                                  # a turbo spent: a burst of speed (the count wiped
+            # at a continue is not one, the robot's recording of 2026-11-16)
             self.turbos += 1
             self.burst = 0.8
             self.popup("TURBO !", self.W / 2, S(250), GOLD, 54, 1.2, 50, "stencil")
             self.fx.flash((255, 240, 200), 0.12, 0.25)
         ch = self.changed(vals, "rank")
-        if ch and ch[1] < ch[0]:                                       # a rider passed
+        if ch and 0 < ch[1] < ch[0]:                                   # a rider passed (0 is no race, not a rank)
             self.passes += 1
             ahead = [r for r in self.riders if 0 < r["d"] < 12]
             r = min(ahead, key=lambda r: r["d"]) if ahead else {"d": 4.0, "lane": rng.uniform(-0.5, 0.5), "k": rng.randint(1, 5), "v": 0.0}
@@ -2159,7 +2160,7 @@ class RidingHeroScene(GameScene):
         elif ch and ch[1] > ch[0]:                                     # passed by a rider
             self.riders.append({"d": -2.0, "lane": rng.uniform(-0.5, 0.5), "k": rng.randint(1, 5), "v": 2.5})
         ch = self.changed(vals, "time")
-        if ch and ch[1] > ch[0] + 5:
+        if ch and ch[0] > 0 and ch[1] > ch[0] + 5:                     # a timer that leaves zero is the race that starts
             self.popup(tr("TEMPS EN PLUS", "EXTENDED TIME"), self.W / 2, S(200), (120, 230, 255), 44, 1.6, 50, "stencil")
         keep = []
         for r in self.riders:
@@ -2705,24 +2706,29 @@ class MagicianLordScene(GameScene):
         self.status(screen, eng, vals, logo, now)
 
     def status(self, screen, eng, vals, logo, now):
-        """As in the game: 1UP and the score, the lives at the top; HP and POW at the bottom. / 1UP, vies, HP et POW."""
+        """As in the game: 1UP and the score, the lives at the top; HP and POW at the bottom. With two players they take
+        turns: 2UP, his score, his lives, his HP and his POW while it is his.
+        / Comme dans le jeu : 1UP et le score, les vies en haut ; HP et POW en bas. À deux les joueurs jouent tour à tour :
+        2UP, son score, ses vies, son HP et son POW pendant le sien."""
         S, W, H, pg, hd = self.S, self.W, self.H, self.pg, self.hd
         hd.draw_logo(screen, logo, W / 2, S(8), S(480), S(90), now)
+        two = _n(vals.get("_turn")) == 60
+        suf = "_p2" if two else ""
         self.pill(screen, S(16), S(10), S(460), S(64), 150)
-        self.text(screen, "1UP", S(36), S(42), 30, (255, 220, 120), key="black", valign="middle")
-        if _n(vals.get("score")) is not None:
-            hd._score(screen, eng, "score", S(330), S(18), "right", S(48))
-        lives = _n(vals.get("lives"))
+        self.text(screen, "2UP" if two else "1UP", S(36), S(42), 30, (255, 220, 120), key="black", valign="middle")
+        if _n(vals.get("score" + suf)) is not None:
+            hd._score(screen, eng, "score" + suf, S(330), S(18), "right", S(48))
+        lives = _n(vals.get("lives" + suf))
         if lives is not None:
             self.text(screen, f"x{int(lives)}", S(456), S(42), 30, (120, 200, 255), key="black", align="right", valign="middle")
-        hp = _n(vals.get("energy"))
+        hp = _n(vals.get("energy" + suf))
         if hp is not None:                                             # HP, blue segments
             self.pill(screen, S(16), H - S(60), S(360), S(50), 160)
             self.text(screen, "HP", S(34), H - S(35), 28, (255, 220, 120), key="black", valign="middle")
             for i in range(5):
                 on = i < int(hp)
                 pg.draw.rect(screen, (60, 160, 255) if on else (24, 40, 70), (S(90) + i * S(54), H - S(48), S(46), S(26)), border_radius=S(4))
-        pw = _n(vals.get("power"))
+        pw = _n(vals.get("power" + suf))
         if pw is not None:                                             # POW, green to yellow
             self.pill(screen, W - S(376), H - S(60), S(360), S(50), 160)
             self.text(screen, "POW", W - S(356), H - S(35), 28, (255, 220, 120), key="black", valign="middle")

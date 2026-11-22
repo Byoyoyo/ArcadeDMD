@@ -318,11 +318,11 @@ Les 155 jeux Neo Geo sur le marquee HD et, dessous, sur la dalle LED 128 x 32. L
 
 ![Ninja Commando](images/games/ncommand.jpg)
 
-**Shock Troopers** (`shocktro`). Score, chrono, bombes.
+**Shock Troopers** (`shocktro`). Score, chrono, énergie, nom du soldat et son équipe, arme spéciale, stage et route, barre de vie du boss.
 
 ![Shock Troopers](images/games/shocktro.jpg)
 
-**Shock Troopers 2nd Squad** (`shocktr2`). Score, chrono, vies, puissance.
+**Shock Troopers 2nd Squad** (`shocktr2`). Score, chrono, vies, énergie, nom du soldat, arme et son niveau de puissance, grenades, second joueur, mission et son nom, boss (ALERT, une barre par pièce sur laquelle on tire, BOSS DÉTRUIT), véhicule.
 
 ![Shock Troopers 2nd Squad](images/games/shocktr2.jpg)
 

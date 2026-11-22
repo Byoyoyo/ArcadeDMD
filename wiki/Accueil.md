@@ -2,7 +2,7 @@ ArcadeDMD montre en direct ce qui se passe dans ton jeu d'arcade sur le marquee 
 
 Il lit la mémoire du jeu pendant que tu joues, avec un petit plugin MAME ou par les commandes réseau de RetroArch (FinalBurn Neo, Genesis Plus GX). Rien n'est modifié dans le jeu ni dans l'émulateur. Il marche à côté de LaunchBox et BigBox, HyperSpin ou n'importe quel autre frontend, et montre ton Clear Logo LaunchBox, ou le logo téléchargé par le scraper de RetroBat, quand un jeu démarre. Il tourne près de l'horloge, avec une fenêtre pour le suivre et le régler (écrans, émulateurs, frontal).
 
-ArcadeDMD 1.39.1, en BETA. Gratuit pour un usage personnel (fichier `LICENSE`). Windows, Python 3.12 ou plus récent.
+ArcadeDMD 1.39.2, en BETA. Gratuit pour un usage personnel (fichier `LICENSE`). Windows, Python 3.12 ou plus récent.
 
 In English, [[Home]].
 
