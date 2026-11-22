@@ -508,6 +508,8 @@ La branche `feature/visual-engine` illustre le besoin. Elle lit `Player.recoil_t
 
 ## 6. Contrat d'interface proposé
 
+**État au 22 novembre 2026.** Le bus existe pour la famille Metal Slug sur la branche `feature/event-bus` (demande de fusion #52). Sa notice, `docs/EVENT_BUS.md` sur cette branche, décrit ce qui est réellement en place, messages, état, événements, grenades numérotées, tests. Là où elle diffère des tables de ce chapitre, la notice fait foi. Les principaux écarts sont un `id` et un `basis` sur chaque événement, les grenades suivies par `mslug.grenade.launch` et `mslug.grenade.burst` à la place de `mslug.grenade.early`, et `boss.bar` pour une barre de boss qui revient sans alerte. Le code de détection n'a pas encore quitté la scène.
+
 ### 6.1 Principes
 
 1. **Une seule détection, plusieurs rendus.** Le détecteur d'un jeu tourne dans le moteur, une fois, que l'écran HD existe ou non. L'ancien écran HD, la dalle LED, les LED de la borne et le nouveau moteur graphique sont des abonnés.
