@@ -738,14 +738,43 @@ class Renderer:
     def draw(self, surface, now): ...     # dessiner, sans rien détecter / draw, detect nothing
 ```
 
-### 6.12 Points à valider avant de coder
+### 6.12 Choix recommandés
 
-1. **Le transport.** Flux Server-Sent Events sur le serveur local, ou autre choix selon la technologie du nouveau moteur graphique.
-2. **Où tourne le nouveau rendu.** Dans la fenêtre d'aperçu actuelle (pygame), ou dans un processus à part.
-3. **Les noms.** Les tables 6.6 à 6.8 sont une proposition. Ils deviennent stables à la validation.
-4. **La granularité de l'état.** Envoi complet à chaque lecture, ou différences seulement.
-5. **La dalle LED.** Elle garde ses règles propres dans un premier temps (proposition), ou elle passe tout de suite sur le bus.
-6. **L'ordre des familles.** Combat d'abord (97 fichiers, un seul détecteur), ou Metal Slug d'abord (le plus de parties réelles).
+Ces choix sont une recommandation. Ils s'appliquent dès que le propriétaire du projet les confirme. Toute remarque sur les noms et sur l'état doit arriver avant la première livraison du bus.
+
+| Point | Choix recommandé | Raison |
+| --- | --- | --- |
+| Transport | D'abord l'interface Python dans le processus (6.11) et un journal JSONL sur disque. Le flux local de 6.3 viendra quand un rendu hors du processus existera | Le moteur visuel en cours est du code Python dans la fenêtre actuelle. Aucune dépendance nouvelle, aucun retard ajouté |
+| Où tourne le nouveau rendu | Dans la fenêtre d'aperçu actuelle, branché jeu par jeu derrière un réglage. La scène actuelle reste le repli | Un seul programme à lancer sur la borne, retour arrière immédiat |
+| Noms des événements | Les tables 6.6 à 6.8 forment la version 1. Elles se figent à la première livraison du bus | Un rendu ne doit pas suivre des noms qui bougent |
+| Grain de l'état | État complet à chaque lecture, pas de différences | Dans le processus le coût est nul et le rendu reste simple |
+| Dalle LED | Elle garde ses règles propres pour l'instant | Elle fonctionne et n'est pas le sujet du pilote |
+| Ordre des familles | Metal Slug d'abord, puis le combat | Le pilote du moteur visuel est Metal Slug 2, et c'est la famille qui a le plus de parties réelles (21) |
+
+### 6.13 En attendant l'interface
+
+Règles provisoires pour un moteur de rendu qui se branche aujourd'hui sur `MetalSlugScene`.
+
+- Ne lire que les valeurs nommées reçues par la scène (`vals`) et les trois instants du tableau. Ne rien écrire dans la scène.
+- Ne pas toucher à `update`, `_player`, `_diff`, `_boss`, `_vehicle`, `_throw`, ni aux fichiers `games/*.json`.
+- Le nom du soldat se lit dans `p1_name` et `p2_name`. Il ne se déduit pas de `p1_chr`, dont l'ordre change d'un jeu à l'autre.
+
+| Champ interne | Posé quand | Horloge | Remplacé par |
+| --- | --- | --- | --- |
+| `Player.recoil_t` | Un tir est dessiné (`_fire`). Les tirs d'une même lecture sont étalés dans une file (`P.shots`), l'instant est donc celui du dessin, pas celui de la lecture. Posé aussi à chaque obus du char (`_tank_fire`) | `now`, et `fx.now` pour l'obus | `mslug.shot`, `players.<côté>.last.shot` |
+| `Player.bomb_t` | Une grenade quitte sa rangée (`_throw`), jusqu'à 0,48 s après la lecture pour la quatrième d'une série | `fx.now` | `mslug.grenade.thrown`, `players.<côté>.last.grenade` |
+| `Player.hit_t` | Une vie est perdue (`_life_lost`) | `now` | `life.lost`, `players.<côté>.last.hit` |
+
+Ordre des soldats, tel que `derived.p1_name` le donne dans chaque fichier de jeu.
+
+| Jeu | `p1_chr` 0 | 1 | 2 | 3 |
+| --- | --- | --- | --- | --- |
+| `mslug` | Pas de choix de soldat | | | |
+| `mslug2` | MARCO | TARMA | ERI | FIO |
+| `mslugx` | MARCO | ERI | TARMA | FIO |
+| `mslug3` | MARCO | TARMA | ERI | FIO |
+| `mslug4` | MARCO | TREVOR | NADIA | FIO |
+| `mslug5` | MARCO | TARMA | ERI | FIO |
 
 ## 7. Risques de régression
 
@@ -811,7 +840,7 @@ Chaque phase se termine par un critère vérifiable. Aucune ne retire une foncti
 
 | Phase | Contenu | Ce qui change dans le moteur | Critère de fin |
 | --- | --- | --- | --- |
-| 0 | Validation de ce document, des noms et du transport | Rien | Accord écrit sur le chapitre 6 |
+| 0 | Validation de ce document et des choix de 6.12 | Rien | Accord écrit sur le chapitre 6 |
 | 1 | Journaux de référence (8.2) dans le contrôle des demandes de fusion | Rien | Références stables sur deux passages |
 | 2 | Bus d'événements et prises. Les scènes émettent l'événement à l'endroit exact où elles déclenchent aujourd'hui l'effet. Aucune règle ne bouge | Ajouts seulement | Références inchangées. Chaque annonce de référence a son événement |
 | 3 | État public et flux local, version 1 du protocole. Flux d'exemple publiés | Ajouts seulement | Un client de test relit une partie entière |
@@ -821,8 +850,8 @@ Chaque phase se termine par un critère vérifiable. Aucune ne retire une foncti
 
 Ordre proposé pour la phase 4.
 
-1. Combat. Un seul détecteur pour 97 fichiers, 12 parties réelles et les enregistrements de 55 jeux.
-2. Metal Slug. 21 parties réelles, le pilote du nouveau moteur visuel.
+1. Metal Slug. 21 parties réelles, le pilote du nouveau moteur visuel.
+2. Combat. Un seul détecteur pour 97 fichiers, 12 parties réelles et les enregistrements de 55 jeux.
 3. Boss hors Metal Slug (`Machines`, `SecondSquadScene`, `BossAlert`, Mercs, Strikers).
 4. Shoot'em up de base, puis Capcom et Cave.
 5. Les autres scènes, par classe de base.
