@@ -630,6 +630,8 @@ class Player:
         self.ride = None                # which one: tank, camel, flyer... (VEHICLES) / lequel
         self.tank_t = -99.0             # monté dans le char / got in
         self.tank_hit_t = -99.0         # coup reçu par le char / hit taken by the tank
+        self.bus_n = 0                  # grenades numbered for the event bus / grenades numérotées pour le bus
+        self.bus_ids = []               # those thrown that have not left the row yet / lancées, pas encore parties
 
 
 # ---------------------------------------------------------------------------- la scène
@@ -645,8 +647,16 @@ class MetalSlugScene:
               "life.lost", "life.gained", "stage.begin", "stage.clear", "weapon.change", "ammo.gain", "mslug.shot",
               "mslug.grenade.thrown", "mslug.grenade.exploded", "mslug.bombs.found", "mslug.prisoner",
               "mslug.vehicle.in", "mslug.vehicle.out", "mslug.vehicle.hit", "mslug.vehicle.shell", "mslug.vehicle.vulcan",
+              "mslug.grenade.launch", "mslug.grenade.burst",
               "boss.warning", "boss.bar", "boss.hit", "boss.phase", "boss.destroyed",
               "enemy.big", "enemy.big.hit", "enemy.big.destroyed", "enemy.big.gone")
+    # where an event comes from when it is not the plain change of a value read: a rule over several readings or a
+    # threshold ("deduced"), an instant of our own clock ("timed"). Some say it call by call (a shot seen at the
+    # button, a mission's end seen at the next one) / d'où vient un événement quand ce n'est pas une valeur qui change
+    BASIS = {"mslug.bombs.found": "deduced", "mslug.vehicle.vulcan": "deduced", "mslug.grenade.launch": "timed",
+             "boss.warning": "deduced", "boss.bar": "deduced", "boss.hit": "deduced", "boss.phase": "deduced",
+             "boss.destroyed": "deduced", "enemy.big": "deduced", "enemy.big.hit": "deduced",
+             "enemy.big.destroyed": "deduced", "enemy.big.gone": "deduced"}
 
     def __init__(self, hd, rng=None, threaded=True):
         self.hd, self.pg, self.s = hd, hd.pg, hd.s
@@ -657,6 +667,7 @@ class MetalSlugScene:
         self.players = {"p1": Player("p1"), "p2": Player("p2")}
         self.last = None
         self.bus = None                          # the engine's event bus, once a game runs / le bus du moteur
+        self.bus_g = {}                          # a grenade in flight -> [its number, why it blew up] / son numéro
         self.key = None
         self.mission = None
         self.mission_n = 0              # missions played since the game began (the Metal Slug 6 hack counts them so, its
@@ -1013,6 +1024,7 @@ class MetalSlugScene:
             self.boss_hit, self.boss_top = {}, {}
             self.boss_ref, self.boss_parts = None, set()
             self.boss_dead_prev = self.done_prev = self.complete_m = None
+            self.bus_g = {}
         dt = 0.0 if self.last is None else max(0.0, min(0.1, now - self.last))
         self.last = now
         self.bus = getattr(eng, "events", None)
@@ -1065,7 +1077,8 @@ class MetalSlugScene:
                 self.fx.later(1.9, self._show_mission, theme, shown)
                 for i in range(6):
                     self.fx.later(0.15 + i * 0.25, self._firework)
-                self.emit("stage.clear", kind="mission", n=self.mission_shown, code=self.mission, source="next")
+                self.emit("stage.clear", None, None, "deduced", kind="mission", n=self.mission_shown, code=self.mission,
+                          source="next")
                 self.emit("stage.begin", None, now + 1.9, kind="mission", n=shown, code=m)
             elif self.mission is not None:
                 self._show_mission(theme, shown)
@@ -1097,15 +1110,30 @@ class MetalSlugScene:
         self.fx.update(now)
 
     # ------------------------------------------------------------ the event bus / le bus d'événements
-    def emit(self, event, side=None, at=None, /, **data):
+    def emit(self, event, side=None, at=None, basis=None, /, **data):
         """Says on the bus what the scene has just decided, beside the effect it draws for it. Decides nothing, and a
         bus that fails never stops the scene. / Dit au bus ce que la scène vient de décider. Ne décide rien."""
         bus = self.bus
         if bus is not None:
             try:
-                bus.emit(event, self.last, side, at, None, data)
+                bus.emit(event, self.last, side, at, None, data, basis or self.BASIS.get(event))
             except Exception:
                 self.bus = None
+
+    def _grenade_ids(self, P, n):
+        """A number for each of the n grenades of a throw, in the order they will leave the row: the bus pairs each
+        one with its explosion. / Un numéro pour chaque grenade d'un lancer, dans l'ordre de leur départ."""
+        ids = []
+        for _ in range(int(n)):
+            P.bus_n += 1
+            ids.append(f"{P.side}-{P.bus_n}")
+        P.bus_ids.extend(ids)
+        return ids
+
+    def _grenades_flying(self, P, n=None):
+        """The numbers of the grenades in flight, the oldest first (the n oldest). / Les grenades en vol."""
+        ids = [self.bus_g[id(g)][0] for g in P.live if not g.dead and id(g) in self.bus_g]
+        return ids if n is None else ids[:int(n)]
 
     def _boss_view(self):
         """What the boss watch holds, before it looks again. / Ce que le suivi du boss tient, avant de regarder."""
@@ -1159,6 +1187,7 @@ class MetalSlugScene:
                              prisoners=seen.get("prisoners"), moving=P.move,
                              vehicle={"kind": P.ride or "tank", "hp": seen.get("vehicle_hp"),
                                       "ammo": seen.get("vehicle_ammo")} if P.tank else None,
+                             grenades={"waiting": list(P.bus_ids), "flying": self._grenades_flying(P)},
                              last={"shot": bus.last_time("mslug.shot", side),
                                    "grenade": bus.last_time("mslug.grenade.thrown", side),
                                    "hit": bus.last_time("life.lost", side)})
@@ -1647,8 +1676,9 @@ class MetalSlugScene:
                 else:
                     self._throws(side, P, min(4, bo - b), bo)
                     thrown = True
-                    self.emit("mslug.grenade.thrown", side, count=min(4, bo - b), bombs_before=bo, bombs=b,
-                              synced=bool(counted), early=0)
+                    self.emit("mslug.grenade.thrown", side, None, "read" if counted else "deduced",
+                              count=min(4, bo - b), bombs_before=bo, bombs=b, synced=bool(counted), early=0,
+                              ids=self._grenade_ids(P, min(4, bo - b)))
             elif b > bo:
                 # Only bombs found are announced, and a crate gives ten. The game puts the bombs back to 10 by itself
                 # with each new life, each continue and each mission, and says nothing (the same 27 games: 174 rises of
@@ -1670,21 +1700,23 @@ class MetalSlugScene:
                     if now - t0 <= 0.5 and not thrown:
                         P.early += max(0, n - (go - goo))  # more bombs gone than grenades in the air: those blew up
                         self._throws(side, P, n, before)   # already, at the hand / déjà explosées, à la main
-                        self.emit("mslug.grenade.thrown", side, count=n, bombs_before=before, bombs=b, synced=True,
-                                  early=max(0, n - (go - goo)))
+                        self.emit("mslug.grenade.thrown", side, None, "read" if n <= go - goo else "deduced",
+                                  count=n, bombs_before=before, bombs=b, synced=True, early=max(0, n - (go - goo)),
+                                  ids=self._grenade_ids(P, n))
                 P.out_ok = True                            # la grenade du jeu est partie : on attend son explosion
                 for g in P.live:
                     g.life = max(g.life, self.fx.now - g.t0 + self.GRENADE_WAIT)
             elif go < goo and P.out_ok:                    # it blew up, on an enemy or at its second bounce / elle explose
+                self.emit("mslug.grenade.exploded", side, count=goo - go, ids=self._grenades_flying(P, goo - go))
                 self._explode_live(P, goo - go)
-                self.emit("mslug.grenade.exploded", side, count=goo - go)
         if P.bomb_drop is not None and now - P.bomb_drop[0] > 0.5:
             t0, n, before = P.bomb_drop                    # no grenade followed / aucune grenade n'a suivi
             P.bomb_drop = None
             if b != 10:                                    # not the game's 10 of a new life or mission: the grenades left
                 P.early += n                               # and blew up within one reading, at the hand / parties et
                 self._throws(side, P, n, before)           # explosées entre deux lectures : explosion à la main
-                self.emit("mslug.grenade.thrown", side, count=n, bombs_before=before, bombs=b, synced=False, early=n)
+                self.emit("mslug.grenade.thrown", side, None, "deduced", count=n, bombs_before=before, bombs=b,
+                          synced=False, early=n, ids=self._grenade_ids(P, n))
         pr, po = cur["prisoners"], old.get("prisoners")
         if pr is not None and po is not None and pr > po:
             P.prison_t = now
@@ -1701,7 +1733,7 @@ class MetalSlugScene:
                     self.emit("mslug.vehicle.vulcan", side)
                 else:
                     self._queue_shots(P, now, 1)
-                    self.emit("mslug.shot", side, count=1, weapon=P.weapon_kind, source="button")
+                    self.emit("mslug.shot", side, None, "deduced", count=1, weapon=P.weapon_kind, source="button")
         self._vehicle(side, P, old, cur, now)
 
     # ------------------------------------------------------------ le char / the tank
@@ -1999,9 +2031,12 @@ class MetalSlugScene:
         self.thrown += 1
         self.fx.glow(x, y, 6, 40, GOLD, 0.25)
         P.flying = max(0, P.flying - 1)
+        gid = P.bus_ids.pop(0) if P.bus_ids else None
+        self.emit("mslug.grenade.launch", side, id=gid)
         if P.early > 0:                                    # the game's one already blew up / celle du jeu a déjà explosé
             P.early -= 1
             self._boom(x + (tx - x) * 0.3, y - self.S(60))
+            self.emit("mslug.grenade.burst", side, None, "deduced", id=gid, cause="early")
             return
         g = self.fx.projectile("grenade", x, y, tx, ty, self.GRENADE_FLIGHT, 170, None, spin=d * 620, kind="proj", trail=0.03)
         g.floor, g.bounce = ty, self.GRENADE_BOUNCE
@@ -2011,6 +2046,7 @@ class MetalSlugScene:
             g.life = self.GRENADE_WAIT                     # the game tells when it blows up / le jeu dit quand
         g.on_end = (self._boom_live, (P, g))
         P.live.append(g)
+        self.bus_g[id(g)] = [gid, None]
 
     def _boom_live(self, P, g):
         """A grenade of the HD screen blows up where it is. / Une grenade explose là où elle est."""
@@ -2019,6 +2055,11 @@ class MetalSlugScene:
         g.on_end = None
         g.dead = True
         self._boom(g.x, g.y)
+        gid, cause = self.bus_g.pop(id(g), (None, None))
+        # the game said so ("game"), or our own clock: its second landing ("landed"), the game silent for two seconds
+        # ("timeout") / le jeu l'a dit, ou notre horloge : son second rebond, ou le jeu muet pendant deux secondes
+        self.emit("mslug.grenade.burst", P.side, None, "read" if cause == "game" else "timed", id=gid,
+                  cause=cause or ("timeout" if P.out_ok else "landed"))
 
     def _explode_live(self, P, n):
         """The game's grenades blew up: as many of ours, the oldest first, where they are. One that has not left the hand
@@ -2026,6 +2067,8 @@ class MetalSlugScene:
         for _ in range(int(n)):
             live = [g for g in P.live if not g.dead]
             if live:
+                if id(live[0]) in self.bus_g:
+                    self.bus_g[id(live[0])][1] = "game"
                 self._boom_live(P, live[0])
             elif P.flying > 0:
                 P.early += 1

@@ -6,6 +6,8 @@
   "attract.end": 1,
   "life.lost": 2,
   "mslug.bombs.found": 3,
+  "mslug.grenade.burst": 31,
+  "mslug.grenade.launch": 31,
   "mslug.grenade.thrown": 24,
   "mslug.shot": 294,
   "player.continue": 1,
@@ -15,11 +17,11 @@
   "stage.clear": 1,
   "weapon.change": 4
  },
- "events": 674,
+ "events": 736,
  "game": "mslug2",
  "seconds": 425,
- "state_stream": "c72f3dd8b4feeffb2e43",
- "states": 753,
+ "state_stream": "58c4138d231919d277cb",
+ "states": 810,
  "step": 0.1,
- "stream": "466c838f9e9285c54cb1"
+ "stream": "067764bec68f7daabcea"
 }

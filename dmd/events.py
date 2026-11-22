@@ -7,17 +7,24 @@ Nothing is decided in this module and no rule of detection lives in it.
 
 Three kinds of message, all plain dicts (the same go to a journal, one JSON object per line):
 
-    {"type": "hello", "protocol": 1, "arcadedmd": "1.40.0", "t": 12.5, "wall": 1795300000.0,
+    {"type": "hello", "protocol": 1, "arcadedmd": "1.40.0", "session": "9f2c41d07a3e", "t": 12.5, "wall": 1795300000.0,
      "game": {"key": "mslug2", "title": "Metal Slug 2", "system": "mslug2", "parent": "", "family": "mslug2",
               "detector": "MetalSlugScene"},
      "events": ["player.join", ...], "values": ["score", "lives", ...]}
     {"type": "state", "seq": 41, "t": 812.34, "state": {...}}
-    {"type": "event", "seq": 42, "t": 812.34, "at": 812.34, "name": "mslug.grenade.thrown", "side": "p1",
-     "data": {"count": 1, "bombs_before": 10, "bombs": 9, "synced": true}}
+    {"type": "event", "seq": 42, "id": "9f2c41d07a3e:42", "t": 812.34, "at": 812.34, "name": "mslug.grenade.thrown",
+     "side": "p1", "basis": "read", "data": {"count": 1, "bombs_before": 10, "bombs": 9, "synced": true}}
     {"type": "bye", "seq": 43, "t": 1420.0, "reason": "stop"}
 
 "t" is when the thing was detected, in seconds on the engine's clock; "at" is when it is to be shown, the same unless
-the engine itself schedules the announcement later. "seq" grows by one with each state, event and bye of a game.
+the engine itself schedules the announcement later. "seq" grows by one with each state, event and bye of a game, and
+"id" (the session of the game, then seq) names one occurrence for good: the same id is the same event, never two.
+"basis" says where the event comes from: "read" (a value of the game changed, and the event is that change), "deduced"
+(a rule over several readings, or a threshold), "timed" (an instant set by ArcadeDMD's own clock, not by the game).
+
+A pause of the emulator sends game.pause then game.resume; no reading comes in between, so nothing else is said, and
+the instants already given are not moved. A game that stops, or another one that starts, sends a bye: everything a
+listener still holds for that game is to be dropped. The next hello opens a new session, where seq starts again.
 
     bus = engine.events
     bus.subscribe(fn)                 # fn(message) for each message; a newcomer gets the hello and the last state
@@ -32,10 +39,12 @@ import importlib
 import json
 import os
 import time
+import uuid
 from collections import deque
 
 PROTOCOL = 1
 NEVER = -99.0
+BASES = ("read", "deduced", "timed")
 
 DETECTORS = []         # (matches(key) -> family or "", name of the scene, names of its events)
 LED_PAINTERS = []      # (matches(key) -> truthy, factory(engine) -> painter(canvas, engine, now) -> True when it drew)
@@ -119,6 +128,7 @@ class EventBus:
         self.state_msg = None
         self.journal = None
         self.game = ""
+        self.session = ""
 
     # -- listeners / les abonnés
     def subscribe(self, fn, replay=True):
@@ -163,7 +173,9 @@ class EventBus:
         self.last = {}
         self.state = self.state_msg = None
         self.game = key
-        self.hello_msg = {"type": "hello", "protocol": PROTOCOL, "arcadedmd": version, "t": round(t, 3),
+        self.session = uuid.uuid4().hex[:12]
+        self.hello_msg = {"type": "hello", "protocol": PROTOCOL, "arcadedmd": version, "session": self.session,
+                          "t": round(t, 3),
                           "wall": round(time.time(), 3),
                           "game": dict(_plain(game), family=fam, detector=name),
                           "events": list(events), "values": sorted(str(v) for v in values if not str(v).startswith("_"))}
@@ -182,17 +194,20 @@ class EventBus:
         return msg
 
     # -- what happens / ce qui se passe
-    def emit(self, name, t, side=None, at=None, read_at=None, data=None):
-        """An event: its name, when it was detected, whose it is, when to show it, and its figures (a dict).
+    def emit(self, name, t, side=None, at=None, read_at=None, data=None, basis=None):
+        """An event: its name, when it was detected, whose it is, when to show it, its figures (a dict), and where it
+        comes from ("read" unless told "deduced" or "timed").
         Nothing is said while no game runs. / Un événement... Rien n'est dit hors d'un jeu."""
         if self.hello_msg is None:
             return None
         self.seq += 1
-        msg = {"type": "event", "seq": self.seq, "t": round(t, 3), "at": round(t if at is None else at, 3), "name": name}
+        msg = {"type": "event", "seq": self.seq, "id": f"{self.session}:{self.seq}", "t": round(t, 3),
+               "at": round(t if at is None else at, 3), "name": name}
         if side:
             msg["side"] = side
         if read_at is not None:
             msg["read_at"] = round(read_at, 3)
+        msg["basis"] = basis if basis in BASES else "read"
         msg["data"] = _plain(data or {})
         self.last[(name, side or "")] = t
         self.recent.append(msg)

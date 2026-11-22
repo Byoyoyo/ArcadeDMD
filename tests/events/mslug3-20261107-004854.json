@@ -14,7 +14,9 @@
   "enemy.big.hit": 36,
   "life.lost": 12,
   "mslug.bombs.found": 2,
+  "mslug.grenade.burst": 77,
   "mslug.grenade.exploded": 43,
+  "mslug.grenade.launch": 77,
   "mslug.grenade.thrown": 60,
   "mslug.prisoner": 9,
   "mslug.shot": 274,
@@ -28,11 +30,11 @@
   "stage.clear": 1,
   "weapon.change": 13
  },
- "events": 829,
+ "events": 983,
  "game": "mslug3",
  "seconds": 413,
- "state_stream": "fdb1bd9de58297380d95",
- "states": 906,
+ "state_stream": "94cb2ccca6d6b7342f2e",
+ "states": 972,
  "step": 0.1,
- "stream": "2592edce85b31282904a"
+ "stream": "708110406b0d23b69cef"
 }

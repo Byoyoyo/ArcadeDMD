@@ -4,11 +4,14 @@ the event bus (dmd/events.py) and compares what was said with what was said the 
 by a hair changes the stream, and the check says which game and which event.
 
 It also checks what a renderer relies on: a hello first, numbers that follow one another, times that never go back, an
-"at" never before its "t", only events the scene announced it may say.
+"at" never before its "t", only events the scene announced it may say, an id that names one event and one only, each
+grenade thrown, then leaving, then blowing up, once. And what version 1.39.2 put right stays right: no life announced
+at a start or a continue, no ten bombs announced with a new life or a new mission.
 
     python tools/events_check.py                 the games whose scene speaks on the bus, against their references
     python tools/events_check.py --write         writes the references again (after a change that is meant)
     python tools/events_check.py --jsonl DIR     also writes each whole stream, one JSON object per line
+    python tools/events_check.py --report        also prints what the games hold: starts, lives, bombs, grenades
     python tools/events_check.py FILE.log ...    only these captures
 
 / Rejoue les parties enregistrées de tests/captures dans le moteur et sa scène HD, sans rien afficher, écoute le bus
@@ -124,12 +127,78 @@ def rules(msgs):
                 bad.append(f"event not announced in the hello: {m['name']}")
             if m["at"] < m["t"] - 1e-6:
                 bad.append(f"{m['name']} to be shown before it was detected (seq {seq})")
+            if m.get("id") != f"{hello.get('session')}:{seq}":
+                bad.append(f"id {m.get('id')} is not the session and the number (seq {seq})")
+            if m.get("basis") not in ("read", "deduced", "timed"):
+                bad.append(f"{m['name']}: basis {m.get('basis')}")
+    ev = [m for m in msgs if m["type"] == "event"]
+    end = msgs[-1]["t"]
+    # a grenade is thrown, leaves its row, blows up: once each, in that order / une grenade : lancée, partie, explosée
+    thrown, left, blown = {}, {}, {}
+    for m in ev:
+        n, d = m["name"], m["data"]
+        if n == "mslug.grenade.thrown":
+            if len(d["ids"]) != d["count"] or not 0 <= d["early"] <= d["count"]:
+                bad.append(f"grenades thrown at {m['t']}: {d}")
+            for g in d["ids"]:
+                if g in thrown or not str(g).startswith(m.get("side", "?") + "-"):
+                    bad.append(f"grenade {g} thrown twice, or not its player's")
+                thrown[g] = m["t"]
+        elif n == "mslug.grenade.launch":
+            g = d["id"]
+            if g not in thrown or g in left:
+                bad.append(f"grenade {g} leaves at {m['t']} without a throw, or twice")
+            left[g] = m["t"]
+        elif n == "mslug.grenade.burst":
+            g = d["id"]
+            if g not in left or g in blown or d["cause"] not in ("game", "landed", "timeout", "early"):
+                bad.append(f"grenade {g} blows up at {m['t']} without leaving, or twice ({d['cause']})")
+            blown[g] = m["t"]
+        elif n == "mslug.grenade.exploded":
+            if len(d["ids"]) > d["count"] or any(g not in left or g in blown for g in d["ids"]):
+                bad.append(f"the game's explosion at {m['t']} names grenades that are not in flight: {d}")
+    lost = [g for g, t in left.items() if g not in blown and t < end - 4.0]
+    if lost:
+        bad.append(f"grenades that left and never blew up: {lost[:6]}")
+    # what 1.39.2 put right / ce que la 1.39.2 a corrigé
+    for m in ev:
+        side, t = m.get("side"), m["t"]
+        if m["name"] == "life.gained" and any(e["name"] == "player.join" and e.get("side") == side and 0 <= t - e["t"] <= 2.5
+                                              for e in ev):
+            bad.append(f"a life announced at {t}, as the player starts or continues")
+        if m["name"] == "mslug.bombs.found" and m["data"].get("bombs") == 10:
+            if any(e["name"] in ("life.lost", "player.join") and e.get("side") == side and 0 <= t - e["t"] <= 3.6 for e in ev):
+                bad.append(f"ten bombs announced at {t}, with a new life")
+            if any(e["name"] in ("stage.clear", "stage.begin") and 0 <= t - e["t"] <= 7.1 for e in ev):
+                bad.append(f"ten bombs announced at {t}, with a new mission")
     return bad[:12]
+
+
+def facts(msgs):
+    """What a game holds, for the report. / Ce que contient une partie, pour le bilan."""
+    ev = [m for m in msgs if m["type"] == "event"]
+    c = collections.Counter()
+    left, waits = {}, []
+    for m in ev:
+        n, d = m["name"], m["data"]
+        if n == "player.join":
+            c["join." + d["kind"]] += 1
+        elif n == "mslug.grenade.thrown":
+            c["grenades thrown"] += d["count"]
+        elif n == "mslug.grenade.launch":
+            left[d["id"]] = m["t"]
+        elif n == "mslug.grenade.burst":
+            c["burst." + d["cause"]] += 1
+            if d["cause"] == "game" and d["id"] in left:
+                waits.append(round(m["t"] - left[d["id"]], 2))
+        elif n in ("life.lost", "life.gained", "mslug.bombs.found", "boss.warning", "boss.destroyed", "boss.phase"):
+            c[n] += 1
+    return c, waits
 
 
 def summary(path, game, msgs, end):
     ev = [m for m in msgs if m["type"] == "event"]
-    lines = [json.dumps([m["seq"], m["t"], m["at"], m["name"], m.get("side"), m["data"]], sort_keys=True,
+    lines = [json.dumps([m["seq"], m["t"], m["at"], m["name"], m.get("side"), m["basis"], m["data"]], sort_keys=True,
                         ensure_ascii=False, separators=(",", ":")) for m in ev]
     st = [json.dumps([m["seq"], m["t"], m["state"]], sort_keys=True, ensure_ascii=False, separators=(",", ":"))
           for m in msgs if m["type"] == "state"]
@@ -224,6 +293,7 @@ def main():
     from dmd.events import detector_for
     files = args or sorted(glob.glob(os.path.join(ROOT, "tests", "captures", "*.log")))
     failed = done = 0
+    total, all_waits = collections.Counter(), []
     if not args:
         bad = bus_rules()
         print(f"{'FAIL' if bad else 'ok  '} the bus and the LED panel's renderer / le bus et le moteur de la dalle")
@@ -239,6 +309,9 @@ def main():
         done += 1
         s = summary(path, game, msgs, end)
         bad = rules(msgs)
+        c, waits = facts(msgs)
+        total.update(c)
+        all_waits += waits
         ref_path = os.path.join(REFS, base[:-4] + ".json")
         if out_dir:
             with open(os.path.join(out_dir, base[:-4] + ".jsonl"), "w", encoding="utf-8", newline="\n") as f:
@@ -263,6 +336,12 @@ def main():
         for b in bad:
             print("     " + b)
         failed += bool(bad)
+    if "--report" in sys.argv:
+        print("in these games / dans ces parties : " + ", ".join(f"{k} {v}" for k, v in sorted(total.items())))
+        if all_waits:
+            w = sorted(all_waits)
+            print(f"from a grenade leaving to the game's explosion / du départ à l'explosion du jeu : {len(w)} grenades, "
+                  f"{w[0]} s to {w[-1]} s, half under {w[len(w) // 2]} s")
     print(f"{done} games replayed, {failed} failed / {done} parties rejouées, {failed} en échec")
     return 1 if failed or not done else 0
 
