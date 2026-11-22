@@ -19,7 +19,9 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # shipped in the zip: everything except these (development files, user data, caches)
 EXCLUDE_DIRS = {".git", ".github", "tools", "dist", "runtime", "learned", "appris", "appris.old", "obs", "artwork",
                 "__pycache__", "tests", "wiki"}
-EXCLUDE_FILES = {"config.json", ".gitignore", ".gitattributes", "CONTRIBUTING.md"}
+EXCLUDE_FILES = {"config.json", ".gitignore", ".gitattributes", "CONTRIBUTING.md",
+                 # the developers' papers on the event engine, of no use on a cabinet / les documents des développeurs
+                 "EVENT_ENGINE_HANDOFF.md", "EVENT_ENGINE_CATALOG.md", "EVENT_ENGINE_VALUES.md"}
 EXCLUDE_EXT = (".pyc", ".pyo", ".log", ".tmp")
 REQUIRED = ["arcadedmd.py", "install.bat", "run.bat", "learn.bat", "config.default.json", "README.md", "README.fr.md",
             "CHANGELOG.md", "LICENSE", "dmd/app.py", "dmd/lang.bat", "dmd/find_python.bat", "dmd/hd.py",
