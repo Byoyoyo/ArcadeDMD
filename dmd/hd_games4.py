@@ -1558,7 +1558,7 @@ class NeoBombermanScene(GameScene):
                 self.popup(tr("-1 VIE", "-1 LIFE"), x, y - S(60), (255, 90, 70), 34)
                 B["dead"] = now
                 B["spawn"] = now + 1.4
-            elif ch and ch[1] > ch[0]:
+            elif self.one_up(vals, side):                              # one more, not the lives of a start
                 x, y = self.cell_xy(B["c"], B["r"])
                 self.popup("1UP !", x, y - S(60), (140, 255, 150), 36)
             for name, label, col in (("fire", "FIRE UP", (255, 140, 40)), ("speed", "SPEED UP", (90, 200, 255))):
@@ -1935,7 +1935,8 @@ class RallyScene(GameScene):
         sec = self.secs(vals)
         old = self.last_secs
         self.last_secs = sec
-        if sec is not None and old is not None and sec > old + 1.5:   # time added: a checkpoint
+        if sec is not None and old is not None and old > 0 and sec > old + 1.5:   # time added to a timer that runs: a
+            # checkpoint; a timer that leaves zero is the race that starts (the robot's Over Top and Thrash Rally)
             self.checkpoints += 1
             if sec > old + self.NEW_STAGE:
                 self.next_stage(now)
@@ -2141,13 +2142,14 @@ class RidingHeroScene(GameScene):
         self.burst = max(0.0, self.burst - dt * 0.3)
         self.z += dt * 40 * self.speed(vals)
         ch = self.changed(vals, "turbo")
-        if ch and ch[1] < ch[0]:                                       # a turbo spent: a burst of speed
+        if ch and ch[1] == ch[0] - 1:                                  # a turbo spent: a burst of speed (the count wiped
+            # at a continue is not one, the robot's recording of 2026-11-16)
             self.turbos += 1
             self.burst = 0.8
             self.popup("TURBO !", self.W / 2, S(250), GOLD, 54, 1.2, 50, "stencil")
             self.fx.flash((255, 240, 200), 0.12, 0.25)
         ch = self.changed(vals, "rank")
-        if ch and ch[1] < ch[0]:                                       # a rider passed
+        if ch and 0 < ch[1] < ch[0]:                                   # a rider passed (0 is no race, not a rank)
             self.passes += 1
             ahead = [r for r in self.riders if 0 < r["d"] < 12]
             r = min(ahead, key=lambda r: r["d"]) if ahead else {"d": 4.0, "lane": rng.uniform(-0.5, 0.5), "k": rng.randint(1, 5), "v": 0.0}
@@ -2158,7 +2160,7 @@ class RidingHeroScene(GameScene):
         elif ch and ch[1] > ch[0]:                                     # passed by a rider
             self.riders.append({"d": -2.0, "lane": rng.uniform(-0.5, 0.5), "k": rng.randint(1, 5), "v": 2.5})
         ch = self.changed(vals, "time")
-        if ch and ch[1] > ch[0] + 5:
+        if ch and ch[0] > 0 and ch[1] > ch[0] + 5:                     # a timer that leaves zero is the race that starts
             self.popup(tr("TEMPS EN PLUS", "EXTENDED TIME"), self.W / 2, S(200), (120, 230, 255), 44, 1.6, 50, "stencil")
         keep = []
         for r in self.riders:

@@ -34,12 +34,14 @@
    "lives": {
     "addr": "0x101658",
     "type": "u8",
-    "note": "player 1 lives (MAME 2003-Plus cheats, Infinite Lives PL1)"
+    "zero_from": 240,
+    "note": "player 1 lives (MAME 2003-Plus cheats, Infinite Lives PL1; 255 once the last one is lost, read as 0, the robot's recording of 2026-11-16)"
    },
    "lives_p2": {
     "addr": "0x1016D8",
     "type": "u8",
-    "note": "player 2 lives (MAME 2003-Plus cheats, Infinite Lives PL2)"
+    "zero_from": 240,
+    "note": "player 2 lives (MAME 2003-Plus cheats, Infinite Lives PL2; 255 while he does not play, read as 0, the robot's recording of 2026-11-16)"
    },
    "fire": {
     "addr": "0x101671",

@@ -322,7 +322,7 @@ Les 155 jeux Neo Geo sur le marquee HD et, dessous, sur la dalle LED 128 x 32. L
 
 ![Shock Troopers](images/games/shocktro.jpg)
 
-**Shock Troopers 2nd Squad** (`shocktr2`). Score, chrono, vies, puissance, énergie, nom du soldat, second joueur.
+**Shock Troopers 2nd Squad** (`shocktr2`). Score, chrono, vies, énergie, nom du soldat, arme et son niveau de puissance, grenades, second joueur, mission et son nom, boss (ALERT, une barre par pièce sur laquelle on tire, BOSS DÉTRUIT), véhicule.
 
 ![Shock Troopers 2nd Squad](images/games/shocktr2.jpg)
 

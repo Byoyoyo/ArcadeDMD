@@ -657,6 +657,8 @@ class MagicalDropScene(GameScene):
         for side, suf in (("p1", ""), ("p2", "_p2")):
             f = self.fields[side]
             ch = self.changed(vals, "quota" + suf)
+            if ch and self.starting(side):                             # the game sets its quota as a player starts (100,
+                ch = None                                              # 0, then 200 in the robot's Magical Drop II)
             if ch:
                 old, new = ch
                 if new < old:
