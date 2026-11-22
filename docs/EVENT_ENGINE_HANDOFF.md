@@ -16,16 +16,15 @@ Trois fichiers vont ensemble.
 
 ## 0. État décrit et branches
 
-Le document décrit le code de la branche `feature/second-squad` au commit `1425eb0`, version interne 1.39.2, pas encore publiée. Les numéros de ligne cités valent pour ce commit.
+Le document décrit le code de la version 1.39.2, publiée et présente dans `main`. Les numéros de ligne cités valent pour cette version.
 
 | Branche | État | Ce qu'il faut savoir |
 | --- | --- | --- |
-| `main` | 1.39.1 publiée | Ne contient pas les corrections de détection de la 1.39.2 |
-| `feature/shock-troopers`, `feature/shooters`, `feature/action`, `feature/second-squad` | 1.39.2, quatre demandes de fusion en brouillon, empilées | Contiennent la classe `Machines`, la scène `SecondSquadScene`, la règle de départ de la scène de base (`SETTLE`), les annonces de Metal Slug limitées à ce que le jeu donne en jeu, le contrôle `tools/scenes_check.py` |
-| `feature/visual-engine` | Essai du nouveau moteur visuel, part de `main` | Touche `dmd/hd_mslug.py` (dessin seulement) et lit `Player.recoil_t`, `Player.bomb_t`, `Player.hit_t` |
-| `docs/event-engine-handoff` | Ce document | Part de `feature/second-squad`, n'ajoute que de la documentation et l'outil de catalogue |
+| `main` | 1.39.2 publiée | La référence. Contient la classe `Machines`, la scène `SecondSquadScene`, la règle de départ de la scène de base (`SETTLE`), les annonces de Metal Slug limitées à ce que le jeu donne en jeu, le contrôle `tools/scenes_check.py` |
+| `feature/visual-engine` | Essai du nouveau moteur visuel, parti de la 1.39.1 | Touche `dmd/hd_mslug.py` (dessin seulement) et lit `Player.recoil_t`, `Player.bomb_t`, `Player.hit_t`. Doit reprendre `main` pour avoir les corrections de la 1.39.2 |
+| `docs/event-engine-handoff` | Ce document | N'ajoute que de la documentation et l'outil de catalogue |
 
-`feature/visual-engine` et `feature/second-squad` se fusionnent sans conflit (vérifié avec `git merge-tree`, rien n'a été écrit). Tant que la première part de `main`, elle garde les défauts corrigés par la 1.39.2, par exemple 1UP annoncé à chaque continue dans Metal Slug. Toute comparaison de comportement doit se faire sur une base qui contient la 1.39.2.
+`feature/visual-engine` et `main` se fusionnent sans conflit (vérifié avec `git merge-tree`, rien n'a été écrit). Tant que cette branche n'a pas repris `main`, elle garde les défauts corrigés par la 1.39.2, par exemple 1UP annoncé à chaque continue dans Metal Slug. Toute comparaison de comportement doit se faire sur une base qui contient la 1.39.2.
 
 Les dessins du dépôt sont faits pour ArcadeDMD, aucun ne vient d'un jeu. Les images propres au propriétaire de la borne vont dans `sprites/<jeu>/`, que `.gitignore` écarte (`sprites/*/`). Un nouveau moteur de rendu doit garder cette séparation.
 
@@ -829,7 +828,7 @@ Ordre proposé pour la phase 4.
 5. Les autres scènes, par classe de base.
 6. Dalle LED, une fois les détecteurs en place.
 
-La branche `feature/visual-engine` peut continuer pendant les phases 1 à 3 à condition de repartir d'une base qui contient la 1.39.2. À la phase 3 elle remplace la lecture des champs internes du panneau par l'état public (`players.<côté>.last`) et les événements.
+La branche `feature/visual-engine` peut continuer pendant les phases 1 à 3 à condition de reprendre `main`, qui contient la 1.39.2. À la phase 3 elle remplace la lecture des champs internes du panneau par l'état public (`players.<côté>.last`) et les événements.
 
 Ce qui ne bouge dans aucune phase sans décision séparée. Les fichiers de jeu et leurs adresses, `dmd/memvalues.py`, `dmd/retroarch.py`, le plugin MAME, les constantes des chapitres 4.1 à 4.4.
 
