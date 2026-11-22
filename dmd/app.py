@@ -28,6 +28,7 @@ from .neocoins import NeoCoins
 from .textfiles import TextFiles
 from .capture import Capture
 from .lights import Lights
+from .events import EventBus, load_modules, pick_led_painter
 from .i18n import tr
 
 VERSION = "1.39.2"
@@ -701,6 +702,16 @@ class Engine:
         # the captures of the fighting games, to replay them offline (1.33) / les captures des jeux de combat
         self.capture = Capture(root, log, config.get("capture", "all")) if not demo_game else None
         self.lights = Lights(config.get("lights"), log)              # the LEDs of the cabinet, through HyperHDR (1.39)
+        # the event bus: what the scenes detect, said once, for every screen (dmd/events.py). A renderer named in
+        # "visual" may listen to it and draw the LED panel of the games it knows; without it nothing changes.
+        # / le bus d'événements : ce que les scènes détectent, dit une fois, pour tous les écrans
+        self.events = EventBus(log)
+        vis = config.get("visual")
+        self.visual = vis if isinstance(vis, dict) and vis.get("enabled") else {}
+        self.led_painter = None
+        self.now = 0.0                # the time of the image being made / l'instant de l'image en cours
+        if self.visual:
+            load_modules(self.visual.get("modules"), log)
         # config.json modifié (screen_setup.bat, réglage à la main) : le moteur redémarre avec les nouveaux réglages
         self.cfg_path = os.path.join(root, "config.json")
         self.cfg_mtime = _mtime(self.cfg_path)
@@ -819,6 +830,9 @@ class Engine:
     def go_idle(self):
         if getattr(self, "capture", None) is not None:
             self.capture.stop(time.monotonic())
+        if getattr(self, "events", None) is not None:
+            self.events.bye(self.now, "stop")
+            self.led_painter = None
         self.mode = "idle"
         self.source = None
         self.sim = None
@@ -940,6 +954,38 @@ class Engine:
                     f"game: {meta.get('system')} \"{title}\" -> scene {self.scene_key}"))
         if self.capture is not None and source != "demo":
             self.capture.start(meta, g, key, VERSION, time.monotonic())
+        self._events_hello(meta, key, g, source)
+
+    def _events_hello(self, meta, key, g, source):
+        """The bus is told a game starts: who listens learns which game, what its scene may announce and what it
+        reads. / Le bus apprend qu'un jeu commence : le jeu, ce que sa scène peut annoncer, ce qu'il lit."""
+        bus = self.events
+        if bus.hello_msg is not None:
+            bus.bye(self.now, "next")
+        opt = self.cfg.get("events") if isinstance(self.cfg.get("events"), dict) else {}
+        if opt.get("journal") and source != "demo":
+            name = f"{key or 'game'}-{time.strftime('%Y%m%d-%H%M%S')}.jsonl"
+            bus.open_journal(os.path.join(self.root, "runtime", "events", name))
+        mem = g.get("memory") if isinstance(g.get("memory"), dict) else {}
+        names = list(mem.get("values") or {}) + [k for k in (g.get("derived") or {}) if k != "note"]
+        bus.hello(self.now, {"key": key, "title": meta.get("title") or "", "system": meta.get("system") or "",
+                             "parent": meta.get("parent") or ""}, names, VERSION)
+        self.led_painter = pick_led_painter(self, key, self.log) if self.visual.get("led") else None
+
+    def led_paint(self, now):
+        """A renderer plugged on the LED panel draws this image in place of the scene of the game file. It gets the
+        canvas and the engine (its state, its bus). When it draws nothing, or fails, the scene draws as it always did.
+        / Un moteur de rendu branché sur la dalle dessine l'image à la place de la scène du fichier de jeu."""
+        painter = self.led_painter
+        if painter is None or self.mode != "game":
+            return False
+        try:
+            return bool(painter(self.canvas, self, now))
+        except Exception as e:
+            self.log(tr(f"dalle LED : le moteur de rendu s'arrête ({e}), retour à la scène du jeu",
+                        f"LED panel: the renderer stops ({e}), back to the game's scene"))
+            self.led_painter = None
+            return False
 
     def start_demo(self, key, seconds=None):
         g = self.library.get(key)
@@ -1030,8 +1076,10 @@ class Engine:
                 self.go_idle()
         elif t == "pause":
             self.state.paused = True
+            self.events.emit("game.pause", now)
         elif t == "resume":
             self.state.paused = False
+            self.events.emit("game.resume", now)
         elif t == "capture":
             self.message(f"CAPTURE {ev.get('n', '')}", 1.5, "#ffdd33")
 
@@ -1360,7 +1408,7 @@ class Engine:
             self.intro = None
         if black:
             self.canvas.clear((0, 0, 0))
-        elif self.intro is None:
+        elif self.intro is None and not self.led_paint(now):
             self.scene.render(self.ctx)
         if self.state.paused and self.cfg.get("show_pause", True) and int(now * 2) % 2 == 0:
             cv = self.canvas
@@ -1373,6 +1421,7 @@ class Engine:
 
     # -- boucle principale
     def step(self, now):
+        self.now = now
         if self.library.reload():
             if self.scene_key:
                 self.set_scene(self.scene_key)

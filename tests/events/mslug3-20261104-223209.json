@@ -1,0 +1,23 @@
+{
+ "capture": "mslug3-20261104-223209.log",
+ "counts": {
+  "attract.begin": 1,
+  "attract.end": 1,
+  "coin.in": 1,
+  "life.lost": 2,
+  "mslug.grenade.thrown": 17,
+  "mslug.prisoner": 4,
+  "mslug.shot": 83,
+  "player.continue": 1,
+  "player.join": 2,
+  "score.gain": 93,
+  "weapon.change": 4
+ },
+ "events": 209,
+ "game": "mslug3",
+ "seconds": 168,
+ "state_stream": "1f9e3232d7b0d8644e0d",
+ "states": 260,
+ "step": 0.1,
+ "stream": "7f4d3ae252a2f095f242"
+}
