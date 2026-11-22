@@ -1836,13 +1836,17 @@ class BrawlerScene(GameScene):
     FOES = (("thug", (70, 70, 80), (40, 40, 50), (214, 160, 120), (30, 30, 34)),)
     ENERGY_MAX = 255
     ENERGY = "energy"
+    HERO2 = None                                          # the second player's fighter; None: the hero in another colour
+    TWO = True                                            # the second player fights beside the first; False for a game
+                                                          # where the players take turns / False quand ils jouent tour à tour
 
     def __init__(self, hd, rng=None):
         super().__init__(hd, rng)
-        self.hero = {"x": self.W * 0.42, "z": 0.5, "face": 1, "act": None, "hurt": -99.0, "down": -99.0}
+        self.hero = {"x": self.W * 0.42, "z": 0.5, "face": 1, "act": None, "hurt": -99.0, "down": -99.0, "auto": 0.0}
+        self.hero2 = {"x": self.W * 0.57, "z": 0.85, "face": -1, "act": None, "hurt": -99.0, "down": -99.0, "auto": 0.0}
+        self.lead = self.hero                             # the one the enemies come to / celui vers qui viennent les ennemis
         self.foes = []
         self.next_foe = 0.0
-        self.next_auto = 0.0
         self.slashes = []
         self.blows = 0                                    # (tests)
         self.knocked = 0
@@ -1856,6 +1860,25 @@ class BrawlerScene(GameScene):
         return self.img(("brawl", look, frame, left), S(420 if weapon else 170), S(250), fighter_draw(style, top, pants, skin, hair, frame, weapon),
                         ss=2, flip=left)
 
+    def look2(self):
+        """The second player's fighter: HERO2, or the hero in blue (in red when the hero is blue).
+        / Le combattant du second joueur : HERO2, ou le héros en bleu (en rouge quand le héros est bleu)."""
+        if self.HERO2 is not None:
+            return self.HERO2
+        style, top, pants = self.HERO[:3]
+        col = (210, 50, 50) if top[2] > top[0] + 40 else (50, 100, 220)
+        suit = max(abs(a - b) for a, b in zip(top, pants)) < 90             # one colour from head to toe: all of it changes
+        return (style, col, tuple(int(c * 0.82) for c in col) if suit else pants) + tuple(self.HERO[3:])
+
+    def fighters(self, vals):
+        """(side, suffix of its values, fighter, look) of each player in the game. / Chaque joueur en jeu."""
+        out = []
+        if self.p1_in(vals):
+            out.append(("p1", "", self.hero, self.HERO))
+        if self.TWO and self.p2_in(vals):
+            out.append(("p2", "_p2", self.hero2, self.look2()))
+        return out
+
     def ground(self, z):
         return self.S(BRAWL_FLOOR) + self.S(30) + z * (self.H - self.S(BRAWL_FLOOR) - self.S(50))
 
@@ -1866,17 +1889,18 @@ class BrawlerScene(GameScene):
         self.foes = []
         self.next_foe = now + 0.5
 
-    def nearest(self):
+    def nearest(self, h=None):
+        h = h or self.hero
         live = [f for f in self.foes if f["hp"] > 0]
-        return min(live, key=lambda f: abs(f["x"] - self.hero["x"])) if live else None
+        return min(live, key=lambda f: abs(f["x"] - h["x"])) if live else None
 
-    def strike(self, now, dmg=1):
-        """The hero hits the nearest enemy. / Le héros frappe l'ennemi le plus proche."""
+    def strike(self, now, dmg=1, h=None):
+        """A fighter (the hero unless told) hits the enemy nearest to him. / Un combattant frappe l'ennemi le plus proche."""
         S, fx = self.S, self.fx
-        f = self.nearest()
+        h = h or self.hero
+        f = self.nearest(h)
         if f is None:
             return
-        h = self.hero
         h["face"] = 1 if f["x"] > h["x"] else -1
         sword = len(self.HERO) > 5 and self.HERO[5] == "sword"
         h["act"] = (now, 3 if sword else self.rng.choice((3, 3, 4)))
@@ -1903,33 +1927,35 @@ class BrawlerScene(GameScene):
             self.foes.append({"x": (-S(120) if side < 0 else self.W + S(120)), "z": rng.uniform(0.15, 0.95), "hp": rng.randint(2, 4), "hurt": -99.0,
                               "down": None, "vx": 0.0, "look": rng.choice(self.FOES), "ph": rng.uniform(0, 6), "punch": -99.0,
                               "stop": rng.uniform(S(110), S(170))})
-        ch = self.changed(vals, "score")
-        if ch and ch[1] > ch[0]:
-            self.strike(now, 1)
-            self.next_auto = now + 1.5
-        elif now >= self.next_auto:                                    # nobody scores: the fight goes on
-            self.next_auto = now + rng.uniform(0.9, 1.8)
-            self.strike(now, 1)
-        ch = self.changed(vals, self.ENERGY)
-        if ch and ch[1] < ch[0]:                                       # a blow taken
-            self.hits += 1
-            h = self.hero
-            h["hurt"] = now
-            f = self.nearest()
-            if f is not None:
-                f["punch"] = now
-                h["face"] = 1 if f["x"] > h["x"] else -1
-            self.fx.shake(6, 0.25)
-            self.fx.sparks(h["x"], self.ground(h["z"]) - S(180), 14, (255, 140, 120), (200, 500), (0, 360), (0.2, 0.4), 0, "front", 3, 18)
-        ch = self.changed(vals, "lives")
-        if ch and ch[1] < ch[0]:
-            self.hero["down"] = now
-            self.popup(tr("-1 VIE", "-1 LIFE"), self.hero["x"], self.ground(self.hero["z"]) - S(300), (255, 90, 70), 40)
+        who = self.fighters(vals)
+        self.lead = who[0][2] if who else self.hero
+        for _side, suf, h, _look in who:
+            ch = self.changed(vals, "score" + suf)
+            if ch and ch[1] > ch[0]:
+                self.strike(now, 1, h)
+                h["auto"] = now + 1.5
+            elif now >= h["auto"]:                                     # nobody scores: the fight goes on
+                h["auto"] = now + rng.uniform(0.9, 1.8)
+                self.strike(now, 1, h)
+            ch = self.changed(vals, self.ENERGY + suf)
+            if ch and ch[1] < ch[0]:                                   # a blow taken
+                self.hits += 1
+                h["hurt"] = now
+                f = self.nearest(h)
+                if f is not None:
+                    f["punch"] = now
+                    h["face"] = 1 if f["x"] > h["x"] else -1
+                self.fx.shake(6, 0.25)
+                self.fx.sparks(h["x"], self.ground(h["z"]) - S(180), 14, (255, 140, 120), (200, 500), (0, 360), (0.2, 0.4), 0, "front", 3, 18)
+            ch = self.changed(vals, "lives" + suf)
+            if ch and ch[1] < ch[0]:
+                h["down"] = now
+                self.popup(tr("-1 VIE", "-1 LIFE"), h["x"], self.ground(h["z"]) - S(300), (255, 90, 70), 40)
         self.walk(now)
 
     def walk(self, now):
         S, dt = self.S, self.dt
-        h = self.hero
+        h = self.lead
         for f in self.foes:
             if f["down"] is not None:
                 f["x"] += f["vx"] * dt
@@ -1945,7 +1971,7 @@ class BrawlerScene(GameScene):
 
     def draw_hud(self, screen, eng, vals, logo, now):
         S, pg = self.S, self.pg
-        h = self.hero
+        h = self.lead
         items = []
         for f in self.foes:
             if f["down"] is not None:
@@ -1962,7 +1988,7 @@ class BrawlerScene(GameScene):
             else:
                 frame = 0
             items.append((f["z"], self.fig(f["look"], frame, f["x"] > h["x"]), f["x"], f["z"]))
-        if self.p1_in(vals):
+        for _side, _suf, h, look in self.fighters(vals):
             if now - h["down"] < 1.2:
                 frame = 6
             elif now - h["hurt"] < 0.35:
@@ -1972,7 +1998,7 @@ class BrawlerScene(GameScene):
             else:
                 frame = 0
             if not (now - h["down"] > 1.2 and now - h["down"] < 2.4 and int(now * 14) % 2):
-                items.append((h["z"], self.fig(self.HERO, frame, h["face"] < 0), h["x"], h["z"]))
+                items.append((h["z"], self.fig(look, frame, h["face"] < 0), h["x"], h["z"]))
         sh = self.imgs.get("brsh")
         if sh is None:
             sh = self.imgs["brsh"] = pg.Surface((S(110), S(22)), pg.SRCALPHA)
@@ -2003,31 +2029,30 @@ class RoboArmyScene(BrawlerScene):
     ENERGY_MAX = 10
 
     def status(self, screen, eng, vals, logo, now):
-        """As in the game: LIFE in blue, 1P- and the score, x and the lives, the POW orbs. / LIFE, 1P-, les vies, POW."""
+        """As in the game: LIFE in blue, 1P- and the score, x and the lives, the POW orbs; the same panel on the right for
+        the second player. / LIFE, 1P-, les vies, POW ; le même panneau à droite pour le second joueur."""
         S, W, pg, hd = self.S, self.W, self.pg, self.hd
         hd.draw_logo(screen, logo, W / 2, S(6), S(400), S(76), now)
-        self.pill(screen, S(12), S(6), S(640), S(104), 160, radius=14)
-        e = _n(vals.get("energy"))
-        self.text(screen, "LIFE", S(30), S(30), 26, (90, 200, 255), key="black", valign="middle")
-        if e is not None:
-            self.bar(screen, S(110), S(18), S(300), S(24), e / float(self.ENERGY_MAX), (80, 180, 255))
-        self.text(screen, "1P-", S(440), S(30), 26, (255, 230, 120), key="black", valign="middle")
-        if _n(vals.get("score")) is not None:
-            hd._score(screen, eng, "score", S(636), S(10), "right", S(40))
-        lives = _n(vals.get("lives"))
-        if lives is not None:
-            self.text(screen, f"x{int(lives)}", S(30), S(80), 28, (255, 230, 120), key="black", valign="middle")
-        self.text(screen, "POW", S(96), S(80), 26, (255, 230, 120), key="black", valign="middle")
-        b = _n(vals.get("bombs"))
         cols = ((60, 220, 80), (60, 220, 80), (250, 140, 40), (250, 140, 40), (240, 60, 60), (230, 60, 160))
-        for i in range(6):
-            on = b is not None and i < int(b)
-            c = cols[i] if on else (60, 60, 70)
-            pg.draw.circle(screen, c, (S(190) + i * S(40), S(80)), S(15))
-            pg.draw.circle(screen, (240, 240, 240) if on else (90, 90, 100), (S(190) + i * S(40), S(80)), S(15), max(1, S(2)))
-        if not self.p2_in(vals):
-            word, col = self.invite(vals, now)
-            self.label(screen, word, W - S(24), S(40), 30, col, align="right")
+        for side, suf, ox in self.panels(screen, vals, now, 640):
+            self.pill(screen, ox + S(12), S(6), S(640), S(104), 160, radius=14)
+            e = _n(vals.get("energy" + suf))
+            self.text(screen, "LIFE", ox + S(30), S(30), 26, (90, 200, 255), key="black", valign="middle")
+            if e is not None:
+                self.bar(screen, ox + S(110), S(18), S(300), S(24), e / float(self.ENERGY_MAX), (80, 180, 255))
+            self.text(screen, "1P-" if side == "p1" else "2P-", ox + S(440), S(30), 26, (255, 230, 120), key="black", valign="middle")
+            if _n(vals.get("score" + suf)) is not None:
+                hd._score(screen, eng, "score" + suf, ox + S(636), S(10), "right", S(40))
+            lives = _n(vals.get("lives" + suf))
+            if lives is not None:
+                self.text(screen, f"x{int(lives)}", ox + S(30), S(80), 28, (255, 230, 120), key="black", valign="middle")
+            self.text(screen, "POW", ox + S(96), S(80), 26, (255, 230, 120), key="black", valign="middle")
+            b = _n(vals.get("bombs" + suf))
+            for i in range(6):
+                on = b is not None and i < int(b)
+                c = cols[i] if on else (60, 60, 70)
+                pg.draw.circle(screen, c, (ox + S(190) + i * S(40), S(80)), S(15))
+                pg.draw.circle(screen, (240, 240, 240) if on else (90, 90, 100), (ox + S(190) + i * S(40), S(80)), S(15), max(1, S(2)))
 
 
 class BurningFightScene(BrawlerScene):
@@ -2040,30 +2065,30 @@ class BurningFightScene(BrawlerScene):
             ("brawler", (230, 230, 230), (70, 110, 180), (190, 140, 100), (30, 26, 24)))
 
     def status(self, screen, eng, vals, logo, now):
-        """As in the game: 1UP and the score, the yellow gauge, TIME in the middle, P= the lives at the bottom left.
-        / Comme dans le jeu : 1UP et le score, la jauge jaune, TIME au milieu, P= et les vies en bas à gauche."""
+        """As in the game: 1UP and the score, the yellow gauge, TIME in the middle, P= the lives at the bottom left; 2UP
+        and the same on the right. / Comme dans le jeu : 1UP et le score, la jauge jaune, TIME au milieu, P= et les vies
+        en bas à gauche ; 2UP et la même chose à droite."""
         S, W, H, hd = self.S, self.W, self.H, self.hd
         hd.draw_logo(screen, logo, W / 2, S(4), S(360), S(64), now)
-        self.pill(screen, S(12), S(6), S(520), S(84), 160, radius=14)
-        self.text(screen, "1UP", S(30), S(28), 26, (255, 220, 60), key="black", valign="middle")
-        if _n(vals.get("score")) is not None:
-            hd._score(screen, eng, "score", S(500), S(8), "right", S(40))
-        e = _n(vals.get("energy"))
-        if e is not None:
-            self.bar(screen, S(30), S(56), S(480), S(22), e / 255.0, (255, 220, 40), back=(60, 20, 20))
+        for side, suf, ox in self.panels(screen, vals, now, 520):
+            self.pill(screen, ox + S(12), S(6), S(520), S(84), 160, radius=14)
+            self.text(screen, "1UP" if side == "p1" else "2UP", ox + S(30), S(28), 26, (255, 220, 60), key="black", valign="middle")
+            if _n(vals.get("score" + suf)) is not None:
+                hd._score(screen, eng, "score" + suf, ox + S(500), S(8), "right", S(40))
+            e = _n(vals.get("energy" + suf))
+            if e is not None:
+                self.bar(screen, ox + S(30), S(56), S(480), S(22), e / 255.0, (255, 220, 40), back=(60, 20, 20))
+            lives = _n(vals.get("lives" + suf))
+            if lives is not None:
+                self.label(screen, f"P={int(lives)}", ox + (S(70) if side == "p1" else S(474)), H - S(34), 30, (255, 220, 60), align="center")
         t = _n(vals.get("time"))
         if t is not None:
             self.pill(screen, W / 2 - S(80), S(70), S(160), S(104), 170, radius=14)
             self.text(screen, "TIME", W / 2, S(86), 30, (255, 220, 60), key="stencil", align="center", valign="middle")
             hd.put_number(screen, f"{int(t):02d}", "stencil", S(70), (255, 230, 60), W / 2, S(134), "center", "middle")
-        lives = _n(vals.get("lives"))
-        if lives is not None:
-            self.label(screen, f"P={int(lives)}", S(70), H - S(34), 30, (255, 220, 60), align="center")
-        if not self.p2_in(vals):
-            word, col = self.invite(vals, now)
-            self.label(screen, word, W - S(24), S(40), 30, col, align="right")
 
 
 SCENES = {"nam1975": NamScene, "cyberlip": CyberLipScene, "gpilots": GhostPilotsScene, "alpham2": AlphaMission2Scene,
           "viewpoin": ViewpointScene, "zedblade": ZedBladeScene, "preisle2": PrehistoricIsle2Scene, "roboarmy": RoboArmyScene,
-          "burningf": BurningFightScene, "shocktr2": ShockTroopers2Scene}
+          "burningf": BurningFightScene}                        # Shock Troopers 2nd Squad has its own scene (hd_squad); the class
+# ShockTroopers2Scene above stays as the base of Ninja Commando / reste la base de Ninja Commando

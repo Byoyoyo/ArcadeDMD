@@ -22,16 +22,18 @@
   "cpu": ":maincpu",
   "values": {
    "score": {
-    "addr": "",
+    "addr": "0x100037",
     "type": "bcd",
     "bytes": 4,
-    "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+    "mult": 10,
+    "note": "player 1 score, BCD in tens (the robot's recording of 2026-11-16: 200, 700, 400, 500, 600 as on six screenshots)"
    },
    "score_p2": {
-    "addr": "",
+    "addr": "0x100137",
     "type": "bcd",
     "bytes": 4,
-    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+    "mult": 10,
+    "note": "player 2 score, BCD in tens, the same place in his block (the robot's recording of 2026-11-16: 500, 600, 700 as on three screenshots)"
    },
    "lives": {
     "addr": "0x1000D2",

@@ -379,7 +379,7 @@ The 155 Neo Geo games below, each on the HD marquee and, under it, on the 128 x 
 
 ![Shock Troopers, the HD marquee and the LED panel](wiki/images/games/shocktro.jpg)
 
-**Shock Troopers 2nd Squad** (`shocktr2`). Score, timer, lives, power, energy, the soldier's name, the second player.
+**Shock Troopers 2nd Squad** (`shocktr2`). Score, timer, lives, energy, the soldier's name, the weapon and its power level, grenades, the second player, the mission and its name, the boss (ALERT, a bar for each part being shot at, BOSS DESTROYED), the vehicle.
 
 ![Shock Troopers 2nd Squad, the HD marquee and the LED panel](wiki/images/games/shocktr2.jpg)
 
