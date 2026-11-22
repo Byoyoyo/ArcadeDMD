@@ -49,3 +49,8 @@ jobs:
         env:
           SDL_VIDEODRIVER: dummy
         run: python tools/scenes_check.py
+
+      - name: The recorded games say the same events on the bus
+        env:
+          SDL_VIDEODRIVER: dummy
+        run: python tools/events_check.py

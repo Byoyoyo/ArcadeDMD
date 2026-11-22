@@ -1,0 +1,33 @@
+{
+ "capture": "mslug-20261105-191545.log",
+ "counts": {
+  "ammo.gain": 4,
+  "attract.begin": 1,
+  "attract.end": 1,
+  "coin.in": 6,
+  "life.lost": 1,
+  "mslug.grenade.burst": 4,
+  "mslug.grenade.exploded": 2,
+  "mslug.grenade.launch": 4,
+  "mslug.grenade.thrown": 2,
+  "mslug.prisoner": 5,
+  "mslug.shot": 197,
+  "mslug.vehicle.hit": 2,
+  "mslug.vehicle.in": 1,
+  "mslug.vehicle.out": 1,
+  "mslug.vehicle.shell": 9,
+  "mslug.vehicle.vulcan": 111,
+  "player.join": 2,
+  "score.gain": 205,
+  "stage.begin": 1,
+  "stage.clear": 1,
+  "weapon.change": 5
+ },
+ "events": 565,
+ "game": "mslug",
+ "seconds": 181,
+ "state_stream": "6635de357578c8dbed99",
+ "states": 495,
+ "step": 0.1,
+ "stream": "e7f8cdfb8a19139a9bf5"
+}

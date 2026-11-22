@@ -1,0 +1,27 @@
+{
+ "capture": "mslug2-20261104-222403.log",
+ "counts": {
+  "ammo.gain": 2,
+  "attract.begin": 1,
+  "attract.end": 1,
+  "life.lost": 2,
+  "mslug.bombs.found": 3,
+  "mslug.grenade.burst": 31,
+  "mslug.grenade.launch": 31,
+  "mslug.grenade.thrown": 24,
+  "mslug.shot": 294,
+  "player.continue": 1,
+  "player.join": 3,
+  "score.gain": 337,
+  "stage.begin": 1,
+  "stage.clear": 1,
+  "weapon.change": 4
+ },
+ "events": 736,
+ "game": "mslug2",
+ "seconds": 425,
+ "state_stream": "58c4138d231919d277cb",
+ "states": 810,
+ "step": 0.1,
+ "stream": "067764bec68f7daabcea"
+}

@@ -1,0 +1,29 @@
+{
+ "capture": "mslug4-20261105-002203.log",
+ "counts": {
+  "ammo.gain": 2,
+  "attract.begin": 1,
+  "attract.end": 1,
+  "coin.in": 2,
+  "enemy.big": 1,
+  "enemy.big.gone": 1,
+  "enemy.big.hit": 8,
+  "life.lost": 6,
+  "mslug.grenade.burst": 30,
+  "mslug.grenade.launch": 30,
+  "mslug.grenade.thrown": 24,
+  "mslug.prisoner": 6,
+  "mslug.shot": 321,
+  "player.continue": 3,
+  "player.join": 5,
+  "score.gain": 285,
+  "weapon.change": 20
+ },
+ "events": 746,
+ "game": "mslug4",
+ "seconds": 280,
+ "state_stream": "273cd2f4613fa0553202",
+ "states": 589,
+ "step": 0.1,
+ "stream": "aae90bd83e1d0f6c06e5"
+}
