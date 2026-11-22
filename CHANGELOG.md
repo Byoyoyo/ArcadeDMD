@@ -9,34 +9,30 @@ Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `con
 ## 1.39.2
 
 ### English
-- Shock Troopers names the soldier chosen and shows the team left: three dog tags, and the three names in Team Battle. The stage and its route are next to the timer.
+- Shock Troopers names the soldier chosen and shows the team left, the stage and its route.
 - Shock Troopers gives the big machines a life bar, and the boss of a stage its WARNING, its bar and BOSS DESTROYED.
-- Each of the eight soldiers of Shock Troopers throws his own special weapon, with its own animation. The weapon and what is left of it follow the soldier playing (they stayed on the first one), and the energy bar is full when his energy is (it showed half).
-- Shock Troopers 2nd Squad is laid out like Metal Slug: one panel per player with the soldier chosen, his lives, his energy, his weapon and its power as in the game (Lv and three P, LEVEL 2 and LEVEL 3 announced), his grenades. A big machine being shot at gets its life bar.
-- Shock Troopers 2nd Squad announces its boss when the game does: ALERT across the marquee, with the name of the boss where one is known, then a box under the timer with a bar for each part of the boss being shot at, PHASE 2 when the next parts come, and BOSS DESTROYED. The mission is named beside the timer and announced as it starts (MISSION 2, AUSTIN AIR BASE), STAGE CLEAR with the game's bonuses counted in one BONUS counter, and a soldier in a vehicle has it on his card with CHARGE as in the game.
-- The second player has his own corner in the shoot'em ups and the run and guns: his score, his lives, his bombs and his weapons on the right. NAM-1975, Cyber-Lip and Ninja Commando draw his soldier beside the first, and Ninja Commando names the ninja chosen.
-- What a game deals a player as he starts is no longer announced as a pick-up. No more 1UP at the start of Top Hunter and Neo Bomberman, POWER MAX in Blazing Star, EXTENDED TIME at the start of a race, CLEAR! in Magical Drop II, gold in Crossed Swords, +65535 in Metal Slug.
-- Metal Slug announces only what the game gives in play: bombs found in a crate, a life gained. The lives of a continue and the ten bombs of a new life are no longer announced.
-- Values put right in the shoot'em ups. Captain Tomaday's score is written 2.75 as in the game. Ironclad's level starts at 1 and its life bar keeps its last case. Prehistoric Isle 2 shows the game's Lv and its stars. Alpha Mission II shows the energy of the armour while one is worn. Zed Blade and Andro Dunos show the ships left as on their screen.
-- In the shoot'em ups, the last ship lost explodes too, and 1UP and BOMB UP only come for a ship or a bomb really gained (they came at each new game).
-- The second player has his own panel in fifteen action games (Burning Fight, Mutation Nation, Sengoku 1 and 2, Ninja Combat, Robo Army, Eight Man, Crossed Swords, Spin Master, Blue's Journey, Nightmare in the Dark, Zupapa!, Neo Mr. Do!, Bang Bang Busters, Digger Man), and the beat'em ups draw his fighter beside the first. Ganryu and Magician Lord, where the players take turns, show the one who plays.
-- Action games put right. The score is read in Robo Army, Top Hunter, Bang Bang Busters and Digger Man. Top Hunter and Ganryu show their real life gauge, Ninja Combat's is full when the game's is, Eight Man draws the life cells the game draws, and the lives are counted as on the screen in Top Hunter, Ninja Combat and Ganryu.
-- Nothing made up is shown any more: the floor of The Super Spy, the stage of Bang Bang Busters, the enemy gauge of Crossed Swords, the EXTRA letters of Neo Mr. Do! and the jewel count of Digger Man were not read in the game, nor the points that popped up in Digger Man, Zupapa!, Neo Bomberman and Bang Bang Busters.
+- Each soldier of Shock Troopers throws his own special weapon. The weapon follows the soldier playing and the energy bar is full when his energy is.
+- Shock Troopers 2nd Squad is laid out like Metal Slug, with the weapon's power (Lv and three P), the grenades, the missions named and the vehicle on the soldier's card.
+- Shock Troopers 2nd Squad announces its boss when the game does (ALERT, a bar for each part, PHASE 2, BOSS DESTROYED) and counts the bonuses of STAGE CLEAR in one BONUS counter.
+- The second player has his own corner in the shoot'em ups and the run and guns, and his own panel in fifteen action games.
+- What a game deals a player as he starts is no longer announced as a pick-up (1UP, POWER MAX, EXTENDED TIME, gold, +65535).
+- Metal Slug announces only what the game gives in play. The lives of a continue and the ten bombs of a new life are no longer announced.
+- In the shoot'em ups, the last ship lost explodes too, and 1UP and BOMB UP only come for a ship or a bomb really gained.
+- Scores, lives and gauges put right in Captain Tomaday, Ironclad, Prehistoric Isle 2, Alpha Mission II, Zed Blade, Andro Dunos, Robo Army, Top Hunter, Ganryu, Ninja Combat, Eight Man, Bang Bang Busters and Digger Man.
+- Nothing made up is shown any more. The floors, stages, gauges and points that were not read in the game are gone.
 
 ### Français
-- Shock Troopers nomme le soldat choisi et montre l'équipe qui reste : trois plaques, et les trois noms en Team Battle. Le stage et sa route sont à côté du chrono.
+- Shock Troopers nomme le soldat choisi et montre l'équipe qui reste, le stage et sa route.
 - Shock Troopers donne une barre de vie aux gros engins, et au boss d'un stage son WARNING, sa barre et BOSS DÉTRUIT.
-- Chacun des huit soldats de Shock Troopers lance sa propre arme spéciale, avec son animation. L'arme et ce qu'il en reste suivent le soldat en jeu (elles restaient sur le premier), et la barre d'énergie est pleine quand son énergie l'est (elle s'affichait à moitié).
-- Shock Troopers 2nd Squad est disposé comme Metal Slug : un panneau par joueur avec le soldat choisi, ses vies, son énergie, son arme et sa puissance comme dans le jeu (Lv et trois P, LEVEL 2 et LEVEL 3 annoncés), ses grenades. Un gros engin sur lequel on tire a sa barre de vie.
-- Shock Troopers 2nd Squad annonce son boss quand le jeu le fait. ALERT en travers du marquee, avec le nom du boss quand il est connu, puis une boîte sous le chrono avec une barre pour chaque pièce du boss sur laquelle on tire, PHASE 2 quand les suivantes arrivent, et BOSS DÉTRUIT. La mission est nommée à côté du chrono et annoncée à son départ (MISSION 2, AUSTIN AIR BASE), STAGE CLEAR avec les bonus du jeu comptés dans un compteur BONUS, et un soldat monté dans un véhicule l'a sur sa carte avec CHARGE comme dans le jeu.
-- Le second joueur a son propre coin dans les shoot'em up et les run and gun : son score, ses vies, ses bombes et ses armes à droite. NAM-1975, Cyber-Lip et Ninja Commando dessinent son soldat à côté du premier, et Ninja Commando nomme le ninja choisi.
-- Ce qu'un jeu donne au joueur à son départ n'est plus annoncé comme un bonus ramassé. Plus de 1UP au début de Top Hunter et de Neo Bomberman, de POWER MAX dans Blazing Star, de TEMPS EN PLUS au départ d'une course, de CLEAR ! dans Magical Drop II, d'or dans Crossed Swords, de +65535 dans Metal Slug.
-- Metal Slug n'annonce plus que ce que le jeu donne en cours de partie : des bombes trouvées dans une caisse, une vie gagnée. Les vies d'un continue et les dix bombes d'une nouvelle vie ne s'annoncent plus.
-- Valeurs corrigées dans les shoot'em up. Le score de Captain Tomaday s'écrit 2.75 comme dans le jeu. Le niveau d'Ironclad commence à 1 et sa barre de vie garde sa dernière case. Prehistoric Isle 2 montre le Lv du jeu et ses étoiles. Alpha Mission II montre l'énergie de l'armure tant qu'on en porte une. Zed Blade et Andro Dunos montrent les vaisseaux qui restent comme sur leur écran.
-- Dans les shoot'em up, le dernier vaisseau perdu explose aussi, et 1UP et BOMBE + n'arrivent que pour un vaisseau ou une bombe vraiment gagnés (ils arrivaient à chaque nouvelle partie).
-- Le second joueur a son propre panneau dans quinze jeux d'action (Burning Fight, Mutation Nation, Sengoku 1 et 2, Ninja Combat, Robo Army, Eight Man, Crossed Swords, Spin Master, Blue's Journey, Nightmare in the Dark, Zupapa!, Neo Mr. Do!, Bang Bang Busters, Digger Man), et les beat'em up dessinent son combattant à côté du premier. Ganryu et Magician Lord, où les joueurs jouent tour à tour, montrent celui qui joue.
-- Jeux d'action corrigés. Le score est lu dans Robo Army, Top Hunter, Bang Bang Busters et Digger Man. Top Hunter et Ganryu montrent leur vraie jauge de vie, celle de Ninja Combat est pleine quand celle du jeu l'est, Eight Man dessine les cases de vie que le jeu dessine, et les vies sont comptées comme à l'écran dans Top Hunter, Ninja Combat et Ganryu.
-- Plus rien d'inventé n'est affiché : l'étage de The Super Spy, le stage de Bang Bang Busters, la jauge de l'ennemi de Crossed Swords, les lettres EXTRA de Neo Mr. Do! et le compte de joyaux de Digger Man n'étaient pas lus dans le jeu, ni les points qui surgissaient dans Digger Man, Zupapa!, Neo Bomberman et Bang Bang Busters.
+- Chaque soldat de Shock Troopers lance sa propre arme spéciale. L'arme suit le soldat en jeu et la barre d'énergie est pleine quand son énergie l'est.
+- Shock Troopers 2nd Squad est disposé comme Metal Slug, avec la puissance de l'arme (Lv et trois P), les grenades, les missions nommées et le véhicule sur la carte du soldat.
+- Shock Troopers 2nd Squad annonce son boss quand le jeu le fait (ALERT, une barre par pièce, PHASE 2, BOSS DÉTRUIT) et compte les bonus de STAGE CLEAR dans un compteur BONUS.
+- Le second joueur a son propre coin dans les shoot'em up et les run and gun, et son propre panneau dans quinze jeux d'action.
+- Ce qu'un jeu donne au joueur à son départ n'est plus annoncé comme un bonus ramassé (1UP, POWER MAX, TEMPS EN PLUS, or, +65535).
+- Metal Slug n'annonce plus que ce que le jeu donne en cours de partie. Les vies d'un continue et les dix bombes d'une nouvelle vie ne s'annoncent plus.
+- Dans les shoot'em up, le dernier vaisseau perdu explose aussi, et 1UP et BOMBE + n'arrivent que pour un vaisseau ou une bombe vraiment gagnés.
+- Scores, vies et jauges corrigés dans Captain Tomaday, Ironclad, Prehistoric Isle 2, Alpha Mission II, Zed Blade, Andro Dunos, Robo Army, Top Hunter, Ganryu, Ninja Combat, Eight Man, Bang Bang Busters et Digger Man.
+- Plus rien d'inventé n'est affiché. Les étages, stages, jauges et points qui n'étaient pas lus dans le jeu ont disparu.
 
 ## 1.39.1
 
