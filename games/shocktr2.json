@@ -74,12 +74,16 @@
    "lives": {
     "addr": "0x10905B",
     "type": "u8",
-    "note": "player 1 lives (FinalBurn Neo cheats, Infinite Lives PL1)"
+    "add": -1,
+    "min": 0,
+    "note": "player 1 lives in reserve, the number beside the portrait; the game counts the one in play too (FinalBurn Neo cheats, Infinite Lives PL1; the robot's recording of 2026-11-16: 3 in memory at 2 on the screen, 2 at 1, 1 at 0)"
    },
    "lives_p2": {
     "addr": "0x10915B",
     "type": "u8",
-    "note": "player 2 lives (FinalBurn Neo cheats, Infinite Lives PL2)"
+    "add": -1,
+    "min": 0,
+    "note": "player 2 lives in reserve, counted the same way (FinalBurn Neo cheats, Infinite Lives PL2; the robot's recording of 2026-11-16: 3 in memory at 2 on the screen)"
    },
    "grenades": {
     "addr": "0x10901F",
@@ -95,13 +99,13 @@
     "addr": "0x109021",
     "type": "u8",
     "max": 36,
-    "note": "player 1 power, 36 at most for LV3 (FinalBurn Neo cheats, Maximum Power(Lv3) PL1)"
+    "note": "player 1 power: a P item adds 4 and lights one more P beside Lv on the screen, 36 at most for Lv3 (FinalBurn Neo cheats, Maximum Power(Lv3) PL1; the robot's recording of 2026-11-16: 4 with one P lit at Lv 1, 8 with two; a hit takes 4 away and puts one P out, each time the energy fell)"
    },
    "power_p2": {
     "addr": "0x109121",
     "type": "u8",
     "max": 36,
-    "note": "player 2 power (FinalBurn Neo cheats, Maximum Power(Lv3) PL2)"
+    "note": "player 2 power, same (FinalBurn Neo cheats, Maximum Power(Lv3) PL2; the robot's recording of 2026-11-16: 4 with one P lit, 8 with two, 4 again after a hit)"
    },
    "ammo": {
     "addr": "0x109016",
@@ -128,7 +132,47 @@
     "type": "u16s",
     "count": 93,
     "stride": 256,
-    "note": "the energy of the game's objects, one word each and 256 bytes apart, at the place of the players' own in theirs (0x1001B4), as in Shock Troopers: the 93 objects from 0x102300 to 0x107F00. On a recorded game the soldiers come with 50 and fall as they are shot, a car with 100. The lives of the bosses are not known yet: the HD scene only shows the bar of an object that came with 150 or more once it has been hit three times, and writes its life in the log"
+    "note": "the energy of the game's objects, one word each and 256 bytes apart, at the place of the players' own in theirs (0x1001B4), as in Shock Troopers: the 93 objects from 0x102300 to 0x107F00. On recorded games the soldiers come with 50, a car and the tank a player rides with 100, the walkers and the tanks of mission 1 with 350 (437 for a tank of the second mission), and the boss of mission 1 is several objects: 500 for its first part, three guns of 300 and two turrets of 150 for the second, 500 again for the last. The HD scene shows the bar of an object that came with 150 or more once it has been hit three times, and during a boss the bar of each part being shot at"
+   },
+   "_boss": {
+    "addr": "0x108F96",
+    "type": "u16",
+    "note": "the game's boss alarm: 0, then 0xFFFF from the image the game writes ALERT until the mission is over (a game recorded on 2026-11-18, mission 1: on at 153.8 s with ALERT on the screen, off at 244.2 s when MISSION SELECT comes)"
+   },
+   "_wait": {
+    "addr": "0x108F78",
+    "type": "u16",
+    "note": "the timer stopped, PLEASE WAIT on the game's screen: 0xFFFF as a mission starts, during a dialogue, while the boss comes in, for a second when a soldier comes back after a life lost, and from the image a boss is destroyed until the next mission (a game recorded on 2026-11-18: on at 228.5 s, the image the last part of the truck fell)"
+   },
+   "_clear": {
+    "addr": "0x108F80",
+    "type": "u16",
+    "note": "the STAGE CLEAR screen and the map after it: 0xFFFF from the count of the bonuses until the next mission starts (233.4 to 246.7 s, a game recorded on 2026-11-18)"
+   },
+   "_stage": {
+    "addr": "0x108FC9",
+    "type": "u8",
+    "note": "the mission played, counted from 1: 1 as the first starts, 2 once the second is chosen on the map (a game recorded on 2026-11-18)"
+   },
+   "_mission": {
+    "addr": "0x108F85",
+    "type": "u8",
+    "note": "the mission by the game's own number, times 4: 252 before the game, 0 in mission 1 (Goldoma City), 4 in the second on the route of Austin Air Base (a game recorded on 2026-11-18); the numbers of the other missions have not been seen"
+   },
+   "_area": {
+    "addr": "0x10C52A",
+    "type": "u8",
+    "note": "the part of the mission being crossed: 1 to 4 then 5 for the boss's arena in mission 1, 7 then 8 as Austin Air Base starts (a game recorded on 2026-11-18)"
+   },
+   "_ride": {
+    "addr": "0x109012",
+    "type": "u8",
+    "note": "player 1 in a vehicle: 0 on foot, 3 in the blue tank of mission 1, while the game's weapon box reads CHARGE (86.3 to 135.9 s, a game recorded on 2026-11-18)"
+   },
+   "_ride_p2": {
+    "addr": "0x109112",
+    "type": "u8",
+    "note": "player 2 in a vehicle: the same byte in his block, 0x100 further (not seen in a game yet)"
    },
    "credits": {
     "addr": "0xD00034",
@@ -172,7 +216,7 @@
  },
  "hd": {
   "scene": "shocktr2",
-  "note": "the HD scene shows the soldier chosen (his name, our commando in his colours), his energy and the second player. A big machine gets its life bar once it has been hit three times: an object that came with an energy of big_min (150) or more. No boss is announced yet: boss_min can be set here once the life of this game's bosses is known"
+  "note": "the HD scene is laid out like Metal Slug: the soldier chosen, the lives in reserve, the energy, the weapon and its power as on the game's screen (Lv and three P, a P item adds 4 to the power, three of them are a level, 36 is Lv3 with its three P), the grenades, and the second player. A big machine gets its life bar once it has been hit three times: an object that came with an energy of big_min (150) or more. The boss is announced when the game does (\"_boss\", ALERT on its screen) with the mission's name for it, then each of its parts being shot at gets a bar, and BOSS DESTROYED comes when the game stops its timer again (\"_wait\"). part_min (100) is the least energy a part of a boss comes with"
  },
  "demo": {
   "attract": true,
@@ -214,11 +258,14 @@
    "power": {
     "cycle": [
      0,
-     6,
+     4,
+     8,
      12,
-     18,
+     16,
+     20,
      24,
-     30,
+     28,
+     32,
      36,
      36
     ],
@@ -1295,9 +1342,9 @@
     "type": "gauge",
     "var": "energy",
     "max": 64,
-    "x": 88,
+    "x": 101,
     "y": 10,
-    "w": 39,
+    "w": 26,
     "h": 3,
     "color": "#f0d020",
     "low": "#ff4030",
@@ -1352,9 +1399,9 @@
     "type": "gauge",
     "var": "power",
     "max": 36,
-    "x": 88,
+    "x": 101,
     "y": 14,
-    "w": 39,
+    "w": 26,
     "h": 3,
     "color": "#ffc020",
     "low": "#ffc020",
@@ -1404,6 +1451,168 @@
       }
      ]
     }
+   },
+   {
+    "type": "text",
+    "font": "5x8",
+    "x": 99,
+    "y": 10,
+    "align": "right",
+    "segments": [
+     {
+      "text": "{power_lv}",
+      "color": "#ffd030"
+     }
+    ],
+    "flash": {
+     "on": "power",
+     "color": "#ffffff",
+     "ms": 500
+    },
+    "when": {
+     "all": [
+      {
+       "not": {
+        "all": [
+         {
+          "has": "p1_mode"
+         },
+         {
+          "not": {
+           "var": "p1_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         },
+         {
+          "not": {
+           "var": "p2_mode",
+           "in": [
+            1,
+            2
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "not": {
+        "var": "p2_mode",
+        "in": [
+         1,
+         2
+        ]
+       }
+      },
+      {
+       "has": "power_lv"
+      }
+     ]
+    }
+   },
+   {
+    "type": "events",
+    "events": [
+     {
+      "on": "power",
+      "change": "up",
+      "to": [
+       12
+      ],
+      "when": {
+       "var": "p1_mode",
+       "eq": 1
+      },
+      "text": "LEVEL 2",
+      "color": "#ffd040",
+      "font": "9x15B",
+      "ms": 1500,
+      "priority": 3
+     },
+     {
+      "on": "power",
+      "change": "up",
+      "to": [
+       24
+      ],
+      "when": {
+       "var": "p1_mode",
+       "eq": 1
+      },
+      "text": "LEVEL 3",
+      "color": "#ffd040",
+      "font": "9x15B",
+      "ms": 1500,
+      "priority": 3
+     },
+     {
+      "on": "power",
+      "change": "up",
+      "to": [
+       4,
+       8,
+       16,
+       20,
+       28,
+       32,
+       36
+      ],
+      "when": {
+       "var": "p1_mode",
+       "eq": 1
+      },
+      "text": "POWER UP",
+      "color": "#ff6050",
+      "font": "9x15B",
+      "ms": 1000,
+      "priority": 2
+     },
+     {
+      "on": "_boss",
+      "change": "up",
+      "when": {
+       "any": [
+        {
+         "var": "p1_mode",
+         "eq": 1
+        },
+        {
+         "var": "p2_mode",
+         "eq": 1
+        }
+       ]
+      },
+      "text": "ALERT",
+      "color": "#ff3020",
+      "font": "9x15B",
+      "ms": 2400,
+      "priority": 5
+     },
+     {
+      "on": "_clear",
+      "change": "up",
+      "when": {
+       "any": [
+        {
+         "var": "p1_mode",
+         "eq": 1
+        },
+        {
+         "var": "p2_mode",
+         "eq": 1
+        }
+       ]
+      },
+      "text": "STAGE CLEAR",
+      "color": "#ffd040",
+      "font": "9x15B",
+      "ms": 2000,
+      "priority": 4
+     }
+    ]
    },
    {
     "type": "coinop",
@@ -1463,6 +1672,36 @@
     "LULU",
     "TOY"
    ]
+  },
+  "power_lv": {
+   "value": "power",
+   "names": {
+    "0": "LV1",
+    "4": "LV1",
+    "8": "LV1",
+    "12": "LV2",
+    "16": "LV2",
+    "20": "LV2",
+    "24": "LV3",
+    "28": "LV3",
+    "32": "LV3",
+    "36": "LV3"
+   }
+  },
+  "power_lv_p2": {
+   "value": "power_p2",
+   "names": {
+    "0": "LV1",
+    "4": "LV1",
+    "8": "LV1",
+    "12": "LV2",
+    "16": "LV2",
+    "20": "LV2",
+    "24": "LV3",
+    "28": "LV3",
+    "32": "LV3",
+    "36": "LV3"
+   }
   }
  }
 }

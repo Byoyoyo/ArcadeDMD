@@ -52,10 +52,11 @@ class MutationNationScene(BrawlerScene):
 
     def update(self, vals, now):
         super().update(vals, now)
-        ch = self.changed(vals, "bombs")
-        if ch and ch[1] < ch[0]:                                       # an attack item: the screen is swept
-            S, fx = self.S, self.fx
-            h = self.hero
+        for _side, suf, h, _look in self.fighters(vals):
+            ch = self.changed(vals, "bombs" + suf)
+            if not (ch and ch[1] < ch[0]):
+                continue
+            S, fx = self.S, self.fx                                    # an attack item: the screen is swept
             fx.flash((255, 230, 160), 0.2, 0.3)
             for i in range(8):
                 fx.later(i * 0.04, fx.glow, h["x"] + math.cos(i * 0.8) * S(200), self.ground(h["z"]) - S(140) + math.sin(i * 0.8) * S(80), 30, 140,
@@ -69,31 +70,30 @@ class MutationNationScene(BrawlerScene):
             self.popup(tr("ATTAQUE !", "ATTACK!"), h["x"], self.ground(h["z"]) - S(300), GOLD, 42)
 
     def status(self, screen, eng, vals, logo, now):
-        """As in the game: 1P and the score, LIFE in rainbow segments, B and the attack items. / LIFE en arc-en-ciel."""
+        """As in the game: 1P and the score, LIFE in rainbow segments, B and the attack items; 2P and the same on the
+        right. / Comme dans le jeu : 1P et le score, LIFE en arc-en-ciel, B et les attaques ; 2P et la même chose à droite."""
         S, W, pg, hd = self.S, self.W, self.pg, self.hd
         hd.draw_logo(screen, logo, W / 2, S(6), S(400), S(76), now)
-        self.pill(screen, S(12), S(6), S(560), S(110), 160, radius=14)
-        self.text(screen, "1P", S(30), S(30), 28, (255, 230, 120), key="black", valign="middle")
-        if _n(vals.get("score")) is not None:
-            hd._score(screen, eng, "score", S(380), S(10), "right", S(40))
-        e = _n(vals.get("energy"))
-        self.text(screen, "LIFE", S(30), S(70), 22, (120, 200, 255), key="black", valign="middle")
-        if e is not None:
-            cols = ((230, 40, 40), (250, 120, 30), (250, 210, 40), (90, 210, 60), (50, 160, 250), (120, 90, 240))
-            n = 16
-            on = int(round(_clamp(e / 64.0) * n))
-            for i in range(n):
-                c = cols[i * len(cols) // n] if i < on else (50, 50, 60)
-                pg.draw.rect(screen, c, (S(96) + i * S(16), S(60), S(13), S(22)))
-        b = _n(vals.get("bombs"))
-        if b is not None:
-            pg.draw.rect(screen, (220, 40, 40), (S(390), S(54), S(34), S(34)), border_radius=S(4))
-            pg.draw.rect(screen, (250, 250, 250), (S(390), S(54), S(34), S(34)), max(1, S(2)), border_radius=S(4))
-            self.text(screen, "B", S(407), S(71), 24, WHITE, key="black", align="center", valign="middle", glow=0)
-            self.text(screen, f"{int(b)}", S(436), S(71), 28, (255, 230, 120), key="black", valign="middle")
-        if not self.p2_in(vals):
-            word, col = self.invite(vals, now)
-            self.label(screen, word, W - S(24), S(40), 30, col, align="right")
+        cols = ((230, 40, 40), (250, 120, 30), (250, 210, 40), (90, 210, 60), (50, 160, 250), (120, 90, 240))
+        for side, suf, ox in self.panels(screen, vals, now, 560):
+            self.pill(screen, ox + S(12), S(6), S(560), S(110), 160, radius=14)
+            self.text(screen, "1P" if side == "p1" else "2P", ox + S(30), S(30), 28, (255, 230, 120), key="black", valign="middle")
+            if _n(vals.get("score" + suf)) is not None:
+                hd._score(screen, eng, "score" + suf, ox + S(380), S(10), "right", S(40))
+            e = _n(vals.get("energy" + suf))
+            self.text(screen, "LIFE", ox + S(30), S(70), 22, (120, 200, 255), key="black", valign="middle")
+            if e is not None:
+                n = 16
+                on = int(round(_clamp(e / 64.0) * n))
+                for i in range(n):
+                    c = cols[i * len(cols) // n] if i < on else (50, 50, 60)
+                    pg.draw.rect(screen, c, (ox + S(96) + i * S(16), S(60), S(13), S(22)))
+            b = _n(vals.get("bombs" + suf))
+            if b is not None:
+                pg.draw.rect(screen, (220, 40, 40), (ox + S(390), S(54), S(34), S(34)), border_radius=S(4))
+                pg.draw.rect(screen, (250, 250, 250), (ox + S(390), S(54), S(34), S(34)), max(1, S(2)), border_radius=S(4))
+                self.text(screen, "B", ox + S(407), S(71), 24, WHITE, key="black", align="center", valign="middle", glow=0)
+                self.text(screen, f"{int(b)}", ox + S(436), S(71), 28, (255, 230, 120), key="black", valign="middle")
 
 
 # ============================================================================ Sengoku, Sengoku 2
@@ -116,43 +116,46 @@ class SengokuScene(BrawlerScene):
 
     def update(self, vals, now):
         super().update(vals, now)
-        ch = self.changed(vals, "weapon")
-        if ch and ch[1]:                                               # a sphere taken: the blade glows in its colour
-            name, col = self.SPHERES.get(int(ch[1]), ("POWER", GOLD))
-            h = self.hero
-            self.popup(name + " !", h["x"], self.ground(h["z"]) - self.S(300), col, 40)
-            self.fx.glow(h["x"], self.ground(h["z"]) - self.S(140), 30, 160, col, 0.5, "front", 1.0, 0.0)
+        for _side, suf, h, _look in self.fighters(vals):
+            ch = self.changed(vals, "weapon" + suf)
+            if ch and ch[1]:                                           # a sphere taken: the blade glows in its colour
+                name, col = self.SPHERES.get(int(ch[1]), ("POWER", GOLD))
+                self.popup(name + " !", h["x"], self.ground(h["z"]) - self.S(300), col, 40)
+                self.fx.glow(h["x"], self.ground(h["z"]) - self.S(140), 30, 160, col, 0.5, "front", 1.0, 0.0)
 
     def status(self, screen, eng, vals, logo, now):
-        """As in the game: SCORE- (1P-) and the score, the face, x and the lives, LIFE and its six boxes.
-        / Comme dans le jeu : le score, le visage, les vies, LIFE et ses six cases."""
+        """As in the game: SCORE- (1P-) and the score, the face, x and the lives, LIFE and its six boxes; the same panel
+        on the right for the second player, his face in blue.
+        / Comme dans le jeu : le score, le visage, les vies, LIFE et ses six cases ; le même panneau à droite pour le
+        second joueur, son visage en bleu."""
         S, W, pg, hd = self.S, self.W, self.pg, self.hd
         hd.draw_logo(screen, logo, W / 2, S(6), S(400), S(76), now)
-        self.pill(screen, S(12), S(6), S(520), S(116), 160, radius=14)
-        self.text(screen, self.LABEL, S(28), S(28), 26, WHITE, key="black", valign="middle")
-        if _n(vals.get("score")) is not None:
-            hd._score(screen, eng, "score", S(510), S(10), "right", S(40))
         skin, hair, band = self.FACE
-        screen.blit(self.img(("sgface", self.THEME), S(60), S(60), portrait_draw(skin, hair, band, bg=(40, 140, 80)), ss=2), (S(24), S(54)))
-        lives = _n(vals.get("lives"))
-        if lives is not None:
-            self.text(screen, f"x{int(lives)}", S(96), S(84), 30, WHITE, key="black", valign="middle")
-        self.text(screen, "LIFE", S(160), S(66), 22, (255, 230, 120), key="black", valign="middle")
-        e = _n(vals.get("energy"))
-        if e is not None:
-            for i in range(6):
-                on = i < int(e)
-                c = ((240, 60, 40) if i < 2 else (250, 170, 40)) if on else (40, 30, 30)
-                pg.draw.rect(screen, c, (S(160) + i * S(34), S(84), S(28), S(24)))
-                pg.draw.rect(screen, (250, 240, 220), (S(160) + i * S(34), S(84), S(28), S(24)), max(1, S(2)))
-        w = _n(vals.get("weapon"))
-        if w:
-            name, col = self.SPHERES.get(int(w), ("POWER", GOLD))
-            pg.draw.circle(screen, col, (S(400), S(96)), S(14))
-            self.text(screen, name, S(422), S(96), 20, col, key="black", valign="middle")
-        if not self.p2_in(vals):
-            word, colw = self.invite(vals, now)
-            self.label(screen, word, W - S(24), S(40), 30, colw, align="right")
+        for side, suf, ox in self.panels(screen, vals, now, 520):
+            self.pill(screen, ox + S(12), S(6), S(520), S(116), 160, radius=14)
+            tag = self.LABEL if side == "p1" else self.LABEL.replace("1P", "2P")
+            self.text(screen, tag, ox + S(28), S(28), 26, WHITE, key="black", valign="middle")
+            if _n(vals.get("score" + suf)) is not None:
+                hd._score(screen, eng, "score" + suf, ox + S(510), S(10), "right", S(40))
+            face = self.img(("sgface", self.THEME, side), S(60), S(60),
+                            portrait_draw(skin, hair, band if side == "p1" else (60, 110, 220), bg=(40, 140, 80) if side == "p1" else (40, 70, 150)), ss=2)
+            screen.blit(face, (ox + S(24), S(54)))
+            lives = _n(vals.get("lives" + suf))
+            if lives is not None:
+                self.text(screen, f"x{int(lives)}", ox + S(96), S(84), 30, WHITE, key="black", valign="middle")
+            self.text(screen, "LIFE", ox + S(160), S(66), 22, (255, 230, 120), key="black", valign="middle")
+            e = _n(vals.get("energy" + suf))
+            if e is not None:
+                for i in range(6):
+                    on = i < int(e)
+                    c = ((240, 60, 40) if i < 2 else (250, 170, 40)) if on else (40, 30, 30)
+                    pg.draw.rect(screen, c, (ox + S(160) + i * S(34), S(84), S(28), S(24)))
+                    pg.draw.rect(screen, (250, 240, 220), (ox + S(160) + i * S(34), S(84), S(28), S(24)), max(1, S(2)))
+            w = _n(vals.get("weapon" + suf))
+            if w:
+                name, col = self.SPHERES.get(int(w), ("POWER", GOLD))
+                pg.draw.circle(screen, col, (ox + S(400), S(96)), S(14))
+                self.text(screen, name, ox + S(422), S(96), 20, col, key="black", valign="middle")
 
 
 class Sengoku2Scene(SengokuScene):
@@ -182,63 +185,86 @@ class NinjaCombatScene(BrawlerScene):
     FOES = (("ninja", (40, 40, 48), (30, 30, 36), (210, 180, 150), (0, 0, 0), "sword"), ("ninja", (96, 100, 110), (70, 74, 84), (210, 180, 150),
                                                                                           (0, 0, 0), "sword"),
             ("ninja", (120, 100, 160), (90, 70, 130), (210, 180, 150), (0, 0, 0), "sword"))
-    ENERGY_MAX = 32
+    ENERGY_MAX = 20                                       # the LIFE bar is full at 20 / la barre LIFE est pleine à 20
 
     def status(self, screen, eng, vals, logo, now):
-        """As in the game, at the bottom: the face, POW and LIFE, TIME, the lives; 1P and the score at the top.
-        / Comme dans le jeu, en bas : le visage, POW et LIFE, TIME, les vies ; 1P et le score en haut."""
+        """As in the game, at the bottom: the face, POW and LIFE, TIME, the lives; 1P and the score at the top. The second
+        player has the same on the right, his face in blue and his own TIME.
+        / Comme dans le jeu, en bas : le visage, POW et LIFE, TIME, les vies ; 1P et le score en haut. Le second joueur a
+        la même chose à droite, son visage en bleu et son propre TIME."""
         S, W, H, pg, hd = self.S, self.W, self.H, self.pg, self.hd
         hd.draw_logo(screen, logo, W / 2, S(6), S(400), S(76), now)
-        self.pill(screen, S(12), S(6), S(420), S(58), 160, radius=14)
-        self.text(screen, "1P", S(30), S(34), 28, (240, 60, 50), key="black", valign="middle")
-        if _n(vals.get("score")) is not None:
-            hd._score(screen, eng, "score", S(410), S(12), "right", S(40))
         bar = self.imgs.get("ncbar")
         if bar is None:
             bar = self.imgs["ncbar"] = pg.Surface((S(640), S(92)), pg.SRCALPHA)
             bar.fill((0, 0, 0, 200))
         y0 = H - S(96)
-        screen.blit(bar, (S(10), y0))
-        screen.blit(self.img("ncface", S(76), S(76), portrait_draw((226, 176, 136), (0, 0, 0), hood=(200, 40, 40), bg=(40, 50, 120)), ss=2),
-                    (S(20), y0 + S(8)))
-        self.text(screen, "POW", S(110), y0 + S(20), 22, (240, 80, 70), key="black", valign="middle")
-        p = _n(vals.get("power"))
-        self.bar(screen, S(180), y0 + S(10), S(200), S(20), (p or 0) / 2.0, (250, 200, 60))
-        self.text(screen, "LIFE", S(110), y0 + S(48), 22, (240, 80, 70), key="black", valign="middle")
-        e = _n(vals.get("energy"))
-        if e is not None:
-            self.bar(screen, S(180), y0 + S(38), S(200), S(20), e / 32.0, (240, 60, 50))
-        t = _n(vals.get("time"))
-        self.text(screen, "TIME", S(110), y0 + S(76), 22, (240, 80, 70), key="black", valign="middle")
-        if t is not None:
-            sec = int(t) // 64                                        # 64 to a second of the game's TIME / 64 par seconde
-            self.text(screen, f"{sec // 60:02d}:{sec % 60:02d}", S(180), y0 + S(76), 26, WHITE, key="black", valign="middle")
-        lives = _n(vals.get("lives"))
-        if lives is not None:
-            self.text(screen, f"x{int(lives)}", S(420), y0 + S(28), 30, (255, 230, 120), key="black", valign="middle")
-        c = _n(vals.get("char"))
-        if c is not None:
-            self.text(screen, NC_NAMES[int(c) % len(NC_NAMES)], S(420), y0 + S(66), 24, CREAM, key="black", valign="middle")
-        if not self.p2_in(vals):
-            word, col = self.invite(vals, now)
-            self.label(screen, word, W - S(24), S(40), 30, col, align="right")
+        for side, suf, ox in self.panels(screen, vals, now, 640):
+            px = ox if side == "p1" else W - S(444)                    # the score's pill is narrower than the bar below
+            self.pill(screen, px + S(12), S(6), S(420), S(58), 160, radius=14)
+            self.text(screen, "1P" if side == "p1" else "2P", px + S(30), S(34), 28, (240, 60, 50) if side == "p1" else (90, 150, 255), key="black",
+                      valign="middle")
+            if _n(vals.get("score" + suf)) is not None:
+                hd._score(screen, eng, "score" + suf, px + S(410), S(12), "right", S(40))
+            screen.blit(bar, (ox + S(10), y0))
+            hood = (200, 40, 40) if side == "p1" else (50, 100, 220)
+            screen.blit(self.img(("ncface", side), S(76), S(76), portrait_draw((226, 176, 136), (0, 0, 0), hood=hood, bg=(40, 50, 120)), ss=2),
+                        (ox + S(20), y0 + S(8)))
+            self.text(screen, "POW", ox + S(110), y0 + S(20), 22, (240, 80, 70), key="black", valign="middle")
+            p = _n(vals.get("power" + suf))
+            self.bar(screen, ox + S(180), y0 + S(10), S(200), S(20), (p or 0) / 2.0, (250, 200, 60))
+            self.text(screen, "LIFE", ox + S(110), y0 + S(48), 22, (240, 80, 70), key="black", valign="middle")
+            e = _n(vals.get("energy" + suf))
+            if e is not None:
+                self.bar(screen, ox + S(180), y0 + S(38), S(200), S(20), e / float(self.ENERGY_MAX), (240, 60, 50))
+            t = _n(vals.get("time" + suf))
+            self.text(screen, "TIME", ox + S(110), y0 + S(76), 22, (240, 80, 70), key="black", valign="middle")
+            if t is not None:
+                sec = int(t) // 64                                    # 64 to a second of the game's TIME / 64 par seconde
+                self.text(screen, f"{sec // 60:02d}:{sec % 60:02d}", ox + S(180), y0 + S(76), 26, WHITE, key="black", valign="middle")
+            lives = _n(vals.get("lives" + suf))
+            if lives is not None:
+                self.text(screen, f"x{int(lives)}", ox + S(420), y0 + S(28), 30, (255, 230, 120), key="black", valign="middle")
+            c = _n(vals.get("char" + suf))
+            if c is not None:
+                self.text(screen, NC_NAMES[int(c) % len(NC_NAMES)], ox + S(420), y0 + S(66), 24, CREAM, key="black", valign="middle")
 
 
 # ============================================================================ Ninja Commando
+# the three ninjas in the order of the game's select screen (1 to 3 in memory), and ours in the colours of each:
+# (suit, trousers, hair, hood) / les trois ninjas dans l'ordre de l'écran de sélection, et le nôtre aux couleurs de chacun
+NCM_NINJAS = {1: ("JOE TIGER", (50, 70, 170), (40, 50, 130), (226, 196, 110), None),
+              2: ("RAYAR DRAGON", (190, 50, 50), (150, 40, 44), (150, 70, 40), None),
+              3: ("RYU EAGLE", (214, 190, 80), (170, 150, 60), (0, 0, 0), (214, 190, 80))}
+
+
 class NinjaCommandoScene(ShockTroopers2Scene):
-    """Ninja Commando as in the game: the jungle seen from above, our blue ninja runs up the dirt path and throws fire
-    dragons at the enemy ninjas that come. At the bottom as in the game a face of our own, LIFE in yellow, TIME in
-    minutes and seconds. / La jungle vue du dessus, notre ninja bleu lance des dragons de feu, comme dans le jeu."""
+    """Ninja Commando as in the game: the jungle seen from above, our ninja runs up the dirt path and throws fire
+    dragons at the enemy ninjas that come. The ninja chosen is named, ours takes his colours. At the bottom as in the
+    game a face of our own, LIFE in yellow, TIME in minutes and seconds; the second player has his ninja and the same
+    on the right. / La jungle vue du dessus, notre ninja lance des dragons de feu, comme dans le jeu. Le ninja choisi
+    est nommé et le nôtre prend ses couleurs ; le second joueur a son ninja et la même chose à droite."""
     THEME = "ncm_jungle"
-    SQUAD = False                                         # none of the 2nd Squad's own: its soldiers, its second player
+    SQUAD = False                                         # none of the 2nd Squad's own: its soldiers, its machines
     NINJA = ("ninja", (50, 70, 170), (40, 50, 130), (226, 176, 136), (0, 0, 0))
     ENEMY = ("ninja", (110, 60, 140), (80, 40, 100), (210, 180, 150), (0, 0, 0), "sword")
 
-    def hero(self, frame):
+    def ninja(self, vals, side):
+        """The ninja of a player, 1 to 3, or None. / Le ninja d'un joueur."""
+        v = _n(vals.get("ninja" if side == "p1" else "ninja_p2"))
+        return int(v) if v is not None and int(v) in NCM_NINJAS else None
+
+    def hero(self, frame, side="p1"):
         S = self.S
         f = {0: 1, 1: 2, 2: 3, 3: 6}[frame]
         style, top, pants, skin, hair = self.NINJA
-        return self.img(("ncmhero", frame), S(130), S(190), fighter_draw(style, top, pants, skin, hair, f), ss=2)
+        who = self.look.get(side)
+        if who in NCM_NINJAS:
+            top, pants = NCM_NINJAS[who][1], NCM_NINJAS[who][2]
+        twin = side == "p2" and who == self.look.get("p1")             # the same ninja twice: the second in another colour
+        if twin or (side == "p2" and who is None):
+            top, pants = (60, 110, 200), (44, 84, 160)
+        return self.img(("ncmhero", frame, who, side, twin), S(130), S(190), fighter_draw(style, top, pants, skin, hair, f), ss=2)
 
     def foe(self, frame):
         S = self.S
@@ -251,18 +277,27 @@ class NinjaCommandoScene(ShockTroopers2Scene):
         return S(NCM_ROAD[0]) + S(70) + z * (S(NCM_ROAD[1]) - S(NCM_ROAD[0]) - S(64))
 
     def update(self, vals, now):
+        for side in ("p1", "p2"):
+            who = self.ninja(vals, side)
+            if who is not None:
+                self.look[side] = who
         super().update(vals, now)
         ch = self.changed(vals, "energy")
         if ch and ch[1] < ch[0]:
             self.hurt = now
             self.fx.shake(6, 0.25)
+        ch = self.changed(vals, "energy_p2")
+        if ch and ch[1] < ch[0] and self.p2_in(vals):
+            self.hurt2 = now
+            self.fx.shake(6, 0.25)
 
-    def fire(self, vals, now, special):
+    def fire(self, vals, now, special, side="p1"):
         """A fire dragon from the hands of the ninja. / Un dragon de feu des mains du ninja."""
         S, fx = self.S, self.fx
-        x0, y0 = self.hx() + S(50), self.road(self.hz) - S(110)
+        hz = self.hz if side == "p1" else self.hz2
+        x0, y0 = (self.hx() if side == "p1" else self.hx2()) + S(50), self.road(hz) - S(110)
         live = [f for f in self.foes if not f.get("dead") and x0 < f["x"] < self.W * 0.85]
-        tgt = min(live, key=lambda f: abs(f["x"] - x0) + abs(f["z"] - self.hz) * S(300)) if live else None
+        tgt = min(live, key=lambda f: abs(f["x"] - x0) + abs(f["z"] - hz) * S(300)) if live else None
         tx, ty = (tgt["x"], self.road(tgt["z"]) - S(80)) if tgt else (self.W + S(40), y0)
         fx.tracer(x0, y0, tx, ty, 1800, (255, 150, 40), 16, 140, "front", False)
         fx.tracer(x0, y0, tx, ty, 1800, (255, 240, 160), 6, 100, "front", False)
@@ -275,32 +310,44 @@ class NinjaCommandoScene(ShockTroopers2Scene):
                 fx.later(0.1, self.kill, tgt, now)
 
     def status(self, screen, eng, vals, logo, now):
-        """As in the game, at the bottom: the face, LIFE in yellow, TIME; 1P and the score at the top.
-        / Comme dans le jeu, en bas : le visage, LIFE en jaune, TIME ; 1P et le score en haut."""
+        """As in the game, at the bottom: the face, LIFE in yellow, TIME, and the ninja's name; 1P and the score at the
+        top. The second player has the same on the right. / Comme dans le jeu, en bas : le visage, LIFE en jaune, TIME,
+        et le nom du ninja ; 1P et le score en haut. Le second joueur a la même chose à droite."""
         S, W, H, pg, hd = self.S, self.W, self.H, self.pg, self.hd
         hd.draw_logo(screen, logo, W / 2, S(6), S(400), S(76), now)
-        self.pill(screen, S(12), S(6), S(420), S(58), 160, radius=14)
-        self.text(screen, "1P", S(30), S(34), 28, WHITE, key="black", valign="middle")
-        if _n(vals.get("score")) is not None:
-            hd._score(screen, eng, "score", S(410), S(12), "right", S(40))
         bar = self.imgs.get("ncmbar")
         if bar is None:
-            bar = self.imgs["ncmbar"] = pg.Surface((S(560), S(70)), pg.SRCALPHA)
+            bar = self.imgs["ncmbar"] = pg.Surface((S(700), S(70)), pg.SRCALPHA)
             bar.fill((0, 0, 0, 210))
         y0 = H - S(74)
-        screen.blit(bar, (S(10), y0))
-        screen.blit(self.img("ncmface", S(60), S(60), portrait_draw((226, 176, 136), (0, 0, 0), hood=(50, 70, 170), bg=(30, 30, 60)), ss=2),
-                    (S(18), y0 + S(5)))
-        self.text(screen, "LIFE", S(90), y0 + S(20), 24, (120, 160, 255), key="black", valign="middle")
-        e = _n(vals.get("energy"))
-        self.bar(screen, S(170), y0 + S(10), S(240), S(22), (e if e is not None else 2) / 2.0, (250, 220, 40))
-        self.text(screen, "TIME", S(90), y0 + S(50), 24, (120, 160, 255), key="black", valign="middle")
-        t = _n(vals.get("time"))
-        if t is not None:
-            self.text(screen, f"{int(t) // 60}:{int(t) % 60:02d}", S(170), y0 + S(50), 28, WHITE, key="black", valign="middle")
-        if not self.p2_in(vals):
-            word, col = self.invite(vals, now)
-            self.label(screen, word, W - S(24), S(40), 30, col, align="right")
+        for side, suf, tag in (("p1", "", "1P"), ("p2", "_p2", "2P")):
+            if side == "p2" and not self.p2_in(vals):
+                word, col = self.invite(vals, now)
+                self.label(screen, word, W - S(24), S(40), 30, col, align="right")
+                continue
+            if side == "p1" and not self.p1_in(vals):
+                continue
+            X, near, far = self.mirror(side)
+            self.pill(screen, X(12, 420), S(6), S(420), S(58), 160, radius=14)
+            self.text(screen, tag, X(30), S(34), 28, WHITE, key="black", align=near, valign="middle")
+            if _n(vals.get("score" + suf)) is not None:
+                hd._score(screen, eng, "score" + suf, X(410), S(12), far, S(40))
+            screen.blit(bar, (X(10, 700), y0))
+            who = self.look.get(side)
+            name, suit, _pants, hair, hood = NCM_NINJAS.get(who, (None, (50, 70, 170), None, (0, 0, 0), (50, 70, 170)))
+            face = self.img(("ncmface", who), S(60), S(60), portrait_draw((226, 176, 136), hair, hood=hood, band=None if hood else suit,
+                                                                           bg=(30, 30, 60)), ss=2)
+            screen.blit(face, (X(18, 60), y0 + S(5)))
+            self.text(screen, "LIFE", X(90), y0 + S(20), 24, (120, 160, 255), key="black", align=near, valign="middle")
+            e = _n(vals.get("energy" + suf))
+            self.bar(screen, X(170, 240), y0 + S(10), S(240), S(22), (e if e is not None else 2) / 2.0, (250, 220, 40))
+            self.text(screen, "TIME", X(90), y0 + S(50), 24, (120, 160, 255), key="black", align=near, valign="middle")
+            t = _n(vals.get("time" + suf))
+            if t is not None:
+                self.text(screen, f"{int(t) // 60}:{int(t) % 60:02d}", X(170), y0 + S(50), 28, WHITE, key="black", align=near, valign="middle")
+            if name:
+                size = hd.fit_size(name, "stencil", S(34), S(260), S(20))
+                hd.put(screen, hd.text(name, "stencil", size, GOLD, 0.3), X(430), y0 + S(35), near, "middle")
 
 
 # ============================================================================ Blue's Journey
@@ -391,6 +438,7 @@ class BluesJourneyScene(CyberLipScene):
     little hero of our own walks the grass and throws leaves at the snails and the bees. 1P= and the score, the lives,
     TIME=, LIFE and its hearts at the top, the flowers at the bottom left, as in the game.
     / Le pays des plantes géantes, notre petit héros lance des feuilles aux escargots et aux abeilles, comme dans le jeu."""
+    TWO = False                                           # one hero of its own / un seul héros, le sien
     THEME = "bj_jungle"
     SHADE = (60, 60)
     EXPLOSIONS = False
@@ -472,36 +520,37 @@ class BluesJourneyScene(CyberLipScene):
         self.fx.sparks(f["x"], y, 10, (255, 230, 90), (100, 300), (0, 360), (0.3, 0.6), 200, "front", 3, 8)
 
     def status(self, screen, eng, vals, logo, now):
-        """As in the game: 1P= and the score, the lives, TIME=, LIFE and its hearts at the top, the flowers at the bottom
-        left. / Comme dans le jeu : 1P= et le score, les vies, TIME=, LIFE et ses cœurs, les fleurs en bas à gauche."""
+        """As in the game: 1P= and the score, the lives, TIME=, LIFE and its hearts at the top, the flowers at the bottom;
+        2P= and the same on the right, without the score, which is not read.
+        / Comme dans le jeu : 1P= et le score, les vies, TIME=, LIFE et ses cœurs, les fleurs en bas ; 2P= et la même chose
+        à droite, sans le score, qui n'est pas lu."""
         S, W, H, hd = self.S, self.W, self.H, self.hd
         hd.draw_logo(screen, logo, W / 2, S(6), S(400), S(76), now)
-        self.pill(screen, S(12), S(6), S(620), S(104), 160, radius=14)
-        self.text(screen, "1P=", S(28), S(30), 28, WHITE, key="black", valign="middle")
-        if _n(vals.get("score")) is not None:
-            hd._score(screen, eng, "score", S(330), S(10), "right", S(40))
-        lives = _n(vals.get("lives"))
-        if lives is not None:
-            screen.blit(self.img("bjflower", S(30), S(30), flower_icon_draw, ss=2), (S(346), S(16)))
-            self.text(screen, f"x{int(lives)}", S(380), S(30), 28, WHITE, key="black", valign="middle")
-        t = _n(vals.get("time"))
-        if t is not None:
-            # 48 to a unit of the game's TIME= (read on screenshots of a recorded game) / 48 par unité du TIME= du jeu
-            self.text(screen, f"TIME={int(t) // 48}", S(440), S(30), 28, (190, 210, 255), key="black", valign="middle")
-        self.text(screen, "LIFE", S(28), S(76), 24, WHITE, key="black", valign="middle")
-        e = _n(vals.get("energy"))
-        if e is not None:
-            for i in range(5):
-                img = self.img(("bjheart", i < int(e)), S(30), S(28), heart_draw(i < int(e)), ss=2)
-                screen.blit(img, (S(100) + i * S(36), S(62)))
-        m = _n(vals.get("money"))
-        if m is not None:
-            self.pill(screen, S(12), H - S(62), S(200), S(52), 160, radius=12)
-            screen.blit(self.img("bjflower", S(30), S(30), flower_icon_draw, ss=2), (S(26), H - S(52)))
-            self.text(screen, f"= {int(m)}", S(66), H - S(36), 30, WHITE, key="black", valign="middle")
-        if not self.p2_in(vals):
-            word, col = self.invite(vals, now)
-            self.label(screen, word, W - S(24), S(40), 30, col, align="right")
+        for side, suf, ox in self.panels(screen, vals, now, 620):
+            self.pill(screen, ox + S(12), S(6), S(620), S(104), 160, radius=14)
+            self.text(screen, "1P=" if side == "p1" else "2P=", ox + S(28), S(30), 28, WHITE, key="black", valign="middle")
+            if _n(vals.get("score" + suf)) is not None:
+                hd._score(screen, eng, "score" + suf, ox + S(330), S(10), "right", S(40))
+            lives = _n(vals.get("lives" + suf))
+            if lives is not None:
+                screen.blit(self.img("bjflower", S(30), S(30), flower_icon_draw, ss=2), (ox + S(346), S(16)))
+                self.text(screen, f"x{int(lives)}", ox + S(380), S(30), 28, WHITE, key="black", valign="middle")
+            t = _n(vals.get("time"))
+            if t is not None and side == "p1":
+                # 48 to a unit of the game's TIME= (read on screenshots of a recorded game) / 48 par unité du TIME= du jeu
+                self.text(screen, f"TIME={int(t) // 48}", ox + S(440), S(30), 28, (190, 210, 255), key="black", valign="middle")
+            self.text(screen, "LIFE", ox + S(28), S(76), 24, WHITE, key="black", valign="middle")
+            e = _n(vals.get("energy" + suf))
+            if e is not None:
+                for i in range(5):
+                    img = self.img(("bjheart", i < int(e)), S(30), S(28), heart_draw(i < int(e)), ss=2)
+                    screen.blit(img, (ox + S(100) + i * S(36), S(62)))
+            m = _n(vals.get("money" + suf))
+            if m is not None:
+                mx = ox + (S(12) if side == "p1" else S(432))
+                self.pill(screen, mx, H - S(62), S(200), S(52), 160, radius=12)
+                screen.blit(self.img("bjflower", S(30), S(30), flower_icon_draw, ss=2), (mx + S(14), H - S(52)))
+                self.text(screen, f"= {int(m)}", mx + S(54), H - S(36), 30, WHITE, key="black", valign="middle")
 
 
 # ============================================================================ Puzzle Bobble 2, Puzzle De Pon!

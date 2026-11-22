@@ -47,6 +47,11 @@
     "max": 8,
     "note": "energy, 8 when full (FinalBurn Neo cheats, Infinite Energy)"
    },
+   "exp": {
+    "addr": "0x10181B",
+    "type": "u8",
+    "note": "EX, the number in the red line under the energy (the robot's recording of 2026-11-16: 10, 24, 34, 8, 19 and 39 as on six screenshots)"
+   },
    "weapon": {
     "addr": "0x101856",
     "type": "u8",

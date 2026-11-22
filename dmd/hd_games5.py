@@ -8,7 +8,7 @@ Les personnages, les soldats et les engins sont des créations du programme dans
 
 import math
 
-from .hd_games import CREAM, GOLD, P1C, P2C, WHITE, BlazingStarScene, GameScene, Machines, _clamp, _n, draw_img, drone_draw
+from .hd_games import CREAM, GOLD, P1C, P2C, RED, WHITE, BlazingStarScene, GameScene, Machines, _clamp, _n, draw_img, drone_draw
 from .hd_games3 import DARK, AeroFightersScene, _capsule, bomber_draw, heli_draw, lr_ship_draw
 from .hd_themes5 import BRAWL_FLOOR, CL_FLOOR, GP_LANES, NAM_ROAD, ST2_ROAD                    # (and the backdrops of this batch into hd_bg.BUILDERS)
 from .i18n import tr
@@ -18,13 +18,13 @@ from .i18n import tr
 NAM_WEAPONS = {0: ("FUSIL", "RIFLE"), 1: ("MITRAILLEUSE", "MACHINE GUN"), 2: ("LANCE-FLAMMES", "FLAMETHROWER"), 8: ("BAZOOKA", "BAZOOKA")}
 
 
-def trooper_back_draw(frame):
+def trooper_back_draw(frame, shirt=(86, 110, 56), helmet=(70, 96, 50)):
     """Our soldier seen from behind, as the hero of the game is: green helmet, olive shirt, the straps of his pack,
     the rifle held up in front of him. Frames 0 aim, 1 fire, 2 throw. / Notre soldat vu de dos, comme le héros du jeu."""
     def fn(d, W, H):
         dark = DARK + (255,)
         ow = max(1.0, W * 0.02)
-        olive, olive_d = (86, 110, 56, 255), (60, 78, 40, 255)
+        olive, olive_d = shirt + (255,), tuple(int(c * 0.7) for c in shirt) + (255,)
         skin = (214, 160, 120, 255)
         for i, x in enumerate((0.36, 0.64)):                           # jambes, bottes
             _capsule(d, (W * 0.5 + (x - 0.5) * W * 0.5, H * 0.62), (W * x, H * 0.92), W * 0.09, W * 0.08, olive_d if i == 0 else olive, dark, ow)
@@ -43,8 +43,8 @@ def trooper_back_draw(frame):
                 _capsule(d, (W * sx, H * 0.36), (W * 0.52, H * (0.2 + up)), W * 0.07, W * 0.06, olive if sx > 0.5 else olive_d, dark, ow)
             d.line([(W * 0.5, H * (0.3 + up)), (W * 0.56, H * (0.02 + up))], fill=(40, 40, 44, 255), width=max(3, int(W * 0.06)))
         d.ellipse([W * 0.4, H * 0.24, W * 0.6, H * 0.34], fill=skin, outline=dark)                                           # la nuque
-        d.chord([W * 0.3, H * 0.1, W * 0.7, H * 0.36], 180, 360, fill=(70, 96, 50, 255), outline=dark, width=int(ow))        # le casque
-        d.rectangle([W * 0.3, H * 0.22, W * 0.7, H * 0.25], fill=(54, 76, 38, 255))
+        d.chord([W * 0.3, H * 0.1, W * 0.7, H * 0.36], 180, 360, fill=helmet + (255,), outline=dark, width=int(ow))          # le casque
+        d.rectangle([W * 0.3, H * 0.22, W * 0.7, H * 0.25], fill=tuple(int(c * 0.78) for c in helmet) + (255,))
     return fn
 
 
@@ -108,6 +108,7 @@ class NamScene(GameScene):
         self.fire_t = 0.0
         self.burst = 0
         self.throw_t = -99.0
+        self.throw_t2, self.fire_t2 = -99.0, 0.0          # the second soldier / le second soldat
         self.kills = 0                                    # (tests)
         self.grenades = 0
         self.fx.sp.register("namgren", draw_img(self.S(26), self.S(30), lambda d, W, H: (
@@ -115,9 +116,15 @@ class NamScene(GameScene):
             d.rectangle([W * 0.36, 0, W * 0.64, H * 0.3], fill=(150, 150, 150, 255)))))
         self.warm = [(self.trooper, (f,)) for f in range(3)] + [(self.grunt, (f, False)) for f in range(3)] + self.warm
 
-    def trooper(self, frame):
+    def trooper(self, frame, side="p1"):
         S = self.S
+        if side == "p2":                                               # the second soldier, in blue as in the game
+            return self.img(("namtrooper", frame, side), S(150), S(210), trooper_back_draw(frame, (60, 90, 170), (50, 76, 150)), ss=2)
         return self.img(("namtrooper", frame), S(150), S(210), trooper_back_draw(frame), ss=2)
+
+    def stand(self, side):
+        """Where a soldier stands, from the middle of the screen. / Où se tient un soldat."""
+        return self.W * (0.44 if side == "p1" else 0.56)
 
     def grunt(self, frame, left):
         S = self.S
@@ -171,6 +178,29 @@ class NamScene(GameScene):
         ch = self.changed(vals, "weapon")
         if ch:
             self.popup(tr(*NAM_WEAPONS.get(int(ch[1]), NAM_WEAPONS[0])) + " !", self.W * 0.42, S(300), GOLD, 40)
+        if self.p2_in(vals):                                           # the second soldier: his gun, his grenades
+            w2 = int(_n(vals.get("weapon_p2")) or 0)
+            ch = self.changed(vals, "ammo_p2")
+            if ch and ch[1] < ch[0]:
+                for i in range(min(3, int(ch[0] - ch[1]))):
+                    self.fx.later(i * 0.07, self.shoot, w2, now, "p2")
+            elif now >= self.fire_t2 and self.target is not None:
+                self.shoot(w2, now, "p2")
+                self.fire_t2 = now + rng.uniform(0.12, 0.7)
+            ch = self.changed(vals, "grenades_p2")
+            if ch and ch[1] < ch[0]:
+                self.throw_t2 = now
+                self.fx.projectile("namgren", self.stand("p2") + S(20), self.H - S(180), self.aim[0], self.aim[1] + S(30), 0.8, 200,
+                                   self.blast, spin=600)
+            ch = self.changed(vals, "weapon_p2")
+            if ch:
+                self.popup(tr(*NAM_WEAPONS.get(int(ch[1]), NAM_WEAPONS[0])) + " !", self.stand("p2"), S(300), GOLD, 40)
+        for side, suf2 in (("p1", ""), ("p2", "_p2")):                 # a life lost / une vie perdue
+            ch = self.changed(vals, "lives" + suf2)
+            if ch and ch[1] < ch[0] and (self.p1_in(vals) if side == "p1" else self.p2_in(vals)):
+                self.fx.explosion(self.stand(side), self.H - S(120), 0.8, False)
+                self.fx.shake(8, 0.4)
+                self.popup(tr("-1 VIE", "-1 LIFE"), self.stand(side), S(300), (255, 90, 70), 38)
         ch = self.changed(vals, "score")
         t = self.target
         if ch and ch[1] > ch[0] and t is not None and now - t["t0"] > 1.0 and S(60) < t["x"] < self.W - S(60):
@@ -185,9 +215,9 @@ class NamScene(GameScene):
                 keep.append(f)
         self.foes = keep
 
-    def shoot(self, w, now):
+    def shoot(self, w, now, side="p1"):
         S, fx = self.S, self.fx
-        x0, y0 = self.W * 0.44, self.H - S(214)
+        x0, y0 = self.stand(side), self.H - S(214)
         ax, ay = self.aim
         if w == 2:                                                     # flamethrower
             fx.sparks(x0, y0, 12, (255, 160, 60), (500, 900), (250, 290), (0.3, 0.5), -200, "front", 10, 40)
@@ -239,36 +269,51 @@ class NamScene(GameScene):
         for sx, sy in ((-1, -1), (1, -1), (-1, 1), (1, 1)):
             pg.draw.line(screen, col, (int(ax + sx * r), int(ay + sy * r)), (int(ax + sx * r * 0.45), int(ay + sy * r)), S(3))
             pg.draw.line(screen, col, (int(ax + sx * r), int(ay + sy * r)), (int(ax + sx * r), int(ay + sy * r * 0.45)), S(3))
+        sway = math.sin(now * 1.3) * S(30) + (self.aim[0] - self.W / 2) * 0.08
         if self.p1_in(vals):
             frame = 2 if now - self.throw_t < 0.4 else (1 if now < self.fire_t - 0.05 else 0)
             img = self.trooper(frame)
-            sway = math.sin(now * 1.3) * S(30) + (self.aim[0] - self.W / 2) * 0.08
-            screen.blit(img, (int(self.W * 0.44 - img.get_width() / 2 + sway), int(self.H - img.get_height() + S(6))))
+            screen.blit(img, (int(self.stand("p1") - img.get_width() / 2 + sway), int(self.H - img.get_height() + S(6))))
+        if self.p2_in(vals):
+            frame = 2 if now - self.throw_t2 < 0.4 else (1 if now < self.fire_t2 - 0.05 else 0)
+            img = self.trooper(frame, "p2")
+            screen.blit(img, (int(self.stand("p2") - img.get_width() / 2 + sway), int(self.H - img.get_height() + S(6))))
         self.status(screen, eng, vals, logo, now)
 
     def status(self, screen, eng, vals, logo, now):
-        """As in the game: 1P and the score at the top, the grenades below, the weapon and its bullets.
-        / Comme dans le jeu : 1P et le score en haut, les grenades dessous, l'arme et ses balles."""
+        """As in the game: 1P, the lives and the score at the top, the grenades below, the weapon and its bullets; the
+        second player has the same on the right. / Comme dans le jeu : 1P, les vies et le score en haut, les grenades
+        dessous, l'arme et ses balles ; le second joueur a la même chose à droite."""
         S, W, hd = self.S, self.W, self.hd
         hd.draw_logo(screen, logo, W / 2, S(8), S(460), S(90), now)
-        self.pill(screen, S(16), S(10), S(420), S(64), 150)
-        self.text(screen, "1P", S(36), S(42), 32, (255, 230, 120), key="black", valign="middle")
-        if _n(vals.get("score")) is not None:
-            hd._score(screen, eng, "score", S(410), S(16), "right", S(48))
-        g = _n(vals.get("grenades"))
-        if g is not None:
-            self.pill(screen, S(16), S(84), S(170), S(56), 150)
-            icon = self.fx.sp.obj("namgren", 0)
-            screen.blit(icon, (S(30), S(96)))
-            self.text(screen, f"{int(g):02d}", S(160), S(112), 34, WHITE, key="black", align="right", valign="middle")
-        w = _n(vals.get("weapon"))
-        a = _n(vals.get("ammo"))
-        if w is not None and int(w) in NAM_WEAPONS and int(w) != 0:
-            self.label(screen, tr(*NAM_WEAPONS[int(w)]) + (f"  {int(a):02d}" if a is not None else ""), S(250), S(112), 26, GOLD, align="left")
-        if not self.p2_in(vals):                                       # the INSERT COIN box, as in the game
-            word, col = self.invite(vals, now)
-            self.box(screen, W - S(300), S(10), S(280), S(80), (230, 120, 40), fill=(10, 10, 20, 200), radius=6, width=3)
-            self.text(screen, word, W - S(160), S(50), 30, col, key="stencil", align="center", valign="middle")
+        for side, suf, tag, col in (("p1", "", "1P", (255, 230, 120)), ("p2", "_p2", "2P", (130, 190, 255))):
+            if side == "p2" and not self.p2_in(vals):                  # the INSERT COIN box, as in the game
+                word, colw = self.invite(vals, now)
+                self.box(screen, W - S(300), S(10), S(280), S(80), (230, 120, 40), fill=(10, 10, 20, 200), radius=6, width=3)
+                self.text(screen, word, W - S(160), S(50), 30, colw, key="stencil", align="center", valign="middle")
+                continue
+            if side == "p1" and not self.p1_in(vals):
+                continue
+            X, near, far = self.mirror(side)
+            self.pill(screen, X(16, 420), S(10), S(420), S(64), 150)
+            tw = self.text(screen, tag, X(36), S(42), 32, col, key="black", align=near, valign="middle")
+            lives = _n(vals.get("lives" + suf))
+            if lives is not None:                                      # the small figure by the helmet / le chiffre près du casque
+                lx = X(36) + (tw + S(12) if side == "p1" else -tw - S(12))
+                self.text(screen, f"x{int(lives)}", lx, S(44), 24, WHITE, key="black", align=near, valign="middle", glow=0)
+            if _n(vals.get("score" + suf)) is not None:
+                hd._score(screen, eng, "score" + suf, X(410), S(16), far, S(48))
+            g = _n(vals.get("grenades" + suf))
+            if g is not None:
+                self.pill(screen, X(16, 170), S(84), S(170), S(56), 150)
+                icon = self.fx.sp.obj("namgren", 0)
+                screen.blit(icon, (X(30, 26), S(96)))
+                self.text(screen, f"{int(g):02d}", X(160), S(112), 34, WHITE, key="black", align=far, valign="middle")
+            w = _n(vals.get("weapon" + suf))
+            a = _n(vals.get("ammo" + suf))
+            if w is not None and int(w) in NAM_WEAPONS and int(w) != 0:
+                self.label(screen, tr(*NAM_WEAPONS[int(w)]) + (f"  {int(a):02d}" if a is not None else ""), X(250), S(112), 26, GOLD,
+                           align=near)
 
 
 # ============================================================================ Cyber-Lip
@@ -276,14 +321,14 @@ CL_WEAPONS = (("ammo_auto", "AUTO", (255, 230, 120)), ("ammo_wide", "WIDE", (120
               ("ammo_bazooka", "BAZOOKA", (255, 200, 140)), ("ammo_grenade", "GRENADE", (160, 230, 120)))
 
 
-def gunner_draw(frame):
+def gunner_draw(frame, vest_c=(130, 140, 156)):
     """Our hero of the city, seen from the side, facing right: a red bandana, a grey armoured vest, brown trousers,
     a big gun held at the hip. Frames 0 and 1 run, 2 fire. / Notre héros de la ville, de profil, face à droite."""
     def fn(d, W, H):
         dark = DARK + (255,)
         ow = max(1.0, W * 0.025)
         skin = (226, 176, 136, 255)
-        vest, vest_d = (130, 140, 156, 255), (90, 98, 112, 255)
+        vest, vest_d = vest_c + (255,), tuple(int(c * 0.7) for c in vest_c) + (255,)
         pants, pants_d = (120, 84, 50, 255), (90, 62, 36, 255)
         u = H
         cx = W * 0.44
@@ -343,6 +388,8 @@ class CyberLipScene(GameScene):
     THEME = "cl_city"
     SHADE = (90, 90)
     EXPLOSIONS = True
+    TWO = True                                            # the second player's hero is drawn; a scene built on this one
+                                                          # with a hero of its own says False until it draws two
 
     def __init__(self, hd, rng=None):
         super().__init__(hd, rng)
@@ -351,13 +398,19 @@ class CyberLipScene(GameScene):
         self.weapon = None                                # (name, colour) of the weapon in use / l'arme utilisée
         self.fire_t = 0.0
         self.hurt = -99.0
+        self.weapon2, self.fire_t2, self.hurt2 = None, 0.0, -99.0     # the second player's / ceux du second joueur
         self.kills = 0                                    # (tests)
         self.shots = {}
         self.warm = [(self.hero, (f,)) for f in range(3)] + [(self.foe, (f,)) for f in range(2)] + self.warm
 
-    def hero(self, frame):
+    def hero(self, frame, side="p1"):
         S = self.S
+        if side == "p2":                                               # the second hero, in red as his half of the bar
+            return self.img(("clhero", frame, side), S(170), S(200), gunner_draw(frame, (170, 70, 60)), ss=2)
         return self.img(("clhero", frame), S(170), S(200), gunner_draw(frame), ss=2)
+
+    def hx(self, side):
+        return self.W * (0.3 if side == "p1" else 0.2)
 
     def foe(self, frame):
         S = self.S
@@ -397,6 +450,22 @@ class CyberLipScene(GameScene):
             self.hurt = now
             self.fx.explosion(self.W * 0.3, self.floor() - S(90), 0.8, False)
             self.popup(tr("-1 VIE", "-1 LIFE"), self.W * 0.3, self.floor() - S(240), (255, 90, 70), 38)
+        if self.p2_in(vals):                                           # the second hero: his weapon, his lives
+            for key, name, col in CL_WEAPONS:
+                ch = self.changed(vals, key + "_p2")
+                if ch and ch[1] < ch[0]:
+                    if self.weapon2 is None or self.weapon2[0] != name:
+                        self.popup(name + " !", self.hx("p2"), self.floor() - S(240), col, 40)
+                    self.weapon2 = (name, col)
+                    self.fire(now, "p2")
+            ch = self.changed(vals, "lives_p2")
+            if ch and ch[1] < ch[0]:
+                self.hurt2 = now
+                self.fx.explosion(self.hx("p2"), self.floor() - S(90), 0.8, False)
+                self.popup(tr("-1 VIE", "-1 LIFE"), self.hx("p2"), self.floor() - S(240), (255, 90, 70), 38)
+            if now >= self.fire_t2 and any(not f.get("dead") and self.W * 0.35 < f["x"] < self.W for f in self.foes):
+                self.fire_t2 = now + rng.uniform(0.25, 0.6)
+                self.fire(now, "p2")
         ch = self.changed(vals, "score")
         if ch and ch[1] > ch[0]:
             live = [f for f in self.foes if not f.get("dead") and self.W * 0.35 < f["x"] < self.W * 0.95]
@@ -406,10 +475,10 @@ class CyberLipScene(GameScene):
             self.fire_t = now + rng.uniform(0.25, 0.6)
             self.fire(now)
 
-    def fire(self, now):
+    def fire(self, now, side="p1"):
         S, fx = self.S, self.fx
-        x0, y0 = self.W * 0.3 + S(80), self.floor() - S(110)
-        name, col = self.weapon or ("NORMAL", (255, 240, 200))
+        x0, y0 = self.hx(side) + S(80), self.floor() - S(110)
+        name, col = (self.weapon if side == "p1" else self.weapon2) or ("NORMAL", (255, 240, 200))
         live = [f for f in self.foes if not f.get("dead") and f["x"] > x0]
         tgt = min(live, key=lambda f: f["x"]) if live else None
         tx, ty = (tgt["x"], tgt["y"] - (S(60) if not tgt["fly"] else 0)) if tgt else (self.W + S(50), y0)
@@ -456,6 +525,10 @@ class CyberLipScene(GameScene):
                 img = self.foe(int(now * 5 + f["ph"]) % 2)
                 screen.blit(img, (int(f["x"] - img.get_width() / 2), int(f["y"] - img.get_height())))
         self.foes = keep
+        if self.TWO and self.p2_in(vals) and not (now - self.hurt2 < 1.0 and int(now * 16) % 2):
+            frame = 2 if now < self.fire_t2 - 0.15 else int(now * 8 + 1) % 2
+            img = self.hero(frame, "p2")
+            screen.blit(img, (int(self.hx("p2") - img.get_width() / 2), int(self.floor() - img.get_height())))
         if self.p1_in(vals) and not (now - self.hurt < 1.0 and int(now * 16) % 2):
             frame = 2 if now < self.fire_t - 0.15 else int(now * 8) % 2
             img = self.hero(frame)
@@ -464,13 +537,21 @@ class CyberLipScene(GameScene):
 
     def status(self, screen, eng, vals, logo, now):
         """As in the game: 1P and the score, TIME in blue at the top; at the bottom the blue bar with the weapon and its
-        ammo, and P= with the lives. / Comme dans le jeu : TIME en bleu en haut, la barre bleue de l'arme en bas."""
+        ammo, and P= with the lives. The second player has his score by the time and his half of the bar, in red.
+        / Comme dans le jeu : TIME en bleu en haut, la barre bleue de l'arme en bas ; le second joueur a son score près
+        du temps et sa moitié de barre, en rouge."""
         S, W, H, pg, hd = self.S, self.W, self.H, self.pg, self.hd
         hd.draw_logo(screen, logo, W / 2, S(4), S(440), S(80), now)
         self.pill(screen, S(16), S(8), S(440), S(60), 150)
         self.text(screen, "1P", S(34), S(38), 30, (90, 160, 255), key="black", valign="middle")
         if _n(vals.get("score")) is not None:
             hd._score(screen, eng, "score", S(430), S(14), "right", S(46))
+        two = self.p2_in(vals)
+        if two:                                                        # 2P and his score, left of the time
+            self.pill(screen, W - S(636), S(8), S(320), S(60), 150)
+            self.text(screen, "2P", W - S(618), S(38), 30, (255, 110, 100), key="black", valign="middle")
+            if _n(vals.get("score_p2")) is not None:
+                hd._score(screen, eng, "score_p2", W - S(330), S(16), "right", S(42))
         t = _n(vals.get("time"))
         if t is not None:
             self.pill(screen, W - S(300), S(8), S(280), S(60), 150)
@@ -478,24 +559,30 @@ class CyberLipScene(GameScene):
             m = _n(vals.get("time_min"))                               # TIME 1:59 as in the game / comme dans le jeu
             shown = f"{int(t):02d}" if m is None else f"{int(m)}:{int(t):02d}"
             hd.put_number(screen, shown, "stencil", S(48), (160, 220, 255), W - S(44), S(38), "right", "middle")
-        bar = self.imgs.get("clbar")
-        if bar is None:                                                # the blue bar at the bottom
-            bar = self.imgs["clbar"] = pg.Surface((W, S(48)), pg.SRCALPHA)
+        bar = self.imgs.get(("clbar", two))
+        if bar is None:                                                # the blue bar at the bottom, its right half red
+            bar = self.imgs[("clbar", two)] = pg.Surface((W, S(48)), pg.SRCALPHA)
             bar.fill((20, 40, 160, 220))
+            if two:
+                bar.fill((160, 30, 30, 220), (W // 2, 0, W - W // 2, S(48)))
             pg.draw.line(bar, (120, 160, 255), (0, 0), (W, 0), S(3))
         screen.blit(bar, (0, H - S(48)))
-        name, col = self.weapon or ("NORMAL", WHITE)
-        self.box(screen, S(20), H - S(46), S(240), S(44), (200, 220, 255), fill=(10, 20, 80, 230), radius=4, width=2)
-        self.text(screen, name, S(140), H - S(24), 30, col, key="stencil", align="center", valign="middle")
-        key = {n: k for k, n, _c in CL_WEAPONS}.get(name)
-        a = _n(vals.get(key)) if key else None
-        self.text(screen, f"{int(a):04d}" if a is not None else "----", S(300), H - S(24), 32, (255, 120, 120), key="stencil", valign="middle")
-        lives = _n(vals.get("lives"))
-        if lives is not None:
-            self.label(screen, f"P={int(lives):02d}", S(70), H - S(78), 26, (255, 210, 120), align="center")
-        if not self.p2_in(vals):
-            word, colw = self.invite(vals, now)
-            self.text(screen, word, W - S(40), H - S(24), 28, colw, key="black", align="right", valign="middle")
+        for side, suf, weapon in (("p1", "", self.weapon), ("p2", "_p2", self.weapon2)):
+            if side == "p2" and not two:
+                word, colw = self.invite(vals, now)
+                self.text(screen, word, W - S(40), H - S(24), 28, colw, key="black", align="right", valign="middle")
+                continue
+            X, near, far = self.mirror(side)
+            name, col = weapon or ("NORMAL", WHITE)
+            self.box(screen, X(20, 240), H - S(46), S(240), S(44), (200, 220, 255), fill=(10, 20, 80, 230), radius=4, width=2)
+            self.text(screen, name, X(20, 240) + S(120), H - S(24), 30, col, key="stencil", align="center", valign="middle")
+            key = {n: k for k, n, _c in CL_WEAPONS}.get(name)
+            a = _n(vals.get(key + suf)) if key else None
+            self.text(screen, f"{int(a):04d}" if a is not None else "----", X(300), H - S(24), 32, (255, 120, 120), key="stencil", align=near,
+                      valign="middle")
+            lives = _n(vals.get("lives" + suf))
+            if lives is not None:
+                self.label(screen, f"P={int(lives):02d}", X(70), H - S(78), 26, (255, 210, 120), align="center")
 
 
 # ============================================================================ Ghost Pilots, Alpha Mission II
@@ -594,48 +681,56 @@ class GhostPilotsScene(AeroFightersScene):
         return 4
 
     def status(self, screen, eng, vals, logo, now):
-        """As in the game: 1-PLAYER and the score at the top, at the bottom left the planes left, B= the bombs, the
-        stars. / Comme dans le jeu : 1-PLAYER et le score, les avions, B= et les étoiles en bas à gauche."""
+        """As in the game: 1-PLAYER and the score at the top, at the bottom the planes left, B= the bombs, the stars; the
+        second player has the same on the right. / Comme dans le jeu : 1-PLAYER et le score, les avions, B= et les
+        étoiles en bas ; le second joueur a la même chose à droite."""
         S, W, H, pg, hd = self.S, self.W, self.H, self.pg, self.hd
         hd.draw_logo(screen, logo, W / 2, S(8), S(460), S(90), now)
-        self.pill(screen, S(16), S(8), S(380), S(84), 150)
-        self.text(screen, "1-PLAYER", S(34), S(30), 26, (255, 230, 120), key="black", valign="middle")
-        if _n(vals.get("score")) is not None:
-            hd._score(screen, eng, "score", S(370), S(42), "right", S(44))
-        rows = []
-        lives, bombs, stars = _n(vals.get("lives")), _n(vals.get("bombs")), _n(vals.get("stars"))
-        if lives is not None:
-            rows.append(("plane", lives))
-        if bombs is not None:
-            rows.append(("B", bombs))
-        if stars is not None:
-            rows.append(("star", stars))
-        y = H - S(40) * len(rows) - S(10)
-        if rows:
-            self.pill(screen, S(16), y - S(8), S(200), S(40) * len(rows) + S(12), 150, radius=12)
-        for kind, v in rows:
-            if kind == "plane":
-                icon = self.life_icon("p1", vals)
-                screen.blit(icon, (S(28), int(y)))
-            elif kind == "B":
-                pg.draw.rect(screen, (200, 40, 40), (S(30), int(y + S(4)), S(30), S(30)))
-                pg.draw.rect(screen, (255, 230, 200), (S(30), int(y + S(4)), S(30), S(30)), max(1, S(2)))
-                self.text(screen, "B", S(45), y + S(19), 22, WHITE, key="black", align="center", valign="middle", glow=0)
-            else:
-                pts = [(S(45) + math.cos(-math.pi / 2 + i * math.pi / 5) * (S(17) if i % 2 == 0 else S(7)),
-                        y + S(19) + math.sin(-math.pi / 2 + i * math.pi / 5) * (S(17) if i % 2 == 0 else S(7))) for i in range(10)]
-                pg.draw.polygon(screen, (255, 210, 40), pts)
-            self.text(screen, f"={int(v)}", S(80), y + S(19), 30, WHITE, key="black", valign="middle")
-            y += S(40)
-        if not self.p2_in(vals):
-            word, col = self.invite(vals, now)
-            self.label(screen, word, W - S(24), S(44), 32, col, align="right")
+        for side, suf, tag in (("p1", "", "1-PLAYER"), ("p2", "_p2", "2-PLAYER")):
+            if side == "p2" and not self.p2_in(vals):
+                word, col = self.invite(vals, now)
+                self.label(screen, word, W - S(24), S(44), 32, col, align="right")
+                continue
+            if side == "p1" and not self.p1_in(vals):
+                continue
+            X, near, far = self.mirror(side)
+            self.pill(screen, X(16, 380), S(8), S(380), S(84), 150)
+            self.text(screen, tag, X(34), S(30), 26, (255, 230, 120), key="black", align=near, valign="middle")
+            if _n(vals.get("score" + suf)) is not None:
+                hd._score(screen, eng, "score" + suf, X(370), S(42), far, S(44))
+            rows = []
+            lives, bombs, stars = _n(vals.get("lives" + suf)), _n(vals.get("bombs" + suf)), _n(vals.get("stars" + suf))
+            if lives is not None:
+                rows.append(("plane", lives))
+            if bombs is not None:
+                rows.append(("B", bombs))
+            if stars is not None:
+                rows.append(("star", stars))
+            y = H - S(40) * len(rows) - S(10)
+            ox = 0 if side == "p1" else W - S(232)                     # the same block on the right, icon first as in the game
+            if rows:
+                self.pill(screen, ox + S(16), y - S(8), S(200), S(40) * len(rows) + S(12), 150, radius=12)
+            cx = ox + S(45)
+            for kind, v in rows:
+                if kind == "plane":
+                    icon = self.life_icon(side, vals)
+                    screen.blit(icon, (ox + S(28), int(y)))
+                elif kind == "B":
+                    pg.draw.rect(screen, (200, 40, 40), (ox + S(30), int(y + S(4)), S(30), S(30)))
+                    pg.draw.rect(screen, (255, 230, 200), (ox + S(30), int(y + S(4)), S(30), S(30)), max(1, S(2)))
+                    self.text(screen, "B", cx, y + S(19), 22, WHITE, key="black", align="center", valign="middle", glow=0)
+                else:
+                    pts = [(cx + math.cos(-math.pi / 2 + i * math.pi / 5) * (S(17) if i % 2 == 0 else S(7)),
+                            y + S(19) + math.sin(-math.pi / 2 + i * math.pi / 5) * (S(17) if i % 2 == 0 else S(7))) for i in range(10)]
+                    pg.draw.polygon(screen, (255, 210, 40), pts)
+                self.text(screen, f"={int(v)}", ox + S(80), y + S(19), 30, WHITE, key="black", valign="middle")
+                y += S(40)
 
 
 class AlphaMission2Scene(AeroFightersScene):
     """Alpha Mission II as in the game: our fighter flies over a huge fortress in deep space, saucers come, the
-    turrets of the fortress blow up. The ships left at the top, G= the gold at the bottom, the power of the weapon.
-    / Notre chasseur survole une immense forteresse dans l'espace, comme dans le jeu."""
+    turrets of the fortress blow up. The ships left at the top, G= the gold at the bottom, and the energy of the armour
+    while one is worn. / Notre chasseur survole une immense forteresse dans l'espace, comme dans le jeu."""
     THEME = "am_fortress"
     SHADE = (40, 40)
     ACC = {"p1": (230, 60, 60), "p2": (60, 140, 230)}
@@ -663,35 +758,48 @@ class AlphaMission2Scene(AeroFightersScene):
     def power_max(self, vals, side):
         return 4
 
+    def power_pop(self, x, y, lit, total, size=40):
+        """The value that goes up here is the energy of an armour put on. / Ici c'est l'énergie d'une armure enfilée."""
+        self.popup(tr("ARMURE !", "ARMOR!"), x, y, (120, 220, 255), size)
+
     def status(self, screen, eng, vals, logo, now):
-        """As in the game: the ships left =02 and the score at the top, G= the gold at the bottom left.
-        / Comme dans le jeu : les vaisseaux =02 et le score en haut, G= l'or en bas à gauche."""
+        """As in the game: the ships left =02 and the score at the top, G= the gold at the bottom, written 02= and
+        0001=G on player 2's side; the energy of the armour next to the gold while one is worn.
+        / Comme dans le jeu : les vaisseaux =02 et le score en haut, G= l'or en bas, écrits 02= et 0001=G du côté du
+        joueur 2 ; l'énergie de l'armure à côté de l'or tant qu'il en porte une."""
         S, W, H, pg, hd = self.S, self.W, self.H, self.pg, self.hd
         hd.draw_logo(screen, logo, W / 2, S(8), S(460), S(90), now)
-        self.pill(screen, S(16), S(8), S(460), S(64), 150)
-        icon = self.life_icon("p1", vals)
-        screen.blit(icon, (S(30), S(20)))
-        lives = _n(vals.get("lives"))
-        if lives is not None:
-            self.text(screen, f"={int(lives):02d}", S(80), S(40), 30, WHITE, key="black", valign="middle")
-        if _n(vals.get("score")) is not None:
-            hd._score(screen, eng, "score", S(450), S(16), "right", S(46))
-        g = _n(vals.get("gold"))
-        if g is not None:
-            self.pill(screen, S(16), H - S(64), S(270), S(54), 150)
-            pg.draw.rect(screen, (40, 80, 200), (S(30), H - S(56), S(36), S(38)), border_radius=S(4))
-            self.text(screen, "G", S(48), H - S(37), 26, (255, 230, 80), key="black", align="center", valign="middle", glow=0)
-            self.text(screen, f"={int(g):04d}", S(80), H - S(37), 32, WHITE, key="black", valign="middle")
-        pw = _n(vals.get("power"))
-        if pw is not None:
-            self.pill(screen, W - S(320), H - S(64), S(300), S(54), 150)
-            self.text(screen, "POWER", W - S(300), H - S(37), 24, CREAM, key="black", valign="middle", glow=0)
-            for i in range(4):                                         # 24 at most, four steps / 24 au plus, quatre crans
-                on = i < round(pw / 6)
-                pg.draw.rect(screen, (120, 220, 255) if on else (30, 50, 70), (W - S(180) + i * S(40), H - S(50), S(32), S(26)), border_radius=S(4))
-        if not self.p2_in(vals):
-            word, col = self.invite(vals, now)
-            self.label(screen, word, W - S(24), S(40), 30, col, align="right")
+        for side, suf in (("p1", ""), ("p2", "_p2")):
+            if side == "p2" and not self.p2_in(vals):
+                word, col = self.invite(vals, now)
+                self.label(screen, word, W - S(24), S(40), 30, col, align="right")
+                continue
+            if side == "p1" and not self.p1_in(vals):
+                continue
+            X, near, far = self.mirror(side)
+            self.pill(screen, X(16, 460), S(8), S(460), S(64), 150)
+            icon = self.life_icon(side, vals)
+            screen.blit(icon, (X(30, 40), S(20)))
+            lives = _n(vals.get("lives" + suf))
+            if lives is not None:
+                self.text(screen, f"={int(lives):02d}" if side == "p1" else f"{int(lives):02d}=", X(80), S(40), 30, WHITE, key="black",
+                          align=near, valign="middle")
+            if _n(vals.get("score" + suf)) is not None:
+                hd._score(screen, eng, "score" + suf, X(450), S(16), far, S(46))
+            g = _n(vals.get("gold" + suf))
+            y = H - S(64)
+            if g is not None:
+                self.pill(screen, X(16, 270), y, S(270), S(54), 150)
+                pg.draw.rect(screen, (40, 80, 200), (X(30, 36), H - S(56), S(36), S(38)), border_radius=S(4))
+                self.text(screen, "G", X(30, 36) + S(18), H - S(37), 26, (255, 230, 80), key="black", align="center", valign="middle", glow=0)
+                self.text(screen, f"={int(g):04d}" if side == "p1" else f"{int(g):04d}=", X(80), H - S(37), 32, WHITE, key="black",
+                          align=near, valign="middle")
+            pw = _n(vals.get("power" + suf))
+            if pw:                                                     # an armour is worn: its energy, 24 when put on
+                x0 = 300 if g is not None else 16                      # / une armure est portée : son énergie
+                self.pill(screen, X(x0, 330), y, S(330), S(54), 150)
+                self.text(screen, tr("ARMURE", "ARMOR"), X(x0 + 20), H - S(37), 24, CREAM, key="black", align=near, valign="middle", glow=0)
+                self.bar(screen, X(x0 + 150, 160), H - S(46), S(160), S(18), pw / 24, (120, 220, 255) if pw > 6 else RED)
 
 
 # ============================================================================ Viewpoint
@@ -823,28 +931,33 @@ class ViewpointScene(BlazingStarScene):
         self.status(screen, eng, vals, logo, now)
 
     def status(self, screen, eng, vals, logo, now):
-        """As in the game: at the bottom 1UP in yellow, the score, the three bomb lights, HIGH SCORE in red.
-        / Comme dans le jeu : en bas 1UP en jaune, le score, les trois voyants de bombe."""
+        """As in the game: at the bottom 1UP in yellow, the score, the three bomb lights; 2UP the same on the right.
+        / Comme dans le jeu : en bas 1UP en jaune, le score, les trois voyants de bombe ; 2UP pareil à droite."""
         S, W, H, pg, hd = self.S, self.W, self.H, self.pg, self.hd
         hd.draw_logo(screen, logo, W / 2, S(8), S(460), S(90), now)
-        self.pill(screen, S(16), H - S(70), S(560), S(60), 160)
-        self.text(screen, "1UP", S(34), H - S(40), 32, (255, 230, 60), key="black", valign="middle")
-        if _n(vals.get("score")) is not None:
-            hd._score(screen, eng, "score", S(330), H - S(64), "right", S(46))
-        cur = int(_n(vals.get("bomb_type")) or 0)
-        n = _n(vals.get("bombs"))
-        for i, k in enumerate((2, 3, 1)):                              # red, green, blue as in the game
-            col = VP_BOMBS[k][1]
-            on = k == cur
-            pg.draw.circle(screen, col if on else _mixc(col, (0, 0, 0), 0.6)[:3], (S(370) + i * S(44), H - S(40)), S(14 if on else 11))
-        if n is not None:
-            self.text(screen, f"x{int(n)}", S(510), H - S(40), 28, WHITE, key="black", valign="middle")
-        lives = _n(vals.get("lives"))
-        if lives is not None:
-            self.label(screen, f"{int(lives)}", S(60), H - S(100), 26, (255, 230, 60), align="center")
-        if not self.p2_in(vals):
-            word, col = self.invite(vals, now)
-            self.text(screen, word, W - S(40), H - S(40), 30, col, key="black", align="right", valign="middle")
+        for side, suf, tag in (("p1", "", "1UP"), ("p2", "_p2", "2UP")):
+            if side == "p2" and not self.p2_in(vals):
+                word, col = self.invite(vals, now)
+                self.text(screen, word, W - S(40), H - S(40), 30, col, key="black", align="right", valign="middle")
+                continue
+            if side == "p1" and not self.p1_in(vals):
+                continue
+            X, near, far = self.mirror(side)
+            self.pill(screen, X(16, 560), H - S(70), S(560), S(60), 160)
+            self.text(screen, tag, X(34), H - S(40), 32, (255, 230, 60), key="black", align=near, valign="middle")
+            if _n(vals.get("score" + suf)) is not None:
+                hd._score(screen, eng, "score" + suf, X(330), H - S(64), far, S(46))
+            cur = int(_n(vals.get("bomb_type" + suf)) or 0)
+            n = _n(vals.get("bombs" + suf))
+            for i, k in enumerate((2, 3, 1)):                          # red, green, blue as in the game
+                col = VP_BOMBS[k][1]
+                on = k == cur
+                pg.draw.circle(screen, col if on else _mixc(col, (0, 0, 0), 0.6)[:3], (X(370 + i * 44), H - S(40)), S(14 if on else 11))
+            if n is not None:
+                self.text(screen, f"x{int(n)}", X(510), H - S(40), 28, WHITE, key="black", align=near, valign="middle")
+            lives = _n(vals.get("lives" + suf))
+            if lives is not None:
+                self.label(screen, f"{int(lives)}", X(60), H - S(100), 26, (255, 230, 60), align="center")
 
 
 # ============================================================================ Zed Blade, Prehistoric Isle 2
@@ -974,21 +1087,23 @@ class ZedBladeScene(SideShooterScene):
                 if not e.get("dead"):
                     fx.later(0.4, self._boom, e)
         ch = self.changed(vals, "shot_level")
-        if ch and ch[1] > ch[0] and self.ships["p1"]["in"]:                    # LEVEL-1 to 4, as on the HUD / comme le HUD
+        if ch and ch[1] > ch[0] and self.ships["p1"]["in"]:                    # the shot goes up a level / le tir monte d'un niveau
             x, y = self.pos("p1", now)
             top = _n(self.tops.get("shot_level"))
             self.power_pop(x, y - self.S(64), int(ch[1]) + 1, int(top) + 1 if top is not None else 4)
 
     def status(self, screen, eng, vals, logo, now):
-        """As in the game: 1P- in red and the score, 2P- in blue, the bombs at the bottom left.
-        / Comme dans le jeu : 1P- en rouge et le score, 2P- en bleu, les bombes en bas à gauche."""
+        """As in the game: 1P- in red and the score, 2P- in blue, the ships left under each score, the bombs at the bottom,
+        player 2's on the right. / Comme dans le jeu : 1P- en rouge et le score, 2P- en bleu, les vaisseaux qui restent
+        sous chaque score, les bombes en bas, celles du joueur 2 à droite."""
         S, W, H, pg, hd = self.S, self.W, self.H, self.pg, self.hd
         hd.draw_logo(screen, logo, W / 2, S(8), S(440), S(84), now)
         self.pill(screen, S(16), S(8), S(440), S(60), 150)
         self.text(screen, "1P-", S(34), S(38), 32, (255, 60, 60), key="black", valign="middle")
         if _n(vals.get("score")) is not None:
             hd._score(screen, eng, "score", S(430), S(14), "right", S(46))
-        if self.p2_in(vals):
+        two = self.p2_in(vals)
+        if two:
             self.pill(screen, W - S(456), S(8), S(440), S(60), 150)
             self.text(screen, "2P-", W - S(436), S(38), 32, (80, 140, 255), key="black", valign="middle")
             if _n(vals.get("score_p2")) is not None:
@@ -997,16 +1112,24 @@ class ZedBladeScene(SideShooterScene):
             word, col = self.invite(vals, now)
             self.text(screen, "2P-", W - S(436), S(38), 32, (80, 140, 255), key="black", valign="middle")
             self.label(screen, word, W - S(200), S(38), 30, col, align="center")
-        b = _n(vals.get("bombs"))
-        if b is not None:
-            for i in range(min(6, int(b))):                            # blue capsules, as in the game
-                x = S(30) + i * S(44)
+        for side, suf in (("p1", ""), ("p2", "_p2")):
+            if side == "p2" and not two or side == "p1" and not self.p1_in(vals):
+                continue
+            X = self.mirror(side)[0]
+            n = _n(vals.get("lives" + suf))
+            if n:                                                      # the ships left under the score, as in the game
+                icon = self.img(("zblife", side), S(56), S(30), self.ship_fn(side))
+                for i in range(min(5, int(n))):
+                    screen.blit(icon, (X(26 + i * 62, 56), S(76)))
+            b = _n(vals.get("bombs" + suf))
+            for i in range(min(6, int(b or 0))):                       # blue capsules at the bottom, as in the game
+                x = X(30 + i * 44, 36)
                 pg.draw.ellipse(screen, (40, 80, 220), (x, H - S(52), S(36), S(42)))
                 pg.draw.ellipse(screen, (180, 210, 255), (x + S(8), H - S(46), S(12), S(16)))
                 pg.draw.ellipse(screen, (250, 200, 60), (x + S(10), H - S(26), S(16), S(10)))
         lv = _n(vals.get("shot_level"))
-        if lv is not None:
-            self.label(screen, f"LEVEL-{int(lv) + 1}", W / 2, H - S(100), 28, WHITE, align="center")
+        if lv is not None:                                             # the shot's level (LEVEL-4 on the game's screen is its difficulty)
+            self.label(screen, tr("TIR", "SHOT") + f" {int(lv) + 1}", S(30), H - S(96), 26, WHITE, align="left")
 
 
 class PrehistoricIsle2Scene(SideShooterScene):
@@ -1046,30 +1169,38 @@ class PrehistoricIsle2Scene(SideShooterScene):
                     fx.later(0.3, self._boom, e)
 
     def status(self, screen, eng, vals, logo, now):
-        """As in the game: PLAYER 1 and the score at the top, the helicopters left, the weapon level and the bombs at the
-        bottom left. / Comme dans le jeu : PLAYER 1 et le score en haut, le niveau de l'arme et les bombes en bas."""
+        """As in the game: PLAYER 1 and the score at the top, the helicopters left; at the bottom the weapon level, the
+        bombs and the stars. The second player has the same on the right. / Comme dans le jeu : PLAYER 1 et le score en
+        haut, le niveau de l'arme, les bombes et les étoiles en bas ; le second joueur a la même chose à droite."""
         S, W, H, hd = self.S, self.W, self.H, self.hd
         hd.draw_logo(screen, logo, W / 2, S(8), S(440), S(84), now)
-        self.pill(screen, S(16), S(8), S(480), S(104), 150, radius=14)
-        self.text(screen, "PLAYER 1", S(34), S(30), 26, (120, 220, 240), key="black", valign="middle")
-        sc = _n(vals.get("score"))
-        if sc is not None:
-            hd.put_number(screen, f"{int(sc):010d}", "black", S(40), (120, 220, 240), S(34), S(70), "left", "middle")
-        lives = _n(vals.get("lives"))
-        if lives is not None:
-            icon = self.img(("pilife",), S(60), S(34), side_heli_draw((50, 110, 190), self.ACC["p1"]))
-            screen.blit(icon, (S(330), S(54)))
-            self.text(screen, f"={int(lives)}", S(400), S(72), 30, (255, 230, 120), key="black", valign="middle")
-        lv, b = _n(vals.get("power")), _n(vals.get("bombs"))
-        if lv is not None or b is not None:
-            self.pill(screen, S(16), H - S(100), S(300), S(90), 150, radius=14)
-        if lv is not None:
-            self.text(screen, f"Lv{int(lv)}", S(36), H - S(76), 30, (120, 220, 240), key="black", valign="middle")
-        if b is not None:
-            self.text(screen, f"B x{int(b)}", S(36), H - S(34), 30, (255, 230, 120), key="black", valign="middle")
-        if not self.p2_in(vals):
-            word, col = self.invite(vals, now)
-            self.label(screen, word, W - S(24), S(44), 32, col, align="right")
+        for side, suf, tag, col in (("p1", "", "PLAYER 1", (120, 220, 240)), ("p2", "_p2", "PLAYER 2", (255, 170, 120))):
+            if side == "p2" and not self.p2_in(vals):
+                word, colw = self.invite(vals, now)
+                self.label(screen, word, W - S(24), S(44), 32, colw, align="right")
+                continue
+            if side == "p1" and not self.p1_in(vals):
+                continue
+            X, near, far = self.mirror(side)
+            self.pill(screen, X(16, 480), S(8), S(480), S(104), 150, radius=14)
+            self.text(screen, tag, X(34), S(30), 26, col, key="black", align=near, valign="middle")
+            sc = _n(vals.get("score" + suf))
+            if sc is not None:
+                hd.put_number(screen, f"{int(sc):010d}", "black", S(40), col, X(34), S(70), near, "middle")
+            lives = _n(vals.get("lives" + suf))
+            if lives is not None:
+                icon = self.img(("pilife", side), S(60), S(34), self.ship_fn(side))
+                screen.blit(icon, (X(330, 60), S(54)))
+                self.text(screen, f"={int(lives)}", X(400), S(72), 30, (255, 230, 120), key="black", align=near, valign="middle")
+            lv, b, st = _n(vals.get("power" + suf)), _n(vals.get("bombs" + suf)), _n(vals.get("stars" + suf))
+            if lv is not None or b is not None:
+                self.pill(screen, X(16, 300), H - S(100), S(300), S(90), 150, radius=14)
+            if lv is not None:
+                self.text(screen, f"Lv{int(lv)}", X(36), H - S(76), 30, col, key="black", align=near, valign="middle")
+            if b is not None:
+                self.text(screen, f"B x{int(b)}", X(36), H - S(34), 30, (255, 230, 120), key="black", align=near, valign="middle")
+            if st is not None:                                         # the stars, as by the star of the game
+                self.text(screen, f"★ x{int(st)}", X(170), H - S(34), 30, (255, 210, 60), key="black", align=near, valign="middle")
 
 
 # ============================================================================ Shock Troopers 2nd Squad
@@ -1196,7 +1327,8 @@ class ShockTroopers2Scene(Machines, GameScene):
     SHADE = (90, 60)
     EXPLOSIONS = True
     TITLE = "Shock Troopers 2nd Squad"
-    SQUAD = True                                          # the soldiers, their energy, the second player, the machines
+    SQUAD = True                                          # the soldiers of the 2nd Squad, their energy, the machines
+    TWO = True                                            # the second player has his commando / le second joueur a le sien
     BOSS_MIN = None                                       # no boss announced: the life of this game's bosses is not known
     BIG_MIN = 150                                         # a machine with that much life and hit three times: its bar
     MACHINE_HITS = 3
@@ -1330,9 +1462,9 @@ class ShockTroopers2Scene(Machines, GameScene):
                     fx.shake(4 + (ch[0] - ch[1]) * 0.1, 0.25)
                     fx.sparks(x, self.road(self.hz if side == "p1" else self.hz2) - S(90), 12, (255, 120, 90), (200, 600),
                               (200, 340), (0.2, 0.5), 600, "front", 3, 18)
-            if self.p2_in(vals):
-                self.second(vals, now)
             self.machines(vals, now, self.p1_in(vals) or self.p2_in(vals))
+        if self.TWO and self.p2_in(vals):
+            self.second(vals, now)
         st = self.stick(vals, "p1")
         if st is not None:
             self.hz = _clamp(self.hz + st[1] * self.dt * 0.8)
@@ -1476,7 +1608,7 @@ class ShockTroopers2Scene(Machines, GameScene):
             frame = 2 if now < self.fire_t - 0.05 else int(now * 8) % 2
             y = self.road(self.hz)
             items.append((y, self.hero(frame), self.hx(), y))
-        if self.SQUAD and self.p2_in(vals) and not (now - self.hurt2 < 1.0 and int(now * 16) % 2):
+        if self.TWO and self.p2_in(vals) and not (now - self.hurt2 < 1.0 and int(now * 16) % 2):
             frame = 2 if now < self.fire_t2 - 0.05 else int(now * 8 + 1) % 2
             y = self.road(self.hz2)
             items.append((y, self.hero(frame, "p2"), self.hx2(), y))
@@ -1704,13 +1836,17 @@ class BrawlerScene(GameScene):
     FOES = (("thug", (70, 70, 80), (40, 40, 50), (214, 160, 120), (30, 30, 34)),)
     ENERGY_MAX = 255
     ENERGY = "energy"
+    HERO2 = None                                          # the second player's fighter; None: the hero in another colour
+    TWO = True                                            # the second player fights beside the first; False for a game
+                                                          # where the players take turns / False quand ils jouent tour à tour
 
     def __init__(self, hd, rng=None):
         super().__init__(hd, rng)
-        self.hero = {"x": self.W * 0.42, "z": 0.5, "face": 1, "act": None, "hurt": -99.0, "down": -99.0}
+        self.hero = {"x": self.W * 0.42, "z": 0.5, "face": 1, "act": None, "hurt": -99.0, "down": -99.0, "auto": 0.0}
+        self.hero2 = {"x": self.W * 0.57, "z": 0.85, "face": -1, "act": None, "hurt": -99.0, "down": -99.0, "auto": 0.0}
+        self.lead = self.hero                             # the one the enemies come to / celui vers qui viennent les ennemis
         self.foes = []
         self.next_foe = 0.0
-        self.next_auto = 0.0
         self.slashes = []
         self.blows = 0                                    # (tests)
         self.knocked = 0
@@ -1724,6 +1860,25 @@ class BrawlerScene(GameScene):
         return self.img(("brawl", look, frame, left), S(420 if weapon else 170), S(250), fighter_draw(style, top, pants, skin, hair, frame, weapon),
                         ss=2, flip=left)
 
+    def look2(self):
+        """The second player's fighter: HERO2, or the hero in blue (in red when the hero is blue).
+        / Le combattant du second joueur : HERO2, ou le héros en bleu (en rouge quand le héros est bleu)."""
+        if self.HERO2 is not None:
+            return self.HERO2
+        style, top, pants = self.HERO[:3]
+        col = (210, 50, 50) if top[2] > top[0] + 40 else (50, 100, 220)
+        suit = max(abs(a - b) for a, b in zip(top, pants)) < 90             # one colour from head to toe: all of it changes
+        return (style, col, tuple(int(c * 0.82) for c in col) if suit else pants) + tuple(self.HERO[3:])
+
+    def fighters(self, vals):
+        """(side, suffix of its values, fighter, look) of each player in the game. / Chaque joueur en jeu."""
+        out = []
+        if self.p1_in(vals):
+            out.append(("p1", "", self.hero, self.HERO))
+        if self.TWO and self.p2_in(vals):
+            out.append(("p2", "_p2", self.hero2, self.look2()))
+        return out
+
     def ground(self, z):
         return self.S(BRAWL_FLOOR) + self.S(30) + z * (self.H - self.S(BRAWL_FLOOR) - self.S(50))
 
@@ -1734,17 +1889,18 @@ class BrawlerScene(GameScene):
         self.foes = []
         self.next_foe = now + 0.5
 
-    def nearest(self):
+    def nearest(self, h=None):
+        h = h or self.hero
         live = [f for f in self.foes if f["hp"] > 0]
-        return min(live, key=lambda f: abs(f["x"] - self.hero["x"])) if live else None
+        return min(live, key=lambda f: abs(f["x"] - h["x"])) if live else None
 
-    def strike(self, now, dmg=1):
-        """The hero hits the nearest enemy. / Le héros frappe l'ennemi le plus proche."""
+    def strike(self, now, dmg=1, h=None):
+        """A fighter (the hero unless told) hits the enemy nearest to him. / Un combattant frappe l'ennemi le plus proche."""
         S, fx = self.S, self.fx
-        f = self.nearest()
+        h = h or self.hero
+        f = self.nearest(h)
         if f is None:
             return
-        h = self.hero
         h["face"] = 1 if f["x"] > h["x"] else -1
         sword = len(self.HERO) > 5 and self.HERO[5] == "sword"
         h["act"] = (now, 3 if sword else self.rng.choice((3, 3, 4)))
@@ -1771,33 +1927,35 @@ class BrawlerScene(GameScene):
             self.foes.append({"x": (-S(120) if side < 0 else self.W + S(120)), "z": rng.uniform(0.15, 0.95), "hp": rng.randint(2, 4), "hurt": -99.0,
                               "down": None, "vx": 0.0, "look": rng.choice(self.FOES), "ph": rng.uniform(0, 6), "punch": -99.0,
                               "stop": rng.uniform(S(110), S(170))})
-        ch = self.changed(vals, "score")
-        if ch and ch[1] > ch[0]:
-            self.strike(now, 1)
-            self.next_auto = now + 1.5
-        elif now >= self.next_auto:                                    # nobody scores: the fight goes on
-            self.next_auto = now + rng.uniform(0.9, 1.8)
-            self.strike(now, 1)
-        ch = self.changed(vals, self.ENERGY)
-        if ch and ch[1] < ch[0]:                                       # a blow taken
-            self.hits += 1
-            h = self.hero
-            h["hurt"] = now
-            f = self.nearest()
-            if f is not None:
-                f["punch"] = now
-                h["face"] = 1 if f["x"] > h["x"] else -1
-            self.fx.shake(6, 0.25)
-            self.fx.sparks(h["x"], self.ground(h["z"]) - S(180), 14, (255, 140, 120), (200, 500), (0, 360), (0.2, 0.4), 0, "front", 3, 18)
-        ch = self.changed(vals, "lives")
-        if ch and ch[1] < ch[0]:
-            self.hero["down"] = now
-            self.popup(tr("-1 VIE", "-1 LIFE"), self.hero["x"], self.ground(self.hero["z"]) - S(300), (255, 90, 70), 40)
+        who = self.fighters(vals)
+        self.lead = who[0][2] if who else self.hero
+        for _side, suf, h, _look in who:
+            ch = self.changed(vals, "score" + suf)
+            if ch and ch[1] > ch[0]:
+                self.strike(now, 1, h)
+                h["auto"] = now + 1.5
+            elif now >= h["auto"]:                                     # nobody scores: the fight goes on
+                h["auto"] = now + rng.uniform(0.9, 1.8)
+                self.strike(now, 1, h)
+            ch = self.changed(vals, self.ENERGY + suf)
+            if ch and ch[1] < ch[0]:                                   # a blow taken
+                self.hits += 1
+                h["hurt"] = now
+                f = self.nearest(h)
+                if f is not None:
+                    f["punch"] = now
+                    h["face"] = 1 if f["x"] > h["x"] else -1
+                self.fx.shake(6, 0.25)
+                self.fx.sparks(h["x"], self.ground(h["z"]) - S(180), 14, (255, 140, 120), (200, 500), (0, 360), (0.2, 0.4), 0, "front", 3, 18)
+            ch = self.changed(vals, "lives" + suf)
+            if ch and ch[1] < ch[0]:
+                h["down"] = now
+                self.popup(tr("-1 VIE", "-1 LIFE"), h["x"], self.ground(h["z"]) - S(300), (255, 90, 70), 40)
         self.walk(now)
 
     def walk(self, now):
         S, dt = self.S, self.dt
-        h = self.hero
+        h = self.lead
         for f in self.foes:
             if f["down"] is not None:
                 f["x"] += f["vx"] * dt
@@ -1813,7 +1971,7 @@ class BrawlerScene(GameScene):
 
     def draw_hud(self, screen, eng, vals, logo, now):
         S, pg = self.S, self.pg
-        h = self.hero
+        h = self.lead
         items = []
         for f in self.foes:
             if f["down"] is not None:
@@ -1830,7 +1988,7 @@ class BrawlerScene(GameScene):
             else:
                 frame = 0
             items.append((f["z"], self.fig(f["look"], frame, f["x"] > h["x"]), f["x"], f["z"]))
-        if self.p1_in(vals):
+        for _side, _suf, h, look in self.fighters(vals):
             if now - h["down"] < 1.2:
                 frame = 6
             elif now - h["hurt"] < 0.35:
@@ -1840,7 +1998,7 @@ class BrawlerScene(GameScene):
             else:
                 frame = 0
             if not (now - h["down"] > 1.2 and now - h["down"] < 2.4 and int(now * 14) % 2):
-                items.append((h["z"], self.fig(self.HERO, frame, h["face"] < 0), h["x"], h["z"]))
+                items.append((h["z"], self.fig(look, frame, h["face"] < 0), h["x"], h["z"]))
         sh = self.imgs.get("brsh")
         if sh is None:
             sh = self.imgs["brsh"] = pg.Surface((S(110), S(22)), pg.SRCALPHA)
@@ -1871,31 +2029,30 @@ class RoboArmyScene(BrawlerScene):
     ENERGY_MAX = 10
 
     def status(self, screen, eng, vals, logo, now):
-        """As in the game: LIFE in blue, 1P- and the score, x and the lives, the POW orbs. / LIFE, 1P-, les vies, POW."""
+        """As in the game: LIFE in blue, 1P- and the score, x and the lives, the POW orbs; the same panel on the right for
+        the second player. / LIFE, 1P-, les vies, POW ; le même panneau à droite pour le second joueur."""
         S, W, pg, hd = self.S, self.W, self.pg, self.hd
         hd.draw_logo(screen, logo, W / 2, S(6), S(400), S(76), now)
-        self.pill(screen, S(12), S(6), S(640), S(104), 160, radius=14)
-        e = _n(vals.get("energy"))
-        self.text(screen, "LIFE", S(30), S(30), 26, (90, 200, 255), key="black", valign="middle")
-        if e is not None:
-            self.bar(screen, S(110), S(18), S(300), S(24), e / float(self.ENERGY_MAX), (80, 180, 255))
-        self.text(screen, "1P-", S(440), S(30), 26, (255, 230, 120), key="black", valign="middle")
-        if _n(vals.get("score")) is not None:
-            hd._score(screen, eng, "score", S(636), S(10), "right", S(40))
-        lives = _n(vals.get("lives"))
-        if lives is not None:
-            self.text(screen, f"x{int(lives)}", S(30), S(80), 28, (255, 230, 120), key="black", valign="middle")
-        self.text(screen, "POW", S(96), S(80), 26, (255, 230, 120), key="black", valign="middle")
-        b = _n(vals.get("bombs"))
         cols = ((60, 220, 80), (60, 220, 80), (250, 140, 40), (250, 140, 40), (240, 60, 60), (230, 60, 160))
-        for i in range(6):
-            on = b is not None and i < int(b)
-            c = cols[i] if on else (60, 60, 70)
-            pg.draw.circle(screen, c, (S(190) + i * S(40), S(80)), S(15))
-            pg.draw.circle(screen, (240, 240, 240) if on else (90, 90, 100), (S(190) + i * S(40), S(80)), S(15), max(1, S(2)))
-        if not self.p2_in(vals):
-            word, col = self.invite(vals, now)
-            self.label(screen, word, W - S(24), S(40), 30, col, align="right")
+        for side, suf, ox in self.panels(screen, vals, now, 640):
+            self.pill(screen, ox + S(12), S(6), S(640), S(104), 160, radius=14)
+            e = _n(vals.get("energy" + suf))
+            self.text(screen, "LIFE", ox + S(30), S(30), 26, (90, 200, 255), key="black", valign="middle")
+            if e is not None:
+                self.bar(screen, ox + S(110), S(18), S(300), S(24), e / float(self.ENERGY_MAX), (80, 180, 255))
+            self.text(screen, "1P-" if side == "p1" else "2P-", ox + S(440), S(30), 26, (255, 230, 120), key="black", valign="middle")
+            if _n(vals.get("score" + suf)) is not None:
+                hd._score(screen, eng, "score" + suf, ox + S(636), S(10), "right", S(40))
+            lives = _n(vals.get("lives" + suf))
+            if lives is not None:
+                self.text(screen, f"x{int(lives)}", ox + S(30), S(80), 28, (255, 230, 120), key="black", valign="middle")
+            self.text(screen, "POW", ox + S(96), S(80), 26, (255, 230, 120), key="black", valign="middle")
+            b = _n(vals.get("bombs" + suf))
+            for i in range(6):
+                on = b is not None and i < int(b)
+                c = cols[i] if on else (60, 60, 70)
+                pg.draw.circle(screen, c, (ox + S(190) + i * S(40), S(80)), S(15))
+                pg.draw.circle(screen, (240, 240, 240) if on else (90, 90, 100), (ox + S(190) + i * S(40), S(80)), S(15), max(1, S(2)))
 
 
 class BurningFightScene(BrawlerScene):
@@ -1908,30 +2065,30 @@ class BurningFightScene(BrawlerScene):
             ("brawler", (230, 230, 230), (70, 110, 180), (190, 140, 100), (30, 26, 24)))
 
     def status(self, screen, eng, vals, logo, now):
-        """As in the game: 1UP and the score, the yellow gauge, TIME in the middle, P= the lives at the bottom left.
-        / Comme dans le jeu : 1UP et le score, la jauge jaune, TIME au milieu, P= et les vies en bas à gauche."""
+        """As in the game: 1UP and the score, the yellow gauge, TIME in the middle, P= the lives at the bottom left; 2UP
+        and the same on the right. / Comme dans le jeu : 1UP et le score, la jauge jaune, TIME au milieu, P= et les vies
+        en bas à gauche ; 2UP et la même chose à droite."""
         S, W, H, hd = self.S, self.W, self.H, self.hd
         hd.draw_logo(screen, logo, W / 2, S(4), S(360), S(64), now)
-        self.pill(screen, S(12), S(6), S(520), S(84), 160, radius=14)
-        self.text(screen, "1UP", S(30), S(28), 26, (255, 220, 60), key="black", valign="middle")
-        if _n(vals.get("score")) is not None:
-            hd._score(screen, eng, "score", S(500), S(8), "right", S(40))
-        e = _n(vals.get("energy"))
-        if e is not None:
-            self.bar(screen, S(30), S(56), S(480), S(22), e / 255.0, (255, 220, 40), back=(60, 20, 20))
+        for side, suf, ox in self.panels(screen, vals, now, 520):
+            self.pill(screen, ox + S(12), S(6), S(520), S(84), 160, radius=14)
+            self.text(screen, "1UP" if side == "p1" else "2UP", ox + S(30), S(28), 26, (255, 220, 60), key="black", valign="middle")
+            if _n(vals.get("score" + suf)) is not None:
+                hd._score(screen, eng, "score" + suf, ox + S(500), S(8), "right", S(40))
+            e = _n(vals.get("energy" + suf))
+            if e is not None:
+                self.bar(screen, ox + S(30), S(56), S(480), S(22), e / 255.0, (255, 220, 40), back=(60, 20, 20))
+            lives = _n(vals.get("lives" + suf))
+            if lives is not None:
+                self.label(screen, f"P={int(lives)}", ox + (S(70) if side == "p1" else S(474)), H - S(34), 30, (255, 220, 60), align="center")
         t = _n(vals.get("time"))
         if t is not None:
             self.pill(screen, W / 2 - S(80), S(70), S(160), S(104), 170, radius=14)
             self.text(screen, "TIME", W / 2, S(86), 30, (255, 220, 60), key="stencil", align="center", valign="middle")
             hd.put_number(screen, f"{int(t):02d}", "stencil", S(70), (255, 230, 60), W / 2, S(134), "center", "middle")
-        lives = _n(vals.get("lives"))
-        if lives is not None:
-            self.label(screen, f"P={int(lives)}", S(70), H - S(34), 30, (255, 220, 60), align="center")
-        if not self.p2_in(vals):
-            word, col = self.invite(vals, now)
-            self.label(screen, word, W - S(24), S(40), 30, col, align="right")
 
 
 SCENES = {"nam1975": NamScene, "cyberlip": CyberLipScene, "gpilots": GhostPilotsScene, "alpham2": AlphaMission2Scene,
           "viewpoin": ViewpointScene, "zedblade": ZedBladeScene, "preisle2": PrehistoricIsle2Scene, "roboarmy": RoboArmyScene,
-          "burningf": BurningFightScene, "shocktr2": ShockTroopers2Scene}
+          "burningf": BurningFightScene}                        # Shock Troopers 2nd Squad has its own scene (hd_squad); the class
+# ShockTroopers2Scene above stays as the base of Ninja Commando / reste la base de Ninja Commando

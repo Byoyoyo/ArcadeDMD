@@ -20,16 +20,32 @@
   "cpu": ":maincpu",
   "values": {
    "score": {
-    "addr": "",
-    "type": "bcd",
+    "addr": "0x101382",
+    "type": "be",
     "bytes": 4,
-    "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+    "note": "player 1 score, in hundredths: the game writes 2.75 for 275 (the robot's recording of 2026-11-16: 2.75 and 65.50 as on two screenshots)"
    },
    "score_p2": {
-    "addr": "",
-    "type": "bcd",
+    "addr": "0x10139E",
+    "type": "be",
     "bytes": 4,
-    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+    "note": "player 2 score, in hundredths, 0x1C after player 1's as his lives (the robot's recording of 2026-11-16: 4.50 and 6.00 as on two screenshots)"
+   },
+   "score_units": {
+    "addr": "0x101382",
+    "type": "be",
+    "bytes": 4,
+    "mult": 0.01,
+    "round": 2,
+    "note": "player 1 score as the game writes it (2.75), for the panel: the same four bytes as score, in units"
+   },
+   "score_units_p2": {
+    "addr": "0x10139E",
+    "type": "be",
+    "bytes": 4,
+    "mult": 0.01,
+    "round": 2,
+    "note": "player 2 score as the game writes it, for the panel"
    },
    "p1_input": {
     "addr": "0x10FD96",
@@ -44,7 +60,8 @@
    "lives": {
     "addr": "0x10137D",
     "type": "u8",
-    "note": "player 1 lives (FinalBurn Neo cheats, Infinite Lives PL1)"
+    "zero_from": 240,
+    "note": "player 1 lives (FinalBurn Neo cheats, Infinite Lives PL1; 255 once the last one is lost, read as 0, the robot's recording of 2026-11-16)"
    },
    "power": {
     "addr": "0x104201",
@@ -61,7 +78,8 @@
    "lives_p2": {
     "addr": "0x101399",
     "type": "u8",
-    "note": "player 2 lives (FinalBurn Neo cheats, Infinite Lives PL2)"
+    "zero_from": 240,
+    "note": "player 2 lives (FinalBurn Neo cheats, Infinite Lives PL2; 255 once the last one is lost, read as 0, the robot's recording of 2026-11-16)"
    },
    "power_p2": {
     "addr": "0x1043F1",
@@ -661,7 +679,7 @@
     "x": 64,
     "y": 3,
     "align": "center",
-    "text": "{score}",
+    "text": "{score_units:.2f}",
     "color": "#ffa830",
     "when": {
      "all": [
@@ -735,7 +753,7 @@
     "x": 64,
     "y": 3,
     "align": "center",
-    "text": "{score_p2}",
+    "text": "{score_units_p2:.2f}",
     "color": "#ff9040",
     "when": {
      "all": [
@@ -910,7 +928,7 @@
     "font": "6x10",
     "x": 1,
     "y": 1,
-    "text": "{score}",
+    "text": "{score_units:.2f}",
     "color": "#ffa830",
     "when": {
      "all": [
@@ -949,7 +967,7 @@
     "x": 127,
     "y": 1,
     "align": "right",
-    "text": "{score_p2}",
+    "text": "{score_units_p2:.2f}",
     "color": "#ff9040",
     "when": {
      "all": [

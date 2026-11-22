@@ -20,16 +20,16 @@
   "cpu": ":maincpu",
   "values": {
    "score": {
-    "addr": "",
+    "addr": "0x105D24",
     "type": "bcd",
     "bytes": 4,
-    "note": "player 1 score, not in the cheat databases: learn it with learn.bat (score=...)"
+    "note": "player 1 score, BCD, its last digit counts the continues as on the screen (the robot's recording of 2026-11-16: 90, 1, 1191 as on the screenshots)"
    },
    "score_p2": {
-    "addr": "",
+    "addr": "0x105D28",
     "type": "bcd",
     "bytes": 4,
-    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+    "note": "player 2 score, BCD, the four bytes after player 1's (the robot's recording of 2026-11-16: 90, 190, 191 as on the screenshots)"
    },
    "p1_input": {
     "addr": "0x10FD96",

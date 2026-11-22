@@ -61,6 +61,12 @@ def chunk_draw(color):
 
 
 # ============================================================================ base commune
+SETTLE = 2.5                                                 # seconds a game takes to deal a player his starting figures
+STAGE_WORDS = ("stage", "round", "mission", "level", "area", "act", "scene", "floor", "lap", "wave", "world", "inning")
+KEPT = STAGE_WORDS + ("lives",)                              # what a start may still announce or move: the stage, the lives
+RESTORED = 5000                                              # a score that leaves zero by that much was given back, not scored
+
+
 class GameScene:
     """Backdrop, effects, the attract screen with the coin doors, the top bar, banners, labels on a dark pill."""
     THEME = "space"
@@ -103,6 +109,7 @@ class GameScene:
         self.touched = set()                                 # players who touched their stick or buttons
         self.hd_opts = {}                                    # the game file's "hd" block (1.33 test 47) / le bloc hd du jeu
         self.modes = {}                                      # BIOS player modes seen at the previous image
+        self.began = {}                                      # when each player last started, joined or continued
         self.cbar = CreditsBar(hd, self.fx)                  # the credits as in Metal Slug / les crédits comme dans Metal Slug
         for i, col in enumerate(((120, 124, 138), (88, 90, 102), (150, 120, 90))):
             self.fx.sp.register(f"chunk{i}", draw_img(self.S(14 + 5 * i), self.S(12 + 4 * i), chunk_draw(col)))
@@ -152,11 +159,41 @@ class GameScene:
         return r
 
     def changed(self, vals, name):
-        """(before, after) when the value changed since the previous image, else None."""
+        """(before, after) when the value changed since the previous image, else None. The figures a game gives a
+        player as he starts are not changes: a value that leaves zero in the first seconds of his game, his credit or
+        his turn is where it starts, not something he picked up (the robot's recordings of 2026-11-16: Andro Dunos's
+        shot, Neo Bomberman's fire and speed, Crossed Swords' gold, Blazing Star's power, Stakes Winner's horse).
+        The stage he starts on is still told, his lives are left to each scene (a life lost and a new one move its
+        hero), and of the score only the one a continue gives back, not the first points.
+        / Les chiffres que le jeu donne au joueur à son départ ne sont pas des changements : une valeur qui quitte zéro
+        dans les premières secondes de sa partie est son point de départ. Le stage reste annoncé, les vies restent à
+        chaque scène, et du score seul celui qu'un continue rend est écarté."""
         new, old = _n(vals.get(name)), _n(self.prev.get(name))
         if new is None or old is None or new == old:
             return None
+        base = name.lstrip("_")
+        if old == 0 and new > 0 and self.began and not base.startswith(KEPT) and (not base.startswith("score") or new >= RESTORED):
+            side = "p2" if name.endswith("_p2") else "p1"
+            t0 = self.began.get(side)
+            if side == "p1" and vals.get("p1_mode") != 1:     # a value of the game itself while player 2 plays alone
+                t0 = self.began.get("p2")
+            if t0 is not None and self.last is not None and self.last - t0 <= SETTLE:
+                return None
         return old, new
+
+    def starting(self, side):
+        """True in the first seconds of a player's game, credit or turn, while the game deals him his figures.
+        / Vrai dans les premières secondes de la partie d'un joueur, pendant que le jeu pose ses chiffres."""
+        t0 = self.began.get(side)
+        return t0 is not None and self.last is not None and self.last - t0 <= SETTLE
+
+    def one_up(self, vals, side):
+        """True at the image where the player gains one life: exactly one more, while he was already playing. The lives
+        a game, a credit or a second player start with are not one (Top Hunter and Neo Bomberman said 1UP at every
+        start, the robot's recordings of 2026-11-16). / Vrai quand le joueur gagne une vie : exactement une de plus,
+        alors qu'il jouait déjà. Les vies d'un début de partie n'en sont pas une."""
+        ch = self.changed(vals, "lives" if side == "p1" else "lives_p2")
+        return bool(ch and ch[1] == ch[0] + 1 and self.prev.get(side + "_mode") in (1, None))
 
     @staticmethod
     def nobody(vals):
@@ -170,6 +207,26 @@ class GameScene:
     @staticmethod
     def p1_in(vals):
         return vals.get("p1_mode") in (1, 2) or vals.get("p1_mode") is None
+
+    def mirror(self, side):
+        """(X, near, far) to draw player 1's corner on the left and player 2's the same on the right: X(x, w) is where a
+        thing w wide and x from the edge starts (sizes before scaling), near and far the two text alignments.
+        / Pour dessiner le coin du joueur 1 à gauche et celui du joueur 2 pareil à droite."""
+        S, W, left = self.S, self.W, side == "p1"
+        return (lambda x, w=0: S(x) if left else W - S(x) - S(w)), ("left" if left else "right"), ("right" if left else "left")
+
+    def panels(self, screen, vals, now, width, y=40):
+        """(side, suffix, x) of each player's panel, `width` wide before scaling: player 1's at the left edge, player 2's
+        the same at the right edge. Without a second player his invitation is written there.
+        / Le panneau de chaque joueur : celui du joueur 1 à gauche, celui du joueur 2 pareil à droite, ou son invitation."""
+        S, W = self.S, self.W
+        out = [("p1", "", 0)] if self.p1_in(vals) else []
+        if self.p2_in(vals):
+            out.append(("p2", "_p2", W - S(width) - S(24)))
+        else:
+            word, col = self.invite(vals, now)
+            self.label(screen, word, W - S(24), S(y), 30, col, align="right")
+        return out
 
     def stick(self, vals, side):
         """(dx, dy, buttons) from the Neo Geo BIOS (p1_input / p2_input). None while the player has not touched them
@@ -485,6 +542,10 @@ class GameScene:
             m = vals.get(side + "_mode")
             if m == 3 and self.modes.get(side) in (1, 2):
                 self.slam("GAME OVER", RED, now, 2.2)
+            lives = "lives" if side == "p1" else "lives_p2"
+            lv, was = _n(vals.get(lives)), _n(self.prev.get(lives))
+            if m == 1 and (self.modes.get(side) != 1 or (was == 0 and lv is not None and lv >= 2)):
+                self.began[side] = now                         # he starts, joins or continues, or his lives are dealt
             self.modes[side] = m
         self.always(vals, now)
         if not idle:
@@ -680,13 +741,16 @@ class BlazingStarScene(GameScene):
             firing = self._steer(side, vals, now, dt)
             alive = now - P["t_dead"] > 1.2 and now >= P["t_spawn"]
             ch = self.changed(vals, "lives" + suf)
-            if ch and ch[1] < ch[0] and alive:                        # a life lost: the ship explodes
+            mode, was = vals.get(side + "_mode"), self.prev.get(side + "_mode")
+            last = mode in (2, 3) and was == 1 and not (ch and ch[1] < ch[0])   # the last ship, no life left to take off
+            if (last or ch and ch[1] < ch[0]) and alive:              # a life lost: the ship explodes
                 x, y = self.pos(side, now)
                 fx.explosion(x, y, 0.9, layer_back=False)
-                self.popup(tr("-1 VIE", "-1 LIFE"), x, y - S(70), RED, 36)
+                if not last:
+                    self.popup(tr("-1 VIE", "-1 LIFE"), x, y - S(70), RED, 36)
                 P["t_dead"], P["t_spawn"] = now, now + 1.2
                 alive = False
-            elif ch and ch[1] > ch[0]:
+            elif self.one_up(vals, side):                             # an extra ship; the lives of a new game are not one
                 x, y = self.pos(side, now)
                 self.popup("1UP !", x, y - S(70), (140, 255, 150), 40)
             ch = self.changed(vals, "power" + suf)

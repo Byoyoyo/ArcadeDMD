@@ -26,10 +26,10 @@
     "note": "player 1 score, BCD (RetroAchievements leaderboard \"Top Score\" and rich presence, from tools/ra_notes.py), to confirm in game"
    },
    "score_p2": {
-    "addr": "",
+    "addr": "0x102180",
     "type": "bcd",
     "bytes": 4,
-    "note": "player 2 score, learn it with learn.bat in a two-player game (score2=...)"
+    "note": "player 2 score, BCD, 0x100 after player 1's as his lives (the robot's recording of 2026-11-16: 100, 300 and 100 as on three screenshots)"
    },
    "time": {
     "addr": "0x107E25",
@@ -47,13 +47,15 @@
     "addr": "0x10209D",
     "type": "bcd",
     "bytes": 1,
-    "note": "player 1 lives, P= on the screen (MAME 2003-Plus cheats, Infinite Lives PL1)"
+    "zero_from": 90,
+    "note": "player 1 lives, P= on the screen; 99 once the last one is lost, read as 0 (MAME 2003-Plus cheats, Infinite Lives PL1)"
    },
    "lives_p2": {
     "addr": "0x10219D",
     "type": "bcd",
     "bytes": 1,
-    "note": "player 2 lives (MAME 2003-Plus cheats, Infinite Lives PL2)"
+    "zero_from": 90,
+    "note": "player 2 lives, same (MAME 2003-Plus cheats, Infinite Lives PL2)"
    },
    "ammo_auto": {
     "addr": "0x1020EC",
@@ -84,6 +86,36 @@
     "type": "bcd",
     "bytes": 2,
     "note": "player 1 grenades (MAME 2003-Plus cheats, Infinite Grenades PL1)"
+   },
+   "ammo_auto_p2": {
+    "addr": "0x1021EC",
+    "type": "bcd",
+    "bytes": 2,
+    "note": "player 2 auto gun ammo (FinalBurn Neo cheats, Infinite Auto Gun PL2)"
+   },
+   "ammo_fire_p2": {
+    "addr": "0x1021EE",
+    "type": "bcd",
+    "bytes": 2,
+    "note": "player 2 fire ammo (FinalBurn Neo cheats, Infinite Fire PL2)"
+   },
+   "ammo_wide_p2": {
+    "addr": "0x1021F0",
+    "type": "bcd",
+    "bytes": 2,
+    "note": "player 2 wide gun ammo (FinalBurn Neo cheats, Infinite Wide Gun PL2)"
+   },
+   "ammo_bazooka_p2": {
+    "addr": "0x1021F2",
+    "type": "bcd",
+    "bytes": 2,
+    "note": "player 2 bazooka ammo (FinalBurn Neo cheats, Infinite Bazooka PL2)"
+   },
+   "ammo_grenade_p2": {
+    "addr": "0x1021F4",
+    "type": "bcd",
+    "bytes": 2,
+    "note": "player 2 grenades (FinalBurn Neo cheats, Infinite Grenades PL2)"
    },
    "credits": {
     "addr": "0xD00034",
