@@ -6,6 +6,14 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 To update, extract the new version over the old one. Your `config.json`, the addresses learned and your own pictures are kept.
 Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `config.json`, les adresses apprises et tes propres images sont gardés.
 
+## 1.39.3
+
+### English
+- The J1 and J2 chip of the Metal Slug, Mercs and Shock Troopers 2nd Squad panels has its corner cut like the frame. It no longer touches the frame's inner line.
+
+### Français
+- La pastille J1 et J2 des panneaux de Metal Slug, Mercs et Shock Troopers 2nd Squad a son coin coupé comme le cadre. Elle ne touche plus le trait intérieur du cadre.
+
 ## 1.39.2
 
 ### English

@@ -585,6 +585,36 @@ def panel_img(side, s, accent):
     return img if side == "p1" else ImageOps.mirror(img)
 
 
+# the J1 / J2 chip of a panel, in the panel's own units: its outer top corner is cut along the frame's bevel, the same gap
+# all round, and a small cut at the bottom takes up the shape of the panel. It was a rounded rectangle whose corner
+# touched the inner line of the frame (1.39.3)
+# / la pastille J1 / J2 d'un panneau : son coin extérieur est coupé comme le biais du cadre, avec le même écart partout
+CHIP = ((42, 16), (104, 16), (104, 52), (96, 60), (20, 60), (20, 38))
+CHIP_BOX = (112, 66)             # the size of its picture, laid at the panel's own corner / la taille de son image
+CHIP_MID = (64, 38)              # where J1 is written / où s'écrit J1
+
+
+def chip_img(side, s, accent):
+    """The J1 / J2 chip, drawn for J1 then mirrored for J2, to lay at the panel's top outer corner.
+    / La pastille J1 / J2, dessinée pour J1 puis retournée pour J2, à poser au coin extérieur du panneau."""
+    ss = 4
+    w, h = max(1, int(CHIP_BOX[0] * s)), max(1, int(CHIP_BOX[1] * s))
+    img = Image.new("RGBA", (w * ss, h * ss), (0, 0, 0, 0))
+    k = s * ss
+    ImageDraw.Draw(img).polygon([(x * k, y * k) for x, y in CHIP], fill=accent + (255,))
+    img = img.resize((w, h), Image.LANCZOS)
+    return img if side == "p1" else ImageOps.mirror(img)
+
+
+def chip_at(pg, surf, side, x0, y0, S):
+    """Where the chip's picture goes for a panel at (x0, y0), and the rectangle J1 is written in.
+    / Où poser l'image de la pastille pour un panneau en (x0, y0), et le rectangle où s'écrit J1."""
+    x = x0 if side == "p1" else x0 + S(PW) - surf.get_width()
+    box = pg.Rect(0, 0, S(84), S(44))
+    box.center = (x0 + S(CHIP_MID[0]) if side == "p1" else x0 + S(PW) - S(CHIP_MID[0]), y0 + S(CHIP_MID[1]))
+    return (x, y0), box
+
+
 # ---------------------------------------------------------------------------- un joueur
 class Player:
     def __init__(self, side):
@@ -679,6 +709,7 @@ class MetalSlugScene:
         self.in_attract = False
         self.pills = {}
         self.panels = {side: hd._surf(panel_img(side, s, ACCENT[side])) for side in ("p1", "p2")}
+        self.chips = {side: hd._surf(chip_img(side, s, ACCENT[side])) for side in ("p1", "p2")}
         self.weapons = {}
         self.rides = {}                          # the vehicles' pictures, (kind, side) / les dessins des véhicules
         self.ride_own = {}                       # kind -> the owner's own picture / sa propre image
@@ -2177,8 +2208,8 @@ class MetalSlugScene:
         acc = ACCENT[side]
         playing = self.playing(P)
         # en-tête : J1 / J2, état, casques
-        chip = pg.Rect(self.X(side, x0, 18, 84), y0 + S(10), S(84), S(48))
-        pg.draw.rect(screen, acc, chip, border_radius=S(8))
+        at, chip = chip_at(pg, self.chips[side], side, x0, y0, S)
+        screen.blit(self.chips[side], at)
         hd.put(screen, hd.text(tr("J1", "P1") if side == "p1" else tr("J2", "P2"), "stencil", S(36), (24, 14, 8), glow=0), chip.centerx, chip.centery,
                "center", "middle")
         if not playing and (P.over_t is None or now - P.over_t > 5.0):
