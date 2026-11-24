@@ -1,1415 +1,1005 @@
-"""The places of Metal Slug 2 behind its scene, one per mission, drawn by the program with Pillow alone (1.39.3): a town of
-the desert, ruins and pyramids, a railway in the mountains, a harbour town, a big city by night, a base in the snow. The
-six Metal Slug used to share one round of backdrops (jungle, desert, snow, city, harbour, base) whatever the mission:
-the first mission of Metal Slug 2, a town of the desert in broad daylight, played in front of a jungle at night.
+"""The places of Metal Slug 2 behind its scene, one per mission, in the real look of dmd/hd_real.py and the light of the
+cinema (1.39.3): a backdrop rather dark, one marked source of light, warm points that live. Missions 1 to 3 are here,
+missions 4 to 6 and the sky of the last boss in dmd/hd_stages_ms2.py.
 
-Walls lit from the left with a side in the shade, a grain, windows, awnings, roofs, haze in the distance. Every picture
-is our own drawing of that kind of place. None comes from a game. A game takes them through "stages" in its "hd" block
-(games/mslug2.json), the others keep the round of dmd/hd_stages.py.
+1 a street of the desert at nightfall, 2 inside a tomb lit by fire, 3 a military train in wooded country at the golden
+hour (a halt, a bridge of timber over a river, a depot of brick), 4 a street of shops at nightfall, 5 tunnels under the
+ground, 6 a mountain under the snow at the blue hour. A storm turning round an eye comes with the boss of the last mission
+("boss_stages" in the game's "hd" block).
 
-/ Les lieux de Metal Slug 2 derrière sa scène, un par mission, dessinés par le programme : une ville du désert, des
-ruines et des pyramides, une voie ferrée en montagne, une ville portuaire, une grande ville la nuit, une base sous la
-neige. Chaque image est notre dessin de ce genre d'endroit, aucune ne vient d'un jeu.
+The six Metal Slug used to share one round of backdrops whatever the mission. A game takes these places through "stages"
+in its "hd" block (games/mslug2.json), the others keep the round of dmd/hd_stages.py. Every picture is our own drawing.
+None comes from a game.
+
+/ Les lieux de Metal Slug 2 derrière sa scène, un par mission, dans le rendu réaliste de dmd/hd_real.py et en lumière de
+cinéma : un fond plutôt sombre, une source de lumière marquée, des points chauds qui vivent. Les missions 1 à 3 sont
+ici, les missions 4 à 6 et le ciel du dernier boss dans dmd/hd_stages_ms2.py. Chaque image est notre dessin.
 """
 
 import math
 import random
 
-from PIL import Image, ImageChops, ImageDraw, ImageFilter
-
 from . import hd_bg
-from .hd_bg import periodic, vgrad
-
-SS = 2                                   # everything is drawn twice as big, then made small / dessiné en double
-FIRES = 2                                # fires burning in a place, each one costs at every image / feux par lieu
-LIGHTS = 12                              # lights that flicker on a layer, the same / lumières qui vacillent par plan
-
-
-def some(rng, things, n):
-    """n of them at most, spread over the place. / n au plus, répartis sur le lieu."""
-    things = list(things)
-    return things if len(things) <= n else sorted(rng.sample(things, n))
+from .hd_bg import vgrad
+from .hd_real import (BRICK, FIRES, IRON, LIGHTS, MOODS, PAINT, PLASTER, WOOD, Sheet, balcony, bricks, cloud_layer,
+                      crate, dome, door, drum, grade_cine, lantern, mix, mountains, opening, pole, puff, rivets,
+                      sandbags, settled, shade, some, stall, wheel, wires)
 
 
-def fractal(w, h, rng, cells=(96, 48, 24, 12), contrast=1.0):
-    """Soft noise that loops over its width (L, around 128). / Bruit doux qui boucle sur sa largeur."""
-    out = Image.new("L", (w, h), 128)
-    weight = 0.5
-    for cell in cells:
-        cw, ch = max(3, w // cell), max(2, h // cell + 1)
-        first = Image.frombytes("L", (cw, ch), rng.randbytes(cw * ch))
-        if contrast != 1.0:
-            first = first.point(lambda v, c=contrast: max(0, min(255, int(128 + (v - 128) * c))))
-        small = Image.new("L", (cw + 1, ch))
-        small.paste(first, (0, 0))
-        small.paste(first.crop((0, 0, 1, ch)), (cw, 0))                     # the last column is the first: it loops
-        big = small.resize((w + max(1, w // cw), h), Image.BICUBIC).crop((0, 0, w, h))
-        out = ImageChops.add(out, big.point(lambda v, k=weight: int(128 + (v - 128) * k)), 1.0, -128)
-        weight *= 0.55
-    return out
+# ---------------------------------------------------------------------------- mission 1, a street of the desert / une rue du désert
 
 
-def settled(sky, layers, W, slow=0.05):
-    """What hardly moves is painted into the sky once: the clouds and the farthest crest slid by a few points over a whole
-    mission, and each of them cost a wide transparent picture to lay at every image. The rest keeps its own speed.
-    / Ce qui bouge à peine est peint dans le ciel une fois : les nuages et la crête la plus lointaine."""
-    sky = sky.convert("RGBA")
-    kept = []
-    for L in layers:
-        if L["stage"] == "sky" and L["f"] <= slow and len(L) == 4:
-            sky.alpha_composite(L["img"].crop((0, 0, min(W, L["img"].width), L["img"].height)), (0, L["y"]))
-        else:
-            kept.append(L)
-    return sky.convert("RGB"), kept
-
-
-def shade(col, k):
-    return tuple(max(0, min(255, int(c * k))) for c in col)
-
-
-class Canvas:
-    """An RGBA layer drawn twice as big. / Un plan RGBA dessiné en double."""
-
-    def __init__(self, tw, h):
-        self.tw, self.h = tw, h
-        self.im = Image.new("RGBA", (tw * SS, h * SS), (0, 0, 0, 0))
-        self.d = ImageDraw.Draw(self.im)
-
-    def P(self, pts):
-        return [(x * SS, y * SS) for x, y in pts]
-
-    def poly(self, pts, fill):
-        self.d.polygon(self.P(pts), fill=fill)
-
-    def rect(self, x0, y0, x1, y1, fill):
-        self.d.rectangle([x0 * SS, y0 * SS, x1 * SS, y1 * SS], fill=fill)
-
-    def ellipse(self, x0, y0, x1, y1, fill):
-        self.d.ellipse([x0 * SS, y0 * SS, x1 * SS, y1 * SS], fill=fill)
-
-    def chord(self, x0, y0, x1, y1, a0, a1, fill):
-        self.d.chord([x0 * SS, y0 * SS, x1 * SS, y1 * SS], a0, a1, fill=fill)
-
-    def line(self, pts, fill, width=1.0):
-        self.d.line(self.P(pts), fill=fill, width=max(1, int(width * SS)))
-
-    def soft(self, pts, fill, blur):
-        """A soft shape laid over what is drawn (a shadow, a stain). / Une forme douce posée par-dessus."""
-        box = [min(p[0] for p in pts) - blur * 3, min(p[1] for p in pts) - blur * 3,
-               max(p[0] for p in pts) + blur * 3, max(p[1] for p in pts) + blur * 3]
-        x0, y0 = int(box[0] * SS), int(box[1] * SS)
-        w, h = max(2, int((box[2] - box[0]) * SS)), max(2, int((box[3] - box[1]) * SS))
-        m = Image.new("L", (w, h), 0)
-        ImageDraw.Draw(m).polygon([(x * SS - x0, y * SS - y0) for x, y in pts], fill=fill[3])
-        m = m.filter(ImageFilter.GaussianBlur(blur * SS))
-        part = Image.new("RGBA", (w, h), fill[:3] + (0,))
-        part.putalpha(m)
-        region = self.im.crop((x0, y0, x0 + w, y0 + h))
-        alpha = region.getchannel("A")
-        region = Image.alpha_composite(region, part)
-        region.putalpha(alpha)                                # only on what is there / seulement sur ce qui existe
-        self.im.paste(region, (x0, y0))
-
-    def done(self, texture=None, amount=0.22, haze=None, haze_k=0.0):
-        im = self.im.resize((self.tw, self.h), Image.LANCZOS)
-        a = im.getchannel("A")
-        rgb = im.convert("RGB")
-        if texture is not None:                               # the grain of the walls / le grain des murs
-            t = texture.point(lambda v: int(255 * (1 - amount) + (v - 128) * 2 * amount + 255 * amount * 0.5))
-            rgb = ImageChops.multiply(rgb, Image.merge("RGB", (t, t, t)))
-        if haze is not None and haze_k > 0:                   # the air between here and there / l'air entre ici et là-bas
-            rgb = Image.blend(rgb, Image.new("RGB", rgb.size, haze), haze_k)
-        rgb.putalpha(a)
-        return rgb
-
-
-WALLS = ((226, 196, 150), (214, 178, 128), (232, 208, 170), (204, 160, 116), (222, 184, 146), (236, 214, 184), (198, 150, 110))
-SHUTTERS = ((52, 118, 124), (64, 96, 150), (122, 70, 46), (70, 120, 84), (150, 60, 50))
-CLOTH = (((196, 52, 44), (240, 226, 200)), ((44, 96, 150), (236, 228, 208)), ((214, 150, 40), (240, 226, 190)), ((60, 120, 90), (236, 230, 206)))
-
-
-def window(c, x, y, w, h, s, rng, wall, arch=True):
-    dark = (34, 26, 28)
-    c.rect(x - w / 2 - 2 * s, y - h - 2 * s, x + w / 2 + 2 * s, y + 2 * s, shade(wall, 1.1))        # frame / encadrement
-    if arch:
-        c.ellipse(x - w / 2 - 2 * s, y - h - w / 2 - 2 * s, x + w / 2 + 2 * s, y - h + w / 2 + 2 * s, shade(wall, 1.1))
-        c.ellipse(x - w / 2, y - h - w / 2, x + w / 2, y - h + w / 2, dark)
-    c.rect(x - w / 2, y - h, x + w / 2, y, dark)
-    c.poly([(x - w / 2, y - h), (x + w / 2, y - h), (x - w / 2, y - h * 0.55)], (58, 46, 52))      # a little sky in the glass
-    c.rect(x - w / 2 - 3 * s, y, x + w / 2 + 3 * s, y + 3 * s, shade(wall, 1.16))                   # sill / appui
-    c.rect(x - w / 2 - 3 * s, y + 3 * s, x + w / 2 + 3 * s, y + 5 * s, shade(wall, 0.7))
-    r = rng.random()
-    if r < 0.45:                                                                                   # shutters / volets
-        col = rng.choice(SHUTTERS)
-        for sx in (-1, 1):
-            x0 = x + sx * (w / 2 + 1 * s)
-            x1 = x0 + sx * w * 0.5
-            c.rect(min(x0, x1), y - h, max(x0, x1), y, col)
-            for j in range(1, 5):
-                yy = y - h + j * h / 5
-                c.line([(min(x0, x1), yy), (max(x0, x1), yy)], shade(col, 0.7), 0.6)
-    elif r < 0.6:                                                                                  # a grille / une grille
-        for j in range(1, 4):
-            xx = x - w / 2 + j * w / 4
-            c.line([(xx, y - h), (xx, y)], (16, 12, 14), 0.8)
-        c.line([(x - w / 2, y - h / 2), (x + w / 2, y - h / 2)], (16, 12, 14), 0.8)
-    c.soft([(x - w / 2 - 2 * s, y + 5 * s), (x + w / 2 + 2 * s, y + 5 * s), (x + w / 2, y + 30 * s), (x - w / 2, y + 26 * s)],
-           shade(wall, 0.62) + (70,), 2.5 * s)                                                     # a stain under it / coulure
-
-
-def awning(c, x, y, w, s, rng):
-    a, b = rng.choice(CLOTH)
-    drop, out = 16 * s, 8 * s
-    n = max(4, int(w / (9 * s)))
-    for i in range(n):
-        x0, x1 = x + i * w / n, x + (i + 1) * w / n
-        c.poly([(x0, y), (x1, y), (x1 + out * (2 * (i + 1) / n - 1), y + drop), (x0 + out * (2 * i / n - 1), y + drop)],
-               a if i % 2 == 0 else b)
-    c.rect(x - out, y + drop, x + w + out, y + drop + 3 * s, shade(a, 0.7))
-    c.soft([(x - out, y + drop + 3 * s), (x + w + out, y + drop + 3 * s), (x + w + out, y + drop + 30 * s), (x - out, y + drop + 30 * s)],
-           (20, 14, 22, 110), 4 * s)                                                               # its shade / son ombre
-
-
-def house(c, x, base, w, h, s, rng, lit=1.0):
-    """A flat-roofed house, lit from the left. / Une maison à toit plat, éclairée par la gauche."""
-    wall = shade(rng.choice(WALLS), lit)
-    side = w * rng.uniform(0.10, 0.16)
+def house(sh, x, base, w, h, s, rng, mood, detail=True, shadow=0.0):
+    """A house of plaster seen from the street. / Une maison enduite vue de la rue."""
+    wall = rng.choice(PLASTER)
     top = base - h
-    c.rect(x, top, x + w, base, wall)
-    c.rect(x + w - side, top, x + w, base, shade(wall, 0.72))                                      # the side in the shade
-    c.rect(x - 2 * s, top - 5 * s, x + w + 2 * s, top + 3 * s, shade(wall, 1.1))                   # parapet
-    c.rect(x - 2 * s, top + 3 * s, x + w + 2 * s, top + 5 * s, shade(wall, 0.66))
-    c.soft([(x, base - 26 * s), (x + w, base - 26 * s), (x + w, base), (x, base)], (40, 26, 30, 120), 7 * s)   # the foot
-    c.soft([(x, top + 5 * s), (x + w - side, top + 5 * s), (x + w - side, top + 16 * s), (x, top + 14 * s)],
-           (60, 40, 40, 70), 3 * s)                                                                # under the parapet
-    floors = max(1, int((h - 30 * s) / (52 * s)))
-    cols = max(1, int((w - side - 16 * s) / (38 * s)))
+    side = min(30 * s, w * rng.uniform(0.07, 0.12))
+    uw = w - side
+    n = max(2, int(w / (40 * s)))                                                                  # a roof line that is not ruled
+    roof = [(x + i * w / n, top + rng.uniform(-2.2, 2.2) * s) for i in range(n + 1)]
+    bite = rng.random() < 0.24                                                                     # a corner shot away / un angle emporté
+    if bite:
+        k = rng.randint(1, max(1, n // 3))
+        for i in range(k + 1):
+            roof[i] = (roof[i][0], top + (rng.uniform(18, 60) * s) * (1 - i / (k + 0.5)) + rng.uniform(-4, 4) * s)
+    sh.poly([(x, base + 1)] + roof + [(x + w, base + 1)], wall)
+    trim = (228, 222, 208) if rng.random() < 0.34 else None
+    if rng.random() < 0.38:                                                                        # the foot painted, faded / le bas peint, passé
+        dh = rng.uniform(56, 96) * s
+        dc = mix(wall, rng.choice(PAINT), rng.uniform(0.4, 0.62))
+        sh.rect(x, base - dh, x + w, base + 1, dc)
+        sh.rect(x, base - dh - 2 * s, x + w, base - dh, shade(dc, 0.82))
+    if shadow > 0:                                                                                 # the taller neighbour on the left / le voisin plus haut
+        sh.poly([(x, top - 3 * s), (x + shadow, top - 3 * s), (x + shadow + (base - top) * 0.3, base), (x, base)], None, "dark", 150)
+    sh.poly([(x + uw, top - 3 * s), (x + w, top - 3 * s), (x + w, base + 1), (x + uw, base + 1)], None, "dark", 190)   # the side in the shade
+    sh.poly([(x, top - 3 * s), (x + uw * 0.5, top - 3 * s), (x + uw * 0.2, base - h * 0.4), (x, base - h * 0.3)], None, "Light", 90)
+    for (ax, ay), (bx, by) in zip(roof, roof[1:]):                                                 # the lip of the roof in the sun
+        sh.poly([(ax, ay), (bx, by), (bx, by + 3 * s), (ax, ay + 3 * s)], shade(wall, 1.16))
+        sh.poly([(ax, ay + 3 * s), (bx, by + 3 * s), (bx, by + 9 * s), (ax, ay + 9 * s)], None, "dark", 120)
+    sh.rect(x, base - 26 * s, x + w, base + 1, None, "Dark", 130)                                   # the foot, dirty / le pied, sali
+    vy = top + rng.uniform(22, 30) * s
+    if not bite and rng.random() < 0.6:                                                            # the ends of the beams
+        bx = x + rng.uniform(10, 16) * s
+        while bx < x + uw - 8 * s:
+            sh.ellipse(bx - 3 * s, vy - 3 * s, bx + 3 * s, vy + 3 * s, shade(WOOD, 0.9), "cast")
+            sh.ellipse(bx - 2.4 * s, vy - 2.4 * s, bx + 0.6 * s, vy + 0.6 * s, None, "light", 120)
+            bx += rng.uniform(20, 27) * s
+    for _ in range(rng.randint(0, 2)):
+        bricks(sh, x + rng.uniform(0.06, 0.6) * uw, vy + 22 * s + rng.uniform(0.0, 0.3) * h, rng.uniform(40, 86) * s, rng.uniform(24, 44) * s, s, rng)
+    for _ in range(rng.randint(1, 3)):                                                             # patches of another plaster
+        px, py, pw, ph = x + rng.uniform(0.05, 0.7) * uw, top + rng.uniform(0.15, 0.7) * h, rng.uniform(40, 110) * s, rng.uniform(30, 80) * s
+        sh.ellipse(px, py, px + pw, py + ph, None, *rng.choice((("Light", rng.randint(50, 110)), ("Dark", rng.randint(26, 60)))))
+    slots = max(1, int((uw - 16 * s) / (74 * s)))
+    sw = (uw - 16 * s) / slots
+    door_at = rng.randrange(slots)
     arch = rng.random() < 0.6
-    for f in range(floors):
-        y = base - 30 * s - f * 52 * s - (14 * s if f else 0)
-        for i in range(cols):
-            wx = x + 8 * s + (i + 0.5) * (w - side - 16 * s) / cols
-            if f == 0:
-                if i == cols // 2 or rng.random() < 0.3:                                           # a door / une porte
-                    dw, dh = 20 * s, 40 * s
-                    c.ellipse(wx - dw / 2 - 2 * s, base - dh - dw / 2 - 2 * s, wx + dw / 2 + 2 * s, base - dh + dw / 2 + 2 * s, shade(wall, 1.1))
-                    c.rect(wx - dw / 2 - 2 * s, base - dh, wx + dw / 2 + 2 * s, base, shade(wall, 1.1))
-                    c.ellipse(wx - dw / 2, base - dh - dw / 2, wx + dw / 2, base - dh + dw / 2, (30, 22, 24))
-                    c.rect(wx - dw / 2, base - dh, wx + dw / 2, base, (30, 22, 24))
-                    if rng.random() < 0.5:
-                        awning(c, wx - dw * 0.9, base - dh - dw / 2 - 12 * s, dw * 1.8, s, rng)
-                    continue
-                if rng.random() < 0.4:
-                    continue
-            if rng.random() < 0.14:
+    for i in range(slots):
+        cx = x + 8 * s + (i + 0.5) * sw
+        q = rng.random()
+        if i == door_at:
+            door(sh, cx, base, rng.uniform(34, 44) * s, rng.uniform(72, 86) * s, s, rng, wall, mood, arch)
+        elif q < 0.42 and detail:
+            stall(sh, cx - sw * 0.40, base, sw * 0.80, s, rng, wall, mood)
+        elif q < 0.9:
+            opening(sh, cx, base - 40 * s, rng.uniform(20, 28) * s, rng.uniform(36, 44) * s, s, rng, wall, mood, arch, trim=trim)
+    y, fl = base - 150 * s, 0
+    while y - 44 * s > vy + 12 * s:
+        for i in range(slots):
+            cx = x + 8 * s + (i + 0.5) * sw + rng.uniform(-6, 6) * s
+            q = rng.random()
+            if q < 0.08 or (bite and cx < x + w * 0.4 and y - 60 * s < top + 70 * s):
                 continue
-            window(c, wx, y, 14 * s, 22 * s, s, rng, wall, arch)
+            if q < 0.32 and fl == 0 and detail:
+                balcony(sh, cx, y + 6 * s, s, rng, wall, mood)
+            else:
+                opening(sh, cx, y, rng.uniform(18, 24) * s, rng.uniform(32, 40) * s, s, rng, wall, mood, arch, trim=trim)
+        y -= 80 * s
+        fl += 1
+    if fl == 0 and h > 186 * s:
+        for i in range(slots * 2):
+            if rng.random() < 0.75:
+                opening(sh, x + 8 * s + (i + 0.5) * sw / 2 + rng.uniform(-4, 4) * s, vy + 52 * s, 14 * s, 26 * s, s, rng, wall, mood, arch, trim=trim)
     for _ in range(rng.randint(1, 3)):                                                             # cracks / fissures
-        cx, cy = x + rng.uniform(0.1, 0.8) * w, top + rng.uniform(0.1, 0.8) * h
+        cx, cy = x + rng.uniform(0.1, 0.8) * uw, top + rng.uniform(0.15, 0.7) * h
         pts = [(cx, cy)]
-        for _ in range(rng.randint(3, 6)):
-            cx, cy = cx + rng.uniform(-7, 7) * s, cy + rng.uniform(5, 14) * s
+        for _ in range(rng.randint(4, 8)):
+            cx, cy = cx + rng.uniform(-7, 7) * s, cy + rng.uniform(5, 13) * s
             pts.append((cx, min(cy, base)))
-        c.line(pts, shade(wall, 0.55), 0.7)
-    if rng.random() < 0.55:                                                                        # bullet holes / impacts
-        cx, cy = x + rng.uniform(0.15, 0.7) * w, top + rng.uniform(0.25, 0.75) * h
-        for _ in range(rng.randint(5, 11)):
-            px, py, r = cx + rng.gauss(0, 14) * s, cy + rng.gauss(0, 9) * s, rng.uniform(0.7, 1.5) * s
-            c.ellipse(px - r * 1.6, py - r * 1.6, px + r * 1.6, py + r * 1.6, shade(wall, 0.8))
-            c.ellipse(px - r, py - r, px + r, py + r, (44, 32, 32))
-    if rng.random() < 0.3:                                                                         # a corner shot away
-        k = rng.choice((0, 1))
-        bx = x - 3 * s if k == 0 else x + w + 3 * s
-        sg = 1 if k == 0 else -1
-        bw, bh = rng.uniform(24, 46) * s, rng.uniform(26, 52) * s
-        pts = [(bx, top - 8 * s), (bx + sg * bw, top - 8 * s)]
-        n = 5
-        for i in range(n + 1):
-            pts.append((bx + sg * bw * (1 - i / n) + rng.uniform(-3, 3) * s, top + bh * i / n + rng.uniform(-2, 2) * s))
-        c.poly(pts, (0, 0, 0, 0))
-    r = rng.random()
-    if r < 0.28:                                                                                   # a dome / un dôme
-        dw = min(w * 0.6, rng.uniform(46, 80) * s)
-        dx = x + (w - side) * 0.5
-        c.chord(dx - dw / 2, top - 5 * s - dw * 0.48, dx + dw / 2, top - 5 * s + dw * 0.48, 180, 360, shade(wall, 0.98))
-        c.chord(dx - dw / 2, top - 5 * s - dw * 0.48, dx + dw / 2 - dw * 0.28, top - 5 * s + dw * 0.48, 180, 360, shade(wall, 1.12))
-        c.rect(dx - 1 * s, top - 5 * s - dw * 0.48 - 10 * s, dx + 1 * s, top - 5 * s - dw * 0.48, (70, 56, 50))
-    elif r < 0.52:                                                                                 # a tank / une citerne
-        tx = x + rng.uniform(0.2, 0.6) * w
-        c.rect(tx, top - 26 * s, tx + 22 * s, top - 6 * s, (120, 126, 128))
-        c.rect(tx + 15 * s, top - 26 * s, tx + 22 * s, top - 6 * s, (84, 90, 96))
-        c.rect(tx - 1 * s, top - 28 * s, tx + 23 * s, top - 25 * s, (150, 156, 158))
-    elif r < 0.75:                                                                                 # washing / du linge
-        x0, x1 = x + 0.12 * w, x + 0.8 * w
-        c.line([(x0, top - 5 * s), (x0, top - 26 * s)], (70, 50, 40), 1.2)
-        c.line([(x1, top - 5 * s), (x1, top - 26 * s)], (70, 50, 40), 1.2)
-        c.line([(x0, top - 25 * s), ((x0 + x1) / 2, top - 21 * s), (x1, top - 25 * s)], (60, 50, 50), 0.6)
-        n = rng.randint(3, 5)
-        for i in range(n):
-            lx = x0 + (i + 0.6) * (x1 - x0) / (n + 0.4)
-            col = rng.choice(((236, 232, 220), (196, 60, 50), (70, 110, 160), (220, 180, 70)))
-            c.rect(lx - 5 * s, top - 22 * s, lx + 5 * s, top - 9 * s, col)
-            c.rect(lx + 2 * s, top - 22 * s, lx + 5 * s, top - 9 * s, shade(col, 0.8))
-    if rng.random() < 0.35:                                                                        # an aerial / une antenne
-        ax = x + rng.uniform(0.1, 0.9) * (w - side)
-        c.line([(ax, top - 5 * s), (ax, top - 44 * s)], (50, 44, 48), 0.9)
-        c.line([(ax - 8 * s, top - 38 * s), (ax + 8 * s, top - 38 * s)], (50, 44, 48), 0.7)
-        c.line([(ax - 6 * s, top - 32 * s), (ax + 6 * s, top - 32 * s)], (50, 44, 48), 0.7)
+        sh.line(pts, shade(wall, 0.56), 0.8 * s)
+    for _ in range(rng.randint(0, 2)):                                                             # bullet holes / impacts
+        cx, cy = x + rng.uniform(0.15, 0.7) * uw, top + rng.uniform(0.25, 0.7) * h
+        for _ in range(rng.randint(5, 12)):
+            px, py, rr = cx + rng.gauss(0, 16) * s, cy + rng.gauss(0, 9) * s, rng.uniform(0.9, 1.9) * s
+            sh.ellipse(px - rr * 1.9, py - rr * 1.7, px + rr * 1.6, py + rr * 1.8, shade(wall, 1.12))
+            sh.ellipse(px - rr, py - rr, px + rr, py + rr, (48, 40, 40))
+    if bite:
+        return wall
+    q = rng.random()
+    if q < 0.26:
+        dome(sh, x + uw * rng.uniform(0.35, 0.6), top, min(uw * 0.5, rng.uniform(60, 96) * s), s, wall)
+    elif q < 0.5:                                                                                  # a tank and a pipe / une citerne
+        tx = x + rng.uniform(0.15, 0.6) * uw
+        sh.rect(tx, top - 30 * s, tx + 26 * s, top, (126, 128, 124), "cast")
+        sh.rect(tx + 17 * s, top - 30 * s, tx + 26 * s, top, None, "dark", 170)
+        sh.rect(tx + 3 * s, top - 30 * s, tx + 7 * s, top, None, "light", 120)
+        sh.rect(tx - 1 * s, top - 33 * s, tx + 27 * s, top - 29 * s, (150, 150, 144))
+        sh.line([(tx + 34 * s, top), (tx + 34 * s, top - 22 * s)], (64, 58, 56), 1.6 * s)
+    elif q < 0.72:                                                                                 # a room on the roof
+        rw, rh = rng.uniform(56, 84) * s, rng.uniform(40, 54) * s
+        rx = x + rng.uniform(0.1, 0.5) * uw
+        w2 = rng.choice(PLASTER)
+        sh.rect(rx, top - rh, rx + rw, top + 1, w2, "cast")
+        sh.rect(rx + rw * 0.82, top - rh, rx + rw, top + 1, None, "dark", 150)
+        sh.rect(rx, top - rh, rx + rw, top - rh + 3 * s, shade(w2, 1.14))
+        opening(sh, rx + rw * 0.4, top, 15 * s, 28 * s, s, rng, w2, mood, True, "void", 0.0)
+    if rng.random() < 0.3:                                                                         # washing / du linge
+        x0, x1 = x + 0.1 * uw, x + 0.9 * uw
+        for px in (x0, x1):
+            sh.line([(px, top), (px, top - 30 * s)], (70, 62, 58), 1.4 * s)
+        sh.line([(x0, top - 29 * s), ((x0 + x1) / 2, top - 24 * s), (x1, top - 29 * s)], (60, 56, 56), 0.7 * s)
+        k = rng.randint(3, 6)
+        for i in range(k):
+            lx = x0 + (i + 0.6) * (x1 - x0) / (k + 0.4)
+            col = rng.choice(((214, 210, 198), (150, 66, 58), (74, 100, 130), (176, 150, 84), (84, 116, 104), (196, 190, 176)))
+            ww = rng.uniform(4.5, 7) * s
+            sh.rect(lx - ww, top - 26 * s, lx + ww, top - rng.uniform(8, 13) * s, col)
+            sh.rect(lx + ww * 0.3, top - 26 * s, lx + ww, top - 9 * s, None, "dark", 110)
+    if rng.random() < 0.4:                                                                         # an aerial / une antenne
+        ax = x + rng.uniform(0.1, 0.9) * uw
+        sh.line([(ax, top), (ax, top - 46 * s)], (56, 52, 54), 0.9 * s)
+        for dy in (40, 34, 28):
+            sh.line([(ax - 8 * s, top - dy * s), (ax + 8 * s, top - dy * s)], (56, 52, 54), 0.7 * s)
+    return wall
 
 
-def palm(c, x, base, h, s, rng, lit=1.0):
-    lean = rng.uniform(-0.18, 0.18)
-    trunk = shade((112, 84, 58), lit)
-    pts = [(x + lean * h * (i / 8) ** 1.6, base - h * i / 8) for i in range(9)]
-    for i in range(8):
-        w = (5 - i * 0.3) * s
-        c.line([pts[i], pts[i + 1]], trunk if i % 2 else shade(trunk, 0.82), w)
+def palm(sh, x, base, h, s, rng):
+    lean = rng.uniform(-0.14, 0.14)
+    pts = [(x + lean * h * (i / 14) ** 1.7, base - h * i / 14) for i in range(15)]
+    for i in range(14):
+        w = (9 - i * 0.32) * s
+        col = shade((122, 100, 76), rng.uniform(0.82, 1.1))
+        sh.line([pts[i], pts[i + 1]], col, w, "cast")
+        sh.line([(pts[i][0] - w * 0.5, pts[i][1]), (pts[i][0] + w * 0.5, pts[i][1])], shade(col, 0.6), 0.8 * s)
+        sh.line([(pts[i][0] + w * 0.28, pts[i][1]), (pts[i + 1][0] + w * 0.28, pts[i + 1][1])], (60, 50, 44), w * 0.4)
     tx, ty = pts[-1]
-    for i in range(9):
-        a = math.pi * (0.08 + i / 8 * 0.84) + rng.uniform(-0.1, 0.1)
-        L = rng.uniform(34, 52) * s
-        leaf = [(tx, ty)]
-        for j in range(1, 7):
-            k = j / 6
-            leaf.append((tx - math.cos(a) * L * k, ty - math.sin(a) * L * k * 0.55 + (k ** 2) * L * 0.6))
-        col = shade((70, 124, 62) if i % 2 else (52, 100, 54), lit)
-        c.line(leaf, col, 3.2 * s)
-        c.line(leaf[:4], shade(col, 1.25), 1.2 * s)
+    greens = ((74, 98, 54), (92, 110, 60), (60, 84, 50), (108, 118, 68), (80, 104, 62))
+    order = list(range(15))
+    rng.shuffle(order)
+    for i in order:
+        dead = i in (0, 14) or rng.random() < 0.1
+        a = math.pi * (-0.16 + i / 14 * 1.32) + rng.uniform(-0.08, 0.08)
+        L = rng.uniform(56, 88) * s * (0.8 if dead else 1.0)
+        up = 0.55 + 0.5 * math.sin(a) ** 2
+        droop = (0.95 if dead else 0.74 - 0.36 * math.sin(a) ** 2)
+        rib = [(tx - math.cos(a) * L * k, ty - math.sin(a) * L * k * up + (k ** 2.3) * L * droop) for k in [j / 12 for j in range(13)]]
+        col = (128, 108, 70) if dead else rng.choice(greens)
+        sh.line(rib, shade(col, 0.8), 1.4 * s)
+        for j in range(1, 13):
+            px, py = rib[j]
+            qx, qy = rib[j - 1]
+            ux, uy = px - qx, py - qy
+            n = math.hypot(ux, uy) or 1.0
+            ux, uy = ux / n, uy / n
+            ll = L * 0.26 * math.sin(math.pi * min(1.0, j / 12 + 0.08)) ** 0.7 + 3 * s
+            for sgn in (-1, 1):
+                ex = px + (ux * 0.55 - sgn * uy * 0.7) * ll
+                ey = py + (uy * 0.55 + sgn * ux * 0.7) * ll + ll * 0.35
+                sh.line([(px, py), (ex, ey)], shade(col, rng.uniform(0.74, 1.18) * (0.8 if sgn > 0 else 1.0)), 1.3 * s)
+    sh.ellipse(tx - 8 * s, ty - 2 * s, tx + 8 * s, ty + 12 * s, (84, 70, 50))
 
 
-def build_town(W, H, s, seed=21):
-    """Mission 1. A town of the desert at war, in broad daylight. / Une ville du désert en guerre, en plein jour."""
-    rng = random.Random(seed)
-    tw = int(W + 600 * s)
-    hz = int(H * 0.70)
-    haze = (232, 214, 186)
-    sky = vgrad(W, H, [(0.0, (30, 84, 160)), (0.30, (78, 142, 206)), (0.55, (150, 192, 222)), (0.68, haze),
-                       (0.74, (226, 200, 160)), (1.0, (188, 150, 104))])
-    sun = (int(W * 0.24), int(H * 0.16))
-    hd_bg.add_at(sky, hd_bg.radial(int(1100 * s), (44, 40, 26), 2.4), *sun)
-    hd_bg.add_at(sky, hd_bg.radial(int(240 * s), (90, 84, 64), 1.8), *sun)
-    layers = []
-
-    # clouds lit from above / des nuages éclairés par le haut
-    h = int(H * 0.56)
-    n = fractal(tw, h, rng, cells=(int(260 * s) or 2, int(120 * s) or 2, int(56 * s) or 2, int(26 * s) or 2), contrast=1.1)
-    fade = Image.new("L", (1, h))
-    fade.putdata([int(255 * max(0.0, min(1.0, (1 - y / h) * 1.5)) * (0.35 + 0.65 * min(1.0, y / (h * 0.25)))) for y in range(h)])
-    m = n.point(lambda v: max(0, min(255, int((v - 138) * 5.0))))
-    m = ImageChops.multiply(m.filter(ImageFilter.GaussianBlur(3 * s)), fade.resize((tw, h)))
-    under = ImageChops.offset(m, 0, -int(7 * s)).filter(ImageFilter.GaussianBlur(5 * s))
-    cloud = Image.new("RGB", (tw, h), (252, 248, 240))
-    cloud.paste((176, 190, 212), (0, 0), ImageChops.subtract(m, under))                            # their grey undersides
-    cloud.putalpha(m.point(lambda v: int(v * 0.86)))
-    layers.append({"img": cloud, "y": 0, "f": 0.03, "stage": "sky"})
-
-    # two lines of dunes in the haze / deux lignes de dunes dans la brume
-    for (hh, amp, c0, c1, k, f, dy) in ((120, 26, (224, 196, 150), (206, 172, 124), 0.62, 0.05, 30),
-                                        (104, 20, (226, 190, 136), (196, 154, 104), 0.40, 0.09, 6)):
-        h = int(hh * s)
-        c = Canvas(tw, h)
-        fn = periodic(tw, rng, 4, amp * s)
-        c.poly([(0, h)] + [(x, h * 0.5 + fn(x)) for x in range(0, tw + 1, 8)] + [(tw, h)], c0 + (255,))
-        img = c.done()
-        g = vgrad(tw, h, [(0, c0), (1, c1)], 0)
-        lit = Image.new("L", (tw, h), 0)                                                           # slopes facing the sun
-        ld = ImageDraw.Draw(lit)
-        for x in range(0, tw, 6):
-            slope = fn(x + 6) - fn(x)
-            if slope > 0.3 * s:
-                ld.rectangle([x, 0, x + 6, h], fill=min(255, int(slope / s * 110)))
-        lit = lit.filter(ImageFilter.GaussianBlur(10 * s))
-        g = Image.composite(Image.new("RGB", (tw, h), shade(c0, 0.8)), g, lit)
-        g = Image.blend(g, Image.new("RGB", (tw, h), haze), k)
-        g.putalpha(img.getchannel("A"))
-        layers.append({"img": g, "y": hz - int(h * 0.62) - int(dy * s), "f": f, "stage": "sky"})
-
-    wall_tex = fractal(tw, int(300 * s), rng, cells=(int(90 * s) or 2, int(34 * s) or 2, int(12 * s) or 2, int(5 * s) or 2))
-
-    # the town far away, pale / la ville au loin, pâle
-    h = int(230 * s)
-    c = Canvas(tw, h)
-    x = 10 * s
-    while x < tw - 150 * s:
-        w, bh = rng.uniform(70, 150) * s, rng.uniform(60, 150) * s
-        house(c, x, h, w, bh, s * 0.72, rng)
-        if rng.random() < 0.16:                                                                    # a tower / une tour
-            tx = x + w + 14 * s
-            c.rect(tx, h - 190 * s, tx + 16 * s, h, (226, 204, 170))
-            c.rect(tx + 11 * s, h - 190 * s, tx + 16 * s, h, (176, 150, 120))
-            c.rect(tx - 4 * s, h - 164 * s, tx + 20 * s, h - 158 * s, (236, 216, 186))
-            c.poly([(tx - 2 * s, h - 190 * s), (tx + 8 * s, h - 216 * s), (tx + 18 * s, h - 190 * s)], (150, 164, 160))
-            x += 34 * s
-        x += w + rng.uniform(-10, 40) * s
-    far = c.done(wall_tex.resize((tw, h)), 0.16, haze, 0.50)
-    smoke = [(rng.uniform(0.1, 0.9) * tw, h - rng.uniform(70, 130) * s) for _ in range(3)]
-    layers.append({"img": far, "y": hz - h + int(26 * s), "f": 0.16, "stage": "far", "stacks": smoke})
-
-    # the street, near / la rue, proche
-    h = int(300 * s)
-    base = h - 1
-    c = Canvas(tw, h)
-    x = 14 * s
-    fires, palms = [], []
-    while x < tw - 190 * s:
-        w, bh = rng.uniform(120, 220) * s, rng.uniform(120, 250) * s
-        if rng.random() < 0.3:
-            palms.append((x - 16 * s, rng.uniform(120, 190) * s))
-        house(c, x, base, w, bh, s, rng)
-        if rng.random() < 0.22:
-            fires.append((x + w * rng.uniform(0.3, 0.7), base - bh - 6 * s))
-        x += w + rng.uniform(26, 90) * s
-    for px, ph in palms:
-        palm(c, px, base, ph, s, rng)
-    c.soft([(0, base - 10 * s), (tw, base - 10 * s), (tw, base + 4), (0, base + 4)], (50, 34, 36, 120), 5 * s)
-    mid = c.done(wall_tex.resize((tw, h)), 0.24, haze, 0.12)
-    layers.append({"img": mid, "y": H - h - int(40 * s), "f": 0.38, "stage": "mid", "fires": some(rng, fires, FIRES)})
-
-    def props(c, x, gy):                                                         # what lies in the street / ce qui traîne
-        r = rng.random()
-        if r < 0.34:
-            return sandbags(c, x, gy, s, rng)
-        if r < 0.6:                                                              # rubble / des gravats
-            for _ in range(rng.randint(4, 8)):
-                rr, rx = rng.uniform(6, 18) * s, x + rng.uniform(0, 110) * s
-                col = rng.choice(((176, 150, 120), (150, 128, 108), (196, 170, 136)))
-                c.poly([(rx - rr, gy + 8 * s), (rx - rr * 0.5, gy - rr * 0.7), (rx + rr * 0.5, gy - rr), (rx + rr, gy + 8 * s)], col)
-                c.poly([(rx + rr * 0.1, gy - rr * 0.9), (rx + rr * 0.5, gy - rr), (rx + rr, gy + 8 * s), (rx + rr * 0.3, gy + 8 * s)], shade(col, 0.66))
-            return 120 * s
-        if r < 0.8:
-            for i in range(rng.randint(1, 3)):
-                drum(c, x + i * 24 * s, gy, s, rng.choice(((150, 60, 44), (84, 104, 70), (70, 96, 130))))
-            return 80 * s
-        ww, wh = rng.uniform(70, 120) * s, rng.uniform(24, 40) * s                # a low wall, broken / un muret cassé
-        col = (212, 180, 136)
-        pts = [(x, gy + 8 * s), (x, gy - wh)]
-        for i in range(1, 6):
-            pts.append((x + ww * i / 6, gy - wh * rng.uniform(0.45, 1.0)))
-        pts += [(x + ww, gy - wh * 0.4), (x + ww, gy + 8 * s)]
-        c.poly(pts, col)
-        for j in range(3):
-            c.line([(x, gy - j * 11 * s), (x + ww, gy - j * 11 * s)], shade(col, 0.72), 0.7)
-        return ww + 20 * s
-    layers.append(ground_layer(tw, H, s, rng, (222, 188, 136), props))
-
-    from . import hd_stages
-    amb = {"stars": (), "horizon": hz, "sun": sun, "explosions": True, "plane": "bomber", "plane_color": (60, 70, 84),
-           "dust": (255, 236, 200), "hooks": {"mid": [hd_stages.hook_fires], "far": [hd_stages.hook_stacks]}}
-    sky, layers = settled(sky, layers, W)
-    return {"sky": sky, "layers": layers, "tw": tw, "amb": amb}
-
-
-# ---------------------------------------------------------------------------- pieces shared by the places / pièces communes
-def cloud_layer(tw, h, rng, s, cover=138, white=(252, 248, 240), grey=(176, 190, 212), k=0.86, stretch=1.0, f=0.03):
-    """Clouds lit from above, their undersides grey. / Des nuages éclairés par le haut, le dessous gris."""
-    nw = max(8, int(tw / stretch))
-    n = fractal(nw, h, rng, cells=(int(260 * s) or 2, int(120 * s) or 2, int(56 * s) or 2, int(26 * s) or 2), contrast=1.1)
-    if nw != tw:
-        n = n.resize((tw, h), Image.BICUBIC)
-    fade = Image.new("L", (1, h))
-    fade.putdata([int(255 * max(0.0, min(1.0, (1 - y / h) * 1.5)) * (0.35 + 0.65 * min(1.0, y / (h * 0.25)))) for y in range(h)])
-    m = n.point(lambda v: max(0, min(255, int((v - cover) * 5.0))))
-    m = ImageChops.multiply(m.filter(ImageFilter.GaussianBlur(3 * s)), fade.resize((tw, h)))
-    under = ImageChops.offset(m, 0, -int(7 * s)).filter(ImageFilter.GaussianBlur(5 * s))
-    cloud = Image.new("RGB", (tw, h), white)
-    cloud.paste(grey, (0, 0), ImageChops.subtract(m, under))
-    cloud.putalpha(m.point(lambda v: int(v * k)))
-    return {"img": cloud, "y": 0, "f": f, "stage": "sky"}
-
-
-def ridge_layer(tw, h, rng, s, amp, c0, c1, haze, k, y, f, peaks=0, snow=None, lit=0.8, waves=4):
-    """A line of dunes, hills or mountains, its slopes facing the sun lighter, the air over it.
-    / Une ligne de dunes, de collines ou de montagnes, les pentes au soleil plus claires."""
-    fn = periodic(tw, rng, waves, amp * s)
-    tops = sorted(rng.uniform(0, tw) for _ in range(peaks))
-    hs = [rng.uniform(0.5, 1.0) for _ in tops]
-
-    def top(x):
-        v = h * 0.5 + fn(x)
-        for tx, th in zip(tops, hs):
-            d = min(abs(x - tx), tw - abs(x - tx))
-            v -= max(0.0, 1 - d / (150 * s * th)) * amp * s * 1.7 * th          # a sharp peak / un pic
-        return v
-    c = Canvas(tw, h)
-    line = [(x, top(x)) for x in range(0, tw + 1, 6)]
-    c.poly([(0, h)] + line + [(tw, h)], c0 + (255,))
-    mask = c.done().getchannel("A")
-    g = vgrad(tw, h, [(0, c0), (1, c1)], 0)
-    sun = Image.new("L", (tw, h), 0)
-    ld = ImageDraw.Draw(sun)
-    for x in range(0, tw, 6):
-        slope = top(x + 6) - top(x)
-        if slope > 0.3 * s:
-            ld.rectangle([x, 0, x + 6, h], fill=min(255, int(slope / s * 110)))
-    sun = sun.filter(ImageFilter.GaussianBlur(8 * s))
-    g = Image.composite(Image.new("RGB", (tw, h), shade(c0, lit)), g, sun)
-    if snow is not None:                                                         # snow down from the crest / de la neige
-        sm = Image.new("L", (tw, h), 0)
-        sd = ImageDraw.Draw(sm)
-        depth, jag = snow[1] * s, periodic(tw, rng, 9, snow[1] * s * 0.45)
-        sd.polygon(line + [(x, top(x) + depth + jag(x)) for x in range(tw, -1, -6)], fill=255)
-        g = Image.composite(Image.composite(Image.new("RGB", (tw, h), shade(snow[0], 0.86)), Image.new("RGB", (tw, h), snow[0]), sun), g, sm)
-    g = Image.blend(g, Image.new("RGB", (tw, h), haze), k)
-    g.putalpha(mask)
-    return {"img": g, "y": y, "f": f, "stage": "sky"}
-
-
-def pine(c, x, base, h, s, rng, col=(44, 84, 62), snow=None):
-    w = h * 0.36
-    c.rect(x - 2 * s, base - h * 0.16, x + 2 * s, base, (74, 54, 40))
-    for i in range(4):
-        y0 = base - h * (0.14 + i * 0.2)
-        ww = w * (1 - i * 0.2)
-        c.poly([(x - ww, y0), (x, y0 - h * 0.34), (x + ww, y0)], col)
-        c.poly([(x, y0 - h * 0.34), (x + ww, y0), (x + ww * 0.25, y0)], shade(col, 0.74))
-        if snow is not None:
-            c.poly([(x - ww * 0.55, y0 - h * 0.14), (x, y0 - h * 0.34), (x + ww * 0.5, y0 - h * 0.16), (x, y0 - h * 0.2)], snow)
-
-
-def crate(c, x, gy, w, h, s, col=(170, 128, 78)):
-    c.rect(x, gy - h, x + w, gy, col)
-    c.rect(x + w * 0.78, gy - h, x + w, gy, shade(col, 0.68))
-    for k in (0.0, 0.5, 1.0):
-        c.line([(x, gy - h + k * (h - 2 * s) + 1 * s), (x + w, gy - h + k * (h - 2 * s) + 1 * s)], shade(col, 0.6), 0.9)
-    c.line([(x + 2 * s, gy - h + 2 * s), (x + w * 0.76, gy - 2 * s)], shade(col, 0.72), 1.0)
-
-
-def drum(c, x, gy, s, col):
-    c.rect(x, gy - 30 * s, x + 20 * s, gy + 6 * s, col)
-    c.rect(x + 13 * s, gy - 30 * s, x + 20 * s, gy + 6 * s, shade(col, 0.62))
-    c.rect(x + 2 * s, gy - 30 * s, x + 5 * s, gy + 6 * s, shade(col, 1.3))
-    for yy in (-22, -10, 0):
-        c.line([(x, gy + yy * s), (x + 20 * s, gy + yy * s)], shade(col, 0.5), 1.0)
-    c.ellipse(x, gy - 33 * s, x + 20 * s, gy - 27 * s, shade(col, 1.1))
-
-
-def sandbags(c, x, gy, s, rng, cols=((158, 146, 104), (146, 134, 94), (170, 156, 112)), cap=None):
-    rows, n0 = rng.randint(2, 3), rng.randint(4, 6)
-    for j in range(rows):
-        for i in range(n0 - j):
-            bx, by = x + (i + j * 0.5) * 26 * s, gy + 8 * s - j * 13 * s
-            col = rng.choice(cols)
-            c.d.rounded_rectangle([bx * SS, (by - 13 * s) * SS, (bx + 25 * s) * SS, by * SS], radius=int(5 * s * SS), fill=col)
-            c.d.rounded_rectangle([bx * SS, (by - 5 * s) * SS, (bx + 25 * s) * SS, by * SS], radius=int(4 * s * SS), fill=shade(col, 0.72))
-            if cap is not None and j == rows - 1:
-                c.d.rounded_rectangle([bx * SS, (by - 16 * s) * SS, (bx + 25 * s) * SS, (by - 9 * s) * SS], radius=int(4 * s * SS), fill=cap)
-    return n0 * 26 * s
-
-
-def ground_layer(tw, H, s, rng, col, props, h=120, tex=0.12, shade_k=(96, 62, 44, 60), edge=(120, 84, 60, 60)):
-    """The ground in front, with what lies on it. props(c, x, gy) draws one thing and says how wide it was.
-    / Le sol devant, avec ce qui traîne dessus."""
-    h = int(h * s)
-    c = Canvas(tw, h)
-    fn = periodic(tw, rng, 4, 7 * s)
-    c.poly([(0, h)] + [(x, h * 0.42 + fn(x)) for x in range(0, tw + 1, 8)] + [(tw, h)], col + (255,))
+def ground(tw, H, s, rng, mood):
+    h = int(112 * s)
+    sh = Sheet(tw, h, s)
+    fn = hd_bg.periodic(tw, rng, 4, 5 * s)
+    gy0 = h * 0.40
+    sh.poly([(0, h)] + [(x, gy0 + fn(x)) for x in range(0, tw + 1, 8)] + [(tw, h)], (180, 160, 130))
+    for band in (0.58, 0.80):                                                                      # the ruts / les ornières
+        sh.rect(0, h * band, tw, h * band + 9 * s, None, "Dark", 90)
+        sh.rect(0, h * band - 6 * s, tw, h * band - 2 * s, None, "Light", 70)
+    for _ in range(int(tw / (26 * s))):                                                            # stones / des cailloux
+        px, py, r = rng.uniform(0, tw), rng.uniform(gy0 + 14 * s, h), rng.uniform(1.4, 4.2) * s
+        col = shade((168, 152, 130), rng.uniform(0.76, 1.12))
+        sh.ellipse(px - r * 1.3, py - r * 0.8, px + r * 1.3, py + r * 0.8, col, "cast")
+        sh.ellipse(px - r, py - r * 0.7, px + r * 0.2, py, None, "light", 110)
     x = 40 * s
     while x < tw - 170 * s:
-        x += props(c, x, h * 0.42 + fn(x)) + rng.uniform(60, 170) * s
-    c.soft([(0, h * 0.42 - 12 * s), (tw, h * 0.42 - 12 * s), (tw, h * 0.42 + 16 * s), (0, h * 0.42 + 16 * s)], edge, 6 * s)
-    c.soft([(0, h * 0.8), (tw, h * 0.8), (tw, h + 6), (0, h + 6)], shade_k, 12 * s)
-    img = c.done(fractal(tw, h, rng, cells=(int(34 * s) or 2, int(12 * s) or 2, int(5 * s) or 2, int(2 * s) or 2)), tex)
-    return {"img": img, "y": H - h, "f": 1.0, "stage": "near"}
+        gy = gy0 + fn(x)
+        q = rng.random()
+        if q < 0.3:
+            w = sandbags(sh, x, gy, s, rng, cols=((156, 144, 112), (142, 130, 100), (168, 156, 124)))
+            sh.rect(x, gy - 30 * s, x + w, gy + 8 * s, None, "cast", 200)
+            sh.rect(x, gy - 34 * s, x + w, gy - 22 * s, None, "light", 60)
+        elif q < 0.52:
+            k = rng.randint(1, 3)
+            for i in range(k):
+                col = rng.choice(((112, 70, 58), (84, 96, 76), (78, 90, 108), (120, 112, 96)))
+                drum(sh, x + i * 24 * s, gy, s, col)
+                sh.rect(x + i * 24 * s, gy - 30 * s, x + i * 24 * s + 20 * s, gy + 6 * s, None, "cast")
+                sh.rect(x + i * 24 * s + 12 * s, gy - 30 * s, x + i * 24 * s + 20 * s, gy + 6 * s, None, "dark", 120)
+            w = k * 24 * s
+        elif q < 0.72:
+            crate(sh, x, gy + 6 * s, 40 * s, 32 * s, s, (136, 110, 80))
+            crate(sh, x + 44 * s, gy + 6 * s, 30 * s, 24 * s, s, (150, 122, 88))
+            sh.rect(x, gy - 26 * s, x + 74 * s, gy + 6 * s, None, "cast", 220)
+            w = 80 * s
+        else:                                                                                      # rubble / des gravats
+            for _ in range(rng.randint(5, 10)):
+                rr, rx = rng.uniform(5, 17) * s, x + rng.uniform(0, 120) * s
+                col = shade(rng.choice(PLASTER), rng.uniform(0.7, 0.95))
+                pts = [(rx - rr, gy + 8 * s), (rx - rr * rng.uniform(0.4, 0.8), gy - rr * rng.uniform(0.5, 0.9)), (rx + rr * rng.uniform(0.2, 0.6), gy - rr),
+                       (rx + rr, gy + 8 * s)]
+                sh.poly(pts, col, "cast")
+                sh.poly([pts[2], pts[3], (rx + rr * 0.2, gy + 8 * s)], None, "dark", 150)
+            w = 120 * s
+        x += w + rng.uniform(70, 190) * s
+    if mood["lamps"] > 0.35:                                                                       # the lamps reach the ground
+        for _ in range(6):
+            px = rng.uniform(0, tw)
+            sh.ellipse(px - 130 * s, gy0 - 30 * s, px + 130 * s, gy0 + 46 * s, None, "pool", 190)
+    sh.rect(0, gy0 - 4 * s, tw, gy0 + 10 * s, None, "Dark", 120)                                    # the shade at the foot of the walls
+    sh.rect(0, gy0 + 16 * s, tw, gy0 + 34 * s, None, "Light", 80)
+    sh.rect(0, h * 0.86, tw, h + 4, None, "Dark", 150)
+    return {"img": sh.finish(rng, mood, tex=0.8, bump_k=0.5, blur=0.5), "y": H - h, "f": 1.0, "stage": "near"}
 
 
-# ---------------------------------------------------------------------------- mission 2, ruins and pyramids
-STONE = ((226, 200, 152), (214, 186, 136), (232, 210, 166))
-
-
-def column(c, x, base, h, w, s, rng, col, broken=False):
-    """A column of drums with its capital, lit from the left. / Une colonne à tambours et son chapiteau."""
-    top = base - h
-    c.rect(x - w / 2, top, x + w / 2, base, col)
-    c.rect(x - w / 2, top, x - w / 2 + w * 0.2, base, shade(col, 1.1))
-    c.rect(x + w / 2 - w * 0.3, top, x + w / 2, base, shade(col, 0.7))
-    for yy in range(int(22 * s), int(h), int(22 * s)):
-        c.line([(x - w / 2, base - yy), (x + w / 2, base - yy)], shade(col, 0.62), 0.8)
-    c.rect(x - w * 0.62, base - 8 * s, x + w * 0.62, base, shade(col, 0.9))
-    if broken:
-        pts = [(x - w / 2 - 2 * s, top - 2 * s), (x + w / 2 + 2 * s, top - 2 * s)]
-        for i in range(6):
-            pts.append((x + w / 2 - i * w / 5, top + rng.uniform(4, 22) * s))
-        c.poly(pts, (0, 0, 0, 0))
-    else:
-        c.poly([(x - w / 2, top), (x + w / 2, top), (x + w * 0.78, top - 16 * s), (x - w * 0.78, top - 16 * s)], shade(col, 1.04))
-        c.poly([(x + w * 0.2, top), (x + w / 2, top), (x + w * 0.78, top - 16 * s), (x + w * 0.3, top - 16 * s)], shade(col, 0.74))
-        c.rect(x - w * 0.84, top - 22 * s, x + w * 0.84, top - 16 * s, shade(col, 1.1))
-
-
-def stone_wall(c, x, base, w, h, s, rng, col):
-    """A wall of big blocks with a band of cut patterns of our own. / Un mur de gros blocs, une frise de motifs à nous."""
-    top = base - h
-    c.rect(x, top, x + w, base, col)
-    c.rect(x + w * 0.9, top, x + w, base, shade(col, 0.72))
-    for j in range(1, int(h / (18 * s)) + 1):
-        yy = base - j * 18 * s
-        c.line([(x, yy), (x + w, yy)], shade(col, 0.66), 0.8)
-        for bx in range(int(x + (j % 2) * 16 * s), int(x + w), int(32 * s)):
-            c.line([(bx, yy), (bx, yy + 18 * s)], shade(col, 0.7), 0.7)
-    fy = top + 10 * s
-    c.rect(x + 4 * s, fy, x + w * 0.9 - 4 * s, fy + 16 * s, shade(col, 0.84))
-    i = 0
-    for fx in range(int(x + 10 * s), int(x + w * 0.9 - 12 * s), int(14 * s)):                       # the band / la frise
-        if i % 3 == 0:
-            c.rect(fx, fy + 4 * s, fx + 6 * s, fy + 12 * s, shade(col, 0.58))
-        elif i % 3 == 1:
-            c.poly([(fx, fy + 12 * s), (fx + 4 * s, fy + 4 * s), (fx + 8 * s, fy + 12 * s)], shade(col, 0.6))
-        else:
-            c.ellipse(fx, fy + 5 * s, fx + 7 * s, fy + 12 * s, shade(col, 0.6))
-        i += 1
-    if rng.random() < 0.5:                                                                          # its top broken / cassé
-        pts = [(x - 2 * s, top - 2 * s), (x + w + 2 * s, top - 2 * s), (x + w + 2 * s, top + rng.uniform(10, 30) * s)]
-        for i in range(1, 7):
-            pts.append((x + w - i * w / 7, top + rng.uniform(0, 12) * s * (1 - i / 9)))
-        c.poly(pts, (0, 0, 0, 0))
-
-
-def tent(c, x, base, w, h, s, col=(226, 214, 182)):
-    c.poly([(x, base), (x + w * 0.5, base - h), (x + w, base)], col)
-    c.poly([(x + w * 0.5, base - h), (x + w, base), (x + w * 0.62, base)], shade(col, 0.74))
-    c.poly([(x + w * 0.4, base), (x + w * 0.5, base - h * 0.6), (x + w * 0.56, base)], (60, 44, 36))
-    c.line([(x + w * 0.5, base - h), (x - 10 * s, base)], (90, 70, 50), 0.6)
-    c.line([(x + w * 0.5, base - h), (x + w + 10 * s, base)], (90, 70, 50), 0.6)
-
-
-def build_ruins(W, H, s, seed=22):
-    """Mission 2. Ruins and pyramids in the sand, a dig left in a hurry. / Des ruines et des pyramides dans le sable."""
+def town(W, H, s, seed=131):
+    """Mission 1. A street of a town of the desert at nightfall, its lamps and its lit windows.
+    / Une rue d'une ville du désert à la tombée du jour, ses lampes et ses fenêtres allumées."""
+    mood = MOODS["cine"]
     rng = random.Random(seed)
     tw = int(W + 600 * s)
-    hz = int(H * 0.70)
-    haze = (238, 222, 188)
-    sky = vgrad(W, H, [(0.0, (34, 104, 186)), (0.34, (104, 166, 220)), (0.58, (188, 212, 218)), (0.68, haze),
-                       (0.74, (232, 206, 156)), (1.0, (198, 160, 106))])
-    sun = (int(W * 0.72), int(H * 0.13))
-    hd_bg.add_at(sky, hd_bg.radial(int(1100 * s), (46, 42, 26), 2.4), *sun)
-    hd_bg.add_at(sky, hd_bg.radial(int(240 * s), (96, 90, 66), 1.8), *sun)
-    layers = [cloud_layer(tw, int(H * 0.5), rng, s, cover=150, k=0.7)]
-    layers.append(ridge_layer(tw, int(120 * s), rng, s, 24, (226, 200, 152), (206, 174, 124), haze, 0.62, hz - int(104 * s), 0.05))
+    hz = int(H * 0.72)
+    sky = vgrad(W, H, mood["sky"])
+    sun = (int(W * mood["sun"][0]), int(H * mood["sun"][1]))
+    hd_bg.add_at(sky, hd_bg.radial(int(1300 * s), mood["glare"], 2.2), *sun)
+    hd_bg.add_at(sky, hd_bg.radial(int(300 * s), (255, 232, 180), 3.0), *sun)
+    white, grey, k = mood["clouds"]
+    layers = [cloud_layer(tw, int(H * 0.52), rng, s, cover=131, white=white, grey=grey, k=min(1.0, k * 1.1), stretch=2.4, f=0.02),
+              cloud_layer(tw, int(H * 0.40), rng, s, cover=150, white=white, grey=grey, k=k * 0.7, stretch=5.0, f=0.02)]
+    h = int(250 * s)
+    layers.append(mountains(tw, h, rng, s, mood, (176, 150, 128), 0.58, int(30 * s), 0.05, rough=0.9))
+    h = int(210 * s)
+    layers.append(mountains(tw, h, rng, s, mood, (170, 138, 104), 0.34, int(118 * s), 0.10, rough=0.7))
 
-    h = int(260 * s)                                                             # the pyramids / les pyramides
-    c = Canvas(tw, h)
-    for cx, b, hg in ((tw * 0.20, 250 * s, 205 * s), (tw * 0.47, 170 * s, 140 * s), (tw * 0.78, 300 * s, 240 * s)):
-        apex, ridge = (cx - b * 0.1, h - hg), cx + b * 0.3
-        c.poly([apex, (cx - b, h), (ridge, h)], (238, 210, 156))
-        c.poly([apex, (ridge, h), (cx + b, h)], (188, 150, 106))
-        for j in range(1, int(hg / (7 * s))):
-            yy = h - j * 7 * s
-            k = j * 7 * s / hg
-            c.line([(cx - b + (apex[0] - cx + b) * k, yy), (cx + b + (apex[0] - cx - b) * k, yy)], (170, 136, 96, 90), 0.5)
-    layers.append({"img": c.done(None, 0, haze, 0.46), "y": hz - h + int(16 * s), "f": 0.07, "stage": "sky"})
-    layers.append(ridge_layer(tw, int(100 * s), rng, s, 18, (228, 194, 140), (198, 158, 108), haze, 0.36, hz - int(60 * s), 0.10))
-
-    tex = fractal(tw, int(300 * s), rng, cells=(int(90 * s) or 2, int(34 * s) or 2, int(12 * s) or 2, int(5 * s) or 2))
-    h = int(230 * s)                                                             # a temple far away / un temple au loin
-    c = Canvas(tw, h)
-    x = 30 * s
-    while x < tw - 260 * s:
-        kind = rng.random()
-        col = rng.choice(STONE)
-        if kind < 0.3:                                                           # a gate between two towers / un pylône
-            for sx in (0, 1):
-                tx = x + sx * 120 * s
-                c.poly([(tx, h), (tx + 12 * s, h - 150 * s), (tx + 78 * s, h - 150 * s), (tx + 90 * s, h)], col)
-                c.poly([(tx + 62 * s, h - 150 * s), (tx + 78 * s, h - 150 * s), (tx + 90 * s, h), (tx + 70 * s, h)], shade(col, 0.72))
-                c.rect(tx + 8 * s, h - 158 * s, tx + 82 * s, h - 150 * s, shade(col, 1.1))
-            c.rect(x + 84 * s, h - 96 * s, x + 126 * s, h - 80 * s, shade(col, 0.9))
-            c.rect(x + 90 * s, h - 80 * s, x + 120 * s, h, (70, 52, 44))
-            x += 250 * s
-        elif kind < 0.72:                                                        # a row of columns / une colonnade
-            n = rng.randint(3, 6)
-            for i in range(n):
-                column(c, x + i * 44 * s, h, rng.uniform(90, 110) * s, 18 * s, s * 0.8, rng, col, broken=rng.random() < 0.3)
-            if rng.random() < 0.6:
-                c.rect(x - 16 * s, h - 132 * s, x + (n - 1) * 44 * s * rng.uniform(0.4, 1.0) + 16 * s, h - 118 * s, shade(col, 1.04))
-            x += n * 44 * s + 30 * s
-        else:                                                                    # an obelisk / un obélisque
-            c.poly([(x, h), (x + 6 * s, h - 170 * s), (x + 20 * s, h - 170 * s), (x + 26 * s, h)], col)
-            c.poly([(x + 14 * s, h - 170 * s), (x + 20 * s, h - 170 * s), (x + 26 * s, h), (x + 17 * s, h)], shade(col, 0.72))
-            c.poly([(x + 6 * s, h - 170 * s), (x + 13 * s, h - 190 * s), (x + 20 * s, h - 170 * s)], shade(col, 1.1))
-            x += 60 * s
-        x += rng.uniform(30, 120) * s
-    far = c.done(tex.resize((tw, h)), 0.16, haze, 0.44)
-    layers.append({"img": far, "y": hz - h + int(26 * s), "f": 0.16, "stage": "far",
-                   "stacks": [(rng.uniform(0.1, 0.9) * tw, h - rng.uniform(60, 110) * s) for _ in range(2)]})
-
-    h = int(300 * s)                                                             # the dig / le chantier de fouilles
-    base = h - 1
-    c = Canvas(tw, h)
-    x = 20 * s
-    fires = []
-    while x < tw - 240 * s:
-        kind = rng.random()
-        col = rng.choice(STONE)
-        if kind < 0.34:
-            n = rng.randint(2, 4)
-            for i in range(n):
-                column(c, x + 20 * s + i * 76 * s, base, rng.uniform(150, 240) * s, 34 * s, s, rng, col, broken=rng.random() < 0.45)
-            x += n * 76 * s
-        elif kind < 0.62:
-            w = rng.uniform(150, 260) * s
-            stone_wall(c, x, base, w, rng.uniform(90, 170) * s, s, rng, col)
-            if rng.random() < 0.5:                                               # a scaffold against it / un échafaudage
-                sx, sh = x + w * 0.2, rng.uniform(110, 190) * s
-                for px in (sx, sx + 60 * s):
-                    c.line([(px, base), (px, base - sh)], (120, 86, 52), 1.6)
-                for yy in range(int(40 * s), int(sh), int(44 * s)):
-                    c.rect(sx - 6 * s, base - yy - 3 * s, sx + 66 * s, base - yy, (150, 110, 68))
-                c.line([(sx, base), (sx + 60 * s, base - 44 * s)], (110, 80, 50), 0.9)
-            if rng.random() < 0.3:
-                fires.append((x + w * 0.5, base - 100 * s))
-            x += w
-        elif kind < 0.82:
-            tent(c, x, base, rng.uniform(110, 150) * s, rng.uniform(70, 96) * s, s)
-            crate(c, x + 150 * s, base, 34 * s, 28 * s, s)
-            crate(c, x + 176 * s, base, 26 * s, 22 * s, s, (150, 112, 70))
-            x += 210 * s
-        else:
-            palm(c, x + 20 * s, base, rng.uniform(130, 190) * s, s, rng)
-            palm(c, x + 70 * s, base, rng.uniform(100, 150) * s, s, rng)
-            x += 100 * s
-        x += rng.uniform(30, 100) * s
-    c.soft([(0, base - 10 * s), (tw, base - 10 * s), (tw, base + 4), (0, base + 4)], (60, 40, 36, 120), 5 * s)
-    layers.append({"img": c.done(tex.resize((tw, h)), 0.26, haze, 0.10), "y": H - h - int(40 * s), "f": 0.38, "stage": "mid", "fires": some(rng, fires, FIRES)})
-
-    def props(c, x, gy):
-        r = rng.random()
-        if r < 0.3:                                                              # a column fallen / une colonne tombée
-            col = rng.choice(STONE)
-            for i in range(rng.randint(2, 4)):
-                bx = x + i * 44 * s
-                c.rect(bx, gy - 22 * s, bx + 40 * s, gy + 6 * s, col)
-                c.rect(bx, gy - 4 * s, bx + 40 * s, gy + 6 * s, shade(col, 0.7))
-                c.ellipse(bx + 32 * s, gy - 22 * s, bx + 46 * s, gy + 6 * s, shade(col, 0.82))
-            return 180 * s
-        if r < 0.55:
-            crate(c, x, gy + 6 * s, 36 * s, 30 * s, s)
-            crate(c, x + 40 * s, gy + 6 * s, 28 * s, 24 * s, s, (150, 112, 70))
-            return 80 * s
-        if r < 0.8:
-            return sandbags(c, x, gy, s, rng)
-        for _ in range(rng.randint(3, 6)):                                       # blocks / des blocs
-            bw, bh, bx = rng.uniform(16, 34) * s, rng.uniform(10, 20) * s, x + rng.uniform(0, 100) * s
-            col = rng.choice(STONE)
-            c.rect(bx, gy + 6 * s - bh, bx + bw, gy + 6 * s, col)
-            c.rect(bx + bw * 0.74, gy + 6 * s - bh, bx + bw, gy + 6 * s, shade(col, 0.68))
-        return 130 * s
-    layers.append(ground_layer(tw, H, s, rng, (226, 192, 138), props))
-    from . import hd_stages
-    amb = {"stars": (), "horizon": hz, "sun": sun, "explosions": True, "plane": "bomber", "plane_color": (70, 74, 84),
-           "dust": (255, 238, 200), "hooks": {"mid": [hd_stages.hook_fires], "far": [hd_stages.hook_stacks]}}
-    sky, layers = settled(sky, layers, W)
-    return {"sky": sky, "layers": layers, "tw": tw, "amb": amb}
-
-
-# ---------------------------------------------------------------------------- mission 3, a railway in the mountains
-def wagon(c, x, base, s, rng, kind):
-    """A goods wagon on its wheels, seen from the side. Returns its length. / Un wagon de marchandises, vu de côté."""
-    L, floor = 150 * s, base - 16 * s
-    for wx in (x + 22 * s, x + 46 * s, x + L - 46 * s, x + L - 22 * s):                             # wheels / roues
-        c.ellipse(wx - 9 * s, base - 18 * s, wx + 9 * s, base, (34, 32, 36))
-        c.ellipse(wx - 4 * s, base - 13 * s, wx + 4 * s, base - 5 * s, (86, 84, 88))
-    c.rect(x, floor - 6 * s, x + L, floor, (48, 44, 46))
-    c.rect(x - 8 * s, floor - 5 * s, x, floor - 1 * s, (40, 38, 40))
-    c.rect(x + L, floor - 5 * s, x + L + 8 * s, floor - 1 * s, (40, 38, 40))
-    if kind == "box":
-        col = rng.choice(((142, 62, 46), (96, 84, 62), (74, 96, 82)))
-        c.rect(x + 3 * s, floor - 70 * s, x + L - 3 * s, floor - 6 * s, col)
-        c.rect(x + L - 20 * s, floor - 70 * s, x + L - 3 * s, floor - 6 * s, shade(col, 0.7))
-        for px in range(int(x + 12 * s), int(x + L - 20 * s), int(11 * s)):
-            c.line([(px, floor - 68 * s), (px, floor - 8 * s)], shade(col, 0.78), 0.7)
-        c.rect(x + L * 0.38, floor - 62 * s, x + L * 0.62, floor - 8 * s, shade(col, 0.86))
-        c.line([(x + L * 0.38, floor - 62 * s), (x + L * 0.62, floor - 8 * s)], shade(col, 0.6), 1.0)
-        c.poly([(x, floor - 70 * s), (x + 8 * s, floor - 78 * s), (x + L - 8 * s, floor - 78 * s), (x + L, floor - 70 * s)], shade(col, 0.56))
-        c.line([(x + 8 * s, floor - 78 * s), (x + L - 8 * s, floor - 78 * s)], shade(col, 1.2), 0.8)
-    elif kind == "tank":
-        col = (120, 126, 130)
-        c.d.rounded_rectangle([(x + 8 * s) * SS, (floor - 58 * s) * SS, (x + L - 8 * s) * SS, (floor - 8 * s) * SS], radius=int(24 * s * SS), fill=col)
-        c.d.rounded_rectangle([(x + 8 * s) * SS, (floor - 30 * s) * SS, (x + L - 8 * s) * SS, (floor - 8 * s) * SS], radius=int(20 * s * SS), fill=shade(col, 0.66))
-        c.rect(x + 14 * s, floor - 54 * s, x + L - 14 * s, floor - 50 * s, shade(col, 1.24))
-        c.rect(x + L * 0.44, floor - 68 * s, x + L * 0.56, floor - 56 * s, shade(col, 0.9))
-        for px in (x + L * 0.25, x + L * 0.75):
-            c.line([(px, floor - 58 * s), (px, floor - 8 * s)], shade(col, 0.5), 1.2)
-    elif kind == "flat":
-        for i in range(rng.randint(2, 4)):
-            w, hh = rng.uniform(26, 40) * s, rng.uniform(22, 36) * s
-            crate(c, x + 10 * s + i * 34 * s, floor - 6 * s, w, hh, s, rng.choice(((170, 128, 78), (124, 132, 92), (150, 112, 70))))
-        c.rect(x + L - 44 * s, floor - 34 * s, x + L - 8 * s, floor - 6 * s, (96, 110, 80))            # a tarpaulin / une bâche
-        c.poly([(x + L - 44 * s, floor - 34 * s), (x + L - 26 * s, floor - 44 * s), (x + L - 8 * s, floor - 34 * s)], (110, 124, 92))
-    else:                                                                                             # an armoured wagon / blindé
-        col = (92, 104, 78)
-        c.poly([(x + 4 * s, floor - 6 * s), (x + 12 * s, floor - 56 * s), (x + L - 12 * s, floor - 56 * s), (x + L - 4 * s, floor - 6 * s)], col)
-        c.poly([(x + L - 34 * s, floor - 56 * s), (x + L - 12 * s, floor - 56 * s), (x + L - 4 * s, floor - 6 * s), (x + L - 28 * s, floor - 6 * s)], shade(col, 0.7))
-        c.rect(x + L * 0.36, floor - 78 * s, x + L * 0.64, floor - 56 * s, shade(col, 0.92))
-        c.rect(x + L * 0.64, floor - 72 * s, x + L * 0.94, floor - 66 * s, (50, 54, 48))             # its gun / son canon
-        for px in range(int(x + 18 * s), int(x + L - 30 * s), int(14 * s)):
-            c.ellipse(px, floor - 50 * s, px + 3 * s, floor - 47 * s, shade(col, 0.6))
-        c.rect(x + 24 * s, floor - 40 * s, x + 44 * s, floor - 34 * s, (30, 34, 30))
-    return L + 12 * s
-
-
-def build_rail(W, H, s, seed=23):
-    """Mission 3. A railway in the mountains, wagons left on the tracks, the wind. / Une voie ferrée en montagne."""
-    rng = random.Random(seed)
-    tw = int(W + 600 * s)
-    hz = int(H * 0.70)
-    haze = (206, 220, 226)
-    sky = vgrad(W, H, [(0.0, (36, 92, 168)), (0.38, (112, 164, 214)), (0.62, (196, 216, 228)), (0.70, haze),
-                       (0.76, (170, 186, 160)), (1.0, (120, 132, 100))])
-    sun = (int(W * 0.30), int(H * 0.14))
-    hd_bg.add_at(sky, hd_bg.radial(int(1000 * s), (40, 40, 30), 2.4), *sun)
-    layers = [cloud_layer(tw, int(H * 0.58), rng, s, cover=128, stretch=2.6, k=0.8)]             # clouds drawn out by the wind
-    layers.append(ridge_layer(tw, int(230 * s), rng, s, 44, (112, 132, 164), (140, 160, 180), haze, 0.5, hz - int(196 * s), 0.04,
-                              peaks=7, snow=((244, 248, 252), 26), waves=5))
-    layers.append(ridge_layer(tw, int(140 * s), rng, s, 26, (92, 126, 104), (120, 148, 116), haze, 0.4, hz - int(104 * s), 0.08, waves=5))
-    tex = fractal(tw, int(300 * s), rng, cells=(int(90 * s) or 2, int(34 * s) or 2, int(12 * s) or 2, int(5 * s) or 2))
-
-    h = int(230 * s)                                                             # a viaduct and pines / un viaduc, des sapins
-    c = Canvas(tw, h)
-    deck = h - 120 * s
-    stone = (176, 168, 156)
-    x0, x1 = tw * 0.12, tw * 0.62
-    c.rect(x0, deck, x1, h, stone)
-    c.rect(x0 - 10 * s, deck - 8 * s, x1 + 10 * s, deck, shade(stone, 1.1))
-    c.rect(x0 - 10 * s, deck, x1 + 10 * s, deck + 4 * s, shade(stone, 0.66))
-    n = 9
-    span = (x1 - x0) / n
-    for i in range(n):                                                           # its arches / ses arches
-        ax = x0 + i * span + 12 * s
-        aw = span - 24 * s
-        c.ellipse(ax, deck + 16 * s, ax + aw, deck + 16 * s + aw, (0, 0, 0, 0))
-        c.rect(ax, deck + 16 * s + aw / 2, ax + aw, h + 2, (0, 0, 0, 0))
-        c.rect(ax + aw, deck + 4 * s, ax + aw + 5 * s, h, shade(stone, 0.74))
-    for px in range(int(x0), int(x1), int(26 * s)):
-        c.line([(px, deck - 8 * s), (px, deck - 20 * s)], (70, 66, 64), 0.7)
-    c.line([(x0 - 10 * s, deck - 20 * s), (x1 + 10 * s, deck - 20 * s)], (70, 66, 64), 0.8)
-    for _ in range(46):
-        px = rng.uniform(0, tw)
-        if x0 - 20 * s < px < x1 + 20 * s:
-            continue
-        pine(c, px, h, rng.uniform(60, 120) * s, s, rng, rng.choice(((48, 92, 70), (40, 80, 62), (58, 104, 76))))
-    tx = tw * 0.80                                                               # a water tower / un château d'eau
-    for lx in (tx, tx + 44 * s):
-        c.line([(lx, h), (lx + (10 * s if lx == tx else -10 * s), h - 90 * s)], (96, 70, 50), 1.6)
-    c.line([(tx, h - 40 * s), (tx + 44 * s, h - 70 * s)], (96, 70, 50), 0.8)
-    c.rect(tx - 4 * s, h - 150 * s, tx + 48 * s, h - 90 * s, (150, 96, 62))
-    c.rect(tx + 32 * s, h - 150 * s, tx + 48 * s, h - 90 * s, (104, 66, 46))
-    c.poly([(tx - 8 * s, h - 150 * s), (tx + 22 * s, h - 172 * s), (tx + 52 * s, h - 150 * s)], (96, 60, 44))
-    far = c.done(tex.resize((tw, h)), 0.14, haze, 0.40)
-    layers.append({"img": far, "y": hz - h + int(26 * s), "f": 0.16, "stage": "far",
-                   "stacks": [(tw * 0.34, deck - 26 * s)]})
-
-    h = int(300 * s)                                                             # the yard / la gare de triage
-    base = h - 1
-    track = base - 6 * s
-    c = Canvas(tw, h)
-    fires = []
-    for px in range(0, tw, int(170 * s)):                                        # the telegraph / le télégraphe
-        c.line([(px + 20 * s, base), (px + 20 * s, base - 190 * s)], (86, 64, 46), 1.6)
-        c.line([(px + 6 * s, base - 178 * s), (px + 34 * s, base - 178 * s)], (86, 64, 46), 1.2)
-        c.line([(px + 20 * s, base - 178 * s), (px + 105 * s, base - 160 * s), (px + 190 * s, base - 178 * s)], (40, 40, 44), 0.5)
-    x = 20 * s
-    while x < tw - 520 * s:
-        r = rng.random()
-        if r < 0.62:                                                             # a rake of wagons / une rame
-            for _ in range(rng.randint(2, 3)):
-                kind = rng.choice(("box", "box", "tank", "flat", "armour"))
-                if kind == "armour" and rng.random() < 0.5:
-                    fires.append((x + 75 * s, track - 80 * s))
-                x += wagon(c, x, track, s, rng, kind)
-        elif r < 0.8:                                                            # the station / la gare
-            col, w, hh = (206, 190, 160), 220 * s, 96 * s
-            c.rect(x, base - hh, x + w, base, col)
-            c.rect(x + w - 26 * s, base - hh, x + w, base, shade(col, 0.72))
-            c.poly([(x - 14 * s, base - hh), (x + w * 0.5, base - hh - 54 * s), (x + w + 14 * s, base - hh)], (126, 70, 52))
-            c.poly([(x + w * 0.5, base - hh - 54 * s), (x + w + 14 * s, base - hh), (x + w * 0.62, base - hh)], (96, 54, 42))
-            c.rect(x + 30 * s, base - hh - 62 * s, x + 46 * s, base - hh - 22 * s, (150, 96, 80))
-            for i in range(4):
-                window(c, x + 28 * s + i * 46 * s, base - 30 * s, 16 * s, 26 * s, s, rng, col, arch=False)
-            c.rect(x - 30 * s, base - hh + 24 * s, x + w + 30 * s, base - hh + 30 * s, (110, 80, 56))       # its canopy / sa marquise
-            for px in (x - 26 * s, x + w + 26 * s):
-                c.line([(px, base - hh + 30 * s), (px, base)], (86, 64, 46), 1.4)
-            x += w + 40 * s
-        else:                                                                    # a signal and pines / un signal, des sapins
-            c.line([(x + 10 * s, base), (x + 10 * s, base - 150 * s)], (60, 60, 64), 1.8)
-            c.poly([(x + 10 * s, base - 150 * s), (x + 58 * s, base - 132 * s), (x + 58 * s, base - 122 * s), (x + 10 * s, base - 138 * s)], (200, 50, 44))
-            c.rect(x + 40 * s, base - 137 * s, x + 48 * s, base - 124 * s, (240, 236, 226))
-            for i in range(rng.randint(2, 4)):
-                pine(c, x + 60 * s + i * 44 * s, base, rng.uniform(110, 200) * s, s, rng)
-            x += 240 * s
-        x += rng.uniform(20, 80) * s
-    c.rect(0, track, tw, track + 3 * s, (70, 70, 76))                            # the rail / le rail
-    for px in range(0, tw, int(18 * s)):
-        c.rect(px, track + 3 * s, px + 10 * s, track + 7 * s, (74, 56, 42))
-    layers.append({"img": c.done(tex.resize((tw, h)), 0.18, haze, 0.08), "y": H - h - int(40 * s), "f": 0.38, "stage": "mid", "fires": some(rng, fires, FIRES)})
-
-    def props(c, x, gy):
-        r = rng.random()
-        if r < 0.3:
-            crate(c, x, gy + 6 * s, 36 * s, 30 * s, s, (124, 132, 92))
-            crate(c, x + 40 * s, gy + 6 * s, 30 * s, 22 * s, s)
-            return 80 * s
-        if r < 0.55:
-            for i in range(rng.randint(1, 3)):
-                drum(c, x + i * 24 * s, gy, s, rng.choice(((150, 60, 44), (84, 104, 70), (70, 96, 130))))
-            return 80 * s
-        if r < 0.75:
-            return sandbags(c, x, gy, s, rng)
-        for _ in range(rng.randint(4, 8)):                                       # rocks / des rochers
-            rr, rx = rng.uniform(6, 18) * s, x + rng.uniform(0, 110) * s
-            col = rng.choice(((150, 146, 140), (128, 124, 122), (170, 164, 154)))
-            c.poly([(rx - rr, gy + 8 * s), (rx - rr * 0.5, gy - rr * 0.7), (rx + rr * 0.5, gy - rr), (rx + rr, gy + 8 * s)], col)
-            c.poly([(rx + rr * 0.1, gy - rr * 0.9), (rx + rr * 0.5, gy - rr), (rx + rr, gy + 8 * s), (rx + rr * 0.3, gy + 8 * s)], shade(col, 0.66))
-        return 120 * s
-    layers.append(ground_layer(tw, H, s, rng, (150, 144, 132), props, shade_k=(60, 58, 60, 100), edge=(70, 66, 62, 70)))
-    from . import hd_stages
-    amb = {"stars": (), "horizon": hz, "sun": sun, "explosions": True, "plane": "heli", "plane_color": (56, 64, 60),
-           "dust": (236, 236, 226), "hooks": {"mid": [hd_stages.hook_fires], "far": [hd_stages.hook_stacks]}}
-    sky, layers = settled(sky, layers, W)
-    return {"sky": sky, "layers": layers, "tw": tw, "amb": amb}
-
-
-# ---------------------------------------------------------------------------- mission 4, a harbour town
-SHOPS = ((206, 222, 196), (232, 198, 190), (226, 208, 150), (196, 214, 226), (236, 226, 204), (214, 190, 160))
-BOARDS = ((196, 44, 40), (232, 190, 50), (44, 110, 84), (40, 80, 150), (236, 232, 220))
-
-
-def shophouse(c, x, base, w, floors, s, rng):
-    """A narrow house over its shop: balconies, washing on poles, boards hung out, with marks of our own for writing.
-    / Une maison étroite sur sa boutique : balcons, linge aux perches, enseignes en drapeau."""
-    col = rng.choice(SHOPS)
-    fh = 44 * s
-    h = 58 * s + floors * fh
-    top = base - h
-    c.rect(x, top, x + w, base, col)
-    c.rect(x + w - 9 * s, top, x + w, base, shade(col, 0.72))
-    c.rect(x - 2 * s, top - 6 * s, x + w + 2 * s, top + 2 * s, shade(col, 1.08))
-    for f in range(floors):
-        y = base - 58 * s - f * fh
-        n = max(2, int(w / (30 * s)))
-        for i in range(n):
-            wx = x + (i + 0.5) * (w - 9 * s) / n
-            c.rect(wx - 8 * s, y - 34 * s, wx + 8 * s, y - 8 * s, (40, 44, 52))
-            c.rect(wx - 8 * s, y - 34 * s, wx + 8 * s, y - 28 * s, (70, 84, 96))
-            c.line([(wx, y - 34 * s), (wx, y - 8 * s)], shade(col, 0.9), 0.7)
-            if rng.random() < 0.22:                                              # a cooler / un climatiseur
-                c.rect(wx - 7 * s, y - 8 * s, wx + 7 * s, y + 1 * s, (196, 198, 196))
-                c.rect(wx + 2 * s, y - 8 * s, wx + 7 * s, y + 1 * s, (140, 144, 144))
-        if rng.random() < 0.6:                                                   # a balcony / un balcon
-            c.rect(x + 2 * s, y - 6 * s, x + w - 10 * s, y - 3 * s, shade(col, 0.6))
-            for bx in range(int(x + 4 * s), int(x + w - 10 * s), int(5 * s)):
-                c.line([(bx, y - 18 * s), (bx, y - 4 * s)], (60, 70, 72), 0.5)
-            c.line([(x + 2 * s, y - 18 * s), (x + w - 10 * s, y - 18 * s)], (60, 70, 72), 0.8)
-        if rng.random() < 0.45:                                                  # washing on a pole / du linge
-            px = x + rng.uniform(0.2, 0.6) * w
-            c.line([(px, y - 24 * s), (px + 40 * s, y - 28 * s)], (150, 130, 90), 0.8)
-            for i in range(3):
-                lc = rng.choice(((236, 232, 220), (196, 60, 50), (70, 110, 160), (220, 180, 70), (120, 170, 130)))
-                c.rect(px + 6 * s + i * 11 * s, y - 27 * s, px + 14 * s + i * 11 * s, y - 13 * s, lc)
-    c.rect(x + 3 * s, base - 46 * s, x + w - 12 * s, base, (36, 32, 36))                              # the shop / la boutique
-    if rng.random() < 0.5:
-        for yy in range(int(6 * s), int(44 * s), int(5 * s)):
-            c.line([(x + 3 * s, base - yy), (x + w - 12 * s, base - yy)], (96, 100, 104), 0.7)       # its shutter / son rideau
-    else:
-        c.rect(x + 8 * s, base - 40 * s, x + w - 17 * s, base - 12 * s, (232, 196, 120))
-        c.rect(x + 8 * s, base - 22 * s, x + w - 17 * s, base - 12 * s, (150, 110, 70))
-    awning(c, x + 1 * s, base - 56 * s, w - 12 * s, s, rng)
-    for _ in range(rng.randint(1, 2)):                                           # boards hung out / enseignes en drapeau
-        bc = rng.choice(BOARDS)
-        ink = (30, 24, 24) if sum(bc) > 420 else (244, 236, 210)
-        bx, by, bh = x + rng.choice((-12, w - 2 * s / s)) * 1.0 if False else x + rng.uniform(0.05, 0.75) * w, top + rng.uniform(16, 60) * s, rng.uniform(46, 84) * s
-        c.rect(bx, by, bx + 16 * s, by + bh, bc)
-        c.rect(bx + 12 * s, by, bx + 16 * s, by + bh, shade(bc, 0.74))
-        c.line([(bx - 4 * s, by + 2 * s), (bx + 16 * s, by + 2 * s)], (50, 50, 54), 0.8)
-        for k in range(int(bh / (16 * s))):                                      # marks of our own, not writing / des marques à nous
-            my = by + 6 * s + k * 16 * s
-            c.rect(bx + 3 * s, my, bx + 10 * s, my + 2 * s, ink)
-            c.rect(bx + 5 * s, my + 4 * s, bx + 7 * s, my + 10 * s, ink)
-            if k % 2:
-                c.rect(bx + 3 * s, my + 8 * s, bx + 10 * s, my + 10 * s, ink)
-    return h
-
-
-def build_port(W, H, s, seed=24):
-    """Mission 4. A harbour town under green hills: narrow shop houses, towers, cranes and boats.
-    / Une ville portuaire au pied de collines vertes : maisons étroites, tours, grues et bateaux."""
-    rng = random.Random(seed)
-    tw = int(W + 600 * s)
-    hz = int(H * 0.70)
-    haze = (216, 228, 226)
-    sky = vgrad(W, H, [(0.0, (48, 116, 188)), (0.42, (140, 190, 222)), (0.64, (214, 228, 228)), (0.70, haze),
-                       (0.72, (96, 150, 160)), (0.82, (70, 124, 140)), (1.0, (60, 100, 116))])       # the sea under the horizon
-    sun = (int(W * 0.56), int(H * 0.12))
-    hd_bg.add_at(sky, hd_bg.radial(int(1000 * s), (44, 42, 30), 2.4), *sun)
-    layers = [cloud_layer(tw, int(H * 0.52), rng, s, cover=134, k=0.82)]
-    layers.append(ridge_layer(tw, int(260 * s), rng, s, 50, (70, 122, 96), (96, 140, 110), haze, 0.48, hz - int(210 * s), 0.04, peaks=4, waves=3))
-    tex = fractal(tw, int(300 * s), rng, cells=(int(90 * s) or 2, int(34 * s) or 2, int(12 * s) or 2, int(5 * s) or 2))
-
-    h = int(250 * s)                                                             # towers, cranes, boats / tours, grues, bateaux
-    c = Canvas(tw, h)
-    x = 10 * s
-    while x < tw - 120 * s:
-        r = rng.random()
-        if r < 0.66:                                                             # a tower block / une tour d'habitation
-            w, bh = rng.uniform(46, 90) * s, rng.uniform(110, 220) * s
-            col = rng.choice(((214, 214, 204), (200, 190, 176), (190, 206, 210), (222, 204, 186)))
-            c.rect(x, h - bh, x + w, h, col)
-            c.rect(x + w - 10 * s, h - bh, x + w, h, shade(col, 0.72))
-            for yy in range(int(10 * s), int(bh - 6 * s), int(11 * s)):
-                for xx in range(int(5 * s), int(w - 14 * s), int(9 * s)):
-                    c.rect(x + xx, h - bh + yy, x + xx + 5 * s, h - bh + yy + 6 * s, (74, 92, 104) if rng.random() < 0.85 else (236, 226, 190))
-            if rng.random() < 0.5:
-                c.rect(x + w * 0.3, h - bh - 12 * s, x + w * 0.6, h - bh, (120, 126, 128))
-            x += w + rng.uniform(4, 30) * s
-        elif r < 0.84:                                                           # a crane of the docks / une grue du port
-            col = (196, 80, 50)
-            for lx in (x, x + 40 * s):
-                c.line([(lx, h), (lx + 6 * s, h - 130 * s)], col, 2.2)
-            c.line([(x, h - 60 * s), (x + 44 * s, h - 60 * s)], col, 1.4)
-            c.rect(x - 4 * s, h - 140 * s, x + 52 * s, h - 128 * s, shade(col, 0.9))
-            c.line([(x + 20 * s, h - 140 * s), (x + 150 * s, h - 190 * s)], col, 2.0)
-            c.line([(x + 20 * s, h - 168 * s), (x + 150 * s, h - 190 * s)], shade(col, 0.7), 0.8)
-            c.line([(x + 150 * s, h - 190 * s), (x + 150 * s, h - 110 * s)], (50, 50, 54), 0.5)
-            x += 170 * s
-        else:                                                                    # a boat under sail / un bateau à voile
-            hull = (96, 64, 46)
-            c.poly([(x, h - 14 * s), (x + 110 * s, h - 14 * s), (x + 96 * s, h), (x + 14 * s, h)], hull)
-            c.poly([(x + 84 * s, h - 14 * s), (x + 110 * s, h - 30 * s), (x + 110 * s, h - 14 * s)], shade(hull, 1.2))
-            for mx, mh in ((x + 36 * s, 96 * s), (x + 76 * s, 70 * s)):
-                c.line([(mx, h - 14 * s), (mx, h - 14 * s - mh)], (60, 44, 36), 1.2)
-                sail = (176, 84, 56)
-                c.poly([(mx + 2 * s, h - 20 * s), (mx + 2 * s, h - 12 * s - mh), (mx + mh * 0.42, h - 10 * s - mh * 0.84), (mx + mh * 0.5, h - 24 * s)], sail)
-                for k in range(1, 5):
-                    c.line([(mx + 2 * s, h - 20 * s - k * mh * 0.17), (mx + mh * 0.47, h - 24 * s - k * mh * 0.15)], shade(sail, 0.7), 0.5)
-            x += 150 * s
-    far = c.done(tex.resize((tw, h)), 0.10, haze, 0.42)
-    layers.append({"img": far, "y": hz - h + int(26 * s), "f": 0.16, "stage": "far",
-                   "stacks": [(rng.uniform(0.1, 0.9) * tw, h - rng.uniform(120, 180) * s) for _ in range(2)]})
-
-    h = int(300 * s)                                                             # the street on the quay / la rue du quai
-    base = h - 1
-    c = Canvas(tw, h)
-    x = 12 * s
-    fires = []
-    while x < tw - 230 * s:
-        if rng.random() < 0.16:                                                  # a gate under tiles / un portique à tuiles
-            w, red = 150 * s, (176, 46, 40)
-            for px in (x + 14 * s, x + w - 26 * s):
-                c.rect(px, base - 120 * s, px + 12 * s, base, red)
-                c.rect(px + 8 * s, base - 120 * s, px + 12 * s, base, shade(red, 0.7))
-            c.rect(x + 4 * s, base - 110 * s, x + w - 4 * s, base - 98 * s, shade(red, 0.9))
-            for k, (yy, ex) in enumerate(((122, 26), (146, 12))):
-                roof = (58, 120, 96)
-                c.poly([(x - ex * s, base - yy * s), (x + w + ex * s, base - yy * s), (x + w + (ex - 14) * s, base - (yy + 18) * s),
-                        (x - (ex - 14) * s, base - (yy + 18) * s)], roof)
-                c.poly([(x - ex * s, base - yy * s), (x - (ex + 12) * s, base - (yy + 10) * s), (x - (ex - 14) * s, base - (yy + 18) * s)], shade(roof, 1.2))
-                c.poly([(x + w + ex * s, base - yy * s), (x + w + (ex + 12) * s, base - (yy + 10) * s), (x + w + (ex - 14) * s, base - (yy + 18) * s)], shade(roof, 0.8))
-                for tx in range(int(x - (ex - 10) * s), int(x + w + (ex - 10) * s), int(8 * s)):
-                    c.line([(tx, base - yy * s), (tx + 3 * s, base - (yy + 18) * s)], shade(roof, 0.74), 0.6)
-            for i in range(5):                                                   # lanterns / des lanternes
-                lx = x + 30 * s + i * 22 * s
-                c.ellipse(lx, base - 96 * s, lx + 10 * s, base - 82 * s, (226, 60, 44))
-                c.rect(lx + 3 * s, base - 82 * s, lx + 7 * s, base - 78 * s, (236, 190, 60))
-            x += w + 20 * s
-            continue
-        w = rng.uniform(84, 130) * s
-        hh = shophouse(c, x, base, w, rng.randint(2, 4), s, rng)
-        if rng.random() < 0.16:
-            fires.append((x + w * 0.5, base - hh - 6 * s))
-        x += w + rng.choice((0, 0, 4, 26)) * s
-    c.soft([(0, base - 10 * s), (tw, base - 10 * s), (tw, base + 4), (0, base + 4)], (40, 40, 50, 120), 5 * s)
-    layers.append({"img": c.done(tex.resize((tw, h)), 0.14, haze, 0.08), "y": H - h - int(40 * s), "f": 0.38, "stage": "mid", "fires": some(rng, fires, FIRES)})
-
-    def props(c, x, gy):
-        r = rng.random()
-        if r < 0.3:                                                              # a bollard and its rope / une bitte d'amarrage
-            c.rect(x, gy - 18 * s, x + 14 * s, gy + 6 * s, (60, 62, 68))
-            c.ellipse(x - 4 * s, gy - 24 * s, x + 18 * s, gy - 12 * s, (84, 86, 92))
-            c.d.ellipse([(x + 30 * s) * SS, (gy - 6 * s) * SS, (x + 62 * s) * SS, (gy + 8 * s) * SS], outline=(170, 150, 110), width=int(3 * s * SS))
-            return 80 * s
-        if r < 0.6:
-            crate(c, x, gy + 6 * s, 38 * s, 32 * s, s)
-            crate(c, x + 42 * s, gy + 6 * s, 30 * s, 24 * s, s, (124, 132, 92))
-            crate(c, x + 14 * s, gy - 26 * s, 30 * s, 24 * s, s, (150, 112, 70))
-            return 84 * s
-        if r < 0.8:
-            for i in range(rng.randint(2, 3)):
-                drum(c, x + i * 24 * s, gy, s, rng.choice(((150, 60, 44), (84, 104, 70), (70, 96, 130))))
-            return 80 * s
-        return sandbags(c, x, gy, s, rng)
-    layers.append(ground_layer(tw, H, s, rng, (156, 156, 152), props, shade_k=(50, 56, 66, 110), edge=(60, 62, 70, 70)))
-    from . import hd_stages
-    amb = {"stars": (), "horizon": hz, "sun": sun, "explosions": True, "plane": "heli", "plane_color": (60, 70, 76),
-           "hooks": {"mid": [hd_stages.hook_fires], "far": [hd_stages.hook_stacks]}}
-    sky, layers = settled(sky, layers, W)
-    return {"sky": sky, "layers": layers, "tw": tw, "amb": amb}
-
-
-# ---------------------------------------------------------------------------- mission 5, a big city by night
-def night_block(c, x, base, w, h, s, rng, col, lights, lit=0.3, sign=True):
-    """A building at night, some windows lit. The lit ones are remembered, they flicker. / Un immeuble la nuit."""
-    top = base - h
-    c.rect(x, top, x + w, base, col)
-    c.rect(x + w - w * 0.12, top, x + w, base, shade(col, 0.7))
-    c.rect(x - 2 * s, top - 4 * s, x + w + 2 * s, top + 2 * s, shade(col, 1.3))
-    for yy in range(int(14 * s), int(h - 50 * s), int(26 * s)):
-        for xx in range(int(8 * s), int(w * 0.86 - 12 * s), int(20 * s)):
-            wx, wy = x + xx, top + yy
-            r = rng.random()
-            if r < lit:
-                glow = rng.choice(((255, 214, 130), (255, 196, 110), (190, 220, 255)))
-                c.rect(wx, wy, wx + 11 * s, wy + 15 * s, glow)
-                c.rect(wx, wy + 9 * s, wx + 11 * s, wy + 15 * s, shade(glow, 0.8))
-                if rng.random() < 0.3:
-                    lights.append((wx + 5 * s, wy + 7 * s))
-            else:
-                c.rect(wx, wy, wx + 11 * s, wy + 15 * s, shade(col, 0.5))
-                c.rect(wx, wy, wx + 11 * s, wy + 4 * s, shade(col, 0.8))
-    if sign and rng.random() < 0.5:                                              # a lit board, nothing written / un panneau éclairé
-        bc = rng.choice(((60, 220, 200), (255, 80, 150), (255, 190, 60), (110, 150, 255)))
-        bw, bh = min(w * 0.7, rng.uniform(50, 90) * s), rng.uniform(18, 28) * s
-        bx, by = x + (w * 0.88 - bw) / 2, top + rng.uniform(0.25, 0.6) * (h - 80 * s)
-        c.soft([(bx - 8 * s, by - 8 * s), (bx + bw + 8 * s, by - 8 * s), (bx + bw + 8 * s, by + bh + 8 * s), (bx - 8 * s, by + bh + 8 * s)], bc + (90,), 6 * s)
-        c.rect(bx, by, bx + bw, by + bh, shade(bc, 0.5))
-        c.d.rectangle([bx * SS, by * SS, (bx + bw) * SS, (by + bh) * SS], outline=bc, width=int(2 * s * SS))
-        for k in range(3):
-            c.rect(bx + bw * (0.14 + k * 0.27), by + bh * 0.36, bx + bw * (0.32 + k * 0.27), by + bh * 0.64, bc)
-
-
-def street_lamp(c, x, base, s, lights):
-    c.line([(x, base), (x, base - 120 * s)], (50, 54, 66), 1.8)
-    c.line([(x, base - 120 * s), (x + 26 * s, base - 126 * s)], (50, 54, 66), 1.4)
-    c.soft([(x + 26 * s, base - 122 * s), (x + 82 * s, base), (x - 30 * s, base)], (255, 220, 150, 46), 8 * s)       # its light / sa lumière
-    c.ellipse(x + 20 * s, base - 130 * s, x + 32 * s, base - 120 * s, (255, 236, 180))
-    lights.append((x + 26 * s, base - 125 * s))
-
-
-def build_city(W, H, s, seed=25):
-    """Mission 5. The streets of a big city by night: lit windows, boards, lamps, the way down to the underground.
-    / Les rues d'une grande ville la nuit : fenêtres éclairées, enseignes, réverbères, une bouche de métro."""
-    rng = random.Random(seed)
-    tw = int(W + 600 * s)
-    hz = int(H * 0.70)
-    haze = (60, 58, 110)
-    sky = vgrad(W, H, [(0.0, (6, 8, 30)), (0.40, (18, 24, 66)), (0.62, (48, 44, 100)), (0.70, (96, 66, 110)),
-                       (0.76, (60, 44, 80)), (1.0, (22, 20, 40))])
-    moon = (int(W * 0.80), int(H * 0.16))
-    hd_bg.add_at(sky, hd_bg.radial(int(520 * s), (40, 46, 70), 2.0), *moon)
-    d = ImageDraw.Draw(sky)
-    d.ellipse([moon[0] - 22 * s, moon[1] - 22 * s, moon[0] + 22 * s, moon[1] + 22 * s], fill=(236, 238, 226))
-    d.ellipse([moon[0] - 8 * s, moon[1] - 10 * s, moon[0] + 2 * s, moon[1]], fill=(214, 218, 210))
-    stars = []
-    for _ in range(140):
-        x, y = rng.uniform(0, W), rng.uniform(0, H * 0.46)
-        b = int(rng.uniform(70, 210) * (1 - y / (H * 0.6)))
-        d.point((x, y), fill=(b, b, min(255, b + 24)))
-        if rng.random() < 0.16:
-            stars.append((x, y, rng.uniform(1.5, 4.0), rng.uniform(0, 6.28)))
-    layers = [cloud_layer(tw, int(H * 0.5), rng, s, cover=146, white=(70, 70, 120), grey=(30, 32, 70), k=0.6)]
-
-    h = int(280 * s)                                                             # the towers, far / les tours au loin
-    c = Canvas(tw, h)
-    blinks = []
-    x = 0.0
-    while x < tw - 60 * s:
-        w, bh = rng.uniform(50, 110) * s, rng.uniform(120, 260) * s
-        col = rng.choice(((24, 28, 62), (30, 34, 72), (20, 24, 54)))
-        c.rect(x, h - bh, x + w, h, col)
-        c.rect(x + w * 0.86, h - bh, x + w, h, shade(col, 0.74))
-        for yy in range(int(8 * s), int(bh), int(9 * s)):
-            for xx in range(int(4 * s), int(w * 0.84), int(7 * s)):
-                if rng.random() < 0.2:
-                    c.rect(x + xx, h - bh + yy, x + xx + 3 * s, h - bh + yy + 4 * s, rng.choice(((255, 220, 140), (200, 226, 255))))
-        if rng.random() < 0.4:
-            c.line([(x + w * 0.5, h - bh), (x + w * 0.5, h - bh - 30 * s)], (40, 44, 80), 0.8)
-            blinks.append((x + w * 0.5, h - bh - 30 * s))
-        x += w + rng.uniform(-8, 26) * s
-    layers.append({"img": c.done(None, 0, haze, 0.30), "y": hz - h + int(40 * s), "f": 0.07, "stage": "sky", "blinks": blinks})
-
-    h = int(240 * s)
-    c = Canvas(tw, h)
-    lights = []
+    h = int(260 * s)                                                 # the town behind / la ville derrière
+    sh = Sheet(tw, h, s)
     x = 6 * s
     while x < tw - 130 * s:
-        w, bh = rng.uniform(90, 170) * s, rng.uniform(110, 220) * s
-        night_block(c, x, h, w, bh, s * 0.8, rng, rng.choice(((36, 40, 78), (44, 44, 84), (40, 50, 86))), lights, lit=0.34)
-        if rng.random() < 0.3:                                                   # a water tank / un réservoir
-            c.rect(x + w * 0.3, h - bh - 26 * s, x + w * 0.3 + 24 * s, h - bh - 4 * s, (40, 40, 66))
-            c.poly([(x + w * 0.3 - 3 * s, h - bh - 26 * s), (x + w * 0.3 + 12 * s, h - bh - 38 * s), (x + w * 0.3 + 27 * s, h - bh - 26 * s)], (30, 30, 54))
-        x += w + rng.uniform(0, 24) * s
-    layers.append({"img": c.done(None, 0, haze, 0.18), "y": hz - h + int(26 * s), "f": 0.16, "stage": "far", "lights": some(rng, lights, LIGHTS),
-                   "stacks": [(rng.uniform(0.1, 0.9) * tw, h - rng.uniform(140, 200) * s) for _ in range(2)]})
+        w, bh = rng.uniform(90, 170) * s, rng.uniform(90, 200) * s
+        house(sh, x, h, w, bh, s * 0.6, rng, mood, detail=False)
+        if rng.random() < 0.18:                                      # a tower / une tour
+            tx, th = x + w + 10 * s, rng.uniform(200, 240) * s
+            col = rng.choice(PLASTER)
+            sh.rect(tx, h - th, tx + 22 * s, h, col)
+            sh.rect(tx + 15 * s, h - th, tx + 22 * s, h, None, "dark", 160)
+            sh.rect(tx - 5 * s, h - th + 30 * s, tx + 27 * s, h - th + 36 * s, shade(col, 1.08), "cast")
+            dome(sh, tx + 11 * s, h - th, 26 * s, s * 0.7, col)
+            x += 40 * s
+        x += w + rng.uniform(-14, 30) * s
+    smoke = [(rng.uniform(0.1, 0.9) * tw, h - rng.uniform(90, 150) * s) for _ in range(3)]
+    layers.append({"img": sh.finish(rng, mood, depth=0.40, blur=0.9, tex=0.8), "y": H - int(66 * s) - h, "f": 0.16, "stage": "far", "stacks": smoke})
 
-    tex = fractal(tw, int(300 * s), rng, cells=(int(90 * s) or 2, int(34 * s) or 2, int(12 * s) or 2, int(5 * s) or 2))
-    h = int(300 * s)                                                             # the street / la rue
+    h = int(440 * s)                                                 # the street / la rue
     base = h - 1
-    c = Canvas(tw, h)
-    lights, fires = [], []
+    sh = Sheet(tw, h, s)
     x = 10 * s
-    while x < tw - 260 * s:
-        if rng.random() < 0.14:                                                  # the way down to the underground / une bouche de métro
-            w = 150 * s
-            c.rect(x + 10 * s, base - 30 * s, x + w - 10 * s, base, (24, 22, 32))
-            for i in range(6):
-                c.line([(x + 14 * s, base - 4 * s - i * 5 * s), (x + w - 14 * s, base - 4 * s - i * 5 * s)], (70, 70, 84), 0.6)
-            for px in (x, x + w - 6 * s):
-                c.rect(px, base - 52 * s, px + 6 * s, base, (70, 96, 84))
-            c.rect(x, base - 52 * s, x + w, base - 46 * s, (70, 96, 84))
-            c.rect(x + w * 0.2, base - 84 * s, x + w * 0.8, base - 60 * s, (30, 60, 52))
-            c.d.rectangle([(x + w * 0.2) * SS, (base - 84 * s) * SS, (x + w * 0.8) * SS, (base - 60 * s) * SS], outline=(110, 230, 170), width=int(2 * s * SS))
-            c.ellipse(x + w * 0.44, base - 78 * s, x + w * 0.56, base - 66 * s, (110, 230, 170))
-            for px in (x + 3 * s, x + w - 3 * s):
-                c.ellipse(px - 7 * s, base - 70 * s, px + 7 * s, base - 56 * s, (150, 255, 190))
-                lights.append((px, base - 63 * s))
-            x += w + 30 * s
-            continue
-        w, bh = rng.uniform(150, 250) * s, rng.uniform(150, 270) * s
-        col = rng.choice(((70, 56, 70), (58, 62, 86), (84, 62, 58), (62, 70, 80)))
-        night_block(c, x, base, w, bh, s, rng, col, lights, lit=0.3)
-        sw = w * 0.86                                                            # its shop, lit from inside / sa boutique éclairée
-        c.rect(x + 8 * s, base - 46 * s, x + sw - 8 * s, base, (30, 26, 34))
-        if rng.random() < 0.6:
-            c.rect(x + 14 * s, base - 40 * s, x + sw - 40 * s, base - 8 * s, (255, 210, 130))
-            c.rect(x + 14 * s, base - 20 * s, x + sw - 40 * s, base - 8 * s, (214, 160, 96))
-            c.soft([(x + 8 * s, base - 4 * s), (x + sw - 30 * s, base - 4 * s), (x + sw, base + 6 * s), (x - 10 * s, base + 6 * s)], (255, 210, 130, 70), 6 * s)
-            lights.append((x + sw * 0.4, base - 26 * s))
-        if rng.random() < 0.45:                                                  # a fire escape / un escalier de secours
-            fx = x + rng.uniform(0.15, 0.5) * w
-            for k in range(int((bh - 80 * s) / (52 * s))):
-                fy = base - 70 * s - k * 52 * s
-                c.rect(fx, fy, fx + 56 * s, fy + 3 * s, (30, 30, 40))
-                c.line([(fx, fy), (fx, fy - 16 * s)], (30, 30, 40), 0.7)
-                c.line([(fx + 56 * s, fy), (fx + 56 * s, fy - 16 * s)], (30, 30, 40), 0.7)
-                c.line([(fx, fy - 16 * s), (fx + 56 * s, fy - 16 * s)], (30, 30, 40), 0.7)
-                c.line([(fx + 8 * s, fy), (fx + 48 * s, fy + 52 * s)], (30, 30, 40), 1.0)
+    fires, palms = [], []
+    last, joined = 0.0, False
+    while x < tw - 230 * s:
+        w, bh = rng.uniform(200, 380) * s, rng.choice((rng.uniform(190, 250), rng.uniform(280, 390))) * s
+        house(sh, x, base, w, bh, s, rng, mood, shadow=max(0.0, min(w * 0.45, (last - bh) * 0.55)) if joined else 0.0)
+        last = bh
         if rng.random() < 0.2:
-            fires.append((x + w * 0.5, base - bh - 6 * s))
-        x += w + rng.choice((0, 6, 40)) * s
-    for px in range(int(90 * s), tw - int(60 * s), int(330 * s)):
-        street_lamp(c, px, base, s, lights)
-    c.soft([(0, base - 8 * s), (tw, base - 8 * s), (tw, base + 4), (0, base + 4)], (8, 8, 20, 130), 5 * s)
-    layers.append({"img": c.done(tex.resize((tw, h)), 0.14), "y": H - h - int(40 * s), "f": 0.38, "stage": "mid", "fires": some(rng, fires, FIRES), "lights": some(rng, lights, LIGHTS)})
+            fires.append((x + w * rng.uniform(0.3, 0.7), base - bh - 6 * s))
+        gap = rng.choice((0, 0, rng.uniform(50, 150))) * s
+        joined = gap == 0
+        if gap > 40 * s:
+            palms.append((x + w + gap * 0.5, rng.uniform(250, 340) * s))
+        x += w + gap - (4 * s if gap == 0 else 0)
+    for px, ph in palms:
+        palm(sh, px, base, ph, s, rng)
+    ps = [tw * (i + 0.3) / 4 + rng.uniform(-60, 60) * s for i in range(4)]
+    for px in ps:
+        pole(sh, px, base, 330 * s, s)
+    wires(sh, ps, base, 330 * s, s, tw)
+    layers.append({"img": sh.finish(rng, mood, depth=0.03, foot=0.25), "y": H - h - int(36 * s), "f": 0.38,
+                   "stage": "mid", "fires": some(rng, fires, FIRES), "lights": some(rng, sh.lamps, LIGHTS)})
+    layers.append(ground(tw, H, s, rng, mood))
 
-    def props(c, x, gy):
-        r = rng.random()
-        if r < 0.28:                                                             # a wreck of a car / une voiture abandonnée
-            col = rng.choice(((60, 66, 96), (96, 50, 50), (70, 84, 70)))
-            c.poly([(x, gy + 4 * s), (x + 4 * s, gy - 12 * s), (x + 26 * s, gy - 14 * s), (x + 40 * s, gy - 30 * s), (x + 84 * s, gy - 30 * s),
-                    (x + 100 * s, gy - 14 * s), (x + 122 * s, gy - 10 * s), (x + 124 * s, gy + 4 * s)], col)
-            c.poly([(x + 42 * s, gy - 27 * s), (x + 62 * s, gy - 27 * s), (x + 62 * s, gy - 15 * s), (x + 32 * s, gy - 15 * s)], (26, 30, 46))
-            c.poly([(x + 66 * s, gy - 27 * s), (x + 83 * s, gy - 27 * s), (x + 94 * s, gy - 15 * s), (x + 66 * s, gy - 15 * s)], (26, 30, 46))
-            for wx in (x + 26 * s, x + 98 * s):
-                c.ellipse(wx - 11 * s, gy - 8 * s, wx + 11 * s, gy + 12 * s, (16, 16, 22))
-                c.ellipse(wx - 5 * s, gy - 2 * s, wx + 5 * s, gy + 6 * s, (70, 70, 80))
-            return 130 * s
-        if r < 0.5:                                                              # a barrier / une barrière
-            for i in range(2):
-                bx = x + i * 62 * s
-                c.rect(bx, gy - 22 * s, bx + 56 * s, gy - 12 * s, (230, 226, 214))
-                for k in range(4):
-                    c.poly([(bx + k * 14 * s, gy - 22 * s), (bx + k * 14 * s + 7 * s, gy - 22 * s), (bx + k * 14 * s + 1 * s, gy - 12 * s),
-                            (bx + k * 14 * s - 6 * s, gy - 12 * s)], (214, 60, 44))
-                c.line([(bx + 6 * s, gy - 12 * s), (bx + 2 * s, gy + 8 * s)], (60, 60, 70), 1.2)
-                c.line([(bx + 50 * s, gy - 12 * s), (bx + 54 * s, gy + 8 * s)], (60, 60, 70), 1.2)
-            return 124 * s
-        if r < 0.72:
-            return sandbags(c, x, gy, s, rng, cols=((92, 90, 80), (84, 82, 72), (100, 98, 86)))
-        c.rect(x, gy - 26 * s, x + 12 * s, gy + 6 * s, (170, 50, 44))                                # a hydrant, bins / une borne, des poubelles
-        c.ellipse(x - 2 * s, gy - 32 * s, x + 14 * s, gy - 20 * s, (190, 60, 50))
-        for i in range(2):
-            bx = x + 36 * s + i * 30 * s
-            c.rect(bx, gy - 30 * s, bx + 22 * s, gy + 6 * s, (70, 76, 90))
-            c.rect(bx - 2 * s, gy - 34 * s, bx + 24 * s, gy - 29 * s, (96, 102, 116))
-        return 100 * s
-    layers.append(ground_layer(tw, H, s, rng, (44, 44, 60), props, shade_k=(6, 6, 16, 140), edge=(10, 10, 24, 80)))
     from . import hd_stages
-    amb = {"stars": stars, "horizon": hz, "explosions": True, "searchlights": [(0.24, 0.9), (0.66, 1.2)], "plane": "heli",
-           "plane_color": (10, 12, 26), "window": (255, 214, 130), "blink": (255, 40, 30),
-           "hooks": {"mid": [hd_stages.hook_fires], "far": [hd_stages.hook_stacks]}}
+    amb = {"stars": (), "horizon": hz, "sun": sun, "explosions": True, "plane": "bomber", "plane_color": (60, 66, 74),
+           "dust": mood["dust"], "window": (255, 170, 80), "hooks": {"mid": [hd_stages.hook_fires], "far": [hd_stages.hook_stacks]}}
+    sky = mood["grade"](sky)
     sky, layers = settled(sky, layers, W)
     return {"sky": sky, "layers": layers, "tw": tw, "amb": amb}
 
 
-# ---------------------------------------------------------------------------- mission 6, a base in the snow
-SNOW = (240, 246, 252)
-SNOW_SHADE = (190, 206, 228)
+# ---------------------------------------------------------------------------- mission 2, inside a tomb / dans un tombeau
 
 
-def snow_cap(c, x0, x1, y, s, rng, thick=7):
-    """Snow lying on a roof, a drip here and there. / De la neige posée sur un toit."""
-    pts = [(x0 - 3 * s, y + 1 * s)]
-    n = max(3, int((x1 - x0) / (16 * s)))
-    for i in range(n + 1):
-        pts.append((x0 - 3 * s + i * (x1 - x0 + 6 * s) / n, y - (thick + rng.uniform(-2, 3)) * s))
-    pts.append((x1 + 3 * s, y + 1 * s))
-    c.poly(pts, SNOW)
-    c.rect(x0 - 3 * s, y - 1 * s, x1 + 3 * s, y + 2 * s, SNOW_SHADE)
+STONE = ((188, 126, 72), (172, 110, 62), (200, 140, 84), (162, 102, 60), (180, 120, 76))
 
 
-def build_base(W, H, s, seed=26):
-    """Mission 6. A base in the snow under the mountains: bunkers, hangars, aerials, fences, snow falling.
-    / Une base sous la neige au pied des montagnes : casemates, hangars, antennes, clôtures, la neige qui tombe."""
+FADED = ((70, 112, 110), (160, 70, 50), (204, 164, 84), (214, 196, 160))
+
+
+def blocks(sh, x0, y0, x1, y1, s, rng, bw=92, bh=46, tone=1.0):
+    """Courses of cut stone. / Des assises de pierre taillée."""
+    y, j = y0, 0
+    while y < y1:
+        yb = min(y1, y + bh * s)
+        x = x0 - (j % 2) * bw * 0.5 * s
+        while x < x1:
+            w = bw * s * rng.uniform(0.78, 1.26)
+            xa, xb = max(x0, x), min(x1, x + w)
+            if xb > xa:
+                col = shade(rng.choice(STONE), rng.uniform(0.9, 1.08) * tone)
+                sh.rect(xa, y, xb, yb, col)
+                sh.rect(xa, y, xb, y + 1.3 * s, shade(col, 1.16))
+                sh.rect(xb - 1.5 * s, y, xb, yb, shade(col, 0.58))
+                sh.rect(xa, yb - 1.5 * s, xb, yb, shade(col, 0.52))
+                if rng.random() < 0.12:                                     # a chipped corner / un coin éclaté
+                    sh.poly([(xa, y), (xa + 12 * s, y), (xa, y + 9 * s)], shade(col, 0.5))
+            x += w
+        y, j = yb, j + 1
+
+
+def sign(sh, x, y, r, s, rng, stone):
+    """A carved sign that belongs to no writing: a hollow in the shade, its lower lip in the light.
+    / Un signe gravé qui n'est d'aucune écriture : un creux à l'ombre, sa lèvre basse dans la lumière."""
+    dk, lt = shade(stone, 0.44), shade(stone, 1.22)
+    k = rng.randint(0, 6)
+    for o, c in ((1.2 * s, lt), (0.0, dk)):
+        if k == 0:
+            sh.rect(x - r * 0.22 + o, y - r + o, x + r * 0.22 + o, y + r + o, c)
+        elif k == 1:
+            sh.ellipse(x - r * 0.7 + o, y - r * 0.7 + o, x + r * 0.7 + o, y + r * 0.7 + o, c)
+        elif k == 2:
+            sh.poly([(x - r * 0.8 + o, y + r * 0.8 + o), (x + o, y - r + o), (x + r * 0.8 + o, y + r * 0.8 + o)], c)
+        elif k == 3:
+            sh.line([(x - r + o, y + o), (x - r * 0.4 + o, y - r * 0.6 + o), (x + r * 0.2 + o, y + r * 0.4 + o), (x + r * 0.9 + o, y - r * 0.5 + o)], c, 2.4 * s)
+        elif k == 4:
+            for dy in (-0.7, 0.0, 0.7):
+                sh.rect(x - r * 0.8 + o, y + dy * r - r * 0.12 + o, x + r * 0.8 + o, y + dy * r + r * 0.12 + o, c)
+        elif k == 5:
+            sh.ellipse(x - r * 0.8 + o, y - r * 0.9 + o, x - r * 0.3 + o, y - r * 0.4 + o, c)
+            sh.ellipse(x + r * 0.3 + o, y - r * 0.9 + o, x + r * 0.8 + o, y - r * 0.4 + o, c)
+            sh.rect(x - r * 0.8 + o, y + r * 0.3 + o, x + r * 0.8 + o, y + r * 0.6 + o, c)
+        else:
+            sh.line([(x + math.cos(a) * r * 0.8 + o, y + math.sin(a) * r * 0.8 + o) for a in [math.pi * (1 + i / 8) for i in range(9)]], c, 2.4 * s)
+            sh.rect(x - r * 0.12 + o, y + o, x + r * 0.12 + o, y + r * 0.9 + o, c)
+    if k == 1:
+        sh.ellipse(x - r * 0.36, y - r * 0.36, x + r * 0.36, y + r * 0.36, shade(stone, 0.92))
+
+
+def carved_band(sh, x0, x1, y, hgt, s, rng, stone):
+    sh.rect(x0, y, x1, y + hgt, shade(stone, 0.9))
+    sh.rect(x0, y, x1, y + 1.6 * s, shade(stone, 0.55))
+    sh.rect(x0, y + hgt - 1.6 * s, x1, y + hgt, shade(stone, 1.18))
+    cx = x0 + hgt * 0.5
+    while cx < x1 - hgt * 0.4:
+        sign(sh, cx, y + hgt / 2, hgt * 0.32, s, rng, stone)
+        cx += hgt * rng.uniform(0.66, 0.84)
+
+
+def torch(sh, x, y, s, pool=110):
+    """A torch on the wall. / Une torche au mur."""
+    sh.poly([(x - 2 * s, y + 26 * s), (x + 2 * s, y + 26 * s), (x + 5 * s, y), (x - 5 * s, y)], (58, 44, 36), "cast")
+    sh.rect(x - 7 * s, y - 3 * s, x + 7 * s, y + 2 * s, (84, 64, 44))
+    sh.ellipse(x - 4.5 * s, y - 15 * s, x + 4.5 * s, y - 2 * s, (255, 176, 80))
+    sh.ellipse(x - 2.6 * s, y - 11 * s, x + 2.6 * s, y - 3 * s, (255, 236, 170))
+    sh.ellipse(x - 12 * s, y - 30 * s, x + 12 * s, y + 4 * s, None, "lamp")
+    sh.ellipse(x - pool * s, y - pool * 0.9 * s, x + pool * s, y + pool * 1.5 * s, None, "pool")
+    sh.ellipse(x - 9 * s, y - 70 * s, x + 11 * s, y - 20 * s, None, "Dark", 150)                   # the soot above
+    sh.lamps.append((x, y - 10 * s))
+
+
+def portal(sh, x, base, w, h, s, rng):
+    """A doorway to a darker room. / Une porte vers une salle plus sombre."""
+    stone = rng.choice(STONE)
+    j = 26 * s
+    sh.rect(x - w / 2 - j - 4 * s, base - h - j - 4 * s, x + w / 2 + j + 4 * s, base, None, "hole")
+    sh.rect(x - w / 2 - j, base - h - j, x + w / 2 + j, base, shade(stone, 1.08), "cast")           # the jambs and the lintel
+    sh.rect(x - w / 2 - j - 12 * s, base - h - j - 16 * s, x + w / 2 + j + 12 * s, base - h - j, shade(stone, 1.14), "cast")
+    sh.rect(x - w / 2 - j - 12 * s, base - h - j - 16 * s, x + w / 2 + j + 12 * s, base - h - j - 12 * s, shade(stone, 1.3))
+    carved_band(sh, x - w / 2 - j + 6 * s, x + w / 2 + j - 6 * s, base - h - j + 3 * s, j - 7 * s, s, rng, stone)
+    sh.rect(x - w / 2, base - h, x + w / 2, base, (12, 8, 8))
+    sh.rect(x - w / 2 + 14 * s, base - h + 14 * s, x + w / 2 - 14 * s, base, (26, 16, 12))           # a second frame, deeper
+    sh.rect(x - w / 2 + 24 * s, base - h + 26 * s, x + w / 2 - 24 * s, base, (8, 5, 6))
+    sh.rect(x + w / 2 - 5 * s, base - h, x + w / 2, base, shade(stone, 0.9))
+    for i in range(3):                                                                              # the steps / les marches
+        sh.rect(x - w / 2 - i * 8 * s, base - (3 - i) * 6 * s, x + w / 2 + i * 8 * s, base, shade(stone, 1.0 + i * 0.05), "cast")
+
+
+def column(sh, x, base, w, top, s, rng):
+    stone = rng.choice(STONE)
+    sh.rect(x - w / 2, top, x + w / 2, base, stone, "cast")
+    y = top + rng.uniform(40, 70) * s
+    while y < base - 30 * s:                                                                        # the drums / les tambours
+        sh.rect(x - w / 2, y, x + w / 2, y + 1.6 * s, shade(stone, 0.56))
+        sh.rect(x - w / 2, y + 1.6 * s, x + w / 2, y + 3 * s, shade(stone, 1.14))
+        y += rng.uniform(58, 76) * s
+    for k, hgt in ((0.30, 30), (0.62, 24)):
+        yy = top + (base - top) * k
+        carved_band(sh, x - w / 2, x + w / 2, yy, hgt * s, s, rng, stone)
+    yy = top + (base - top) * 0.14                                                                  # rings of faded paint
+    for i, col in enumerate((FADED[1], FADED[3], FADED[0], FADED[2])):
+        sh.rect(x - w / 2, yy + i * 7 * s, x + w / 2, yy + i * 7 * s + 5 * s, mix(stone, col, 0.6))
+    sh.rect(x + w * 0.16, top, x + w / 2, base, None, "dark", 200)                                  # it is round
+    sh.rect(x - w * 0.42, top, x - w * 0.26, base, None, "light", 120)
+    sh.poly([(x - w / 2, base - 14 * s), (x + w / 2, base - 14 * s), (x + w / 2 + 12 * s, base), (x - w / 2 - 12 * s, base)], shade(stone, 0.96), "cast")
+    sh.rect(x - w / 2 - 12 * s, base - 5 * s, x + w / 2 + 12 * s, base + 2, shade(stone, 1.1))
+
+
+def brazier(sh, x, base, s, pool=200):
+    """A bowl of fire on three legs. / Une vasque de feu sur trois pieds."""
+    for dx in (-13, 0, 13):
+        sh.line([(x + dx * s, base), (x + dx * 0.3 * s, base - 46 * s)], (44, 34, 30), 2.4 * s, "cast")
+    sh.poly([(x - 20 * s, base - 58 * s), (x + 20 * s, base - 58 * s), (x + 11 * s, base - 44 * s), (x - 11 * s, base - 44 * s)], (70, 52, 38), "cast")
+    sh.rect(x - 21 * s, base - 61 * s, x + 21 * s, base - 57 * s, (120, 86, 50))
+    sh.ellipse(x - 13 * s, base - 82 * s, x + 13 * s, base - 58 * s, (255, 170, 70))
+    sh.ellipse(x - 7 * s, base - 74 * s, x + 7 * s, base - 59 * s, (255, 236, 170))
+    sh.ellipse(x - 26 * s, base - 112 * s, x + 26 * s, base - 50 * s, None, "lamp")
+    sh.ellipse(x - pool * s, base - 62 * s - pool * s, x + pool * s, base - 62 * s + pool * 0.9 * s, None, "pool")
+    return (x, base - 66 * s)
+
+
+def chest(sh, x, base, s, rng):
+    """A stone coffer with its lid. / Un coffre de pierre et son couvercle."""
+    stone = rng.choice(STONE)
+    w, h = rng.uniform(120, 160) * s, rng.uniform(44, 56) * s
+    sh.rect(x, base - h, x + w, base, stone, "cast")
+    sh.rect(x + w * 0.9, base - h, x + w, base, None, "dark", 170)
+    carved_band(sh, x + 8 * s, x + w * 0.88, base - h + 10 * s, 20 * s, s, rng, stone)
+    lean = rng.uniform(-5, 5) * s
+    sh.poly([(x - 8 * s, base - h + lean), (x + w + 8 * s, base - h - lean), (x + w + 4 * s, base - h - 14 * s - lean), (x - 4 * s, base - h - 14 * s + lean)],
+            shade(stone, 1.12), "cast")
+    return w
+
+
+def jars(sh, x, base, s, rng):
+    n = rng.randint(2, 4)
+    for i in range(n):
+        jx, r = x + i * rng.uniform(26, 34) * s, rng.uniform(9, 14) * s
+        col = rng.choice(((150, 92, 56), (132, 78, 50), (168, 112, 70)))
+        sh.ellipse(jx - r, base - r * 2.6, jx + r, base, col, "cast")
+        sh.rect(jx - r * 0.5, base - r * 2.6 - 6 * s, jx + r * 0.5, base - r * 2.3, col)
+        sh.ellipse(jx + r * 0.1, base - r * 2.5, jx + r, base - r * 0.1, None, "dark", 170)
+        sh.ellipse(jx - r * 0.7, base - r * 2.1, jx - r * 0.2, base - r * 1.2, None, "light", 150)
+    return n * 32 * s
+
+
+def scaffold(sh, x, base, s, rng):
+    """The gear of those who dig here: poles, planks, a lamp. / Le matériel de ceux qui fouillent."""
+    w, h = rng.uniform(110, 150) * s, rng.uniform(150, 210) * s
+    for px in (x, x + w):
+        sh.line([(px, base), (px, base - h)], (104, 80, 56), 4 * s, "cast")
+    for k in (0.42, 0.86):
+        sh.rect(x - 8 * s, base - h * k - 5 * s, x + w + 8 * s, base - h * k, (126, 98, 66), "cast")
+        sh.rect(x - 8 * s, base - h * k - 5 * s, x + w + 8 * s, base - h * k - 3.6 * s, (158, 126, 88))
+    sh.line([(x, base - h * 0.42), (x + w, base)], (92, 70, 50), 2.4 * s)
+    sh.line([(x + w, base - h * 0.42), (x, base)], (92, 70, 50), 2.4 * s)
+    lantern(sh, x + w * 0.5, base - h * 0.42 + 12 * s, s, 90)
+    crate(sh, x + w * 0.2, base, 36 * s, 28 * s, s, (128, 100, 70))
+    return w
+
+
+def tomb(W, H, s, seed=132):
+    """Mission 2. A hall cut in the rock, lit by fire. / Une salle taillée dans la roche, éclairée par le feu."""
+    mood = MOODS["tombe"]
+    rng = random.Random(seed)
+    tw = int(W + 600 * s)
+    sky = vgrad(W, H, mood["sky"])
+    layers = []
+
+    h = H                                                            # the wall at the back / le mur du fond
+    floor_y = H - int(86 * s)
+    sh = Sheet(tw, h, s)
+    blocks(sh, 0, 58 * s, tw, floor_y, s, rng)
+    sh.rect(0, 0, tw, 26 * s, shade(STONE[3], 0.8))                  # the ceiling beam and its frieze
+    sh.rect(0, 26 * s, tw, 58 * s, shade(STONE[2], 1.0), "cast")
+    x, i = 0.0, 0
+    while x < tw:
+        col = mix(STONE[2], FADED[i % 4], 0.62)
+        sh.rect(x + 2 * s, 30 * s, x + 30 * s, 54 * s, col)
+        if i % 2:
+            sh.poly([(x + 6 * s, 52 * s), (x + 16 * s, 32 * s), (x + 26 * s, 52 * s)], mix(STONE[2], FADED[(i + 2) % 4], 0.6))
+        x, i = x + 34 * s, i + 1
+    carved_band(sh, 0, tw, 150 * s, 40 * s, s, rng, STONE[0])
+    carved_band(sh, 0, tw, 232 * s, 26 * s, s, rng, STONE[1])
+    xs = []
+    x = rng.uniform(120, 260) * s
+    while x < tw - 220 * s:
+        portal(sh, x, floor_y, rng.uniform(96, 126) * s, rng.uniform(210, 250) * s, s, rng)
+        xs.append(x)
+        x += rng.uniform(520, 700) * s
+    for a, b in zip(xs, xs[1:] + [xs[0] + tw]):                       # torches between the doors
+        n = 2 if b - a > 560 * s else 1
+        for k in range(n):
+            torch(sh, (a + (b - a) * (k + 1) / (n + 1)) % tw, rng.uniform(250, 280) * s, s)
+    for _ in range(3):                                               # the day comes down through the roof / le jour tombe du plafond
+        bx = rng.uniform(0, tw - 400 * s)
+        pts = [(bx, 0), (bx + 60 * s, 0), (bx + 300 * s, floor_y), (bx + 150 * s, floor_y)]
+        sh.poly(pts, None, "Light", 150)
+        sh.poly(pts, None, "pool", 170)
+    for _ in range(14):                                              # cracks, stains / fissures, coulures
+        cx, cy = rng.uniform(0, tw), rng.uniform(70, 300) * s
+        pts = [(cx, cy)]
+        for _ in range(rng.randint(4, 9)):
+            cx, cy = cx + rng.uniform(-9, 9) * s, cy + rng.uniform(8, 18) * s
+            pts.append((cx, min(cy, floor_y)))
+        sh.line(pts, (70, 44, 30), 1.0 * s)
+    sh.rect(0, floor_y - 30 * s, tw, floor_y + 2, None, "Dark", 140)
+    sh.rect(0, floor_y, tw, h, (120, 84, 54))                         # the floor seen far away
+    layers.append({"img": sh.finish(rng, mood, depth=0.10, blur=0.6, tex=1.1, bump_k=0.34), "y": 0, "f": 0.16, "stage": "far",
+                   "lights": some(rng, sh.lamps, LIGHTS)})
+
+    h = H - int(34 * s)                                              # the columns / les colonnes
+    base = h - 32 * s
+    sh = Sheet(tw, h, s)
+    fires = []
+    x = rng.uniform(60, 160) * s
+    while x < tw - 160 * s:
+        cw = rng.uniform(78, 98) * s
+        column(sh, x, base, cw, -6 * s, s, rng)
+        gap = rng.uniform(300, 430) * s
+        q = rng.random()
+        mx = x + cw / 2 + 40 * s
+        if q < 0.36:
+            fires.append(brazier(sh, x + gap * 0.5, base, s))
+        elif q < 0.58:
+            chest(sh, mx + rng.uniform(0, 40) * s, base, s, rng)
+        elif q < 0.78:
+            scaffold(sh, mx + rng.uniform(0, 30) * s, base, s, rng)
+        else:
+            jars(sh, mx + rng.uniform(10, 60) * s, base, s, rng)
+        x += gap
+    layers.append({"img": sh.finish(rng, dict(mood, wall=(0.44, 0.33, 0.29)), tex=1.0, bump_k=0.34), "y": 0, "f": 0.38, "stage": "mid", "fires": some(rng, fires, FIRES),
+                   "lights": some(rng, sh.lamps, 4)})
+
+    h = int(104 * s)                                                 # the floor in front / le sol devant
+    sh = Sheet(tw, h, s)
+    gy = h * 0.34
+    sh.rect(0, gy, tw, h, (150, 106, 66))
+    x = 0.0
+    while x < tw:                                                    # flagstones under the sand / des dalles sous le sable
+        w = rng.uniform(90, 170) * s
+        sh.line([(x, gy), (x - 30 * s, h)], (96, 64, 40), 1.4 * s)
+        x += w
+    for yy in (gy + 22 * s, gy + 52 * s):
+        sh.line([(0, yy), (tw, yy)], (100, 68, 42), 1.2 * s)
+    for _ in range(int(tw / (120 * s))):                             # sand blown in / du sable entré
+        px, py = rng.uniform(0, tw), rng.uniform(gy + 6 * s, h)
+        sh.ellipse(px - rng.uniform(40, 110) * s, py - 6 * s, px + rng.uniform(40, 110) * s, py + 8 * s, None, "Light", 110)
+    x = 60 * s
+    while x < tw - 200 * s:
+        q = rng.random()
+        if q < 0.5:                                                  # fallen blocks / des blocs tombés
+            for _ in range(rng.randint(1, 3)):
+                bw_, bh_ = rng.uniform(34, 70) * s, rng.uniform(22, 40) * s
+                bx, tilt = x + rng.uniform(0, 80) * s, rng.uniform(-8, 8) * s
+                col = shade(rng.choice(STONE), rng.uniform(0.86, 1.04))
+                sh.poly([(bx, gy + 14 * s), (bx + tilt, gy + 14 * s - bh_), (bx + bw_ + tilt, gy + 14 * s - bh_ + tilt * 0.4), (bx + bw_, gy + 14 * s)], col, "cast")
+                sh.poly([(bx + bw_ * 0.7 + tilt, gy + 14 * s - bh_ + tilt * 0.3), (bx + bw_ + tilt, gy + 14 * s - bh_ + tilt * 0.4), (bx + bw_, gy + 14 * s),
+                         (bx + bw_ * 0.7, gy + 14 * s)], None, "dark", 170)
+            x += 150 * s
+        elif q < 0.75:
+            x += jars(sh, x, gy + 16 * s, s, rng)
+        else:                                                        # a drum of column lying / un tambour de colonne couché
+            r = rng.uniform(22, 30) * s
+            col = rng.choice(STONE)
+            sh.rect(x, gy + 16 * s - r * 2, x + r * 2.6, gy + 16 * s, col, "cast")
+            sh.ellipse(x - r * 0.5, gy + 16 * s - r * 2, x + r * 0.5, gy + 16 * s, shade(col, 1.1))
+            sh.ellipse(x + r * 2.1, gy + 16 * s - r * 2, x + r * 3.1, gy + 16 * s, shade(col, 0.7))
+            sh.rect(x, gy + 16 * s - r * 0.7, x + r * 2.6, gy + 16 * s, None, "dark", 150)
+            x += r * 3
+        x += rng.uniform(160, 380) * s
+    sh.rect(0, gy - 2 * s, tw, gy + 8 * s, None, "Dark", 150)
+    sh.rect(0, h * 0.8, tw, h + 4, None, "Dark", 190)
+    for _ in range(4):                                               # where a fire reaches the floor / là où un feu éclaire le sol
+        px = rng.uniform(0, tw)
+        sh.ellipse(px - 170 * s, gy - 30 * s, px + 170 * s, gy + 60 * s, None, "pool", 200)
+    layers.append({"img": sh.finish(rng, mood, tex=0.9, bump_k=0.5, blur=0.5), "y": H - h, "f": 1.0, "stage": "near"})
+
+    from . import hd_stages
+    amb = {"stars": (), "horizon": int(H * 0.82), "sun": (W // 2, 0), "explosions": False, "dust": mood["dust"], "window": (255, 160, 70),
+           "hooks": {"mid": [hd_stages.hook_fires]}}
+    return {"sky": mood["grade"](sky), "layers": layers, "tw": tw, "amb": amb}
+
+
+# ---------------------------------------------------------------------------- mission 3, a train at the golden hour / un train à l'heure dorée
+
+
+MOODS["dore"] = dict(sky=[(0.0, (50, 68, 112)), (0.18, (106, 108, 136)), (0.32, (212, 158, 112)), (0.44, (255, 216, 136)), (0.58, (250, 190, 110)), (1.0, (118, 82, 58))],
+                     sun=(0.30, 0.42), glare=(190, 130, 50), haze=(236, 182, 122), dust=(255, 212, 140), cast=(46, 10), soft=5.0,
+                     shadow=(110, 92, 120), shadow_k=0.9, soot=(56, 46, 46), sunc=(255, 216, 150), rim=(255, 204, 124), lamps=0.25,
+                     wall=(0.60, 0.48, 0.44), lampc=(255, 226, 172), pool_r=34, pool_k=1.7,
+                     clouds=((255, 216, 152), (140, 110, 120), 0.9), grade=grade_cine, dim=1.0)
+
+
+def locomotive(sh, x, ry, s, rng):
+    """A steam engine seen from the side, its nose to the right. / Une locomotive à vapeur vue de côté."""
+    L = 334 * s
+    body = (58, 68, 58)
+    for cx in (x + 262 * s, x + 294 * s):
+        wheel(sh, cx, ry, 13 * s, s, 6)
+    wheel(sh, x + 58 * s, ry, 15 * s, s, 6)
+    sh.rect(x + 10 * s, ry - 50 * s, x + L - 18 * s, ry - 40 * s, IRON, "cast")                    # the frame / le châssis
+    for cx in (x + 142 * s, x + 196 * s):                                                          # the domes / les dômes
+        sh.ellipse(cx - 15 * s, ry - 134 * s, cx + 15 * s, ry - 100 * s, body)
+        sh.ellipse(cx - 11 * s, ry - 132 * s, cx - 2 * s, ry - 118 * s, None, "light", 120)
+    sh.rect(x + L - 68 * s, ry - 158 * s, x + L - 50 * s, ry - 110 * s, IRON, "cast")              # the chimney / la cheminée
+    sh.rect(x + L - 73 * s, ry - 164 * s, x + L - 45 * s, ry - 156 * s, (62, 58, 56), "cast")
+    sh.rect(x + 96 * s, ry - 114 * s, x + L - 42 * s, ry - 50 * s, body, "cast")                    # the boiler / la chaudière
+    sh.rect(x + L - 76 * s, ry - 116 * s, x + L - 40 * s, ry - 48 * s, (40, 40, 42))
+    sh.ellipse(x + L - 48 * s, ry - 116 * s, x + L - 32 * s, ry - 48 * s, (52, 50, 52))
+    sh.rect(x + 96 * s, ry - 84 * s, x + L - 40 * s, ry - 50 * s, None, "dark", 190)                 # it is round
+    sh.rect(x + 96 * s, ry - 108 * s, x + L - 44 * s, ry - 98 * s, None, "light", 150)
+    bx = x + 118 * s
+    while bx < x + L - 84 * s:                                                                      # brass bands / des cercles de laiton
+        sh.rect(bx, ry - 114 * s, bx + 3 * s, ry - 50 * s, (150, 122, 66))
+        bx += 46 * s
+    sh.rect(x + 30 * s, ry - 138 * s, x + 100 * s, ry - 46 * s, (66, 74, 62), "cast")               # the cab / la cabine
+    sh.rect(x + 22 * s, ry - 146 * s, x + 110 * s, ry - 137 * s, (40, 40, 40), "cast")
+    sh.rect(x + 46 * s, ry - 128 * s, x + 84 * s, ry - 98 * s, (255, 196, 110))
+    sh.rect(x + 46 * s, ry - 128 * s, x + 84 * s, ry - 98 * s, None, "lamp")
+    sh.ellipse(x + 20 * s, ry - 160 * s, x + 110 * s, ry - 60 * s, None, "pool", 200)
+    sh.line([(x + 65 * s, ry - 128 * s), (x + 65 * s, ry - 98 * s)], (40, 40, 40), 1.6 * s)
+    rivets(sh, x + 34 * s, x + 98 * s, ry - 90 * s, s)
+    rivets(sh, x + 34 * s, x + 98 * s, ry - 52 * s, s)
+    for cx in (x + 112 * s, x + 164 * s, x + 216 * s):                                              # the driving wheels
+        wheel(sh, cx, ry, 25 * s, s, 9)
+    sh.rect(x + L - 112 * s, ry - 58 * s, x + L - 70 * s, ry - 28 * s, (52, 52, 54), "cast")        # the cylinder
+    sh.line([(x + 112 * s, ry - 16 * s), (x + 216 * s, ry - 16 * s)], (128, 120, 112), 4.4 * s)     # the rods / les bielles
+    sh.line([(x + 216 * s, ry - 16 * s), (x + L - 90 * s, ry - 42 * s)], (112, 106, 100), 3.6 * s)
+    sh.poly([(x + L - 40 * s, ry - 44 * s), (x + L - 4 * s, ry - 6 * s), (x + L - 40 * s, ry - 6 * s)], (48, 46, 46), "cast")   # the cowcatcher
+    for i in range(1, 5):
+        sh.line([(x + L - 40 * s, ry - 44 * s + i * 8 * s), (x + L - 40 * s + i * 8 * s, ry - 6 * s)], (86, 80, 76), 1.0 * s)
+    hx, hy = x + L - 38 * s, ry - 126 * s                                                           # the lamp at the front
+    sh.rect(hx - 8 * s, hy - 7 * s, hx + 4 * s, hy + 7 * s, (44, 42, 42))
+    sh.ellipse(hx + 1 * s, hy - 5 * s, hx + 8 * s, hy + 5 * s, (255, 238, 180))
+    sh.ellipse(hx - 4 * s, hy - 12 * s, hx + 18 * s, hy + 12 * s, None, "lamp")
+    sh.poly([(hx + 6 * s, hy - 8 * s), (hx + 230 * s, hy - 60 * s), (hx + 230 * s, hy + 90 * s), (hx + 6 * s, hy + 8 * s)], None, "pool", 150)
+    sh.line([(x + 100 * s, ry - 122 * s), (x + L - 80 * s, ry - 122 * s)], (120, 112, 100), 1.0 * s)   # a handrail
+    sh.lamps.append((hx + 4 * s, hy))
+    return L, (x + L - 59 * s, ry - 166 * s)
+
+
+def tender(sh, x, ry, s, rng):
+    w = 150 * s
+    for cx in (x + 28 * s, x + 75 * s, x + 122 * s):
+        wheel(sh, cx, ry, 17 * s, s, 6)
+    sh.rect(x + 8 * s, ry - 26 * s, x + w - 8 * s, ry - 16 * s, (44, 42, 42), "cast")
+    sh.rect(x + 2 * s, ry - 46 * s, x + w - 2 * s, ry - 32 * s, IRON, "cast")
+    sh.rect(x + 6 * s, ry - 108 * s, x + w - 6 * s, ry - 44 * s, (60, 68, 58), "cast")
+    sh.poly([(x + 14 * s, ry - 108 * s), (x + 40 * s, ry - 124 * s), (x + 76 * s, ry - 118 * s), (x + 104 * s, ry - 128 * s), (x + w - 14 * s, ry - 108 * s)], (30, 28, 30))
+    sh.rect(x + 6 * s, ry - 76 * s, x + w - 6 * s, ry - 44 * s, None, "dark", 120)
+    sh.rect(x + 6 * s, ry - 96 * s, x + w - 6 * s, ry - 90 * s, (120, 104, 70))                      # a faded band / une bande passée
+    rivets(sh, x + 10 * s, x + w - 8 * s, ry - 104 * s, s)
+    rivets(sh, x + 10 * s, x + w - 8 * s, ry - 48 * s, s)
+    return w
+
+
+def bogies(sh, x, ry, w, s):
+    for cx in (x + 30 * s, x + 64 * s, x + w - 64 * s, x + w - 30 * s):
+        wheel(sh, cx, ry, 16 * s, s, 6)
+    for bx in (x + 12 * s, x + w - 82 * s):                                                          # the frame of the bogie
+        sh.rect(bx, ry - 24 * s, bx + 70 * s, ry - 14 * s, (44, 42, 42), "cast")
+    sh.rect(x + 2 * s, ry - 42 * s, x + w - 2 * s, ry - 30 * s, IRON, "cast")
+    sh.rect(x + w * 0.5 - 30 * s, ry - 30 * s, x + w * 0.5 + 30 * s, ry - 16 * s, (40, 38, 40), "cast")   # the gear under the floor
+    sh.line([(x + 84 * s, ry - 30 * s), (x + w * 0.5, ry - 12 * s), (x + w - 84 * s, ry - 30 * s)], (40, 38, 40), 1.6 * s)
+    sh.rect(x - 6 * s, ry - 38 * s, x + 2 * s, ry - 34 * s, (70, 66, 64))                            # the coupling / l'attelage
+    sh.rect(x + w - 2 * s, ry - 38 * s, x + w + 6 * s, ry - 34 * s, (70, 66, 64))
+
+
+def boxcar(sh, x, ry, s, rng):
+    w = 214 * s
+    bogies(sh, x, ry, w, s)
+    col = rng.choice(((104, 86, 62), (88, 92, 70), (112, 78, 60), (96, 96, 84)))
+    px = x + 6 * s
+    while px < x + w - 6 * s:                                                                       # planks / des planches
+        sh.rect(px, ry - 122 * s, min(x + w - 6 * s, px + 9 * s), ry - 42 * s, shade(col, rng.uniform(0.86, 1.1)))
+        px += 9 * s
+    sh.rect(x + 6 * s, ry - 122 * s, x + w - 6 * s, ry - 42 * s, None, "cast")
+    sh.rect(x, ry - 130 * s, x + w, ry - 120 * s, (52, 50, 50), "cast")                               # the roof / le toit
+    sh.rect(x, ry - 130 * s, x + w, ry - 127 * s, None, "light", 120)
+    dx = x + w * 0.5 - 34 * s                                                                        # the sliding door / la porte
+    sh.rect(dx, ry - 116 * s, dx + 68 * s, ry - 44 * s, shade(col, 0.84 if rng.random() < 0.7 else 0.3))
+    sh.line([(dx, ry - 116 * s), (dx + 68 * s, ry - 44 * s)], shade(col, 0.6), 2.0 * s)
+    sh.line([(dx, ry - 116 * s), (dx + 68 * s, ry - 116 * s), (dx + 68 * s, ry - 44 * s), (dx, ry - 44 * s), (dx, ry - 116 * s)], shade(col, 0.56), 1.6 * s)
+    sh.rect(x + 6 * s, ry - 70 * s, x + w - 6 * s, ry - 42 * s, None, "Dark", 110)
+    for _ in range(rng.randint(2, 5)):                                                               # rain has run down / des coulures
+        cx = x + rng.uniform(10, 200) * s
+        sh.poly([(cx, ry - 120 * s), (cx + 5 * s, ry - 120 * s), (cx + 3 * s, ry - rng.uniform(60, 100) * s)], None, "dark", 110)
+    return w
+
+
+def armoured(sh, x, ry, s, rng):
+    w = 226 * s
+    bogies(sh, x, ry, w, s)
+    col = (84, 92, 84)
+    sh.poly([(x + 4 * s, ry - 42 * s), (x + 22 * s, ry - 116 * s), (x + w - 22 * s, ry - 116 * s), (x + w - 4 * s, ry - 42 * s)], col, "cast")
+    sh.poly([(x + w - 60 * s, ry - 116 * s), (x + w - 22 * s, ry - 116 * s), (x + w - 4 * s, ry - 42 * s), (x + w - 40 * s, ry - 42 * s)], None, "dark", 130)
+    for yy in (ry - 108 * s, ry - 80 * s, ry - 50 * s):
+        rivets(sh, x + 26 * s, x + w - 26 * s, yy, s, 11)
+    for sx in (x + 50 * s, x + 110 * s, x + 170 * s):                                                # slits / des meurtrières
+        sh.rect(sx - 12 * s, ry - 96 * s, sx + 12 * s, ry - 90 * s, (14, 14, 16))
+        sh.rect(sx - 14 * s, ry - 100 * s, sx + 14 * s, ry - 97 * s, shade(col, 1.2), "cast")
+    tx = x + w * 0.5                                                                                 # a turret / une tourelle
+    sh.poly([(tx - 34 * s, ry - 116 * s), (tx - 26 * s, ry - 144 * s), (tx + 26 * s, ry - 144 * s), (tx + 34 * s, ry - 116 * s)], shade(col, 0.96), "cast")
+    sh.line([(tx + 20 * s, ry - 132 * s), (tx + 96 * s, ry - 140 * s)], (56, 60, 58), 5 * s, "cast")
+    sh.rect(tx + 92 * s, ry - 144 * s, tx + 100 * s, ry - 136 * s, (44, 46, 46))
+    sh.rect(tx - 20 * s, ry - 146 * s, tx + 4 * s, ry - 143 * s, None, "light", 130)
+    return w
+
+
+def flatcar(sh, x, ry, s, rng, load):
+    w = 220 * s
+    bogies(sh, x, ry, w, s)
+    sh.rect(x, ry - 48 * s, x + w, ry - 40 * s, (92, 76, 58), "cast")
+    top = ry - 48 * s
+    if load == "tarp":                                                                               # something under a sheet
+        col = rng.choice(((92, 96, 78), (104, 98, 80), (84, 90, 84)))
+        pts = [(x + 14 * s, top), (x + 24 * s, top - 38 * s), (x + 60 * s, top - 62 * s), (x + 104 * s, top - 70 * s), (x + 132 * s, top - 52 * s),
+               (x + 178 * s, top - 46 * s), (x + 204 * s, top - 22 * s), (x + 208 * s, top)]
+        pts = [(px, py + rng.uniform(-4, 4) * s if 0 < i < 7 else py) for i, (px, py) in enumerate(pts)]
+        sh.poly(pts, col, "cast")
+        for i in range(1, 7):                                                                        # folds, then ropes / des plis, des cordes
+            sh.poly([pts[i], (pts[i][0] + 7 * s, pts[i][1] + 3 * s), (pts[i][0] + 12 * s, top), (pts[i][0] + 2 * s, top)], None, "dark", 100)
+        for rx in (x + 50 * s, x + 110 * s, x + 170 * s):
+            sh.line([(rx, top - 66 * s), (rx + 4 * s, top)], (150, 138, 110), 0.9 * s)
+        sh.poly([pts[1], pts[2], pts[3], (pts[3][0] - 10 * s, pts[3][1] + 12 * s), (pts[1][0] + 8 * s, pts[1][1] + 10 * s)], None, "light", 90)
+    else:                                                                                            # crates and drums
+        cx = x + 12 * s
+        while cx < x + w - 50 * s:
+            cw, ch = rng.uniform(34, 52) * s, rng.uniform(28, 46) * s
+            if rng.random() < 0.3:
+                for i in range(2):
+                    drum(sh, cx + i * 22 * s, top - 6 * s, s, rng.choice(((96, 64, 54), (76, 88, 70), (72, 82, 98))))
+                sh.rect(cx, top - 36 * s, cx + 42 * s, top, None, "cast")
+                cx += 50 * s
+                continue
+            crate(sh, cx, top, cw, ch, s, rng.choice(((132, 106, 76), (118, 98, 72), (146, 120, 86))))
+            sh.rect(cx, top - ch, cx + cw, top, None, "cast")
+            if rng.random() < 0.4:
+                crate(sh, cx + 4 * s, top - ch, cw * 0.8, ch * 0.7, s, (124, 100, 72))
+            cx += cw + rng.uniform(2, 10) * s
+    for px in (x + 6 * s, x + w - 8 * s):                                                            # stakes / des ranchers
+        sh.rect(px, top - 26 * s, px + 3 * s, top, (60, 54, 50))
+    return w
+
+
+def tankcar(sh, x, ry, s, rng):
+    w = 206 * s
+    bogies(sh, x, ry, w, s)
+    col = rng.choice(((74, 70, 66), (86, 78, 64), (66, 74, 72)))
+    sh.rect(x + 22 * s, ry - 110 * s, x + w - 22 * s, ry - 46 * s, col, "cast")
+    sh.ellipse(x + 6 * s, ry - 110 * s, x + 38 * s, ry - 46 * s, col, "cast")
+    sh.ellipse(x + w - 38 * s, ry - 110 * s, x + w - 6 * s, ry - 46 * s, shade(col, 0.8), "cast")
+    sh.rect(x + 8 * s, ry - 76 * s, x + w - 8 * s, ry - 46 * s, None, "dark", 190)
+    sh.rect(x + 16 * s, ry - 104 * s, x + w - 20 * s, ry - 95 * s, None, "light", 150)
+    for bx in (x + 56 * s, x + w * 0.5, x + w - 56 * s):
+        sh.rect(bx - 1.5 * s, ry - 110 * s, bx + 1.5 * s, ry - 46 * s, shade(col, 0.6))
+    sh.rect(x + w * 0.5 - 14 * s, ry - 122 * s, x + w * 0.5 + 14 * s, ry - 108 * s, shade(col, 1.1), "cast")
+    for lx in (x + w * 0.5 + 24 * s, x + w * 0.5 + 34 * s):                                          # a ladder / une échelle
+        sh.line([(lx, ry - 112 * s), (lx, ry - 44 * s)], (50, 48, 48), 1.0 * s)
+    for i in range(6):
+        sh.line([(x + w * 0.5 + 24 * s, ry - 106 * s + i * 11 * s), (x + w * 0.5 + 34 * s, ry - 106 * s + i * 11 * s)], (50, 48, 48), 0.9 * s)
+    sh.poly([(x + 60 * s, ry - 100 * s), (x + 72 * s, ry - 100 * s), (x + 68 * s, ry - 52 * s), (x + 62 * s, ry - 60 * s)], None, "Dark", 150)   # a leak
+    return w
+
+
+def leafy(sh, x, base, h, s, rng):
+    """A tree in leaf, its crown in heaps. / Un arbre en feuilles, sa cime en masses."""
+    trunk = (66, 52, 40)
+    sh.line([(x, base), (x + rng.uniform(-5, 5) * s, base - h * 0.55)], trunk, 6 * s, "cast")
+    for a in (-0.5, 0.5):
+        sh.line([(x, base - h * 0.4), (x + a * h * 0.3, base - h * 0.7)], trunk, 3 * s)
+    greens = ((50, 118, 54), (66, 136, 58), (40, 98, 50), (84, 148, 62))
+    for _ in range(16):
+        cx, cy = x + rng.gauss(0, h * 0.2), base - h * rng.uniform(0.5, 1.0)
+        r = rng.uniform(0.10, 0.2) * h
+        col = shade(rng.choice(greens), rng.uniform(0.86, 1.12))
+        sh.ellipse(cx - r, cy - r * 0.8, cx + r, cy + r * 0.8, col, "cast")
+        sh.ellipse(cx - r * 0.8, cy - r * 0.8, cx + r * 0.1, cy - r * 0.1, None, "light", 80)
+        sh.ellipse(cx - r * 0.2, cy, cx + r, cy + r * 0.8, None, "dark", 90)
+
+
+def depot(sh, x, ry, w, s, rng, mood):
+    """A depot of brick behind the track, its arched windows lit. / Un dépôt de brique, ses fenêtres en arc allumées."""
+    wall = rng.choice(BRICK)
+    stone = (150, 140, 124)
+    top = ry - 250 * s
+    sh.rect(x, top, x + w, ry, wall, "cast")
+    yy = top
+    while yy < ry:
+        sh.line([(x, yy), (x + w, yy)], shade(wall, 0.84), 0.7 * s)
+        yy += 6 * s
+    sh.rect(x - 4 * s, top - 8 * s, x + w + 4 * s, top, stone, "cast")
+    sh.rect(x, top + 118 * s, x + w, top + 124 * s, stone, "cast")
+    px = x
+    while px < x + w - 4 * s:                                                                        # piers between the bays
+        sh.rect(px, top, px + 12 * s, ry, shade(wall, 0.9))
+        px += 104 * s
+    cx = x + 58 * s
+    while cx < x + w - 40 * s:
+        for sill, hgt in ((top + 104 * s, 70 * s), (ry - 40 * s, 76 * s)):
+            lit = dict(mood, lamps=1.0 if rng.random() < 0.55 else 0.0)
+            opening(sh, cx, sill, 44 * s, hgt, s, rng, wall, lit, arch=True, kind=rng.choice(("bars", "void", "void")), soot=0.08, trim=stone)
+        cx += 104 * s
+    sh.rect(x, ry - 20 * s, x + w, ry, None, "Dark", 130)
+    for _ in range(4):
+        cx = x + rng.uniform(0.05, 0.95) * w
+        sh.poly([(cx, top), (cx + 8 * s, top), (cx + 3 * s, top + rng.uniform(60, 140) * s)], None, "Dark", 110)
+
+
+def trestle(sh, x0, x1, ry, base, s, rng, mood):
+    """A bridge of timber over a river. / Un pont de bois sur une rivière."""
+    wy = ry + 56 * s                                                                                  # the water / l'eau
+    sh.rect(x0, wy, x1, base + 2, (150, 150, 140))
+    sh.rect(x0, wy, x1, base + 2, None, "pool", 235)
+    sh.rect(x0 - 30 * s, ry + 2 * s, x1 + 30 * s, wy, None, "pool", 150)
+    for _ in range(int((x1 - x0) / (9 * s))):                                                        # the sky lies on the water
+        px, py = rng.uniform(x0, x1), rng.uniform(wy + 2 * s, base)
+        rw = rng.uniform(14, 70) * s
+        sh.rect(px - rw, py, px + rw, py + 1.8 * s, rng.choice(((255, 214, 140), (236, 176, 108), (96, 104, 112))))
+    sh.rect(x0, wy, x1, wy + 4 * s, None, "Dark", 110)
+    sh.rect(x0 - 8 * s, ry + 2 * s, x1 + 8 * s, ry + 16 * s, (84, 64, 48), "cast")                    # the deck / le tablier
+    sh.rect(x0 - 8 * s, ry + 2 * s, x1 + 8 * s, ry + 5 * s, (124, 98, 70))
+    px = x0 + 30 * s
+    while px < x1 - 20 * s:                                                                          # the bents / les palées
+        for dx in (-16, 0, 16):
+            sh.line([(px + dx * 0.4 * s, ry + 16 * s), (px + dx * s, base)], (72, 56, 42), 4.4 * s, "cast")
+        for yy in (ry + 34 * s, ry + 52 * s):
+            sh.rect(px - 20 * s, yy, px + 20 * s, yy + 4 * s, (92, 72, 52))
+        sh.line([(px - 16 * s, ry + 52 * s), (px + 14 * s, ry + 18 * s)], (80, 62, 46), 2.4 * s)
+        sh.poly([(px - 18 * s, wy), (px + 18 * s, wy), (px + 24 * s, base), (px - 12 * s, base)], None, "dark", 120)   # its shadow in the water
+        px += 96 * s
+    for bx, sg in ((x0, -1), (x1, 1)):                                                               # the banks / les berges
+        sh.poly([(bx, ry + 2 * s), (bx - sg * 50 * s, wy + 10 * s), (bx - sg * 84 * s, base + 2), (bx + sg * 20 * s, base + 2), (bx + sg * 20 * s, ry + 2 * s)], (96, 104, 66))
+        for _ in range(9):
+            gx = bx - sg * rng.uniform(10, 70) * s
+            sh.line([(gx, wy + 12 * s), (gx + rng.uniform(-5, 5) * s, wy - rng.uniform(8, 22) * s)], (120, 132, 70), 1.2 * s)
+
+
+def rail(W, H, s, seed=143):
+    """Mission 3. A military train in wooded country at the golden hour: a halt, a bridge over a river, a depot of
+    brick. / Un train militaire en pays boisé à l'heure dorée : une halte, un pont sur une rivière, un dépôt de brique."""
+    mood = MOODS["dore"]
     rng = random.Random(seed)
     tw = int(W + 600 * s)
     hz = int(H * 0.70)
-    haze = (220, 228, 236)
-    sky = vgrad(W, H, [(0.0, (74, 98, 134)), (0.40, (138, 160, 188)), (0.64, (206, 216, 226)), (0.71, haze),
-                       (0.76, (232, 238, 244)), (1.0, (210, 220, 232))])
-    layers = [cloud_layer(tw, int(H * 0.6), rng, s, cover=112, white=(226, 232, 240), grey=(150, 164, 186), k=0.86, stretch=1.6)]
-    layers.append(ridge_layer(tw, int(250 * s), rng, s, 50, (104, 120, 150), (150, 166, 190), haze, 0.42, hz - int(214 * s), 0.04,
-                              peaks=8, snow=(SNOW, 60), waves=5))
-    h = int(150 * s)                                                             # the forest / la forêt
-    c = Canvas(tw, h)
-    for _ in range(150):
-        pine(c, rng.uniform(0, tw), h, rng.uniform(50, 110) * s, s, rng, rng.choice(((40, 70, 64), (34, 62, 58), (48, 80, 70))), snow=SNOW)
-    layers.append({"img": c.done(None, 0, haze, 0.36), "y": hz - h + int(16 * s), "f": 0.09, "stage": "sky"})
-    tex = fractal(tw, int(300 * s), rng, cells=(int(90 * s) or 2, int(34 * s) or 2, int(12 * s) or 2, int(5 * s) or 2))
+    sky = vgrad(W, H, mood["sky"])
+    sun = (int(W * mood["sun"][0]), int(H * mood["sun"][1]))
+    hd_bg.add_at(sky, hd_bg.radial(int(1400 * s), mood["glare"], 2.0), *sun)
+    hd_bg.add_at(sky, hd_bg.radial(int(260 * s), (255, 240, 196), 3.0), *sun)
+    white, grey, k = mood["clouds"]
+    layers = [cloud_layer(tw, int(H * 0.5), rng, s, cover=134, white=white, grey=grey, k=k, stretch=3.0, f=0.02)]
+    h = int(230 * s)
+    layers.append(mountains(tw, h, rng, s, mood, (132, 136, 116), 0.56, int(60 * s), 0.05, rough=0.8))
 
-    h = int(240 * s)                                                             # hangars, a dish, masts / hangars, parabole, mâts
-    c = Canvas(tw, h)
-    stacks, blinks = [], []
-    x = 10 * s
-    while x < tw - 240 * s:
-        r = rng.random()
-        if r < 0.4:                                                              # a hangar under its round roof / un hangar
-            w, hh = rng.uniform(150, 220) * s, rng.uniform(60, 84) * s
-            col = (128, 138, 146)
-            c.chord(x, h - hh * 2, x + w, h + hh * 0.1, 180, 360, col)
-            c.chord(x + w * 0.5, h - hh * 2, x + w, h + hh * 0.1, 270, 360, shade(col, 0.76))
-            c.rect(x + w * 0.3, h - hh * 0.9, x + w * 0.7, h, (60, 66, 74))
-            for i in range(1, 4):
-                c.line([(x + w * 0.3 + i * w * 0.1, h - hh * 0.9), (x + w * 0.3 + i * w * 0.1, h)], (84, 90, 98), 0.6)
-            c.chord(x + w * 0.08, h - hh * 2 - 5 * s, x + w * 0.92, h - hh * 0.9, 200, 340, SNOW)
-            x += w
-        elif r < 0.62:                                                           # a dish on its tower / une parabole
-            for lx in (x, x + 34 * s):
-                c.line([(lx, h), (x + 17 * s, h - 120 * s)], (90, 96, 104), 1.2)
-            for k in range(1, 5):
-                c.line([(x + k * 3.4 * s, h - k * 24 * s), (x + 34 * s - k * 3.4 * s, h - k * 24 * s)], (90, 96, 104), 0.7)
-            c.chord(x - 16 * s, h - 176 * s, x + 54 * s, h - 110 * s, 300, 120, (196, 202, 206))
-            c.chord(x - 4 * s, h - 168 * s, x + 54 * s, h - 118 * s, 300, 120, (140, 148, 156))
-            c.line([(x + 20 * s, h - 143 * s), (x - 14 * s, h - 160 * s)], (60, 64, 70), 0.8)
-            blinks.append((x + 17 * s, h - 122 * s))
-            x += 70 * s
-        elif r < 0.8:                                                            # a mast and its stays / un mât haubané
-            c.line([(x + 30 * s, h), (x + 30 * s, h - 200 * s)], (80, 84, 92), 1.2)
-            for k in (60, 120, 180):
-                c.line([(x + 30 * s, h - k * s), (x, h)], (70, 74, 82), 0.4)
-                c.line([(x + 30 * s, h - k * s), (x + 60 * s, h)], (70, 74, 82), 0.4)
-            blinks.append((x + 30 * s, h - 200 * s))
-            x += 70 * s
-        else:                                                                    # a boiler house / une chaufferie
-            w, hh = 110 * s, 70 * s
-            col = (150, 144, 138)
-            c.rect(x, h - hh, x + w, h, col)
-            c.rect(x + w * 0.86, h - hh, x + w, h, shade(col, 0.7))
-            c.rect(x + w * 0.6, h - hh - 60 * s, x + w * 0.74, h - hh, (120, 110, 104))
-            snow_cap(c, x, x + w, h - hh, s, rng)
-            stacks.append((x + w * 0.67, h - hh - 62 * s))
-            x += w
-        x += rng.uniform(30, 110) * s
-    layers.append({"img": c.done(tex.resize((tw, h)), 0.10, haze, 0.34), "y": hz - h + int(26 * s), "f": 0.16, "stage": "far",
-                   "stacks": stacks, "blinks": blinks})
-
-    h = int(300 * s)                                                             # the camp / le camp
+    h = int(300 * s)                                                 # the woods, and a town on the far bank / les bois, une ville au loin
+    sh = Sheet(tw, h, s)
     base = h - 1
-    c = Canvas(tw, h)
-    fires = []
-    for px in range(0, tw, int(70 * s)):                                         # the fence / la clôture
-        c.line([(px + 10 * s, base), (px + 10 * s, base - 84 * s)], (70, 74, 80), 1.4)
-        c.line([(px + 10 * s, base - 84 * s), (px + 22 * s, base - 96 * s)], (70, 74, 80), 1.0)
-    for k in (30, 52, 74):
-        c.line([(0, base - k * s), (tw, base - k * s)], (96, 100, 108), 0.4)
-    c.line([(0, base - 92 * s), (tw, base - 92 * s)], (96, 100, 108), 0.5)
-    x = 16 * s
-    while x < tw - 280 * s:
-        r = rng.random()
-        if r < 0.36:                                                             # a bunker / une casemate
-            w, hh = rng.uniform(170, 260) * s, rng.uniform(80, 130) * s
-            col = rng.choice(((150, 152, 150), (136, 140, 140), (160, 158, 150)))
-            c.poly([(x, base), (x + 14 * s, base - hh), (x + w - 14 * s, base - hh), (x + w, base)], col)
-            c.poly([(x + w - 44 * s, base - hh), (x + w - 14 * s, base - hh), (x + w, base), (x + w - 34 * s, base)], shade(col, 0.72))
-            c.rect(x + w * 0.2, base - hh * 0.62, x + w * 0.66, base - hh * 0.5, (26, 28, 34))       # its slit / sa meurtrière
-            c.rect(x + w * 0.2, base - hh * 0.5, x + w * 0.66, base - hh * 0.46, shade(col, 1.14))
-            c.rect(x + w * 0.38, base - 44 * s, x + w * 0.52, base, (50, 54, 60))
-            for _ in range(3):
-                cx, cy = x + rng.uniform(0.15, 0.7) * w, base - rng.uniform(0.2, 0.9) * hh
-                c.line([(cx, cy), (cx + rng.uniform(-8, 8) * s, cy + rng.uniform(10, 24) * s)], shade(col, 0.6), 0.7)
-            snow_cap(c, x + 14 * s, x + w - 14 * s, base - hh, s, rng, 9)
-            if rng.random() < 0.3:
-                fires.append((x + w * 0.5, base - hh - 10 * s))
-            x += w
-        elif r < 0.56:                                                           # a lorry under its cover / un camion bâché
-            col = (84, 100, 76)
-            c.rect(x, base - 62 * s, x + 110 * s, base - 16 * s, shade(col, 1.1))
-            c.rect(x + 86 * s, base - 62 * s, x + 110 * s, base - 16 * s, shade(col, 0.8))
-            for k in range(1, 5):
-                c.line([(x + k * 22 * s, base - 62 * s), (x + k * 22 * s, base - 16 * s)], shade(col, 0.8), 0.6)
-            c.poly([(x + 114 * s, base - 16 * s), (x + 114 * s, base - 50 * s), (x + 140 * s, base - 50 * s), (x + 156 * s, base - 30 * s),
-                    (x + 156 * s, base - 16 * s)], col)
-            c.poly([(x + 120 * s, base - 46 * s), (x + 138 * s, base - 46 * s), (x + 150 * s, base - 32 * s), (x + 120 * s, base - 32 * s)], (40, 50, 60))
-            for wx in (x + 24 * s, x + 80 * s, x + 136 * s):
-                c.ellipse(wx - 13 * s, base - 26 * s, wx + 13 * s, base, (26, 26, 30))
-                c.ellipse(wx - 5 * s, base - 18 * s, wx + 5 * s, base - 8 * s, (90, 90, 96))
-            snow_cap(c, x, x + 110 * s, base - 62 * s, s, rng, 6)
-            x += 170 * s
-        elif r < 0.72:                                                           # tanks of fuel / des cuves
-            for i in range(rng.randint(1, 2)):
-                tx = x + i * 84 * s
-                col = (170, 176, 180)
-                c.rect(tx, base - 90 * s, tx + 72 * s, base, col)
-                c.rect(tx + 50 * s, base - 90 * s, tx + 72 * s, base, shade(col, 0.7))
-                c.rect(tx + 4 * s, base - 90 * s, tx + 12 * s, base, shade(col, 1.12))
-                for k in (30, 60):
-                    c.line([(tx, base - k * s), (tx + 72 * s, base - k * s)], shade(col, 0.6), 0.8)
-                c.ellipse(tx, base - 98 * s, tx + 72 * s, base - 82 * s, SNOW)
-            x += 170 * s
-        elif r < 0.86:                                                           # a watchtower / un mirador
-            for lx in (x, x + 50 * s):
-                c.line([(lx, base), (lx + (8 * s if lx == x else -8 * s), base - 150 * s)], (96, 76, 56), 1.8)
-            c.line([(x, base - 50 * s), (x + 50 * s, base - 100 * s)], (96, 76, 56), 0.9)
-            c.line([(x + 50 * s, base - 50 * s), (x, base - 100 * s)], (96, 76, 56), 0.9)
-            c.rect(x - 4 * s, base - 186 * s, x + 54 * s, base - 150 * s, (120, 96, 70))
-            c.rect(x + 2 * s, base - 180 * s, x + 48 * s, base - 164 * s, (30, 32, 40))
-            c.poly([(x - 12 * s, base - 186 * s), (x + 25 * s, base - 206 * s), (x + 62 * s, base - 186 * s)], (84, 66, 52))
-            c.poly([(x - 8 * s, base - 188 * s), (x + 25 * s, base - 208 * s), (x + 58 * s, base - 188 * s), (x + 25 * s, base - 196 * s)], SNOW)
-            x += 80 * s
+    sh.poly([(0, h)] + [(x, base - 30 * s + math.sin(x / (190 * s)) * 7 * s) for x in range(0, tw + 1, 12)] + [(tw, h)], (104, 116, 70))
+    town0, town1 = tw * 0.50, tw * 0.74
+    x = town0
+    while x < town1:                                                 # roofs and domes in the haze / des toits et des dômes
+        w, bh = rng.uniform(50, 110) * s, rng.uniform(50, 130) * s
+        col = rng.choice(PLASTER)
+        sh.rect(x, base - 28 * s - bh, x + w, base - 20 * s, col, "cast")
+        sh.rect(x + w * 0.8, base - 28 * s - bh, x + w, base - 20 * s, None, "dark", 150)
+        if rng.random() < 0.3:
+            sh.d.chord([(x + w * 0.2) * 2, (base - 28 * s - bh - w * 0.3) * 2, (x + w * 0.8) * 2, (base - 28 * s - bh + w * 0.3) * 2], 180, 360, fill=(120, 132, 124))
         else:
-            for i in range(rng.randint(2, 4)):
-                pine(c, x + i * 50 * s, base, rng.uniform(120, 210) * s, s, rng, (44, 78, 68), snow=SNOW)
-            x += 180 * s
-        x += rng.uniform(30, 90) * s
-    c.soft([(0, base - 12 * s), (tw, base - 12 * s), (tw, base + 4), (0, base + 4)], (120, 140, 170, 120), 5 * s)
-    layers.append({"img": c.done(tex.resize((tw, h)), 0.12, haze, 0.08), "y": H - h - int(40 * s), "f": 0.38, "stage": "mid", "fires": some(rng, fires, FIRES)})
+            sh.poly([(x - 4 * s, base - 28 * s - bh), (x + w * 0.5, base - 28 * s - bh - 18 * s), (x + w + 4 * s, base - 28 * s - bh)], (120, 84, 64), "cast")
+        cx = x + 8 * s
+        while cx < x + w * 0.76:
+            if rng.random() < 0.3:
+                sh.rect(cx, base - 28 * s - bh * 0.6, cx + 5 * s, base - 28 * s - bh * 0.6 + 9 * s, (255, 206, 130))
+                sh.rect(cx - 2 * s, base - 30 * s - bh * 0.6, cx + 7 * s, base - 17 * s - bh * 0.6, None, "lamp", 160)
+            cx += 14 * s
+        x += w + rng.uniform(-6, 10) * s
+    x = rng.uniform(20, 90) * s
+    while x < tw - 60 * s:
+        if not (town0 - 40 * s < x < town1 + 40 * s) or rng.random() < 0.2:
+            leafy(sh, x, base - 24 * s, rng.uniform(150, 250) * s, s, rng)
+        x += rng.uniform(70, 190) * s
+    layers.append({"img": sh.finish(rng, dict(mood, wall=(0.74, 0.70, 0.58)), depth=0.18, blur=0.8, tex=0.6), "y": H - int(150 * s) - h, "f": 0.16,
+                   "stage": "far"})
 
-    def props(c, x, gy):
-        r = rng.random()
-        if r < 0.3:                                                              # steel against tanks / des hérissons
-            for i in range(rng.randint(2, 3)):
-                bx = x + i * 50 * s
-                for (a, b) in (((bx, gy + 6 * s), (bx + 34 * s, gy - 26 * s)), ((bx + 34 * s, gy + 6 * s), (bx, gy - 26 * s)),
-                               ((bx + 17 * s, gy + 8 * s), (bx + 17 * s, gy - 30 * s))):
-                    c.line([a, b], (70, 72, 80), 3.0)
-                    c.line([(a[0] - 1 * s, a[1] - 1 * s), (b[0] - 1 * s, b[1] - 1 * s)], (130, 134, 142), 0.8)
-            return 150 * s
-        if r < 0.55:
-            return sandbags(c, x, gy, s, rng, cols=((150, 150, 140), (138, 140, 132), (160, 160, 150)), cap=SNOW)
-        if r < 0.78:
-            for i in range(rng.randint(1, 3)):
-                drum(c, x + i * 24 * s, gy, s, rng.choice(((150, 60, 44), (84, 104, 70), (70, 96, 130))))
-                c.ellipse(x + i * 24 * s, gy - 36 * s, x + i * 24 * s + 20 * s, gy - 27 * s, SNOW)
-            return 80 * s
-        crate(c, x, gy + 6 * s, 38 * s, 30 * s, s, (124, 132, 92))
-        c.rect(x - 2 * s, gy - 28 * s, x + 40 * s, gy - 23 * s, SNOW)
-        return 60 * s
-    layers.append(ground_layer(tw, H, s, rng, (236, 242, 250), props, tex=0.07, shade_k=(150, 170, 204, 110), edge=(150, 170, 204, 90)))
+    h = int(400 * s)                                                 # the track, the train, what it passes / la voie, le train
+    sh = Sheet(tw, h, s)
+    base = h - 1
+    ry = base - 112 * s
+    b0, b1 = tw * 0.24, tw * 0.24 + 560 * s                          # where the bridge is / où est le pont
+    d0 = tw * 0.56                                                   # where the depot is / où est le dépôt
+    depot(sh, d0, ry, 540 * s, s, rng, mood)
+    hx = 70 * s                                                      # the hut of the halt and its signal
+    col = (132, 104, 76)
+    sh.rect(hx, ry - 92 * s, hx + 150 * s, ry, col, "cast")
+    i = 1
+    while i * 10 * s < 150 * s:
+        sh.line([(hx + i * 10 * s, ry - 92 * s), (hx + i * 10 * s, ry)], shade(col, 0.72), 1.0 * s)
+        i += 1
+    sh.poly([(hx - 14 * s, ry - 90 * s), (hx + 60 * s, ry - 122 * s), (hx + 164 * s, ry - 90 * s)], (84, 62, 50), "cast")
+    opening(sh, hx + 40 * s, ry - 28 * s, 26 * s, 34 * s, s, rng, col, dict(mood, lamps=1.0), kind="void", soot=0)
+    opening(sh, hx + 108 * s, ry, 28 * s, 62 * s, s, rng, col, mood, kind="void", soot=0)
+    lantern(sh, hx + 158 * s, ry - 70 * s, s, 80)
+    sx = hx + 230 * s
+    sh.line([(sx, ry), (sx, ry - 190 * s)], (70, 66, 62), 3.4 * s, "cast")
+    sh.poly([(sx, ry - 186 * s), (sx + 46 * s, ry - 176 * s), (sx + 46 * s, ry - 166 * s), (sx, ry - 176 * s)], (150, 60, 44), "cast")
+    sh.ellipse(sx - 5 * s, ry - 164 * s, sx + 5 * s, ry - 154 * s, (255, 96, 70))
+    sh.ellipse(sx - 9 * s, ry - 168 * s, sx + 9 * s, ry - 150 * s, None, "glowR")
+    sh.poly([(0, ry + 2 * s), (tw, ry + 2 * s), (tw, h), (0, h)], (132, 150, 84))                    # the bank under the track, in grass
+    sh.rect(0, ry + 20 * s, tw, ry + 60 * s, None, "Light", 110)
+    sh.poly([(0, ry + 2 * s), (tw, ry + 2 * s), (tw, ry + 20 * s), (0, ry + 20 * s)], (112, 100, 88))
+    for _ in range(int(tw / (10 * s))):
+        gx, gy = rng.uniform(0, tw), rng.uniform(ry + 22 * s, base)
+        if not (b0 - 90 * s < gx < b1 + 90 * s):
+            cg = shade((122, 134, 72), rng.uniform(0.7, 1.15))
+            sh.line([(gx, gy), (gx + rng.uniform(-5, 5) * s, gy - rng.uniform(8, 18) * s)], cg, 1.0 * s)
+    trestle(sh, b0, b1, ry, base, s, rng, mood)
+    x = sx + 70 * s
+    stack = None
+    for kind in ("box", "tarp", "armour", "tank", "box", "crates", "armour", "tender", "loco"):
+        if kind == "box":
+            x += boxcar(sh, x, ry, s, rng)
+        elif kind == "armour":
+            x += armoured(sh, x, ry, s, rng)
+        elif kind == "tank":
+            x += tankcar(sh, x, ry, s, rng)
+        elif kind == "tender":
+            x += tender(sh, x, ry, s, rng)
+        elif kind == "loco":
+            L, stack = locomotive(sh, x, ry, s, rng)
+            x += L
+        else:
+            x += flatcar(sh, x, ry, s, rng, kind)
+        x += 8 * s
+    bx = 0.0
+    while bx < tw:                                                   # the sleepers, the rail / les traverses, le rail
+        sh.rect(bx, ry + 2 * s, bx + 12 * s, ry + 8 * s, (62, 50, 42))
+        bx += 24 * s
+    sh.rect(0, ry - 2.2 * s, tw, ry + 2 * s, (58, 54, 54))
+    sh.rect(0, ry - 2.2 * s, tw, ry - 1.0 * s, (186, 170, 150))
+    img = sh.finish(rng, mood, depth=0.02, tex=0.8)
+    if stack:
+        cx, cy = stack
+        puff(img, [(cx - i * 46 * s + rng.uniform(-8, 8) * s, max(64 * s, cy - 8 * s - i * 7 * s), min(30, 10 + i * 4) * s) for i in range(13)], (255, 226, 176), 10 * s, 0.78)
+    layers.append({"img": img, "y": H - h - int(30 * s), "f": 0.38, "stage": "mid", "stacks": [stack] if stack else [],
+                   "lights": some(rng, sh.lamps, LIGHTS)})
+
+    h = int(70 * s)                                                  # reeds and grass in front, over land as over water
+    sh = Sheet(tw, h, s)
+    fn = hd_bg.periodic(tw, rng, 5, 6 * s)
+    sh.poly([(0, h)] + [(x, h * 0.55 + fn(x)) for x in range(0, tw + 1, 8)] + [(tw, h)], (70, 80, 52))
+    for _ in range(int(tw / (5 * s))):
+        gx = rng.uniform(0, tw)
+        gy = h * 0.55 + fn(gx) + rng.uniform(0, 14) * s
+        cg = shade((104, 118, 64), rng.uniform(0.6, 1.2))
+        sh.line([(gx, gy), (gx + rng.uniform(-8, 8) * s, gy - rng.uniform(14, 40) * s)], cg, 1.2 * s)
+        if rng.random() < 0.08:                                      # a reed mace / une massette
+            sh.line([(gx, gy), (gx, gy - 44 * s)], (96, 104, 60), 1.2 * s)
+            sh.rect(gx - 1.8 * s, gy - 52 * s, gx + 1.8 * s, gy - 40 * s, (84, 60, 42))
+    sh.rect(0, h * 0.8, tw, h + 4, None, "Dark", 170)
+    layers.append({"img": sh.finish(rng, mood, tex=0.7, bump_k=0.3, blur=0.5), "y": H - h, "f": 1.0, "stage": "near"})
+
     from . import hd_stages
-    amb = {"stars": (), "horizon": hz, "snow": True, "explosions": True, "plane": "heli", "plane_color": (60, 66, 76),
-           "blink": (255, 40, 30), "hooks": {"mid": [hd_stages.hook_fires], "far": [hd_stages.hook_stacks]}}
+    amb = {"stars": (), "horizon": hz, "sun": sun, "explosions": True, "plane": "bomber", "plane_color": (60, 60, 66),
+           "dust": mood["dust"], "window": (255, 180, 90), "hooks": {"mid": [hd_stages.hook_stacks]}}
+    sky = mood["grade"](sky)
     sky, layers = settled(sky, layers, W)
     return {"sky": sky, "layers": layers, "tw": tw, "amb": amb}
 
 
-# ---- BUILDERS (at the end of the module / à la fin du module)
-PLACES = {"ms_town": build_town, "ms_ruins": build_ruins, "ms_rail": build_rail, "ms_port": build_port, "ms_city": build_city,
-          "ms_base": build_base}
+# missions 4 to 6 and the sky of the last boss, then all of them add themselves to the builders
+# / les missions 4 à 6 et le ciel du dernier boss, puis tous s'ajoutent aux décors
+from . import hd_stages_ms2  # noqa: E402
+
+PLACES = {"ms_town": town, "ms_ruins": tomb, "ms_rail": rail, "ms_port": hd_stages_ms2.street, "ms_city": hd_stages_ms2.tunnels,
+          "ms_base": hd_stages_ms2.snow_mine}
+BOSS_PLACES = {"ms_storm": hd_stages_ms2.storm_base}     # not a mission: the sky of a boss / pas une mission : le ciel d'un boss
 hd_bg.BUILDERS.update(PLACES)
+hd_bg.BUILDERS.update(BOSS_PLACES)

@@ -697,6 +697,8 @@ class MetalSlugScene:
         self.was_attract = False
         self._stages_key = object()
         self._stages = list(hd_stages.MISSION_STAGES)
+        self._boss_stages = {}                   # mission -> the backdrop its boss brings / le décor que son boss amène
+        self._boss_theme = None                  # the one on the screen now, if any / celui qui est à l'écran
         self.credits = None
         self.coin_t = -99.0
         self.time_v = None
@@ -1101,11 +1103,18 @@ class MetalSlugScene:
             self.slide_t = now
             self.slide_i = (self.slide_i + 1) % len(stages)
             self.bd.set_theme(stages[self.slide_i], now)
-        if self.was_attract and not attract and self.mission is None:  # la partie commence, sans numéro de mission connu
-            self.bd.set_theme(stages[0], now)
+        if self.was_attract and not attract:
+            # the game begins: the backdrop of its mission, the first when the game has not said which. The slide show of
+            # the attract mode had left its own (Metal Slug 2 gives its mission from the attract mode on: after nine
+            # seconds of it, mission 1 was played in front of the place of mission 2)
+            # / la partie commence : le décor de sa mission, le premier si le jeu ne l'a pas dite. Le diaporama de
+            # l'écran d'attente laissait le sien
+            self.slide_i = 0
+            self.bd.set_theme(stages[(max(1, int(self.mission)) - 1) % len(stages)] if self.mission is not None else stages[0], now)
         self.was_attract = attract
         self.time_v = _n(vals.get("time"))
         self._boss(vals, now, anyone and not attract, self.boss_slots(eng))
+        self._boss_backdrop(stages, now)
         self.fx.update(now)
 
     # ------------------------------------------------------------ the boss of the mission / le boss de la mission
@@ -1420,8 +1429,32 @@ class MetalSlugScene:
             lst = (g.get("hd") or {}).get("stages")
             self._stages = [s for s in lst if s in hd_stages.hd_bg.BUILDERS] if lst else list(hd_stages.MISSION_STAGES)
             self._stages_key = key
-            self.bd.prebuild(self._stages)
+            # the backdrop a mission's boss brings with it ("boss_stages": {"6": "ms_storm"}): the sky changes when the
+            # boss of that mission comes, not before / le décor qu'amène le boss d'une mission : le ciel change à son arrivée
+            bs = (g.get("hd") or {}).get("boss_stages")
+            self._boss_stages = {}
+            for k, v in (bs.items() if isinstance(bs, dict) else ()):
+                if str(k).isdigit() and v in hd_stages.hd_bg.BUILDERS:
+                    self._boss_stages[int(k)] = v
+            self._boss_theme = None
+            self.bd.prebuild(self._stages + [v for v in self._boss_stages.values() if v not in self._stages])
         return self._stages
+
+    def _boss_backdrop(self, stages, now):
+        """The backdrop of the mission's boss while it is fought, the mission's own before and after. A big enemy that is
+        not the boss changes nothing. / Le décor du boss de la mission pendant qu'on le combat, celui de la mission
+        avant et après. Un gros ennemi qui n'est pas le boss ne change rien."""
+        B = self.boss
+        m = self.mission
+        want = self._boss_stages.get(int(m)) if B is not None and not B.get("minor") and m is not None and B.get("mission") == m else None
+        if want == self._boss_theme:
+            return
+        if want is not None:
+            self.bd.set_theme(want, now)
+            self.fx.flash((200, 220, 255), 0.3, 0.5)
+        elif m is not None and self._boss_theme is not None:
+            self.bd.set_theme(stages[(max(1, int(m)) - 1) % len(stages)], now)
+        self._boss_theme = want
 
     def _show_mission(self, theme, m):
         self.bd.set_theme(theme, self.fx.now)
