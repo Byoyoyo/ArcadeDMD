@@ -570,9 +570,13 @@ def panel_img(side, s, accent):
         sd.polygon([(x, 6 * k), (x + 12 * k, 6 * k), (x - 34 * k, 66 * k), (x - 46 * k, 66 * k)], fill=34)
     img.paste(accent + (255,), (0, 0), ImageChops.multiply(stripes, mask))
     d.line([(16 * k, 72 * k), (w - 16 * k, 72 * k)], fill=accent + (110,), width=max(1, int(2 * k)))
-    d.rounded_rectangle([16 * k, 184 * k, (PW - 16) * k, 314 * k], radius=12 * k, fill=(0, 0, 0, 96), outline=accent + (80,),
+    # the card of the weapon and the window behind the weapon. Drawing here sets the pixels, it does not lay a tint over
+    # them: the two used to be nearly see-through (96 and 12 of 255) and a bright backdrop came through, washing out the
+    # weapon's name and the invitation of the second player. Dark enough now to read on any backdrop (1.39.3)
+    # / le cadre de l'arme et la fenêtre derrière l'arme : presque transparents avant, un fond clair les traversait
+    d.rounded_rectangle([16 * k, 184 * k, (PW - 16) * k, 314 * k], radius=12 * k, fill=CARD, outline=accent + (80,),
                         width=max(1, int(2 * k)))
-    d.rounded_rectangle([(PW - 226) * k, 192 * k, (PW - 24) * k, 306 * k], radius=10 * k, fill=(255, 255, 255, 12))
+    d.rounded_rectangle([(PW - 226) * k, 192 * k, (PW - 24) * k, 306 * k], radius=10 * k, fill=CARD_WINDOW)
     d.line([(16 * k, 324 * k), (w - 16 * k, 324 * k)], fill=(255, 255, 255, 34), width=max(1, int(k)))
     d.line(shape + [shape[0]], fill=accent + (170,), width=max(2, int(3 * k)))
     inner = [(cut + 8 * k, 7 * k), (w - 8 * k, 7 * k), (w - 8 * k, h - 9 * k - cut), (w - 9 * k - cut, h - 8 * k),
@@ -589,6 +593,8 @@ def panel_img(side, s, accent):
 # all round, and a small cut at the bottom takes up the shape of the panel. It was a rounded rectangle whose corner
 # touched the inner line of the frame (1.39.3)
 # / la pastille J1 / J2 d'un panneau : son coin extérieur est coupé comme le biais du cadre, avec le même écart partout
+CARD = (0, 0, 0, 175)                # the card of the weapon in a panel / le cadre de l'arme dans un panneau
+CARD_WINDOW = (38, 46, 74, 205)      # the window behind the weapon / la fenêtre derrière l'arme
 CHIP = ((42, 16), (104, 16), (104, 52), (96, 60), (20, 60), (20, 38))
 CHIP_BOX = (112, 66)             # the size of its picture, laid at the panel's own corner / la taille de son image
 CHIP_MID = (64, 38)              # where J1 is written / où s'écrit J1

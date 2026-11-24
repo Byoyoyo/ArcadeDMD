@@ -9,9 +9,13 @@ Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `con
 ## 1.39.3
 
 ### English
+- Metal Slug 2 has a backdrop for each mission, the place the mission is played in: a town of the desert, ruins and pyramids, a railway in the mountains, a harbour town, a big city by night, a base in the snow.
+- The card of the weapon in the Metal Slug, Mercs and Shock Troopers 2nd Squad panels is darker. A bright backdrop no longer comes through it.
 - The J1 and J2 chip of the Metal Slug, Mercs and Shock Troopers 2nd Squad panels has its corner cut like the frame. It no longer touches the frame's inner line.
 
 ### Français
+- Metal Slug 2 a un décor par mission, le lieu où la mission se joue. Une ville du désert, des ruines et des pyramides, une voie ferrée en montagne, une ville portuaire, une grande ville la nuit, une base sous la neige.
+- Le cadre de l'arme des panneaux de Metal Slug, Mercs et Shock Troopers 2nd Squad est plus sombre. Un fond clair ne le traverse plus.
 - La pastille J1 et J2 des panneaux de Metal Slug, Mercs et Shock Troopers 2nd Squad a son coin coupé comme le cadre. Elle ne touche plus le trait intérieur du cadre.
 
 ## 1.39.2
