@@ -570,9 +570,13 @@ def panel_img(side, s, accent):
         sd.polygon([(x, 6 * k), (x + 12 * k, 6 * k), (x - 34 * k, 66 * k), (x - 46 * k, 66 * k)], fill=34)
     img.paste(accent + (255,), (0, 0), ImageChops.multiply(stripes, mask))
     d.line([(16 * k, 72 * k), (w - 16 * k, 72 * k)], fill=accent + (110,), width=max(1, int(2 * k)))
-    d.rounded_rectangle([16 * k, 184 * k, (PW - 16) * k, 314 * k], radius=12 * k, fill=(0, 0, 0, 96), outline=accent + (80,),
+    # the card of the weapon and the window behind the weapon. Drawing here sets the pixels, it does not lay a tint over
+    # them: the two used to be nearly see-through (96 and 12 of 255) and a bright backdrop came through, washing out the
+    # weapon's name and the invitation of the second player. Dark enough now to read on any backdrop (1.39.3)
+    # / le cadre de l'arme et la fenêtre derrière l'arme : presque transparents avant, un fond clair les traversait
+    d.rounded_rectangle([16 * k, 184 * k, (PW - 16) * k, 314 * k], radius=12 * k, fill=CARD, outline=accent + (80,),
                         width=max(1, int(2 * k)))
-    d.rounded_rectangle([(PW - 226) * k, 192 * k, (PW - 24) * k, 306 * k], radius=10 * k, fill=(255, 255, 255, 12))
+    d.rounded_rectangle([(PW - 226) * k, 192 * k, (PW - 24) * k, 306 * k], radius=10 * k, fill=CARD_WINDOW)
     d.line([(16 * k, 324 * k), (w - 16 * k, 324 * k)], fill=(255, 255, 255, 34), width=max(1, int(k)))
     d.line(shape + [shape[0]], fill=accent + (170,), width=max(2, int(3 * k)))
     inner = [(cut + 8 * k, 7 * k), (w - 8 * k, 7 * k), (w - 8 * k, h - 9 * k - cut), (w - 9 * k - cut, h - 8 * k),
@@ -583,6 +587,38 @@ def panel_img(side, s, accent):
         d.ellipse([x - r, y - r, x + r, y + r], fill=(180, 186, 200, 90))
     img = img.resize((W, H), Image.LANCZOS)
     return img if side == "p1" else ImageOps.mirror(img)
+
+
+# the J1 / J2 chip of a panel, in the panel's own units: its outer top corner is cut along the frame's bevel, the same gap
+# all round, and a small cut at the bottom takes up the shape of the panel. It was a rounded rectangle whose corner
+# touched the inner line of the frame (1.39.3)
+# / la pastille J1 / J2 d'un panneau : son coin extérieur est coupé comme le biais du cadre, avec le même écart partout
+CARD = (0, 0, 0, 175)                # the card of the weapon in a panel / le cadre de l'arme dans un panneau
+CARD_WINDOW = (38, 46, 74, 205)      # the window behind the weapon / la fenêtre derrière l'arme
+CHIP = ((42, 16), (104, 16), (104, 52), (96, 60), (20, 60), (20, 38))
+CHIP_BOX = (112, 66)             # the size of its picture, laid at the panel's own corner / la taille de son image
+CHIP_MID = (64, 38)              # where J1 is written / où s'écrit J1
+
+
+def chip_img(side, s, accent):
+    """The J1 / J2 chip, drawn for J1 then mirrored for J2, to lay at the panel's top outer corner.
+    / La pastille J1 / J2, dessinée pour J1 puis retournée pour J2, à poser au coin extérieur du panneau."""
+    ss = 4
+    w, h = max(1, int(CHIP_BOX[0] * s)), max(1, int(CHIP_BOX[1] * s))
+    img = Image.new("RGBA", (w * ss, h * ss), (0, 0, 0, 0))
+    k = s * ss
+    ImageDraw.Draw(img).polygon([(x * k, y * k) for x, y in CHIP], fill=accent + (255,))
+    img = img.resize((w, h), Image.LANCZOS)
+    return img if side == "p1" else ImageOps.mirror(img)
+
+
+def chip_at(pg, surf, side, x0, y0, S):
+    """Where the chip's picture goes for a panel at (x0, y0), and the rectangle J1 is written in.
+    / Où poser l'image de la pastille pour un panneau en (x0, y0), et le rectangle où s'écrit J1."""
+    x = x0 if side == "p1" else x0 + S(PW) - surf.get_width()
+    box = pg.Rect(0, 0, S(84), S(44))
+    box.center = (x0 + S(CHIP_MID[0]) if side == "p1" else x0 + S(PW) - S(CHIP_MID[0]), y0 + S(CHIP_MID[1]))
+    return (x, y0), box
 
 
 # ---------------------------------------------------------------------------- un joueur
@@ -661,6 +697,8 @@ class MetalSlugScene:
         self.was_attract = False
         self._stages_key = object()
         self._stages = list(hd_stages.MISSION_STAGES)
+        self._boss_stages = {}                   # mission -> the backdrop its boss brings / le décor que son boss amène
+        self._boss_theme = None                  # the one on the screen now, if any / celui qui est à l'écran
         self.credits = None
         self.coin_t = -99.0
         self.time_v = None
@@ -679,6 +717,7 @@ class MetalSlugScene:
         self.in_attract = False
         self.pills = {}
         self.panels = {side: hd._surf(panel_img(side, s, ACCENT[side])) for side in ("p1", "p2")}
+        self.chips = {side: hd._surf(chip_img(side, s, ACCENT[side])) for side in ("p1", "p2")}
         self.weapons = {}
         self.rides = {}                          # the vehicles' pictures, (kind, side) / les dessins des véhicules
         self.ride_own = {}                       # kind -> the owner's own picture / sa propre image
@@ -1064,11 +1103,18 @@ class MetalSlugScene:
             self.slide_t = now
             self.slide_i = (self.slide_i + 1) % len(stages)
             self.bd.set_theme(stages[self.slide_i], now)
-        if self.was_attract and not attract and self.mission is None:  # la partie commence, sans numéro de mission connu
-            self.bd.set_theme(stages[0], now)
+        if self.was_attract and not attract:
+            # the game begins: the backdrop of its mission, the first when the game has not said which. The slide show of
+            # the attract mode had left its own (Metal Slug 2 gives its mission from the attract mode on: after nine
+            # seconds of it, mission 1 was played in front of the place of mission 2)
+            # / la partie commence : le décor de sa mission, le premier si le jeu ne l'a pas dite. Le diaporama de
+            # l'écran d'attente laissait le sien
+            self.slide_i = 0
+            self.bd.set_theme(stages[(max(1, int(self.mission)) - 1) % len(stages)] if self.mission is not None else stages[0], now)
         self.was_attract = attract
         self.time_v = _n(vals.get("time"))
         self._boss(vals, now, anyone and not attract, self.boss_slots(eng))
+        self._boss_backdrop(stages, now)
         self.fx.update(now)
 
     # ------------------------------------------------------------ the boss of the mission / le boss de la mission
@@ -1383,8 +1429,32 @@ class MetalSlugScene:
             lst = (g.get("hd") or {}).get("stages")
             self._stages = [s for s in lst if s in hd_stages.hd_bg.BUILDERS] if lst else list(hd_stages.MISSION_STAGES)
             self._stages_key = key
-            self.bd.prebuild(self._stages)
+            # the backdrop a mission's boss brings with it ("boss_stages": {"6": "ms_storm"}): the sky changes when the
+            # boss of that mission comes, not before / le décor qu'amène le boss d'une mission : le ciel change à son arrivée
+            bs = (g.get("hd") or {}).get("boss_stages")
+            self._boss_stages = {}
+            for k, v in (bs.items() if isinstance(bs, dict) else ()):
+                if str(k).isdigit() and v in hd_stages.hd_bg.BUILDERS:
+                    self._boss_stages[int(k)] = v
+            self._boss_theme = None
+            self.bd.prebuild(self._stages + [v for v in self._boss_stages.values() if v not in self._stages])
         return self._stages
+
+    def _boss_backdrop(self, stages, now):
+        """The backdrop of the mission's boss while it is fought, the mission's own before and after. A big enemy that is
+        not the boss changes nothing. / Le décor du boss de la mission pendant qu'on le combat, celui de la mission
+        avant et après. Un gros ennemi qui n'est pas le boss ne change rien."""
+        B = self.boss
+        m = self.mission
+        want = self._boss_stages.get(int(m)) if B is not None and not B.get("minor") and m is not None and B.get("mission") == m else None
+        if want == self._boss_theme:
+            return
+        if want is not None:
+            self.bd.set_theme(want, now)
+            self.fx.flash((200, 220, 255), 0.3, 0.5)
+        elif m is not None and self._boss_theme is not None:
+            self.bd.set_theme(stages[(max(1, int(m)) - 1) % len(stages)], now)
+        self._boss_theme = want
 
     def _show_mission(self, theme, m):
         self.bd.set_theme(theme, self.fx.now)
@@ -2177,8 +2247,8 @@ class MetalSlugScene:
         acc = ACCENT[side]
         playing = self.playing(P)
         # en-tête : J1 / J2, état, casques
-        chip = pg.Rect(self.X(side, x0, 18, 84), y0 + S(10), S(84), S(48))
-        pg.draw.rect(screen, acc, chip, border_radius=S(8))
+        at, chip = chip_at(pg, self.chips[side], side, x0, y0, S)
+        screen.blit(self.chips[side], at)
         hd.put(screen, hd.text(tr("J1", "P1") if side == "p1" else tr("J2", "P2"), "stencil", S(36), (24, 14, 8), glow=0), chip.centerx, chip.centery,
                "center", "middle")
         if not playing and (P.over_t is None or now - P.over_t > 5.0):

@@ -893,3 +893,9 @@ for _name in ("city", "temple", "harbor", "ruins", "desert", "jungle", "snow"):
 
 FIGHT_STAGES = ("arena", "fight_city", "fight_temple", "fight_harbor", "fight_ruins", "fight_desert", "fight_snow", "fight_jungle")
 MISSION_STAGES = ("jungle", "desert", "snow", "city_war", "harbor", "base")
+
+
+# the places of Metal Slug 2, one per mission, add themselves to the builders. At the end: they use the hooks above
+# / les lieux de Metal Slug 2, un par mission, s'ajoutent aux décors
+from . import hd_stages_ms
+MISSION_PLACES = tuple(hd_stages_ms.PLACES)

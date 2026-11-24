@@ -26,7 +26,7 @@ import math
 
 from .hd_fx import Particle
 from .hd_games import BTN_A, WHITE, GameScene, Machines, _clamp, _mix, _n
-from .hd_mslug import ACCENT, CREAM, GOLD, GREY, PH, PW, RED, TIP, grenade_img, helmet_img, panel_img, tank_img, weapon_img
+from .hd_mslug import ACCENT, CREAM, GOLD, GREY, PH, PW, RED, TIP, chip_at, chip_img, grenade_img, helmet_img, panel_img, tank_img, weapon_img
 from .i18n import tr
 
 SOLDIERS = ("LEON", "ANGEL", "LULU", "TOY")     # in the order of the game's SOLDIER SELECT screen / dans l'ordre de l'écran
@@ -118,6 +118,7 @@ class SecondSquadScene(Machines, GameScene):
         super().__init__(hd, rng)
         s, S = hd.s, self.S
         self.panels = {side: hd._surf(panel_img(side, s, ACCENT[side])) for side in ("p1", "p2")}
+        self.chips = {side: hd._surf(chip_img(side, s, ACCENT[side])) for side in ("p1", "p2")}
         self.sides = {"p1": Side(), "p2": Side()}
         self.guns = {}
         self.helmet = hd._surf(helmet_img(S(40)))
@@ -718,8 +719,8 @@ class SecondSquadScene(Machines, GameScene):
         x0 = self.x0(side) + (int(math.sin(now * 90) * S(6) * hit) if hit else 0)
         y0 = S(14)
         screen.blit(self.panels[side], (x0, y0))
-        chip = pg.Rect(self.X(side, 18, 84), y0 + S(10), S(84), S(48))
-        pg.draw.rect(screen, acc, chip, border_radius=S(8))
+        at, chip = chip_at(pg, self.chips[side], side, x0, y0, S)
+        screen.blit(self.chips[side], at)
         hd.put(screen, hd.text(tr("J1", "P1") if side == "p1" else tr("J2", "P2"), "stencil", S(36), (24, 14, 8), glow=0), chip.centerx,
                chip.centery, "center", "middle")
         al = "left" if side == "p1" else "right"

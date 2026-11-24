@@ -6,6 +6,22 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 To update, extract the new version over the old one. Your `config.json`, the addresses learned and your own pictures are kept.
 Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `config.json`, les adresses apprises et tes propres images sont gardés.
 
+## 1.39.3
+
+### English
+- Metal Slug 2 has a backdrop for each mission, in a real look and the light of the cinema: a street of the desert at nightfall, a tomb lit by fire, a train at the golden hour, a street of shops, tunnels, a mountain under the snow. Lamps flicker, fires burn.
+- In Metal Slug 2 the sky turns to a storm when the boss of the last mission comes.
+- The Metal Slug games show the backdrop of their mission when a game begins. The slide show of the attract mode could leave another one.
+- The card of the weapon in the Metal Slug, Mercs and Shock Troopers 2nd Squad panels is darker. A bright backdrop no longer comes through it.
+- The J1 and J2 chip of the Metal Slug, Mercs and Shock Troopers 2nd Squad panels has its corner cut like the frame. It no longer touches the frame's inner line.
+
+### Français
+- Metal Slug 2 a un décor par mission, dans un rendu réaliste et une lumière de cinéma. Une rue du désert à la tombée du jour, un tombeau éclairé par le feu, un train à l'heure dorée, une rue commerçante, des tunnels, une montagne sous la neige. Les lampes vacillent, les feux brûlent.
+- Dans Metal Slug 2 le ciel tourne à l'orage quand le boss de la dernière mission arrive.
+- Les Metal Slug montrent le décor de leur mission quand la partie commence. Le diaporama de l'écran d'attente pouvait en laisser un autre.
+- Le cadre de l'arme des panneaux de Metal Slug, Mercs et Shock Troopers 2nd Squad est plus sombre. Un fond clair ne le traverse plus.
+- La pastille J1 et J2 des panneaux de Metal Slug, Mercs et Shock Troopers 2nd Squad a son coin coupé comme le cadre. Elle ne touche plus le trait intérieur du cadre.
+
 ## 1.39.2
 
 ### English
