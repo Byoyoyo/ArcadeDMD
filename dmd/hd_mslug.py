@@ -1487,6 +1487,9 @@ class MetalSlugScene:
         self.fx.flash((255, 220, 160), 0.2, 0.3)
 
     def _firework(self):
+        live = getattr(self, "live", None)
+        if self.dyn and live is not None and live.show is not None and live.show.reading(self.fx.now):
+            return                                                 # the tally is being read / le bilan se lit
         rng = self.rng
         x = self.W / 2 + rng.uniform(-520, 520) * self.s
         y = rng.uniform(50, 170) * self.s
