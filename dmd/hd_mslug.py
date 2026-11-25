@@ -2170,9 +2170,10 @@ class MetalSlugScene:
                 self._draw_panel(target, side, vals, now)
             if self.dyn:
                 self.live.draw_center(target, vals, logo, now)
-                self.live.draw_bar(target, now)
                 if self.live.show is not None:
                     self.live.show.draw(target, now)
+                else:
+                    self.live.draw_bar(target, now)
             else:
                 self._draw_center(target, vals, logo, now)
         self.fx.draw(target, "front")
@@ -2658,6 +2659,8 @@ class MetalSlugScene:
         if self.dyn and self.live.busy(now):                           # the show has the screen / le spectacle tient l'écran
             return
         k = now - self.complete_t
+        if self.dyn and self.live.covers(self.complete_t):             # the game said it during the show: not said late,
+            k = -1.0                                                   # as the show goes / dit pendant le spectacle
         if 0 <= k <= 1.9:                                              # MISSION COMPLETE
             hd, S, W = self.hd, self.S, self.W
             scale = 2.0 - 1.0 * min(1.0, k / 0.18)

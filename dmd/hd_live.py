@@ -311,6 +311,7 @@ class Live:
         self.knocks = {"p1": (0.0, -99.0, 1.0), "p2": (0.0, -99.0, 1.0)}
         self.tally = None
         self.show = None
+        self.span = None                         # when the last show began, when it ended / le dernier spectacle
         self.end_prev = None
         self.bar = None                          # the boss's bar on the screen / la barre du boss à l'écran
         self.bar_a = Tw(0.0)
@@ -362,8 +363,15 @@ class Live:
         """The show or BOSS DESTROYED has the screen: no other banner over it. / Le spectacle ou BOSS DÉTRUIT tient l'écran."""
         return self.show is not None or now - self.down_t < DOWN_T
 
+    def covers(self, t):
+        """That moment fell during the last show: what the scene would have said then was not seen, and is not said late.
+        / Ce moment est tombé pendant le dernier spectacle : ce que la scène aurait dit alors ne se dit pas en retard."""
+        return self.span is not None and self.span[0] <= t and (self.span[1] is None or t <= self.span[1])
+
     def reset(self):
         self.tally = self.show = self.bar = self.boss_ref = None
+        if self.span is not None and self.span[1] is None:
+            self.span[1] = self.now
         self.small = self.low = self.real = False
         for tw in (self.out, self.top, self.bot, self.bar_a):
             tw.set(0.0)
@@ -397,12 +405,14 @@ class Live:
                 and not self.tally.shown and self.tally.sides):
             self.tally.shown = True
             self.show = Show(self, self.tally, now)
+            self.span = [now, None]
         self.end_prev = end
         if self.show is not None:
             if self.show.cut_t is None and (self.show.tally.mission != m or not playing):
                 self.show.cut_t = now                              # the next mission begins: the show gives way
             if self.show.over(now):
                 self.show = None
+                self.span[1] = now
         self._boss(B if real else None, now)
         warn = real and B["down"] is None and now - B["t0"] < WARN_T
         hide = warn or self.show is not None
