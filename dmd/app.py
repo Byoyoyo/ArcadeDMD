@@ -30,7 +30,7 @@ from .capture import Capture
 from .lights import Lights
 from .i18n import tr
 
-VERSION = "1.39.3"
+VERSION = "1.40.0"
 
 DEFAULT_CONFIG = {
     "language": "auto",

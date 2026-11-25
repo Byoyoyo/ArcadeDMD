@@ -6,6 +6,20 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 To update, extract the new version over the old one. Your `config.json`, the addresses learned and your own pictures are kept.
 Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `config.json`, les adresses apprises et tes propres images sont gardés.
 
+## 1.40.0
+
+### English
+- The six Metal Slug games have a lively screen. When the boss of a mission comes, the two cards slide off, WARNING takes the whole screen, then the cards come back small at the bottom and the boss's life runs across the top.
+- A life lost knocks the card back, a vehicle blown up or a boss shot down blows both cards outwards, the weapon's picture turns over when the weapon changes, and the frame of the card beats red on the last life.
+- Each mission ends with a show on the whole screen, during the game's own end-of-mission screens. Prisoners, lives lost, continues, shots, grenades and weapons are counted for each player, then comes the duel of the scores over the curve of the mission, then a rank and medals.
+- In Metal Slug 4, BOSS DESTROYED comes as the boss blows up, no longer five seconds later.
+
+### Français
+- Les six Metal Slug ont un écran vivant. Quand le boss d'une mission arrive, les deux cartes sortent, WARNING prend tout l'écran, puis les cartes reviennent en petit en bas et la vie du boss prend toute la largeur en haut.
+- Une vie perdue repousse la carte, un véhicule détruit ou un boss abattu souffle les deux cartes, l'image de l'arme se retourne quand l'arme change, et le cadre de la carte bat en rouge sur la dernière vie.
+- Chaque mission se termine par un spectacle plein écran, pendant les écrans de fin de mission du jeu. Prisonniers, vies perdues, continues, balles, grenades et armes sont comptés pour chaque joueur, puis vient le duel des scores sur la courbe de la mission, puis un rang et des médailles.
+- Dans Metal Slug 4, BOSS DÉTRUIT arrive quand le boss explose, et plus cinq secondes après.
+
 ## 1.39.3
 
 ### English

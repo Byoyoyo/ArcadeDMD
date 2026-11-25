@@ -35,6 +35,7 @@ from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageOps
 from . import hd_stages
 from .hd_bg import Backdrop
 from .hd_fx import FIRE, FIRE_HOT, FX, SPARK
+from .hd_live import SY, Live
 from .i18n import tr
 
 ACCENT = {"p1": (255, 138, 44), "p2": (64, 200, 255)}
@@ -743,6 +744,10 @@ class MetalSlugScene:
         self.complete_m = None                   # the mission the game said was complete / la mission dite finie
         self.boss_alerts = 0                     # (tests)
         self.boss_downs = 0
+        self.show_time = None
+        self.dyn = False                         # the lively screen (1.40), for the games whose file asks for it with
+        self.live = None                         # "hd": {"dynamic": true}: cards that move, the show of a mission's end
+                                                 # / l'écran vivant, pour les jeux dont le fichier le demande
         self.ride_surf("tank", "p1")             # ready before the first tank (the owner's picture takes a moment)
         sp = self.fx.sp
         for name, img in small_imgs(s).items():
@@ -810,7 +815,14 @@ class MetalSlugScene:
         e = 1 - (1 - k) ** 3 if k < 1 else 1.0
         hidden = -self.S(PW + 40) if side == "p1" else self.W + self.S(40)
         home = self.S(18) if side == "p1" else self.W - self.S(18 + PW)
-        return int(hidden + (home - hidden) * e)
+        x = int(hidden + (home - hidden) * e)
+        return x + self.live.card_dx(side) if self.dyn else x
+
+    @property
+    def small(self):
+        """The cards have their small form (the lively screen, while the boss of the mission is fought).
+        / Les cartes sont en petit (l'écran vivant, pendant le combat contre le boss de la mission)."""
+        return self.dyn and self.live.small
 
     def X(self, side, x0, lx, w=0):
         """Abscisse d'un élément placé à lx du bord extérieur (gauche pour J1, droit pour J2)."""
@@ -1042,6 +1054,7 @@ class MetalSlugScene:
             self.boss_hit, self.boss_top = {}, {}
             self.boss_ref, self.boss_parts = None, set()
             self.boss_dead_prev = self.done_prev = self.complete_m = None
+            self.dyn, self.live = False, None
         dt = 0.0 if self.last is None else max(0.0, min(0.1, now - self.last))
         self.last = now
         self.fx_dt = dt
@@ -1062,6 +1075,12 @@ class MetalSlugScene:
         wc = opts.get("weapon_codes")
         self.weapon_codes = wc if isinstance(wc, dict) else {}
         self.mission_count = bool(opts.get("mission_count"))
+        if opts.get("dynamic") and self.live is None:                  # the lively screen (1.40) / l'écran vivant
+            self.live = Live(self)
+            self.warm = self.live.warm() + self.warm
+        self.dyn = bool(opts.get("dynamic")) and self.live is not None
+        st = opts.get("show_time")               # the length of the end-of-mission show, when the game leaves less time
+        self.show_time = float(st) if isinstance(st, (int, float)) and not isinstance(st, bool) and st > 0 else None
         if attract:
             self.mission_n = 0                                         # the next game counts from 1 / la prochaine partie
         m = _n(vals.get("mission"))
@@ -1116,6 +1135,8 @@ class MetalSlugScene:
         self._boss(vals, now, anyone and not attract, self.boss_slots(eng))
         self._boss_backdrop(stages, now)
         self.fx.update(now)
+        if self.dyn:
+            self.live.update(vals, now, anyone, attract)
 
     # ------------------------------------------------------------ the boss of the mission / le boss de la mission
     def boss_slots(self, eng):
@@ -1380,7 +1401,10 @@ class MetalSlugScene:
                 if B["zero_t"] is not None:
                     # at 0 in a game with a flag (Metal Slug 4): its next phase may fill the entry within a few seconds
                     # (0 then 65526 then 1 then 1000 in the capture of 22:39), else it fell / à 0 : sa phase suivante, sinon tombé
-                    if done or now - B["zero_t"] > PHASE_WAIT:
+                    # (or at once when the game's own end-of-mission routine runs: mission_ending, 1.40; Metal Slug 4's
+                    # runs as Brave Guerrier blows up, five seconds before the wait is over)
+                    # / ou tout de suite quand la routine de fin de mission du jeu tourne
+                    if done or _n(vals.get("mission_ending")) == 1 or now - B["zero_t"] > PHASE_WAIT:
                         fall(B)
                     self.boss_prev = cur
                     return
@@ -1485,6 +1509,8 @@ class MetalSlugScene:
                 P.lives_known = False
                 P.lives_t0 = now
                 P.dealt_t = now
+                if self.dyn:
+                    self.live.count(side, "continues", 1, True)
             if mode == 1 and P.mode not in (1, 2):
                 P.join_t = now
                 P.lives_t0 = now
@@ -1542,6 +1568,8 @@ class MetalSlugScene:
     def _diff(self, side, P, old, cur, inp, now):
         sc, so = cur["score"], old.get("score")
         if sc is not None and so is not None and sc > so:
+            if self.dyn:
+                self.live.count(side, "score", sc - so)
             P.score_t = now
             if now - P.float_t < 0.3:
                 P.float_acc += sc - so
@@ -1582,7 +1610,8 @@ class MetalSlugScene:
                 P.ammo_max = max(P.ammo_max, cur["ammo"])
                 P.weapon_t = now
                 if cur["ammo"] < 60000:                    # 65535 is the pistol's endless ammo, not a gain (the robot's
-                    self.fx.text(f"+{d}", self._ammo_xy(side)[0], self.S(250), GREEN, 40, life=1.0)   # Metal Slug X)
+                    ax, ay = self._ammo_xy(side)           # Metal Slug X)
+                    self.fx.text(f"+{d}", ax, ay - self.S(30) if self.small else self.S(250), GREEN, 40, life=1.0)
         b, bo = cur["bombs"], old.get("bombs")
         go, goo = cur["grenades_out"], old.get("grenades_out")
         if go is not None and go >= 250:                               # the counter wiped with the block / effacé
@@ -1634,6 +1663,8 @@ class MetalSlugScene:
                 self._throws(side, P, n, before)           # explosées entre deux lectures : explosion à la main
         pr, po = cur["prisoners"], old.get("prisoners")
         if pr is not None and po is not None and pr > po:
+            if self.dyn:
+                self.live.count(side, "prisoners", pr - po, True)
             P.prison_t = now
             x, y = self._prisoner_xy(side)
             self.fx.sparks(x, y, 18, GOLD, (200, 600), (200, 340), (0.3, 0.7), 500, "front", 3, 26)
@@ -1698,10 +1729,12 @@ class MetalSlugScene:
         P.tank_t = now
         P.shots = []
         sx, sy = self._slot_xy(side)
-        cx, cy = sx + self.S(95), sy + self.S(54)
+        k = self._slot_k()
+        cx, cy = sx + self.S(95 * k), sy + self.S(54 * k)
         self.fx.glow(cx, cy, 30, 240, GREEN, 0.45)
-        self.fx.smoke(cx, sy + self.S(100), 4, (10, 18), 2.6, (0.5, 0.9), (20, 60), 20, (170, 150, 120), 120, "front")
-        self.fx.text(tr(*RIDE_IN.get(P.ride or "tank", RIDE_IN_ANY)), cx, sy + self.S(96), GREEN, 40, life=1.3, rise=40)
+        self.fx.smoke(cx, sy + self.S(100 * k), 4, (10, 18), 2.6, (0.5, 0.9), (20, 60), 20, (170, 150, 120), 120, "front")
+        self.fx.text(tr(*RIDE_IN.get(P.ride or "tank", RIDE_IN_ANY)), cx, self.S(SY - 18) if self.small else sy + self.S(96 * k), GREEN, 40,
+                     life=1.3, rise=40)
         self.fx.shake(4, 0.25)                                         # over the picture, not the name / sur l'image
 
     def _tank_out(self, side, P, now, hp):
@@ -1709,12 +1742,16 @@ class MetalSlugScene:
         if (hp is not None and hp > 0) or P.ride in MOUNTS:           # left whole, or a mount (no energy): no blast
             return                                                     # / quitté entier, ou le chameau : rien n'explose
         sx, sy = self._slot_xy(side)                                   # détruit : il explose / destroyed: it blows up
-        cx, cy = sx + self.S(95), sy + self.S(54)
+        k = self._slot_k()
+        cx, cy = sx + self.S(95 * k), sy + self.S(54 * k)
         self.fx.explosion(cx, cy, 1.4)
         for i in range(3):
             self.fx.later(0.12 + i * 0.14, self._boom, cx + self.rng.uniform(-60, 60) * self.s, cy + self.rng.uniform(-20, 30) * self.s)
-        self.fx.text(tr(*RIDE_LOST.get(P.ride or "tank", RIDE_LOST_ANY)), cx, sy + self.S(96), RED, 40, life=1.6, rise=40)
+        self.fx.text(tr(*RIDE_LOST.get(P.ride or "tank", RIDE_LOST_ANY)), cx, self.S(SY - 18) if self.small else sy + self.S(96 * k), RED, 40,
+                     life=1.6, rise=40)
         self.fx.shake(9, 0.5)
+        if self.dyn:
+            self.live.blast()                                          # both cards blown outwards / les deux cartes soufflées
 
     def _tank_hit(self, side, P, now, hp):
         P.tank_hit_t = now
@@ -1725,7 +1762,7 @@ class MetalSlugScene:
 
     def _tank_fire(self, side, P):
         """A cannon shell, from the tank to the backdrop. / Un obus du char vers le décor."""
-        if not P.tank:
+        if not P.tank or (self.dyn and self.live.gone()):
             return
         fx, rng = self.fx, self.rng
         x, y = self._tip_xy(side, "tank")
@@ -1733,20 +1770,24 @@ class MetalSlugScene:
         P.recoil_t = fx.now
         fx.muzzle(x, y, d, 1.8, FIRE_HOT)
         tx = self.W / 2 + d * rng.uniform(-40, 260) * self.s
-        ty = self.H * 0.725 + rng.uniform(-20, 30) * self.s
+        ty = self.H * 0.725 + rng.uniform(-20, 30) * self.s - self._aim_up()
         p = fx.projectile("rocket", x + d * self.S(10), y, tx, ty, 0.36, 4, self._shell_hit, spin=0.0, kind="rocket", trail=0.02)
         p.rot = -math.degrees(math.atan2(ty - y, tx - x))
         fx.smoke(x - d * self.S(60), y, 4, (10, 18), 2.6, (0.4, 0.8), (10, 40), 20, (170, 160, 150), 140, "front")
         fx.shake(4, 0.18)
 
     def _tank_vulcan(self, side, P):
+        if self.dyn:
+            self.live.count(side, "shots", 1)                          # one for each press, as the handgun / un par appui
+            if self.live.gone():
+                return
         fx, rng = self.fx, self.rng
         x, y = self._tip_xy(side, "tank")
         d = 1 if side == "p1" else -1
         fx.muzzle(x, y - self.S(6), d, 0.9, FIRE_HOT)
         for i in range(2):
             tx = self.W / 2 + d * rng.uniform(-60, 300) * self.s
-            ty = self.H * 0.725 + rng.uniform(-30, 40) * self.s
+            ty = self.H * 0.725 + rng.uniform(-30, 40) * self.s - self._aim_up()
             fx.tracer(x + d * self.S(18), y - self.S(6), tx, ty, 2400, (255, 220, 120), 4, 150, "front")
 
     def _shell_hit(self, x, y):
@@ -1754,6 +1795,8 @@ class MetalSlugScene:
 
     # ------------------------------------------------------------ effets des événements
     def _score_float(self, side, P, now, score):
+        if self.small:                                           # the small card has no room for it: its score jumps
+            return                                               # / la petite carte n'a pas la place : son score saute
         x = self._score_end_x(side, score)
         txt = f"+{P.float_acc}"
         for p in list(self.fx.parts):                            # un seul « +N » à la fois par joueur
@@ -1771,8 +1814,17 @@ class MetalSlugScene:
         self.fx.sparks(x, y, 14, (255, 90, 60), (200, 600), (0, 360), (0.25, 0.6), 600, "front", 3, 24)
         self.fx.text(tr("-1 VIE", "-1 LIFE"), x, y + self.S(36), RED, 40, life=1.2, rise=50)
         self.fx.shake(6, 0.35)
+        if self.dyn:                                                   # the card takes the blow, the other one barely
+            self.live.count(side, "lives_lost", 1, True)               # moves / la carte encaisse, l'autre bouge à peine
+            self.live.knock(side, 90)
+            self.live.knock("p2" if side == "p1" else "p1", 18, 0.6)
+            self.fx.flash((255, 60, 40), 0.3, 0.3)
 
     def _bombs_found(self, side, n):
+        if self.small:
+            x, y = self._tank_gauge_xy(side)
+            self.fx.text(tr(f"+{n} BOMBES", f"+{n} BOMBS"), x, y - self.S(34), GOLD, 36, life=1.2)
+            return
         self.fx.text(tr(f"+{n} BOMBES", f"+{n} BOMBS"), self._bomb_xy(side, 0)[0] + (self.S(120) if side == "p1" else -self.S(120)),
                      self.S(340), GOLD, 36, life=1.2)
 
@@ -1791,18 +1843,25 @@ class MetalSlugScene:
         if kind == "pistol":
             P.empty_t = now
             P.ammo_max = 1
-            self.fx.text(tr("PLUS DE MUNITIONS", "OUT OF AMMO"), self._card_text_x(side), self.S(232), (255, 120, 90), 30, life=1.2, rise=30,
+            tx, ty = self.live.anchor(side, "text") if self.small else (self._card_text_x(side), self.S(232))
+            self.fx.text(tr("PLUS DE MUNITIONS", "OUT OF AMMO"), tx, ty, (255, 120, 90), 30, life=1.2, rise=30,
                          align="left" if side == "p1" else "right")
             return
+        if self.dyn:
+            self.live.count(side, "weapons", 1, True)
         P.ammo_max = max(1, ammo or 1)
         P.gauge = 0.0
         drop = 0.42                                                    # la caisse tombe dans la carte de l'arme
         P.weapon_t = now + drop
         sx, sy = self._slot_xy(side)
-        cx = sx + self.S(95)
-        p = self.fx.obj("crate", cx, -self.S(60), self.rng.uniform(-30, 30), 300, gravity=2090, vrot=self.rng.uniform(-90, 90),
+        cx = sx + self.S(95 * self._slot_k())
+        land, speed = self.S(250), 300
+        if self.small:                                                 # as far as the small card, in the same time
+            land = sy + self.S(27)                                     # / jusqu'à la petite carte, dans le même temps
+            speed = (land / self.s + 60 - 0.5 * 2090 * drop * drop) / drop
+        p = self.fx.obj("crate", cx, -self.S(60), self.rng.uniform(-30, 30), speed, gravity=2090, vrot=self.rng.uniform(-90, 90),
                         life=drop, rot=self.rng.uniform(-10, 10))
-        p.on_end = (self._crate_open, (side, name, cx, self.S(250)))
+        p.on_end = (self._crate_open, (side, name, cx, land))
 
     def _crate_open(self, side, name, cx, cy):
         fx, rng = self.fx, self.rng
@@ -1815,6 +1874,10 @@ class MetalSlugScene:
         fx.shake(4, 0.2)
 
     def _queue_shots(self, P, now, n):
+        if self.dyn and n <= 60:                                       # every one of them, drawn or not; a count that
+            self.live.count(P.side, "shots", n)                        # falls all at once is no shot (Metal Slug X: 65535
+                                                                       # to 0 as a life is lost; 14 at most at one reading in
+                                                                       # the recorded games) / tous, dessinés ou non
         st = STYLE.get(P.weapon_kind, STYLE["gun"])
         gap = st["gap"]
         if len(P.shots) > 14:
@@ -1843,7 +1906,7 @@ class MetalSlugScene:
             return
         fx.muzzle(x, y, d, st.get("muzzle", 1.0), FIRE_HOT)
         tx = self.W / 2 + d * rng.uniform(-60, 300) * self.s
-        ty = self.H * 0.725 + rng.uniform(-30, 40) * self.s
+        ty = self.H * 0.725 + rng.uniform(-30, 40) * self.s - self._aim_up()
         if st.get("rocket"):
             ang = math.degrees(math.atan2(ty - y, tx - x))
             p = fx.projectile("rocket", x + d * self.S(10), y, tx, ty, 0.42, 6, self._rocket_hit, spin=0.0, kind="rocket", trail=0.026)
@@ -1863,10 +1926,12 @@ class MetalSlugScene:
         if cas:
             px, py = PORT.get(kind, PORT["gun"])
             sx, sy = self._slot_xy(side)
-            ex = sx + (px if side == "p1" else 1 - px) * self.S(190)
-            ey = sy + py * self.S(108)
+            k = self._slot_k()
+            ex = sx + (px if side == "p1" else 1 - px) * self.S(190 * k)
+            ey = sy + py * self.S(108 * k)
             fx.obj(cas, ex, ey, -d * rng.uniform(40, 170), -rng.uniform(240, 380), gravity=1700,
-                   vrot=rng.uniform(-900, 900), life=1.0, floor=self.S(316), bounce=0.35, rot=rng.uniform(0, 360))
+                   vrot=rng.uniform(-900, 900), life=1.0, floor=self.S(SY + 140) if self.small else self.S(316), bounce=0.35,
+                   rot=rng.uniform(0, 360))
 
     # the laser's colours as the beam is held: blue when it starts, then red (orange at the core), then green, as on
     # the screenshots of Metal Slug X (8 November, 13:44:43 blue, 13:44:47 red, 13:44:50 green), two seconds each
@@ -1887,7 +1952,7 @@ class MetalSlugScene:
                 break
             held -= t
         tx = self.W / 2 + d * 230 * self.s
-        ty = self.H * 0.69 + math.sin(now * 9.0) * 2 * self.s
+        ty = self.H * 0.69 + math.sin(now * 9.0) * 2 * self.s - self._aim_up()
         fx.beam(x + d * self.S(6), y, tx, ty, col, 5, 0.06, "front", 1.0, 0.7)
         fx.glow(x + d * self.S(8), y, 10, 16, col, 0.08, "front", 1.0, 0.4, hot=0.6)       # the ball / la boule
         fx.glow(tx, ty, 8, 22, col, 0.1, "back", 0.9, 0.0, hot=0.5)
@@ -1920,6 +1985,8 @@ class MetalSlugScene:
 
     def _throws(self, side, P, n, bombs_before):
         """n grenades leave the row one after the other, the last icons first. / n grenades partent l'une après l'autre."""
+        if self.dyn:
+            self.live.count(side, "grenades", n)
         for i in range(n):
             P.flying += 1
             self.fx.later(i * 0.16, self._throw, side, P, bombs_before - i - 1)
@@ -1935,6 +2002,10 @@ class MetalSlugScene:
         ty = self.H * 0.74 + self.rng.uniform(-8, 26) * self.s
         P.bomb_t = self.fx.now
         self.thrown += 1
+        if self.dyn and self.live.gone():                  # the cards are off the screen: nothing leaves them, and the
+            P.flying = max(0, P.flying - 1)                # counts stay right / les cartes sont sorties : rien n'en part
+            P.early = max(0, P.early - 1)
+            return
         self.fx.glow(x, y, 6, 40, GOLD, 0.25)
         P.flying = max(0, P.flying - 1)
         if P.early > 0:                                    # the game's one already blew up / celle du jeu a déjà explosé
@@ -1978,6 +2049,9 @@ class MetalSlugScene:
         self.fx.explosion(x, y, 1.15)
         self.fx.shake(15 if first else 6, 0.6)
         self.fx.flash((255, 200, 130), 0.24 if first else 0.1, 0.24)
+        if self.dyn and first:
+            for side in ("p1", "p2"):                                  # the cards feel it / les cartes le sentent
+                self.live.knock(side, 34, 0.6)
 
     def _coin(self, now, n):
         """Coins inserted: each one falls onto the credits' coin; one +n CRÉDITS for them all.
@@ -2003,8 +2077,19 @@ class MetalSlugScene:
 
     # ------------------------------------------------------------ positions (pour les effets)
     def _slot_xy(self, side):
+        if self.small:
+            return self.live.anchor(side, "slot")
         x0 = self.x0(side, self.players[side])
         return self.X(side, x0, PW - 222, 190), self.S(195)
+
+    def _aim_up(self):
+        """From the small cards at the bottom, the shots aim higher, over the timer and the credits.
+        / Depuis les petites cartes, en bas, les tirs visent plus haut, au-dessus du chrono et des crédits."""
+        return self.S(70) if self.small else 0
+
+    def _slot_k(self):
+        """The size of the weapon's picture: 1, or a half in the small card. / La taille de l'image de l'arme."""
+        return 0.5 if self.small else 1
 
     def _tip_xy(self, side, kind):
         sx, sy = self._slot_xy(side)
@@ -2014,13 +2099,16 @@ class MetalSlugScene:
         if side == "p2":
             tx = 1 - tx
         kick = max(0.0, 1 - (self.fx.now - P.recoil_t) / 0.08) * self.S(6)
-        return sx + tx * self.S(190) - (kick if side == "p1" else -kick), sy + ty * self.S(108)
+        k = self._slot_k()
+        return sx + tx * self.S(190 * k) - (kick if side == "p1" else -kick), sy + ty * self.S(108 * k)
 
     def _card_text_x(self, side):
         x0 = self.x0(side, self.players[side])
         return self.X(side, x0, 36)
 
     def _ammo_xy(self, side):
+        if self.small:
+            return self.live.anchor(side, "ammo")
         x0 = self.x0(side, self.players[side])
         return self.X(side, x0, PW - 246), self.S(282)
 
@@ -2032,13 +2120,17 @@ class MetalSlugScene:
     def _helmet_xy(self, side, i, n):
         x0 = self.x0(side, self.players[side])
         lx = PW - 24 - 46 - (min(n, 5) - 1 - i) * 52 if n <= 5 else PW - 24 - 46
-        return self.X(side, x0, lx, 46) + self.S(23), self.S(42)
+        return self.X(side, x0, lx, 46) + self.S(23), self.S(SY + 28) if self.small else self.S(42)
 
     def _bomb_xy(self, side, i):
+        if self.small:
+            return self.live.anchor(side, "bomb")
         x0 = self.x0(side, self.players[side])
         return self.X(side, x0, 28 + min(i, 9) * 31, 30) + self.S(15), self.S(370)
 
     def _prisoner_xy(self, side):
+        if self.small:
+            return self.live.anchor(side, "prisoner")
         x0 = self.x0(side, self.players[side])
         return self.X(side, x0, PW - 150, 34) + self.S(17), self.S(370)
 
@@ -2057,15 +2149,16 @@ class MetalSlugScene:
         self.update(eng, now)
         vals = eng.state.values
         self.in_attract = self._attract(vals)
-        for side in ("p1", "p2"):                                   # tirs en attente
+        hidden = self.dyn and self.live.gone()                      # the cards are off the screen: nothing fires from
+        for side in ("p1", "p2"):                                   # them / tirs en attente (pas de cartes sorties)
             P = self.players[side]
             while P.shots and P.shots[0] <= now:
                 P.shots.pop(0)
-                if self.playing(P):
+                if self.playing(P) and not hidden:
                     self._fire(side, P, now)
-            if now < P.flame_until and self.playing(P) and P.weapon_kind == "flame":
+            if now < P.flame_until and self.playing(P) and P.weapon_kind == "flame" and not hidden:
                 self._flame(side, P, now, self.fx_dt)
-            if now < P.laser_until and self.playing(P) and P.weapon_kind == "laser":
+            if now < P.laser_until and self.playing(P) and P.weapon_kind == "laser" and not hidden:
                 self._laser(side, P, now, self.fx_dt)
         ox, oy = self.fx.offset()
         target = screen
@@ -2083,9 +2176,18 @@ class MetalSlugScene:
         else:
             for side in ("p1", "p2"):
                 self._draw_panel(target, side, vals, now)
-            self._draw_center(target, vals, logo, now)
+            if self.dyn:
+                self.live.draw_center(target, vals, logo, now)
+                if self.live.show is not None:
+                    self.live.show.draw(target, now)
+                else:
+                    self.live.draw_bar(target, now)
+            else:
+                self._draw_center(target, vals, logo, now)
         self.fx.draw(target, "front")
         self._draw_banner(target, now)
+        if self.dyn:
+            self.live.draw_over(target, now)
         self.fx.draw_flash(target)
         if target is not screen:
             screen.fill((0, 0, 0))
@@ -2237,6 +2339,12 @@ class MetalSlugScene:
         P = self.players[side]
         if P.shown <= 0.001:
             return
+        if self.dyn:
+            if self.live.out.at(now) >= 0.999:                         # off the screen / hors de l'écran
+                return
+            if self.live.small:
+                self.live.draw_strip(screen, side, vals, now)
+                return
         hd, S, pg = self.hd, self.S, self.pg
         x0 = self.x0(side, P)
         hit = max(0.0, 1 - (now - P.hit_t) / 0.45)
@@ -2263,10 +2371,7 @@ class MetalSlugScene:
                 lx += 58
             hd.put(screen, hd.text(name, "stencil", hd.fit_size(name, "stencil", S(34), S(230), S(18)), acc, glow=0.3),
                    self.X(side, x0, lx), chip.centery, "left" if side == "p1" else "right", "middle")
-        lives = _n(self.get(vals, side, "lives"))
-        if lives is not None and lives <= 0 and not P.lives_known and now - P.lives_t0 < 30:
-            lives = None                             # not written yet by the game (Metal Slug 3: 0 for the first five seconds,
-                                                     # then 2; Metal Slug 5: 17 s): no LAST LIFE for nothing / pas encore écrites
+        lives = self.lives_shown(side, P, vals, now)
         if lives is not None:
             self._draw_lives(screen, side, P, x0, int(lives), now)
         # score qui défile
@@ -2290,15 +2395,34 @@ class MetalSlugScene:
             self._stamp(screen, x0, "CONTINUE ?", GOLD, now, P.join_t, pulse=True)
         elif P.over_t is not None and not playing:
             self._stamp(screen, x0, "GAME OVER", RED, now, P.over_t)
-        if hit:
+        if hit and self.dyn:
+            self.live.red(screen, side, x0, y0, hit)                   # in the card's own shape / dans la forme de la carte
+        elif hit:
             red = pg.Surface((S(PW), S(PH))).convert()
             red.fill((int(100 * hit), 0, 0))
             screen.blit(red, (x0, y0), special_flags=pg.BLEND_RGB_ADD)
+        if self.dyn and self.last_life(P, lives, now):
+            self.live.beat(screen, side, x0, y0, now)                  # the frame beats red / le cadre bat en rouge
         join = max(0.0, 1 - (now - P.join_t) / 0.6)
         if join and P.shown >= 1.0:
             g = self.fx.sp.glow(S(300), acc, 10 * join, hot=0.2)
             screen.blit(g, (int(x0 + S(PW) / 2 - g.get_width() / 2), int(y0 + S(PH) / 2 - g.get_height() / 2)),
                         special_flags=pg.BLEND_RGB_ADD)
+
+    def lives_shown(self, side, P, vals, now):
+        """The lives to draw, None while the game has not written them. / Les vies à dessiner, None tant que le jeu ne les
+        a pas écrites."""
+        lives = _n(self.get(vals, side, "lives"))
+        if lives is not None and lives <= 0 and not P.lives_known and now - P.lives_t0 < 30:
+            lives = None                             # not written yet by the game (Metal Slug 3: 0 for the first five seconds,
+                                                     # then 2; Metal Slug 5: 17 s): no LAST LIFE for nothing / pas encore écrites
+        return lives
+
+    @staticmethod
+    def last_life(P, lives, now):
+        """No life in reserve: the one being played is the last (not while the game sets its soldier up).
+        / Plus de vie de réserve : celle qui se joue est la dernière."""
+        return lives is not None and int(lives) <= 0 and P.mode == 1 and now >= P.sync_until
 
     def _invite(self, screen, side, x0, vals, now):
         hd, S = self.hd, self.S
@@ -2353,7 +2477,10 @@ class MetalSlugScene:
         img = self.weapon_surf(kind, side)
         kick = max(0.0, 1 - (now - P.recoil_t) / 0.08) * S(6) * (-1 if side == "p1" else 1)
         pop = max(0.0, 1 - wt / 0.35)
-        if pop:
+        if pop and self.dyn:                                           # it turns over into place / elle se retourne
+            k = 1 + 0.2 * pop
+            img = pg.transform.smoothscale(img, (int(img.get_width() * k), max(1, int(img.get_height() * k * self.live.flip(wt)))))
+        elif pop:
             k = 1 + 0.35 * pop
             img = pg.transform.smoothscale(img, (int(img.get_width() * k), int(img.get_height() * k)))
         screen.blit(img, (int(sx + S(95) - img.get_width() / 2 + kick), int(sy + S(54) - img.get_height() / 2)))
@@ -2412,7 +2539,10 @@ class MetalSlugScene:
         kind = P.ride or "tank"
         img = self.ride_surf(kind, side)
         pop = max(0.0, 1 - tt / 0.35)
-        if pop:
+        if pop and self.dyn:
+            k = 1 + 0.2 * pop
+            img = pg.transform.smoothscale(img, (int(img.get_width() * k), max(1, int(img.get_height() * k * self.live.flip(tt)))))
+        elif pop:
             k = 1 + 0.35 * pop
             img = pg.transform.smoothscale(img, (int(img.get_width() * k), int(img.get_height() * k)))
         kick = max(0.0, 1 - (now - P.recoil_t) / 0.1) * S(8) * (-1 if side == "p1" else 1)
@@ -2456,6 +2586,8 @@ class MetalSlugScene:
                    "right" if side == "p1" else "left", "middle")
 
     def _tank_gauge_xy(self, side):
+        if self.small:
+            return self.live.anchor(side, "gauge")
         x0 = self.x0(side, self.players[side])
         return self.X(side, x0, 36, 250) + self.S(125), self.S(282)
 
@@ -2513,6 +2645,9 @@ class MetalSlugScene:
     def _draw_banner(self, screen, now):
         B = self.boss
         if B is not None and not B.get("minor") and B["down"] is None and now - B["t0"] < 2.4:   # WARNING: the boss comes
+            if self.dyn and self.live.real:
+                self.live.draw_warning(screen, B, now)                 # on the whole screen / sur tout l'écran
+                return
             hd, S, W = self.hd, self.S, self.W
             k = now - B["t0"]
             a = 1.0 if k < 2.0 else max(0.0, (2.4 - k) / 0.4)
@@ -2529,7 +2664,11 @@ class MetalSlugScene:
             if B["name"]:
                 hd.put(screen, hd.text(B["name"], "stencil", S(30), CREAM, glow=0.4), W / 2, S(284), "center", "middle", alpha=a)
             return
+        if self.dyn and self.live.busy(now):                           # the show has the screen / le spectacle tient l'écran
+            return
         k = now - self.complete_t
+        if self.dyn and self.live.covers(self.complete_t):             # the game said it during the show: not said late,
+            k = -1.0                                                   # as the show goes / dit pendant le spectacle
         if 0 <= k <= 1.9:                                              # MISSION COMPLETE
             hd, S, W = self.hd, self.S, self.W
             scale = 2.0 - 1.0 * min(1.0, k / 0.18)

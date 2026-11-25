@@ -3169,6 +3169,12 @@
     ]
   },
   "derived": {
+    "mission_ending": {
+      "eq": [
+        "boss_down",
+        1
+      ]
+    },
     "p1_name": {
       "value": "p1_chr",
       "names": [
@@ -3222,11 +3228,12 @@
     }
   },
   "hd": {
+    "dynamic": true,
     "boss_slots": [
       "_hps"
     ],
     "boss_min": 2000,
-    "note": "where the bosses' lives are: the whole table of objects (_hps). A life of 2000 or more is the mission's boss, named after the mission (Metal Rear 6500 for two players in a game; the start for one player not seen yet, so no boss_life); any other life of 200 or more is a big enemy with a quiet bar. boss_dead is the game's own boss flag; mission_done is that flag with the fade counter the game starts as it writes MISSION COMPLETE, ten seconds after the boss. minor_min 256: entries holding exactly 255 are no enemy (five of them in a game, never hit), the big natives hold 300",
+    "note": "where the bosses' lives are: the whole table of objects (_hps). A life of 2000 or more is the mission's boss, named after the mission (Metal Rear 6500 for two players in a game; the start for one player not seen yet, so no boss_life); any other life of 200 or more is a big enemy with a quiet bar. boss_dead is the game's own boss flag; mission_done is that flag with the fade counter the game starts as it writes MISSION COMPLETE, ten seconds after the boss. minor_min 256: entries holding exactly 255 are no enemy (five of them in a game, never hit), the big natives hold 300. dynamic: the lively screen (1.40). Its show starts on mission_ending, the game's own boss-defeated flag (17.8 s before the next mission in a recorded game)",
     "minor_min": 256
   }
 }
