@@ -744,6 +744,7 @@ class MetalSlugScene:
         self.complete_m = None                   # the mission the game said was complete / la mission dite finie
         self.boss_alerts = 0                     # (tests)
         self.boss_downs = 0
+        self.show_time = None
         self.dyn = False                         # the lively screen (1.40), for the games whose file asks for it with
         self.live = None                         # "hd": {"dynamic": true}: cards that move, the show of a mission's end
                                                  # / l'écran vivant, pour les jeux dont le fichier le demande
@@ -1078,6 +1079,8 @@ class MetalSlugScene:
             self.live = Live(self)
             self.warm = self.live.warm() + self.warm
         self.dyn = bool(opts.get("dynamic")) and self.live is not None
+        st = opts.get("show_time")               # the length of the end-of-mission show, when the game leaves less time
+        self.show_time = float(st) if isinstance(st, (int, float)) and not isinstance(st, bool) and st > 0 else None
         if attract:
             self.mission_n = 0                                         # the next game counts from 1 / la prochaine partie
         m = _n(vals.get("mission"))
@@ -1398,7 +1401,10 @@ class MetalSlugScene:
                 if B["zero_t"] is not None:
                     # at 0 in a game with a flag (Metal Slug 4): its next phase may fill the entry within a few seconds
                     # (0 then 65526 then 1 then 1000 in the capture of 22:39), else it fell / à 0 : sa phase suivante, sinon tombé
-                    if done or now - B["zero_t"] > PHASE_WAIT:
+                    # (or at once when the game's own end-of-mission routine runs: mission_ending, 1.40; Metal Slug 4's
+                    # runs as Brave Guerrier blows up, five seconds before the wait is over)
+                    # / ou tout de suite quand la routine de fin de mission du jeu tourne
+                    if done or _n(vals.get("mission_ending")) == 1 or now - B["zero_t"] > PHASE_WAIT:
                         fall(B)
                     self.boss_prev = cur
                     return
@@ -1868,8 +1874,10 @@ class MetalSlugScene:
         fx.shake(4, 0.2)
 
     def _queue_shots(self, P, now, n):
-        if self.dyn:
-            self.live.count(P.side, "shots", n)                        # every one of them, drawn or not / tous, dessinés ou non
+        if self.dyn and n <= 60:                                       # every one of them, drawn or not; a count that
+            self.live.count(P.side, "shots", n)                        # falls all at once is no shot (Metal Slug X: 65535
+                                                                       # to 0 as a life is lost; 14 at most at one reading in
+                                                                       # the recorded games) / tous, dessinés ou non
         st = STYLE.get(P.weapon_kind, STYLE["gun"])
         gap = st["gap"]
         if len(P.shots) > 14:

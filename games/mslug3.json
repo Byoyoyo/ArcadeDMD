@@ -3514,6 +3514,13 @@
     ]
   },
   "derived": {
+    "mission_ending": {
+      "between": [
+        "end_count",
+        0,
+        300
+      ]
+    },
     "p1_name": {
       "value": "p1_chr",
       "names": [
@@ -3551,6 +3558,8 @@
     }
   },
   "hd": {
+    "dynamic": true,
+    "show_time": 11,
     "boss_slots": [
       "_hps"
     ],
@@ -3559,7 +3568,7 @@
       "4": 4000
     },
     "boss_min": 2000,
-    "note": "where the bosses' lives are: the whole table of objects (_hps). The entry filled with the life the mission's boss starts with (boss_life: the Huge Hermit 5000 from a game of 7 November 00:48, mission 1; Sol Dae Rokker 4000 in mission 4, one entry, from a game of 8 November 20:40 on the Metal Slug 6 hack (mslug3b6, Metal Slug 3's code with the missions in another order; memory recording, capture, 201 screenshots, 1.33 test 46)) is the boss, named after the mission; in a mission not listed yet, a life of boss_min or more; any other life of 200 or more is a big enemy with a quiet bar. mission_done (end_count) shows MISSION COMPLETE when the game writes it",
+    "note": "where the bosses' lives are: the whole table of objects (_hps). The entry filled with the life the mission's boss starts with (boss_life: the Huge Hermit 5000 from a game of 7 November 00:48, mission 1; Sol Dae Rokker 4000 in mission 4, one entry, from a game of 8 November 20:40 on the Metal Slug 6 hack (mslug3b6, Metal Slug 3's code with the missions in another order; memory recording, capture, 201 screenshots, 1.33 test 46)) is the boss, named after the mission; in a mission not listed yet, a life of boss_min or more; any other life of 200 or more is a big enemy with a quiet bar. mission_done (end_count) shows MISSION COMPLETE when the game writes it. dynamic: the lively screen (1.40). Its show starts on mission_ending, the end-of-mission counter away from 65535 (26 to 0 over the boss's wreck, 12.2 and 12.6 s before the next mission in two recorded games, hence show_time 11; the counter also runs on the MISSION START screens, where no boss is down and no show starts)",
     "per_game": {
       "mslug3b6": {
         "mission_count": true,

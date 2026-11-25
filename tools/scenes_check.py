@@ -3,13 +3,13 @@ game gives up (an error in its scene sends the marquee back to the LED display).
 have an address go up and down so that the scene meets a power-up, a life lost, a bomb, a second player who joins, a
 continue and a game over; the values without an address stay unknown, as on a cabinet. A game with the lively screen
 ("hd": {"dynamic": true}) plays a second one: the boss of its mission comes and is shot down, the mission ends, its show
-is given, and the next mission begins during the following show. Run by the check of every pull request.
+is given, and the next mission begins before the show is over. Run by the check of every pull request.
 
 Joue une courte partie inventée de chaque fichier de jeu sur l'écran HD, à un joueur puis à deux, et échoue si l'écran
 HD d'un jeu abandonne (une erreur dans sa scène renvoie le marquee à l'affichage LED). Les valeurs du fichier montent
 et descendent pour que la scène rencontre un bonus, une vie perdue, une bombe, un second joueur qui arrive, un
 continue et un game over. Un jeu à l'écran vivant en joue une seconde : le boss de sa mission arrive et tombe, la
-mission se termine, son spectacle est donné, et la mission suivante commence pendant le spectacle d'après.
+mission se termine, son spectacle est donné, et la mission suivante commence avant la fin du spectacle.
 
 usage: python tools/scenes_check.py [game ...]
 """
@@ -104,13 +104,15 @@ def play(eng, out, clock, game):
 def play_boss(eng, out, clock, game):
     """The second made-up game of a game with the lively screen: the boss of the mission comes (WARNING, the small cards,
     its wide bar), takes hits while a life is lost and a weapon picked up, falls; the game's end-of-mission screens begin
-    (the whole show); then mission 2, whose show is cut short by mission 3. The error that stopped the HD screen, or None.
-    / La seconde partie inventée d'un jeu à l'écran vivant : le boss arrive, encaisse, tombe ; la fin de mission (tout le
-    spectacle) ; puis la mission 2, dont le spectacle est coupé par la mission 3."""
+    (the show, its three parts); then mission 2 begins and cuts the show short. The error that stopped the HD screen, or
+    None. / La seconde partie inventée d'un jeu à l'écran vivant : le boss arrive, encaisse, tombe ; la fin de mission
+    (le spectacle, ses trois temps) ; puis la mission 2 commence et coupe le spectacle."""
     g = eng.library.get(game) or {}
     hd = g.get("hd") if isinstance(g.get("hd"), dict) else {}
     if not hd.get("dynamic"):
         return None
+    eng.start_demo(game)
+    eng.sim, eng.demo_until = None, None
     for d in (eng.state.values, eng.state.prev, eng.state.changed_at, eng.state.hist):
         d.clear()
     eng.state.events.clear()
@@ -118,6 +120,7 @@ def play_boss(eng, out, clock, game):
     slots = [s for s in (hd.get("boss_slots") or ["boss_hp"]) if s in vals]
     lives = [v for v in (hd.get("boss_life") or {}).values() if isinstance(v, (int, float))]
     full = int(max(lives + [hd.get("boss_min") or 0, 3000]))
+    flag = hd.get("boss_flag") if hd.get("boss_flag") in vals else None    # the game says when its boss is fought
     step = 0.1
     t0 = t = clock[0] + 1.0
 
@@ -148,8 +151,10 @@ def play_boss(eng, out, clock, game):
             boss(int(full * (5.0 - k) / 1.5))                  # it takes hits / il encaisse
         else:
             boss(0)                                            # it falls / il tombe
+        if flag:
+            eng.state.update(flag, 1 if 0.4 <= k < 5.5 else 0, t)
         for name, at, v in (("lives", 3.7, 1), ("weapon_p2", 3.9, 3), ("ammo_p2", 3.9, 200), ("lives", 4.3, 0), ("score", 4.5, 5000),
-                            ("mission", 19.5, 2), ("mission", 21.5, 3)):
+                            ("mission", 18.5, 2), ("mission", 21.5, 3)):
             if name in vals and abs(k - at) < step / 2:
                 eng.state.update(name, v, t)
         tag = g.get("tag") if isinstance(g.get("tag"), dict) else {}
@@ -161,7 +166,7 @@ def play_boss(eng, out, clock, game):
             for name, v in derive(eng.derived, eng.state.values).items():
                 if eng.state.values.get(name) != v:
                     eng.state.update(name, v, t, quiet=True)
-        ending = 1 if 6.0 <= k < 19.5 or 20.0 <= k < 21.5 else 0   # the game's end-of-mission screens / ses écrans de fin
+        ending = 1 if 6.0 <= k < 18.5 or 20.0 <= k < 21.5 else 0   # the game's end-of-mission screens / ses écrans de fin
         if eng.state.values.get("mission_ending") != ending:
             eng.state.update("mission_ending", ending, t, quiet=True)
         frame = eng.step(t)

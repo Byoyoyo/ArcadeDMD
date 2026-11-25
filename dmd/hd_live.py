@@ -136,6 +136,7 @@ class Tally:
         self.series = [(now, 0, 0)]
         self.next_s = now + STEP
         self.boss = [None, None]                 # when its boss came, when it fell / l'arrivée du boss, sa chute
+        self.fell = False                        # its boss was seen down / son boss a été vu à terre
         self.shown = False                       # its show was given / son spectacle a été donné
 
     def add(self, side, key, n, now, mark=False):
@@ -312,7 +313,6 @@ class Live:
         self.tally = None
         self.show = None
         self.span = None                         # when the last show began, when it ended / le dernier spectacle
-        self.end_prev = None
         self.bar = None                          # the boss's bar on the screen / la barre du boss à l'écran
         self.bar_a = Tw(0.0)
         self.boss_ref = None
@@ -383,7 +383,6 @@ class Live:
         self.now, self.vals = now, vals
         if attract:
             self.reset()
-            self.end_prev = M._n(vals.get("mission_ending"))
             return
         playing = anyone
         m = sc.mission
@@ -399,21 +398,31 @@ class Live:
                 self.tally.boss[0] = B["t0"]
             if B["down"] is not None and self.tally.boss[1] is None:
                 self.tally.boss[1] = B["down"]
-        # the mission ends on the game's screen: its show / la mission se termine à l'écran du jeu : son spectacle
+        if (self.tally is not None and B is not None and not B.get("minor") and B.get("mission") == m
+                and B["down"] is not None):
+            self.tally.fell = True
+        self._boss(B if real else None, now)
+        # The mission ends on the game's screen: its show. The game's own signal starts it (mission_ending when its file
+        # has one, the first of its end-of-mission screens; else mission_done), and only in a mission whose boss was seen
+        # down: a boss's fall alone could be a big enemy's halfway through, a signal alone a routine met in play. It waits
+        # for BOSS DESTROYED to leave.
+        # / La mission se termine à l'écran du jeu : son spectacle. Le signal du jeu le lance (mission_ending si son
+        # fichier en a un, sinon mission_done), et seulement dans une mission dont le boss a été vu à terre. Il attend
+        # que BOSS DÉTRUIT s'en aille.
         end = M._n(vals.get("mission_ending"))
-        if (end == 1 and self.end_prev == 0 and playing and self.show is None and self.tally is not None
-                and not self.tally.shown and self.tally.sides):
+        if end is None:
+            end = M._n(vals.get("mission_done"))
+        if (end == 1 and playing and self.show is None and self.tally is not None and self.tally.fell
+                and not self.tally.shown and self.tally.sides and now - self.down_t >= DOWN_T - 0.4):
             self.tally.shown = True
-            self.show = Show(self, self.tally, now)
+            self.show = Show(self, self.tally, now, sc.show_time)
             self.span = [now, None]
-        self.end_prev = end
         if self.show is not None:
             if self.show.cut_t is None and (self.show.tally.mission != m or not playing):
                 self.show.cut_t = now                              # the next mission begins: the show gives way
             if self.show.over(now):
                 self.show = None
                 self.span[1] = now
-        self._boss(B if real else None, now)
         warn = real and B["down"] is None and now - B["t0"] < WARN_T
         hide = warn or self.show is not None
         if hide or real != self.small:
@@ -979,8 +988,11 @@ class Show:
     EVENT_ICON = {"lives_lost": "helmet", "prisoners": "prisoner", "continues": "coin", "weapons": "crate"}
     RANK_COLOR = {"S": (255, 214, 120), "A": (255, 214, 120), "B": (238, 228, 208), "C": (255, 64, 44), "D": (255, 64, 44)}
 
-    def __init__(self, live, tally, now):
+    def __init__(self, live, tally, now, total=None):
         self.live, self.tally, self.t0 = live, tally, now
+        if total:                                      # the game leaves less (or more) time: the three parts keep
+            k = max(0.7, min(1.3, total / (len(self.CARDS) * self.T_CARD + self.T_SCORE + self.T_RANK)))   # their share
+            self.T_CARD, self.T_SCORE, self.T_RANK = self.T_CARD * k, self.T_SCORE * k, self.T_RANK * k
         self.sides = [side for side in ("p1", "p2") if side in tally.sides]
         self.cut_t = None
         self.once = set()

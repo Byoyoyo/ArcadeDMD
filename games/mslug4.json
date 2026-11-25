@@ -4990,6 +4990,13 @@
     ]
   },
   "derived": {
+    "mission_ending": {
+      "between": [
+        "stage_state",
+        40782,
+        40964
+      ]
+    },
     "p1_name": {
       "value": "p1_chr",
       "names": [
@@ -5027,6 +5034,7 @@
     }
   },
   "hd": {
+    "dynamic": true,
     "boss_slots": [
       "_hps",
       "_boss1",
@@ -5041,7 +5049,7 @@
     },
     "boss_min": 600,
     "minor_idle": 20,
-    "note": "where the bosses' lives are: the whole table of enemies (_hps, a list), and the six single entries of the first captures so that they replay. boss_flag is 1 while the screen is locked, for the boss and for a wave of helicopters alike (the capture of 22:39), so it is a gate: while it is 1, the entry filled with the life the mission's boss starts with (boss_life: Brave Guerrier 850 at 275 s, then 1000 and 1600 for its two other phases) is the boss, named after the mission; in a mission not listed yet, a life of boss_min or more (the helicopters and tanks have 400 to 500); any other life of 200 or more is a big enemy with a quiet bar. mission_done (stage_state 0x9FD4) shows MISSION COMPLETE Two players: Brave Guerrier starts at 1000, then 1200 and 1800 by phase (a game of 7 November 22:52), 850 / 1000 / 1600 alone; boss_life 850 covers both.",
+    "note": "where the bosses' lives are: the whole table of enemies (_hps, a list), and the six single entries of the first captures so that they replay. boss_flag is 1 while the screen is locked, for the boss and for a wave of helicopters alike (the capture of 22:39), so it is a gate: while it is 1, the entry filled with the life the mission's boss starts with (boss_life: Brave Guerrier 850 at 275 s, then 1000 and 1600 for its two other phases) is the boss, named after the mission; in a mission not listed yet, a life of boss_min or more (the helicopters and tanks have 400 to 500); any other life of 200 or more is a big enemy with a quiet bar. mission_done (stage_state 0x9FD4) shows MISSION COMPLETE Two players: Brave Guerrier starts at 1000, then 1200 and 1800 by phase (a game of 7 November 22:52), 850 / 1000 / 1600 alone; boss_life 850 covers both.. dynamic: the lively screen (1.40). Its show starts on mission_ending, the game's end-of-mission routines (40782 as the boss blows up, 40830 the tally, 40916 MISSION COMPLETE, 40930 and 40964 the fade: 20 to 21.5 s before the next mission in three recorded games); the boss waiting at 0 for a next phase falls when it comes",
     "boss_flag": "boss_flag"
   }
 }

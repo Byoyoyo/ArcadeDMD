@@ -3235,6 +3235,13 @@
     ]
   },
   "derived": {
+    "mission_ending": {
+      "between": [
+        "end_ptr",
+        34928,
+        35094
+      ]
+    },
     "p1_name": {
       "value": "p1_chr",
       "names": [
@@ -3278,6 +3285,7 @@
     }
   },
   "hd": {
+    "dynamic": true,
     "boss_slots": [
       "_hps"
     ],
@@ -3285,6 +3293,6 @@
       "1": 5000
     },
     "boss_min": 2000,
-    "note": "where the bosses' lives are: the whole table of objects (_hps). The entry filled with the life the mission's boss starts with (boss_life, from a game of 8 November: the Iron Nokana MKII 5000, first read 4990) is the boss, named after the mission (the Metal Slug Wiki's list, missions 2 to 6 to confirm in play); in a mission not listed yet, a life of boss_min or more; any other life of 200 or more is a big enemy with a quiet bar (the Iron Nokana MKII's part of 2500). boss_dead (the game's own flag) says BOSS DESTROYED at the game's moment, mission_done (its state routine on the MISSION COMPLETE screen) shows MISSION COMPLETE"
+    "note": "where the bosses' lives are: the whole table of objects (_hps). The entry filled with the life the mission's boss starts with (boss_life, from a game of 8 November: the Iron Nokana MKII 5000, first read 4990) is the boss, named after the mission (the Metal Slug Wiki's list, missions 2 to 6 to confirm in play); in a mission not listed yet, a life of boss_min or more; any other life of 200 or more is a big enemy with a quiet bar (the Iron Nokana MKII's part of 2500). boss_dead (the game's own flag) says BOSS DESTROYED at the game's moment, mission_done (its state routine on the MISSION COMPLETE screen) shows MISSION COMPLETE. dynamic: the lively screen (1.40). Its show starts on mission_ending, the game's end-of-mission routines (34928 as the boss blows up, 34992 the prisoner tally, 35060 MISSION COMPLETE, 35094 the fade: 14.8 s before the next mission in a recorded game)"
   }
 }
