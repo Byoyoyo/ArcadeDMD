@@ -536,16 +536,21 @@ class Live:
         out = [(self.plate, (side,)) for side in ("p1", "p2")]
         out += [(self.frame, (side, small)) for side in ("p1", "p2") for small in (False, True)]
         out += [(self.hazard, ()), (self.veil, ()), (self.bar_fill, ())]
-        out += [(self.icon, (n, h)) for n, h in (("crown", 44), ("medal", 62), ("helmet", 84), ("helmet", 40), ("helmet", 30),
-                                                  ("prisoner", 84), ("prisoner", 40), ("prisoner", 30), ("coin", 84), ("coin", 30),
-                                                  ("grenade", 84), ("grenade", 40), ("crate", 84), ("crate", 40), ("crate", 30),
-                                                  ("case", 16))]
+        out += [(self.icon, (n, h)) for n, h in (("crown", 44), ("crown", 30), ("medal", 56), ("helmet", 58), ("helmet", 30),
+                                                  ("prisoner", 58), ("prisoner", 30), ("coin", 58), ("coin", 30),
+                                                  ("grenade", 58), ("grenade", 30), ("crate", 58), ("crate", 30),
+                                                  ("case", 38), ("case", 22))]
         hd, S = self.sc.hd, self.sc.S
         for text, size, col, glow in (("WARNING", 124, self.M.RED, 0.8), (tr("BOSS DÉTRUIT", "BOSS DESTROYED"), 96, self.M.GOLD, 0.7),
                                       (tr("BOSS DÉTRUIT", "BOSS DESTROYED"), 96, self.M.GOLD, 0)):
             out.append((hd.text, (text, "stencil", S(size), col, glow)))
-        for c in "0123456789":
+        for c in "0123456789":                                           # the figures of the show / les chiffres du spectacle
             out.append((hd.text, (c, "stencil", S(110), self.M.GOLD, 0.6)))
+            out.append((hd.text, (c, "stencil", S(76), self.M.GOLD, 0.5)))
+            out += [(hd.text, (c, "stencil", S(46), self.M.ACCENT[side], 0.4)) for side in ("p1", "p2")]
+        for c in "SABCD":                                                # the ranks, running then landing / les rangs
+            out.append((hd.text, (c, "stencil", S(170), self.M.GREY, 0)))
+            out.append((hd.text, (c, "stencil", S(170), Show.RANK_COLOR[c], 0.7)))
         return out
 
     def hazard(self):
@@ -969,36 +974,33 @@ class Live:
 
 
 class Show:
-    """The end of a mission on the whole screen, in three parts: one figure after the other, the duel of the scores over
-    the curve of the mission, then each one's rank and medals. With one player, the same parts for him alone. The
-    scores come second: the game adds its end-of-mission bonus a few seconds after its own tally begins, and the duel
-    is then played with it.
-    / La fin d'une mission sur tout l'écran, en trois temps : chaque chiffre à son tour, le duel des scores sur la
-    courbe de la mission, puis le rang et les médailles de chacun. À un joueur, les mêmes temps pour lui seul. Les
-    scores passent en second : le jeu ajoute son bonus de fin de mission quelques secondes après le début de son propre
-    décompte, et le duel se joue alors avec lui."""
+    """The end of a mission on the whole screen, in two screens and no more, each one long enough to be read: the scores
+    over the curve of the mission, then the whole tally at once (each one's rank and medals, every figure face to face,
+    the times). With one player, the same two screens for him alone. The scores come first: the game adds its
+    end-of-mission bonus a few seconds after its own tally begins, and the rank of the second screen is judged with it.
+    / La fin d'une mission sur tout l'écran, en deux écrans et pas plus, chacun assez long pour être lu : les scores sur
+    la courbe de la mission, puis tout le bilan d'un coup (le rang et les médailles de chacun, tous les chiffres face à
+    face, les temps). À un joueur, les deux mêmes écrans pour lui seul. Les scores passent en premier : le jeu ajoute
+    son bonus de fin de mission quelques secondes après le début de son propre décompte, et le rang du second écran
+    est jugé avec lui."""
 
-    T_SCORE, T_CARD, T_RANK, FADE = 3.9, 0.8, 3.7, 0.3
-    CARDS = (("prisoners", "prisoner", 1, ("PRISONNIERS SAUVÉS", "PRISONERS RESCUED")),
-             ("lives_lost", "helmet", -1, ("VIES PERDUES", "LIVES LOST")),
-             ("continues", "coin", -1, ("CONTINUES", "CONTINUES")),
-             ("shots", "case", 0, ("BALLES TIRÉES", "SHOTS FIRED")),
-             ("grenades", "grenade", 0, ("GRENADES LANCÉES", "GRENADES THROWN")),
-             ("weapons", "crate", 0, ("ARMES RAMASSÉES", "WEAPONS PICKED UP")))
+    T_ONE, T_TWO, FADE = 5.6, 6.4, 0.3           # two screens and no more, each long enough to be read
+    ROWS = (("prisoners", "prisoner", 1, ("PRISONNIERS", "PRISONERS")), ("lives_lost", "helmet", -1, ("VIES PERDUES", "LIVES LOST")),
+            ("continues", "coin", -1, ("CONTINUES", "CONTINUES")), ("shots", "case", 0, ("BALLES", "SHOTS")),
+            ("grenades", "grenade", 0, ("GRENADES", "GRENADES")), ("weapons", "crate", 0, ("ARMES", "WEAPONS")))
     EVENT_ICON = {"lives_lost": "helmet", "prisoners": "prisoner", "continues": "coin", "weapons": "crate"}
     RANK_COLOR = {"S": (255, 214, 120), "A": (255, 214, 120), "B": (238, 228, 208), "C": (255, 64, 44), "D": (255, 64, 44)}
 
     def __init__(self, live, tally, now, total=None):
         self.live, self.tally, self.t0 = live, tally, now
-        if total:                                      # the game leaves less (or more) time: the three parts keep
-            k = max(0.7, min(1.3, total / (len(self.CARDS) * self.T_CARD + self.T_SCORE + self.T_RANK)))   # their share
-            self.T_CARD, self.T_SCORE, self.T_RANK = self.T_CARD * k, self.T_SCORE * k, self.T_RANK * k
+        if total:                                      # the game leaves less (or more) time: the two screens keep
+            k = max(0.7, min(1.3, total / (self.T_ONE + self.T_TWO)))                                  # their share
+            self.T_ONE, self.T_TWO = self.T_ONE * k, self.T_TWO * k
         self.sides = [side for side in ("p1", "p2") if side in tally.sides]
         self.cut_t = None
         self.once = set()
-        self.t_duel = len(self.CARDS) * self.T_CARD
-        self.t_rank = self.t_duel + self.T_SCORE
-        self.t_end = self.t_rank + self.T_RANK
+        self.t_two = self.T_ONE
+        self.t_end = self.T_ONE + self.T_TWO
         self.start = dict(tally.score)                 # the scores as the game's tally begins / les scores à ce moment
         self.disp = {"p1": 0.0, "p2": 0.0}
         self.series = list(tally.series) + [(now, tally.score["p1"], tally.score["p2"])]
@@ -1010,6 +1012,10 @@ class Show:
 
     def over(self, now):
         return now - self.t0 > self.t_end + self.FADE or (self.cut_t is not None and now - self.cut_t > 0.25)
+
+    def reading(self, now):
+        """The tally is on the screen, or about to be: nothing bursts over its figures. / Le bilan est à l'écran."""
+        return now - self.t0 >= self.t_two - 0.3
 
     def first(self, key):
         if key in self.once:
@@ -1032,14 +1038,10 @@ class Show:
             target.blit(screen, (0, 0))
         target.blit(live.veil(), (0, 0))
         self._heads(target)
-        if t < self.t_duel:
-            i = min(len(self.CARDS) - 1, int(t / self.T_CARD))
-            self._card(target, i, t - i * self.T_CARD)
-        elif t < self.t_rank:
-            u = t - self.t_duel
-            self._duel(target, u, clamp(u / 0.2) * (1 - clamp((u - (self.T_SCORE - 0.2)) / 0.2)))
+        if t < self.t_two:
+            self._duel(target, t, clamp(t / 0.2) * (1 - clamp((t - (self.T_ONE - 0.2)) / 0.2)))
         else:
-            self._ranks(target, t - self.t_rank)
+            self._tally(target, t - self.t_two)
         if target is not screen:
             target.set_alpha(int(255 * A))
             screen.blit(target, (0, 0))
@@ -1100,7 +1102,8 @@ class Show:
             self.disp[side] = goal if gap <= 0 else self.disp[side] + max(1.0, gap * min(1.0, sc.fx_dt / 0.1))
             self.disp[side] = min(self.disp[side], score[side])
         col = {side: M.ACCENT[side] for side in ("p1", "p2")}
-        self._title(d, tr("SCORE DE LA MISSION", "MISSION SCORE"), cx, a)
+        num = f" {int(self.label)}" if self.label is not None else ""
+        self._title(d, tr(f"SCORE DE LA MISSION{num}", f"MISSION{num} SCORE"), cx, a)
         two = len(self.sides) == 2
         if two:
             s1, s2 = self.disp["p1"], self.disp["p2"]
@@ -1178,9 +1181,11 @@ class Show:
                 pg.draw.lines(d, self.dim(col[side], ca), False, pts, max(2, S(4)))
             pg.draw.circle(d, self.dim((255, 255, 255), ca), (int(head[0]), int(head[1])), max(3, S(6)))
             bonus = score[side] - self.start[side]                     # scored since the game's tally began: its bonus
+            if bonus > 0 and self.first(("bonus", side)):              # it lands: the screen feels it / il tombe : l'écran le sent
+                fx.shake(7, 0.3)
             if bonus > 0 and pen >= tb and ca > 0.5:                   # / marqué depuis le début du décompte : son bonus
                 text = tr(f"BONUS DE FIN +{sc._fmt(bonus)}", f"END BONUS +{sc._fmt(bonus)}")
-                hd.put(d, hd.text(text, "bold", S(20), col[side], glow=0), x1, head[1] - S(16 if j == 1 else -16), "right", "middle")
+                hd.put(d, hd.text(text, "bold", S(22), col[side], glow=0), x1, max(y0 + S(2), head[1] - S(52)) if j == 1 else head[1] + S(18), "right", "middle")
         if ca > 0.5:
             for tm, what, side in self.events:                         # what happened, on the curve of the one it
                 if tm > pen or side not in self.sides:                 # happened to / ce qui s'est passé, sur sa courbe
@@ -1188,126 +1193,114 @@ class Show:
                 p = ease_back(clamp((pen - tm) / max(1.0, (tb - ta) * 0.03)))
                 self._pop(d, self.EVENT_ICON[what], 30, px(tm), py(at(tm, 1 if side == "p1" else 2)) - S(24), p)
 
-    def _card(self, d, i, u):
-        """One figure at a time, as big as the screen allows, with one small drawing for each unit while they are few.
-        / Un chiffre à la fois, aussi grand que l'écran le permet, avec un petit dessin par unité tant qu'ils sont peu."""
+    def _tally(self, d, u):
+        """The second and last screen, the whole tally at once: each one's rank and medals at the sides, every figure face
+        to face in one table, the times under it. With one player, his figures as six tiles and the times on the right.
+        / Le second et dernier écran, tout le bilan d'un coup : le rang et les médailles de chacun sur les côtés, tous les
+        chiffres face à face dans un seul tableau, les temps dessous. À un joueur, ses chiffres en six cases et les temps à
+        droite."""
         live = self.live
         sc, M = live.sc, live.M
         hd, S, W, pg, fx = sc.hd, sc.S, sc.W, sc.pg, sc.fx
-        key, icon, better, names = self.CARDS[i]
-        cx = W / 2
-        p = ease_out(clamp(u / 0.16))
-        q = clamp((u - (self.T_CARD - 0.1)) / 0.1)
-        off = int(((1 - p) * 340 - q * 340) * sc.s)
-        al = p * (1 - q)
-        if al <= 0.01:
-            return
-        k = ease_out(clamp(u / 0.38))
-        n = self.tally.n
-        vals = [n[side][key] for side in self.sides]
-        mx = max(vals + [1])
-        self._title(d, tr(*names), cx + off, al)
-        few = mx <= 10
-        per = 1.0 if mx <= 46 else mx / 46.0
-        hgt = 84 if few else (16 if icon == "case" else 40)
-        img = live.icon(icon, hgt)
-        step = img.get_width() + S(14 if few else 6)
-        row_n = max(1, int(S(780) / step))
-        if len(self.sides) == 2:
-            hd.put(d, hd.text("VS", "stencil", S(48), M.GREY, glow=0.2), cx + off, S(164), "center", "middle", alpha=al * 0.7)
-            widths = (self._num(d, sc._fmt(int(round(vals[0] * k))), cx - S(150) + off, S(164), "right", al),
-                      self._num(d, sc._fmt(int(round(vals[1] * k))), cx + S(150) + off, S(164), "left", al))
-            bl = S(700)
-            for v, way, side in ((vals[0], -1, "p1"), (vals[1], 1, "p2")):
-                edge = cx + way * S(150) + off
-                b = int(bl * v / mx * k)
-                track = pg.Rect(edge - bl if way < 0 else edge, S(238), bl, S(18))
-                pg.draw.rect(d, self.dim((34, 38, 54), al), track)
-                if b > 0:
-                    r = pg.Rect(edge - b if way < 0 else edge, S(238), b, S(18))
-                    pg.draw.rect(d, self.dim(M.ACCENT[side], al), r)
-                    pg.draw.rect(d, self.dim(tuple(min(255, c + 70) for c in M.ACCENT[side]), al), pg.Rect(r.x, r.y, r.w, max(1, S(5))))
-                count = int(round(v / per))
-                for j in range(count):
-                    pj = ease_back(clamp((u - 0.08 - j * (0.36 / max(count, 1))) / 0.14))
-                    x = edge + way * (step / 2 + (j % row_n) * step)
-                    y = S(326 if few else 292) + (j // row_n) * (img.get_height() + S(8)) + img.get_height() / 2
-                    self._pop(d, icon, hgt, x, y, pj)
-            if better and vals[0] != vals[1] and u > 0.42:
-                first = (vals[0] - vals[1]) * better > 0
-                x = cx - S(150) + off - widths[0] - S(60) if first else cx + S(150) + off + widths[1] + S(60)
-                self._pop(d, "crown", 44, x, S(158), ease_back(clamp((u - 0.42) / 0.2)))
-        else:
-            v = vals[0]
-            self._num(d, sc._fmt(int(round(v * k))), cx + off, S(164), "center", al)
-            count = int(round(v / per))
-            per_row = min(row_n * 2, max(1, count))
-            for j in range(count):
-                pj = ease_back(clamp((u - 0.08 - j * (0.36 / max(count, 1))) / 0.14))
-                in_row = min(per_row, count - (j // per_row) * per_row)
-                x = cx + off + ((j % per_row) - (in_row - 1) / 2) * step
-                y = S(300 if few else 270) + (j // per_row) * (img.get_height() + S(8)) + img.get_height() / 2
-                self._pop(d, icon, hgt, x, y, pj)
-        if u > 0.38 and self.first(("card", i)):
-            fx.shake(4, 0.18)
-
-    def _ranks(self, d, u):
-        """Each one's rank, falling in after the letters have run, then the medals one by one, and the times.
-        / Le rang de chacun, qui tombe après le défilement des lettres, puis les médailles une à une, et les temps."""
-        live = self.live
-        sc, M = live.sc, live.M
-        hd, S, W, fx = sc.hd, sc.S, sc.W, sc.fx
         cx = W / 2
         tally = self.tally
-        if self.verdict is None:
+        if self.verdict is None or u < 0.5:                             # the game's bonus may still come: judged as the
             self.verdict = ({side: rank(tally.n[side], tally.score[side]) for side in self.sides}, medals(tally, self.sides))
-        ranks, meds = self.verdict
+        ranks, meds = self.verdict                                      # letters stop / jugé quand les lettres s'arrêtent
         two = len(self.sides) == 2
-        self._title(d, f"MISSION {int(self.label)}" if self.label is not None else "MISSION", cx, u / 0.25, 64)
-        for n, side in enumerate(self.sides):
+        num = f" {int(self.label)}" if self.label is not None else ""
+        self._title(d, tr(f"BILAN DE LA MISSION{num}", f"MISSION{num} REPORT"), cx, u / 0.25, 58)
+        for n, side in enumerate(self.sides):                           # the rank, then the medals under it
             way = (-1 if side == "p1" else 1) if two else -1
-            t0 = 0.1 + 0.3 * n
-            lx = (S(250) if way < 0 else W - S(250)) if two else (cx - S(330) if meds[side] else cx)
+            lx = S(250) if way < 0 else W - S(250)
+            t0 = 0.1 + 0.25 * n
             if u < t0:
                 continue
-            hd.put(d, hd.text(tr("RANG", "RANK"), "stencil", S(36), M.CREAM, glow=0.3), lx, S(112), "center", "middle",
+            hd.put(d, hd.text(tr("RANG", "RANK"), "stencil", S(36), M.CREAM, glow=0.3), lx, S(102), "center", "middle",
                    alpha=clamp((u - t0) / 0.2))
             roll = u - t0
             if roll < 0.45:                                            # the letters run / les lettres défilent
                 letter = "SABCD"[int(roll / 0.06) % 5]
-                hd.put(d, hd.text(letter, "stencil", S(190), M.GREY, glow=0), lx, S(262), "center", "middle", scale=0.6, alpha=0.5)
+                hd.put(d, hd.text(letter, "stencil", S(170), M.GREY, glow=0), lx, S(214), "center", "middle", scale=0.6, alpha=0.5)
             else:
                 p = clamp((roll - 0.45) / 0.32)
                 letter = ranks[side]
-                hd.put(d, hd.text(letter, "stencil", S(190), self.RANK_COLOR[letter], glow=0.7), lx, S(262), "center", "middle",
+                hd.put(d, hd.text(letter, "stencil", S(170), self.RANK_COLOR[letter], glow=0.7), lx, S(214), "center", "middle",
                        scale=1 + 2.0 * (1 - ease_out(p)), alpha=min(1.0, p * 2.5))
                 if p >= 1 and self.first(("rank", side)):
                     fx.shake(12, 0.4)
                     fx.flash(M.ACCENT[side], 0.22, 0.3)
-                    fx.sparks(lx, S(262), 40, M.GOLD, (200, 600), (0, 360), (0.5, 1.1), 500, "front", 3, 26)
-            for j, name in enumerate(meds[side]):
-                pm = ease_back(clamp((u - 1.15 - j * 0.3 - 0.15 * n) / 0.24))
+                    fx.sparks(lx, S(214), 40, M.GOLD, (200, 600), (0, 360), (0.5, 1.1), 500, "front", 3, 26)
+            for j, name in enumerate(meds[side][:2]):                   # two medals at most, under the rank
+                pm = ease_back(clamp((u - 1.3 - j * 0.25 - 0.12 * n) / 0.24))
                 if pm <= 0.02:
                     continue
-                y = S(140 + j * 62)
-                mx = lx - way * S(210)
-                self._pop(d, "medal", 62, mx, y, pm)
+                y = S(336 + j * 62)
+                mx = lx + way * S(168)
+                self._pop(d, "medal", 56, mx, y, pm)
                 text = tr(*MEDALS[name])
-                hd.put(d, hd.text(text, "stencil", hd.fit_size(text, "stencil", S(40), S(430), S(22)), M.GOLD, glow=0.4),
-                       mx - way * S(38), y + S(4), "left" if way < 0 else "right", "middle", alpha=clamp(pm))
-        a = clamp((u - 1.8) / 0.4)
-        if a > 0:
-            came, fell = self.boss
-            parts = [(tr("TEMPS DE LA MISSION", "MISSION TIME"), minutes(self.span[1] - self.span[0]))]
-            if came is not None and fell is not None and fell > came:
-                parts.append((tr("BOSS ABATTU EN", "BOSS DOWN IN"), minutes(fell - came)))
-            for n, (label, value) in enumerate(parts):
-                x = cx + (S(250) * (2 * n - 1) if len(parts) == 2 else 0)
-                lt = hd.text(label, "bold", S(22), M.CREAM, glow=0)
-                vt = hd.text(value, "stencil", S(44), M.GOLD, glow=0.5)
-                total = lt["w"] + S(16) + vt["w"]
-                hd.put(d, lt, x - total / 2, S(418), "left", "middle", alpha=a)
-                hd.put(d, vt, x - total / 2 + lt["w"] + S(16), S(418), "left", "middle", alpha=a)
-        for at in (1.3, 1.7, 2.1, 2.5):                                # the scene's own fireworks / ses feux d'artifice
-            if u > at and self.first(("fw", at)):
-                sc._firework()
+                hd.put(d, hd.text(text, "stencil", hd.fit_size(text, "stencil", S(34), S(300), S(20)), M.GOLD, glow=0.4),
+                       mx - way * S(34), y + S(3), "left" if way < 0 else "right", "middle", alpha=clamp(pm))
+        n = tally.n
+        came, fell = self.boss
+        times = [(tr("TEMPS DE LA MISSION", "MISSION TIME"), minutes(self.span[1] - self.span[0]))]
+        if came is not None and fell is not None and fell > came:
+            times.append((tr("BOSS ABATTU EN", "BOSS DOWN IN"), minutes(fell - came)))
+        at = clamp((u - 1.1) / 0.3)
+        if two:                                                         # every figure face to face, in one table
+            for i, (key, icon, better, names) in enumerate(self.ROWS):
+                p = clamp((u - 0.3 - i * 0.09) / 0.22)
+                if p <= 0:
+                    continue
+                k = ease_out(clamp((u - 0.35 - i * 0.09) / 0.4))
+                y = S(110 + i * 45)
+                v = (n["p1"][key], n["p2"][key])
+                mx = max(v[0], v[1], 1)
+                pg.draw.rect(d, self.dim((26, 30, 46), p), pg.Rect(int(cx - S(520)), y - S(20), S(1040), S(40)))
+                lt = hd.text(tr(*names), "bold", S(24), M.CREAM, glow=0)
+                ih = 22 if icon == "case" else 30
+                img = live.icon(icon, ih)
+                gw = img.get_width() + S(12) + lt["w"]
+                self._pop(d, icon, ih, cx - gw / 2 + img.get_width() / 2, y, ease_back(p))
+                hd.put(d, lt, cx - gw / 2 + img.get_width() + S(12), y, "left", "middle", alpha=p)
+                for j, side in enumerate(("p1", "p2")):
+                    way = -1 if j == 0 else 1
+                    put_num(hd, d, sc._fmt(int(round(v[j] * k))), "stencil", S(46), M.ACCENT[side], cx + way * S(176), y,
+                            "right" if way < 0 else "left", 0.4, p)
+                    b = int(S(150) * v[j] / mx * k)
+                    track = pg.Rect(int(cx + way * S(318)) - (S(150) if way < 0 else 0), y - S(8), S(150), S(16))
+                    pg.draw.rect(d, self.dim((42, 46, 64), p), track)
+                    if b > 0:
+                        pg.draw.rect(d, self.dim(M.ACCENT[side], p), pg.Rect(track.right - b if way < 0 else track.x, track.y, b, track.h))
+                if better and v[0] != v[1] and u > 0.95 + i * 0.09:     # the crown at the end of the better one's line
+                    first = (v[0] - v[1]) * better > 0
+                    self._pop(d, "crown", 30, cx + (-1 if first else 1) * S(494), y - S(2), ease_back(clamp((u - 0.95 - i * 0.09) / 0.2)))
+            if at > 0:
+                parts = [(hd.text(label, "bold", S(24), M.CREAM, glow=0), hd.text(value, "stencil", S(44), M.GOLD, glow=0.5)) for label, value in times]
+                total = sum(a["w"] + S(14) + b["w"] for a, b in parts) + S(70) * (len(parts) - 1)
+                x = cx - total / 2
+                for a, b in parts:
+                    hd.put(d, a, x, S(412), "left", "middle", alpha=at)
+                    hd.put(d, b, x + a["w"] + S(14), S(412), "left", "middle", alpha=at)
+                    x += a["w"] + S(14) + b["w"] + S(70)
+        else:                                                           # one player: his six figures as tiles
+            side = self.sides[0]
+            for i, (key, icon, better, names) in enumerate(self.ROWS):
+                p = clamp((u - 0.3 - i * 0.09) / 0.22)
+                if p <= 0:
+                    continue
+                k = ease_out(clamp((u - 0.35 - i * 0.09) / 0.4))
+                tx, ty = cx + (i % 3 - 1) * S(300), S(166 + (i // 3) * 146)
+                pg.draw.rect(d, self.dim((26, 30, 46), p), pg.Rect(int(tx - S(140)), ty - S(66), S(280), S(134)))
+                ih = 38 if icon == "case" else 58
+                img = live.icon(icon, ih)
+                wn = hd.text_width(sc._fmt(n[side][key]), "stencil", S(76))
+                gw = img.get_width() + S(16) + wn
+                self._pop(d, icon, ih, tx - gw / 2 + img.get_width() / 2, ty - S(16), ease_back(p))
+                put_num(hd, d, sc._fmt(int(round(n[side][key] * k))), "stencil", S(76), M.GOLD, tx - gw / 2 + img.get_width() + S(16),
+                        ty - S(16), "left", 0.5, p)
+                hd.put(d, hd.text(tr(*names), "bold", S(26), M.CREAM, glow=0), tx, ty + S(44), "center", "middle", alpha=p)
+            for j, (label, value) in enumerate(times):
+                y = S(142 + j * 146)
+                hd.put(d, hd.text(label, "bold", S(26), M.CREAM, glow=0), W - S(250), y, "center", "middle", alpha=at)
+                hd.put(d, hd.text(value, "stencil", S(76), M.GOLD, glow=0.5), W - S(250), y + S(58), "center", "middle", alpha=at)

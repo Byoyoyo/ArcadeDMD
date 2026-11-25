@@ -104,9 +104,9 @@ def play(eng, out, clock, game):
 def play_boss(eng, out, clock, game):
     """The second made-up game of a game with the lively screen: the boss of the mission comes (WARNING, the small cards,
     its wide bar), takes hits while a life is lost and a weapon picked up, falls; the game's end-of-mission screens begin
-    (the show, its three parts); then mission 2 begins and cuts the show short. The error that stopped the HD screen, or
+    (the show, its two screens); then mission 2 begins and cuts the show short. The error that stopped the HD screen, or
     None. / La seconde partie inventée d'un jeu à l'écran vivant : le boss arrive, encaisse, tombe ; la fin de mission
-    (le spectacle, ses trois temps) ; puis la mission 2 commence et coupe le spectacle."""
+    (le spectacle, ses deux écrans) ; puis la mission 2 commence et coupe le spectacle."""
     g = eng.library.get(game) or {}
     hd = g.get("hd") if isinstance(g.get("hd"), dict) else {}
     if not hd.get("dynamic"):

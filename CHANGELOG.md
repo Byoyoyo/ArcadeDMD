@@ -6,6 +6,18 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 To update, extract the new version over the old one. Your `config.json`, the addresses learned and your own pictures are kept.
 Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `config.json`, les adresses apprises et tes propres images sont gardés.
 
+## 1.40.1
+
+### English
+- The end-of-mission show of the Metal Slug games takes two screens instead of eight, each one long enough to be read. First the scores over the curve of the mission, then the whole tally at once: each player's rank and medals, every figure face to face, the times.
+- With one player, the second screen shows his six figures as tiles.
+- No firework passes in front of the figures of the tally.
+
+### Français
+- Le spectacle de fin de mission des Metal Slug tient en deux écrans au lieu de huit, et chacun reste le temps d'être lu. D'abord les scores sur la courbe de la mission, puis tout le bilan d'un coup, avec le rang et les médailles de chaque joueur, tous les chiffres face à face et les temps.
+- À un joueur, le second écran montre ses six chiffres en cases.
+- Plus de feu d'artifice devant les chiffres du bilan.
+
 ## 1.40.0
 
 ### English
