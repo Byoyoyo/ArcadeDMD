@@ -1079,7 +1079,7 @@ class HDRenderer:
         vals = eng.state.values
         names = ((eng.derived or {}).get(side + "_char") or {}).get("names")
         ph = (self.fight.sel_phase or {}).get(side)
-        if not isinstance(names, dict) or ph is None:
+        if not isinstance(names, dict) or ph is None or not self.real_team(eng, side):
             return None, None
         chars = [vals.get(f"_{side}_ch{i}") for i in range(3)]
         known = [c for c in chars if c is not None and names.get(str(c)) is not None]
@@ -1105,7 +1105,7 @@ class HDRenderer:
         """Équipe King of Fighters dans l'ordre de passage : [(nom, état)], état « done », « now » ou « next »."""
         vals = eng.state.values
         names = ((eng.derived or {}).get(side + "_char") or {}).get("names")
-        if not isinstance(names, dict):
+        if not isinstance(names, dict) or not self.real_team(eng, side):
             return None
         chars = [vals.get(f"_{side}_ch{i}") for i in range(4)]
         orders = [vals.get(f"_{side}_ord{i}") for i in range(3)]
