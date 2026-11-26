@@ -285,7 +285,8 @@ QUESTIONS = (
 class QuizScene(GameScene):
     """A quiz as in the Neo Geo quizzes: the set at the top with two faces of our own, the question panel below with its
     four answers A B C D, the time that runs, the answer chosen lights up, then a big circle when it is right or a big
-    cross when it is wrong. The lives and the score read in the game decide right or wrong. The questions are our own.
+    cross when it is wrong. The lives and the score read in the game decide right or wrong, and nothing else does: when
+    the time is up with no word from the game, the next question comes with no verdict. The questions are our own.
     / Un quiz : le décor en haut et deux visages à nous, le panneau de la question et ses quatre réponses, le temps qui
     passe, un grand rond si c'est juste, une grande croix si c'est faux. Les questions sont à nous."""
     CREDITS = (-470, 176)                                 # the answers fill the bottom / les réponses remplissent le bas
@@ -336,7 +337,9 @@ class QuizScene(GameScene):
         if ch and ch[1] < ch[0]:
             self.answer(now, False)
         if self.verdict is None and el > self.QTIME:
-            self.answer(now, self.rng.random() < 0.7)
+            self.next_question(now)                       # the time is up and the game said nothing: no verdict of our
+            # own, the circle and the cross only ever follow the score and the lives read in the game (1.40.2: right or
+            # wrong was drawn by lot here) / le temps est écoulé et le jeu n'a rien dit : pas de verdict à nous
         if self.verdict is not None and now - self.verdict[0] > 1.6:
             self.next_question(now)
 
