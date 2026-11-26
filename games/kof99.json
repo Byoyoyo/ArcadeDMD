@@ -250,6 +250,12 @@
  },
  "derived": {
   "p1_char": {
+   "distinct": [
+    "_p1_ch0",
+    "_p1_ch1",
+    "_p1_ch2"
+   ],
+   "distinct_note": "a team never fields the same fighter twice: slots that hold one twice are slots the game has not filled yet (zeroes between START and its select screen in the recorded games of November 2026), and no name is known then",
    "pick": [
     "_p1_ch0",
     "_p1_ch1",
@@ -302,6 +308,11 @@
    }
   },
   "p2_char": {
+   "distinct": [
+    "_p2_ch0",
+    "_p2_ch1",
+    "_p2_ch2"
+   ],
    "pick": [
     "_p2_ch0",
     "_p2_ch1",

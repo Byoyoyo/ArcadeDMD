@@ -630,6 +630,8 @@ class Player:
         self.shown = 0.0
         self.join_t = -99.0
         self.sync_until = -99.0
+        self.kit = True                 # False from a start until the game has dealt the soldier his weapon and his bombs
+                                        # (1.40.2) / faux d'un départ jusqu'à ce que le jeu ait donné l'arme et les bombes
         self.seen = {}
         self.score_disp = None
         self.score_t = -99.0
@@ -1512,12 +1514,14 @@ class MetalSlugScene:
                 P.lives_known = False
                 P.lives_t0 = now
                 P.dealt_t = now
+                P.kit = False
                 if self.dyn:
                     self.live.count(side, "continues", 1, True)
             if mode == 1 and P.mode not in (1, 2):
                 P.join_t = now
                 P.lives_t0 = now
                 P.dealt_t = now
+                P.kit = False
                 # quiet until the game has set its soldier up: the first Metal Slug sets his lives 0, 1, 0, 2, 0 over its
                 # HOW TO PLAY screen with its timer at 1, then wipes his block and starts the mission with the timer at 60
                 # (the capture of 20:31: 7 s, 1UP ! and LAST LIFE on the HD screen meanwhile) / au calme jusqu'à ce que
@@ -1554,6 +1558,15 @@ class MetalSlugScene:
         # values, nothing to compare / le bloc du soldat effacé quelques images : pas des valeurs, rien à comparer
         if wiped:
             return
+        # A soldier who has just come in has nothing yet: weapon 0, no ammunition and no bomb while he picks his
+        # character, for 4 to 7 s (the second player of the games of 7 November, Metal Slug 2, 4 and 5), and the card
+        # said SHOTGUN 0 and NO BOMBS LEFT meanwhile. Nothing is shown of his kit until the game writes it (1.40.2).
+        # Un soldat qui vient d'arriver n'a encore rien : arme 0, ni munition ni bombe tant qu'il choisit son
+        # personnage. Rien n'est montré de son équipement tant que le jeu ne l'a pas écrit.
+        if not P.kit and any(cur[k] for k in ("weapon", "ammo", "bombs")):
+            P.kit = True
+        elif not P.kit and all(cur[k] is None for k in ("weapon", "ammo", "bombs")):
+            P.kit = True                                               # a game that reads none of the three / aucun des trois lu
         old = P.seen
         P.seen = dict(cur, input=inp, time=_n(vals.get("time")))
         if inp is not None:
@@ -2466,7 +2479,7 @@ class MetalSlugScene:
             self._draw_tank(screen, side, P, x0, vals, now)            # flag stays 0, a game of 12:15, test 37)
             return
         code = _n(self.get(vals, side, "weapon"))
-        if code is None:
+        if code is None or not P.kit:                                  # not dealt yet: no weapon to show (1.40.2)
             return
         name, kind = self.weapon(side, code)
         kind = kind or "gun"
@@ -2598,7 +2611,7 @@ class MetalSlugScene:
         hd, S, pg = self.hd, self.S, self.pg
         dx = x0 - self.x0(side, P)
         bombs = _n(self.get(vals, side, "bombs"))
-        if bombs is not None:
+        if bombs is not None and P.kit:                                # not dealt yet: no bomb to count (1.40.2)
             ic = self.icons["grenade"]
             shown = int(bombs) + P.flying
             n = min(shown, 10)

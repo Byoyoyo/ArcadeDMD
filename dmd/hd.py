@@ -50,6 +50,7 @@ from .hd_moves import draw_panel, draw_wins
 from .hd_specials import draw_specials, fighter_rows, hyper_rows, power_label, timer_name
 from .hd_mslug import MetalSlugScene, family
 from .i18n import tr
+from .memvalues import distinct
 
 AMBER, RED, CREAM, LINE = (255, 168, 48), (255, 52, 30), (235, 225, 205), (168, 112, 30)
 GREY = (150, 150, 165)
@@ -802,6 +803,8 @@ class HDRenderer:
             team = self.team(eng, side)
             if self.fight is not None and self.fight.select and self.fight.sel_phase:
                 name, team = self.select_pick(eng, side)   # the select screen: the picks made so far (1.33)
+            if not self.real_team(eng, side):              # slots the game has not filled yet: nobody is known, no
+                name, team = None, None                    # name and no team (1.40.2) / cases pas encore remplies
             # 1.32: under a human's name, the panel of the desperation moves, the team moved up beside the name, small
             # sous le nom d'un humain, le panneau des coups désespérés, l'équipe montée à côté du nom, en petit
             panel = moves is not None and human and self.fight.panel_on(side)
@@ -1047,6 +1050,16 @@ class HDRenderer:
                 x -= t["w"] + S(16)
             if state == "done":                                     # beaten: struck / battu : barré
                 self.pg.draw.line(screen, (220, 60, 40), (x0, y), (x1, y), max(2, S(3)))
+
+    def real_team(self, eng, side):
+        """False while the team slots of a side hold the same fighter twice ("distinct" in the game's file, 1.40.2): the
+        game has not filled them yet, between START and its select screen. / Faux tant que les cases de l'équipe
+        tiennent deux fois le même combattant : le jeu ne les a pas encore remplies."""
+        spec = (eng.derived or {}).get(side + "_char")
+        names = spec.get("names") if isinstance(spec, dict) else None
+        if isinstance(names, dict) and names and set(names) <= {"en", "fr"}:
+            names = names.get("en") or names.get("fr")
+        return distinct(spec, names, eng.state.values)
 
     def select_pick(self, eng, side):
         """On the select screens, the fighters picked so far, read as the game writes them (the captures, 1.33 test
