@@ -6,6 +6,26 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 To update, extract the new version over the old one. Your `config.json`, the addresses learned and your own pictures are kept.
 Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `config.json`, les adresses apprises et tes propres images sont gardés.
 
+## 1.40.2
+
+### English
+- The HD screen draws a picture at every step of the engine. A scene that asks for 50 pictures a second was getting about 32, at uneven intervals. The log now gives the pictures really drawn each second.
+- The King of Fighters '97, '98, '99 and 2002 no longer name Kyo on both sides between START and the select screen, or after a game over. No name is shown until the game has written its teams.
+- Metal Slug: a player who has just come in no longer shows SHOTGUN 0 and NO BOMBS LEFT while he picks his soldier.
+- The quizzes no longer show a right or a wrong answer that the game did not give.
+- Less memory. A game no longer keeps the drawings of all its stages, each stage is drawn when the game goes to it, and the scene of a game is given back when another game starts.
+- A game file with a field of the wrong kind no longer stops the other games or the HD screen. The wrong part is left out and said in the log. A scene that fails goes back to the LED display for that game only.
+- The link to RetroArch only takes RetroArch's own answers.
+
+### Français
+- L'écran HD dessine une image à chaque pas du moteur. Une scène qui demande 50 images par seconde en recevait environ 32, à intervalles irréguliers. Le journal donne maintenant les images vraiment dessinées chaque seconde.
+- The King of Fighters '97, '98, '99 et 2002 n'affichent plus Kyo des deux côtés entre START et l'écran de sélection, ni après un game over. Aucun nom n'est montré tant que le jeu n'a pas écrit ses équipes.
+- Metal Slug, un joueur qui vient d'arriver n'affiche plus FUSIL À POMPE 0 et PLUS DE BOMBES pendant qu'il choisit son soldat.
+- Les quiz n'affichent plus de bonne ou de mauvaise réponse que le jeu n'a pas donnée.
+- Moins de mémoire. Un jeu ne garde plus les dessins de tous ses décors, chaque décor est dessiné quand le jeu y va, et la scène d'un jeu est rendue quand un autre jeu démarre.
+- Un fichier de jeu avec un champ du mauvais genre n'arrête plus les autres jeux ni l'écran HD. La partie fausse est écartée et dite dans le journal. Une scène en panne repasse à l'affichage LED pour ce jeu seulement.
+- Le lien avec RetroArch ne prend plus que les réponses de RetroArch.
+
 ## 1.40.1
 
 ### English

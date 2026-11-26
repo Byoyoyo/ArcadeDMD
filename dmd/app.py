@@ -31,7 +31,7 @@ from .gamefile import clean_game
 from .lights import Lights
 from .i18n import tr
 
-VERSION = "1.40.1"
+VERSION = "1.40.2"
 
 DEFAULT_CONFIG = {
     "language": "auto",
