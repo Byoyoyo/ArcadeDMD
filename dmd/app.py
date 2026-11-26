@@ -27,6 +27,7 @@ from .coinbuttons import CoinButtons, mvs_rates, side_word
 from .neocoins import NeoCoins
 from .textfiles import TextFiles
 from .capture import Capture
+from .gamefile import clean_game
 from .lights import Lights
 from .i18n import tr
 
@@ -281,9 +282,19 @@ class GameLibrary:
             p = os.path.join(self.dir, key + ".json")
             try:
                 with open(p, "r", encoding="utf-8") as f:
-                    games[key] = json.load(f)
+                    game = json.load(f)
             except (OSError, ValueError) as e:
                 self.log(tr(f"games/{key}.json illisible : {e}", f"games/{key}.json unreadable: {e}"))
+                continue
+            # a field of the wrong kind no longer stops the other games or the HD screen: the wrong part is left out and
+            # said (1.40.2) / un champ du mauvais genre n'arrête plus les autres jeux ni l'écran HD
+            game, wrong = clean_game(game)
+            for w in wrong[:6]:
+                self.log(tr(f"games/{key}.json : {w}, partie écartée", f"games/{key}.json: {w}, that part is left out"))
+            if len(wrong) > 6:
+                self.log(tr(f"games/{key}.json : et {len(wrong) - 6} autres défauts", f"games/{key}.json: and {len(wrong) - 6} more"))
+            if game is not None:
+                games[key] = game
         changed = [k for k in mt if self.mtimes.get(k) != mt[k]]
         self.games = games
         self.mtimes = mt

@@ -378,6 +378,7 @@ class PreviewOutput:
         self.hd_view = None
         self.hd_next = 0.0
         self.hd_pace = HDPace(log)
+        self.hd_off = None          # the game whose HD scene failed: LEDs until another one starts (1.40.2)
         try:
             self._init_pygame()
         except Exception as e:
@@ -584,7 +585,9 @@ class PreviewOutput:
             self.next_check = now + self.CHECK_EVERY
             if self._covered():
                 self._raise()
-        if self.hd_view is not None and self.engine is not None:
+        if self.hd_off is not None and self._hd_game() != self.hd_off:
+            self.hd_off = None                      # another game: the HD screen tries again / un autre jeu : on réessaie
+        if self.hd_view is not None and self.engine is not None and self.hd_off is None:
             pg = self.pg
             for ev in pg.event.get():
                 if ev.type == pg.QUIT or (ev.type == pg.KEYDOWN and ev.key == pg.K_ESCAPE):
@@ -602,8 +605,15 @@ class PreviewOutput:
             try:
                 self.hd_view.render(self.screen, self.engine)
             except Exception as e:                  # jamais d'écran figé : retour au rendu LED
-                self.log(tr(f"écran HD : {e!r}, retour à l'affichage LED", f"HD screen: {e!r}, back to the LED display"))
-                self.hd_view = None
+                # for this game only (1.40.2): the HD screen was given up until the next start of the program, one scene
+                # that failed turned every game after it into big LED dots / pour ce jeu seulement : une scène en panne
+                # laissait tous les jeux suivants en gros points LED jusqu'au redémarrage
+                self.hd_off = self._hd_game()
+                self.log(tr(f"écran HD : {e!r}, affichage LED jusqu'au prochain jeu",
+                            f"HD screen: {e!r}, LED display until the next game"))
+                for part in ("fight", "mslug", "game_scene"):          # built again next time / reconstruits la prochaine fois
+                    if hasattr(self.hd_view, part):
+                        setattr(self.hd_view, part, None)
                 return
             pg.display.flip()
             self.hd_pace.drawn(now, self.hd_view.FPS)
@@ -635,6 +645,14 @@ class PreviewOutput:
             self.label.configure(image=self._photo)
             self.tk.update_idletasks()
             self.tk.update()
+
+    def _hd_game(self):
+        """What the HD screen is showing: the game, or the waiting screen. / Ce que montre l'écran HD."""
+        eng = self.engine
+        try:
+            return (eng.mode, (eng.state.meta or {}).get("game") or "")
+        except Exception:
+            return ("?", "")
 
     def close(self):
         try:
