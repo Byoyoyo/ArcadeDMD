@@ -132,6 +132,7 @@ class HDRenderer:
         self.mslug = None
         self.fight = None
         self.game_scene = None        # (key, scene) of the game played, games done one by one (hd_games)
+        self.scene_key = None         # the game those three were built for (1.40.2) / le jeu pour lequel ils sont faits
         self.coins_on = (cfg or {}).get("coins", True)   # fighting games: coin doors on the attract screen
         self.coins = None
         self.intro_serial = 0         # game logo when a game starts (the engine counts the starts)
@@ -257,8 +258,8 @@ class HDRenderer:
                     hit = (pg.transform.smoothscale(surf, size), pg.transform.smoothscale(glow, size) if glow is not None else None)
                     if sk[0] is not None:
                         self.scaled[sk] = hit
-                        while len(self.scaled) > 300:
-                            self.scaled.popitem(last=False)
+                        while len(self.scaled) > 120:     # 300 until 1.40.2: a score that pops leaves ten sizes of
+                            self.scaled.popitem(last=False)   # each of its values here, 100 MB kept for good
                 surf, glow = hit
         w, h, pad = t["w"] * scale, t["h"] * scale, t["pad"] * scale
         ix = x if align == "left" else (x - w / 2 if align == "center" else x - w)
@@ -642,6 +643,13 @@ class HDRenderer:
         key = meta.get("game") or ""
         title = meta.get("title") or ""
         g = eng.library.get(key) or {}
+        if key and key != self.scene_key:
+            # another game: the scene of the last one, its backdrops and its effects are given back. They were kept
+            # for good, and the memory grew with every game played, 1.5 GB after nine (1.40.2). The same game started
+            # again finds its scene ready. / un autre jeu : la scène du précédent, ses décors et ses effets sont rendus
+            if self.scene_key is not None:
+                self.mslug = self.fight = self.game_scene = self.fight_cbar = None
+            self.scene_key = key
         if self.themed and family(key):                       # Metal Slug : décor animé et effets
             if self.mslug is None:
                 self.mslug = MetalSlugScene(self)
