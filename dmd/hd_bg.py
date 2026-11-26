@@ -28,7 +28,8 @@ THEMES = ("desert", "jungle", "snow")
 # DIM_MAX percent (1.32 test 9b, the names and bars over the market in the sun) / un décor clair est assombri plus
 # que son « dim_fight », jusqu'à cette clarté, au plus DIM_MAX pour cent
 # A backdrop that is asked for and not drawn yet is drawn beside the display and shown when it is ready, the one on
-# screen staying meanwhile (1.40.2): nothing has to be drawn in advance and kept. False draws it at once, the display
+# screen staying meanwhile (1.40.2): nothing has to be drawn in advance and kept. Only for a Backdrop that asks for it
+# ("lazy": the fights, with their nine to twelve stages; Metal Slug and the other scenes are as they were). False draws it at once, the display
 # waiting for it, for the tools that compare pictures. / Un décor demandé et pas encore dessiné est dessiné à côté de
 # l'affichage et montré quand il est prêt, celui de l'écran restant en attendant : plus rien à dessiner d'avance.
 LAZY = os.environ.get("ARCADEDMD_BACKDROPS") != "sync"
@@ -863,6 +864,7 @@ class Backdrop:
         self.cur_look = None          # the look drawn, for the hooks / le look dessiné, pour les animations
         self.look_k = 1.0
         self._lbuf = None             # the layers of a tinted look, before their tint / les plans avant leur teinte
+        self.lazy = False             # True: a backdrop not drawn yet is drawn beside the display (the fights, 1.40.2)
         self.asked = None             # (name, wipe) of a backdrop being drawn beside, shown when ready (1.40.2)
         self.building = set()         # the names a thread is drawing / les décors qu'un fil dessine
         self.failed = set()           # the ones it could not draw / ceux qu'il n'a pas pu dessiner
@@ -1007,7 +1009,7 @@ class Backdrop:
         if name not in BUILDERS or name == self.theme:
             self.asked = None
             return
-        if LAZY and self.last is not None and not self.ready(name) and name not in self.failed:
+        if LAZY and self.lazy and self.last is not None and not self.ready(name) and name not in self.failed:
             self.asked = (name, wipe)                        # drawn beside, shown when ready: draw() comes back here
             self.prebuild([name])
             return
