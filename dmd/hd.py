@@ -98,7 +98,9 @@ def _num(v):
 
 
 class HDRenderer:
-    FPS = 40
+    FPS = 25        # the waiting screen and the plain screen: one picture every other step of the engine. They asked for
+                    # 40 and got these 25 since the first day, the figure now says it (1.40.2) / l'écran d'attente et
+                    # l'écran simple : une image un pas du moteur sur deux, ce qu'ils ont toujours eu
 
     def __init__(self, pg, size, root, cfg=None, log=print, logos=None):
         self.pg = pg

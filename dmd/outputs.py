@@ -298,6 +298,47 @@ def hd_factor(cfg, width, height):
 # fenêtre d'aperçu / « LED virtuelles » (pygame, sinon tkinter)
 # --------------------------------------------------------------------------
 
+class HDPace:
+    """How many HD pictures a second really reach the screen, said in the log (1.40.2): one line a minute for the
+    first three minutes of a scene, then every ten minutes, and at once when the screen gets under four fifths of
+    what the scene asks. / Combien d'images HD par seconde arrivent vraiment à l'écran, dit dans le journal : une
+    ligne par minute les trois premières minutes d'une scène, puis toutes les dix minutes, et tout de suite quand
+    l'écran passe sous les quatre cinquièmes de ce que la scène demande."""
+
+    WINDOW = 60.0
+    FIRST = 3               # windows always said after a change of scene / fenêtres toujours dites
+    QUIET = 10              # then one window in ten / puis une fenêtre sur dix
+    LOW = 0.8
+
+    def __init__(self, log):
+        self.log = log
+        self.asked = None
+        self.t0 = None
+        self.n = 0
+        self.said = 0
+        self.silent = 0
+
+    def drawn(self, now, asked):
+        if asked != self.asked or self.t0 is None or now - self.t0 > 2 * self.WINDOW:
+            self.asked, self.t0, self.n, self.said, self.silent = asked, now, 0, 0, 0    # a new scene, or a long pause
+        self.n += 1
+        span = now - self.t0
+        if span < self.WINDOW:
+            return None
+        got = (self.n - 1) / span
+        self.t0, self.n = now, 1
+        low = got < self.LOW * asked
+        if self.said < self.FIRST or low or self.silent + 1 >= self.QUIET:
+            self.said += 1
+            self.silent = 0
+            fr = f"{got:.1f}".replace(".", ",")
+            self.log(tr(f"écran HD : {fr} images par seconde sur la dernière minute ({asked:g} demandées)",
+                        f"HD screen: {got:.1f} pictures a second over the last minute ({asked:g} asked)"))
+        else:
+            self.silent += 1
+        return got
+
+
 class PreviewOutput:
     """"mode": "always", la fenêtre reste affichée. "mode": "games", elle n'apparaît que pendant un jeu, au premier
     plan, et se cache ensuite : le frontal (marquee ou clear logos de BigBox...) garde l'écran le reste du temps.
@@ -305,6 +346,7 @@ class PreviewOutput:
 
     RELEASE_DELAY = 0.0     # fin de partie : l'écran revient tout de suite au frontal
     CHECK_EVERY = 1.0       # pendant un jeu : vérifie chaque seconde que rien n'est passé devant
+    HD_EARLY = 0.2          # share of a period a step may come early and still be drawn (1.40.2) / part de période
 
     def __init__(self, cfg, log=print):
         self.cfg = cfg
@@ -335,6 +377,7 @@ class PreviewOutput:
         self.engine = None
         self.hd_view = None
         self.hd_next = 0.0
+        self.hd_pace = HDPace(log)
         try:
             self._init_pygame()
         except Exception as e:
@@ -546,9 +589,16 @@ class PreviewOutput:
             for ev in pg.event.get():
                 if ev.type == pg.QUIT or (ev.type == pg.KEYDOWN and ev.key == pg.K_ESCAPE):
                     self._asked(ev)
-            if now < self.hd_next:
+            # The next picture is due one period after this one WAS due, and a step of the engine that comes a hair
+            # early still gets its picture (1.40.2). With "now + period" and no margin, a scene that asks for as many
+            # pictures as the engine has steps lost one picture in three: the engine never comes back at the very
+            # same microsecond. / La prochaine image est due une période après l'échéance de celle-ci, et un pas du
+            # moteur qui arrive un rien en avance a quand même son image.
+            period = 1.0 / self.hd_view.FPS
+            late = now - self.hd_next
+            if late < -self.HD_EARLY * period:
                 return
-            self.hd_next = now + 1.0 / self.hd_view.FPS
+            self.hd_next = self.hd_next + period if late < period else now + period
             try:
                 self.hd_view.render(self.screen, self.engine)
             except Exception as e:                  # jamais d'écran figé : retour au rendu LED
@@ -556,6 +606,7 @@ class PreviewOutput:
                 self.hd_view = None
                 return
             pg.display.flip()
+            self.hd_pace.drawn(now, self.hd_view.FPS)
             return
         frame = _apply_brightness(frame, self.brightness)
         if self.hd > 1:
