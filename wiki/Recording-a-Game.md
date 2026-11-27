@@ -1,4 +1,4 @@
-Since 1.33, ArcadeDMD records every game you play. One game, played normally, is enough to tune a game without the cabinet. Its file is fixed from the recording, the game is replayed in the HD scene to check every moment, and the recording is kept as a test so that nothing breaks later.
+ArcadeDMD can record every game you play. Since 1.40.2 nothing is recorded at first. Turn the recording on in the **Debug** tab of the ArcadeDMD window for the games you want to send, then turn it off. One game, played normally, is enough to tune a game without the cabinet. Its file is fixed from the recording, the game is replayed in the HD scene to check every moment, and the recording is kept as a test so that nothing breaks later.
 
 ## What is recorded
 
@@ -9,11 +9,13 @@ Since 1.33, ArcadeDMD records every game you play. One game, played normally, is
 
 ## Settings
 
+The **Debug** tab of the window writes these settings for you. The games the robot plays are recorded whatever the setting.
+
 | Where | Setting |
 |---|---|
-| top of `config.json` | `"capture"`, `"all"` (every game, the default), `"fights"` (the fighting games only) or `"off"` |
-| `retroarch` section | `"ram_dump": {"enabled": true, "every": 0.25}` |
-| `retroarch` section | `"screenshots": {"enabled": true, "every": 2.0, "dir": ""}`. Set `"dir"` to RetroArch's screenshot folder (Settings, Directory, Screenshots) and the log says whether the first picture appeared |
+| top of `config.json` | `"capture"`, `"off"` (nothing, the default), `"all"` (every game) or `"fights"` (the fighting games only) |
+| `retroarch` section | `"ram_dump": {"enabled": true, "every": 0.25}`, off by default |
+| `retroarch` section | `"screenshots": {"enabled": true, "every": 2.0, "dir": ""}`, off by default. Set `"dir"` to RetroArch's screenshot folder (Settings, Directory, Screenshots) and the log says whether the first picture appeared |
 
 In RetroArch, turn off the screenshot notification and flash (Settings, On-Screen Display, On-Screen Notifications). Also turn off "GPU Screenshot" (Settings, Video, Output, an advanced setting), otherwise the pictures come out with the CRT shader at full size, 3 MB each, instead of the game's own 304 x 224.
 

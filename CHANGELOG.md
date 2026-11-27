@@ -16,6 +16,7 @@ Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `con
 - Less memory. A game no longer keeps the drawings of all its stages, each stage is drawn when the game goes to it, and the scene of a game is given back when another game starts.
 - A game file with a field of the wrong kind no longer stops the other games or the HD screen. The wrong part is left out and said in the log. A scene that fails goes back to the LED display for that game only.
 - The link to RetroArch only takes RetroArch's own answers.
+- Nothing is recorded any more until it is asked for. The recording of the games, of RetroArch's memory and its screenshots were on for everyone. They are now off at first, and are turned on in a new Debug tab of the window. The games the robot plays are still recorded.
 
 ### Français
 - L'écran HD dessine une image à chaque pas du moteur. Une scène qui demande 50 images par seconde en recevait environ 32, à intervalles irréguliers. Le journal donne maintenant les images vraiment dessinées chaque seconde.
@@ -25,6 +26,7 @@ Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `con
 - Moins de mémoire. Un jeu ne garde plus les dessins de tous ses décors, chaque décor est dessiné quand le jeu y va, et la scène d'un jeu est rendue quand un autre jeu démarre.
 - Un fichier de jeu avec un champ du mauvais genre n'arrête plus les autres jeux ni l'écran HD. La partie fausse est écartée et dite dans le journal. Une scène en panne repasse à l'affichage LED pour ce jeu seulement.
 - Le lien avec RetroArch ne prend plus que les réponses de RetroArch.
+- Plus rien n'est enregistré tant qu'on ne le demande pas. L'enregistrement des parties, de la mémoire de RetroArch et ses captures d'écran étaient activés chez tout le monde. Ils sont maintenant coupés au départ, et s'activent dans un nouvel onglet Débogage de la fenêtre. Les parties jouées par le robot restent enregistrées.
 
 ## 1.40.1
 

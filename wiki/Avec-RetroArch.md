@@ -69,7 +69,7 @@ RetroArch ne dit ni quand une pièce entre ni par quelle fente, et FinalBurn Neo
 
 ## Enregistrement
 
-Sous RetroArch, ArcadeDMD enregistre chaque partie (les valeurs, la mémoire, des captures d'écran) pour qu'un jeu puisse être réglé sans la borne. Voir [[Enregistrer une partie]].
+Sous RetroArch, ArcadeDMD peut enregistrer chaque partie (les valeurs, la mémoire, des captures d'écran) pour qu'un jeu puisse être réglé sans la borne. C'est coupé au départ et ça s'active dans l'onglet Débogage de la fenêtre. Voir [[Enregistrer une partie]].
 
 ## Le couper
 

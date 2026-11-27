@@ -21,7 +21,7 @@ from .canvas import Canvas, Font, parse_color
 from .scene import Scene, Ctx, GameState, LogoIntro
 from .outputs import ZeDMDOutput, PreviewOutput, GifRecorder, NullOutput
 from .pixelcade import PixelcadeOutput, guess_pixelcade_dir, list_ports
-from .retroarch import RetroArchSource
+from .retroarch import RetroArchSource, robot_running
 from .memvalues import derive, forget_seen, game_values, resolve_value
 from .coinbuttons import CoinButtons, mvs_rates, side_word
 from .neocoins import NeoCoins
@@ -710,7 +710,7 @@ class Engine:
         tf = config.get("textfiles") or {}
         self.texts = TextFiles(tf, root, log) if tf.get("enabled") and not demo_game else None
         # the captures of the fighting games, to replay them offline (1.33) / les captures des jeux de combat
-        self.capture = Capture(root, log, config.get("capture", "all")) if not demo_game else None
+        self.capture = Capture(root, log, config.get("capture", "off")) if not demo_game else None
         self.lights = Lights(config.get("lights"), log)              # the LEDs of the cabinet, through HyperHDR (1.39)
         # config.json modifié (screen_setup.bat, réglage à la main) : le moteur redémarre avec les nouveaux réglages
         self.cfg_path = os.path.join(root, "config.json")
@@ -950,7 +950,7 @@ class Engine:
         self.log(tr(f"jeu : {meta.get('system')} « {title} » -> scène {self.scene_key}",
                     f"game: {meta.get('system')} \"{title}\" -> scene {self.scene_key}"))
         if self.capture is not None and source != "demo":
-            self.capture.start(meta, g, key, VERSION, time.monotonic())
+            self.capture.start(meta, g, key, VERSION, time.monotonic(), force=robot_running(self.root))
 
     def start_demo(self, key, seconds=None):
         g = self.library.get(key)

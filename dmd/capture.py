@@ -1,12 +1,15 @@
 """Captures of the games (1.33): during a fighting game, every change of every value read is written with its time to
 runtime/captures/<game>-<date>.log, a few hundred KB for a match. One match per game is enough to replay it offline
 in the fight engine, tune the game's file (its select screens, the state of its fights, its round) and keep the
-capture as a test. "capture" in config.json: "all" (every game, the default since test 7, a game of Windjammers
-had not been captured), "fights" (the fighting games only) or "off".
+capture as a test. "capture" in config.json: "off" (the default since 1.40.2: nothing is recorded until it is turned
+on in the Debug tab of the window), "all" (every game) or "fights" (the fighting games only). The games the robot
+plays are recorded whatever the setting.
 
 Captures des parties : pendant un jeu de combat, chaque changement de chaque valeur lue est écrit avec son heure dans
 runtime/captures/<jeu>-<date>.log. Un match par jeu suffit pour le rejouer dans le moteur de combat, régler le
-fichier du jeu et garder la capture comme test. "capture" dans config.json : "all" (tous les jeux, par défaut), "fights" ou "off".
+fichier du jeu et garder la capture comme test. "capture" dans config.json : "off" (par défaut depuis la 1.40.2, rien
+n'est enregistré tant que ce n'est pas activé dans l'onglet Débogage de la fenêtre), "all" (tous les jeux) ou "fights".
+Les parties jouées par le robot sont enregistrées quel que soit le réglage.
 
 Format, one line each / une ligne chacun :
   # {"version": "1.33.0", "game": "samsho2", "system": "samsho2", "title": "...", "date": "...", "values": [...]}
@@ -26,9 +29,9 @@ FLUSH_EVERY = 2.0
 
 
 class Capture:
-    def __init__(self, root, log, mode="all"):
+    def __init__(self, root, log, mode="off"):
         self.root, self.log = root, log
-        self.mode = str(mode or "all").lower()
+        self.mode = str(mode or "off").lower()
         self.f = None
         self.path = None
         self.t0 = 0.0
@@ -50,10 +53,11 @@ class Capture:
         vals = (game.get("memory") or {}).get("values") or {}
         return "health" in vals and "health_p2" in vals
 
-    def start(self, meta, game, key, version, now):
-        """A game starts: its capture, if its kind asks for one. / Un jeu commence : sa capture, si son genre le demande."""
+    def start(self, meta, game, key, version, now, force=False):
+        """A game starts: its capture, if its kind asks for one, and always while the robot plays (force). / Un jeu
+        commence : sa capture, si son genre le demande, et toujours quand le robot joue."""
         self.stop(now)
-        if self.mode == "off" or (self.mode != "all" and not self.is_fight(game, key)):
+        if not force and (self.mode == "off" or (self.mode != "all" and not self.is_fight(game, key))):
             return
         folder = os.path.join(self.root, "runtime", "captures")
         try:

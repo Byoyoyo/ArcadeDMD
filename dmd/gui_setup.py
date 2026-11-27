@@ -304,9 +304,10 @@ class Setup:
         dump = ra_cfg.get("ram_dump") if isinstance(ra_cfg.get("ram_dump"), dict) else {}
         cap_dir = os.path.join(self.root, "runtime", "captures")
         last = self._last_capture()
-        record = {"capture": cfg.get("capture", "all"), "ram": bool(dump.get("enabled", False)),
+        record = {"capture": cfg.get("capture", "off"), "ram": bool(dump.get("enabled", False)),
                   "shots": bool(shots.get("enabled", False)), "shots_dir": shots.get("dir") or "",
                   "last": os.path.basename(last) if last else "", "folder": cap_dir}
+        record["files"], record["bytes"] = self._folder_size(cap_dir)
         return {"retroarch": ra, "mame": mame, "coins": coins, "record": record, "windows": sys.platform == "win32"}
 
     @staticmethod
@@ -479,6 +480,24 @@ class Setup:
             return {"ok": False, "error": str(e)}
 
     # ------------------------------------------------------------ the last game, ready to send / prête à envoyer
+    @staticmethod
+    def _folder_size(folder, most=20000):
+        """(files, bytes) of what has been recorded so far. / (fichiers, octets) de ce qui a été enregistré."""
+        files = size = 0
+        try:
+            for base, _dirs, names in os.walk(folder):
+                for n in names:
+                    try:
+                        size += os.path.getsize(os.path.join(base, n))
+                        files += 1
+                    except OSError:
+                        pass
+                if files >= most:
+                    break
+        except OSError:
+            pass
+        return files, size
+
     def _last_capture(self):
         d = os.path.join(self.root, "runtime", "captures")
         try:

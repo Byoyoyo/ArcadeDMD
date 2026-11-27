@@ -1,4 +1,4 @@
-Depuis la 1.33, ArcadeDMD enregistre chaque partie que tu joues. Une partie, jouée normalement, suffit pour régler un jeu sans la borne. Son fichier est corrigé d'après l'enregistrement, la partie est rejouée dans la scène HD pour vérifier chaque moment, et l'enregistrement est gardé comme test pour que rien ne casse plus tard.
+ArcadeDMD peut enregistrer chaque partie que tu joues. Depuis la 1.40.2 rien n'est enregistré au départ. Active l'enregistrement dans l'onglet **Débogage** de la fenêtre d'ArcadeDMD, le temps des parties à envoyer, puis coupe-le. Une partie, jouée normalement, suffit pour régler un jeu sans la borne. Son fichier est corrigé d'après l'enregistrement, la partie est rejouée dans la scène HD pour vérifier chaque moment, et l'enregistrement est gardé comme test pour que rien ne casse plus tard.
 
 ## Ce qui est enregistré
 
@@ -9,11 +9,13 @@ Depuis la 1.33, ArcadeDMD enregistre chaque partie que tu joues. Une partie, jou
 
 ## Réglages
 
+L'onglet **Débogage** de la fenêtre écrit ces réglages pour toi. Les parties jouées par le robot sont enregistrées quel que soit le réglage.
+
 | Où | Réglage |
 |---|---|
-| en haut de `config.json` | `"capture"`, `"all"` (toutes les parties, par défaut), `"fights"` (les jeux de combat seulement) ou `"off"` |
-| section `retroarch` | `"ram_dump": {"enabled": true, "every": 0.25}` |
-| section `retroarch` | `"screenshots": {"enabled": true, "every": 2.0, "dir": ""}`. Mets dans `"dir"` le dossier des captures de RetroArch (Réglages, Dossiers, Captures d'écran) et le journal dit si la première image est apparue |
+| en haut de `config.json` | `"capture"`, `"off"` (rien, par défaut), `"all"` (toutes les parties) ou `"fights"` (les jeux de combat seulement) |
+| section `retroarch` | `"ram_dump": {"enabled": true, "every": 0.25}`, coupé par défaut |
+| section `retroarch` | `"screenshots": {"enabled": true, "every": 2.0, "dir": ""}`, coupé par défaut. Mets dans `"dir"` le dossier des captures de RetroArch (Réglages, Dossiers, Captures d'écran) et le journal dit si la première image est apparue |
 
 Dans RetroArch, coupe la notification et le flash des captures d'écran (Réglages, Affichage à l'écran, Notifications à l'écran). Coupe aussi « Capture d'écran GPU » (Réglages, Vidéo, Sortie, un réglage avancé), sinon les images sortent avec le shader CRT en pleine taille, 3 Mo chacune, au lieu du 304 x 224 du jeu.
 
