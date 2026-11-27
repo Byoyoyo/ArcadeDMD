@@ -2,7 +2,7 @@ ArcadeDMD annonce sur le fronton les succès que tu débloques sur [RetroAchieve
 
 ## Ce qui s'affiche
 
-Quand un succès est débloqué, un cartouche vient au milieu du marquee HD pendant six secondes, quelle que soit la scène. Il donne le nom du succès, ses points et le nombre de succès du jeu que tu as maintenant. La dalle LED affiche le nom sur une ligne.
+Quand un succès est débloqué, un bandeau s'ouvre sur toute la largeur du marquee HD pendant six secondes, quelle que soit la scène. Il donne le nom du succès, ses points et le nombre de succès du jeu que tu as maintenant, et ce compteur gagne un cran. Pendant un combat le bandeau vient en haut, pour que les barres de vie restent en vue. Ailleurs il prend le milieu. La dalle LED affiche le nom sur une ligne.
 
 ## Régler le compte
 
@@ -15,7 +15,7 @@ ArcadeDMD ne demande jamais ton mot de passe. La clé reste dans `config.json` s
 
 ## Bon à savoir
 
-- ArcadeDMD interroge le site toutes les 15 secondes pendant une partie, et encore une minute et demie après la fermeture du jeu. Le cartouche arrive dans ces 15 secondes, le temps que l'émulateur prévienne le site et qu'ArcadeDMD demande.
+- ArcadeDMD interroge le site toutes les 15 secondes pendant une partie, et encore une minute et demie après la fermeture du jeu. Le bandeau arrive dans ces 15 secondes, le temps que l'émulateur prévienne le site et qu'ArcadeDMD demande.
 - Rien n'est demandé tant qu'aucun jeu ne tourne.
 - Ce que tu avais débloqué avant de lancer le jeu n'est pas annoncé.
 - Sans Internet, ou quand le site ne répond pas, le jeu et le marquee continuent. Le journal le dit une fois et ArcadeDMD réessaie.

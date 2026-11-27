@@ -2,7 +2,7 @@ ArcadeDMD announces on the marquee the achievements you unlock on [RetroAchievem
 
 ## What it shows
 
-When an achievement is unlocked, a slab comes over the middle of the HD marquee for six seconds, whatever the scene. It gives the name of the achievement, its points and how many of the game's achievements you now have. The LED panel shows the name on one line.
+When an achievement is unlocked, a band opens across the whole HD marquee for six seconds, whatever the scene. It gives the name of the achievement, its points and how many of the game's achievements you now have, and that count gains a notch. In a fight the band comes at the top, so that the life bars stay in sight. Elsewhere it takes the middle. The LED panel shows the name on one line.
 
 ## Setting the account
 
@@ -15,7 +15,7 @@ ArcadeDMD never asks for your password. The key stays in `config.json` on your P
 
 ## Good to know
 
-- ArcadeDMD asks the site every 15 seconds while a game is played, and for a minute and a half after it is closed. The slab comes within those 15 seconds, the time for the emulator to tell the site and for ArcadeDMD to ask.
+- ArcadeDMD asks the site every 15 seconds while a game is played, and for a minute and a half after it is closed. The band comes within those 15 seconds, the time for the emulator to tell the site and for ArcadeDMD to ask.
 - Nothing is asked while no game is played.
 - What you unlocked before the game was started is not announced.
 - Without Internet, or when the site does not answer, the game and the marquee carry on. The log says it once and ArcadeDMD tries again.

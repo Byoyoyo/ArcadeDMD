@@ -1,12 +1,12 @@
 """Checks the RetroAchievements part (1.41) against a site played by this tool on this machine, never the real one:
 what the watch announces and what it keeps quiet, what it says when the site refuses or is down, that the web API key
 never reaches the log nor the page of the window, that the window keeps the key when its field is left empty, and that
-the slab is drawn on the HD screen for six seconds and then gone.
+the band is drawn on the HD screen for six seconds and then gone.
 
 Vérifie la partie RetroAchievements contre un site joué par cet outil sur cette machine, jamais le vrai : ce que la
 veille annonce et ce qu'elle tait, ce qu'elle dit quand le site refuse ou tombe, que la clé web API n'arrive jamais
 dans le journal ni dans la page de la fenêtre, que la fenêtre garde la clé quand son champ est laissé vide, et que le
-cartouche est dessiné sur l'écran HD pendant six secondes puis disparaît.
+bandeau est dessiné sur l'écran HD pendant six secondes puis disparaît.
 
 usage: python tools/achievements_check.py
 """
@@ -233,25 +233,36 @@ def check_engine_and_screen():
     eng.handle_event({"t": "achievement", "title": "First Blood", "points": 10, "game": "A Game", "n": 3, "of": 40}, 0.0, "site")
     assert eng.achievement["serial"] == 1 and eng.achievement["title"] == "First Blood" and eng.overlay, "the engine keeps the news"
     hd = HDRenderer(pygame, (1920, 470), ROOT, {"logos": False}, lambda *a: None, logos=None)
-    long_one = dict(eng.achievement, serial=2, title="An Achievement With A Name Far Longer Than Any Slab Could Ever Hold In Big Letters", n=None)
+    W, H, band, clear = 1920, 470, (20, 16, 26, 255), (0, 0, 0, 0)
 
-    def drawn(ev, now):
-        s = pygame.Surface((1920, 470), pygame.SRCALPHA)           # see-through, to find what was drawn / pour voir ce qui est dessiné
+    def drawn(ev, now, top=False):
+        s = pygame.Surface((W, H), pygame.SRCALPHA)                # see-through, to find what was drawn / pour voir ce qui est dessiné
 
         class E:
             achievement = ev
+        hd.ach_top = top
         hd._draw_achievement(s, E, now)
-        return s.get_bounding_rect()
+        return s
 
-    assert drawn(None, 0.0).w == 0, "no news, nothing drawn"
-    box = drawn(eng.achievement, 10.0)
-    assert box.w == 0, "the first picture of a slab starts from nothing"
-    box = drawn(eng.achievement, 12.0)
-    assert 850 <= box.w <= 910 and 150 <= box.h <= 170 and abs(box.centerx - 960) <= 2, f"a slab in the middle, {box}"
-    assert drawn(eng.achievement, 10.0 + hd.ACH_SECONDS + 0.1).w == 0, "gone after six seconds"
-    box = drawn(long_one, 30.0)
-    box = drawn(long_one, 32.0)
-    assert 850 <= box.w <= 910, f"a long name stays inside the slab, {box}"
+    assert drawn(None, 0.0).get_bounding_rect().w == 0, "no news, nothing drawn"
+    s = drawn(eng.achievement, 10.0)
+    assert tuple(s.get_at((40, H // 2))) == clear and s.get_bounding_rect().w > 0, "first the strike in the middle, the band not yet open"
+    s = drawn(eng.achievement, 12.0)
+    assert tuple(s.get_at((6, H // 2))) == band and tuple(s.get_at((W - 6, H // 2))) == band, "the band across the whole marquee"
+    assert tuple(s.get_at((6, 20)))[3] > 0 and tuple(s.get_at((6, 20))) != band, "the scene dimmed above the band, the band in the middle"
+    assert drawn(eng.achievement, 10.0 + hd.ACH_SECONDS + 0.1).get_bounding_rect().w == 0, "gone after six seconds"
+    again = dict(eng.achievement, serial=2)                        # a fight keeps its middle: the band at the top, nothing dimmed
+    drawn(again, 20.0, top=True)
+    s = drawn(again, 22.0, top=True)
+    assert tuple(s.get_at((6, 60))) == band and tuple(s.get_at((6, H // 2))) == clear and tuple(s.get_at((6, H - 10))) == clear, "at the top in a fight"
+    long_one = "An Achievement With A Name Far Longer Than Any Band Could Ever Hold In Big Letters Even On Two Lines Of Them".upper()
+    for z in (1.0, 0.7):
+        size, lines = hd._achievement_title(long_one, 900, z)
+        assert len(lines) == 2 and all(hd.font("black", hd.S(size * z)).getlength(ln) <= 900 for ln in lines), "a long name stays in its room"
+    assert hd._achievement_title("FIRST BLOOD", 900) == (82, ["FIRST BLOOD"]), "a short name in big letters"
+    for ev in (dict(again, serial=3, n=None, of=None), dict(again, serial=4, n=80, of=200), dict(again, serial=5, title="", points=1)):
+        drawn(ev, 30.0)
+        drawn(ev, 31.5)                                            # no count, a count too long for notches, no name: nothing fails
     pygame.quit()
 
 
@@ -268,7 +279,7 @@ def main():
     finally:
         site.close()
     check_engine_and_screen()
-    print("ok screen: a slab in the middle for six seconds")
+    print("ok screen: a band across the marquee for six seconds, at the top in a fight")
     return 0
 
 
