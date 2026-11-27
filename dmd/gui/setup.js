@@ -308,7 +308,7 @@ function recordCard(r, ra) {
   const on = r.capture !== "off" || r.ram || r.shots;
   const card = h("div", { class: "card" },
     h("div", { class: "row-h" }, h("h2", {}, t("Enregistrer les parties", "Record the games")),
-      h("span", { class: "pill " + (on ? "warn" : "ok") }, h("i"), on ? t("Activé", "On") : t("Coupé", "Off"))),
+      h("span", { class: "pill " + (on ? "ok" : "warn") }, h("i"), on ? t("Activé", "On") : t("Coupé", "Off"))),
     h("div", { class: "soft" }, t("Ce qu'il faut pour apprendre ou corriger un jeu, chaque valeur lue avec son heure, et pour RetroArch la mémoire et des captures d'écran. Rien n'est enregistré tant que ce n'est pas activé ici.",
                                   "What it takes to learn or fix a game, each value read with its time, and for RetroArch the memory and screenshots. Nothing is recorded until it is turned on here.")),
     field(t("Parties enregistrées", "Games recorded"), select("rec-cap", [["off", t("Aucune", "None")],
