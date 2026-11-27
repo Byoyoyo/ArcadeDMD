@@ -84,6 +84,12 @@
       "dir": ""
     }
   },
+  "retroachievements": {
+    "enabled": false,
+    "user": "",
+    "key": "",
+    "every": 15
+  },
   "coin_buttons": {
     "left": null,
     "right": null,

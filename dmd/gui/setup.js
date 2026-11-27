@@ -361,6 +361,68 @@ TABS.push({
   },
 });
 
+/* ---------------------------------------------------------------- Achievements / Succès (1.41)
+   The RetroAchievements account: the user name and the web API key of the site, never the password. The key typed is
+   sent once to ArcadeDMD and never comes back to the page.
+   Le compte RetroAchievements : le nom d'utilisateur et la clé web API du site, jamais le mot de passe. La clé tapée
+   part une fois vers ArcadeDMD et ne revient jamais dans la page. */
+TABS.push({
+  id: "succes", fr: "Succès", en: "Achievements", order: 5,
+  async render(main) {
+    loading(main, t("Succès", "Achievements"), t("Un succès débloqué sur RetroAchievements pendant une partie s'annonce sur le fronton.",
+                                                 "An achievement unlocked on RetroAchievements while a game is played is announced on the marquee."));
+    let d;
+    try { d = await api("/api/achievements"); } catch (e) { $("tabbody").textContent = t("Réglages illisibles.", "Settings unreadable."); return; }
+    if (!APP.tab || APP.tab.id !== "succes") return;
+    const body = $("tabbody");
+    body.className = "stack";
+    const result = h("div", { id: "ra-result", role: "status" });
+    const typed = () => ({ enabled: $("ra-on").checked, user: $("ra-user").value.trim(), key: $("ra-key").value.trim() });
+    const account = h("div", { class: "card" }, h("span", { class: "lab" }, t("Le compte", "The account")),
+      h("label", { class: "check" }, h("input", { type: "checkbox", id: "ra-on", checked: d.enabled }),
+        t("Annoncer les succès sur le fronton", "Announce the achievements on the marquee")),
+      field(t("Nom d'utilisateur RetroAchievements", "RetroAchievements user name"),
+        h("input", { id: "ra-user", type: "text", value: d.user, autocomplete: "off", spellcheck: "false" })),
+      field(t("Clé web API", "Web API key"),
+        h("input", { id: "ra-key", type: "password", autocomplete: "off", spellcheck: "false",
+          placeholder: d.key_set ? t("Une clé est déjà enregistrée, laisse vide pour la garder", "A key is already saved, leave empty to keep it") : "" })),
+      h("div", { class: "btns" },
+        h("button", { class: "btn", type: "button", onclick: (e) => busy(e.target, async () => {
+          e.target.textContent = t("Le site est interrogé", "Asking the site");
+          let r;
+          try { r = await api("/api/achievements/test", typed()); } catch (err) { r = { ok: false, error: t("ArcadeDMD ne répond pas.", "ArcadeDMD does not answer.") }; }
+          result.replaceChildren(r.ok
+            ? check("ok", t(`Le site répond pour ${r.user}, ${r.points} points en mode hardcore et ${r.softcore} en mode normal.`,
+                            `The site answers for ${r.user}, ${r.points} points in hardcore mode and ${r.softcore} in normal mode.`))
+            : check("warn", r.error || t("Pas de réponse.", "No answer.")));
+        }) }, t("Essayer le compte", "Try the account")),
+        d.key_set ? sureButton(t("Oublier la clé", "Forget the key"), t("Oublier la clé, sûr ?", "Forget the key, sure?"), "", async () => {
+          saved(await api("/api/achievements", { enabled: false, user: $("ra-user").value.trim(), key: "", forget: true }),
+                t("Clé oubliée, les succès ne sont plus annoncés.", "Key forgotten, the achievements are no longer announced."));
+          setTimeout(() => { if (APP.tab && APP.tab.id === "succes") route(); }, 2500);
+        }) : null),
+      result);
+    const how = h("div", { class: "card" }, h("span", { class: "lab" }, t("Comment ça marche", "How it works")),
+      h("div", { class: "row-c" }, mark("info"), h("span", { class: "soft" },
+        t("La clé web API se lit sur retroachievements.org, dans les réglages du compte, à la section Keys. Ce n'est pas le mot de passe, ArcadeDMD ne le demande jamais.",
+          "The web API key is read on retroachievements.org, in the account's settings, section Keys. It is not the password, ArcadeDMD never asks for it."))),
+      h("div", { class: "row-c" }, mark("info"), h("span", { class: "soft" },
+        t("Le succès se débloque dans l'émulateur, connecté au même compte. ArcadeDMD l'apprend du site et l'annonce dans les quinze secondes qui suivent.",
+          "The achievement is unlocked in the emulator, signed in to the same account. ArcadeDMD learns it from the site and announces it within the next fifteen seconds."))),
+      h("div", { class: "row-c" }, mark("info"), h("span", { class: "soft" },
+        t("La clé reste dans config.json sur cette machine. Elle n'est écrite ni dans le journal ni dans les enregistrements.",
+          "The key stays in config.json on this machine. It is written neither in the log nor in the recordings."))));
+    body.replaceChildren(h("div", { class: "grid", style: "--min:340px" }, account, how),
+      h("div", { class: "btns", style: "justify-content:flex-end" },
+        h("button", { class: "btn", type: "button", onclick: () => route() }, t("Annuler", "Cancel")),
+        h("button", { class: "btn main", type: "button", onclick: (e) => busy(e.target, async () => {
+          const r = await api("/api/achievements", typed());
+          saved(r);
+          if (r.ok) setTimeout(() => { if (APP.tab && APP.tab.id === "succes") route(); }, 2500);
+        }) }, t("Enregistrer", "Save"))));
+  },
+});
+
 /* ---------------------------------------------------------------- Frontal / Frontend */
 TABS.push({
   id: "frontal", fr: "Frontal", en: "Frontend", order: 4,

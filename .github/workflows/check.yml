@@ -47,6 +47,11 @@ jobs:
       - name: The robot's tour
         run: python tools/robot_check.py
 
+      - name: RetroAchievements against a pretend site
+        env:
+          SDL_VIDEODRIVER: dummy
+        run: python tools/achievements_check.py
+
       - name: The recorded fights announce what is expected
         env:
           SDL_VIDEODRIVER: dummy

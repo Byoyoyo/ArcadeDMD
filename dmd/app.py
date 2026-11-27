@@ -28,6 +28,7 @@ from .neocoins import NeoCoins
 from .textfiles import TextFiles
 from .capture import Capture
 from .gamefile import clean_game
+from .racheevos import Watch as AchievementWatch
 from .lights import Lights
 from .i18n import tr
 
@@ -52,6 +53,7 @@ DEFAULT_CONFIG = {
     "doflinx_bridge": {"enabled": False, "host": "127.0.0.1", "port": 8081},
     "textfiles": {"enabled": True, "folder": "obs", "history": True},
     "retroarch": {"enabled": True, "host": "127.0.0.1", "port": 55355, "poll_ms": 100},
+    "retroachievements": {"enabled": False, "user": "", "key": "", "every": 15},
     "lights": {"enabled": False, "host": "127.0.0.1", "port": 8090, "priority": 50, "brightness": 1.0},
 }
 
@@ -792,6 +794,14 @@ class Engine:
                 self.retroarch = RetroArchSource(self.library, self.q, ra, log)
             except OSError as e:
                 log(tr(f"RetroArch : surveillance impossible ({e})", f"RetroArch: cannot watch for games ({e})"))
+        # RetroAchievements (1.41): the achievements unlocked while a game is played, asked of the site
+        # les succès débloqués pendant une partie, demandés au site
+        self.achievement = None               # the last one, with its serial number, for the outputs / le dernier, numéroté
+        self.achievements = 0
+        self.ra_watch = None
+        if not demo_game:
+            watch = AchievementWatch(config, self.q, log)
+            self.ra_watch = watch if watch.on else None
         self.go_idle()
         if demo_game:
             self.start_demo(demo_game)
@@ -830,6 +840,8 @@ class Engine:
     def go_idle(self):
         if getattr(self, "capture", None) is not None:
             self.capture.stop(time.monotonic())
+        if getattr(self, "ra_watch", None) is not None:
+            self.ra_watch.game(False)
         self.mode = "idle"
         self.source = None
         self.sim = None
@@ -951,6 +963,8 @@ class Engine:
                     f"game: {meta.get('system')} \"{title}\" -> scene {self.scene_key}"))
         if self.capture is not None and source != "demo":
             self.capture.start(meta, g, key, VERSION, time.monotonic(), force=robot_running(self.root))
+        if getattr(self, "ra_watch", None) is not None and source != "demo":
+            self.ra_watch.game(True)
 
     def start_demo(self, key, seconds=None):
         g = self.library.get(key)
@@ -996,6 +1010,15 @@ class Engine:
     # -- événements
     def handle_event(self, ev, now, source="plugin"):
         t = ev.get("t")
+        if t == "achievement":                # news of the site, not of the game: no sign of life of an emulator
+            self.achievements += 1
+            self.achievement = dict(ev, serial=self.achievements)
+            self.log(tr(f"RetroAchievements : succès débloqué, {ev.get('title')} ({ev.get('game')})",
+                        f"RetroAchievements: achievement unlocked, {ev.get('title')} ({ev.get('game')})"))
+            title = str(ev.get("title") or "").upper()            # the LED panel holds 25 letters on a line / 25 lettres sur une ligne
+            text = tr("SUCCES ", "ACHIEVEMENT ") + title
+            self.message(text if len(text) <= 25 else title[:25], 5.0, "#ffd678")
+            return
         self.last_event = time.monotonic()
         if t == "start":
             self.last_start = dict(ev)
@@ -1506,6 +1529,8 @@ class Engine:
                 self.bridge.close()
             if self.retroarch:
                 self.retroarch.close()
+            if getattr(self, "ra_watch", None) is not None:
+                self.ra_watch.close()
             if self.coin_buttons:
                 self.coin_buttons.close()
         return "restart" if self.restart else None

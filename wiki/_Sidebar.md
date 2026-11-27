@@ -16,6 +16,7 @@ Displays
 Emulators
 - [[MAME]]
 - [[RetroArch]]
+- [[RetroAchievements]]
 
 Games
 - [[Fighting Games]]
@@ -52,6 +53,7 @@ Affichages
 Émulateurs
 - [[Avec MAME]]
 - [[Avec RetroArch]]
+- [[Succès RetroAchievements]]
 
 Jeux
 - [[Jeux de combat]]

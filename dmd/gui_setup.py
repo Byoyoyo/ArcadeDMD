@@ -15,7 +15,7 @@ import sys
 import time
 import zipfile
 
-from . import setup_tools
+from . import racheevos, setup_tools
 from .i18n import tr
 
 PORT_DEFAULT = 55355
@@ -95,7 +95,49 @@ class Setup:
                 ("POST", "/api/emulators/mame/install"): self.install_plugin,
                 ("POST", "/api/emulators/open"): self.open_thing, ("POST", "/api/emulators/record"): self.save_record,
                 ("POST", "/api/coins/learn"): self.learn_coins, ("POST", "/api/captures/pack"): self.pack_last,
-                ("GET", "/api/frontend"): self.frontend, ("POST", "/api/frontend"): self.save_frontend}
+                ("GET", "/api/frontend"): self.frontend, ("POST", "/api/frontend"): self.save_frontend,
+                ("GET", "/api/achievements"): self.achievements, ("POST", "/api/achievements"): self.save_achievements,
+                ("POST", "/api/achievements/test"): self.test_achievements}
+
+    # ------------------------------------------------------------ RetroAchievements (1.41)
+    def _ra(self, cfg):
+        ra = cfg.get("retroachievements")
+        return dict(ra) if isinstance(ra, dict) else {}
+
+    def achievements(self, _qs):
+        """The account as it is set. The key itself never goes back to the page. / Le compte tel qu'il est réglé. La clé
+        elle-même ne repart jamais vers la page."""
+        ra = self._ra(self.config())
+        return {"enabled": bool(ra.get("enabled")), "user": str(ra.get("user") or ""), "key_set": bool(ra.get("key"))}
+
+    def save_achievements(self, data):
+        cfg = self.config()
+        ra = self._ra(cfg)
+        ra["enabled"] = bool(data.get("enabled"))
+        ra["user"] = str(data.get("user") or "").strip()
+        key = str(data.get("key") or "").strip()
+        if key:                                                   # an empty field keeps the key already there / garde la clé
+            ra["key"] = key
+        elif data.get("forget"):
+            ra["key"] = ""
+        cfg["retroachievements"] = ra
+        setup_tools.save_config_file(self.root, cfg)
+        self.log(tr("fenêtre : compte RetroAchievements réglé dans config.json",
+                    "window: RetroAchievements account set in config.json"))
+        return {"ok": True}
+
+    def test_achievements(self, data):
+        """Asks the site who this account is, with the key typed or the one already kept. / Demande au site qui est ce
+        compte, avec la clé tapée ou celle déjà gardée."""
+        ra = self._ra(self.config())
+        user = str(data.get("user") or ra.get("user") or "").strip()
+        key = str(data.get("key") or ra.get("key") or "").strip()
+        if not user or not key:
+            return {"ok": False, "error": tr("Il faut le nom d'utilisateur et la clé web API.", "The user name and the web API key are needed.")}
+        try:
+            return dict(racheevos.profile(user, key, getattr(self, "ra_base", racheevos.API)), ok=True)
+        except Exception as e:
+            return {"ok": False, "error": racheevos.why(e)}
 
     # ------------------------------------------------------------ remembered folders / dossiers retenus
     def _window_file(self):

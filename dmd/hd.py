@@ -135,6 +135,9 @@ class HDRenderer:
         self.scene_key = None         # the game those three were built for (1.40.2) / le jeu pour lequel ils sont faits
         self.coins_on = (cfg or {}).get("coins", True)   # fighting games: coin doors on the attract screen
         self.coins = None
+        self.ach_serial = None        # the RetroAchievements unlock being shown, and since when (1.41)
+        self.ach_t0 = -99.0
+        self.ach_title = (48, [""])
         self.intro_serial = 0         # game logo when a game starts (the engine counts the starts)
         self.intro_t0 = None
         self.intro_len = 2.6
@@ -561,6 +564,78 @@ class HDRenderer:
         self.logo_alpha = self.enter = 1.0
         if lt is not None:
             self._draw_intro(screen, now, lt, cross)
+        self._draw_achievement(screen, eng, now)
+
+    ACH_SECONDS = 6.0
+
+    def _achievement_title(self, title, room):
+        """(size, lines) for the name of an achievement in a slab that leaves it room pixels: one line as big as it
+        fits, else two lines, the last one cut short when even that is not enough.
+        / (taille, lignes) pour le nom d'un succès : une ligne aussi grosse que possible, sinon deux lignes, la dernière
+        coupée si même cela ne suffit pas."""
+        def width(text, size):
+            return self.font("black", self.S(size)).getlength(text)
+        for size in (48, 42, 36):
+            if width(title, size) <= room:
+                return size, [title]
+        size, words = 28, title.split()
+        cuts = [(" ".join(words[:i]), " ".join(words[i:])) for i in range(1, len(words))]
+        fits = [c for c in cuts if width(c[0], size) <= room]
+        if not fits:                                               # one word wider than the slab / un mot plus large que le cartouche
+            a, b = title, ""
+            while a and width(a + "…", size) > room:
+                a = a[:-1]
+            return size, [a + "…"]
+        a, b = min(fits, key=lambda c: max(width(c[0], size), width(c[1], size)))
+        if width(b, size) > room:
+            a, b = fits[-1]                                        # the first line as full as it goes / la première ligne pleine
+            while b and width(b + "…", size) > room:
+                b = b[:-1].rstrip()
+            b += "…"
+        return size, [a, b]
+
+    def _draw_achievement(self, screen, eng, now):
+        """An achievement unlocked on RetroAchievements (1.41): a slab in the middle of the marquee for six seconds, over
+        whatever scene is on, with its name, its points and how many of the game's achievements are now unlocked.
+        / Un succès débloqué sur RetroAchievements : un cartouche au milieu du fronton pendant six secondes, par-dessus
+        la scène en cours, avec son nom, ses points et le nombre de succès du jeu maintenant débloqués."""
+        ev = getattr(eng, "achievement", None)
+        if not isinstance(ev, dict):
+            return
+        if ev.get("serial") != self.ach_serial:
+            self.ach_serial, self.ach_t0 = ev.get("serial"), now
+            self.ach_title = self._achievement_title(str(ev.get("title") or "").upper(), self.S(900 - 176 - 28))
+        u = now - self.ach_t0
+        if u < 0 or u > self.ACH_SECONDS:
+            return
+        k = max(0.0, min(1.0, u / 0.3) * min(1.0, (self.ACH_SECONDS - u) / 0.3))
+        pg, S = self.pg, self.S
+        gold, cream, amber = (255, 214, 120), (235, 225, 205), (255, 168, 48)
+        w, h = S(900), S(160)
+        x, y = (self.W - w) // 2, S(150) - int((1.0 - k) * S(26))
+        slab = pg.Surface((w, h), pg.SRCALPHA)
+        pg.draw.rect(slab, (24, 20, 32, 252), (0, 0, w, h), border_radius=S(20))
+        pg.draw.rect(slab, gold + (255,), (0, 0, w, h), width=max(2, S(4)), border_radius=S(20))
+        cx, cy, c = S(88), S(78), S(1.7)                           # a cup / une coupe
+        pg.draw.polygon(slab, gold, [(cx - 22 * c, cy - 26 * c), (cx + 22 * c, cy - 26 * c), (cx + 16 * c, cy + 2 * c),
+                                     (cx, cy + 12 * c), (cx - 16 * c, cy + 2 * c)])
+        pg.draw.circle(slab, gold, (int(cx - 24 * c), int(cy - 14 * c)), max(2, int(10 * c)), width=max(2, int(4 * c)))
+        pg.draw.circle(slab, gold, (int(cx + 24 * c), int(cy - 14 * c)), max(2, int(10 * c)), width=max(2, int(4 * c)))
+        pg.draw.rect(slab, gold, (cx - 4 * c, cy + 8 * c, 8 * c, 12 * c))
+        pg.draw.rect(slab, gold, (cx - 16 * c, cy + 20 * c, 32 * c, 7 * c))
+        slab.set_alpha(int(255 * k))
+        screen.blit(slab, (x, y))
+        tx = x + S(176)
+        self.put(screen, self.text(tr("SUCCÈS DÉBLOQUÉ", "ACHIEVEMENT UNLOCKED"), "black", S(30), amber, glow=0), tx, y + S(22), alpha=k)
+        size, lines = self.ach_title
+        for i, text in enumerate(lines):
+            top = S(62) if len(lines) == 1 else S(55) + i * S(31)
+            self.put(screen, self.text(text, "black", S(size), cream, glow=0), tx, y + top, alpha=k)
+        pts = int(ev.get("points") or 0)
+        line = tr(f"{pts} POINTS", f"{pts} POINTS") if pts != 1 else tr("1 POINT", "1 POINT")
+        if ev.get("n") is not None and ev.get("of"):
+            line += tr(f"  ·  {ev['n']} SUR {ev['of']}", f"  ·  {ev['n']} OF {ev['of']}")
+        self.put(screen, self.text(line, "xbold", S(26), tuple(int(v * 0.62) for v in cream), glow=0), tx, y + S(120), alpha=k)
 
     # ------------------------------------------------------------ logo du jeu au lancement
     def _intro_time(self, eng, now):

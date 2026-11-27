@@ -48,7 +48,7 @@ def main():
             assert st == 200 and json.loads(data)["version"] == app.VERSION, "state"
             st, data = ask(port, "GET", "/api/log?after=0")
             assert st == 200 and json.loads(data)["lines"][0]["text"].endswith("first line"), "log"
-            for path in ("/api/screens", "/api/emulators", "/api/frontend"):
+            for path in ("/api/screens", "/api/emulators", "/api/frontend", "/api/achievements"):
                 st, data = ask(port, "GET", path)
                 assert st == 200, path
                 json.loads(data)

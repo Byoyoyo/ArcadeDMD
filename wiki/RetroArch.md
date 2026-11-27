@@ -71,6 +71,10 @@ RetroArch tells neither when a coin goes in nor through which slot, and FinalBur
 
 Under RetroArch, ArcadeDMD can record each game (values, memory, screenshots) so that a game can be tuned without the cabinet. It is off at first and is turned on in the Debug tab of the window. See [[Recording a Game]].
 
+## Achievements
+
+The achievements you unlock on RetroAchievements are announced on the marquee once your account is set in the Achievements tab of the window. See [[RetroAchievements]].
+
 ## Turning it off
 
 `"enabled": false` in the `retroarch` section of `config.json`.
