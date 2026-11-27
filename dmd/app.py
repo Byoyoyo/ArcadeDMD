@@ -32,7 +32,7 @@ from .racheevos import Watch as AchievementWatch
 from .lights import Lights
 from .i18n import tr
 
-VERSION = "1.40.2"
+VERSION = "1.41.0"
 
 DEFAULT_CONFIG = {
     "language": "auto",
