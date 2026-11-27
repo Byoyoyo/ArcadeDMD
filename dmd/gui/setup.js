@@ -49,7 +49,7 @@ TABS.push({
     loading(main, t("Écrans", "Screens"), t("Choisis l'écran du marquee dans la liste de ceux que Windows voit.",
                                              "Pick the marquee screen in the list of those Windows sees."));
     let d;
-    try { d = await api("/api/screens"); } catch (e) { $("tabbody").textContent = t("Réglages illisibles.", "Settings unreadable."); return; }
+    try { d = await api("/api/screens"); } catch (e) { $("tabbody").textContent = unreadable(e); return; }
     if (APP.tab.id !== "ecrans") return;
     APP.extra.screens = d;
     drawScreens(d);
@@ -166,7 +166,7 @@ TABS.push({
 
 async function loadEmulators() {
   let d;
-  try { d = await api("/api/emulators"); } catch (e) { $("tabbody").textContent = t("Réglages illisibles.", "Settings unreadable."); return; }
+  try { d = await api("/api/emulators"); } catch (e) { $("tabbody").textContent = unreadable(e); return; }
   if (!APP.tab || APP.tab.id !== "emulateurs") return;
   APP.extra.emulators = d;
   const body = $("tabbody");
@@ -352,7 +352,7 @@ TABS.push({
     loading(main, t("Débogage", "Debug"), t("Ce qui sert à chercher un défaut ou à apprendre un jeu. Tout est coupé au départ.",
                                             "What helps to find a fault or to learn a game. Everything is off at first."));
     let d;
-    try { d = await api("/api/emulators"); } catch (e) { $("tabbody").textContent = t("Réglages illisibles.", "Settings unreadable."); return; }
+    try { d = await api("/api/emulators"); } catch (e) { $("tabbody").textContent = unreadable(e); return; }
     if (!APP.tab || APP.tab.id !== "debogage") return;
     const body = $("tabbody");
     body.className = "grid";
@@ -372,7 +372,7 @@ TABS.push({
     loading(main, t("Succès", "Achievements"), t("Un succès débloqué sur RetroAchievements pendant une partie s'annonce sur le fronton.",
                                                  "An achievement unlocked on RetroAchievements while a game is played is announced on the marquee."));
     let d;
-    try { d = await api("/api/achievements"); } catch (e) { $("tabbody").textContent = t("Réglages illisibles.", "Settings unreadable."); return; }
+    try { d = await api("/api/achievements"); } catch (e) { $("tabbody").textContent = unreadable(e); return; }
     if (!APP.tab || APP.tab.id !== "succes") return;
     const body = $("tabbody");
     body.className = "stack";
@@ -430,7 +430,7 @@ TABS.push({
     loading(main, t("Frontal", "Frontend"), t("Les jeux sont reconnus par RetroArch et MAME, quel que soit le frontal. Le frontal donne les logos et le marquee entre deux parties.",
                                               "Games are recognised by RetroArch and MAME, whatever the frontend. The frontend gives the logos and the marquee between games."));
     let d;
-    try { d = await api("/api/frontend"); } catch (e) { $("tabbody").textContent = t("Réglages illisibles.", "Settings unreadable."); return; }
+    try { d = await api("/api/frontend"); } catch (e) { $("tabbody").textContent = unreadable(e); return; }
     if (!APP.tab || APP.tab.id !== "frontal") return;
     let use = d.use;
     if (use === "auto") use = d.launchbox.found ? "launchbox" : d.retrobat.found ? "retrobat" : "none";

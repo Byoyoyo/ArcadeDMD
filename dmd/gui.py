@@ -46,6 +46,22 @@ def running_url(root):
     return f"http://127.0.0.1:{port}/"
 
 
+def running_stale(url, version, stamp):
+    """The ArcadeDMD that answers at url was started with other files than those on the disk: another version, or
+    another mark (one from before 1.41 gives none). False when it cannot be asked. / Celui qui répond a été lancé avec
+    d'autres fichiers que ceux du disque. Faux quand on ne peut pas lui demander."""
+    import urllib.request
+    web = urllib.request.build_opener(urllib.request.ProxyHandler({}))   # this PC, never through a proxy
+    try:
+        with web.open(url + "api/state", timeout=4) as r:
+            st = json.loads(r.read(1 << 20).decode("utf-8", "replace"))
+    except (OSError, ValueError):
+        return False
+    if not isinstance(st, dict) or "version" not in st:
+        return False
+    return st.get("version") != version or bool(stamp) and st.get("files") != stamp
+
+
 def _edge():
     """msedge.exe, or Chrome, for a window without the browser's bars. / Edge, ou Chrome, en fenêtre d'application."""
     if sys.platform != "win32":
@@ -232,6 +248,7 @@ class ControlPanel:
 
     def __init__(self, root, log, version, port=PORT):
         self.root, self.log, self.version = root, log, version
+        self.files = ""                                 # the mark of the files it was started with (app.files_stamp, 1.41)
         self.engine = None
         self.token = secrets.token_hex(16)
         self.started = time.time()
@@ -378,7 +395,7 @@ class ControlPanel:
     def state(self):
         eng = self.engine
         now = time.time()
-        out = {"version": self.version, "lang": lang(), "up": now - self.started, "mode": "starting", "game": None,
+        out = {"version": self.version, "files": self.files, "lang": lang(), "up": now - self.started, "mode": "starting", "game": None,
                "credits": None, "retroarch": None, "outputs": [], "alerts": [], "stall": [], "silent": False,
                "autostart": autostart_on(), "windows": sys.platform == "win32"}
         out["alerts"] = [{"t": t, "level": lv, "text": tx} for t, lv, tx in self.alerts if now - t < 600][-5:]

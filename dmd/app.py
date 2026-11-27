@@ -1569,6 +1569,24 @@ def load_config(root, log):
     return cfg
 
 
+def files_stamp(root):
+    """A mark of the program's own files (arcadedmd.py and dmd/*.py). An ArcadeDMD that runs gives the mark it was
+    started with, and a launch that finds another mark on the disk knows the one running predates its files (1.41).
+    / Une marque des fichiers du programme. Un ArcadeDMD qui tourne donne celle de son lancement, et un lancement qui
+    en trouve une autre sur le disque sait que celui qui tourne est plus ancien que ses fichiers."""
+    import hashlib
+    mark = hashlib.sha1()
+    try:
+        names = ["arcadedmd.py"] + sorted("dmd/" + n for n in os.listdir(os.path.join(root, "dmd")) if n.endswith(".py"))
+        for name in names:
+            with open(os.path.join(root, *name.split("/")), "rb") as f:
+                mark.update(name.encode("utf-8"))
+                mark.update(f.read())
+    except OSError:
+        return ""
+    return mark.hexdigest()[:12]
+
+
 def single_instance(port=47811):
     """Verrou « une seule instance ». Retourne un objet à garder, None si déjà lancé.
 

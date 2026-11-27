@@ -46,6 +46,17 @@ def main():
                 assert ask(port, "GET", path)[0] == 200, path
             st, data = ask(port, "GET", "/api/state")
             assert st == 200 and json.loads(data)["version"] == app.VERSION, "state"
+            # an ArcadeDMD started before its files were replaced is told from the mark of its files (1.41)
+            stamp = app.files_stamp(ROOT)
+            url = f"http://127.0.0.1:{port}/"
+            assert len(stamp) == 12 and json.loads(data)["files"] == "", "the mark of the files"
+            assert gui.running_stale(url, app.VERSION, stamp) is True, "started without a mark: before these files"
+            panel.files = stamp
+            assert gui.running_stale(url, app.VERSION, stamp) is False, "the same files"
+            assert gui.running_stale(url, "0.0.1", stamp) is True and gui.running_stale(url, app.VERSION, "0" * 12) is True, "other files"
+            assert gui.running_stale("http://127.0.0.1:9/", app.VERSION, stamp) is False, "nobody to ask"
+            with open(os.path.join(ROOT, "dmd", "gui", "app.js"), encoding="utf-8") as f:
+                assert f'const FILES = "{app.VERSION}";' in f.read(), "the page's files say the version of the program"
             st, data = ask(port, "GET", "/api/log?after=0")
             assert st == 200 and json.loads(data)["lines"][0]["text"].endswith("first line"), "log"
             for path in ("/api/screens", "/api/emulators", "/api/frontend", "/api/achievements"):
