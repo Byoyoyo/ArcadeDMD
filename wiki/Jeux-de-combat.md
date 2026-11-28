@@ -10,7 +10,7 @@ Chacun des 57 jeux de combat Neo Geo a son propre fichier dans `games\`, variant
 - K.O. en grosses lettres rouges du côté du perdant et WIN en or du côté du gagnant, DOUBLE K.O., TIME UP, PERFECT, des confettis pour le gagnant.
 - ROUND 2, ROUND 3... quand le jeu lance le round, et FIGHT ! avec le FIGHT, le GO ou le EN GARDE du jeu (au départ de son chrono dans les jeux où cette annonce n'est pas encore lue).
 - Le combattant suivant de King of Fighters qui entre une fois le K.O. passé, et quand une équipe perd son troisième combattant, P1 WINS et l'équipe éliminée.
-- Depuis la 1.41 les combats sont dessinés sur fond noir. Dans les King of Fighters le logo du jeu passe en petit sur la rangée du haut, les coups désespérés sont listés tout le temps et en plus gros, pâles tant qu'aucun ne peut sortir, et le côté sans joueur affiche PRESS START en grand.
+- Depuis la 1.41 les combats sont dessinés sur fond noir. Dans The King of Fighters '97, '98 et 2002 le logo du jeu passe en petit sur la rangée du haut et le panneau sous le nom d'un joueur liste tous les coups de son combattant (voir le carnet de coups plus bas).
 - **Dessiner un décor derrière les combats**, dans l'onglet Écrans de la fenêtre, remet le décor qui suit celui du jeu, dans The King of Fighters '96 à 2000, Rage of the Dragons, Garou, Samurai Shodown II à IV, les Street Fighter et d'autres (voir [[Marquee HD]] pour la liste des décors). Les neuf décors de The King of Fighters '98 sont dessinés d'après les lieux du jeu et changent avec les rounds comme dans le jeu.
 - Quand personne ne joue, l'écran des pièces (voir [[Utilisation]]).
 
@@ -29,6 +29,15 @@ Sous le nom de chaque joueur humain, un panneau.
 - Sinon le panneau montre les touches appuyées, comme le mode entraînement.
 - '97 a ses propres commandes, sa jauge, ses trois carrés de stock et le drapeau du jeu pour un coup désespéré, et 2002 ses propres commandes, le MAX par B+C et son chrono, un coup désespéré gratuit en MAX et un SDM qui prend un stock, l'ordre de combat de chaque équipe lu.
 
+### Le carnet de coups, sans le décor (1.41)
+
+- Le panneau garde le badge, la jauge et les touches appuyées sur son bord du haut. Dessous, chaque coup spécial du combattant est une carte, son nom au-dessus de ses flèches et de ses boutons. Une carte s'allume flèche après flèche quand le stick fait le mouvement. C'est le stick qui est lu là, pas la sortie du coup.
+- Les coups désespérés sont à côté des coups spéciaux, pâles tant qu'aucun ne peut sortir. Ils s'allument alors dans des cadres dorés et deviennent plus larges et plus gros.
+- Un joueur seul a ses coups désespérés du côté sans joueur, plus gros encore quand l'un d'eux peut sortir. L'équipe adverse passe en petit à côté de son nom et PRESS START en petit sur la rangée du haut.
+- À deux joueurs, les coups désespérés s'élargissent tant que les coups spéciaux à côté gardent des flèches lisibles. Un combattant qui a sept ou huit coups spéciaux les garde tels quels, et ses coups désespérés s'élargissent moins ou ne font que s'allumer.
+- Les cartes prennent une, deux ou trois colonnes, selon ce qui laisse les plus grosses flèches et les plus grosses lettres. Quand les noms sont longs, une carte met son nom et sa commande sur une ligne. Un nom n'est coupé que si le garder entier laisserait des flèches trop petites.
+- **Lister tous les coups du combattant sous son nom**, dans l'onglet Écrans de la fenêtre, décoché, rend les seuls coups désespérés, en plus gros, avec PRESS START en grand du côté sans joueur.
+
 ## Le panneau des coups des autres jeux de combat
 
 Sous le nom de chaque joueur humain, un panneau comme celui de The King of Fighters '98 (1.38).
@@ -36,7 +45,7 @@ Sous le nom de chaque joueur humain, un panneau comme celui de The King of Fight
 - Les coups spéciaux du combattant défilent l'un après l'autre, leur nom, leurs flèches tournées vers l'autre combattant et leurs boutons. Un point par coup dit lequel s'affiche. Une charge est une flèche bleue, un coup à faire près ou en l'air le dit.
 - Quand la jauge du jeu est lue et permet un super, le panneau passe en or et ne montre que les supers. Samurai Shodown II montre sa jauge POW, puis POW MAX avec son chrono et la technique de bris d'arme du combattant. Les jeux Capcom montrent leur jauge de super et son niveau.
 - Un jeu dont la jauge n'est pas lue montre ses supers en or parmi les coups spéciaux.
-- Les coups de 76 jeux viennent de la liste des commandes de MAME (`command.dat`, de Fabricio Coroquer et AntoPISA), écrits dans le bloc `specials` de chaque fichier de jeu par `tools/command_dat.py`.
+- Les coups spéciaux des 79 jeux de combat viennent de la liste des commandes de MAME (`command.dat`, de Fabricio Coroquer et AntoPISA), écrits dans le bloc `specials` de chaque fichier de jeu par `tools/command_dat.py`.
 
 ## Les coups reconnus au stick, Neo Geo
 
