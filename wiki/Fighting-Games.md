@@ -10,7 +10,8 @@ Each of the 57 Neo Geo fighting games has its own file in `games\`, official var
 - K.O. in big red letters on the loser's side and WIN in gold on the winner's, DOUBLE K.O., TIME UP, PERFECT, confetti for the winner.
 - ROUND 2, ROUND 3... when the game starts the round, and FIGHT ! with the game's own FIGHT, GO or EN GARDE (as its timer starts in the games where that call is not read yet).
 - The next King of Fighters fighter entering once the K.O. is over, and when a team loses its third fighter, P1 WINS and the team eliminated.
-- A stage that follows the game's own backdrop, in The King of Fighters '96 to 2000, Rage of the Dragons, Garou, Samurai Shodown II to IV, the Street Fighter games and more (see [[HD Marquee]] for the list of backdrops). The nine stages of The King of Fighters '98 are drawn after the game's places and change with the rounds as in the game.
+- Since 1.41 the fights are drawn on black. In the King of Fighters games the game's logo goes small in the top row, the desperation moves are listed all the time and bigger, pale until one can come out, and the side nobody plays shows PRESS START big.
+- **Draw a stage behind the fights**, in the Screens tab of the window, brings back the stage that follows the game's own backdrop, in The King of Fighters '96 to 2000, Rage of the Dragons, Garou, Samurai Shodown II to IV, the Street Fighter games and more (see [[HD Marquee]] for the list of backdrops). The nine stages of The King of Fighters '98 are drawn after the game's places and change with the rounds as in the game.
 - When nobody plays, the coin screen (see [[Usage]]).
 
 ![P1 WINS and the CPU team eliminated](images/kof98_team_eliminated.gif)

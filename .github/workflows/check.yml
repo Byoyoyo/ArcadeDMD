@@ -61,3 +61,9 @@ jobs:
         env:
           SDL_VIDEODRIVER: dummy
         run: python tools/scenes_check.py
+
+      - name: The same with a stage behind the fights
+        env:
+          SDL_VIDEODRIVER: dummy
+          ARCADEDMD_FIGHT_STAGE: "1"
+        run: python tools/scenes_check.py

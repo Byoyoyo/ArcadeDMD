@@ -10,7 +10,8 @@ Chacun des 57 jeux de combat Neo Geo a son propre fichier dans `games\`, variant
 - K.O. en grosses lettres rouges du côté du perdant et WIN en or du côté du gagnant, DOUBLE K.O., TIME UP, PERFECT, des confettis pour le gagnant.
 - ROUND 2, ROUND 3... quand le jeu lance le round, et FIGHT ! avec le FIGHT, le GO ou le EN GARDE du jeu (au départ de son chrono dans les jeux où cette annonce n'est pas encore lue).
 - Le combattant suivant de King of Fighters qui entre une fois le K.O. passé, et quand une équipe perd son troisième combattant, P1 WINS et l'équipe éliminée.
-- Un décor qui suit celui du jeu, dans The King of Fighters '96 à 2000, Rage of the Dragons, Garou, Samurai Shodown II à IV, les Street Fighter et d'autres (voir [[Marquee HD]] pour la liste des décors). Les neuf décors de The King of Fighters '98 sont dessinés d'après les lieux du jeu et changent avec les rounds comme dans le jeu.
+- Depuis la 1.41 les combats sont dessinés sur fond noir. Dans les King of Fighters le logo du jeu passe en petit sur la rangée du haut, les coups désespérés sont listés tout le temps et en plus gros, pâles tant qu'aucun ne peut sortir, et le côté sans joueur affiche PRESS START en grand.
+- **Dessiner un décor derrière les combats**, dans l'onglet Écrans de la fenêtre, remet le décor qui suit celui du jeu, dans The King of Fighters '96 à 2000, Rage of the Dragons, Garou, Samurai Shodown II à IV, les Street Fighter et d'autres (voir [[Marquee HD]] pour la liste des décors). Les neuf décors de The King of Fighters '98 sont dessinés d'après les lieux du jeu et changent avec les rounds comme dans le jeu.
 - Quand personne ne joue, l'écran des pièces (voir [[Utilisation]]).
 
 ![P1 WINS et l'équipe du CPU éliminée](images/kof98_team_eliminated.gif)

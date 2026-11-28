@@ -1142,7 +1142,10 @@ class FightFX:
             if self.buf is None or self.buf.get_size() != screen.get_size():
                 self.buf = self.pg.Surface(screen.get_size()).convert()
             target = self.buf
-        self.bd.draw(target, now, 0.0)
+        if getattr(self.hd, "fight_plain", False):                    # the stage is off (1.41): black / sans décor
+            target.fill((0, 0, 0))
+        else:
+            self.bd.draw(target, now, 0.0)
         k = (now - self.super_t) / 0.5
         if 0 <= k < 1:                                               # super coup : décor assombri, rayons
             if self.dark is None:
