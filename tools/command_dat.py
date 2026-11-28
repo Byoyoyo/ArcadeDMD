@@ -5,12 +5,13 @@ the moves of each fighter: their names, their commands in MAME's own notation (_
 (_@ special moves, _* desperation moves...), as the game's "HOW TO PLAY" says. This tool reads it, finds each fighter of
 the fighting games ArcadeDMD knows (the names of "p1_char" in their game files), and writes their moves in the game file
 as "specials": the special moves, always possible, and the supers, possible when the game says (its gauge full...).
-The HD screen shows them under the name of a human player, one after another.
+The HD screen shows them under the name of a human player: one after another, or all of them where the game lists its
+desperation moves ("moves", The King of Fighters '97, '98 and 2002), whose own list stays the one of its supers.
 
 Les coups spéciaux et les supers des jeux de combat, d'après la liste des commandes de MAME (command.dat). L'outil
 retrouve chaque combattant des jeux de combat qu'ArcadeDMD connaît et écrit ses coups dans le fichier du jeu
 ("specials") : les coups spéciaux, toujours possibles, et les supers, possibles quand le jeu le dit. L'écran HD les
-montre sous le nom d'un joueur humain, l'un après l'autre.
+montre sous le nom d'un joueur humain : l'un après l'autre, ou tous là où le jeu liste ses coups désespérés ("moves").
 
 usage: python tools/command_dat.py COMMAND.DAT [GAMES_FOLDER] [--write] [--game NAME]
 """
@@ -507,8 +508,6 @@ def main(argv):
             g = json.load(f)
         if not str(g.get("scene_from") or "").endswith("_combat") or not (g.get("derived") or {}).get("p1_char"):
             continue
-        if isinstance(g.get("moves"), dict):
-            continue                                 # its own panel (The King of Fighters '97, '98, 2002) / son panneau
         block, why = build(g, ents)
         print(f"{key:12} {why}")
         if block is None or not write:

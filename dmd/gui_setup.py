@@ -188,7 +188,7 @@ class Setup:
             ports = []
         led = "pixelcade" if pc.get("enabled") else "zedmd" if zd.get("enabled") else "none"
         return {"screens": scr, "windows": sys.platform == "win32", "ports": ports,
-                "preview": {k: pv.get(k) for k in ("enabled", "x", "y", "width", "height", "style", "topmost", "mode", "fight_stage")},
+                "preview": {k: pv.get(k) for k in ("enabled", "x", "y", "width", "height", "style", "topmost", "mode", "fight_stage", "fight_book")},
                 "led": {"kind": led, "device": pc.get("device") or "", "color_order": pc.get("color_order") or "auto",
                         "brightness": zd.get("brightness")}}
 
@@ -215,6 +215,8 @@ class Setup:
             pv["topmost"] = bool(pv_in["topmost"])
         if "fight_stage" in pv_in:                                # a stage behind the fights, off unless asked (1.41)
             pv["fight_stage"] = bool(pv_in["fight_stage"])
+        if "fight_book" in pv_in:                                 # every move of the fighter under his name, on unless told
+            pv["fight_book"] = bool(pv_in["fight_book"])
         if pv.get("enabled"):
             pv.setdefault("borderless", True)
         led = data.get("led") if isinstance(data.get("led"), dict) else {}

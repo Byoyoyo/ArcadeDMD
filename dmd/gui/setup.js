@@ -127,7 +127,9 @@ function drawScreens(d) {
         h("label", { class: "check", style: "align-self:end" }, h("input", { type: "checkbox", id: "pv-top", class: "pv-dep", checked: !!pv.topmost }),
           t("Toujours au-dessus du frontal pendant les parties", "Always above the frontend during games")),
         h("label", { class: "check", style: "align-self:end" }, h("input", { type: "checkbox", id: "pv-stage", class: "pv-dep", checked: !!pv.fight_stage }),
-          t("Dessiner un décor derrière les combats", "Draw a stage behind the fights")))),
+          t("Dessiner un décor derrière les combats", "Draw a stage behind the fights")),
+        h("label", { class: "check", style: "align-self:end" }, h("input", { type: "checkbox", id: "pv-book", class: "pv-dep", checked: pv.fight_book !== false }),
+          t("Lister tous les coups du combattant sous son nom", "List every move of the fighter under his name")))),
     h("div", { class: "card" },
       h("span", { class: "lab" }, t("La dalle LED", "The LED panel")),
       h("div", { class: "grid", style: "--min:200px" }, field(t("Dalle", "Panel"), ledKind)),
@@ -148,7 +150,7 @@ function drawScreens(d) {
 
 async function saveScreens() {
   const v = (id) => $(id).value.trim();
-  const preview = { enabled: $("pv-on").checked, style: v("pv-style"), topmost: $("pv-top").checked, fight_stage: $("pv-stage").checked };
+  const preview = { enabled: $("pv-on").checked, style: v("pv-style"), topmost: $("pv-top").checked, fight_stage: $("pv-stage").checked, fight_book: $("pv-book").checked };
   if (preview.enabled) Object.assign(preview, { x: v("pv-x"), y: v("pv-y"), width: v("pv-w"), height: v("pv-h") });
   const kind = v("led-kind");
   const led = { kind, device: v("led-port"), color_order: v("led-order") };

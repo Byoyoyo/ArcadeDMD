@@ -10,7 +10,7 @@ Each of the 57 Neo Geo fighting games has its own file in `games\`, official var
 - K.O. in big red letters on the loser's side and WIN in gold on the winner's, DOUBLE K.O., TIME UP, PERFECT, confetti for the winner.
 - ROUND 2, ROUND 3... when the game starts the round, and FIGHT ! with the game's own FIGHT, GO or EN GARDE (as its timer starts in the games where that call is not read yet).
 - The next King of Fighters fighter entering once the K.O. is over, and when a team loses its third fighter, P1 WINS and the team eliminated.
-- Since 1.41 the fights are drawn on black. In the King of Fighters games the game's logo goes small in the top row, the desperation moves are listed all the time and bigger, pale until one can come out, and the side nobody plays shows PRESS START big.
+- Since 1.41 the fights are drawn on black. In The King of Fighters '97, '98 and 2002 the game's logo goes small in the top row and the panel under a player's name lists every move of his fighter (see the book of moves below).
 - **Draw a stage behind the fights**, in the Screens tab of the window, brings back the stage that follows the game's own backdrop, in The King of Fighters '96 to 2000, Rage of the Dragons, Garou, Samurai Shodown II to IV, the Street Fighter games and more (see [[HD Marquee]] for the list of backdrops). The nine stages of The King of Fighters '98 are drawn after the game's places and change with the rounds as in the game.
 - When nobody plays, the coin screen (see [[Usage]]).
 
@@ -29,6 +29,15 @@ Under the name of each human player, a panel.
 - Otherwise the panel shows the inputs pressed, as training mode does.
 - '97 has its own commands, its gauge, its three stock squares and the game's own flag of a desperation move, and 2002 its own commands, MAX by B+C and its timer, a desperation move free in MAX and an SDM taking a stock, the fighting order of each team read.
 
+### The book of moves, without the stage (1.41)
+
+- The panel keeps the badge, the gauge and the inputs pressed on its top edge. Under them, every special move of the fighter is a card, its name over its arrows and its buttons. A card lights up arrow after arrow as the stick does the motion. The stick is what is read there, not whether the move came out.
+- The desperation moves are beside the special moves, pale until one can come out. Then they light up in gold frames and get wider and bigger.
+- A player alone has his desperation moves on the side nobody plays, bigger still once one can come out. The other team goes small beside its name and PRESS START small in the top row.
+- With two players, the desperation moves widen as far as the special moves beside them keep arrows a player reads. A fighter with seven or eight special moves keeps them as they are, and his desperation moves widen less or only light up.
+- The cards take one, two or three columns, whichever leaves the biggest arrows and letters. When the names are long, a card puts its name and its command on one line. A name is cut short only when keeping it whole would leave arrows too small.
+- **List every move of the fighter under his name**, in the Screens tab of the window, turned off, gives the desperation moves alone back, bigger, with PRESS START big on the side nobody plays.
+
 ## The moves panel of the other fighting games
 
 Under the name of each human player, a panel like the one of The King of Fighters '98 (1.38).
@@ -36,7 +45,7 @@ Under the name of each human player, a panel like the one of The King of Fighter
 - The special moves of the fighter come one after another, their name, their arrows facing the other fighter and their buttons. A dot per move says which one shows. A charge is a blue arrow, a move done close or in the air says so.
 - When the game's gauge is read and allows a super, the panel turns gold and shows only the supers. Samurai Shodown II shows its POW gauge, then POW MAX with its timer and the fighter's weapon-breaking technique. The Capcom games show their super gauge and its level.
 - A game whose gauge is not read shows its supers in gold among the special moves.
-- The moves of 76 games come from the command list of MAME (`command.dat`, by Fabricio Coroquer and AntoPISA), written in the `specials` block of each game file by `tools/command_dat.py`.
+- The special moves of the 79 fighting games come from the command list of MAME (`command.dat`, by Fabricio Coroquer and AntoPISA), written in the `specials` block of each game file by `tools/command_dat.py`.
 
 ## Moves recognised at the stick, Neo Geo
 

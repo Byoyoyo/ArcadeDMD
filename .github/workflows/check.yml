@@ -52,6 +52,11 @@ jobs:
           SDL_VIDEODRIVER: dummy
         run: python tools/achievements_check.py
 
+      - name: The book of moves holds for every fighter and comes on the HD screen
+        env:
+          SDL_VIDEODRIVER: dummy
+        run: python tools/book_check.py
+
       - name: The recorded fights announce what is expected
         env:
           SDL_VIDEODRIVER: dummy

@@ -36,6 +36,7 @@ Edit it with Notepad. A path takes double backslashes (`"E:\\LaunchBox"`).
 | `takeover` | `"known"` | `"known"` for games that have a file in `games\`, `"all"` for every MAME game with the generic scene |
 | `style` | `"led"` | `"led"` round LEDs, `"pixel"` square pixels, `"hd"` smooth HD |
 | `fight_stage` | `false` | `true` draws a stage behind the fights of the fighting games, on black otherwise (1.41). See [[Fighting Games]] |
+| `fight_book` | `true` | without the stage, the panel under a player's name lists every move of his fighter where the game lists its desperation moves, `false` keeps the desperation moves alone (1.41) |
 | `hd` | `"auto"` | LED grid of the virtual LEDs, `"auto"`, `1` (128 x 32), `2` or `4` (finer) |
 | `launchbox` | `""` | the LaunchBox folder for the Clear Logos, when it is not found by itself |
 | `coins` | `true` | `false` brings back the plain INSERT COIN on the HD screen |

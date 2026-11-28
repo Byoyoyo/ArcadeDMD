@@ -34,6 +34,7 @@
       "takeover": "known",
       "style": "led",
       "fight_stage": false,
+      "fight_book": true,
       "launchbox": "",
       "coins": true,
       "dim": 30,
