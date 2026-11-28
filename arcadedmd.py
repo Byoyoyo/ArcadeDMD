@@ -393,6 +393,7 @@ def start_window(cfg, log, open_now=False):
         panel.quitting = True
         if panel.engine is not None:
             panel.engine.quit = True
+        gui.close_windows()                                   # its window closes with it (1.41) / sa fenêtre se ferme avec lui
 
     def restart():
         log(tr("ArcadeDMD repart, demandé depuis la fenêtre ou l'icône", "ArcadeDMD restarts, asked from the window or the icon"))

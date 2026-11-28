@@ -139,6 +139,42 @@ def open_window(url, log=None):
         return False
 
 
+def close_windows(title="ArcadeDMD"):
+    """Closes the window of the page when ArcadeDMD quits (1.41): Edge or Chrome in app mode shows the page's title
+    alone, so the windows of theirs that are called exactly that are asked to close. Returns how many. Windows only.
+    / Ferme la fenêtre de la page quand ArcadeDMD quitte : Edge ou Chrome en mode application affiche le titre de la
+    page seul, les fenêtres à eux qui portent exactement ce nom reçoivent donc l'ordre de se fermer."""
+    if sys.platform != "win32":
+        return 0
+    try:
+        import ctypes
+        from ctypes import wintypes
+        user32 = ctypes.WinDLL("user32", use_last_error=True)
+        each_t = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+        user32.EnumWindows.argtypes = [each_t, wintypes.LPARAM]
+        user32.IsWindowVisible.argtypes = [wintypes.HWND]
+        user32.GetWindowTextW.argtypes = [wintypes.HWND, wintypes.LPWSTR, ctypes.c_int]
+        user32.GetClassNameW.argtypes = [wintypes.HWND, wintypes.LPWSTR, ctypes.c_int]
+        user32.PostMessageW.argtypes = [wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM]
+        found = []
+
+        def each(hwnd, _lp):
+            if user32.IsWindowVisible(hwnd):
+                name, kind = ctypes.create_unicode_buffer(256), ctypes.create_unicode_buffer(64)
+                user32.GetWindowTextW(hwnd, name, 256)
+                user32.GetClassNameW(hwnd, kind, 64)
+                if name.value == title and kind.value.startswith("Chrome_WidgetWin"):
+                    found.append(hwnd)
+            return True
+
+        user32.EnumWindows(each_t(each), 0)
+        for hwnd in found:
+            user32.PostMessageW(hwnd, 0x0010, 0, 0)               # WM_CLOSE
+        return len(found)
+    except Exception:
+        return 0                                                  # quitting never fails for a window / jamais d'échec
+
+
 # ---------------------------------------------------------------- start with Windows / lancer avec Windows
 def startup_file():
     base = os.environ.get("APPDATA")
@@ -395,7 +431,8 @@ class ControlPanel:
     def state(self):
         eng = self.engine
         now = time.time()
-        out = {"version": self.version, "files": self.files, "lang": lang(), "up": now - self.started, "mode": "starting", "game": None,
+        out = {"version": self.version, "files": self.files, "quitting": bool(getattr(self, "quitting", False)), "lang": lang(),
+               "up": now - self.started, "mode": "starting", "game": None,
                "credits": None, "retroarch": None, "outputs": [], "alerts": [], "stall": [], "silent": False,
                "autostart": autostart_on(), "windows": sys.platform == "win32"}
         out["alerts"] = [{"t": t, "level": lv, "text": tx} for t, lv, tx in self.alerts if now - t < 600][-5:]
