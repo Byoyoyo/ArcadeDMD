@@ -167,7 +167,7 @@ class HDRenderer:
         self.fight_plain = not (stage == "1" if stage in ("0", "1") else bool((cfg or {}).get("fight_stage")))
         self.ach_low = False          # the life bars are near the top: an achievement comes at the bottom / en bas
         self.fight_book = os.environ.get("ARCADEDMD_FIGHT_BOOK") == "1"   # trial: every move of the fighter (hd_book)
-        self.book_k = {}
+        self.book_k, self.book_w, self.book_lay = {}, {}, {}
         self.plain_buf = None
         self.plain_jobs = []
         self.intro_serial = 0         # game logo when a game starts (the engine counts the starts)
@@ -1057,7 +1057,8 @@ class HDRenderer:
             tsize = S(76)
             tw = self.tag_text(tag, tsize)["w"]
             space = room - tw - S(40)
-            if panel and team:                    # the name leaves the team its smallest size / le nom laisse la place
+            beside = bool(team) and small and self.fight_book and not human and (p2_in if side == "p1" else p1_in)
+            if (panel or beside) and team:        # the name leaves the team its smallest size / le nom laisse la place
                 space = min(space, int(cx - S(176)) - S(40) - tw - S(40) - S(30) - self._team_w(team, S(16)))
             nsize = self.fit_size(str(name), "black", S(76), space, S(30)) if name else tsize
             if side == "p1":
@@ -1095,7 +1096,7 @@ class HDRenderer:
                                   self._level_top(eng, side), self.fight.stick if self.fight.stick.wanted(game) else None)
                 else:
                     draw_panel(self, screen, moves, side, vals, game, name, x0, x1, S(352), now, lost, health)
-            elif team and small and self.fight_book and (p2_in if side == "p1" else p1_in):   # trial: small, beside the name
+            elif beside:                          # trial: the team of the side nobody plays, small, beside its name
                 nw = self.name_text(str(name), nsize, side)["w"] if name else 0
                 if side == "p1":
                     self.draw_team_line(screen, team, S(40) + tw + S(40) + nw + S(30), int(cx - S(176)), S(318), side)
