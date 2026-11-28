@@ -35,6 +35,7 @@ Modifie-le avec le Bloc-notes. Un chemin prend des doubles barres obliques inver
 | `mode` | `"games"` | `"games"` montre la fenêtre pendant les jeux connus seulement et laisse l'écran au frontend le reste du temps, `"always"` la garde, noire en dehors des jeux |
 | `takeover` | `"known"` | `"known"` pour les jeux qui ont un fichier dans `games\`, `"all"` pour tous les jeux MAME avec la scène générique |
 | `style` | `"led"` | `"led"` des LED rondes, `"pixel"` des pixels carrés, `"hd"` la HD lisse |
+| `fight_stage` | `false` | `true` dessine un décor derrière les combats des jeux de combat, sur fond noir sinon (1.41). Voir [[Jeux de combat]] |
 | `hd` | `"auto"` | la grille des LED virtuelles, `"auto"`, `1` (128 x 32), `2` ou `4` (plus fin) |
 | `launchbox` | `""` | le dossier de LaunchBox pour les Clear Logos, quand il n'est pas trouvé tout seul |
 | `coins` | `true` | `false` remet le simple INSERT COIN sur l'écran HD |

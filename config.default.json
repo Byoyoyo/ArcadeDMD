@@ -33,6 +33,7 @@
       "mode": "games",
       "takeover": "known",
       "style": "led",
+      "fight_stage": false,
       "launchbox": "",
       "coins": true,
       "dim": 30,

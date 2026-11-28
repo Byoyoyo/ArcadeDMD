@@ -12,11 +12,13 @@ Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `con
 - RetroAchievements. An achievement unlocked while a game is played is announced on the marquee, with its name, its points and how many of the game's achievements are now unlocked. The account is set in a new Achievements tab of the window, with the user name and the web API key of the site, never the password. See the RetroAchievements page of the wiki.
 - An update extracted over an ArcadeDMD that runs used to leave the old program running, with the new window over it. Launching ArcadeDMD again now replaces the one that runs, and the window says when the program is older than its files.
 - Quitting ArcadeDMD from its icon also closes its window.
+- Fighting games are drawn on black, without a stage behind the fights. In the King of Fighters games the logo goes small and the desperation moves are listed all the time and bigger, pale until one can come out, with PRESS START big on the side nobody plays. A box in the Screens tab brings the stage back.
 
 ### Français
 - RetroAchievements. Un succès débloqué pendant une partie est annoncé sur le fronton, avec son nom, ses points et le nombre de succès du jeu maintenant débloqués. Le compte se règle dans un nouvel onglet Succès de la fenêtre, avec le nom d'utilisateur et la clé web API du site, jamais le mot de passe. Voir la page Succès RetroAchievements du wiki.
 - Une mise à jour extraite par-dessus un ArcadeDMD qui tourne laissait tourner l'ancien programme, avec la nouvelle fenêtre par-dessus. Relancer ArcadeDMD remplace maintenant celui qui tourne, et la fenêtre dit quand le programme est plus ancien que ses fichiers.
 - Quitter ArcadeDMD par son icône ferme aussi sa fenêtre.
+- Les jeux de combat sont dessinés sur fond noir, sans décor derrière les combats. Dans les King of Fighters le logo passe en petit et les coups désespérés sont listés tout le temps et en plus gros, pâles tant qu'aucun ne peut sortir, avec PRESS START en grand du côté sans joueur. Une case de l'onglet Écrans remet le décor.
 
 ## 1.40.2
 

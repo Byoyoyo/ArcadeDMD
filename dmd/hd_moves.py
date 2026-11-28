@@ -702,10 +702,12 @@ def draw_panel(hd, screen, moves, side, vals, game, name, x0, x1, y0, now, lost,
     avail = bool(rows) and (moves.available(side, vals, health) or moves.showing(side, now))
     pfull = full_pow(game)
     maxed = sd.max_on is not None or (extra and (pow_ or 0) >= pfull)
-    n = len(rows) if avail else 0
+    tall = bool(getattr(hd, "tall", False)) and bool(rows)        # without the stage (1.41): the gauge on its line, the
+    n = len(rows) if avail or tall else 0                         # moves under it all the time, pale until one can come out
     gap = S(34) if n <= 2 else S(27)
     r = S(15) if n <= 2 else S(12)
-    h = panel_height(hd, n)
+    down = S(36) if tall else 0
+    h = panel_height(hd, n) + down
     red = extra and health is not None and 0 < health <= RED_HEALTH  # Extra: the life flashing red / la vie en rouge
     edge = GOLD if maxed else (230, 60, 40) if red else (120, 90, 40)
     screen.blit(_plate(moves, hd, int(x1 - x0), int(h), edge, S(18)), (int(x0), int(y0)))
@@ -719,7 +721,7 @@ def draw_panel(hd, screen, moves, side, vals, game, name, x0, x1, y0, now, lost,
         screen.blit(b, (int(x0 + S(14)), int(y0 - bh / 2)))
         hd.put(screen, t, x0 + S(14) + bw / 2, y0, "center", "middle")
     # the gauge as the game shows it: the bar, then a square per stock / la jauge comme dans le jeu
-    gy = y0 + S(38) if n else y0 + S(33)
+    gy = y0 + S(38) if n and not tall else y0 + S(33)
     fill = max(0.0, min(1.0, (pow_ or 0) / pfull))
     mv = _n(vals.get("_maxv" + suf))
     if maxed and not extra and mv is not None:                    # MAX: its timer in the bar, as the game shows it
@@ -760,16 +762,20 @@ def draw_panel(hd, screen, moves, side, vals, game, name, x0, x1, y0, now, lost,
             gauge_end = x
         draw_inputs(hd, screen, moves, sd, names, gauge_end + S(26), x1 - S(16), gy, now)
         return h
+    if tall:                                                      # the inputs pressed, beside the gauge / à côté de la jauge
+        draw_inputs(hd, screen, moves, sd, names, gauge_end + S(26), x1 - S(16), gy, now)
     lines = []
     for k, (nm, cmd, btn) in enumerate(rows):
         states, tag, tcol, mir = moves.row_states(side, k, len(cmd), now)
+        if tall and not avail:                                    # none can come out now: listed, nothing lit / rien d'allumé
+            states, tag = ["dim"] * len(cmd), None
         steps = [MIRROR[c] for c in cmd] if mir else list(cmd)    # P2 on the right faces left / P2 regarde à gauche
         btns = [b for b in CLASS.get(btn, btn) if b in BTN_COL]
         lines.append((nm, steps, states, tag, tcol, btns))
     # the commands from where the mockup has them, the arrows smaller when a long one would leave no room for its word
     # les commandes là où la maquette les met, les flèches plus petites quand une longue ne laisserait pas de place
     tagw = max(hd.text_width(w, "black", S(21)) for w in ("RATÉ", "DM !", "SDM !")) + S(8)
-    cx0 = x0 + S(352)
+    cx0 = x0 + S(200 if tall else 352)
 
     def width(r, sp):
         return max(len(st) * (2 * r + sp) + r * 1.6 + S(6) + len(bt) * (2 * r + sp) for _, st, _, _, _, bt in lines)
@@ -782,12 +788,12 @@ def draw_panel(hd, screen, moves, side, vals, game, name, x0, x1, y0, now, lost,
             r -= 1
     slot, plus = 2 * r + sp, r * 1.6 + S(6)
     # the names in one size, between the gauge and the commands / les noms d'une même taille, entre la jauge et les commandes
-    room = cx0 - S(12) - (gauge_end + S(10))
+    room = cx0 - S(12) - (x0 + S(16) if tall else gauge_end + S(10))
     nsize = min([hd.fit_size(nm, "xbold", S(17), room, S(11)) for nm, *_ in lines if nm] or [S(17)])
     for k, (nm, steps, states, tag, tcol, btns) in enumerate(lines):
-        y = y0 + S(28) + k * gap
+        y = y0 + S(28) + down + k * gap
         lit = tag is not None or any(st == "ok" for st in states)
-        ncol = (GOLD if maxed else CREAM) if lit else GREY
+        ncol = (GOLD if maxed else CREAM) if lit or (tall and avail) else GREY
         if nm:
             hd.put(screen, hd.text(nm, "xbold", nsize, ncol, glow=0), cx0 - S(12), y, "right", "middle")
         x = cx0

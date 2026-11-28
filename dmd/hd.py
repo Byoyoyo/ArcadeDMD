@@ -98,6 +98,22 @@ def _num(v):
     return None
 
 
+class ZoomedHD:
+    """The marquee seen bigger by what draws through it: its S() gives z times the pixels (trial without the stage, the
+    panel of the moves). tall: the gauge on its own line over the moves. / Le fronton vu en plus gros par ce qui dessine
+    à travers lui. tall : la jauge sur sa ligne au-dessus des coups."""
+
+    def __init__(self, hd, z, tall=False):
+        self._hd, self._z, self.tall = hd, z, tall
+        self.s = hd.s * z
+
+    def S(self, v):
+        return self._hd.S(v * self._z)
+
+    def __getattr__(self, name):
+        return getattr(self._hd, name)
+
+
 class HDRenderer:
     FPS = 25        # the waiting screen and the plain screen: one picture every other step of the engine. They asked for
                     # 40 and got these 25 since the first day, the figure now says it (1.40.2) / l'écran d'attente et
@@ -141,6 +157,16 @@ class HDRenderer:
         self.ach_title = (82, [""])
         self.ach_top = False          # the scene keeps its middle for itself (a fight and its life bars) / garde son milieu
         self.ach_veil = None
+        # the fights without their stage (1.41): on black, and where the game lists its desperation moves, its logo small
+        # and those moves bigger. "fight_stage" in the settings of the marquee brings the stage back.
+        # ARCADEDMD_FIGHT_STAGE=1 or 0 decides for the tools.
+        # les combats sans leur décor : sur noir, et là où le jeu liste ses coups désespérés, son logo en petit et ces
+        # coups en plus gros. "fight_stage" dans les réglages du marquee remet le décor.
+        stage = os.environ.get("ARCADEDMD_FIGHT_STAGE")
+        self.fight_plain = not (stage == "1" if stage in ("0", "1") else bool((cfg or {}).get("fight_stage")))
+        self.ach_low = False          # the life bars are near the top: an achievement comes at the bottom / en bas
+        self.plain_buf = None
+        self.plain_jobs = []
         self.intro_serial = 0         # game logo when a game starts (the engine counts the starts)
         self.intro_t0 = None
         self.intro_len = 2.6
@@ -563,7 +589,7 @@ class HDRenderer:
         self.logo_alpha = 1.0 if lt is None else 0.0       # the intro's logo goes to the scene's logo at the end
         self.enter = cross
         self.logo_rect = None
-        self.ach_top = False
+        self.ach_top = self.ach_low = False
         self._render_scene(screen, eng, now)
         self.logo_alpha = self.enter = 1.0
         if lt is not None:
@@ -635,6 +661,7 @@ class HDRenderer:
 
         pg, W, H = self.pg, self.W, self.H
         top = bool(self.ach_top)
+        low = top and bool(self.ach_low)                           # a fight moved up: the bars are near the top
         z = 0.7 if top else 1.0
 
         def Z(v):
@@ -642,13 +669,13 @@ class HDRenderer:
 
         gold, cream, amber, ink = (255, 214, 120), (235, 225, 205), (255, 168, 48), (20, 16, 26)
         hb = Z(196)
-        y0 = 0 if top else (H - hb) // 2
+        y0 = H - hb if low else 0 if top else (H - hb) // 2
         cx, cy, xr, tx0 = W // 2, y0 + hb // 2, W - self.S(48), Z(276)
         pts = int(ev.get("points") or 0)
         n, of = ev.get("n"), ev.get("of")
         counted = isinstance(n, int) and isinstance(of, int) and 0 < n <= of
         t_pts = self.text(tr("1 POINT", "1 POINT") if pts == 1 else f"{pts} POINTS", "black", Z(50), gold, glow=0)
-        if self.ach_key != (self.ach_serial, top):
+        if self.ach_key != (self.ach_serial, top):                 # low or not, the same room for the name
             self.ach_key = (self.ach_serial, top)
             right = Z(420) if counted else t_pts["w"]
             self.ach_title = self._achievement_title(str(ev.get("title") or "").upper(), xr - right - Z(60) - tx0, z)
@@ -667,9 +694,10 @@ class HDRenderer:
             screen.set_clip(pg.Rect(cx - half, y0, 2 * half, hb).clip(old))
             edge = max(2, Z(6))
             screen.fill(ink, (0, y0, W, hb))
-            if not top:
+            if not top or low:
                 screen.fill(gold, (0, y0, W, edge))
-            screen.fill(gold, (0, y0 + hb - edge, W, edge))
+            if not low:
+                screen.fill(gold, (0, y0 + hb - edge, W, edge))
             tx = tx0 + int(self.S(26) * (1.0 - ax))
             label, site, f = tr("SUCCÈS DÉBLOQUÉ", "ACHIEVEMENT UNLOCKED"), "RETROACHIEVEMENTS", self.font("black", Z(36))
             down = f.getbbox(site)[1] - f.getbbox(label)[1]        # the accents make the first word taller / les accents
@@ -831,6 +859,9 @@ class HDRenderer:
                 self.fight = FightFX(self)
             self.FPS = MetalSlugScene.FPS
             self.fight.update(vals, now, key, g, idle=self._nobody(vals), hist=getattr(st, "hist", None))
+            if self.fight_plain:
+                self._fight_plain(screen, eng, vals, logo, now)
+                return
             target = self.fight.begin(screen, now)
             self.draw_fight(target, eng, vals, logo, now)
             self.fight.end(screen, target, now)
@@ -876,7 +907,38 @@ class HDRenderer:
         self.put(screen, txt, x, y, align, scale=1 + 0.2 * pop)
 
     # ------------------------------------------------------------ jeux de combat
-    def draw_fight(self, screen, eng, vals, logo, now):
+    PLAIN_UP = 80                 # how far the fight moves up once the logo is small, the room left to the moves
+    PLAIN_ZOOM = 1.39             # the panel of the moves, as big as the width of a side allows / aussi gros que possible
+
+    def _fight_plain(self, screen, eng, vals, logo, now):
+        """The fight screen without its stage (1.41). The screen is drawn on black. Where the game lists its desperation
+        moves, the top row is drawn small (scores, logo) and the whole picture moved up, effects included, then the
+        panels of moves are drawn bigger in the room gained, with PRESS START big on the side nobody plays. The other
+        fighting games keep their screen as it is, on black.
+        / L'écran de combat sans son décor. L'écran est dessiné sur noir. Là où le jeu liste ses coups désespérés, la
+        rangée du haut est dessinée en petit et toute l'image remontée, effets compris, puis les panneaux de coups sont
+        dessinés en plus gros dans la place gagnée, avec PRESS START en grand du côté sans joueur. Les autres jeux de
+        combat gardent leur écran tel quel, sur noir."""
+        pg = self.pg
+        if self.plain_buf is None or self.plain_buf.get_size() != screen.get_size():
+            self.plain_buf = pg.Surface(screen.get_size()).convert()
+        body = self.plain_buf
+        self.plain_jobs = []
+        target = self.fight.begin(body, now)
+        kind = self.draw_fight(target, eng, vals, logo, now, part="body")
+        self.fight.end(body, target, now)
+        screen.fill((0, 0, 0))
+        if kind is not None:                                  # nobody plays, or no list of moves: as it is / tel quel
+            screen.blit(body, (0, 0))
+            return
+        screen.blit(body, (0, -self.S(self.PLAIN_UP)))
+        for job in self.plain_jobs:
+            job(screen)
+
+    def draw_fight(self, screen, eng, vals, logo, now, part=None):
+        """part "body" (_fight_plain, the fights without their stage): the top row small, lower by what the picture is
+        then moved up, and the panels of moves handed to plain_jobs. Returns "attract" when nobody plays and "flat"
+        when the game has no list of desperation moves, its screen then drawn as it is. / part "body" : sans décor."""
         W, S = self.W, self.S
         p1m, p2m = vals.get("p1_mode"), vals.get("p2_mode")
         known = p1m is not None
@@ -894,13 +956,16 @@ class HDRenderer:
                 fx = self.fight.fx if self.fight is not None else None
                 self.coins.draw(screen, vals, now, fx, (getattr(eng, "cfg", None) or {}).get("coin_symbol", "€"), self.enter,
                                 coin_rates(eng))
-                return
+                return "attract"
             word, col = self._invite(vals, now)
             credits = _num(vals.get("credits"))
             msg = tr(f"CRÉDITS {int(credits):02d}", f"CREDITS {int(credits):02d}") if credits else word
             self.put(screen, self.text(msg, "xbold", S(56), col if not credits else AMBER), W / 2, S(372), "center", "middle")
-            return
-        self.ach_top = True                                   # the life bars hold the middle: an achievement comes at the top
+            return "attract"
+        flat = part == "body" and not (self.fight is not None and isinstance(self._game(eng).get("moves"), dict))
+        small = part == "body" and not flat                   # without the stage: the top row small / en petit
+        up = self.PLAIN_UP if small else 0
+        self.ach_top, self.ach_low = True, small              # the life bars hold the middle, or the top once moved up
         # en haut : score de chaque joueur, ou CHALLENGER et BEAT BY en match VS
         b1, b2 = _num(vals.get("beat")), _num(vals.get("beat_p2"))
         vs = p1m == 1 and p2m == 1 and b1 is not None and b2 is not None and (b1 > 0 or b2 > 0)
@@ -909,15 +974,19 @@ class HDRenderer:
             if vs:                                             # outlined too, over the stage (1.33) / cernés aussi
                 b = b1 if side == "p1" else b2
                 txt = f"BEAT BY {int(b):02d}" if b else "CHALLENGER"
-                self.put(screen, self.text(txt, "black", S(54), RED if not b else AMBER, glow=0, outline=INK, stroke=max(2, S(4))),
-                         x, S(22), align)
+                self.put(screen, self.text(txt, "black", S(46 if small else 54), RED if not b else AMBER, glow=0, outline=INK,
+                                           stroke=max(2, S(4))), x, S(8 + up if small else 22), align)
             elif human:
-                self._score(screen, eng, "score" if side == "p1" else "score_p2", x, S(14), align, S(64), side_color(side), INK)
-            else:
+                self._score(screen, eng, "score" if side == "p1" else "score_p2", x, S(2 + up if small else 14), align,
+                            S(54 if small else 64), side_color(side), INK)
+            elif not small:
                 word, col = self._invite(vals, now)
                 self.put(screen, self.text(word, "xbold", S(40), col, glow=0, outline=INK, stroke=max(2, S(3))), x, S(24), align)
         wide = not self.logo_file                       # titre écrit à la place du logo : plus de place en largeur
-        self.draw_logo(screen, logo, W / 2, S(8), S(900 if wide else 640), S(124), now)
+        if small:
+            self.draw_logo(screen, logo, W / 2, S(2 + up), S(560 if wide else 420), S(54), now)
+        else:
+            self.draw_logo(screen, logo, W / 2, S(8), S(900 if wide else 640), S(124), now)
         # au milieu : barres de vie et chrono
         h1, h2 = _num(vals.get("health")), _num(vals.get("health_p2"))
         cx = W / 2
@@ -1006,19 +1075,31 @@ class HDRenderer:
                 x0, x1 = (S(36), int(cx - S(176))) if side == "p1" else (int(cx + S(176)), W - S(36))
                 lost = sum(1 for _, st in team if st == "done") if team else _num(vals.get(f"_{side}_lost"))
                 health = _num(vals.get("health" if side == "p1" else "health_p2"))
-                if spec:
+                if small and not spec:            # without the stage: drawn after, bigger, in the room gained
+                    args = (moves, side, dict(vals), game, name, x0, x1, S(352 - self.PLAIN_UP), now, lost, health)
+                    big = ZoomedHD(self, self.PLAIN_ZOOM, tall=True)
+                    self.plain_jobs.append(lambda scr, a=args, b=big: draw_panel(b, scr, *a))
+                elif spec:
                     draw_specials(self, screen, self.fight.moves, self.fight.specials, side, vals, game, name, x0, x1, S(352), now,
                                   self._level_top(eng, side), self.fight.stick if self.fight.stick.wanted(game) else None)
                 else:
                     draw_panel(self, screen, moves, side, vals, game, name, x0, x1, S(352), now, lost, health)
             elif team:
                 self.draw_team(screen, team, S(44) if side == "p1" else W - S(44), S(372), side, room)
+            if small and not human:               # the side nobody plays calls for its player, big / en grand
+                word, col = self._invite(vals, now)
+                xc = (S(36) + cx - S(176)) / 2 if side == "p1" else (cx + S(176) + W - S(36)) / 2
+                t = self.text(word, "xbold", S(92), col, glow=0.35)
+                self.plain_jobs.append(lambda scr, t=t, xc=xc: self.put(scr, t, xc, S(396), "center", "middle"))
             else:
                 self.draw_super(screen, vals, side, now, room, self._level_top(eng, side), game, name if human else None)
         credits = _num(vals.get("credits"))
         if credits is not None and self.fight_cbar is not None:  # as in Metal Slug: the coin (€), CRÉDITS 07 / comme Metal Slug
             self.fight_cbar.set_symbol((getattr(eng, "cfg", None) or {}).get("coin_symbol", "€"))
-            self.fight_cbar.draw(screen, credits, cx, S(338), now, 0.85)
+            if small:                                         # bigger, under the timer / plus gros, sous le chrono
+                self.fight_cbar.draw(screen, credits, cx, S(350), now, 1.0)
+            else:
+                self.fight_cbar.draw(screen, credits, cx, S(338), now, 0.85)
         elif credits is not None:                             # big enough to read, on a dark pill / lisibles, sur une pastille
             t = self.text(tr(f"CRÉDITS {int(credits):02d}", f"CREDITS {int(credits):02d}"), "xbold", S(44), AMBER, 0.3)
             w, h = t["w"] + S(56), S(64)
@@ -1033,7 +1114,8 @@ class HDRenderer:
         if f is not None and f.vs_on() and _num(vals.get("_p1_lost")) is not None:
             # two humans in a game of teams: the matches each one won, under the credits (1.32, as in Puzzle Bobble)
             # deux humains dans un jeu d'équipes : les matchs gagnés par chacun, sous les crédits
-            draw_wins(self, screen, f.moves, f.wins["p1"], f.wins["p2"], cx, S(414), now, f.win_pop)
+            draw_wins(self, screen, f.moves, f.wins["p1"], f.wins["p2"], cx, S(424 if small else 414), now, f.win_pop)
+        return "flat" if flat else None
 
     def name_text(self, name, size, side="p1"):
         """A fighter's name: player 1's in blue, player 2's in red as in the game, outlined in black (1.33). / Le nom
