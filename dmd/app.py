@@ -21,16 +21,17 @@ from .canvas import Canvas, Font, parse_color
 from .scene import Scene, Ctx, GameState, LogoIntro
 from .outputs import ZeDMDOutput, PreviewOutput, GifRecorder, NullOutput
 from .pixelcade import PixelcadeOutput, guess_pixelcade_dir, list_ports
-from .retroarch import RetroArchSource
+from .retroarch import RetroArchSource, robot_running
 from .memvalues import derive, forget_seen, game_values, resolve_value
 from .coinbuttons import CoinButtons, mvs_rates, side_word
 from .neocoins import NeoCoins
 from .textfiles import TextFiles
 from .capture import Capture
+from .gamefile import clean_game
 from .lights import Lights
 from .i18n import tr
 
-VERSION = "1.40.1"
+VERSION = "1.40.2"
 
 DEFAULT_CONFIG = {
     "language": "auto",
@@ -281,9 +282,19 @@ class GameLibrary:
             p = os.path.join(self.dir, key + ".json")
             try:
                 with open(p, "r", encoding="utf-8") as f:
-                    games[key] = json.load(f)
+                    game = json.load(f)
             except (OSError, ValueError) as e:
                 self.log(tr(f"games/{key}.json illisible : {e}", f"games/{key}.json unreadable: {e}"))
+                continue
+            # a field of the wrong kind no longer stops the other games or the HD screen: the wrong part is left out and
+            # said (1.40.2) / un champ du mauvais genre n'arrête plus les autres jeux ni l'écran HD
+            game, wrong = clean_game(game)
+            for w in wrong[:6]:
+                self.log(tr(f"games/{key}.json : {w}, partie écartée", f"games/{key}.json: {w}, that part is left out"))
+            if len(wrong) > 6:
+                self.log(tr(f"games/{key}.json : et {len(wrong) - 6} autres défauts", f"games/{key}.json: and {len(wrong) - 6} more"))
+            if game is not None:
+                games[key] = game
         changed = [k for k in mt if self.mtimes.get(k) != mt[k]]
         self.games = games
         self.mtimes = mt
@@ -699,7 +710,7 @@ class Engine:
         tf = config.get("textfiles") or {}
         self.texts = TextFiles(tf, root, log) if tf.get("enabled") and not demo_game else None
         # the captures of the fighting games, to replay them offline (1.33) / les captures des jeux de combat
-        self.capture = Capture(root, log, config.get("capture", "all")) if not demo_game else None
+        self.capture = Capture(root, log, config.get("capture", "off")) if not demo_game else None
         self.lights = Lights(config.get("lights"), log)              # the LEDs of the cabinet, through HyperHDR (1.39)
         # config.json modifié (screen_setup.bat, réglage à la main) : le moteur redémarre avec les nouveaux réglages
         self.cfg_path = os.path.join(root, "config.json")
@@ -939,7 +950,7 @@ class Engine:
         self.log(tr(f"jeu : {meta.get('system')} « {title} » -> scène {self.scene_key}",
                     f"game: {meta.get('system')} \"{title}\" -> scene {self.scene_key}"))
         if self.capture is not None and source != "demo":
-            self.capture.start(meta, g, key, VERSION, time.monotonic())
+            self.capture.start(meta, g, key, VERSION, time.monotonic(), force=robot_running(self.root))
 
     def start_demo(self, key, seconds=None):
         g = self.library.get(key)

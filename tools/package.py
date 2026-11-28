@@ -15,6 +15,8 @@ import sys
 import zipfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, ROOT)
+from dmd.gamefile import clean_game  # noqa: E402
 
 # shipped in the zip: everything except these (development files, user data, caches)
 EXCLUDE_DIRS = {".git", ".github", "tools", "dist", "runtime", "learned", "appris", "appris.old", "obs", "artwork",
@@ -102,9 +104,12 @@ def main():
     for rel in listed:
         if rel.endswith(".json"):
             try:
-                json.loads(read(rel))
+                data = json.loads(read(rel))
             except ValueError as e:
                 problems.append(f"{rel}: invalid JSON ({e})")
+                continue
+            if rel.startswith("games/"):                  # every field of the kind the program expects (1.40.2)
+                problems += [f"{rel}: {w}" for w in clean_game(data)[1]]
         if rel.endswith(".bat"):
             with open(os.path.join(ROOT, rel), "rb") as f:
                 data = f.read()

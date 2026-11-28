@@ -309,6 +309,12 @@
    "note": "1 on the character select and the order select (RA 0x858b Screen ID: 0x23 Select Character 1, 0x2f Select Character 2; the capture shows 0x23 then 0xDA 'Order Select/Fighting' for the rest of the game, so the order screen may not be told, to confirm)"
   },
   "p1_char": {
+   "distinct": [
+    "_p1_ch0",
+    "_p1_ch1",
+    "_p1_ch2"
+   ],
+   "distinct_note": "a team never fields the same fighter twice: slots that hold one twice are slots the game has not filled yet (zeroes between START and its select screen in the recorded games of November 2026), and no name is known then",
    "value": "_p1_cur",
    "names": {
     "0": "KYO",
@@ -356,6 +362,11 @@
    "note": "the fighter on screen (1.33)"
   },
   "p2_char": {
+   "distinct": [
+    "_p2_ch0",
+    "_p2_ch1",
+    "_p2_ch2"
+   ],
    "value": "_p2_cur",
    "names": {
     "0": "KYO",

@@ -69,7 +69,7 @@ RetroArch tells neither when a coin goes in nor through which slot, and FinalBur
 
 ## Recording
 
-Under RetroArch, ArcadeDMD records each game (values, memory, screenshots) so that a game can be tuned without the cabinet. See [[Recording a Game]].
+Under RetroArch, ArcadeDMD can record each game (values, memory, screenshots) so that a game can be tuned without the cabinet. It is off at first and is turned on in the Debug tab of the window. See [[Recording a Game]].
 
 ## Turning it off
 

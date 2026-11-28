@@ -6,7 +6,7 @@
     "show": false
   },
   "show_pause": true,
-  "capture": "all",
+  "capture": "off",
   "intro": {
     "logo": true,
     "seconds": 2.6,
@@ -75,11 +75,11 @@
     "port": 55355,
     "poll_ms": 100,
     "ram_dump": {
-      "enabled": true,
+      "enabled": false,
       "every": 0.25
     },
     "screenshots": {
-      "enabled": true,
+      "enabled": false,
       "every": 2.0,
       "dir": ""
     }

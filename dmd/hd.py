@@ -50,6 +50,7 @@ from .hd_moves import draw_panel, draw_wins
 from .hd_specials import draw_specials, fighter_rows, hyper_rows, power_label, timer_name
 from .hd_mslug import MetalSlugScene, family
 from .i18n import tr
+from .memvalues import distinct
 
 AMBER, RED, CREAM, LINE = (255, 168, 48), (255, 52, 30), (235, 225, 205), (168, 112, 30)
 GREY = (150, 150, 165)
@@ -98,7 +99,9 @@ def _num(v):
 
 
 class HDRenderer:
-    FPS = 40
+    FPS = 25        # the waiting screen and the plain screen: one picture every other step of the engine. They asked for
+                    # 40 and got these 25 since the first day, the figure now says it (1.40.2) / l'écran d'attente et
+                    # l'écran simple : une image un pas du moteur sur deux, ce qu'ils ont toujours eu
 
     def __init__(self, pg, size, root, cfg=None, log=print, logos=None):
         self.pg = pg
@@ -129,6 +132,7 @@ class HDRenderer:
         self.mslug = None
         self.fight = None
         self.game_scene = None        # (key, scene) of the game played, games done one by one (hd_games)
+        self.scene_key = None         # the game those three were built for (1.40.2) / le jeu pour lequel ils sont faits
         self.coins_on = (cfg or {}).get("coins", True)   # fighting games: coin doors on the attract screen
         self.coins = None
         self.intro_serial = 0         # game logo when a game starts (the engine counts the starts)
@@ -254,8 +258,8 @@ class HDRenderer:
                     hit = (pg.transform.smoothscale(surf, size), pg.transform.smoothscale(glow, size) if glow is not None else None)
                     if sk[0] is not None:
                         self.scaled[sk] = hit
-                        while len(self.scaled) > 300:
-                            self.scaled.popitem(last=False)
+                        while len(self.scaled) > 120:     # 300 until 1.40.2: a score that pops leaves ten sizes of
+                            self.scaled.popitem(last=False)   # each of its values here, 100 MB kept for good
                 surf, glow = hit
         w, h, pad = t["w"] * scale, t["h"] * scale, t["pad"] * scale
         ix = x if align == "left" else (x - w / 2 if align == "center" else x - w)
@@ -639,6 +643,13 @@ class HDRenderer:
         key = meta.get("game") or ""
         title = meta.get("title") or ""
         g = eng.library.get(key) or {}
+        if key and key != self.scene_key:
+            # another game: the scene of the last one, its backdrops and its effects are given back. They were kept
+            # for good, and the memory grew with every game played, 1.5 GB after nine (1.40.2). The same game started
+            # again finds its scene ready. / un autre jeu : la scène du précédent, ses décors et ses effets sont rendus
+            if self.scene_key is not None:
+                self.mslug = self.fight = self.game_scene = self.fight_cbar = None
+            self.scene_key = key
         if self.themed and family(key):                       # Metal Slug : décor animé et effets
             if self.mslug is None:
                 self.mslug = MetalSlugScene(self)
@@ -800,6 +811,8 @@ class HDRenderer:
             team = self.team(eng, side)
             if self.fight is not None and self.fight.select and self.fight.sel_phase:
                 name, team = self.select_pick(eng, side)   # the select screen: the picks made so far (1.33)
+            if not self.real_team(eng, side):              # slots the game has not filled yet: nobody is known, no
+                name, team = None, None                    # name and no team (1.40.2) / cases pas encore remplies
             # 1.32: under a human's name, the panel of the desperation moves, the team moved up beside the name, small
             # sous le nom d'un humain, le panneau des coups désespérés, l'équipe montée à côté du nom, en petit
             panel = moves is not None and human and self.fight.panel_on(side)
@@ -1046,6 +1059,16 @@ class HDRenderer:
             if state == "done":                                     # beaten: struck / battu : barré
                 self.pg.draw.line(screen, (220, 60, 40), (x0, y), (x1, y), max(2, S(3)))
 
+    def real_team(self, eng, side):
+        """False while the team slots of a side hold the same fighter twice ("distinct" in the game's file, 1.40.2): the
+        game has not filled them yet, between START and its select screen. / Faux tant que les cases de l'équipe
+        tiennent deux fois le même combattant : le jeu ne les a pas encore remplies."""
+        spec = (eng.derived or {}).get(side + "_char")
+        names = spec.get("names") if isinstance(spec, dict) else None
+        if isinstance(names, dict) and names and set(names) <= {"en", "fr"}:
+            names = names.get("en") or names.get("fr")
+        return distinct(spec, names, eng.state.values)
+
     def select_pick(self, eng, side):
         """On the select screens, the fighters picked so far, read as the game writes them (the captures, 1.33 test
         6, FightFX._select_phase): the slots fill pick by pick, the last pick named; the three in, the team as picked;
@@ -1056,7 +1079,7 @@ class HDRenderer:
         vals = eng.state.values
         names = ((eng.derived or {}).get(side + "_char") or {}).get("names")
         ph = (self.fight.sel_phase or {}).get(side)
-        if not isinstance(names, dict) or ph is None:
+        if not isinstance(names, dict) or ph is None or not self.real_team(eng, side):
             return None, None
         chars = [vals.get(f"_{side}_ch{i}") for i in range(3)]
         known = [c for c in chars if c is not None and names.get(str(c)) is not None]
@@ -1082,7 +1105,7 @@ class HDRenderer:
         """Équipe King of Fighters dans l'ordre de passage : [(nom, état)], état « done », « now » ou « next »."""
         vals = eng.state.values
         names = ((eng.derived or {}).get(side + "_char") or {}).get("names")
-        if not isinstance(names, dict):
+        if not isinstance(names, dict) or not self.real_team(eng, side):
             return None
         chars = [vals.get(f"_{side}_ch{i}") for i in range(4)]
         orders = [vals.get(f"_{side}_ord{i}") for i in range(3)]

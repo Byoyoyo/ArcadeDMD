@@ -267,6 +267,12 @@
  "derived": {
   "select": {"sum": [{"eq": ["_screen", 30642]}, {"eq": ["_screen", 45984]}], "names": {"0": 0, "1": 1, "2": 1}, "note": "1 on the character select and the order select (0x77B2, 0xB3A0); the screens between them and the first round, and after a match, have no fight going (_fight_state 0) and are select screens too for ArcadeDMD, the next rounds' intros start at 0 after a K.O. (0x19 and 0x01) (the log, 1.32 test 8b)"},
   "p1_char": {
+   "distinct": [
+    "_p1_ch0",
+    "_p1_ch1",
+    "_p1_ch2"
+   ],
+   "distinct_note": "a team never fields the same fighter twice: slots that hold one twice are slots the game has not filled yet (zeroes between START and its select screen in the recorded games of November 2026), and no name is known then",
    "pick": [
     "_p1_ch0",
     "_p1_ch1",
@@ -322,6 +328,11 @@
    }
   },
   "p2_char": {
+   "distinct": [
+    "_p2_ch0",
+    "_p2_ch1",
+    "_p2_ch2"
+   ],
    "pick": [
     "_p2_ch0",
     "_p2_ch1",

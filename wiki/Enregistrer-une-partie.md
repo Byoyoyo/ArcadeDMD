@@ -1,4 +1,4 @@
-Depuis la 1.33, ArcadeDMD enregistre chaque partie que tu joues. Une partie, jouée normalement, suffit pour régler un jeu sans la borne. Son fichier est corrigé d'après l'enregistrement, la partie est rejouée dans la scène HD pour vérifier chaque moment, et l'enregistrement est gardé comme test pour que rien ne casse plus tard.
+ArcadeDMD peut enregistrer chaque partie que tu joues. Depuis la 1.40.2 rien n'est enregistré au départ. Active l'enregistrement dans l'onglet **Débogage** de la fenêtre d'ArcadeDMD, le temps des parties à envoyer, puis coupe-le. Une partie, jouée normalement, suffit pour régler un jeu sans la borne. Son fichier est corrigé d'après l'enregistrement, la partie est rejouée dans la scène HD pour vérifier chaque moment, et l'enregistrement est gardé comme test pour que rien ne casse plus tard.
 
 ## Ce qui est enregistré
 
@@ -9,11 +9,13 @@ Depuis la 1.33, ArcadeDMD enregistre chaque partie que tu joues. Une partie, jou
 
 ## Réglages
 
+L'onglet **Débogage** de la fenêtre écrit ces réglages pour toi. Les parties jouées par le robot sont enregistrées quel que soit le réglage.
+
 | Où | Réglage |
 |---|---|
-| en haut de `config.json` | `"capture"`, `"all"` (toutes les parties, par défaut), `"fights"` (les jeux de combat seulement) ou `"off"` |
-| section `retroarch` | `"ram_dump": {"enabled": true, "every": 0.25}` |
-| section `retroarch` | `"screenshots": {"enabled": true, "every": 2.0, "dir": ""}`. Mets dans `"dir"` le dossier des captures de RetroArch (Réglages, Dossiers, Captures d'écran) et le journal dit si la première image est apparue |
+| en haut de `config.json` | `"capture"`, `"off"` (rien, par défaut), `"all"` (toutes les parties) ou `"fights"` (les jeux de combat seulement) |
+| section `retroarch` | `"ram_dump": {"enabled": true, "every": 0.25}`, coupé par défaut |
+| section `retroarch` | `"screenshots": {"enabled": true, "every": 2.0, "dir": ""}`, coupé par défaut. Mets dans `"dir"` le dossier des captures de RetroArch (Réglages, Dossiers, Captures d'écran) et le journal dit si la première image est apparue |
 
 Dans RetroArch, coupe la notification et le flash des captures d'écran (Réglages, Affichage à l'écran, Notifications à l'écran). Coupe aussi « Capture d'écran GPU » (Réglages, Vidéo, Sortie, un réglage avancé), sinon les images sortent avec le shader CRT en pleine taille, 3 Mo chacune, au lieu du 304 x 224 du jeu.
 
@@ -53,4 +55,4 @@ Les réglages de RetroArch ne sont pas modifiés, et les jeux joués par le robo
 - `python tools\values_check.py runtime\robot\<jeu>.zip` vérifie chaque valeur du fichier du jeu contre une partie enregistrée par le robot (1.39). Un chrono descend et repart de son plus haut, une barre de vie descend coup après coup et se lit pleine au début d'un round, un score ne fait que monter. `--sheet out.jpg` met six captures d'écran sur une image avec ce que lit le fichier à la même seconde, pour vérifier à l'œil. `--find` cherche le chrono et les barres de vie dans toute la mémoire, `--match 45:35 105:25` les octets qui valent les nombres lus sur les captures.
 - `python tools\ram_diff.py <fichier.ram> --down 120 160` liste les mots de mémoire qui ne font que baisser entre deux moments (une vie), `--watch 0x1012AA` en suit un, `--diff 118 121` montre ce qui a changé.
 
-Les enregistrements déjà reçus sont gardés dans `tests\captures` et rejoués comme tests.
+Les enregistrements déjà reçus sont gardés dans `tests\captures`. Les combats enregistrés sont rejoués comme tests à chaque changement. `python tools\captures_check.py` compare ce que l'écran HD annonce, seconde par seconde, avec ce qui est attendu dans `tests\expected`.

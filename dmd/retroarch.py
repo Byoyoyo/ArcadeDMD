@@ -77,6 +77,18 @@ class RetroArchClient:
         self.timeout = float(timeout)
         self.sock = None
         self.last_reply = None      # réponse brute de la dernière lecture (pour expliquer un échec)
+        self.tied = False           # the socket tied to RetroArch's address (1.40.2) / lié à l'adresse de RetroArch
+
+    def _local(self):
+        host = str(self.addr[0]).strip().lower()
+        return "127.0.0.1" if host == "localhost" or host.startswith("127.") else ""
+
+    def _say(self, sk, data):
+        """One datagram to RetroArch. / Un datagramme pour RetroArch."""
+        if self.tied:
+            sk.send(data)
+        else:
+            sk.sendto(data, self.addr)
 
     def close(self):
         if self.sock is not None:
@@ -98,8 +110,17 @@ class RetroArchClient:
             for _ in range(8):
                 sk = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 try:
-                    sk.bind(("", 0))
+                    # on the loopback only when RetroArch is on this PC, and tied to RetroArch's address: the system
+                    # then hands over RetroArch's answers alone. The socket listened on every network interface and
+                    # took any datagram for an answer (1.40.2). / sur la boucle locale seulement quand RetroArch est sur
+                    # ce PC, et lié à l'adresse de RetroArch : le système ne remet alors que ses réponses
+                    sk.bind((self._local(), 0))
                     if sk.getsockname()[1] != self.addr[1]:
+                        try:
+                            sk.connect(self.addr)
+                            self.tied = True
+                        except OSError:
+                            self.tied = False
                         break
                 except OSError:
                     pass
@@ -123,7 +144,7 @@ class RetroArchClient:
     def send(self, text):
         """A command without an answer (SCREENSHOT, 1.33 test 35). / Une commande sans réponse."""
         try:
-            self._open().sendto((text + "\n").encode("ascii"), self.addr)
+            self._say(self._open(), (text + "\n").encode("ascii"))
             return True
         except OSError:
             return False
@@ -145,7 +166,7 @@ class RetroArchClient:
             except OSError:
                 pass
             s.settimeout(self.timeout)
-            s.sendto((text + "\n").encode("ascii"), self.addr)
+            self._say(s, (text + "\n").encode("ascii"))
             end = time.monotonic() + self.timeout
             while True:
                 reply = s.recv(65535).decode("utf-8", "replace").strip()
@@ -231,7 +252,7 @@ class RetroArchClient:
             for a, n in reqs:
                 want["READ_CORE_RAM %x " % a] = (a, n)
                 asked.add("READ_CORE_RAM %x %d" % (a, n))
-                s.sendto(("READ_CORE_RAM %x %d\n" % (a, n)).encode("ascii"), self.addr)
+                self._say(s, ("READ_CORE_RAM %x %d\n" % (a, n)).encode("ascii"))
             end = time.monotonic() + self.timeout
             while want and time.monotonic() < end:
                 try:
@@ -283,7 +304,7 @@ class RetroArchClient:
                 for a, n in reqs[i:i + window]:
                     want["READ_CORE_RAM %x " % a] = (a, n)
                     asked.add("READ_CORE_RAM %x %d" % (a, n))
-                    s.sendto(("READ_CORE_RAM %x %d\n" % (a, n)).encode("ascii"), self.addr)
+                    self._say(s, ("READ_CORE_RAM %x %d\n" % (a, n)).encode("ascii"))
                 end = time.monotonic() + max(self.timeout, 0.5)
                 while want and time.monotonic() < end:
                     try:

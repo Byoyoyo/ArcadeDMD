@@ -131,6 +131,7 @@ class FightFX:
         self.rng = rng or random.Random()
         self.fx = FX(hd, random.Random(self.rng.random()))
         self.bd = Backdrop(hd, "arena", random.Random(self.rng.random()), threaded=False)
+        self.bd.lazy = True                    # a stage is drawn when the game goes to it (1.40.2) / dessiné quand le jeu y va
         self.bd.static = True
         self.bd.dim = getattr(hd, "dim_fight", None)                   # darker under the fight (1.32) / plus sombre
         self.bd.no_neons = True                                       # no shop signs at the level of the names (1.32)
@@ -352,7 +353,9 @@ class FightFX:
             self.key = key
             self._reset(now)
             self.bd.set_theme(stages[stable_index(key, len(stages))], now, wipe=0)
-            self.bd.prebuild(stages)                                  # les autres stages se préparent en arrière-plan
+            # the other stages are no longer all drawn in advance and kept, 110 MB for the nine of a King of Fighters:
+            # each one is drawn beside the display when the game goes to it (hd_bg.LAZY, 1.40.2) / les autres stages
+            # ne sont plus tous dessinés d'avance et gardés : chacun l'est à côté de l'affichage quand le jeu y va
         self.fx.update(now)
         self._vs(vals, now)
         # a select screen the game says (King of Fighters, Real Bout Special: "select", 1.31.1): no fight there, its values

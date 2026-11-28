@@ -314,6 +314,20 @@ def resolve_value(expr, values):
     return _resolve(expr, values)
 
 
+def distinct(spec, names, values):
+    """False when the values listed in "distinct" hold the same known name twice (1.40.2). A game of teams never fields
+    the same fighter twice: slots that hold one twice are slots the game has not filled yet (zeroes between START and
+    the select screen of the King of Fighters, "KYO KYO KYO" on the marquee), and nothing is known then. Nothing is
+    known either while none of them holds a name (the select screen before the first pick). / Faux quand
+    les valeurs listées dans "distinct" tiennent deux fois le même nom : des cases que le jeu n'a pas encore remplies."""
+    keys = spec.get("distinct") if isinstance(spec, dict) else None
+    if not isinstance(keys, list) or not isinstance(names, dict):
+        return True
+    held = [str(values.get(k)) for k in keys if isinstance(k, str) and values.get(k) is not None]
+    held = [h for h in held if names.get(h) is not None]
+    return bool(held) and len(set(held)) == len(held)     # and none filled at all is nobody either / aucune remplie non plus
+
+
 def derive(specs, values):
     """{nom: valeur calculée ou None} pour les définitions "derived" d'un jeu."""
     out = {}
@@ -327,6 +341,8 @@ def derive(specs, values):
         if isinstance(names, dict) and names and set(names) <= {"en", "fr"}:   # names in both languages
             from .i18n import lang
             names = names.get(lang()) or names.get("en") or names.get("fr")
+        if isinstance(names, dict) and not distinct(spec, names, values):
+            v = None                                  # slots not filled yet: nobody known / personne de connu (1.40.2)
         if isinstance(names, dict) and v is not None:
             v = names.get(str(v))
         elif isinstance(names, list) and v is not None:

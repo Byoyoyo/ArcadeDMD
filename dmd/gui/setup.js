@@ -172,7 +172,7 @@ async function loadEmulators() {
   const body = $("tabbody");
   body.className = "grid";
   body.style.cssText = "--min:340px";
-  body.replaceChildren(raCard(d.retroarch), mameCard(d.mame), coinsCard(d.coins, d.windows), recordCard(d.record, d.retroarch));
+  body.replaceChildren(raCard(d.retroarch), mameCard(d.mame), coinsCard(d.coins, d.windows));
 }
 
 /* a Browse button that opens Windows' own folder window and fills the field (then done() with the folder)
@@ -305,12 +305,14 @@ function coinsCard(c, windows) {
 
 function recordCard(r, ra) {
   const dir = h("input", { id: "rec-dir", value: r.shots_dir || "", placeholder: ra.shot_dir || "", spellcheck: "false" });
+  const on = r.capture !== "off" || r.ram || r.shots;
   const card = h("div", { class: "card" },
-    h("div", { class: "row-h" }, h("h2", {}, t("Enregistrer les parties", "Record the games"))),
-    h("div", { class: "soft" }, t("Ce qu'il faut pour apprendre un jeu, chaque valeur lue avec son heure, et pour RetroArch la mémoire et des captures d'écran.",
-                                  "What it takes to learn a game, each value read with its time, and for RetroArch the memory and screenshots.")),
-    field(t("Parties enregistrées", "Games recorded"), select("rec-cap", [["all", t("Tous les jeux", "All games")],
-      ["fights", t("Les jeux de combat", "Fighting games")], ["off", t("Aucune", "None")]], r.capture)),
+    h("div", { class: "row-h" }, h("h2", {}, t("Enregistrer les parties", "Record the games")),
+      h("span", { class: "pill " + (on ? "ok" : "warn") }, h("i"), on ? t("Activé", "On") : t("Coupé", "Off"))),
+    h("div", { class: "soft" }, t("Ce qu'il faut pour apprendre ou corriger un jeu, chaque valeur lue avec son heure, et pour RetroArch la mémoire et des captures d'écran. Rien n'est enregistré tant que ce n'est pas activé ici.",
+                                  "What it takes to learn or fix a game, each value read with its time, and for RetroArch the memory and screenshots. Nothing is recorded until it is turned on here.")),
+    field(t("Parties enregistrées", "Games recorded"), select("rec-cap", [["off", t("Aucune", "None")],
+      ["all", t("Tous les jeux", "All games")], ["fights", t("Les jeux de combat", "Fighting games")]], r.capture)),
     h("label", { class: "check" }, h("input", { type: "checkbox", id: "rec-ram", checked: r.ram }),
       t("Toute la mémoire de RetroArch, pour trouver une adresse", "The whole RetroArch memory, to find an address")),
     h("label", { class: "check" }, h("input", { type: "checkbox", id: "rec-shots", checked: r.shots }),
@@ -329,9 +331,35 @@ function recordCard(r, ra) {
         toast(p.ok ? t(`${p.file} est prêt à envoyer, ${Math.round(p.size / 1024)} Ko, dans le dossier runtime.`,
                        `${p.file} is ready to send, ${Math.round(p.size / 1024)} KB, in the runtime folder.`) : (p.error || ""), 8000);
       }) }, t("Préparer l'envoi de la dernière partie", "Get the last game ready to send"))),
-    r.last ? h("span", { class: "small" }, t(`Dernière partie enregistrée ${r.last}`, `Last game recorded ${r.last}`)) : null);
+    r.last ? h("span", { class: "small" }, t(`Dernière partie enregistrée ${r.last}`, `Last game recorded ${r.last}`)) : null,
+    r.files ? h("span", { class: "small" }, t(`Le dossier des captures tient ${r.files} fichiers, ${sizeText(r.bytes)}.`,
+                                               `The captures folder holds ${r.files} files, ${sizeText(r.bytes)}.`)) : null);
   return card;
 }
+
+function sizeText(n) {
+  if (n >= 1073741824) return (n / 1073741824).toFixed(1).replace(".", t(",", ".")) + t(" Go", " GB");
+  if (n >= 1048576) return Math.round(n / 1048576) + t(" Mo", " MB");
+  return Math.max(1, Math.round(n / 1024)) + t(" Ko", " KB");
+}
+
+/* ---------------------------------------------------------------- Debug / Débogage (1.40.2)
+   What is only useful to find a fault: the recording of the games, off until it is turned on here.
+   Ce qui ne sert qu'à chercher un défaut : l'enregistrement des parties, coupé tant qu'on ne l'active pas ici. */
+TABS.push({
+  id: "debogage", fr: "Débogage", en: "Debug", order: 8,
+  async render(main) {
+    loading(main, t("Débogage", "Debug"), t("Ce qui sert à chercher un défaut ou à apprendre un jeu. Tout est coupé au départ.",
+                                            "What helps to find a fault or to learn a game. Everything is off at first."));
+    let d;
+    try { d = await api("/api/emulators"); } catch (e) { $("tabbody").textContent = t("Réglages illisibles.", "Settings unreadable."); return; }
+    if (!APP.tab || APP.tab.id !== "debogage") return;
+    const body = $("tabbody");
+    body.className = "grid";
+    body.style.cssText = "--min:340px";
+    body.replaceChildren(recordCard(d.record, d.retroarch));
+  },
+});
 
 /* ---------------------------------------------------------------- Frontal / Frontend */
 TABS.push({

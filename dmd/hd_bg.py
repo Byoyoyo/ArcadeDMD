@@ -14,6 +14,7 @@ les plans glissent à des vitesses différentes (effet de profondeur) et l'ambia
 """
 
 import math
+import os
 import random
 import threading
 import time
@@ -26,6 +27,12 @@ THEMES = ("desert", "jungle", "snow")
 # the fights: a bright stage (daytime) is darkened more than its "dim_fight", down to this brightness (0 to 255), at most
 # DIM_MAX percent (1.32 test 9b, the names and bars over the market in the sun) / un décor clair est assombri plus
 # que son « dim_fight », jusqu'à cette clarté, au plus DIM_MAX pour cent
+# A backdrop that is asked for and not drawn yet is drawn beside the display and shown when it is ready, the one on
+# screen staying meanwhile (1.40.2): nothing has to be drawn in advance and kept. Only for a Backdrop that asks for it
+# ("lazy": the fights, with their nine to twelve stages; Metal Slug and the other scenes are as they were). False draws it at once, the display
+# waiting for it, for the tools that compare pictures. / Un décor demandé et pas encore dessiné est dessiné à côté de
+# l'affichage et montré quand il est prêt, celui de l'écran restant en attendant : plus rien à dessiner d'avance.
+LAZY = os.environ.get("ARCADEDMD_BACKDROPS") != "sync"
 DIM_TARGET = 36
 DIM_MAX = 80
 
@@ -857,24 +864,37 @@ class Backdrop:
         self.cur_look = None          # the look drawn, for the hooks / le look dessiné, pour les animations
         self.look_k = 1.0
         self._lbuf = None             # the layers of a tinted look, before their tint / les plans avant leur teinte
+        self.lazy = False             # True: a backdrop not drawn yet is drawn beside the display (the fights, 1.40.2)
+        self.asked = None             # (name, wipe) of a backdrop being drawn beside, shown when ready (1.40.2)
+        self.building = set()         # the names a thread is drawing / les décors qu'un fil dessine
+        self.failed = set()           # the ones it could not draw / ceux qu'il n'a pas pu dessiner
         if threaded:                                         # les autres décors se préparent en arrière-plan
             self.prebuild(THEMES)
 
     def prebuild(self, names):
-        names = [n for n in names if n in BUILDERS]
-        threading.Thread(target=self._prebuild, args=(names,), daemon=True).start()
+        with self.lock:                                      # once each: not again while a thread draws it, nor when it
+            names = [n for n in names if n in BUILDERS and n not in self.raw and n not in self.built   # is already there
+                     and n not in self.building]
+            self.building.update(names)
+        if names:
+            threading.Thread(target=self._prebuild, args=(names,), daemon=True).start()
 
     def _prebuild(self, names):
         for name in names:
-            with self.lock:
-                if name in self.raw:
-                    continue
             try:
-                img = BUILDERS[name](self.W, self.H, self.s)
-            except Exception:
-                continue
-            with self.lock:
-                self.raw.setdefault(name, img)
+                with self.lock:
+                    if name in self.raw or name in self.built:
+                        continue
+                try:
+                    img = BUILDERS[name](self.W, self.H, self.s)
+                except Exception:
+                    self.failed.add(name)                    # shown at once then, as before / montré tout de suite alors
+                    continue
+                with self.lock:
+                    self.raw.setdefault(name, img)
+            finally:
+                with self.lock:
+                    self.building.discard(name)
 
     def ready(self, name):
         with self.lock:
@@ -937,7 +957,9 @@ class Backdrop:
         if raw["amb"].get("plane"):
             b["plane"] = hd._surf(plane_img(self.s, raw["amb"]["plane_color"], raw["amb"]["plane"]))
         self.built[name] = b
-        return b
+        with self.lock:                                      # the drawing has done its work: only the surfaces stay. It
+            self.raw.pop(name, None)                         # was kept for good, 14 MB a stage (1.40.2) / le dessin a
+        return b                                             # fait son travail : seules les surfaces restent
 
     @staticmethod
     def _luminance(raw):
@@ -985,7 +1007,13 @@ class Backdrop:
 
     def set_theme(self, name, now, wipe=1.1):
         if name not in BUILDERS or name == self.theme:
+            self.asked = None
             return
+        if LAZY and self.lazy and self.last is not None and not self.ready(name) and name not in self.failed:
+            self.asked = (name, wipe)                        # drawn beside, shown when ready: draw() comes back here
+            self.prebuild([name])
+            return
+        self.asked = None
         if not wipe or wipe <= 0.02 or self.last is None:          # tout de suite, sans volet
             self.theme = name
             self.wipe = None
@@ -1041,6 +1069,8 @@ class Backdrop:
         """move : -1 (recule) à 1 (avance), 0 : le décor dérive doucement."""
         dt = 0.0 if self.last is None else max(0.0, min(0.1, now - self.last))
         self.last = now
+        if self.asked is not None and (self.ready(self.asked[0]) or self.asked[0] in self.failed):
+            self.set_theme(self.asked[0], now, self.asked[1])           # the backdrop asked for is ready / il est prêt
         target = 0.0 if self.static else (0.25 + 1.25 * max(0.0, move) - 0.35 * max(0.0, -move)) * 70 * self.s
         self.speed += (target - self.speed) * min(1.0, dt * 2.5)
         self.scroll += self.speed * dt
