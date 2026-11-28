@@ -357,6 +357,7 @@ async function poll() {
     else if (fresh) route();
     $("ver").textContent = s.version;
     staleBanner(s.version);
+    if (s.quitting) { try { window.close(); } catch (e) { /* the browser decides / le navigateur décide */ } }
     if (s.goto) {                       // the icon's menu asked for a tab / le menu de l'icône demande un onglet
       if (APP.gotoSeen === undefined) APP.gotoSeen = s.goto[0];
       else if (s.goto[0] > APP.gotoSeen) { APP.gotoSeen = s.goto[0]; if (s.goto[1]) location.hash = s.goto[1]; }
