@@ -47,6 +47,7 @@ from .hd_games6 import SCENES_PB1 as _SCENES_PB1
 from .hd_mercs import SCENES as _SCENES_MERCS
 from .hd_squad import SCENES as _SCENES_SQUAD
 from .hd_moves import draw_panel, draw_wins
+from .hd_book import draw_book
 from .hd_specials import draw_specials, fighter_rows, hyper_rows, power_label, timer_name
 from .hd_mslug import MetalSlugScene, family
 from .i18n import tr
@@ -165,6 +166,8 @@ class HDRenderer:
         stage = os.environ.get("ARCADEDMD_FIGHT_STAGE")
         self.fight_plain = not (stage == "1" if stage in ("0", "1") else bool((cfg or {}).get("fight_stage")))
         self.ach_low = False          # the life bars are near the top: an achievement comes at the bottom / en bas
+        self.fight_book = os.environ.get("ARCADEDMD_FIGHT_BOOK") == "1"   # trial: every move of the fighter (hd_book)
+        self.book_k = {}
         self.plain_buf = None
         self.plain_jobs = []
         self.intro_serial = 0         # game logo when a game starts (the engine counts the starts)
@@ -979,9 +982,10 @@ class HDRenderer:
             elif human:
                 self._score(screen, eng, "score" if side == "p1" else "score_p2", x, S(2 + up if small else 14), align,
                             S(54 if small else 64), side_color(side), INK)
-            elif not small:
+            elif not small or self.fight_book:
                 word, col = self._invite(vals, now)
-                self.put(screen, self.text(word, "xbold", S(40), col, glow=0, outline=INK, stroke=max(2, S(3))), x, S(24), align)
+                self.put(screen, self.text(word, "xbold", S(40), col, glow=0, outline=INK, stroke=max(2, S(3))), x,
+                         S(8 + up if small else 24), align)
         wide = not self.logo_file                       # titre écrit à la place du logo : plus de place en largeur
         if small:
             self.draw_logo(screen, logo, W / 2, S(2 + up), S(560 if wide else 420), S(54), now)
@@ -1075,7 +1079,14 @@ class HDRenderer:
                 x0, x1 = (S(36), int(cx - S(176))) if side == "p1" else (int(cx + S(176)), W - S(36))
                 lost = sum(1 for _, st in team if st == "done") if team else _num(vals.get(f"_{side}_lost"))
                 health = _num(vals.get("health" if side == "p1" else "health_p2"))
-                if small and not spec:            # without the stage: drawn after, bigger, in the room gained
+                if small and not spec and self.fight_book:    # trial: the book of moves / le carnet de coups
+                    alone = not (p2_in if side == "p1" else p1_in)
+                    fx = (int(cx + S(176)), W - S(36)) if side == "p1" else (S(36), int(cx - S(176)))
+                    free = (fx[0], fx[1], S(296), self.H - S(5)) if alone else None
+                    args = (moves, side, dict(vals), game, name, x0, x1, S(352 - self.PLAIN_UP), self.H - S(5), now, lost, health)
+                    head = ZoomedHD(self, 1.0, tall=True)
+                    self.plain_jobs.append(lambda scr, a=args, b=head, f=free, c=side_color(side): draw_book(self, b, scr, *a, free=f, color=c))
+                elif small and not spec:          # without the stage: drawn after, bigger, in the room gained
                     args = (moves, side, dict(vals), game, name, x0, x1, S(352 - self.PLAIN_UP), now, lost, health)
                     big = ZoomedHD(self, self.PLAIN_ZOOM, tall=True)
                     self.plain_jobs.append(lambda scr, a=args, b=big: draw_panel(b, scr, *a))
@@ -1084,9 +1095,15 @@ class HDRenderer:
                                   self._level_top(eng, side), self.fight.stick if self.fight.stick.wanted(game) else None)
                 else:
                     draw_panel(self, screen, moves, side, vals, game, name, x0, x1, S(352), now, lost, health)
+            elif team and small and self.fight_book and (p2_in if side == "p1" else p1_in):   # trial: small, beside the name
+                nw = self.name_text(str(name), nsize, side)["w"] if name else 0
+                if side == "p1":
+                    self.draw_team_line(screen, team, S(40) + tw + S(40) + nw + S(30), int(cx - S(176)), S(318), side)
+                else:
+                    self.draw_team_line(screen, team, W - S(40) - tw - S(40) - nw - S(30), int(cx + S(176)), S(318), side)
             elif team:
                 self.draw_team(screen, team, S(44) if side == "p1" else W - S(44), S(372), side, room)
-            if small and not human:               # the side nobody plays calls for its player, big / en grand
+            if small and not human and not self.fight_book:   # the side nobody plays calls for its player, big / en grand
                 word, col = self._invite(vals, now)
                 xc = (S(36) + cx - S(176)) / 2 if side == "p1" else (cx + S(176) + W - S(36)) / 2
                 t = self.text(word, "xbold", S(92), col, glow=0.35)

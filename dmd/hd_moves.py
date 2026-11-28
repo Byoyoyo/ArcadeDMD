@@ -707,28 +707,35 @@ def draw_panel(hd, screen, moves, side, vals, game, name, x0, x1, y0, now, lost,
     gap = S(34) if n <= 2 else S(27)
     r = S(15) if n <= 2 else S(12)
     down = S(36) if tall else 0
-    h = panel_height(hd, n) + down
+    book = getattr(hd, "book", None) if tall else None            # trial (hd_book): the badge, the gauge and the inputs
+    h = book["h"] if book else panel_height(hd, n) + down         # alone, on the top edge of a panel of the height asked
     red = extra and health is not None and 0 < health <= RED_HEALTH  # Extra: the life flashing red / la vie en rouge
     edge = GOLD if maxed else (230, 60, 40) if red else (120, 90, 40)
     screen.blit(_plate(moves, hd, int(x1 - x0), int(h), edge, S(18)), (int(x0), int(y0)))
     fixed = stock_max(game)
     slots = stock_slots(stock, lost, extra, fixed)
     word, bcol, ink = badge(stock, None if fixed else slots, extra, maxed, red)   # '97 says no MAX at three stocks
+    chip = 0
     if word:
         t = hd.text(word, "black", S(20), ink, glow=0)
         bw, bh = int(t["w"] + S(20)), S(26)
         b = _plate(moves, hd, bw, bh, bcol, bh // 2, fill=(*bcol, 255))
         screen.blit(b, (int(x0 + S(14)), int(y0 - bh / 2)))
         hd.put(screen, t, x0 + S(14) + bw / 2, y0, "center", "middle")
+        chip = bw + S(8)
     # the gauge as the game shows it: the bar, then a square per stock / la jauge comme dans le jeu
     gy = y0 + S(38) if n and not tall else y0 + S(33)
+    if book:
+        gy = y0 + S(2)
     fill = max(0.0, min(1.0, (pow_ or 0) / pfull))
     mv = _n(vals.get("_maxv" + suf))
     if maxed and not extra and mv is not None:                    # MAX: its timer in the bar, as the game shows it
         fill = max(0.0, min(1.0, mv / maxv_full(game)))           # le MAX : son chrono dans la barre, comme le jeu
     gbw, gbh = (S(150) if extra and not n else S(72)), S(18)    # Extra has no squares: a longer bar / une barre plus longue
     q = S(22)
-    gx = x0 + S(18)
+    gx = x0 + S(18) + (chip if book else 0)
+    if book:                                                      # on the edge: its own dark ground / son fond sombre
+        pg.draw.rect(screen, (6, 8, 18), (gx - S(6), gy - S(15), gbw + S(12) + slots * (q + S(5)), S(30)), border_radius=S(6))
     pg.draw.rect(screen, (24, 26, 40), (gx, gy - gbh / 2, gbw, gbh), border_radius=S(3))
     fw = int(gbw * fill)
     if fw > 0:
@@ -764,6 +771,9 @@ def draw_panel(hd, screen, moves, side, vals, game, name, x0, x1, y0, now, lost,
         return h
     if tall:                                                      # the inputs pressed, beside the gauge / à côté de la jauge
         draw_inputs(hd, screen, moves, sd, names, gauge_end + S(26), x1 - S(16), gy, now)
+    if book is not None:
+        book.update(rows=rows, avail=avail, maxed=maxed, names=names, sd=sd)
+        return h
     lines = []
     for k, (nm, cmd, btn) in enumerate(rows):
         states, tag, tcol, mir = moves.row_states(side, k, len(cmd), now)
