@@ -94,7 +94,7 @@ def play(eng, out, clock, game):
         frame = eng.step(t)
         out.hd_next = 0.0
         out.send(frame)
-        if out.hd_view is None:
+        if out.hd_view is None or out.hd_off is not None:      # stopped, or back to the LEDs for this game (1.40.2)
             return out.said[-1] if out.said else "the HD screen stopped"
         t = round(t + STEP, 4)
     clock[0] = t
@@ -172,7 +172,7 @@ def play_boss(eng, out, clock, game):
         frame = eng.step(t)
         out.hd_next = 0.0
         out.send(frame)
-        if out.hd_view is None:
+        if out.hd_view is None or out.hd_off is not None:      # stopped, or back to the LEDs for this game (1.40.2)
             return out.said[-1] if out.said else "the HD screen stopped"
         t = round(t + step, 4)
     clock[0] = t
