@@ -159,7 +159,7 @@ class HDRenderer:
         self.ach_veil = None
         # trial: the fights without their stage, on black, the game's logo small and the moves bigger ("fight_plain" in the
         # settings of the marquee) / essai : les combats sans décor, sur noir, le logo du jeu en petit et les coups en plus gros
-        self.fight_plain = bool((cfg or {}).get("fight_plain"))
+        self.fight_plain = bool((cfg or {}).get("fight_plain")) or os.environ.get("ARCADEDMD_FIGHT_PLAIN") == "1"
         self.plain_buf = None
         self.plain_jobs = []
         self.intro_serial = 0         # game logo when a game starts (the engine counts the starts)
@@ -656,6 +656,7 @@ class HDRenderer:
 
         pg, W, H = self.pg, self.W, self.H
         top = bool(self.ach_top)
+        low = top and self.fight_plain                             # trial without the stage: the bars are near the top
         z = 0.7 if top else 1.0
 
         def Z(v):
@@ -663,13 +664,13 @@ class HDRenderer:
 
         gold, cream, amber, ink = (255, 214, 120), (235, 225, 205), (255, 168, 48), (20, 16, 26)
         hb = Z(196)
-        y0 = 0 if top else (H - hb) // 2
+        y0 = H - hb if low else 0 if top else (H - hb) // 2
         cx, cy, xr, tx0 = W // 2, y0 + hb // 2, W - self.S(48), Z(276)
         pts = int(ev.get("points") or 0)
         n, of = ev.get("n"), ev.get("of")
         counted = isinstance(n, int) and isinstance(of, int) and 0 < n <= of
         t_pts = self.text(tr("1 POINT", "1 POINT") if pts == 1 else f"{pts} POINTS", "black", Z(50), gold, glow=0)
-        if self.ach_key != (self.ach_serial, top):
+        if self.ach_key != (self.ach_serial, top):                 # low or not, the same room for the name
             self.ach_key = (self.ach_serial, top)
             right = Z(420) if counted else t_pts["w"]
             self.ach_title = self._achievement_title(str(ev.get("title") or "").upper(), xr - right - Z(60) - tx0, z)
@@ -688,9 +689,10 @@ class HDRenderer:
             screen.set_clip(pg.Rect(cx - half, y0, 2 * half, hb).clip(old))
             edge = max(2, Z(6))
             screen.fill(ink, (0, y0, W, hb))
-            if not top:
+            if not top or low:
                 screen.fill(gold, (0, y0, W, edge))
-            screen.fill(gold, (0, y0 + hb - edge, W, edge))
+            if not low:
+                screen.fill(gold, (0, y0 + hb - edge, W, edge))
             tx = tx0 + int(self.S(26) * (1.0 - ax))
             label, site, f = tr("SUCCÈS DÉBLOQUÉ", "ACHIEVEMENT UNLOCKED"), "RETROACHIEVEMENTS", self.font("black", Z(36))
             down = f.getbbox(site)[1] - f.getbbox(label)[1]        # the accents make the first word taller / les accents
@@ -1065,13 +1067,14 @@ class HDRenderer:
                 lost = sum(1 for _, st in team if st == "done") if team else _num(vals.get(f"_{side}_lost"))
                 health = _num(vals.get("health" if side == "p1" else "health_p2"))
                 if part == "body":                # trial without the stage: drawn after, bigger, in the room gained
-                    big, y0 = ZoomedHD(self, self.PLAIN_ZOOM, tall=not spec), S(352 - self.PLAIN_UP)
-                    if spec:
+                    y0 = S(352 - self.PLAIN_UP)
+                    if spec:                      # the other fighting games: their panel as it is, only moved up for now
                         args = (self.fight.moves, self.fight.specials, side, dict(vals), game, name, x0, x1, y0, now,
                                 self._level_top(eng, side), self.fight.stick if self.fight.stick.wanted(game) else None)
-                        self.plain_jobs.append(lambda scr, a=args, b=big: draw_specials(b, scr, *a))
+                        self.plain_jobs.append(lambda scr, a=args: draw_specials(self, scr, *a))
                     else:
                         args = (moves, side, dict(vals), game, name, x0, x1, y0, now, lost, health)
+                        big = ZoomedHD(self, self.PLAIN_ZOOM, tall=True)
                         self.plain_jobs.append(lambda scr, a=args, b=big: draw_panel(b, scr, *a))
                 elif spec:
                     draw_specials(self, screen, self.fight.moves, self.fight.specials, side, vals, game, name, x0, x1, S(352), now,
