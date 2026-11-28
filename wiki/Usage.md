@@ -12,6 +12,7 @@ Since 1.37 ArcadeDMD has no console any more. Its icon sits near the clock, amon
 - **Screens** picks the marquee screen among those Windows sees (Identify the screens shows a big number on each), the HD or virtual LED display, and the LED panel (Pixelcade and its port, ZeDMD and its brightness). Test plays a 12 second demo.
 - **Emulators** checks RetroArch's network commands and fixes them in one click, with RetroArch closed (a copy of the old `retroarch.cfg` is kept next to it). It checks MAME and the plugin version and installs or updates the plugin. It shows your coin and START buttons.
 - **Frontend** picks where the logos come from, LaunchBox / BigBox, RetroBat or none, and what the marquee shows between games.
+- **Achievements** sets the RetroAchievements account whose unlocked achievements are announced on the marquee. See [[RetroAchievements]].
 - **Debug** turns the recording of the games on, off at first, and zips the last game with the log, ready to send. See [[Recording a Game]].
 - **Log** follows `runtime\arcadedmd.log` live, with a search.
 

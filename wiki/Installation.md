@@ -40,6 +40,8 @@ The demos show the scenes with simulated values, on the marquee screen or the pa
 
 Extract the new version over the old one. `config.json` is never overwritten, it was created from `config.default.json` at the first install. The addresses found with `learn.bat` are kept in `learned\` and put back at startup. Your own pictures in `sprites\` stay.
 
+Then run `run.bat`. If ArcadeDMD was running during the update, the one that runs still holds the old program. Since 1.41 this launch replaces it by itself. Before 1.41, quit it first from its icon near the clock.
+
 ## Uninstalling
 
 Delete the `plugins\arcadedmd` folder from MAME, the `ArcadeDMD.bat` file from the Startup folder (type `shell:startup` in Win+R to open it), then the `C:\ArcadeDMD` folder. To only turn the plugin off, add the line `arcadedmd 0` to MAME's `plugin.ini`.

@@ -6,6 +6,18 @@ La version la plus récente en premier. Chaque version est en anglais, puis en f
 To update, extract the new version over the old one. Your `config.json`, the addresses learned and your own pictures are kept.
 Pour mettre à jour, extrais la nouvelle version par-dessus l'ancienne. Ton `config.json`, les adresses apprises et tes propres images sont gardés.
 
+## 1.41.0
+
+### English
+- RetroAchievements. An achievement unlocked while a game is played is announced on the marquee, with its name, its points and how many of the game's achievements are now unlocked. The account is set in a new Achievements tab of the window, with the user name and the web API key of the site, never the password. See the RetroAchievements page of the wiki.
+- An update extracted over an ArcadeDMD that runs used to leave the old program running, with the new window over it. Launching ArcadeDMD again now replaces the one that runs, and the window says when the program is older than its files.
+- Quitting ArcadeDMD from its icon also closes its window.
+
+### Français
+- RetroAchievements. Un succès débloqué pendant une partie est annoncé sur le fronton, avec son nom, ses points et le nombre de succès du jeu maintenant débloqués. Le compte se règle dans un nouvel onglet Succès de la fenêtre, avec le nom d'utilisateur et la clé web API du site, jamais le mot de passe. Voir la page Succès RetroAchievements du wiki.
+- Une mise à jour extraite par-dessus un ArcadeDMD qui tourne laissait tourner l'ancien programme, avec la nouvelle fenêtre par-dessus. Relancer ArcadeDMD remplace maintenant celui qui tourne, et la fenêtre dit quand le programme est plus ancien que ses fichiers.
+- Quitter ArcadeDMD par son icône ferme aussi sa fenêtre.
+
 ## 1.40.2
 
 ### English

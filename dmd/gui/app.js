@@ -37,8 +37,27 @@ async function api(path, body) {
   const opt = body === undefined ? {} : { method: "POST", body: JSON.stringify(body),
     headers: { "Content-Type": "application/json", "X-ArcadeDMD-Token": TOKEN } };
   const r = await fetch(path, opt);
-  if (!r.ok) throw new Error(path + " " + r.status);
+  if (!r.ok) { const e = new Error(path + " " + r.status); e.status = r.status; throw e; }
   return r.json();
+}
+/* The files of the page. An ArcadeDMD of another version still runs when a zip was extracted over it (1.41).
+   Les fichiers de la page. Un ArcadeDMD d'une autre version tourne encore quand un zip a été extrait par-dessus. */
+const FILES = "1.41.0";
+const RESTART = () => t("Quitte-le par son icône près de l'horloge, puis relance-le.", "Quit it from its icon near the clock, then start it again.");
+function staleBanner(version) {
+  const old = $("stale");
+  if (version === FILES) { if (old) old.remove(); return; }
+  if (old) return;
+  const main = $("main");
+  if (!main) return;
+  main.before(h("div", { id: "stale", class: "banner", role: "alert", style: "margin:14px 22px 0" }, h("div", {},
+    h("b", {}, t("Mise à jour à finir", "Update to finish")),
+    t(`ArcadeDMD tourne encore en ${version} alors que ses fichiers sont en ${FILES}. `, `ArcadeDMD still runs ${version} while its files are ${FILES}. `) + RESTART())));
+}
+function unreadable(e) {
+  return e && e.status === 404
+    ? t("ArcadeDMD a été lancé avant la mise à jour de ses fichiers et ne connaît pas encore cet onglet. ", "ArcadeDMD was started before its files were updated and does not know this tab yet. ") + RESTART()
+    : t("Réglages illisibles.", "Settings unreadable.");
 }
 function toast(text, ms) {
   const old = document.querySelector(".toast");
@@ -73,6 +92,7 @@ const ICONS = {
   ecrans: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
   emulateurs: '<rect x="2" y="7" width="20" height="11" rx="5"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="16" cy="11.5" r="1"/><circle cx="18" cy="13.5" r="1"/>',
   frontal: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+  succes: '<path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3M12 14v4M8 20h8"/>',
   debogage: '<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>',
   journal: '<path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/>',
 };
@@ -336,6 +356,8 @@ async function poll() {
     if (s.lang && s.lang !== APP.lang) { APP.lang = s.lang; document.documentElement.lang = s.lang; buildTabs(); route(); }
     else if (fresh) route();
     $("ver").textContent = s.version;
+    staleBanner(s.version);
+    if (s.quitting) { try { window.close(); } catch (e) { /* the browser decides / le navigateur décide */ } }
     if (s.goto) {                       // the icon's menu asked for a tab / le menu de l'icône demande un onglet
       if (APP.gotoSeen === undefined) APP.gotoSeen = s.goto[0];
       else if (s.goto[0] > APP.gotoSeen) { APP.gotoSeen = s.goto[0]; if (s.goto[1]) location.hash = s.goto[1]; }

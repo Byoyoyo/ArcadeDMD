@@ -18,6 +18,8 @@ from dmd import app, learn, setup_tools  # noqa: E402
 from dmd.canvas import Canvas, Font  # noqa: E402
 from dmd.i18n import tr, set_language  # noqa: E402
 
+STAMP = app.files_stamp(ROOT)                 # the files this ArcadeDMD starts with (1.41) / les fichiers de ce lancement
+
 USAGE_FR = """ArcadeDMD : affiche score, vies et crédits des jeux MAME sur une dalle LED 128x32.
 
 Usage :
@@ -313,6 +315,15 @@ def main(argv):
         if lock is None:
             from dmd import gui
             url = gui.running_url(ROOT)
+            if url and gui.running_stale(url, app.VERSION, STAMP):
+                # extracted over an ArcadeDMD that runs: the one running still has the old files in memory (1.41)
+                # extrait par-dessus un ArcadeDMD qui tourne : celui qui tourne a encore les anciens fichiers en mémoire
+                from dmd import robot
+                log(tr("l'ArcadeDMD qui tourne a été lancé avant la mise à jour de ses fichiers, il laisse la place",
+                       "the ArcadeDMD that runs was started before its files were updated, it leaves its place"))
+                if robot.engine_quit(ROOT):
+                    lock = app.single_instance()
+        if lock is None:
             if url and gui.open_window(url):  # the one running shows its window (1.37) / celui qui tourne se montre
                 log(tr("ArcadeDMD tourne déjà, sa fenêtre s'ouvre.", "ArcadeDMD is already running, its window opens."))
             else:
@@ -368,6 +379,7 @@ def start_window(cfg, log, open_now=False):
     from dmd import gui, tray as traymod
     try:
         panel = gui.ControlPanel(ROOT, log, app.VERSION)
+        panel.files = STAMP
     except Exception as e:
         log(tr(f"fenêtre d'ArcadeDMD indisponible ({e})", f"ArcadeDMD's window unavailable ({e})"))
         return None, None
@@ -381,6 +393,7 @@ def start_window(cfg, log, open_now=False):
         panel.quitting = True
         if panel.engine is not None:
             panel.engine.quit = True
+        gui.close_windows()                                   # its window closes with it (1.41) / sa fenêtre se ferme avec lui
 
     def restart():
         log(tr("ArcadeDMD repart, demandé depuis la fenêtre ou l'icône", "ArcadeDMD restarts, asked from the window or the icon"))

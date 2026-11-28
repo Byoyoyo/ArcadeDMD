@@ -15,6 +15,7 @@ Modifie-le avec le Bloc-notes. Un chemin prend des doubles barres obliques inver
 | `intro` | voir plus bas | le logo du jeu quand un jeu démarre |
 | `frontend` | `{"use": "auto", "retrobat": ""}` | d'où viennent les logos des jeux. `"auto"` prend LaunchBox, sinon RetroBat. `"launchbox"`, `"retrobat"` ou `"none"` en imposent un. `"retrobat"` est le dossier de RetroBat quand il n'est pas trouvé tout seul (onglet Frontal de la fenêtre) |
 | `window` | `{"enabled": true}` | `false` coupe la fenêtre et l'icône près de l'horloge |
+| `retroachievements` | `{"enabled": false, "user": "", "key": "", "every": 15}` | le compte RetroAchievements dont les succès débloqués sont annoncés sur le fronton, réglé dans l'onglet Succès de la fenêtre. Voir [[Succès RetroAchievements]] |
 
 ### `intro`
 
